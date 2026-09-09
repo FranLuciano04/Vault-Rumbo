@@ -14,6 +14,9 @@ Trabajo de Campo 2026 · Universidad de Morón · Equipo: Paloma Patiño, Nahuel
 - **Templater** o Core Templates — plantillas de `_plantillas/`.
 - **Dataview** — consultas de estado en los MOC.
 
+## Skills de Claude Code
+Las skills propias de Rumbo se versionan en `.claude/skills/` y se cargan automáticamente al abrir Claude Code desde el repositorio. El catálogo y las dependencias externas están en [Skills compartidas](<00-Inicio/Skills compartidas.md>).
+
 ## Sincronización
 El vault es un repositorio Git. `pull` al abrir, commit frecuente, push al terminar.
 Ver [Trabajo en equipo — Git y memoria](<00-Inicio/Trabajo en equipo — Git y memoria.md>) y `00-Inicio/Guía del Vault.md → §3`.

@@ -12,8 +12,9 @@ Al iniciar cada sesión:
 2. Si el árbol está limpio, ejecutar `git pull --ff-only origin main` para trabajar sobre la última versión.
 3. Leer `00-Inicio/Estado del proyecto.md`.
 4. Leer `06-Desarrollo/Claude Code — memoria del proyecto.md`.
-5. Leer solo las notas relacionadas con la tarea, entrando por el MOC correspondiente.
-6. Consultar las decisiones `DEC-` relacionadas antes de proponer o implementar un cambio.
+5. Leer `00-Inicio/Skills compartidas.md`, comprobar las skills requeridas y avisar si falta alguna externa o si hace falta reiniciar para cargar una nueva.
+6. Leer solo las notas relacionadas con la tarea, entrando por el MOC correspondiente.
+7. Consultar las decisiones `DEC-` relacionadas antes de proponer o implementar un cambio.
 
 No cargar todo el vault por defecto. Usar rutas, enlaces `[[ ]]`, prefijos e índices para aplicar revelación progresiva.
 
@@ -23,6 +24,7 @@ No cargar todo el vault por defecto. Usar rutas, enlaces `[[ ]]`, prefijos e ín
 |---|---|
 | Estado, próximos pasos y bloqueos | `00-Inicio/Estado del proyecto.md` |
 | Forma de trabajo del equipo | `00-Inicio/Trabajo en equipo — Git y memoria.md` |
+| Skills requeridas y compartidas | `00-Inicio/Skills compartidas.md` y `.claude/skills/` |
 | Necesidades y límites del negocio | `01-Relevamiento/Relevamiento — Fuente de verdad.md` |
 | Casos de uso y reglas | `02-Analisis/MOC — Casos de uso.md` |
 | Entidades y relaciones | `03-Dominio/MOC — Modelo de dominio.md` |
@@ -61,6 +63,15 @@ Una contradicción relevante se señala y se resuelve mediante una `DEC-`; no se
 - No editar en paralelo un bloque Mermaid compartido; comprobar primero su responsable y el estado del archivo.
 - No guardar secretos, tokens, credenciales ni archivos `.env` en Git.
 - No modificar `git config user.name` ni `user.email`: cada commit debe conservar la identidad configurada por la persona que usa la sesión.
+
+## Skills compartidas
+
+- Las skills específicas de Rumbo viven en `.claude/skills/<nombre>/SKILL.md` y se comparten mediante Git; después de un pull no se instalan por separado.
+- Al iniciar cada sesión, comparar `00-Inicio/Skills compartidas.md` con las skills disponibles.
+- Si falta una skill externa marcada como requerida, avisar con su finalidad, fuente y comando de instalación antes de una tarea que dependa de ella.
+- Toda skill agregada, instalada, actualizada o eliminada debe pasar por `/gestionar-skills`, actualizar el catálogo y quedar registrada en un commit.
+- No copiar skills personales o de terceros sin permiso y licencia compatible.
+- Si se crea por primera vez `.claude/skills/` durante una sesión, indicar que Claude Code debe reiniciarse una vez.
 
 ## Cómo actualizar el cerebro
 

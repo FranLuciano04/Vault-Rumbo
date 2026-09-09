@@ -143,8 +143,9 @@ Claude Code iniciado desde la raíz lee `CLAUDE.md` automáticamente. En otro ch
 
 1. [[Estado del proyecto]].
 2. [[Claude Code — memoria del proyecto]].
-3. El MOC o las notas específicas de la tarea.
-4. Las `DEC-` relacionadas.
+3. [[Skills compartidas]] para comprobar capacidades requeridas.
+4. El MOC o las notas específicas de la tarea.
+5. Las `DEC-` relacionadas.
 
 Prompt inicial sugerido:
 

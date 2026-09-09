@@ -14,6 +14,7 @@ actualizado: 09/09/26
 
 ## 🧭 Empezar acá
 - 🤝 [[Trabajo en equipo — Git y memoria]] — rutina diaria para Git, Obsidian y contexto
+- 🧰 [[Skills compartidas]] — catálogo, instalación y disponibilidad para Claude
 - 📚 [[Guía del Vault]] — cómo trabajamos (léela una vez)
 - 📊 [[Estado del proyecto]] — dónde estamos hoy y qué falta
 - 🗓️ [[Cronograma y PC]] — puntos de control
