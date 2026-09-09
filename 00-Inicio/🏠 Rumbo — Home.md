@@ -13,6 +13,7 @@ actualizado: 09/09/26
 > Esta nota es la **puerta de entrada** del vault y el mejor primer contexto para dar a Claude (empezá por acá, no por todo el vault → [[Contexto eficiente con Claude (ahorro de tokens)]]).
 
 ## 🧭 Empezar acá
+- 🤝 [[Trabajo en equipo — Git y memoria]] — rutina diaria para Git, Obsidian y contexto
 - 📚 [[Guía del Vault]] — cómo trabajamos (léela una vez)
 - 📊 [[Estado del proyecto]] — dónde estamos hoy y qué falta
 - 🗓️ [[Cronograma y PC]] — puntos de control
