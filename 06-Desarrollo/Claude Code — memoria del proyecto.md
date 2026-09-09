@@ -1,0 +1,36 @@
+---
+tipo: referencia
+estado: formalizado
+responsable: equipo
+actualizado: 09/09/26
+---
+# Claude Code — memoria del proyecto
+
+> Resumen **lean** que se le da a Claude como contexto inicial y que se replica en el `CLAUDE.md` del repo de código (PC2). **Fuente de verdad = este vault; el `CLAUDE.md` es un reflejo/puntero.** Mantener corto: ver por qué en [[Contexto eficiente con Claude (ahorro de tokens)]].
+
+## Qué es Rumbo
+CRM para agencias de turismo PyME. Digitaliza el circuito consulta → cotización → reserva → pagos/alertas → post-venta. Ver [[🏠 Rumbo — Home]].
+
+## Convenciones (no negociables)
+- Dominio en **español (Argentina)** con tildes; nombres de entidad = lenguaje ubicuo (`Reseña`, `Cotización`).
+- Moneda **ARS** · fechas **dd/mm/aa**.
+- Diagramas en **Mermaid** (texto, versionable en Git). No imágenes para diagramas de diseño.
+- Comisión automática = [[RN-01 Comisión automática]].
+
+## Stack
+React (web) · React Native (mobile) · API REST/JSON · PostgreSQL · Claude. Ver [[DEC-0001 Stack tecnológico]].
+
+## Dominio (punteros, no copiar)
+10 entidades en `03-Dominio/Entidades/`. Empezar por [[MOC — Modelo de dominio]] y bajar a la entidad puntual que se necesite.
+
+## Fuera de alcance (no implementar)
+Pagos online, publicación automática en redes, integración GDS/mayoristas, facturación (fase 2). Ver [[Alcance y fuera de alcance]].
+
+## Cómo darme contexto sin gastar tokens
+1. Pasame primero el MOC/resumen, no el vault entero.
+2. Referenciá por ruta/ID (`leé DEC-0001`), dejá que abra el archivo.
+3. Al terminar, volcá el resultado a [[Estado del proyecto]] o a una `DEC-`.
+
+## Vínculo código ↔ decisiones (PC2+)
+- Commits referencian el ID: `feat(pagos): comisión automática (RN-01, DEC-0001)`.
+- Cada `DEC-` que cambia código anota `rama:` y `commits:`.

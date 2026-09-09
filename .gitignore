@@ -1,0 +1,11 @@
+# Preferencias locales de cada integrante (generan conflictos falsos)
+.obsidian/workspace.json
+.obsidian/workspace-mobile.json
+.obsidian/cache
+.trash/
+
+# Sistema
+.DS_Store
+Thumbs.db
+
+# Se versiona el resto de .obsidian/ (plugins y config compartida del equipo)
