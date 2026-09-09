@@ -9,7 +9,7 @@ actualizado: 09/09/26
 
 tags:: #tipo/referencia #estado/formalizado #pc/pc1
 
-> Síntesis del relevamiento (`rumbo-relevamiento.docx`). **Base de todo el análisis**: si algo del dominio contradice esto, esto manda (o se abre una `DEC-`). Documento fuente en `_adjuntos/`.
+> Síntesis del relevamiento. **Base de todo el análisis**: si algo del dominio contradice esto, esto manda (o se abre una `DEC-`). Fuentes: [[Rumbo — relevamiento.docx|documento DOCX]] y [[Rumbo — relevamiento.pptx|presentación PPTX]].
 
 ## Problema
 La agencia trabaja con papel y Excel: se pierden ventas, se olvidan cobros y no queda memoria del cliente. El activo son los clientes fieles; Excel y los CRM genéricos no entienden reservas, comisiones, cuotas ni vencimientos del turismo.

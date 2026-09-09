@@ -10,6 +10,8 @@ tags:: #tipo/referencia #estado/formalizado
 
 Trabajo de Campo 2026 — 2° cuatrimestre. Fechas `dd/mm/aa`.
 
+Fuentes: [[Rumbo — cronograma.docx|cronograma completado]] · [[Modelo institucional — cronograma de actividades.docx|modelo institucional]]. Esta nota contiene las fechas vigentes y corrige las semanas 14 a 16 del DOCX.
+
 | Semana | Fecha | Hito |
 |---|---|---|
 | 4 | 18/09/26 | — |

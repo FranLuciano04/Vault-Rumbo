@@ -19,6 +19,7 @@ actualizado: 09/09/26
 
 ## 🔍 Relevamiento (fuente de verdad del negocio)
 - [[Relevamiento — Fuente de verdad]] · [[Objetivos del sistema]] · [[Alcance y fuera de alcance]] · [[Actores]]
+- Fuentes y documentos originales: [[Índice de adjuntos]]
 
 ## 🧩 Análisis
 - [[MOC — Casos de uso]] · Reglas: [[RN-01 Comisión automática]]
