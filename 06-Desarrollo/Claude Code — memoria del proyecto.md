@@ -18,7 +18,12 @@ CRM para agencias de turismo PyME. Digitaliza el circuito consulta → cotizaci�
 - Comisión automática = [[RN-01 Comisión automática]].
 
 ## Stack
-React (web) · React Native (mobile) · API REST/JSON · PostgreSQL · Claude. Ver [[DEC-0001 Stack tecnológico]].
+- Backend: FastAPI + PostgreSQL + LangChain; dependencias con uv.
+- Web: React + TypeScript + Vite; TanStack Query + Axios.
+- Mobile: React Native + Expo + EAS Build; comparte Query/Axios.
+- Monorepo: pnpm workspaces (`apps/web`, `apps/mobile`, `packages/shared`) y `backend/` con uv.
+- Contrato compartido: OpenAPI → openapi-typescript; validaciones con zod.
+- Infraestructura de despliegue a definir; on-premise no está aprobado. Detalle y herramientas de calidad/pruebas: [[DEC-0001 Stack tecnológico]].
 
 ## Dominio (punteros, no copiar)
 10 entidades en `03-Dominio/Entidades/`. Empezar por [[MOC — Modelo de dominio]] y bajar a la entidad puntual que se necesite.

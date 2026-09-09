@@ -15,26 +15,41 @@ tags:: #tipo/analisis #estado/en-revision #pc/pc1
 ## Vista de despliegue
 ```mermaid
 flowchart LR
-    subgraph Cliente
-      Web["Web SPA (React)"]
-      Mobile["Mobile (React Native)"]
+    subgraph Monorepo
+      Web["apps/web<br/>React + TypeScript + Vite"]
+      Mobile["apps/mobile<br/>React Native + Expo"]
+      Shared["packages/shared<br/>Tipos + zod + Axios + hooks"]
+      API["backend<br/>FastAPI + LangChain"]
     end
-    API["API REST / JSON"]
     DB[("PostgreSQL")]
-    IA["Claude (IA integrada)"]
+    Claude["Claude<br/>IA integrada"]
+    OpenAPI["Schema OpenAPI"]
+    EAS["EAS Build<br/>APK / IPA"]
+    CI["GitHub Actions<br/>calidad + pruebas + seguridad"]
+    Deploy["Infraestructura de despliegue<br/>(a definir)"]
+
+    Web --> Shared
+    Mobile --> Shared
     Web --> API
     Mobile --> API
     API --> DB
-    API --> IA
+    API --> Claude
+    API --> OpenAPI
+    OpenAPI -. openapi-typescript .-> Shared
+    Mobile --> EAS
+    CI -. deploy condicionado .-> Deploy
 ```
 
 ## Componentes
-- **Web SPA (React):** back-office del agente/admin.
-- **Mobile (React Native):** acceso rápido a agenda, alertas y clientes.
-- **API REST (JSON):** única puerta al dominio; sirve a web y mobile.
+- **Web (React + TypeScript + Vite):** back-office del agente/admin.
+- **Mobile (React Native + Expo):** acceso rápido a agenda, alertas y clientes; EAS Build genera los binarios.
+- **Paquete compartido:** tipos OpenAPI, validaciones zod, Axios y hooks de TanStack Query para ambas aplicaciones.
+- **FastAPI:** única puerta al dominio; sirve JSON a web y mobile e integra Claude mediante LangChain.
 - **PostgreSQL:** persistencia relacional de las 10 entidades → [[DGM-ER]].
-- **Claude:** IA integrada (cotizador asistido, propuestas de contenido). No decide por el agente ([[Alcance y fuera de alcance]]).
+- **GitHub Actions:** ejecuta lint, type-checking, pruebas y controles de seguridad en cada push.
 
 ## Pendiente
 - Autenticación y roles ([[Usuario]]). `#accion/decidir`
-- Definir hosting y estructura de repos.
+- Definir la infraestructura y el mecanismo de despliegue. El servidor on-premise es solo una alternativa; Nginx y el runner self-hosted dependen de esa decisión. `#accion/decidir`
+- Definir la capa de persistencia y migraciones de PostgreSQL.
+- Elegir Dependabot o Renovate.

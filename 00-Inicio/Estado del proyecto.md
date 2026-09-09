@@ -31,6 +31,9 @@ actualizado: 09/09/26
 
 ## Bitácora de decisiones recientes
 - 09/09/26 — Se adopta Claude como agente de IA (unánime). Se crea el vault y sus convenciones. Ver [[Guía del Vault]].
+- 09/09/26 — Nahuel propone el stack técnico completo: FastAPI/PostgreSQL/LangChain, React y React Native, monorepo TypeScript/Python y pipeline de calidad. Queda en revisión en [[DEC-0001 Stack tecnológico]].
 
 ## Bloqueos / a decidir
-- _(nada por ahora — marcar con `#accion/decidir` en la nota correspondiente)_
+- Fórmula de comisión → [[RN-01 Comisión automática]].
+- Relaciones Viaje–Hotel–Reseña → [[MOC — Modelo de dominio]].
+- Autenticación e infraestructura de despliegue → [[ARQ — Vista general]]. El servidor on-premise es una alternativa pendiente.
