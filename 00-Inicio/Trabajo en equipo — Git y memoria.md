@@ -139,7 +139,7 @@ La sesión termina cuando el cambio y su contexto están en GitHub. Para documen
 
 ## Trabajar con Claude sin perder contexto
 
-Al iniciar una conversación, pedirle que lea:
+Claude Code iniciado desde la raíz lee `CLAUDE.md` automáticamente. En otro chat o herramienta, pedirle que lea primero ese archivo. El orden de contexto es:
 
 1. [[Estado del proyecto]].
 2. [[Claude Code — memoria del proyecto]].

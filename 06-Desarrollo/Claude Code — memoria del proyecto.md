@@ -6,7 +6,7 @@ actualizado: 09/09/26
 ---
 # Claude Code — memoria del proyecto
 
-> Resumen **lean** que se le da a Claude como contexto inicial y que se replica en el `CLAUDE.md` del repo de código (PC2). **Fuente de verdad = este vault; el `CLAUDE.md` es un reflejo/puntero.** Mantener corto: ver por qué en [[Contexto eficiente con Claude (ahorro de tokens)]].
+> Resumen **lean** del proyecto. El `CLAUDE.md` de la raíz define cómo entrar en contexto y apunta a esta nota. **Fuente de verdad = este vault; `CLAUDE.md` y esta memoria son reflejos/punteros.** Mantener corto: ver por qué en [[Contexto eficiente con Claude (ahorro de tokens)]].
 
 ## Qué es Rumbo
 CRM para agencias de turismo PyME. Digitaliza el circuito consulta → cotización → reserva → pagos/alertas → post-venta. Ver [[🏠 Rumbo — Home]].

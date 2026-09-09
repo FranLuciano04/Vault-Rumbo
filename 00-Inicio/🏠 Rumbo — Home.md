@@ -36,7 +36,7 @@ actualizado: 09/09/26
 - [[MOC — Decisiones (ADR)]] · [[ARQ — Vista general]]
 
 ## 💻 Desarrollo (se activa en PC2)
-- [[Claude Code — memoria del proyecto]] · [[Bitácora técnica]]
+- [[CLAUDE|CLAUDE.md — protocolo de sesión]] · [[Claude Code — memoria del proyecto]] · [[Bitácora técnica]]
 
 ---
 ### Convenciones núcleo (recordatorio)
