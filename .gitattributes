@@ -1,0 +1,4 @@
+# Normalizar finales de línea a LF para diffs limpios (Mermaid incluido)
+* text=auto eol=lf
+*.md text eol=lf
+*.json text eol=lf
