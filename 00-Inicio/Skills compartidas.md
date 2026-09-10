@@ -25,7 +25,10 @@ Los plugins, las skills sincronizadas desde una cuenta y otras dependencias exte
 |---|---|---|---|---|---|---|
 | gestionar-skills | proyecto | requerida | 1.0.0 | `.claude/skills/gestionar-skills/SKILL.md` | `/gestionar-skills` o automática | Incorporar, registrar, verificar y compartir skills |
 
-No hay plugins ni skills externas requeridas registradas actualmente.
+## Dependencias externas (no son skills)
+| Herramienta | Estado | Fuente / instalación | Para qué |
+|---|---|---|---|
+| pandoc | requerida al compilar entregables | `winget install --id JohnMacFarlane.Pandoc` (Windows) · https://pandoc.org/installing.html | Generar los `.docx` entregables desde los `.md`. Ver [[Entregables — índice]] y [[Especificación de casos de uso — flujo]]. Solo la necesita quien compila el entregable. |
 
 ## Qué debe hacer Claude en cada sesión
 

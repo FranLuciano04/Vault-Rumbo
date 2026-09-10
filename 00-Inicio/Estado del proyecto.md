@@ -10,7 +10,7 @@ actualizado: 09/09/26
 > Memoria externa del equipo (y de Claude). Se actualiza en cada **sync semanal**. Es lo primero que se lee al retomar. Mantener **corto**.
 
 ## Fase actual
-**Análisis y diseño → rumbo a PC1 (23/10/26).** Próximo: diagrama de clases, ER, actividad, arquitectura y prototipo UI.
+**Análisis y diseño → rumbo a PC1 (23/10/26).** En curso: especificación de los casos de uso (repartida, ver [[MOC — Casos de uso]]). Próximo: diagrama de clases, ER, actividad, arquitectura y prototipo UI.
 
 ## Roles de esta quincena
 - **Coordinador de vault:** _(a asignar)_
@@ -20,7 +20,7 @@ actualizado: 09/09/26
 ## Checklist PC1 — modelo UML completo
 - [ ] `01-Relevamiento/` formalizado
 - [ ] 4 actores formalizados
-- [ ] Casos de uso núcleo + diagrama de casos de uso
+- [ ] Casos de uso completos (catálogo de 24 CU + [[CU-01 De la consulta a la venta|núcleo]]) especificados + [[DGM — Casos de uso|diagrama de casos de uso]]
 - [ ] 10 entidades formalizadas (Usuario, Cliente, Oportunidad, Viaje, Pago, Hotel, Reseña, Alerta, Cotización, ContenidoRed)
 - [ ] [[MOC — Modelo de dominio|Diagrama de clases]] + [[DGM-ER]] coherentes
 - [ ] Diagramas de actividad de flujos clave
@@ -30,6 +30,7 @@ actualizado: 09/09/26
 > Cierre PC1: la consulta `#pc/pc1 AND #estado/borrador` debe dar **cero** en lo de arriba.
 
 ## Bitácora de decisiones recientes
+- 10/09/26 — Se define el catálogo completo de casos de uso (24 CU + núcleo) con diagrama y se reparte la especificación entre los tres. Ver [[MOC — Casos de uso]] y [[Especificación de casos de uso — flujo]]. Nuevo flujo md-fuente / docx-derivado y sección [[Entregables — índice]].
 - 10/09/26 — Francisco resuelve (en revisión, ratificar en sync): [[DEC-0003 Relación Viaje–Hotel y Reseña]] (N:M + Reseña sobre Hotel), [[DEC-0004 Comisión configurable por porcentaje]] y [[DEC-0005 Autenticación y modelo de roles]]. Confirma además el stack de [[DEC-0001 Stack tecnológico]].
 - 09/09/26 — Se adopta Claude como agente de IA (unánime). Se crea el vault y sus convenciones. Ver [[Guía del Vault]].
 - 09/09/26 — Nahuel propone el stack técnico completo: FastAPI/PostgreSQL/LangChain, React y React Native, monorepo TypeScript/Python y pipeline de calidad. Queda en revisión en [[DEC-0001 Stack tecnológico]].

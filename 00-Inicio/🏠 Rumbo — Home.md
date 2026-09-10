@@ -24,7 +24,11 @@ actualizado: 09/09/26
 - Fuentes y documentos originales: [[Índice de adjuntos]]
 
 ## 🧩 Análisis
-- [[MOC — Casos de uso]] · Reglas: [[RN-01 Comisión automática]]
+- [[MOC — Casos de uso]] · [[DGM — Casos de uso]] · Reglas: [[RN-01 Comisión automática]]
+- Flujo de trabajo: [[Especificación de casos de uso — flujo]]
+
+## 📦 Entregables (a profesores)
+- [[Entregables — índice]] — `.docx` generados desde los `.md`
 
 ## 🗂️ Modelo de dominio (10 entidades)
 - [[MOC — Modelo de dominio]]

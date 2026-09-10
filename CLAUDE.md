@@ -27,6 +27,7 @@ No cargar todo el vault por defecto. Usar rutas, enlaces `[[ ]]`, prefijos e ín
 | Skills requeridas y compartidas | `00-Inicio/Skills compartidas.md` y `.claude/skills/` |
 | Necesidades y límites del negocio | `01-Relevamiento/Relevamiento — Fuente de verdad.md` |
 | Casos de uso y reglas | `02-Analisis/MOC — Casos de uso.md` |
+| Especificar un CU y entregables | `00-Inicio/Especificación de casos de uso — flujo.md` y `07-Entregables/` |
 | Entidades y relaciones | `03-Dominio/MOC — Modelo de dominio.md` |
 | Módulos funcionales | `04-Modulos/MOD-*.md` |
 | Decisiones técnicas | `05-Diseño/MOC — Decisiones (ADR).md` |
@@ -85,6 +86,8 @@ Todo resultado que deba sobrevivir al chat se guarda según su naturaleza:
 | Cambio de dominio | entidad correspondiente y luego sus diagramas derivados |
 | Cambio arquitectónico o de stack | `ARQ — Vista general.md` y una `DEC-` |
 | Avance de código desde PC2 | `06-Desarrollo/Bitácora técnica.md` |
+| Especificación de un caso de uso | su `02-Analisis/Casos de uso/CU-xx.md` (fuente `.md`); nunca en el `.docx` |
+| Entregable a profesores | generar el `.docx` en `07-Entregables/` desde los `.md`; no editarlo a mano |
 | Nueva convención estable para los agentes | memoria lean y, solo si es necesario, este archivo |
 
 Actualizar primero la nota fuente y después sus MOC, enlaces o diagramas. Evitar copiar el mismo contenido en varios lugares; usar punteros.

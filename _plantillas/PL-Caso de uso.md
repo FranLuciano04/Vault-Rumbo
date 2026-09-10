@@ -15,7 +15,7 @@ tags:: #tipo/caso-uso #estado/borrador #pc/pc1
 <Qué logra el actor con este caso de uso, en 1-2 líneas.>
 
 ## Actor principal
-[[Actores|<Agente/Asesor · Admin · Marketing · Cliente>]]
+[[Actores|<empleado · admin · dueño · cliente (externo)>]]
 
 ## Actores secundarios
 -
