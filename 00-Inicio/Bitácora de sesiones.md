@@ -18,7 +18,7 @@ La **persona** de cada sesión es quien la corre, identificada por su identidad 
 | Integrante | `user.name` de Git |
 |---|---|
 | Francisco | `FranLucianoo` |
-| Paloma | _(a completar en su primera sesión)_ |
+| Paloma | `palomap2003` |
 | Nahuel | _(a completar en su primera sesión)_ |
 
 ## Formato
