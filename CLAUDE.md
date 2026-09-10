@@ -98,13 +98,14 @@ Antes de considerar terminada una tarea:
 
 1. Verificar que el resultado solicitado esté completo.
 2. Actualizar la memoria correspondiente y retirar los `#accion/...` que realmente se hayan resuelto.
-3. Revisar `git diff` y `git status`.
-4. Comprobar enlaces internos y render de Mermaid si fueron modificados.
-5. Crear un commit pequeño y descriptivo con la identidad Git del usuario actual.
-6. Ejecutar `git pull --rebase origin main` para integrar cambios remotos.
-7. Resolver cualquier conflicto conservando ambos aportes y volver a validar.
-8. Ejecutar `git push origin main`, salvo que el usuario haya pedido explícitamente mantener el trabajo local.
-9. Informar qué cambió, qué se verificó, el hash del commit y cualquier decisión todavía pendiente.
+3. Registrar una entrada breve en `00-Inicio/Bitácora de sesiones.md` (fecha, quién, qué se hizo, commits, pendientes). La memoria compartida es el vault, no la memoria privada de cada Claude.
+4. Revisar `git diff` y `git status`.
+5. Comprobar enlaces internos y render de Mermaid si fueron modificados.
+6. Crear un commit pequeño y descriptivo con la identidad Git del usuario actual.
+7. Ejecutar `git pull --rebase origin main` para integrar cambios remotos.
+8. Resolver cualquier conflicto conservando ambos aportes y volver a validar.
+9. Ejecutar `git push origin main`, salvo que el usuario haya pedido explícitamente mantener el trabajo local.
+10. Informar qué cambió, qué se verificó, el hash del commit y cualquier decisión todavía pendiente.
 
 Para documentación de PC1 se trabaja con commits pequeños sobre `main`. Desde PC2, el código se desarrolla en ramas `feature/...` y se integra mediante pull requests; los commits deben referenciar las reglas o decisiones relevantes.
 

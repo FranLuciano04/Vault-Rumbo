@@ -17,6 +17,7 @@ actualizado: 09/09/26
 - 🧰 [[Skills compartidas]] — catálogo, instalación y disponibilidad para Claude
 - 📚 [[Guía del Vault]] — cómo trabajamos (léela una vez)
 - 📊 [[Estado del proyecto]] — dónde estamos hoy y qué falta
+- 🧾 [[Bitácora de sesiones]] — qué hizo cada sesión (memoria compartida)
 - 🗓️ [[Cronograma y PC]] — puntos de control
 
 ## 🔍 Relevamiento (fuente de verdad del negocio)
