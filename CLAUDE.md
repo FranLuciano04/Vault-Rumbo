@@ -8,13 +8,15 @@ Este archivo es un mapa operativo. No reemplaza las fuentes de verdad y debe man
 
 Al iniciar cada sesión:
 
-1. Ejecutar `git status` y preservar cualquier cambio local existente.
-2. Si el árbol está limpio, ejecutar `git pull --ff-only origin main` para trabajar sobre la última versión.
-3. Leer `00-Inicio/Estado del proyecto.md`.
-4. Leer `06-Desarrollo/Claude Code — memoria del proyecto.md`.
-5. Leer `00-Inicio/Skills compartidas.md`, comprobar las skills requeridas y avisar si falta alguna externa o si hace falta reiniciar para cargar una nueva.
-6. Leer solo las notas relacionadas con la tarea, entrando por el MOC correspondiente.
-7. Consultar las decisiones `DEC-` relacionadas antes de proponer o implementar un cambio.
+1. **Identificar quién trabaja en la sesión** a partir de la identidad Git (`git config user.name`); si no queda clara, preguntar. Saludar por nombre y avisar si sus CU/tareas asignadas tienen algo pendiente. Ver el mapa en [[Bitácora de sesiones#Quién es quién]].
+2. Ejecutar `git status` y preservar cualquier cambio local existente.
+3. Si el árbol está limpio, ejecutar `git pull --ff-only origin main` para trabajar sobre la última versión.
+4. Leer `00-Inicio/Estado del proyecto.md`.
+5. Leer `00-Inicio/Bitácora de sesiones.md` (últimas entradas) para saber qué hizo cada uno.
+6. Leer `06-Desarrollo/Claude Code — memoria del proyecto.md`.
+7. Leer `00-Inicio/Skills compartidas.md`, comprobar las skills requeridas y avisar si falta alguna externa o si hace falta reiniciar para cargar una nueva.
+8. Leer solo las notas relacionadas con la tarea, entrando por el MOC correspondiente.
+9. Consultar las decisiones `DEC-` relacionadas antes de proponer o implementar un cambio.
 
 No cargar todo el vault por defecto. Usar rutas, enlaces `[[ ]]`, prefijos e índices para aplicar revelación progresiva.
 
