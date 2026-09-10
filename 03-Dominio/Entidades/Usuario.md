@@ -19,11 +19,14 @@ Persona que **opera** el sistema. Un mismo Usuario puede tener varios roles (PyM
 | id | UUID | Identificador |
 | nombre | String | Nombre |
 | email | String | Login |
-| rol | Enum | asesor · admin · marketing |
+| rol | Enum | admin · empleado · dueño — ver [[DEC-0005 Autenticación y modelo de roles]] y [[Actores]] |
 
 ## Relaciones
 - 1..* con [[Viaje]] — gestiona
-- 1..* con [[ContenidoRed]] — si rol marketing
+- 1..* con [[ContenidoRed]] — si tiene acceso al módulo de redes
+
+## Visibilidad
+Autorización a nivel de fila: el `empleado` ve solo lo que gestionó él; `admin` y `dueño` ven todo. El catálogo de [[Hotel|Hoteles]] y [[Reseña|Reseñas]] es compartido. Ver [[DEC-0005 Autenticación y modelo de roles]].
 
 ## Aparece en
 - [[Actores]] · [[MOC — Modelo de dominio]]

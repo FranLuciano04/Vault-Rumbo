@@ -76,14 +76,16 @@ classDiagram
     Oportunidad "1" --> "0..1" Viaje
     Viaje "1" --> "0..*" Pago
     Viaje "1" --> "0..*" Alerta
-    Viaje "*" --> "1..*" Hotel
+    Viaje "0..*" --> "0..*" Hotel : viaje_hotel
     Hotel "1" --> "0..*" Resena
     Usuario "1" --> "0..*" ContenidoRed
     Usuario "1" --> "0..*" Viaje : gestiona
 ```
 
+> Relación Viaje–Hotel (N:M) y objeto de la Reseña resueltos en [[DEC-0003 Relación Viaje–Hotel y Reseña]].
+
 ## Diagrama ER
 - Ver [[DGM-ER]] (modelo relacional para PostgreSQL).
 
 ## Pendientes de este diagrama
-- Confirmar cardinalidad Viaje–Hotel y si `Reseña` es de Viaje, de Hotel o ambos. `#accion/decidir`
+- Cardinalidad Viaje–Hotel (N:M) y objeto de la `Reseña` (Hotel) → decidido en [[DEC-0003 Relación Viaje–Hotel y Reseña]] (`en-revision`, ratificar en sync).

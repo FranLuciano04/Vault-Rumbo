@@ -22,8 +22,8 @@ Hotel vendido, con reseñas, para consultar y recomendar (catálogo).
 | categoria | String | Estrellas / tipo |
 
 ## Relaciones
-- *..1..* con [[Viaje]]
-- 1..* con [[Reseña]]
+- 0..* con [[Viaje]] (N:M vía `viaje_hotel`) — ver [[DEC-0003 Relación Viaje–Hotel y Reseña]]
+- 1 a 0..* con [[Reseña]] (un hotel puede tener muchas reseñas)
 
 ## Aparece en
 - [[CU-01 De la consulta a la venta]] (post-venta) · [[MOD-Catalogo-Hoteles]]

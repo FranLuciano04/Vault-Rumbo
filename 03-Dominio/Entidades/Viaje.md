@@ -23,12 +23,13 @@ Reserva concreta de un cliente: destino, fechas, categoría, estado y control ec
 | estado | Enum | armado · confirmado · en curso · finalizado |
 | precioVenta | Decimal (ARS) | Precio al cliente |
 | costoNeto | Decimal (ARS) | Costo del proveedor |
-| comision | Decimal (ARS) | Calculada — [[RN-01 Comisión automática]] |
+| comision | Decimal (ARS) | Calculada por % configurable — [[RN-01 Comisión automática]], [[DEC-0004 Comisión configurable por porcentaje]] |
 
 ## Relaciones
 - *..1 con [[Cliente]]
 - 0..1 con [[Oportunidad]] (origen)
-- 1..* con [[Pago]] · 1..* con [[Alerta]] · *..1..* con [[Hotel]]
+- 1..* con [[Pago]] · 1..* con [[Alerta]]
+- 0..* con [[Hotel]] (N:M vía `viaje_hotel`) — ver [[DEC-0003 Relación Viaje–Hotel y Reseña]]
 
 ## Aparece en
 - [[CU-01 De la consulta a la venta]] · [[MOD-Viajes]] · [[MOD-Economia-Pagos]]

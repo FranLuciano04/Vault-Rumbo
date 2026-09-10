@@ -30,10 +30,11 @@ actualizado: 09/09/26
 > Cierre PC1: la consulta `#pc/pc1 AND #estado/borrador` debe dar **cero** en lo de arriba.
 
 ## Bitácora de decisiones recientes
+- 10/09/26 — Francisco resuelve (en revisión, ratificar en sync): [[DEC-0003 Relación Viaje–Hotel y Reseña]] (N:M + Reseña sobre Hotel), [[DEC-0004 Comisión configurable por porcentaje]] y [[DEC-0005 Autenticación y modelo de roles]]. Confirma además el stack de [[DEC-0001 Stack tecnológico]].
 - 09/09/26 — Se adopta Claude como agente de IA (unánime). Se crea el vault y sus convenciones. Ver [[Guía del Vault]].
 - 09/09/26 — Nahuel propone el stack técnico completo: FastAPI/PostgreSQL/LangChain, React y React Native, monorepo TypeScript/Python y pipeline de calidad. Queda en revisión en [[DEC-0001 Stack tecnológico]].
 
 ## Bloqueos / a decidir
-- Fórmula de comisión → [[RN-01 Comisión automática]].
-- Relaciones Viaje–Hotel–Reseña → [[MOC — Modelo de dominio]].
-- Autenticación e infraestructura de despliegue → [[ARQ — Vista general]]. El servidor on-premise es una alternativa pendiente.
+- **Mecanismo de autenticación** (propia y/o Google OAuth) → [[DEC-0005 Autenticación y modelo de roles]].
+- **Infraestructura de despliegue** → [[ARQ — Vista general]]. El servidor on-premise es una alternativa pendiente.
+- **Ratificar en la sync** DEC-0003, DEC-0004, DEC-0005 y formalizar DEC-0001.

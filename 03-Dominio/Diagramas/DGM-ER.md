@@ -23,9 +23,19 @@ erDiagram
     OPORTUNIDAD ||--o| VIAJE : deriva
     VIAJE ||--o{ PAGO : tiene
     VIAJE ||--o{ ALERTA : dispara
-    VIAJE }o--|{ HOTEL : incluye
+    VIAJE ||--o{ VIAJE_HOTEL : incluye
+    HOTEL ||--o{ VIAJE_HOTEL : figura_en
     HOTEL ||--o{ RESENA : recibe
+    CLIENTE ||--o{ RESENA : deja
+    VIAJE ||--o{ RESENA : contextualiza
 ```
 
+> Relación N:M Viaje–Hotel modelada con la tabla intermedia `VIAJE_HOTEL`, y objeto de la Reseña (Hotel + Cliente, con Viaje opcional): ver [[DEC-0003 Relación Viaje–Hotel y Reseña]].
+
+## Tabla intermedia VIAJE_HOTEL
+- FK `viaje_id` → VIAJE, FK `hotel_id` → HOTEL.
+- Atributos: `check_in` (date), `check_out` (date), `orden` (int, itinerario).
+- La RESENA lleva FK `cliente_id`, `hotel_id` y `viaje_id` **nullable** (trazabilidad opcional).
+
 ## Pendiente
-- Tabla intermedia Viaje–Hotel (N:M). Claves foráneas y tipos. `#accion/decidir`
+- Confirmar si `VIAJE_HOTEL` usa PK compuesta `(viaje_id, hotel_id)` o `id` propio (necesario si el mismo hotel se repite en dos tramos del itinerario).

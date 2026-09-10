@@ -13,6 +13,9 @@ tags:: #tipo/modulo #estado/formalizado
 ## Decisiones
 - [[DEC-0001 Stack tecnológico]]
 - [[DEC-0002 Modelar la consulta como Oportunidad]]
+- [[DEC-0003 Relación Viaje–Hotel y Reseña]]
+- [[DEC-0004 Comisión configurable por porcentaje]]
+- [[DEC-0005 Autenticación y modelo de roles]]
 
 ## Todas (Dataview)
 ```dataview
