@@ -1,6 +1,7 @@
 # Preferencias locales de cada integrante (generan conflictos falsos)
 .obsidian/workspace.json
 .obsidian/workspace-mobile.json
+.obsidian/graph.json
 .obsidian/cache
 .trash/
 
