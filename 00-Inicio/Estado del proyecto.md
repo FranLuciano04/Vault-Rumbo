@@ -18,16 +18,26 @@ actualizado: 09/09/26
 - **Escriba de decisiones:** _(a asignar)_
 
 ## Checklist PC1 — modelo UML completo
-- [ ] `01-Relevamiento/` formalizado
-- [ ] 4 actores formalizados
-- [ ] Casos de uso completos (catálogo de 24 CU + [[CU-01 De la consulta a la venta|núcleo]]) especificados + [[DGM — Casos de uso|diagrama de casos de uso]]
-- [ ] 10 entidades formalizadas (Usuario, Cliente, Oportunidad, Viaje, Pago, Hotel, Reseña, Alerta, Cotización, ContenidoRed)
-- [ ] [[MOC — Modelo de dominio|Diagrama de clases]] + [[DGM-ER]] coherentes
-- [ ] Diagramas de actividad de flujos clave
-- [ ] [[ARQ — Vista general]] en revisión/formalizado
-- [ ] DEC estructurales registradas
+> Herramientas: **diagramas UML en Mermaid** (versionable) · **prototipo UI en Figma** (MCP), con link + PNGs en [[Entregables — índice|07-Entregables]].
 
-> Cierre PC1: la consulta `#pc/pc1 AND #estado/borrador` debe dar **cero** en lo de arriba.
+### Obligatorio (piso del cronograma)
+- [ ] `01-Relevamiento/` formalizado
+- [ ] [[Actores]] formalizados (empleado, admin, dueño, cliente)
+- [ ] Especificación de los 24 CU + [[DGM — Casos de uso|diagrama de casos de uso]]
+- [ ] 10 entidades formalizadas (Usuario, Cliente, Oportunidad, Viaje, Pago, Hotel, Reseña, Alerta, Cotización, ContenidoRed)
+- [ ] [[MOC — Modelo de dominio|Diagrama de clases]] + [[DGM-ER]] coherentes (atributos, tipos, multiplicidades)
+- [ ] Diagramas de **actividad** de flujos clave ([[CU-01 De la consulta a la venta|CU-01]] + críticos)
+- [ ] [[ARQ — Vista general]] formalizada
+- [ ] DEC estructurales registradas y **ratificadas** (DEC-0001→0005)
+- [ ] Prototipo UI de pantallas clave (Figma)
+
+### Recomendado (buenas prácticas — refuerzan el modelo)
+- [ ] Diagramas de **secuencia** de CU clave (consulta→cotización→reserva, registrar pago)
+- [ ] Diagramas de **estado**: `Viaje`, `Oportunidad`, `Pago`
+- [ ] **Matriz de trazabilidad** (objetivo → CU → entidad → regla)
+- [ ] Catálogo de **reglas de negocio** ampliado (hoy solo [[RN-01 Comisión automática]])
+
+> Cierre PC1: la consulta `#pc/pc1 AND #estado/borrador` debe dar **cero** en lo obligatorio de arriba.
 
 ## Bitácora de decisiones recientes
 - 10/09/26 — Se define el catálogo completo de casos de uso (24 CU + núcleo) con diagrama y se reparte la especificación entre los tres. Ver [[MOC — Casos de uso]] y [[Especificación de casos de uso — flujo]]. Nuevo flujo md-fuente / docx-derivado y sección [[Entregables — índice]].
