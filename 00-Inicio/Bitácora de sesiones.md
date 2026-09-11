@@ -19,7 +19,7 @@ La **persona** de cada sesión es quien la corre, identificada por su identidad 
 |---|---|
 | Francisco | `FranLucianoo` |
 | Paloma | `palomap2003` |
-| Nahuel | _(a completar en su primera sesión)_ |
+| Nahuel | `Nahuel Viniegra` |
 
 ## Formato
 Es **obligatorio** nombrar a la persona que hizo la sesión.
@@ -29,6 +29,11 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Commits:** <hash>, <hash>
 - **Pendiente:** …
 ```
+
+## 11/09/26 — Nahuel (Claude Opus 4.8)
+- **Hecho:** **Rehecho el entregable DOCX de Casos de uso** en dos frentes. (1) **Diagrama** ([[DGM — Casos de uso]]): estaba compacto y con líneas cruzadas; se rehízo con óvalos por caso de uso, color por módulo, **generalización de roles** (`Admin`/`Dueño` *es-un* `Empleado`) y el `Pasajero/Cliente` movido a la derecha como actor externo con asociaciones etiquetadas (*recibe cotización* / *aporta reseña*). Tras comparar dagre vs **ELK**, se adoptó ELK (`mergeEdges` + `considerModelOrder`) por el ruteo ordenado. PNG regenerado en alta resolución e **incrustado** en el DOCX. (2) **DOCX**: estética **académica** (plantilla `reference.docx` migrada de Python a **PowerShell** `make-reference.ps1` — Python no estaba instalado: Cambria justificado, títulos navy con filete, A4 2,5 cm, **paginación** al pie), portada reescrita, y **bug de la imagen resuelto** (`--resource-path`). (3) **Contenido saneado**: el filtro del build ahora recorta toda la cocina interna (secciones `Revisión`/`Diagramas`/`Decisiones asociadas`, `tags::`, referencias `DEC-####` inline, notas meta y `#accion/...`); verificado **0 fugas**. Se reescribió el flujo A2 de [[CU-24 Iniciar sesión|CU-24]] (login con Google) en versión neutral, dejando el pendiente del mecanismo en su sección Revisión. Se instaló **pandoc 3.11**; se actualizaron [[Entregables — índice]], [[CONTINUAR — entregable Casos de uso]] y [[Skills compartidas]] (se agregó Node/mermaid-cli; se eliminó `make-reference.py`).
+- **Commits:** _(por completar al cerrar)_.
+- **Pendiente:** ⚠️ el bloque Mermaid usa `layout: elk`; si Obsidian no lo soporta, la vista previa del vault puede fallar (el render de verdad es el PNG del entregable). Confirmar con la cátedra la **fecha de entrega** y la **comisión**. Ratificar los 30 CU en la próxima sync.
 
 ## 11/09/26 — Francisco (Claude Opus 4.8)
 - **Hecho:** **Revisión cruzada de los 17 CU de Paloma y Nahuel** buscando inconsistencias de diseño y gaps de modelado. Resultados: (1) Se resolvió la contradicción de **visibilidad** (Paloma asumía Cliente/calendario globales; Nahuel, cartera propia) definiendo el modelo *lectura global + propiedad para organización* en [[DEC-0005 Autenticación y modelo de roles]] (agrega `asesor_asignado` a [[Cliente]], `responsable` a [[Oportunidad]]/[[Viaje]], `propietario` a [[Alerta]]). (2) Se creó la 12ª entidad **[[RequisitoDestino]]** para cerrar el gap de [[CU-15 Configurar recordatorios por destino]] (actor unificado a `admin`). (3) Se documentó la transición automática `Pago pendiente→vencido` en [[Pago]]. (4) Coherencia de [[Reseña]] entre [[CU-17 Registrar reseña de hotel|CU-17]] (nace `publicada`) y [[CU-29 Eliminar reseña|CU-29]] (baja lógica). (5) Interacción economía↔plan de cuotas ([[CU-10 Registrar economía del viaje|CU-10]] A4 / [[CU-11 Definir plan de cuotas|CU-11]] A5). Se actualizó [[MOC — Modelo de dominio]] (12 entidades, FKs de propiedad) y [[Estado del proyecto]]. **Luego se cruzó el relevamiento en crudo:** la mayoría ya estaba cubierta; se definió el **cotizador por scraping como fuera de alcance**, se creó **[[CU-30 Sugerir recontacto de clientes]]** (CRM proactivo acotado, con opt-out), se modeló el **vencimiento de pago a proveedor por hotel** en `viaje_hotel` ([[DEC-0003 Relación Viaje–Hotel y Reseña]]) y se sumó el **% pagado/checklist** a [[CU-12 Registrar cobro de un pago|CU-12]]. Total: **30 CU** (nuevos atributos: `Cliente.no_recontactar`, `Alerta.tipo=recontacto`, `viaje_hotel.vencimiento_pago_proveedor`).

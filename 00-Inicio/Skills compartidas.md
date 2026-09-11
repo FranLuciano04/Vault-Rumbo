@@ -2,7 +2,7 @@
 tipo: referencia
 estado: formalizado
 responsable: equipo
-actualizado: 09/09/26
+actualizado: 11/09/26
 ---
 
 # Skills compartidas
@@ -29,6 +29,9 @@ Los plugins, las skills sincronizadas desde una cuenta y otras dependencias exte
 | Herramienta | Estado | Fuente / instalación | Para qué |
 |---|---|---|---|
 | pandoc | requerida al compilar entregables | `winget install --id JohnMacFarlane.Pandoc` (Windows) · https://pandoc.org/installing.html | Generar los `.docx` entregables desde los `.md`. Ver [[Entregables — índice]] y [[Especificación de casos de uso — flujo]]. Solo la necesita quien compila el entregable. |
+| Node.js (npx) | requerida al renderizar diagramas | https://nodejs.org (LTS) · trae `npx` | Renderizar los diagramas Mermaid a imagen con `npx @mermaid-js/mermaid-cli` (motor ELK). Solo la necesita quien regenera un diagrama del entregable. |
+
+> **Sin Python:** la plantilla estética del `.docx` se genera con `07-Entregables/build/make-reference.ps1` (**PowerShell**, incluido en Windows, sin dependencias). No hace falta instalar Python.
 
 ## Qué debe hacer Claude en cada sesión
 

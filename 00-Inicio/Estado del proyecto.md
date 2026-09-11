@@ -2,7 +2,7 @@
 tipo: referencia
 estado: formalizado
 responsable: equipo
-actualizado: 09/09/26
+actualizado: 11/09/26
 ---
 
 # 📊 Estado del proyecto
@@ -38,6 +38,7 @@ Los tres tomamos **los tres roles** (Coordinador de vault · Guardián del domin
 > Cierre PC1: la consulta `#pc/pc1 AND #estado/borrador` debe dar **cero** en lo obligatorio de arriba.
 
 ## Bitácora de decisiones recientes
+- 11/09/26 — **Entregable DOCX de Casos de uso rehecho** (Nahuel). Diagrama ([[DGM — Casos de uso]]) rehecho con motor **ELK** (más legible), generalización de roles y actor externo aclarado, e **incrustado** en el DOCX (bug de rutas con espacios resuelto). Estética **académica** (plantilla `make-reference.ps1`, migrada de Python a PowerShell) y **contenido saneado**: el `.docx` ya no filtra cocina interna (DEC, notas de revisión, tags). Detalle en [[Entregables — índice]] y [[CONTINUAR — entregable Casos de uso]].
 - 11/09/26 — **Cruce del relevamiento en crudo** (Francisco). La mayoría del relevamiento ya estaba cubierta. Definiciones: (1) **cotizador automático por scraping** y detección de ofertas → **fuera de alcance PC1** ([[Alcance y fuera de alcance]]); el cotizador queda asistido ([[CU-06 Emitir cotización]]). (2) Del "detector de oportunidades" se conserva un **CRM proactivo** acotado → nuevo **[[CU-30 Sugerir recontacto de clientes]]** (clientes fieles inactivos, con opt-out `no_recontactar` en [[Cliente]] y tipo `recontacto` en [[Alerta]]). (3) **Vencimiento de pago a proveedor por hotel** → modelado en `viaje_hotel` ([[DEC-0003 Relación Viaje–Hotel y Reseña]]) con [[Alerta]] un mes antes; nota en [[CU-09 Armar itinerario de hoteles]]. (4) **% pagado / checklist** reflejado en [[CU-12 Registrar cobro de un pago]]. Total ahora **30 CU**.
 - 11/09/26 — **Revisión cruzada de los CU de Paloma y Nahuel** (Francisco). Se resolvió el **modelo de visibilidad** en [[DEC-0005 Autenticación y modelo de roles]]: *lectura global + propiedad para organización* (`Cliente`/`Oportunidad`/`Viaje`/`Pago` legibles por toda la agencia con vista personal; `Alerta` personal; catálogo compartido; config/moderación = `admin`). Se agregó la 12ª entidad **[[RequisitoDestino]]** (cierra el gap de modelado de [[CU-15 Configurar recordatorios por destino]], cuyo actor pasa a `admin`). Se alinearon [[CU-02 Registrar cliente|CU-02]], [[CU-03 Gestionar ficha del cliente|CU-03]], [[CU-17 Registrar reseña de hotel|CU-17]], [[CU-24 Iniciar sesión|CU-24]], [[CU-14 Ver y atender alertas del día|CU-14]], [[CU-10 Registrar economía del viaje|CU-10]] (A4 rebalanceo) y [[CU-11 Definir plan de cuotas|CU-11]] (A5). Todo queda **a ratificar en la sync con Paloma y Nahuel**.
 - 10/09/26 — Revisión de cobertura **ABM** de las entidades: se cubren gaps de ciclo de vida con **[[CU-27 Cancelar viaje]]** (Francisco; estado `cancelado`), **[[CU-28 Crear recordatorio manual]]** (Nahuel; tipo `manual`), **[[CU-29 Eliminar reseña]]** (Paloma; estado `oculta`) y anulación de un [[Pago]] (flujo alt. en [[CU-11 Definir plan de cuotas]]). CU-27 y CU-29 quedan como **borradores a validar por sus dueños**.

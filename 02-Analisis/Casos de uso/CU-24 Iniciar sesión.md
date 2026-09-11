@@ -4,7 +4,7 @@ estado: en-revision
 modulo: [seguridad]
 responsable: Nahuel
 pc: pc1
-actualizado: 10/09/26
+actualizado: 11/09/26
 ---
 # CU-24 Iniciar sesión
 
@@ -32,7 +32,7 @@ Autenticar a un [[Usuario]] y cargar su contexto de trabajo según el rol, aplic
 
 ## Flujos alternativos
 - **A1 — Credenciales inválidas:** el sistema rechaza el acceso y no abre sesión.
-- **A2 — Inicio con Google (OAuth):** _pendiente de decidir_ — mecanismo aún abierto en [[DEC-0005 Autenticación y modelo de roles]] `#accion/decidir`.
+- **A2 — Inicio con Google (OAuth):** alternativa de autenticación prevista mediante una cuenta de Google; una vez validada la identidad, el sistema abre la sesión igual que en el flujo principal.
 - **A3 — Cerrar sesión:** el [[Usuario]] cierra la sesión y el sistema descarta su contexto.
 
 ## Postcondiciones

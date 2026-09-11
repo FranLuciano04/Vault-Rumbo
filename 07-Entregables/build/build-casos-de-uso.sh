@@ -6,7 +6,9 @@ set -e
 
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 BUILD="$(mktemp -d)"
-OUT="$ROOT/07-Entregables/Casos de uso/Rumbo — Casos de uso.docx"
+# Salida por defecto: el entregable en el vault. Para una compilación de prueba,
+# exportar OUT_OVERRIDE con una ruta alternativa (no toca el docx del vault).
+OUT="${OUT_OVERRIDE:-$ROOT/07-Entregables/Casos de uso/Rumbo — Casos de uso.docx}"
 
 # Detectar pandoc: PATH, o instalación típica de winget/local en Windows.
 if command -v pandoc >/dev/null 2>&1; then
@@ -20,33 +22,47 @@ else
   exit 1
 fi
 
-# Filtra cada .md: quita frontmatter YAML, líneas tags::, la sección '## 🔎 Revisión'
-# (hacia abajo), convierte wikilinks [[x|y]]/[[x]] a texto y limpia coletillas 'ver Revisión'.
+# Filtra cada .md para el ENTREGABLE (visible a los profesores): deja solo las
+# funcionalidades del caso de uso y elimina toda la "cocina interna" del equipo.
+# Quita: frontmatter, tags, las secciones internas (Diagramas, Revisión y
+# Decisiones asociadas), las notas meta en blockquote con referencias a decisiones,
+# y las referencias inline a las decisiones internas (DEC-####). Convierte los
+# wikilinks [[x|y]]/[[x]] a texto y limpia artefactos (paréntesis vacíos, espacios).
 filtrar() {
-  # Quita frontmatter y tags; dropea las secciones internas (Diagramas, Revisión);
-  # convierte wikilinks a texto y limpia marcadores/coletillas internas.
   awk '
     BEGIN{fm=0; skip=0}
     NR==1 && $0=="---"{fm=1; next}
     fm==1 && $0=="---"{fm=0; next}
     fm==1{next}
-    /^## /{ if ($0 ~ /Revisi/ || $0 ~ /Diagramas/) skip=1; else skip=0 }
+    /^## /{ if ($0 ~ /Revisi/ || $0 ~ /Diagramas/ || $0 ~ /Decisiones/) skip=1; else skip=0 }
     skip==1{next}
     /^tags::/{next}
+    /^>/ && /DEC-/{next}
     {print}
   ' "$1" | sed -E '
+    s/,?[[:space:]]*(ver|según|conforme a)[[:space:]]+\[\[DEC-[^]]*\]\]//gi;
+    s/[[:space:]]*\[\[DEC-[^]]*\]\]//g;
     s/\[\[[^]|]*\|([^]]*)\]\]/\1/g;
     s/\[\[([^]]*)\]\]/\1/g;
     s/⚠️//g;
-    s/\s*—\s*ver Revisión\.?//g;
-    s/\s*\(ver Revisión\.?\)//g;
-    s/,?\s*ver Revisión\.?//g'
+    s/[[:space:]]*`?#[A-Za-z][A-Za-z-]*(\/[A-Za-z-]+)*`?//g;
+    s/[[:space:]]*—[[:space:]]*ver Revisión\.?//g;
+    s/[[:space:]]*\(ver Revisión\.?\)//g;
+    s/,?[[:space:]]*ver Revisión\.?//g;
+    s/\([[:space:]]*\)//g;
+    s/[[:space:]]+\./\./g;
+    s/\.\.+/\./g;
+    s/[[:space:]]{2,}/ /g;
+    s/[[:space:]]+,/,/g'
 }
 
-# Sección del diagrama de casos de uso (imagen previamente renderizada)
-IMG="$ROOT/07-Entregables/Casos de uso/img/DGM-casos-de-uso.png"
+# Sección del diagrama de casos de uso (imagen previamente renderizada).
+# Se referencia SOLO por nombre y se resuelve con --resource-path para evitar
+# el bug de rutas con espacios (%20) que impedía incrustar la imagen.
+IMGDIR="$ROOT/07-Entregables/Casos de uso/img"
+IMG="$IMGDIR/DGM-casos-de-uso.png"
 if [ -f "$IMG" ]; then
-  printf '# Diagrama de casos de uso\n\n![Diagrama de casos de uso de Rumbo](<%s>)\n' "$IMG" > "$BUILD/05-diagrama.md"
+  printf '# Diagrama de casos de uso\n\n![Diagrama general de casos de uso de Rumbo.](DGM-casos-de-uso.png){ width=50%% }\n' > "$BUILD/05-diagrama.md"
 fi
 
 filtrar "$ROOT/01-Relevamiento/Actores.md" > "$BUILD/10-actores.md"
@@ -67,11 +83,13 @@ REFARG=(); [ -f "$REF" ] && REFARG=(--reference-doc="$REF")
   "$BUILD/10-actores.md" \
   "$BUILD/"[0-9][0-9]-CU-*.md \
   --toc --toc-depth=1 \
+  ${IMG:+--resource-path="$IMGDIR"} \
   "${REFARG[@]}" \
   -o "$OUT"
 
 rm -rf "$BUILD"
 echo "OK -> $OUT"
 # Nota: el diagrama de casos de uso (Mermaid en 02-Analisis/DGM — Casos de uso.md)
-# se exporta aparte como imagen y se inserta manualmente (pandoc no lo renderiza).
-# Estilos opcionales: pasar como 1.er argumento un reference.docx.
+# se exporta aparte como imagen con mermaid-cli (motor ELK) y se incrusta por nombre
+# vía --resource-path. Regenerar la imagen: ver 07-Entregables/CONTINUAR — entregable Casos de uso.md.
+# Estilos: reference.docx generado por make-reference.ps1 (o pasar otro como 1.er argumento).
