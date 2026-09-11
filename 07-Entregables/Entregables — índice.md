@@ -23,7 +23,7 @@ tags:: #tipo/referencia #estado/formalizado
 - **Contenido:** documento **completo** → carátula + breve **introducción** + **diagrama de casos de uso** ([[DGM — Casos de uso]], como imagen) + **actores** ([[Actores]]) + los **30 CU** especificados.
 - **Filtrado (importante):** el docx **no** incluye lo interno de cada `CU-xx.md`. Antes de compilar se recorta, en cada CU, la sección **`## 🔎 Revisión`** (hacia abajo) y la línea **`tags::`**. El frontmatter YAML pandoc lo toma como metadata (no se imprime).
 - **Orden:** numérico `CU-01 … CU-30` (por defecto del glob). _(Si se prefiere por módulo, se reordena la lista de entrada.)_
-- **Carátula:** materia, comisión, **integrantes (Francisco, Paloma, Nahuel)** y fecha → va en la plantilla `reference.docx`. ⚠️ **Falta el dato de la cátedra** (materia/comisión) para completarla.
+- **Carátula e introducción:** ya redactadas como fuente en `07-Entregables/Casos de uso/00 - Portada e introducción.md`. Datos: **Universidad de Morón · Ingeniería Informática · Trabajo de Campo · 2.º cuatrimestre 2026**; integrantes **Francisco Luciano, Nahuel Viniegra, Paloma Patiño**. _(Fecha de entrega definitiva y comisión: confirmar con la cátedra.)_ Este archivo se pasa **primero** a pandoc, antes de los `CU-*.md`.
 - **Diagramas Mermaid:** se exportan aparte como imagen y se insertan; no se incrustan desde el `.md`.
 
 ## Cómo generar el DOCX de casos de uso
@@ -31,15 +31,17 @@ Requiere **pandoc** instalado (ver [[Skills compartidas]]). Desde la raíz del r
 
 **PowerShell (Windows):**
 ```powershell
-pandoc (Get-ChildItem "02-Analisis/Casos de uso/CU-*.md" | Sort-Object Name) `
-  --toc --metadata title="Rumbo — Casos de uso" `
+$portada = "07-Entregables/Casos de uso/00 - Portada e introducción.md"
+$cu = Get-ChildItem "02-Analisis/Casos de uso/CU-*.md" | Sort-Object Name
+pandoc $portada $cu --toc `
   -o "07-Entregables/Casos de uso/Rumbo — Casos de uso.docx"
 ```
 
 **Bash:**
 ```bash
-pandoc "02-Analisis/Casos de uso/"CU-*.md \
-  --toc --metadata title="Rumbo — Casos de uso" \
+pandoc "07-Entregables/Casos de uso/00 - Portada e introducción.md" \
+  "02-Analisis/Casos de uso/"CU-*.md \
+  --toc \
   -o "07-Entregables/Casos de uso/Rumbo — Casos de uso.docx"
 ```
 
