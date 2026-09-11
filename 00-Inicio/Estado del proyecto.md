@@ -34,6 +34,8 @@ Los tres tomamos **los tres roles** (Coordinador de vault · Guardián del domin
 - [ ] Diagramas de **estado**: `Viaje`, `Oportunidad`, `Pago`
 - [ ] **Matriz de trazabilidad** (objetivo → CU → entidad → regla)
 - [ ] Catálogo de **reglas de negocio** ampliado (hoy solo [[RN-01 Comisión automática]])
+- [ ] **Glosario** del lenguaje ubicuo (entidades + términos del negocio) → nueva nota, p. ej. `02-Analisis/Glosario.md`
+- [ ] **Requisitos funcionales y no funcionales** documentados (RF derivados de los CU; RNF: seguridad, rendimiento, usabilidad, disponibilidad…) → nueva nota, p. ej. `01-Relevamiento/Requisitos funcionales y no funcionales.md`
 
 > Cierre PC1: la consulta `#pc/pc1 AND #estado/borrador` debe dar **cero** en lo obligatorio de arriba.
 
