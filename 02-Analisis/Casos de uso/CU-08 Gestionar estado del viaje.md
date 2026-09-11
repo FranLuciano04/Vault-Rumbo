@@ -48,4 +48,4 @@ El empleado hace avanzar el [[Viaje]] por su ciclo de vida operativo (`armado �
 - [[DGM — Casos de uso]] · [[MOC — Modelo de dominio]] · (pendiente) diagrama de **estado** de [[Viaje]].
 
 ## 🔎 Revisión
-> [!question] Francisco (11/09): especificado. A validar: (1) si las transiciones `en curso`/`finalizado` son **automáticas por fecha**, **manuales** o mixtas (A1); (2) qué transiciones se permiten retroceder (A2).
+> [!note] Francisco (11/09) — **definido:** (1) transiciones **mixtas** — el sistema auto-avanza `en curso`/`finalizado` según las fechas de salida/regreso y el empleado puede **ajustar manualmente** (A1); (2) el retroceso se permite **solo al estado inmediato anterior**, mientras sea coherente con las fechas y el viaje no esté `finalizado` ni `cancelado` (A2).

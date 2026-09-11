@@ -22,7 +22,7 @@ Hotel vendido, con reseñas, para consultar y recomendar (catálogo).
 | categoria | String | Estrellas / tipo |
 | precio_referencia | Decimal (ARS) | Precio de referencia por noche; permite filtrar por rango ([[CU-18 Buscar y recomendar hoteles]]) |
 | servicios | Texto / lista | Servicios / amenities (wifi, pileta, desayuno…); filtrable ([[CU-18 Buscar y recomendar hoteles]]) |
-| estado | Enum | `activo` · `cerrado` — soporta la baja de hoteles que cerraron conservando el historial ([[CU-16 Gestionar hotel en catálogo]]). _(A ratificar en la sync.)_ |
+| estado | Enum | `activo` · `cerrado` — soporta la baja de hoteles que cerraron conservando el historial ([[CU-16 Gestionar hotel en catálogo]]). |
 
 ## Relaciones
 - *..1 con [[Destino]] — ver [[DEC-0006 Destino como entidad de catálogo]] (⚠️ ratificar con Paloma)
@@ -30,7 +30,7 @@ Hotel vendido, con reseñas, para consultar y recomendar (catálogo).
 - 1 a 0..* con [[Reseña]] (un hotel puede tener muchas reseñas)
 
 ## Reglas / invariantes
-- Baja: un `Hotel` sin viajes ni reseñas se elimina; con historial se marca `estado = cerrado` (no se borra, para no romper la trazabilidad de [[DEC-0003 Relación Viaje–Hotel y Reseña]]). _(A ratificar en la sync.)_
+- Baja (**definido** 11/09): un `Hotel` sin viajes ni reseñas se elimina; con historial se marca `estado = cerrado` (no se borra, para no romper la trazabilidad de [[DEC-0003 Relación Viaje–Hotel y Reseña]]).
 
 ## Aparece en
 - CU: [[CU-01 De la consulta a la venta]] (post-venta) · [[CU-16 Gestionar hotel en catálogo]] · [[CU-17 Registrar reseña de hotel]] · [[CU-18 Buscar y recomendar hoteles]]

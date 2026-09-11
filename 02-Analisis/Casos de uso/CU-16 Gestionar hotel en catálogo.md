@@ -33,7 +33,7 @@ El empleado da de alta o edita un [[Hotel]] en el **catálogo compartido** de la
 - **A1 — Edición de un hotel existente:** en el paso 1 el empleado abre un `Hotel` del catálogo y modifica sus datos.
 - **A2 — Posible duplicado:** en el paso 3 existe un `Hotel` con el mismo nombre y destino → el sistema lo advierte y ofrece abrir el existente en lugar de crear uno nuevo.
 - **A3 — Datos mínimos incompletos:** falta el nombre o el destino → el sistema no guarda y pide completarlos.
-- **A4 — Baja de un hotel (cerró):** el empleado da de baja un `Hotel` que dejó de operar. Si **no tiene historial**, se elimina; si tiene [[Viaje|Viajes]] o [[Reseña|Reseñas]] asociados, se marca como **cerrado/no disponible** (se oculta del catálogo activo pero se conserva el historial). _(A ratificar — ver Revisión.)_
+- **A4 — Baja de un hotel (cerró):** el empleado da de baja un `Hotel` que dejó de operar. Si **no tiene historial**, se elimina; si tiene [[Viaje|Viajes]] o [[Reseña|Reseñas]] asociados, se marca como **cerrado/no disponible** (se oculta del catálogo activo pero se conserva el historial). **Definido** (ver Revisión).
 
 ## Postcondiciones
 - El [[Hotel]] existe en el catálogo compartido, **visible para toda la agencia**, disponible para [[CU-18 Buscar y recomendar hoteles]], [[CU-17 Registrar reseña de hotel]] y [[CU-09 Armar itinerario de hoteles]].
@@ -52,3 +52,5 @@ El empleado da de alta o edita un [[Hotel]] en el **catálogo compartido** de la
 
 ## 🔎 Revisión
 > [!note] Paloma (10/09): (2) **Confirmado:** el catálogo lo gestiona cualquier empleado (sin restricción por rol). (1) **Confirmado:** se permite dar de baja un `Hotel` que cerró (A4). **A resolver en la sync (toca dominio):** borrar un `Hotel` con reseñas/viajes rompería la trazabilidad de [[DEC-0003 Relación Viaje–Hotel y Reseña]]; propuesta = eliminar solo si no tiene historial y marcarlo **cerrado** si lo tiene. Si se adopta el estado, agregar el atributo a [[Hotel]] y actualizar [[DGM-ER]].
+>
+> [!note] Francisco (11/09) — **definido:** se adopta la propuesta de Paloma. Baja **física solo sin historial**; con [[Viaje|Viajes]]/[[Reseña|Reseñas]] → `estado = cerrado` (baja lógica). El atributo `estado` ya está en [[Hotel]]. Paloma: para tu conocimiento, ajustable en la sync.

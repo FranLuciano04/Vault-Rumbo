@@ -50,13 +50,26 @@ actualizado: 09/09/26
 - 09/09/26 — Se adopta Claude como agente de IA (unánime). Se crea el vault y sus convenciones. Ver [[Guía del Vault]].
 - 09/09/26 — Nahuel propone el stack técnico completo: FastAPI/PostgreSQL/LangChain, React y React Native, monorepo TypeScript/Python y pipeline de calidad. Queda en revisión en [[DEC-0001 Stack tecnológico]].
 
-## Bloqueos / a decidir
-- **Modelo de visibilidad** (Cliente/Oportunidad/Viaje/Pago legibles por toda la agencia + propiedad para vista personal; Alerta personal) → **propuesta resuelta 11/09** en [[DEC-0005 Autenticación y modelo de roles]], **ratificar en sync** con Paloma y Nahuel.
-- **[[RequisitoDestino]] (12ª entidad)** → nueva, en `borrador`; ratificar con Nahuel (¿entidad o elevar a `DEC-`?).
-- **Pregunta de negocio — comisión vs. margen** (qué representa la `comisión` y sobre qué base se calcula) → Francisco lo consulta con la agencia; impacta [[RN-01 Comisión automática]] y [[DEC-0004 Comisión configurable por porcentaje]]. Ver [[CU-10 Registrar economía del viaje]].
-- **Envío de recordatorios al cliente** (posible CU faltante): sería por **WhatsApp vía API**, a definir más adelante (hoy Rumbo solo agenda la [[Alerta]] interna). Confirmar alcance PC1.
-- **Atributo `estado` y baja de [[Hotel]]** (marcar `cerrado` vs eliminar cuando hay historial) → ratificar en la sync.
-- **[[Destino]] como entidad** ([[DEC-0006 Destino como entidad de catálogo]]): ratificar el impacto en [[Hotel]] (Paloma) y definir si `Oportunidad.destino` se normaliza o queda texto libre.
+## Definido 11/09 (falta solo el sello formal en la sync)
+Decidido por el equipo (Francisco); todo `en-revision`, listo para confirmar y sellar:
+- **Modelo de visibilidad** (lectura global + propiedad; Alerta personal) → [[DEC-0005 Autenticación y modelo de roles]].
+- **12ª entidad [[RequisitoDestino]]** + atributos de propiedad y del CRM/pagos (ver bitácora 11/09).
+- **Baja de [[Hotel]]**: física solo sin historial; con historial → `estado = cerrado` (baja lógica).
+- **[[CU-29 Eliminar reseña]]**: actor `admin`, baja lógica (`oculta`).
+- **Estados/reglas** de los CU de Francisco: transiciones del [[Viaje]] mixtas ([[CU-08 Gestionar estado del viaje]]); motivo de pérdida de lista fija ([[CU-05 Seguir oportunidad]]); viaje nace `confirmado` ([[CU-07 Confirmar reserva]]).
+- **Alcance**: cotizador por scraping fuera de PC1; CRM proactivo y vto. a proveedor incluidos.
+
+## A sellar / asignar en la sync (acto de equipo)
+- **Sello formal** de [[DEC-0003 Relación Viaje–Hotel y Reseña|DEC-0003]], DEC-0004, [[DEC-0005 Autenticación y modelo de roles|DEC-0005]], [[DEC-0006 Destino como entidad de catálogo|DEC-0006]] y **formalizar [[DEC-0001 Stack tecnológico|DEC-0001]]** (pasar de `en-revision` a aprobadas; el `CLAUDE.md` pide hacerlo con el equipo presente).
+- **Roles de la quincena** (Coordinador de vault, Guardián del dominio, Escriba de decisiones): siguen sin asignar.
+
+## Preguntas para la AGENCIA (no se deciden en la sync interna)
+- **Comisión vs. margen**: qué representa la `comisión` y sobre qué base se calcula → [[RN-01 Comisión automática]], [[CU-10 Registrar economía del viaje]].
+- **KPIs del dashboard** ([[CU-21 Ver dashboard y embudo]]) y **catálogo de reportes** ([[CU-22 Generar reportes y estadísticas]]).
+- **Criterio del CRM proactivo** (meses de inactividad; [[CU-30 Sugerir recontacto de clientes]]).
+- **Envío al cliente por WhatsApp API** (posible CU futuro).
+
+## Pendientes técnicos
 - **Mecanismo de autenticación** (propia y/o Google OAuth) → [[DEC-0005 Autenticación y modelo de roles]].
 - **Infraestructura de despliegue** → [[ARQ — Vista general]]. El servidor on-premise es una alternativa pendiente.
-- **Ratificar en la sync** DEC-0003, DEC-0004, DEC-0005 y formalizar DEC-0001.
+- **`Oportunidad.destino`**: definir si se normaliza a [[Destino]] o queda texto libre ([[DEC-0006 Destino como entidad de catálogo]]).

@@ -28,7 +28,7 @@ El empleado da seguimiento a una [[Oportunidad]] a lo largo del embudo: registra
 2. Registra una **interacción/nota** de seguimiento (qué se habló, próximos pasos).
 3. Agenda una **insistencia**: el sistema crea una [[Alerta]] de tipo `insistencia` para volver a contactar en X días ([[CU-01 De la consulta a la venta]] A1).
 4. Según avance, actualiza el estado: pasa a `cotizada` al emitir la [[Cotización]] ([[CU-06 Emitir cotización]]).
-5. **Cierre:** marca la [[Oportunidad]] como `ganada` (continúa en [[CU-07 Confirmar reserva]]) o `perdida` (registra el **motivo**).
+5. **Cierre:** marca la [[Oportunidad]] como `ganada` (continúa en [[CU-07 Confirmar reserva]]) o `perdida` (registra el **motivo**, de una lista fija: *precio · fechas/disponibilidad · desistió · compró en otra agencia · sin respuesta · otro* [texto libre]).
 6. El sistema resuelve las [[Alerta|Alertas]] de insistencia pendientes al cerrarse la [[Oportunidad]].
 
 ## Flujos alternativos
@@ -56,4 +56,4 @@ El empleado da seguimiento a una [[Oportunidad]] a lo largo del embudo: registra
 - [[DEC-0002 Modelar la consulta como Oportunidad]] · [[DEC-0005 Autenticación y modelo de roles]]
 
 ## 🔎 Revisión
-> [!note] Francisco (11/09): especificado. Propuesta a validar en la sync: (1) se mantienen los 4 estados de [[Oportunidad]] sin agregar "en_seguimiento" (la insistencia va por [[Alerta]]); (2) confirmar si el **motivo de pérdida** se toma de una lista fija (para reportes) o texto libre.
+> [!note] Francisco (11/09) — **definido:** (1) se mantienen los **4 estados** de [[Oportunidad]] sin "en_seguimiento" (la insistencia va por [[Alerta]]); (2) el **motivo de pérdida** es de **lista fija** (precio · fechas/disponibilidad · desistió · compró en otra agencia · sin respuesta · otro), para poder analizarlo en reportes ([[CU-22 Generar reportes y estadísticas]]).

@@ -53,4 +53,4 @@ El empleado confirma la venta creando el [[Viaje]] a partir de una [[Oportunidad
 - [[DEC-0006 Destino como entidad de catálogo]] · [[DEC-0005 Autenticación y modelo de roles]]
 
 ## 🔎 Revisión
-> [!question] Francisco (11/09): especificado. A validar: (1) estado inicial del [[Viaje]] al confirmar — propongo `confirmado` (dejando `armado` para un borrador previo opcional); (2) confirmar que la economía ([[CU-10 Registrar economía del viaje]]) va **incluida** en la confirmación (`<<include>>`) o es un paso posterior separado.
+> [!note] Francisco (11/09) — **definido:** (1) estado inicial del [[Viaje]] al confirmar = **`confirmado`** (`armado` queda como borrador previo **opcional**, poco usado); (2) la economía ([[CU-10 Registrar economía del viaje]]) se **encadena como paso siguiente** al confirmar (relación `<<include>>` en el diagrama), pero **no bloquea** la creación del viaje: puede cargarse inmediatamente después.
