@@ -5,34 +5,55 @@ modulo: [seguridad]
 decisores: [Francisco]
 fecha_aprobacion:
 supersede:
-actualizado: 10/09/26
+actualizado: 11/09/26
 ---
 # DEC-0005 Autenticación y modelo de roles
 
 tags:: #tipo/decision #estado/en-revision #pc/pc1
 
 ## Contexto
-[[ARQ — Vista general]] dejaba abierta la autenticación y los roles de [[Usuario]]. El negocio necesita que **cada empleado vea solo su propio trabajo**, pero que el catálogo de hoteles y reseñas sea **compartido** por todos.
+[[ARQ — Vista general]] dejaba abierta la autenticación y los roles de [[Usuario]]. El negocio (agencia PyME; hoy Valentina y Diego, padre e hija) necesita que **la información fluya entre todos** —los clientes son de la agencia, no de quien los cargó— pero que cada persona pueda **organizar y responsabilizarse de lo suyo**. El catálogo de hoteles, reseñas y destinos es **compartido**. El modelo debe ser simple hoy y **escalable** (poder endurecer la visibilidad por equipo/sucursal más adelante sin rehacerlo).
 
 ## Decisión (parte resuelta)
-1. **Roles operativos:** `admin`, `empleado`, `dueño`.
-2. **Visibilidad segmentada (autorización a nivel de fila):**
-   - El **`empleado`** ve y gestiona **solo lo suyo**: sus [[Oportunidad|Oportunidades]], [[Viaje|Viajes]], [[Cliente|Clientes]] en seguimiento, [[Pago|Pagos]] y [[Alerta|Alertas]] derivados.
-   - El **catálogo de [[Hotel|Hoteles]] y [[Reseña|Reseñas]] es compartido**: todos los perfiles lo consultan y aportan.
-   - **`admin` y `dueño`** ven todo (toda la empresa) y acceden a configuración y reportes.
+
+### 1. Roles operativos
+`empleado`, `admin`, `dueño`.
+- **`empleado`:** opera el día a día (clientes, oportunidades, cotizaciones, viajes, pagos, alertas, hoteles, redes).
+- **`admin`:** todo lo del empleado **+ configuración** (comisión, usuarios y roles, destinos, requisitos por destino, moderación de reseñas).
+- **`dueño`:** todo **+ visión de negocio** (dashboard y reportes de toda la empresa).
+- El **acceso al módulo de redes** ([[ContenidoRed]]) no es un rol: es una **capacidad** que `admin`/`dueño` asignan ([[CU-25 Gestionar usuarios y roles]]).
+
+### 2. Modelo de visibilidad: **lectura amplia + propiedad para organización** (patrón *org-wide read + ownership*)
+La **propiedad de un registro no restringe su lectura**; solo habilita la vista "lo mío" y marca al responsable. Esto reconcilia las dos necesidades: ver todo para colaborar, y filtrar lo propio para organizarse.
+
+| Entidad | Lectura | Escritura / gestión | Propiedad (vista personal) |
+|---|---|---|---|
+| [[Cliente]] | Toda la agencia | Toda la agencia | `asesor_asignado` **opcional** → filtro "mis clientes" |
+| [[Oportunidad]] | Toda la agencia | Responsable + `admin`/`dueño` | `responsable` (quien la registró) |
+| [[Viaje]] · [[Pago]] | Toda la agencia (calendario global) | Responsable + `admin`/`dueño` | `responsable` del viaje |
+| [[Alerta]] | **Propias por defecto** (agenda del día); `admin`/`dueño` ven todas | Propietario | Propietario (quien la recibe/creó) |
+| [[Hotel]] · [[Reseña]] · [[Destino]] · [[ContenidoRed]] | Compartido (todos) | Compartido; **acciones sensibles = `admin`** (moderar reseña, ABM de destinos, config) | — |
+
+**Principio general:** *lectura global para colaborar · propiedad para responsabilidad y filtro personal · escritura mayormente abierta, salvo configuración y moderación que quedan en `admin`.*
+
+### 3. Soporte en el dominio
+Para sostener la propiedad sin bloquear la lectura, las entidades operativas llevan un vínculo con el [[Usuario]] responsable:
+- [[Cliente]] → `asesor_asignado` (FK `Usuario`, opcional).
+- [[Oportunidad]] → `responsable` (FK `Usuario`).
+- [[Viaje]] → `responsable` (FK `Usuario`) — ya reflejado como relación *gestiona* en [[MOC — Modelo de dominio]].
+- [[Alerta]] → `propietario` (FK `Usuario`).
 
 ## Reconciliación con [[Actores]] (resuelta 10/09/26)
-La nota [[Actores]] se actualizó para reflejar estos roles:
-- `empleado` reemplaza a `asesor` (usuario principal, ve solo su cartera).
+- `empleado` reemplaza a `asesor` (usuario principal).
 - Se **separa** `admin` (configuración/operación) de `dueño` (visión del negocio); antes eran el mismo actor.
-- El **encargado de redes** deja de ser un rol: pasa a ser una **capacidad de acceso al módulo de redes** ([[ContenidoRed]]) que `admin`/`dueño` asignan.
+- El **encargado de redes** deja de ser un rol: pasa a ser una **capacidad de acceso al módulo de redes** ([[ContenidoRed]]).
 
 ## Pendiente `#accion/decidir`
-- **Mecanismo de autenticación:** autenticación propia de la app y/o inicio con **Google (OAuth)**. Aún **no definido** — se decide más adelante.
+- **Mecanismo de autenticación:** autenticación propia de la app y/o inicio con **Google (OAuth)**. Aún **no definido** — no sabemos todavía cómo se resolverá la autenticación; se decide más adelante. La creación/gestión de credenciales de [[CU-25 Gestionar usuarios y roles]] depende de esto.
 - **Infraestructura de despliegue:** sigue pendiente, ver [[DEC-0001 Stack tecnológico]] y [[ARQ — Vista general]].
 
 ## Impacto
-- Afecta: [[Usuario]] (enum `rol`), [[Actores]], [[ARQ — Vista general]] y, de forma transversal, casi todos los casos de uso (filtros por propietario).
+- Afecta: [[Usuario]] (enum `rol`), [[Cliente]] (`asesor_asignado`), [[Oportunidad]] (`responsable`), [[Viaje]] (`responsable`), [[Alerta]] (`propietario`), [[Actores]], [[ARQ — Vista general]] y, transversalmente, casi todos los casos de uso (filtros por propiedad, no por bloqueo).
 
 ## Decisores y fecha
-- Decisores: Francisco (10/09/26) — Aprobada: _(pendiente sync)_
+- Decisores: Francisco (10/09/26; modelo de visibilidad ampliado 11/09/26) — Aprobada: _(pendiente sync — ratificar con Paloma y Nahuel)_

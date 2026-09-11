@@ -26,5 +26,9 @@ Registro de un pago o cuota de un [[Viaje]], con vencimiento y estado. El sistem
 - *..1 con [[Viaje]]
 - genera [[Alerta]] de vencimiento (aviso un mes antes)
 
+## Reglas / invariantes
+- El `Pago` es **indivisible**: se cobra completo, sin cobros parciales ([[CU-12 Registrar cobro de un pago]]).
+- **Transición `pendiente → vencido` automática:** un proceso del sistema marca el `Pago` como `vencido` al superar su `vencimiento` sin cobro, y actualiza su [[Alerta]] asociada. No requiere acción humana (no es un CU con actor).
+
 ## Aparece en
 - [[CU-01 De la consulta a la venta]] · [[RN-01 Comisión automática]] · [[MOD-Economia-Pagos]]

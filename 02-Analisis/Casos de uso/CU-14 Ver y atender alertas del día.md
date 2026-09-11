@@ -49,3 +49,5 @@ Consultar la agenda de [[Alerta|Alertas]] vigentes (pagos, formularios por desti
 
 ## 🔎 Revisión
 > [!question] Nahuel (10/09): ¿"del día" es solo la fecha de hoy o incluye vencidas arrastradas? Asumo que la agenda muestra **vigentes hasta hoy** (pendientes + vencidas). Confirmar el criterio de posponer (A4).
+>
+> [!note] Francisco (11/09): Coherente con [[DEC-0005 Autenticación y modelo de roles]] — la agenda filtra por `propietario` (empleado ve las suyas; `admin`/`dueño`, todas). Sin cambios de fondo. A ratificar con Nahuel.

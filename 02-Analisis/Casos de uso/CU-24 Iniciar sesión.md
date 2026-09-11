@@ -27,8 +27,8 @@ Autenticar a un [[Usuario]] y cargar su contexto de trabajo según el rol, aplic
 2. El sistema valida la identidad.
 3. El sistema abre una sesión.
 4. El sistema carga el contexto según el `rol` ([[DEC-0005 Autenticación y modelo de roles]]):
-   - `empleado` → su propia cartera ([[Oportunidad|Oportunidades]], [[Viaje|Viajes]], [[Cliente|Clientes]], [[Pago|Pagos]] y [[Alerta|Alertas]]).
-   - `admin` / `dueño` → toda la empresa, más configuración y reportes.
+   - `empleado` → **lectura global** de [[Cliente|Clientes]], [[Oportunidad|Oportunidades]], [[Viaje|Viajes]] y [[Pago|Pagos]] de toda la agencia, con **vista personal** por defecto de lo que tiene a cargo (filtro "lo mío"); su **agenda de [[Alerta|Alertas]]** muestra las propias.
+   - `admin` / `dueño` → toda la empresa (incluidas todas las [[Alerta|Alertas]]), más configuración y reportes.
 
 ## Flujos alternativos
 - **A1 — Credenciales inválidas:** el sistema rechaza el acceso y no abre sesión.
@@ -49,3 +49,5 @@ Autenticar a un [[Usuario]] y cargar su contexto de trabajo según el rol, aplic
 
 ## 🔎 Revisión
 > [!question] Nahuel (10/09): el **mecanismo de autenticación** (propia y/o Google OAuth) sigue sin definir en [[DEC-0005 Autenticación y modelo de roles]]. Especifiqué el flujo de forma **agnóstica al mecanismo**; A2 queda como pendiente hasta cerrar la DEC.
+>
+> [!note] Francisco (11/09): Ajustado el paso 4 al modelo de visibilidad resuelto en [[DEC-0005 Autenticación y modelo de roles]] — **lectura global** de Clientes/Oportunidades/Viajes/Pagos con **vista personal** por defecto (no cartera cerrada); solo la agenda de Alertas es personal. El mecanismo de autenticación **sigue sin definir** (aún no sabemos cómo se resolverá). A ratificar con Nahuel.

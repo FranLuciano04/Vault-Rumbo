@@ -24,9 +24,11 @@ Reserva concreta de un cliente: destino, fechas, categoría, estado y control ec
 | precioVenta | Decimal (ARS) | Precio al cliente |
 | costoNeto | Decimal (ARS) | Costo del proveedor |
 | comision | Decimal (ARS) | Calculada por % configurable — [[RN-01 Comisión automática]], [[DEC-0004 Comisión configurable por porcentaje]] |
+| responsable | FK → [[Usuario]] | Empleado a cargo del viaje; define la vista personal. Ver [[DEC-0005 Autenticación y modelo de roles]] |
 
 ## Relaciones
 - *..1 con [[Cliente]]
+- *..1 con [[Usuario]] (`responsable`, relación *gestiona*) — ver [[DEC-0005 Autenticación y modelo de roles]]
 - *..1 con [[Destino]] — ver [[DEC-0006 Destino como entidad de catálogo]]
 - 0..1 con [[Oportunidad]] (origen)
 - 1..* con [[Pago]] · 1..* con [[Alerta]]

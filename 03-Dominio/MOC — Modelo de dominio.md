@@ -10,10 +10,10 @@ actualizado: 10/09/26
 
 tags:: #tipo/diagrama #tipo/modulo #estado/en-revision #pc/pc1
 
-> Mapa de las **11 entidades** y su diagrama de clases. Es la *salida*; la verdad de cada entidad vive en su nota (source). Al cambiar una entidad, actualizar este bloque. Un solo editor por vez (ver [[Guía del Vault#3 · Workflow colaborativo]]).
+> Mapa de las **12 entidades** y su diagrama de clases. Es la *salida*; la verdad de cada entidad vive en su nota (source). Al cambiar una entidad, actualizar este bloque. Un solo editor por vez (ver [[Guía del Vault#3 · Workflow colaborativo]]).
 
 ## Entidades
-[[Usuario]] · [[Cliente]] · [[Oportunidad]] · [[Viaje]] · [[Pago]] · [[Hotel]] · [[Reseña]] · [[Alerta]] · [[Cotización]] · [[ContenidoRed]] · [[Destino]]
+[[Usuario]] · [[Cliente]] · [[Oportunidad]] · [[Viaje]] · [[Pago]] · [[Hotel]] · [[Reseña]] · [[Alerta]] · [[Cotización]] · [[ContenidoRed]] · [[Destino]] · [[RequisitoDestino]] ⚠️(nueva, ratificar)
 
 ## Diagrama de clases (borrador)
 ```mermaid
@@ -27,11 +27,13 @@ classDiagram
       +UUID id
       +String nombre
       +String segmento
+      +UUID asesorAsignadoId
     }
     class Oportunidad {
       +UUID id
       +String canal
       +String estado
+      +UUID responsableId
     }
     class Cotizacion {
       +UUID id
@@ -42,11 +44,19 @@ classDiagram
       +UUID id
       +UUID destinoId
       +String estado
+      +UUID responsableId
     }
     class Destino {
       +UUID id
       +String nombre
       +String pais
+      +Bool activo
+    }
+    class RequisitoDestino {
+      +UUID id
+      +UUID destinoId
+      +String nombre
+      +Int anticipacionDias
       +Bool activo
     }
     class Pago {
@@ -72,6 +82,7 @@ classDiagram
       +UUID id
       +String tipo
       +Date fecha
+      +UUID propietarioId
     }
     class ContenidoRed {
       +UUID id
@@ -90,8 +101,12 @@ classDiagram
     Hotel "1" --> "0..*" Resena
     Destino "1" --> "0..*" Viaje
     Destino "1" --> "0..*" Hotel
+    Destino "1" --> "0..*" RequisitoDestino
     Usuario "1" --> "0..*" ContenidoRed
     Usuario "1" --> "0..*" Viaje : gestiona
+    Usuario "1" --> "0..*" Oportunidad : responsable
+    Usuario "0..1" --> "0..*" Cliente : asesor_asignado
+    Usuario "1" --> "0..*" Alerta : propietario
 ```
 
 > Relación Viaje–Hotel (N:M) y objeto de la Reseña resueltos en [[DEC-0003 Relación Viaje–Hotel y Reseña]].

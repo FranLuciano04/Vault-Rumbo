@@ -21,14 +21,17 @@ Persona (o grupo) que consulta y viaja con la agencia. Concentra ficha, preferen
 | contacto | String | WhatsApp / Instagram / email |
 | segmento | Enum | familia · amigos · individual |
 | preferencias | Texto | Destinos, estilo de viaje, notas |
+| asesor_asignado | FK → [[Usuario]] (opcional) | Responsable de referencia; habilita el filtro "mis clientes" sin restringir la visibilidad. Ver [[DEC-0005 Autenticación y modelo de roles]] |
 
 ## Relaciones
 - 1..* con [[Oportunidad]] — un Cliente genera muchas consultas
 - 1..* con [[Viaje]] — historial de viajes
 - 1..* con [[Reseña]] — reseñas que deja
+- *..0..1 con [[Usuario]] (`asesor_asignado`, opcional) — ver [[DEC-0005 Autenticación y modelo de roles]]
 
 ## Reglas / invariantes
 - Un Cliente **no** es un [[Usuario]] (no opera el sistema). Ver [[Actores]].
+- **Visibilidad:** el `Cliente` es **visible y editable para toda la agencia** (activo compartido); `asesor_asignado` solo marca responsabilidad y habilita la vista personal, no bloquea el acceso. Ver [[DEC-0005 Autenticación y modelo de roles]].
 
 ## Aparece en
 - CU: [[CU-01 De la consulta a la venta]]

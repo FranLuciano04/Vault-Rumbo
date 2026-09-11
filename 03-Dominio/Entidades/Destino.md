@@ -26,6 +26,7 @@ Lugar ofrecido por la agencia (ciudad/país). Catálogo compartido que da consis
 ## Relaciones
 - 1 a 0..* con [[Viaje]] (un destino tiene muchos viajes)
 - 1 a 0..* con [[Hotel]] (un destino agrupa muchos hoteles)
+- 1 a 0..* con [[RequisitoDestino]] (requisitos/formularios a recordar) — ver [[CU-15 Configurar recordatorios por destino]]
 
 ## Aparece en
 - [[CU-26 Gestionar destinos]] · [[CU-15 Configurar recordatorios por destino]] · [[CU-07 Confirmar reserva]] · [[MOC — Modelo de dominio]]

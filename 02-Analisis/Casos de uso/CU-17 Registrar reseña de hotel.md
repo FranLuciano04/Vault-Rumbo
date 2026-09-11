@@ -27,7 +27,7 @@ Tras el viaje, el empleado carga la [[Reseña]] de un [[Cliente]] sobre un [[Hot
 1. El empleado abre **Nueva reseña**.
 2. Selecciona el [[Cliente]] que viajó y el [[Hotel]] reseñado (opcionalmente el [[Viaje]] de origen, para trazabilidad).
 3. Carga el **puntaje** (1 a 5), el **comentario** y la **fecha** (`dd/mm/aa`).
-4. El sistema valida (puntaje entre 1 y 5; `Cliente` y `Hotel` obligatorios) y crea la [[Reseña]] asociada al `Hotel` y al `Cliente`.
+4. El sistema valida (puntaje entre 1 y 5; `Cliente` y `Hotel` obligatorios) y crea la [[Reseña]] en estado `publicada`, asociada al `Hotel` y al `Cliente`.
 5. El sistema confirma; la `Reseña` pasa a alimentar el catálogo y la recomendación ([[CU-18 Buscar y recomendar hoteles]]).
 
 ## Flujos alternativos
@@ -43,7 +43,7 @@ Tras el viaje, el empleado carga la [[Reseña]] de un [[Cliente]] sobre un [[Hot
 - (Ninguna regla económica en este CU.)
 - El puntaje es un entero de **1 a 5**; la `Reseña` pertenece a un `Hotel` y a un `Cliente` (ver [[DEC-0003 Relación Viaje–Hotel y Reseña]]).
 - Un mismo `Cliente` puede dejar **varias reseñas** sobre el mismo `Hotel` (estadías distintas).
-- Una `Reseña` cargada se puede **editar** para corregirla, pero **no se borra** (se conserva para la valoración del hotel).
+- Una `Reseña` cargada se puede **editar** para corregirla. No se elimina físicamente: la baja es una **moderación** que la deja `oculta` (baja lógica), conservando el historial ([[CU-29 Eliminar reseña]]).
 
 ## Entidades del dominio involucradas
 - [[Reseña]] · [[Cliente]] · [[Hotel]] · [[Viaje]] · [[Usuario]]
@@ -56,3 +56,5 @@ Tras el viaje, el empleado carga la [[Reseña]] de un [[Cliente]] sobre un [[Hot
 
 ## 🔎 Revisión
 > [!note] Paloma (10/09): (3) **Confirmado:** un cliente puede dejar varias reseñas del mismo hotel. (4) **Confirmado:** la reseña se puede **editar** pero **no borrar**.
+>
+> [!note] Francisco (11/09): Coherencia con el nuevo [[CU-29 Eliminar reseña]] — la `Reseña` nace `publicada` y su baja es lógica (`oculta`, moderación por `admin`), no física. El "no borrar" de Paloma se mantiene: no hay eliminación física. A ratificar con Paloma.
