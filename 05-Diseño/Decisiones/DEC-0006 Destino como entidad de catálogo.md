@@ -30,6 +30,7 @@ tags:: #tipo/decision #estado/en-revision #pc/pc1
 ## Restricciones
 - Fechas `dd/mm/aa`, moneda ARS (sin impacto directo aquí).
 - No se define aún la geografía fina (país/región) como entidades separadas: quedan como atributos de [[Destino]].
+- **`Oportunidad.destino` queda como `String` (texto libre)** por ahora: en la etapa de consulta el destino puede ser exploratorio y aún no estar en el catálogo; se normaliza a [[Destino]] al derivar la [[Oportunidad]] en un [[Viaje]]. _(A ratificar en la sync; toca módulo de Francisco.)_
 
 ## Impacto
 - Afecta: [[Destino]] (nueva), [[Viaje]] (`destino` → FK), [[Hotel]] (`destino` → FK), [[MOC — Modelo de dominio]], [[DGM-ER]], [[CU-15 Configurar recordatorios por destino]], [[CU-26 Gestionar destinos]] y el checklist de entidades en [[Estado del proyecto]] (10 → 11).
