@@ -1,6 +1,6 @@
 ---
 tipo: caso-uso
-estado: borrador
+estado: en-revision
 modulo: [economia]
 responsable: Nahuel
 pc: pc1
@@ -8,39 +8,45 @@ actualizado: 10/09/26
 ---
 # CU-10 Registrar economía del viaje
 
-tags:: #tipo/caso-uso #estado/borrador #pc/pc1
+tags:: #tipo/caso-uso #estado/en-revision #pc/pc1 #accion/revisar
 
 ## Descripción
-Cargar precio de venta y costo neto; el sistema calcula la comisión automáticamente.
+Cargar el precio de venta y el costo neto de un [[Viaje]]; el sistema calcula la comisión automáticamente según el `%comisión` configurado y expone el margen como dato informativo.
 
 ## Actor principal
 [[Actores|empleado]]
 
 ## Actores secundarios
--
+- [[Actores|admin]] — define el `%comisión` de la empresa ([[CU-13 Configurar porcentaje de comisión]]).
 
 ## Precondiciones
--
+- Existe el [[Viaje]] (confirmado en [[CU-07 Confirmar reserva]]).
+- Hay un `%comisión` vigente ([[DEC-0004 Comisión configurable por porcentaje]]).
 
 ## Flujo principal
-1.
-2.
-3.
+1. El empleado abre el [[Viaje]] y entra a su control económico.
+2. Carga el `precioVenta` en ARS.
+3. Carga el `costoNeto` en ARS.
+4. El sistema aplica la [[RN-01 Comisión automática]]: `comisión = precioVenta × %comisión`, tomando por defecto el `%` de empresa ([[CU-13 Configurar porcentaje de comisión]]).
+5. El sistema muestra el **margen** informativo `precioVenta − costoNeto` (no es la comisión).
+6. El empleado confirma y el sistema guarda la economía del [[Viaje]].
 
 ## Flujos alternativos
-- **A1 —**
+- **A1 — Comisión propia del viaje (override):** el empleado fija un `%comisión` distinto al de empresa para este [[Viaje]] puntual; el sistema recalcula y conserva ese valor ([[CU-13 Configurar porcentaje de comisión]], [[DEC-0004 Comisión configurable por porcentaje]]).
+- **A2 — `%comisión` sin configurar:** el sistema avisa y usa el valor por defecto o bloquea el cálculo hasta configurarlo ([[CU-13 Configurar porcentaje de comisión]]).
+- **A3 — Costo mayor que la venta:** `costoNeto > precioVenta` → el sistema advierte margen negativo pero permite guardar (dato de gestión).
 
 ## Postcondiciones
--
+- El [[Viaje]] queda con `precioVenta`, `costoNeto` y `comisión` registrados; el margen disponible para reportes.
 
 ## Reglas de negocio aplicadas
--
+- [[RN-01 Comisión automática]]
 
 ## Entidades del dominio involucradas
--
+- [[Viaje]] · [[Usuario]]
 
 ## Diagramas
-- [[DGM — Casos de uso]]
+- [[DGM — Casos de uso]] · [[MOC — Modelo de dominio]]
 
 ## 🔎 Revisión
-> [!question]
+> [!note] Nahuel (10/09): comisión **por defecto de empresa + `%` propio por viaje** (A1), confirmado. Pendiente de sync: si con `%comisión` sin configurar (A2) se bloquea o se usa un default. Alineado con [[DEC-0004 Comisión configurable por porcentaje]] (ratificar).
