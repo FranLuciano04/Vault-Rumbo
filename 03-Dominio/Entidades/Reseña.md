@@ -20,6 +20,7 @@ Opinión post-viaje que deja un [[Cliente]] sobre un [[Hotel]]. Alimenta el cat�
 | puntaje | Int (1-5) | Calificación |
 | comentario | Texto | Opinión |
 | fecha | Date (dd/mm/aa) | Cuándo |
+| estado | Enum | publicada · oculta — baja lógica de moderación, ver [[CU-29 Eliminar reseña]] (⚠️ ratificar con Paloma) |
 
 ## Relaciones
 - *..1 con [[Cliente]] (quien viajó)

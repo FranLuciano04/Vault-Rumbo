@@ -34,6 +34,7 @@ flowchart LR
       CU07((Confirmar reserva))
       CU08((Gestionar estado))
       CU09((Armar itinerario))
+      CU27((Cancelar viaje))
     end
     subgraph M4[Economía y pagos]
       CU10((Registrar economía))
@@ -45,11 +46,13 @@ flowchart LR
       CU14((Atender alertas))
       CU15((Recordatorios por destino))
       CU26((Gestionar destinos))
+      CU28((Crear recordatorio manual))
     end
     subgraph M6[Catálogo hoteles]
       CU16((Gestionar hotel))
       CU17((Registrar reseña))
       CU18((Buscar y recomendar))
+      CU29((Eliminar reseña))
     end
     subgraph M7[Redes]
       CU19((Planificar contenido))
@@ -69,8 +72,8 @@ flowchart LR
   end
 
   EMP --- CU02 & CU03 & CU04 & CU05 & CU06 & CU07 & CU08 & CU09
-  EMP --- CU10 & CU11 & CU12 & CU14 & CU15 & CU16 & CU17 & CU18 & CU19 & CU20 & CU23
-  ADM --- CU13 & CU25 & CU26
+  EMP --- CU10 & CU11 & CU12 & CU14 & CU15 & CU16 & CU17 & CU18 & CU19 & CU20 & CU23 & CU27 & CU28
+  ADM --- CU13 & CU25 & CU26 & CU29
   DUE --- CU26
   DUE --- CU21 & CU22
   EMP --- CU24

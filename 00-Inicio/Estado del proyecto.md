@@ -23,7 +23,7 @@ actualizado: 09/09/26
 ### Obligatorio (piso del cronograma)
 - [ ] `01-Relevamiento/` formalizado
 - [ ] [[Actores]] formalizados (empleado, admin, dueño, cliente)
-- [ ] Especificación de los 25 CU + [[DGM — Casos de uso|diagrama de casos de uso]]
+- [ ] Especificación de los 28 CU + [[DGM — Casos de uso|diagrama de casos de uso]]
 - [ ] 11 entidades formalizadas (Usuario, Cliente, Oportunidad, Viaje, Pago, Hotel, Reseña, Alerta, Cotización, ContenidoRed, Destino)
 - [ ] [[MOC — Modelo de dominio|Diagrama de clases]] + [[DGM-ER]] coherentes (atributos, tipos, multiplicidades)
 - [ ] Diagramas de **actividad** de flujos clave ([[CU-01 De la consulta a la venta|CU-01]] + críticos)
@@ -40,6 +40,7 @@ actualizado: 09/09/26
 > Cierre PC1: la consulta `#pc/pc1 AND #estado/borrador` debe dar **cero** en lo obligatorio de arriba.
 
 ## Bitácora de decisiones recientes
+- 10/09/26 — Revisión de cobertura **ABM** de las entidades: se cubren gaps de ciclo de vida con **[[CU-27 Cancelar viaje]]** (Francisco; estado `cancelado`), **[[CU-28 Crear recordatorio manual]]** (Nahuel; tipo `manual`), **[[CU-29 Eliminar reseña]]** (Paloma; estado `oculta`) y anulación de un [[Pago]] (flujo alt. en [[CU-11 Definir plan de cuotas]]). CU-27 y CU-29 quedan como **borradores a validar por sus dueños**.
 - 10/09/26 — Nahuel especifica sus **8 CU** (economía/pagos CU-10→13, alertas CU-14/15, seguridad CU-24/25), agrega **[[CU-26 Gestionar destinos]]** (ABM, admin/dueño) y promueve **[[Destino]]** a entidad (11ª): [[DEC-0006 Destino como entidad de catálogo]] con FK en [[Viaje]] y [[Hotel]]. Comisión = `%` por defecto de empresa + override por viaje.
 - 10/09/26 — Paloma especifica sus **8 CU** (Clientes, Hoteles, Redes, Calendario) y ajusta el dominio: [[Hotel]] (+`precio_referencia`, `servicios`, `estado`) y [[ContenidoRed]] (canales y rol). Detalle en [[Bitácora de sesiones]].
 - 10/09/26 — Se define el catálogo completo de casos de uso (24 CU + núcleo) con diagrama y se reparte la especificación entre los tres. Ver [[MOC — Casos de uso]] y [[Especificación de casos de uso — flujo]]. Nuevo flujo md-fuente / docx-derivado y sección [[Entregables — índice]].

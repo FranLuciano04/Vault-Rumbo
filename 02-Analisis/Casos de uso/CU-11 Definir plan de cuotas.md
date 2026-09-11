@@ -34,6 +34,7 @@ Configurar los [[Pago|Pagos]] de un [[Viaje]] (seña, cuotas y saldo) con sus mo
 - **A1 — La suma no coincide:** `Σ montos ≠ precioVenta` → el sistema rechaza y muestra la diferencia hasta corregir.
 - **A2 — Pago único:** sin cuotas, se crea un solo [[Pago]] `saldo` por el total.
 - **A3 — Reprogramar:** mientras un [[Pago]] siga `pendiente`, se pueden editar monto o vencimiento; el sistema reagenda su [[Alerta]].
+- **A4 — Anular un pago:** mientras esté `pendiente`, el empleado anula un [[Pago]] del plan (cambió el esquema); el sistema lo elimina, cierra su [[Alerta]] y vuelve a exigir que `Σ montos = precioVenta`.
 
 ## Postcondiciones
 - El [[Viaje]] queda con su plan de [[Pago|Pagos]] definido y las [[Alerta|Alertas]] de vencimiento agendadas.

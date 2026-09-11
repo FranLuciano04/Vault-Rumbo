@@ -29,6 +29,7 @@ tags:: #tipo/modulo #estado/en-revision #pc/pc1
 - [[CU-07 Confirmar reserva]] — confirmar la venta creando el Viaje.
 - [[CU-08 Gestionar estado del viaje]] — armado → confirmado → en curso → finalizado.
 - [[CU-09 Armar itinerario de hoteles]] — asociar Hoteles al Viaje con sus tramos.
+- [[CU-27 Cancelar viaje]] — baja/cancelación del Viaje (estado `cancelado`). ⚠️ borrador propuesto 10/09, validar Francisco.
 
 ### Economía y pagos — *Nahuel*
 - [[CU-10 Registrar economía del viaje]] — venta y costo neto; comisión automática.
@@ -40,11 +41,13 @@ tags:: #tipo/modulo #estado/en-revision #pc/pc1
 - [[CU-14 Ver y atender alertas del día]] — agenda de Alertas vigentes.
 - [[CU-15 Configurar recordatorios por destino]] — formularios/recordatorios por destino.
 - [[CU-26 Gestionar destinos]] — ABM del catálogo de destinos (base de CU-15; actor admin/dueño). ⚠️ agregado 10/09, requiere [[DEC-0006 Destino como entidad de catálogo]]; ratificar módulo en sync.
+- [[CU-28 Crear recordatorio manual]] — alta manual de una Alerta (tipo `manual`). ⚠️ agregado 10/09, validar alcance en sync.
 
 ### Catálogo de hoteles — *Paloma*
 - [[CU-16 Gestionar hotel en catálogo]] — alta/edición de Hotel.
 - [[CU-17 Registrar reseña de hotel]] — Reseña post-viaje del Cliente.
 - [[CU-18 Buscar y recomendar hoteles]] — consultar catálogo por destino/categoría.
+- [[CU-29 Eliminar reseña]] — baja/moderación de una Reseña (estado `oculta`). ⚠️ borrador propuesto 10/09, validar Paloma.
 
 ### Redes — *Paloma*
 - [[CU-19 Planificar contenido en redes]] — kanban de ContenidoRed.
@@ -64,9 +67,9 @@ tags:: #tipo/modulo #estado/en-revision #pc/pc1
 ## División de la especificación (PC1)
 | Responsable | Casos de uso | Total |
 |---|---|---|
-| **Francisco** | CU-01, CU-04→09, CU-21, CU-22 | 8 (+núcleo) |
-| **Paloma** | CU-02, CU-03, CU-16→20, CU-23 | 8 |
-| **Nahuel** | CU-10→15, CU-24, CU-25, CU-26 | 9 |
+| **Francisco** | CU-01, CU-04→09, CU-21, CU-22, CU-27 | 9 (+núcleo) |
+| **Paloma** | CU-02, CU-03, CU-16→20, CU-23, CU-29 | 9 |
+| **Nahuel** | CU-10→15, CU-24, CU-25, CU-26, CU-28 | 10 |
 
 ## Reglas de negocio
 - [[RN-01 Comisión automática]] → [[DEC-0004 Comisión configurable por porcentaje]]
