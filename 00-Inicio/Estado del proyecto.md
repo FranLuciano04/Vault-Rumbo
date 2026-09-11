@@ -23,8 +23,8 @@ actualizado: 09/09/26
 ### Obligatorio (piso del cronograma)
 - [ ] `01-Relevamiento/` formalizado
 - [ ] [[Actores]] formalizados (empleado, admin, dueño, cliente)
-- [ ] Especificación de los 24 CU + [[DGM — Casos de uso|diagrama de casos de uso]]
-- [ ] 10 entidades formalizadas (Usuario, Cliente, Oportunidad, Viaje, Pago, Hotel, Reseña, Alerta, Cotización, ContenidoRed)
+- [ ] Especificación de los 25 CU + [[DGM — Casos de uso|diagrama de casos de uso]]
+- [ ] 11 entidades formalizadas (Usuario, Cliente, Oportunidad, Viaje, Pago, Hotel, Reseña, Alerta, Cotización, ContenidoRed, Destino)
 - [ ] [[MOC — Modelo de dominio|Diagrama de clases]] + [[DGM-ER]] coherentes (atributos, tipos, multiplicidades)
 - [ ] Diagramas de **actividad** de flujos clave ([[CU-01 De la consulta a la venta|CU-01]] + críticos)
 - [ ] [[ARQ — Vista general]] formalizada

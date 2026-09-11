@@ -10,10 +10,10 @@ actualizado: 10/09/26
 
 tags:: #tipo/diagrama #tipo/modulo #estado/en-revision #pc/pc1
 
-> Mapa de las **10 entidades** y su diagrama de clases. Es la *salida*; la verdad de cada entidad vive en su nota (source). Al cambiar una entidad, actualizar este bloque. Un solo editor por vez (ver [[Guía del Vault#3 · Workflow colaborativo]]).
+> Mapa de las **11 entidades** y su diagrama de clases. Es la *salida*; la verdad de cada entidad vive en su nota (source). Al cambiar una entidad, actualizar este bloque. Un solo editor por vez (ver [[Guía del Vault#3 · Workflow colaborativo]]).
 
 ## Entidades
-[[Usuario]] · [[Cliente]] · [[Oportunidad]] · [[Viaje]] · [[Pago]] · [[Hotel]] · [[Reseña]] · [[Alerta]] · [[Cotización]] · [[ContenidoRed]]
+[[Usuario]] · [[Cliente]] · [[Oportunidad]] · [[Viaje]] · [[Pago]] · [[Hotel]] · [[Reseña]] · [[Alerta]] · [[Cotización]] · [[ContenidoRed]] · [[Destino]]
 
 ## Diagrama de clases (borrador)
 ```mermaid
@@ -40,8 +40,14 @@ classDiagram
     }
     class Viaje {
       +UUID id
-      +String destino
+      +UUID destinoId
       +String estado
+    }
+    class Destino {
+      +UUID id
+      +String nombre
+      +String pais
+      +Bool activo
     }
     class Pago {
       +UUID id
@@ -52,7 +58,7 @@ classDiagram
     class Hotel {
       +UUID id
       +String nombre
-      +String destino
+      +UUID destinoId
       +String categoria
       +Decimal precioReferencia
       +String servicios
@@ -82,11 +88,14 @@ classDiagram
     Viaje "1" --> "0..*" Alerta
     Viaje "0..*" --> "0..*" Hotel : viaje_hotel
     Hotel "1" --> "0..*" Resena
+    Destino "1" --> "0..*" Viaje
+    Destino "1" --> "0..*" Hotel
     Usuario "1" --> "0..*" ContenidoRed
     Usuario "1" --> "0..*" Viaje : gestiona
 ```
 
 > Relación Viaje–Hotel (N:M) y objeto de la Reseña resueltos en [[DEC-0003 Relación Viaje–Hotel y Reseña]].
+> `destino` de [[Viaje]] y [[Hotel]] pasó de `String` a FK hacia [[Destino]] (catálogo) — ver [[DEC-0006 Destino como entidad de catálogo]].
 
 ## Diagrama ER
 - Ver [[DGM-ER]] (modelo relacional para PostgreSQL).

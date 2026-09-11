@@ -18,13 +18,14 @@ Hotel vendido, con reseñas, para consultar y recomendar (catálogo).
 |---|---|---|
 | id | UUID | Identificador |
 | nombre | String | Nombre |
-| destino | String | Ciudad / país |
+| destino | FK → [[Destino]] | Ubicación del catálogo — ver [[DEC-0006 Destino como entidad de catálogo]] (⚠️ ratificar con Paloma) |
 | categoria | String | Estrellas / tipo |
 | precio_referencia | Decimal (ARS) | Precio de referencia por noche; permite filtrar por rango ([[CU-18 Buscar y recomendar hoteles]]) |
 | servicios | Texto / lista | Servicios / amenities (wifi, pileta, desayuno…); filtrable ([[CU-18 Buscar y recomendar hoteles]]) |
 | estado | Enum | `activo` · `cerrado` — soporta la baja de hoteles que cerraron conservando el historial ([[CU-16 Gestionar hotel en catálogo]]). _(A ratificar en la sync.)_ |
 
 ## Relaciones
+- *..1 con [[Destino]] — ver [[DEC-0006 Destino como entidad de catálogo]] (⚠️ ratificar con Paloma)
 - 0..* con [[Viaje]] (N:M vía `viaje_hotel`) — ver [[DEC-0003 Relación Viaje–Hotel y Reseña]]
 - 1 a 0..* con [[Reseña]] (un hotel puede tener muchas reseñas)
 

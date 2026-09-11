@@ -21,6 +21,8 @@ erDiagram
     CLIENTE ||--o{ RESENA : deja
     OPORTUNIDAD ||--o{ COTIZACION : produce
     OPORTUNIDAD ||--o| VIAJE : deriva
+    DESTINO ||--o{ VIAJE : ubica
+    DESTINO ||--o{ HOTEL : agrupa
     VIAJE ||--o{ PAGO : tiene
     VIAJE ||--o{ ALERTA : dispara
     VIAJE ||--o{ VIAJE_HOTEL : incluye
@@ -31,6 +33,7 @@ erDiagram
 ```
 
 > Relación N:M Viaje–Hotel modelada con la tabla intermedia `VIAJE_HOTEL`, y objeto de la Reseña (Hotel + Cliente, con Viaje opcional): ver [[DEC-0003 Relación Viaje–Hotel y Reseña]].
+> `VIAJE.destino_id` y `HOTEL.destino_id` son FK a `DESTINO` (antes texto libre): ver [[DEC-0006 Destino como entidad de catálogo]].
 
 ## Tabla intermedia VIAJE_HOTEL
 - FK `viaje_id` → VIAJE, FK `hotel_id` → HOTEL.

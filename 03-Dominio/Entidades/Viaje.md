@@ -17,7 +17,7 @@ Reserva concreta de un cliente: destino, fechas, categoría, estado y control ec
 | Atributo | Tipo | Descripción |
 |---|---|---|
 | id | UUID | Identificador |
-| destino | String | Destino |
+| destino | FK → [[Destino]] | Destino del catálogo — ver [[DEC-0006 Destino como entidad de catálogo]] |
 | fechas | Rango | Salida / regreso |
 | categoria | Enum | ej. salida grupal, individual |
 | estado | Enum | armado · confirmado · en curso · finalizado |
@@ -27,6 +27,7 @@ Reserva concreta de un cliente: destino, fechas, categoría, estado y control ec
 
 ## Relaciones
 - *..1 con [[Cliente]]
+- *..1 con [[Destino]] — ver [[DEC-0006 Destino como entidad de catálogo]]
 - 0..1 con [[Oportunidad]] (origen)
 - 1..* con [[Pago]] · 1..* con [[Alerta]]
 - 0..* con [[Hotel]] (N:M vía `viaje_hotel`) — ver [[DEC-0003 Relación Viaje–Hotel y Reseña]]
