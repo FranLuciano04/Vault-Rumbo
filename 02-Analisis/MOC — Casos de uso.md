@@ -28,7 +28,7 @@ tags:: #tipo/modulo #estado/en-revision #pc/pc1
 
 ### Viajes — *Francisco*
 - [[CU-07 Confirmar reserva]] — confirmar la venta creando el Viaje.
-- [[CU-08 Gestionar estado del viaje]] — armado → confirmado → en curso → finalizado.
+- [[CU-08 Gestionar estado del viaje]] — vendido → confirmado → en curso → finalizado.
 - [[CU-09 Armar itinerario de hoteles]] — asociar Hoteles al Viaje con sus tramos.
 - [[CU-27 Cancelar viaje]] — baja/cancelación del Viaje (estado `cancelado`). ⚠️ borrador propuesto 10/09, validar Francisco.
 

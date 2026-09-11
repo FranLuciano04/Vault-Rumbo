@@ -20,7 +20,7 @@ Cargar el precio de venta y el costo neto de un [[Viaje]]; el sistema calcula la
 - [[Actores|admin]] — define el `%comisión` de la empresa ([[CU-13 Configurar porcentaje de comisión]]).
 
 ## Precondiciones
-- Existe el [[Viaje]] (confirmado en [[CU-07 Confirmar reserva]]).
+- Existe el [[Viaje]] (creado/`vendido` en [[CU-07 Confirmar reserva]]).
 - Hay un `%comisión` vigente ([[DEC-0004 Comisión configurable por porcentaje]]).
 
 ## Flujo principal

@@ -20,7 +20,7 @@ Reserva concreta de un cliente: destino, fechas, categoría, estado y control ec
 | destino | FK → [[Destino]] | Destino del catálogo — ver [[DEC-0006 Destino como entidad de catálogo]] |
 | fechas | Rango | Salida / regreso |
 | categoria | Enum | ej. salida grupal, individual |
-| estado | Enum | armado · confirmado · en curso · finalizado · cancelado — ver [[CU-27 Cancelar viaje]] |
+| estado | Enum | `vendido` (aceptó cotización + pagó seña) · `confirmado` (pagó el total) · `en curso` (inició por fecha) · `finalizado` (terminó) · `cancelado` (baja, [[CU-27 Cancelar viaje]]). La transición `vendido → confirmado` la dispara el **pago total** ([[CU-12 Registrar cobro de un pago]]); `en curso`/`finalizado` van por **fecha** (sugeridas, confirma el empleado — [[CU-08 Gestionar estado del viaje]]) |
 | precioVenta | Decimal (ARS) | Precio al cliente |
 | costoNeto | Decimal (ARS) | Costo del proveedor |
 | comision | Decimal (ARS) | Calculada por % configurable — [[RN-01 Comisión automática]], [[DEC-0004 Comisión configurable por porcentaje]] |

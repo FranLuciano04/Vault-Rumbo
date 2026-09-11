@@ -21,7 +21,7 @@ Representa una **consulta / lead**: el interés de un cliente en un viaje antes 
 | destino | String | Destino consultado |
 | fechas | Rango | Fechas tentativas |
 | pasajeros | Int | Cantidad |
-| estado | Enum | nueva · cotizada · ganada · perdida |
+| estado | Enum | `nueva` (recibida, sin atender) · `en_gestión` (se está atendiendo/asesorando, antes de cotizar) · `cotizada` (cotización enviada) · `ganada` · `perdida` |
 | responsable | FK → [[Usuario]] | Empleado que registró/sigue la consulta; define la vista "mis oportunidades". Ver [[DEC-0005 Autenticación y modelo de roles]] |
 
 ## Relaciones

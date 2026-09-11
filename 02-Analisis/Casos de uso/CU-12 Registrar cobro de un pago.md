@@ -31,8 +31,8 @@ Marcar un [[Pago]] como cobrado y actualizar el estado económico del [[Viaje]].
 
 ## Flujos alternativos
 - **A1 — Pago vencido:** si el [[Pago]] estaba `vencido`, igual pasa a `pagado` y se resuelve su [[Alerta]].
-- **A2 — Último pago:** al quedar el saldo en cero, el sistema marca el [[Viaje]] como saldado (dato para reportes; no cambia su `estado` operativo).
-- **A3 — Corregir cobro:** si se registró por error, el empleado revierte el cobro y el [[Pago]] vuelve a `pendiente`/`vencido` y su [[Alerta]] se reabre.
+- **A2 — Último pago (viaje saldado):** al quedar el saldo en cero, el sistema pasa el [[Viaje]] de `vendido` a **`confirmado`** (= total pagado), su hito económico dentro del ciclo del viaje ([[CU-08 Gestionar estado del viaje]]).
+- **A3 — Corregir cobro:** si se registró por error, el empleado revierte el cobro y el [[Pago]] vuelve a `pendiente`/`vencido` y su [[Alerta]] se reabre. Si el [[Viaje]] había pasado a `confirmado` por saldo cero, vuelve a `vendido`.
 
 ## Postcondiciones
 - El [[Pago]] queda `pagado`, su [[Alerta]] resuelta y el saldo del [[Viaje]] actualizado.

@@ -25,11 +25,12 @@ El empleado da seguimiento a una [[Oportunidad]] a lo largo del embudo: registra
 
 ## Flujo principal
 1. El empleado abre la [[Oportunidad]] y revisa su contexto ([[Cliente]], destino, fechas, [[Cotización|Cotizaciones]] emitidas).
-2. Registra una **interacción/nota** de seguimiento (qué se habló, próximos pasos).
-3. Agenda una **insistencia**: el sistema crea una [[Alerta]] de tipo `insistencia` para volver a contactar en X días ([[CU-01 De la consulta a la venta]] A1).
-4. Según avance, actualiza el estado: pasa a `cotizada` al emitir la [[Cotización]] ([[CU-06 Emitir cotización]]).
-5. **Cierre:** marca la [[Oportunidad]] como `ganada` (continúa en [[CU-07 Confirmar reserva]]) o `perdida` (registra el **motivo**, de una lista fija: *precio · fechas/disponibilidad · desistió · compró en otra agencia · sin respuesta · otro* [texto libre]).
-6. El sistema resuelve las [[Alerta|Alertas]] de insistencia pendientes al cerrarse la [[Oportunidad]].
+2. Al empezar a atender/asesorar, la [[Oportunidad]] pasa de `nueva` a **`en_gestión`** (se está trabajando, antes de cotizar).
+3. Registra una **interacción/nota** de seguimiento (qué se habló, próximos pasos).
+4. Agenda una **insistencia**: el sistema crea una [[Alerta]] de tipo `insistencia` para volver a contactar en X días ([[CU-01 De la consulta a la venta]] A1).
+5. Según avance, actualiza el estado: pasa a `cotizada` al emitir la [[Cotización]] ([[CU-06 Emitir cotización]]).
+6. **Cierre:** marca la [[Oportunidad]] como `ganada` (continúa en [[CU-07 Confirmar reserva]]) o `perdida` (registra el **motivo**, de una lista fija: *precio · fechas/disponibilidad · desistió · compró en otra agencia · sin respuesta · otro* [texto libre]).
+7. El sistema resuelve las [[Alerta|Alertas]] de insistencia pendientes al cerrarse la [[Oportunidad]].
 
 ## Flujos alternativos
 - **A1 — El cliente no responde:** vence la insistencia sin respuesta → el sistema reagenda o el empleado reprograma un nuevo contacto.
@@ -43,7 +44,7 @@ El empleado da seguimiento a una [[Oportunidad]] a lo largo del embudo: registra
 
 ## Reglas de negocio aplicadas
 - (Ninguna regla económica en este CU; la comisión aplica recién al confirmar el [[Viaje]].)
-- Los estados de la [[Oportunidad]] son `nueva · cotizada · ganada · perdida`; el seguimiento/insistencia se maneja con [[Alerta|Alertas]], sin un estado "en seguimiento" adicional (resuelve la duda de [[CU-04 Registrar consulta]]).
+- Los estados de la [[Oportunidad]] son `nueva · en_gestión · cotizada · ganada · perdida`; `en_gestión` cubre el período de atención/asesoramiento previo a la cotización (resuelve la duda de [[CU-04 Registrar consulta]]). La insistencia se maneja con [[Alerta|Alertas]].
 - Visibilidad: gestiona el `responsable`; legible por toda la agencia ([[DEC-0005 Autenticación y modelo de roles]]).
 
 ## Entidades del dominio involucradas
@@ -56,4 +57,4 @@ El empleado da seguimiento a una [[Oportunidad]] a lo largo del embudo: registra
 - [[DEC-0002 Modelar la consulta como Oportunidad]] · [[DEC-0005 Autenticación y modelo de roles]]
 
 ## 🔎 Revisión
-> [!note] Francisco (11/09) — **definido:** (1) se mantienen los **4 estados** de [[Oportunidad]] sin "en_seguimiento" (la insistencia va por [[Alerta]]); (2) el **motivo de pérdida** es de **lista fija** (precio · fechas/disponibilidad · desistió · compró en otra agencia · sin respuesta · otro), para poder analizarlo en reportes ([[CU-22 Generar reportes y estadísticas]]).
+> [!note] Francisco (11/09) — **definido:** (1) se agrega el estado **`en_gestión`** entre `nueva` y `cotizada` (la persona está siendo atendida antes de cotizar); `nueva` = recibida sin iniciar. Estados: `nueva · en_gestión · cotizada · ganada · perdida`. (2) el **motivo de pérdida** es de **lista fija** (precio · fechas/disponibilidad · desistió · compró en otra agencia · sin respuesta · otro), para analizarlo en reportes ([[CU-22 Generar reportes y estadísticas]]).
