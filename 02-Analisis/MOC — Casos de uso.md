@@ -24,6 +24,7 @@ tags:: #tipo/modulo #estado/en-revision #pc/pc1
 - [[CU-04 Registrar consulta]] — registrar consulta entrante creando una Oportunidad.
 - [[CU-05 Seguir oportunidad]] — seguimiento, insistencia y cierre ganada/perdida.
 - [[CU-06 Emitir cotización]] — generar Cotización desde plantilla (incluye versionar/reenviar).
+- [[CU-30 Sugerir recontacto de clientes]] — CRM proactivo: detecta clientes fieles inactivos y sugiere recontacto (con opt-out). ⚠️ nuevo 11/09, del relevamiento crudo; valida dominio con Paloma/Nahuel.
 
 ### Viajes — *Francisco*
 - [[CU-07 Confirmar reserva]] — confirmar la venta creando el Viaje.
@@ -67,7 +68,7 @@ tags:: #tipo/modulo #estado/en-revision #pc/pc1
 ## División de la especificación (PC1)
 | Responsable | Casos de uso | Total |
 |---|---|---|
-| **Francisco** | CU-01, CU-04→09, CU-21, CU-22, CU-27 | 9 (+núcleo) |
+| **Francisco** | CU-01, CU-04→09, CU-21, CU-22, CU-27, CU-30 | 10 (+núcleo) |
 | **Paloma** | CU-02, CU-03, CU-16→20, CU-23, CU-29 | 9 |
 | **Nahuel** | CU-10→15, CU-24, CU-25, CU-26, CU-28 | 10 |
 

@@ -17,7 +17,7 @@ Recordatorio automático para no perder vencimientos ni tareas: pagos, formulari
 | Atributo | Tipo | Descripción |
 |---|---|---|
 | id | UUID | Identificador |
-| tipo | Enum | pago · formulario · insistencia · reseña · manual — ver [[CU-28 Crear recordatorio manual]] |
+| tipo | Enum | pago · formulario · insistencia · reseña · manual · recontacto — `manual` ([[CU-28 Crear recordatorio manual]]), `recontacto` ([[CU-30 Sugerir recontacto de clientes]]) |
 | fecha | Date (dd/mm/aa) | Cuándo dispara |
 | estado | Enum | pendiente · vista · resuelta |
 | propietario | FK → [[Usuario]] | Quien la recibe/creó; define la agenda personal. Ver [[DEC-0005 Autenticación y modelo de roles]] |

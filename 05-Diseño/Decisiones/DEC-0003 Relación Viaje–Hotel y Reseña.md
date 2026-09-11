@@ -24,6 +24,8 @@ Las notas de dominio se contradecían sobre dos puntos (ver [[MOC — Modelo de 
 ### Tabla intermedia `viaje_hotel`
 - Clave primaria compuesta `(viaje_id, hotel_id)` o `id` propio si se repite el hotel en tramos distintos.
 - Atributos sugeridos: `check_in` (Date), `check_out` (Date), `orden` (Int, para el itinerario). _(A refinar en [[DGM-ER]].)_
+- **`vencimiento_pago_proveedor`** (Date, opcional): fecha límite para pagar ese hotel al proveedor; genera una [[Alerta]] de tipo `pago` **un mes antes** (relevamiento: "cada hotel tiene una fecha de vencimiento"). Agregado 11/09 (Francisco).
+- **`pago_proveedor_realizado`** (Bool): marca si ya se abonó al proveedor; al confirmarse, resuelve la [[Alerta]] asociada.
 
 ## Alternativas consideradas
 | Opción | Pros | Contras | ¿Elegida? |

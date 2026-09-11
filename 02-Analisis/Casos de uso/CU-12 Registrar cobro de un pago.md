@@ -27,7 +27,7 @@ Marcar un [[Pago]] como cobrado y actualizar el estado económico del [[Viaje]].
 2. Registra el cobro: fecha efectiva (`dd/mm/aa`) y, como dato informativo, el medio.
 3. El sistema cambia el estado del [[Pago]] a `pagado`.
 4. El sistema resuelve la [[Alerta]] de vencimiento asociada a ese [[Pago]].
-5. El sistema actualiza el saldo pendiente del [[Viaje]] (suma de [[Pago|Pagos]] no cobrados).
+5. El sistema actualiza el saldo pendiente del [[Viaje]] (suma de [[Pago|Pagos]] no cobrados) y el **porcentaje pagado** del total, y refleja el **checklist de pagos** (pagas / por pagar). Ver [[Alcance y fuera de alcance]] (Economía: checklist y % pagado).
 
 ## Flujos alternativos
 - **A1 — Pago vencido:** si el [[Pago]] estaba `vencido`, igual pasa a `pagado` y se resuelve su [[Alerta]].

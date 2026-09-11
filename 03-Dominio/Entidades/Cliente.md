@@ -22,6 +22,7 @@ Persona (o grupo) que consulta y viaja con la agencia. Concentra ficha, preferen
 | segmento | Enum | familia · amigos · individual |
 | preferencias | Texto | Destinos, estilo de viaje, notas |
 | asesor_asignado | FK → [[Usuario]] (opcional) | Responsable de referencia; habilita el filtro "mis clientes" sin restringir la visibilidad. Ver [[DEC-0005 Autenticación y modelo de roles]] |
+| no_recontactar | Bool | Opt-out del CRM proactivo: si está activo, el cliente no se sugiere para recontacto. Ver [[CU-30 Sugerir recontacto de clientes]] |
 
 ## Relaciones
 - 1..* con [[Oportunidad]] — un Cliente genera muchas consultas

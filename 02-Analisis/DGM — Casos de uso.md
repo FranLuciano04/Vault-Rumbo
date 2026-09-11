@@ -29,6 +29,7 @@ flowchart LR
       CU04((Registrar consulta))
       CU05((Seguir oportunidad))
       CU06((Emitir cotización))
+      CU30((Sugerir recontacto))
     end
     subgraph M3[Viajes]
       CU07((Confirmar reserva))
@@ -71,7 +72,7 @@ flowchart LR
     end
   end
 
-  EMP --- CU02 & CU03 & CU04 & CU05 & CU06 & CU07 & CU08 & CU09
+  EMP --- CU02 & CU03 & CU04 & CU05 & CU06 & CU07 & CU08 & CU09 & CU30
   EMP --- CU10 & CU11 & CU12 & CU14 & CU15 & CU16 & CU17 & CU18 & CU19 & CU20 & CU23 & CU27 & CU28
   ADM --- CU13 & CU25 & CU26 & CU29
   DUE --- CU26

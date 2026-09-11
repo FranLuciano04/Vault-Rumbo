@@ -32,7 +32,7 @@ Reserva concreta de un cliente: destino, fechas, categoría, estado y control ec
 - *..1 con [[Destino]] — ver [[DEC-0006 Destino como entidad de catálogo]]
 - 0..1 con [[Oportunidad]] (origen)
 - 1..* con [[Pago]] · 1..* con [[Alerta]]
-- 0..* con [[Hotel]] (N:M vía `viaje_hotel`) — ver [[DEC-0003 Relación Viaje–Hotel y Reseña]]
+- 0..* con [[Hotel]] (N:M vía `viaje_hotel`, con `vencimiento_pago_proveedor` por hotel → [[Alerta]] un mes antes) — ver [[DEC-0003 Relación Viaje–Hotel y Reseña]]
 
 ## Aparece en
 - [[CU-01 De la consulta a la venta]] · [[MOD-Viajes]] · [[MOD-Economia-Pagos]]

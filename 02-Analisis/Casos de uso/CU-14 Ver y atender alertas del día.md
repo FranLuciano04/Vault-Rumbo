@@ -26,7 +26,7 @@ Consultar la agenda de [[Alerta|Alertas]] vigentes (pagos, formularios por desti
 1. El empleado abre la agenda de [[Alerta|Alertas]] del día.
 2. El sistema lista las [[Alerta|Alertas]] vigentes (`pendiente` y `vencida`), ordenadas por `fecha`, filtradas por propietario ([[DEC-0005 Autenticación y modelo de roles]]).
 3. El empleado abre una [[Alerta]] y ve su contexto ([[Viaje]], [[Pago]] u [[Oportunidad]] asociada).
-4. Realiza la acción correspondiente según el `tipo` (pago · formulario · insistencia · reseña).
+4. Realiza la acción correspondiente según el `tipo` (pago · formulario · insistencia · reseña · manual · recontacto).
 5. Marca la [[Alerta]] como `vista` o `resuelta`.
 
 ## Flujos alternativos
