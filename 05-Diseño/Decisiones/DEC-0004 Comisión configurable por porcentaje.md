@@ -1,15 +1,15 @@
 ---
 tipo: decision
-estado: en-revision
+estado: formalizado
 modulo: [economia]
 decisores: [Francisco]
-fecha_aprobacion:
+fecha_aprobacion: 11/09/26
 supersede:
 actualizado: 10/09/26
 ---
 # DEC-0004 Comisión configurable por porcentaje
 
-tags:: #tipo/decision #estado/en-revision #pc/pc1
+tags:: #tipo/decision #estado/formalizado #pc/pc1
 
 ## Contexto
 [[RN-01 Comisión automática]] dejaba abierto si la comisión de un [[Viaje]] es una **diferencia fija** (`precioVenta − costoNeto`) o un **porcentaje configurable**.
@@ -38,4 +38,4 @@ La comisión se **calcula automáticamente** y es **configurable por porcentaje*
 - Afecta: [[RN-01 Comisión automática]], [[Viaje]] (`comision`, `%comision`/config), [[Pago]], [[CU-01 De la consulta a la venta]] (paso 4).
 
 ## Decisores y fecha
-- Decisores: Francisco (10/09/26) — Aprobada: _(pendiente sync)_
+- Decisores: Francisco (10/09/26) — **Aprobada: 11/09/26** (sync; Francisco y Nahuel presentes). ⚠️ Sujeta a la respuesta de la agencia sobre **qué representa la comisión y su base de cálculo** (pregunta que lleva Francisco a Valentina); si difiere, se revisa o supersede esta DEC.

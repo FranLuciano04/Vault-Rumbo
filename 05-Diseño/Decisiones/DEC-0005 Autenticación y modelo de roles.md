@@ -1,15 +1,15 @@
 ---
 tipo: decision
-estado: en-revision
+estado: formalizado
 modulo: [seguridad]
 decisores: [Francisco]
-fecha_aprobacion:
+fecha_aprobacion: 11/09/26
 supersede:
 actualizado: 11/09/26
 ---
 # DEC-0005 Autenticación y modelo de roles
 
-tags:: #tipo/decision #estado/en-revision #pc/pc1
+tags:: #tipo/decision #estado/formalizado #pc/pc1
 
 ## Contexto
 [[ARQ — Vista general]] dejaba abierta la autenticación y los roles de [[Usuario]]. El negocio (agencia PyME; hoy Valentina y Diego, padre e hija) necesita que **la información fluya entre todos** —los clientes son de la agencia, no de quien los cargó— pero que cada persona pueda **organizar y responsabilizarse de lo suyo**. El catálogo de hoteles, reseñas y destinos es **compartido**. El modelo debe ser simple hoy y **escalable** (poder endurecer la visibilidad por equipo/sucursal más adelante sin rehacerlo).
@@ -56,4 +56,4 @@ Para sostener la propiedad sin bloquear la lectura, las entidades operativas lle
 - Afecta: [[Usuario]] (enum `rol`), [[Cliente]] (`asesor_asignado`), [[Oportunidad]] (`responsable`), [[Viaje]] (`responsable`), [[Alerta]] (`propietario`), [[Actores]], [[ARQ — Vista general]] y, transversalmente, casi todos los casos de uso (filtros por propiedad, no por bloqueo).
 
 ## Decisores y fecha
-- Decisores: Francisco (10/09/26; modelo de visibilidad ampliado 11/09/26) — Aprobada: _(pendiente sync — ratificar con Paloma y Nahuel)_
+- Decisores: Francisco (10/09/26; modelo de visibilidad ampliado 11/09/26) — **Aprobada: 11/09/26** (sync; Francisco y Nahuel presentes, Paloma notificada por Git). Se aprueba el **modelo de roles y visibilidad**; el **mecanismo de autenticación** sigue `#accion/decidir` (no bloquea el sello del resto).

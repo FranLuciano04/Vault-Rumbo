@@ -1,15 +1,15 @@
 ---
 tipo: decision
-estado: en-revision
+estado: formalizado
 modulo: [viajes, hoteles, clientes]
 decisores: [Francisco]
-fecha_aprobacion:
+fecha_aprobacion: 11/09/26
 supersede:
 actualizado: 10/09/26
 ---
 # DEC-0003 Relación Viaje–Hotel y Reseña
 
-tags:: #tipo/decision #estado/en-revision #pc/pc1
+tags:: #tipo/decision #estado/formalizado #pc/pc1
 
 ## Contexto
 Las notas de dominio se contradecían sobre dos puntos (ver [[MOC — Modelo de dominio]] y [[DGM-ER]]):
@@ -41,4 +41,4 @@ El [[Relevamiento — Fuente de verdad]] define el catálogo de hoteles para "co
 - Afecta: [[MOC — Modelo de dominio]], [[DGM-ER]], [[Viaje]], [[Hotel]], [[Reseña]].
 
 ## Decisores y fecha
-- Decisores: Francisco (10/09/26) — Aprobada: _(pendiente sync)_
+- Decisores: Francisco (10/09/26) — **Aprobada: 11/09/26** (sync; Francisco y Nahuel presentes, Paloma notificada por Git). Incluye `vencimiento_pago_proveedor` en `viaje_hotel`.

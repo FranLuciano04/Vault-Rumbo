@@ -30,7 +30,7 @@ Hotel vendido, con reseñas, para consultar y recomendar (catálogo).
 - 1 a 0..* con [[Reseña]] (un hotel puede tener muchas reseñas)
 
 ## Reglas / invariantes
-- Baja (**definido** 11/09): un `Hotel` sin viajes ni reseñas se elimina; con historial se marca `estado = cerrado` (no se borra, para no romper la trazabilidad de [[DEC-0003 Relación Viaje–Hotel y Reseña]]).
+- Baja (**definido** 11/09, sync): **siempre baja lógica** → `estado = cerrado`. Un `Hotel` **nunca se elimina físicamente** (se saca del catálogo activo pero se conserva, para no romper la trazabilidad de [[DEC-0003 Relación Viaje–Hotel y Reseña]] ni el historial del cliente).
 
 ## Aparece en
 - CU: [[CU-01 De la consulta a la venta]] (post-venta) · [[CU-16 Gestionar hotel en catálogo]] · [[CU-17 Registrar reseña de hotel]] · [[CU-18 Buscar y recomendar hoteles]]

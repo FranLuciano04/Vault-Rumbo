@@ -1,15 +1,15 @@
 ---
 tipo: decision
-estado: en-revision
+estado: formalizado
 modulo: [viajes, alertas, hoteles]
 decisores: [Nahuel]
-fecha_aprobacion:
+fecha_aprobacion: 11/09/26
 supersede:
 actualizado: 10/09/26
 ---
 # DEC-0006 Destino como entidad de catálogo
 
-tags:: #tipo/decision #estado/en-revision #pc/pc1
+tags:: #tipo/decision #estado/formalizado #pc/pc1
 
 ## Contexto
 `destino` estaba modelado como un atributo `String` libre en [[Viaje]] y en [[Hotel]]. El pedido de un **ABM de destinos** ([[CU-26 Gestionar destinos]]) y las reglas de **recordatorio por destino** ([[CU-15 Configurar recordatorios por destino]]) necesitan un destino **identificable, reutilizable y consistente**, no una cadena escrita a mano en cada registro.
@@ -36,4 +36,4 @@ tags:: #tipo/decision #estado/en-revision #pc/pc1
 - Afecta: [[Destino]] (nueva), [[Viaje]] (`destino` → FK), [[Hotel]] (`destino` → FK), [[MOC — Modelo de dominio]], [[DGM-ER]], [[CU-15 Configurar recordatorios por destino]], [[CU-26 Gestionar destinos]] y el checklist de entidades en [[Estado del proyecto]] (10 → 11).
 
 ## Decisores y fecha
-- Decisores: Nahuel (10/09/26) — Aprobada: _(pendiente sync)_
+- Decisores: Nahuel (10/09/26) — **Aprobada: 11/09/26** (sync; Francisco y Nahuel presentes, Paloma notificada por Git). Confirmado: `Oportunidad.destino` queda **texto libre** y se **normaliza a [[Destino]] al derivar en [[Viaje]]** ([[CU-07 Confirmar reserva]]).

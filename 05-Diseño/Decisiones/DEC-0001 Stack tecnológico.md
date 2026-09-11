@@ -1,15 +1,15 @@
 ---
 tipo: decision
-estado: en-revision
+estado: formalizado
 modulo: []
 decisores: [Paloma, Nahuel, Francisco]
-fecha_aprobacion:
+fecha_aprobacion: 11/09/26
 supersede:
 actualizado: 09/09/26
 ---
 # DEC-0001 Stack tecnológico
 
-tags:: #tipo/decision #estado/en-revision #pc/pc1 #accion/revisar
+tags:: #tipo/decision #estado/formalizado #pc/pc1
 
 ## Contexto
 Rumbo es un proyecto integrador con web, mobile, backend, base de datos relacional, API REST e IA. Necesitamos fijar el stack antes de PC1 para que dominio y arquitectura sean coherentes. Nahuel elaboró esta propuesta técnica completa; queda pendiente la aprobación del equipo.
@@ -90,7 +90,7 @@ React y React Native permiten compartir tipos, validaciones y acceso a datos. Fa
 
 ## Decisores y fecha
 - Propuesta técnica: Nahuel.
-- Decisores: Paloma, Nahuel, Francisco — Aprobada: _(pendiente sync)_
+- Decisores: Paloma, Nahuel, Francisco — **Aprobada: 11/09/26** (sync; Francisco y Nahuel presentes, Paloma notificada por Git).
 
 ## Vínculo con el código (a partir de PC2)
 - Rama: `-` · Commits: `-`

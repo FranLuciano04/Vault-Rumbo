@@ -11,7 +11,7 @@ actualizado: 11/09/26
 tags:: #tipo/caso-uso #estado/en-revision #pc/pc1 #accion/revisar
 
 ## Descripción
-El empleado sigue y hace avanzar el [[Viaje]] por su ciclo de vida (`vendido → confirmado → en curso → finalizado`) y consulta su situación (itinerario, control económico, checklist de pagos). La **cancelación** es un flujo aparte ([[CU-27 Cancelar viaje]]).
+El empleado sigue y hace avanzar el [[Viaje]] por su ciclo de vida (`reservado → vendido → confirmado → en curso → finalizado`) y consulta su situación (itinerario, control económico, checklist de pagos). La **cancelación** es un flujo aparte ([[CU-27 Cancelar viaje]]).
 
 ## Actor principal
 [[Actores|empleado]] (el `responsable` del [[Viaje]])
@@ -25,8 +25,8 @@ El empleado sigue y hace avanzar el [[Viaje]] por su ciclo de vida (`vendido →
 
 ## Flujo principal
 1. El empleado abre el [[Viaje]] y ve su estado, itinerario ([[CU-09 Armar itinerario de hoteles]]), economía y **checklist de pagos** con el **% pagado** ([[CU-12 Registrar cobro de un pago]]).
-   > El [[Viaje]] arranca en `vendido` al cerrarse la venta ([[CU-07 Confirmar reserva]]).
-2. **`vendido → confirmado`:** lo dispara el **pago total** del viaje al saldarse ([[CU-12 Registrar cobro de un pago]]), no una acción manual.
+   > El [[Viaje]] arranca en `reservado` al crearse la venta ([[CU-07 Confirmar reserva]]).
+2. **`reservado → vendido`:** lo dispara el **cobro de la seña**; **`vendido → confirmado`:** el **pago total** al saldarse ([[CU-12 Registrar cobro de un pago]]). No son acciones manuales.
 3. **`confirmado → en curso → finalizado`:** el sistema **sugiere** el cambio según las fechas de salida/regreso, pero **el empleado confirma** el paso.
 4. El sistema registra el cambio y actualiza las vistas dependientes ([[CU-23 Ver calendario de viajes y vencimientos]], dashboard).
 5. Al pasar a `finalizado`, el sistema habilita la **post-venta**: agenda una [[Alerta]] de tipo `reseña` ([[CU-17 Registrar reseña de hotel]]).
@@ -40,8 +40,8 @@ El empleado sigue y hace avanzar el [[Viaje]] por su ciclo de vida (`vendido →
 - El [[Viaje]] refleja su estado operativo actual; al finalizar, queda disponible para la [[Reseña]] post-viaje y para reportes.
 
 ## Reglas de negocio aplicadas
-- Estados del [[Viaje]]: `vendido · confirmado · en curso · finalizado · cancelado`. `cancelado` es terminal y se gestiona en [[CU-27 Cancelar viaje]].
-- `vendido` = venta cerrada con seña; `confirmado` = **total pagado** (lo dispara [[CU-12 Registrar cobro de un pago]] al saldar).
+- Estados del [[Viaje]]: `reservado · vendido · confirmado · en curso · finalizado · cancelado`. `cancelado` es terminal y se gestiona en [[CU-27 Cancelar viaje]].
+- `reservado` = aceptó la cotización (sin seña); `vendido` = seña cobrada; `confirmado` = **total pagado**. Las dos primeras transiciones las dispara [[CU-12 Registrar cobro de un pago]] (seña y saldo).
 - `en curso`/`finalizado` van por **fecha sugerida + confirmación del empleado**; nunca se fuerzan (caso vuelo retrasado, A1).
 
 ## Entidades del dominio involucradas

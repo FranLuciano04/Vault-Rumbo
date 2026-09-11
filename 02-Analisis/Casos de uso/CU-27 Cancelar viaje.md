@@ -20,7 +20,7 @@ Dar de baja un [[Viaje]] que no se concreta (el cliente desiste, fuerza mayor), 
 - [[Actores|Pasajero / Cliente]] (externo: origen de la cancelación).
 
 ## Precondiciones
-- Existe un [[Viaje]] en estado `vendido`, `confirmado` o `en curso` (no `finalizado` ni ya `cancelado`).
+- Existe un [[Viaje]] en estado `reservado`, `vendido`, `confirmado` o `en curso` (no `finalizado` ni ya `cancelado`).
 
 ## Flujo principal
 1. El empleado abre el [[Viaje]] y elige **cancelar**.

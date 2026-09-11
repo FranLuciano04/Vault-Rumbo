@@ -31,6 +31,7 @@ Marcar un [[Pago]] como cobrado y actualizar el estado económico del [[Viaje]].
 
 ## Flujos alternativos
 - **A1 — Pago vencido:** si el [[Pago]] estaba `vencido`, igual pasa a `pagado` y se resuelve su [[Alerta]].
+- **A0 — Cobro de la seña:** si el [[Pago]] cobrado es la **seña** y el [[Viaje]] estaba `reservado`, pasa a **`vendido`** ([[CU-08 Gestionar estado del viaje]]).
 - **A2 — Último pago (viaje saldado):** al quedar el saldo en cero, el sistema pasa el [[Viaje]] de `vendido` a **`confirmado`** (= total pagado), su hito económico dentro del ciclo del viaje ([[CU-08 Gestionar estado del viaje]]).
 - **A3 — Corregir cobro:** si se registró por error, el empleado revierte el cobro y el [[Pago]] vuelve a `pendiente`/`vencido` y su [[Alerta]] se reabre. Si el [[Viaje]] había pasado a `confirmado` por saldo cero, vuelve a `vendido`.
 

@@ -11,7 +11,7 @@ actualizado: 11/09/26
 tags:: #tipo/caso-uso #estado/en-revision #pc/pc1 #accion/revisar
 
 ## Descripción
-El empleado **cierra la venta** creando el [[Viaje]] a partir de una [[Oportunidad]] ganada: fija destino, fechas, categoría y responsable, y deja el viaje listo para su control económico ([[CU-10 Registrar economía del viaje]]) y su itinerario ([[CU-09 Armar itinerario de hoteles]]). El [[Viaje]] nace en estado **`vendido`** (aceptó la cotización y pagó la seña). *(Ojo con el nombre: "confirmar reserva" = cerrar la venta; el estado `confirmado` del [[Viaje]] es otra cosa — significa "total pagado", ver [[CU-12 Registrar cobro de un pago]].)*
+El empleado **cierra la venta** creando el [[Viaje]] a partir de una [[Oportunidad]] ganada: fija destino, fechas, categoría y responsable, carga su economía ([[CU-10 Registrar economía del viaje]]) y plan de cuotas ([[CU-11 Definir plan de cuotas]]). El [[Viaje]] nace en estado **`reservado`** (el cliente aceptó la cotización); pasa a `vendido` recién cuando se cobra la **seña** ([[CU-12 Registrar cobro de un pago]]). *(Ojo con el nombre: "confirmar reserva" = crear la venta; el estado `confirmado` del [[Viaje]] significa "total pagado".)*
 
 ## Actor principal
 [[Actores|empleado]]
@@ -26,9 +26,9 @@ El empleado **cierra la venta** creando el [[Viaje]] a partir de una [[Oportunid
 ## Flujo principal
 1. Desde la [[Oportunidad]] ganada, el empleado elige **Confirmar reserva**.
 2. Carga/confirma los datos del [[Viaje]]: **destino** (del catálogo, [[CU-26 Gestionar destinos]]), **fechas** (salida/regreso), **categoría** (ej. salida grupal, individual) y **responsable** ([[Usuario]]).
-3. El sistema crea el [[Viaje]] en estado `vendido` (venta cerrada con seña), asociado al [[Cliente]] y vinculado a la [[Oportunidad]] de origen.
+3. El sistema crea el [[Viaje]] en estado `reservado`, asociado al [[Cliente]] y vinculado a la [[Oportunidad]] de origen.
 4. El sistema genera automáticamente las [[Alerta|Alertas]] de tipo `formulario` según los [[RequisitoDestino|requisitos del destino]] ([[CU-15 Configurar recordatorios por destino]]).
-5. El sistema encadena el **control económico** ([[CU-10 Registrar economía del viaje]] — `<<include>>`) y ofrece armar el **itinerario de hoteles** ([[CU-09 Armar itinerario de hoteles]]).
+5. El sistema encadena el **control económico** ([[CU-10 Registrar economía del viaje]] — `<<include>>`) y el **plan de cuotas** con la seña ([[CU-11 Definir plan de cuotas]]); al cobrarse la seña ([[CU-12 Registrar cobro de un pago]]) el [[Viaje]] pasa a `vendido`. También ofrece armar el **itinerario de hoteles** ([[CU-09 Armar itinerario de hoteles]]).
 
 ## Flujos alternativos
 - **A1 — Venta directa (sin cotización formal):** la [[Oportunidad]] se cerró `ganada` sin [[Cotización]] escrita ([[CU-05 Seguir oportunidad]] A4) → igual se confirma el [[Viaje]].
@@ -36,7 +36,7 @@ El empleado **cierra la venta** creando el [[Viaje]] a partir de una [[Oportunid
 - **A3 — Datos faltantes:** falta destino o fechas → el sistema no confirma y pide completarlos.
 
 ## Postcondiciones
-- Existe un [[Viaje]] `vendido` asociado al [[Cliente]] y a su [[Oportunidad]], con las [[Alerta|Alertas]] de formulario por destino generadas, listo para su economía ([[CU-10 Registrar economía del viaje]]) y su itinerario ([[CU-09 Armar itinerario de hoteles]]).
+- Existe un [[Viaje]] `reservado` asociado al [[Cliente]] y a su [[Oportunidad]], con las [[Alerta|Alertas]] de formulario por destino generadas y su economía/plan cargados; pasará a `vendido` al cobrarse la seña ([[CU-12 Registrar cobro de un pago]]).
 - La [[Oportunidad]] queda `ganada` y cerrada.
 
 ## Reglas de negocio aplicadas
@@ -53,4 +53,4 @@ El empleado **cierra la venta** creando el [[Viaje]] a partir de una [[Oportunid
 - [[DEC-0006 Destino como entidad de catálogo]] · [[DEC-0005 Autenticación y modelo de roles]]
 
 ## 🔎 Revisión
-> [!note] Francisco (11/09) — **definido en la sync:** (1) el [[Viaje]] nace en **`vendido`** (aceptó cotización + pagó seña); el estado `confirmado` pasa a significar **"total pagado"** y se alcanza al saldar ([[CU-12 Registrar cobro de un pago]]). Se eliminó `armado`. Ciclo: `vendido → confirmado → en curso → finalizado` (+`cancelado`). (2) la economía ([[CU-10 Registrar economía del viaje]]) se encadena (`<<include>>`) pero no bloquea. **A coordinar:** el orden fino seña ↔ economía/plan de cuotas ([[CU-10 Registrar economía del viaje|CU-10]]/[[CU-11 Definir plan de cuotas|CU-11]]/[[CU-12 Registrar cobro de un pago|CU-12]]) con Nahuel.
+> [!note] Francisco + Nahuel (11/09) — **definido en la sync:** el [[Viaje]] nace en **`reservado`** (aceptó la cotización), pasa a **`vendido`** al cobrarse la **seña** y a **`confirmado`** al pagar el **total** ([[CU-12 Registrar cobro de un pago]]). Ciclo completo: `reservado → vendido → confirmado → en curso → finalizado` (+`cancelado`). CU-07 encadena economía ([[CU-10 Registrar economía del viaje]]) y plan de cuotas ([[CU-11 Definir plan de cuotas]]). Resuelto el orden seña ↔ economía/plan con Nahuel (dueño de pagos).
