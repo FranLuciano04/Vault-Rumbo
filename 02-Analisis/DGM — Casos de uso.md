@@ -44,6 +44,7 @@ flowchart LR
     subgraph M5[Alertas]
       CU14((Atender alertas))
       CU15((Recordatorios por destino))
+      CU26((Gestionar destinos))
     end
     subgraph M6[Catálogo hoteles]
       CU16((Gestionar hotel))
@@ -69,7 +70,8 @@ flowchart LR
 
   EMP --- CU02 & CU03 & CU04 & CU05 & CU06 & CU07 & CU08 & CU09
   EMP --- CU10 & CU11 & CU12 & CU14 & CU15 & CU16 & CU17 & CU18 & CU19 & CU20 & CU23
-  ADM --- CU13 & CU25
+  ADM --- CU13 & CU25 & CU26
+  DUE --- CU26
   DUE --- CU21 & CU22
   EMP --- CU24
   ADM --- CU24

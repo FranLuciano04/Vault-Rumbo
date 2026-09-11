@@ -39,6 +39,7 @@ tags:: #tipo/modulo #estado/en-revision #pc/pc1
 ### Alertas — *Nahuel*
 - [[CU-14 Ver y atender alertas del día]] — agenda de Alertas vigentes.
 - [[CU-15 Configurar recordatorios por destino]] — formularios/recordatorios por destino.
+- [[CU-26 Gestionar destinos]] — ABM del catálogo de destinos (base de CU-15; actor admin/dueño). ⚠️ agregado 10/09, requiere [[DEC-0006 Destino como entidad de catálogo]]; ratificar módulo en sync.
 
 ### Catálogo de hoteles — *Paloma*
 - [[CU-16 Gestionar hotel en catálogo]] — alta/edición de Hotel.
@@ -65,7 +66,7 @@ tags:: #tipo/modulo #estado/en-revision #pc/pc1
 |---|---|---|
 | **Francisco** | CU-01, CU-04→09, CU-21, CU-22 | 8 (+núcleo) |
 | **Paloma** | CU-02, CU-03, CU-16→20, CU-23 | 8 |
-| **Nahuel** | CU-10→15, CU-24, CU-25 | 8 |
+| **Nahuel** | CU-10→15, CU-24, CU-25, CU-26 | 9 |
 
 ## Reglas de negocio
 - [[RN-01 Comisión automática]] → [[DEC-0004 Comisión configurable por porcentaje]]
