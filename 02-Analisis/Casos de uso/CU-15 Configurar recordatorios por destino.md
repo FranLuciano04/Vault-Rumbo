@@ -25,7 +25,7 @@ Definir, por destino, qué formularios o requisitos deben recordarse (p. ej. vis
 ## Flujo principal
 1. El admin abre la configuración de **recordatorios por destino**.
 2. Selecciona un destino del catálogo ([[CU-26 Gestionar destinos]]); el alta/edición del destino se hace allí, no en este flujo.
-3. Define uno o más [[RequisitoDestino|requisitos]] a recordar: **nombre** del formulario/requisito y **anticipación** (días antes de la salida).
+3. Define uno o más [[RequisitoDestino|requisitos]] a recordar: **nombre**, **tipo** (visa · vacunación · documentación · seguro · formulario · otro), si es **obligatorio** o recomendado, una **descripción/instrucciones** opcional y la **anticipación** (días antes de la salida).
 4. El sistema guarda cada [[RequisitoDestino]] asociado al destino.
 5. Al crearse o confirmarse un [[Viaje]] a ese destino ([[CU-07 Confirmar reserva]]), el sistema genera automáticamente las [[Alerta|Alertas]] de tipo `formulario` según los [[RequisitoDestino|requisitos]] `activos`.
 

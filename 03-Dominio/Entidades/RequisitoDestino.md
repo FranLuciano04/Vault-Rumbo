@@ -10,7 +10,7 @@ actualizado: 11/09/26
 
 tags:: #tipo/entidad #estado/borrador #pc/pc1
 
-> ⚠️ Entidad nueva (12ª) **definida por Francisco (11/09)** en la revisión de inconsistencias, para cerrar el gap de modelado de [[CU-15 Configurar recordatorios por destino]]: la regla "destino → requisitos" no tenía entidad. Nahuel (dueño del módulo de alertas): queda para tu conocimiento; ajustable en la sync (o elevable a una `DEC-` si el equipo lo prefiere).
+> ⚠️ Entidad nueva (12ª), 11/09: nace para cerrar el gap de modelado de [[CU-15 Configurar recordatorios por destino]] (la regla "destino → requisitos" no tenía entidad). **Set de atributos ampliado y acordado en la sync con los tres** (se sumaron `tipo`, `obligatorio` y `descripcion`). Falta el sello formal (¿queda como entidad o se eleva a una `DEC-`?).
 
 ## Responsabilidad
 Requisito o formulario que un [[Destino]] exige recordar (p. ej. visa, vacunación, documentación). Es la **regla de configuración** que dispara automáticamente las [[Alerta|Alertas]] de tipo `formulario` en los [[Viaje|Viajes]] a ese destino. Ver [[CU-15 Configurar recordatorios por destino]].
@@ -21,6 +21,9 @@ Requisito o formulario que un [[Destino]] exige recordar (p. ej. visa, vacunaci�
 | id | UUID | Identificador |
 | destino | FK → [[Destino]] | Destino al que aplica el requisito |
 | nombre | String | Requisito/formulario a recordar (ej. "Visa EE.UU.") |
+| tipo | Enum | `visa · vacunación · documentación · seguro · formulario · otro` — categoriza el requisito (filtros/reportes y tratamiento de la [[Alerta]]) |
+| obligatorio | Bool | Distingue requisito **obligatorio** (sin esto no viaja) de **recomendado**; prioriza la [[Alerta]] |
+| descripcion | Texto (opcional) | Instrucciones accionables (ej. "sacar turno en el consulado, llevar…") para que la [[Alerta]] sea útil |
 | anticipacion_dias | Int | Días antes de la salida en que se genera la [[Alerta]] |
 | activo | Bool | Vigente (baja lógica; deja de generar alertas en viajes nuevos) |
 

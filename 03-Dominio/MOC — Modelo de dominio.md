@@ -56,6 +56,9 @@ classDiagram
       +UUID id
       +UUID destinoId
       +String nombre
+      +String tipo
+      +Bool obligatorio
+      +String descripcion
       +Int anticipacionDias
       +Bool activo
     }
