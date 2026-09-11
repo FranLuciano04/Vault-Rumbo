@@ -13,9 +13,7 @@ actualizado: 09/09/26
 **Análisis y diseño → rumbo a PC1 (23/10/26).** Los **30 casos de uso ya están especificados** (todos en `en-revision`, ver [[MOC — Casos de uso]]); falta **ratificarlos en la sync**. Próximo: diagrama de clases, ER, actividad, arquitectura y prototipo UI.
 
 ## Roles de esta quincena
-- **Coordinador de vault:** _(a asignar)_
-- **Guardián del dominio:** _(a asignar)_
-- **Escriba de decisiones:** _(a asignar)_
+Los tres tomamos **los tres roles** (Coordinador de vault · Guardián del dominio · Escriba de decisiones): todos estamos en todo. **Francisco** es el referente/mantenedor del vault (lo creó y chequea el rumbo general). Definido en la sync 11/09.
 
 ## Checklist PC1 — modelo UML completo
 > Herramientas: **diagramas UML en Mermaid** (versionable) · **prototipo UI en Figma** (MCP), con link + PNGs en [[Entregables — índice|07-Entregables]].
@@ -60,9 +58,6 @@ Acordado por el equipo (Francisco + Nahuel presentes; Paloma notificada por Git)
 - **Estados**: [[Oportunidad]] `nueva · en_gestión · cotizada · ganada · perdida`; [[Viaje]] `reservado → vendido → confirmado → en curso → finalizado` (+`cancelado`), con `vendido`=seña y `confirmado`=total pagado (dispara [[CU-12 Registrar cobro de un pago]]). Motivo de pérdida de lista fija ([[CU-05 Seguir oportunidad]]).
 - **Alcance**: cotizador por scraping fuera de PC1; CRM proactivo y vto. a proveedor incluidos.
 - **`Oportunidad.destino`**: texto libre; se normaliza a [[Destino]] al derivar en [[Viaje]] (DEC-0006).
-
-## Falta asignar (equipo)
-- **Roles de la quincena**: Coordinador de vault · Guardián del dominio · Escriba de decisiones — siguen sin asignar.
 
 ## Preguntas para la AGENCIA — las lleva **Francisco** a Valentina
 - **Comisión vs. margen**: qué representa la `comisión` y sobre qué base se calcula (impacta [[DEC-0004 Comisión configurable por porcentaje]]).
