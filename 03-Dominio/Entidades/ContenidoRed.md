@@ -4,7 +4,7 @@ estado: borrador
 modulo: [redes]
 responsable:
 pc: pc1
-actualizado: 09/09/26
+actualizado: 10/09/26
 ---
 # ContenidoRed
 
@@ -18,12 +18,13 @@ Pieza de contenido para redes sociales, gestionada en un **tablero kanban** con 
 |---|---|---|
 | id | UUID | Identificador |
 | titulo | String | Título / idea |
-| canal | Enum | instagram · … |
+| canal | Enum | instagram · tiktok · whatsapp_ventas |
 | estadoKanban | Enum | idea · en producción · listo · publicado |
 | fechaPublicacion | Date (dd/mm/aa) | Programada |
 
 ## Relaciones
-- *..1 con [[Usuario]] (rol marketing)
+- *..1 con [[Usuario]] (empleado que la crea; la gestión no está restringida a un rol — ver [[CU-19 Planificar contenido en redes]] y [[DEC-0005 Autenticación y modelo de roles]])
 
 ## Aparece en
-- [[MOD-Redes-Sociales]]
+- CU: [[CU-19 Planificar contenido en redes]] · [[CU-20 Generar propuesta de contenido con IA]]
+- Módulo: [[MOD-Redes-Sociales]]
