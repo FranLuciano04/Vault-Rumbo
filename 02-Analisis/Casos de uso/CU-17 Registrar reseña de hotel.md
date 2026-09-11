@@ -57,4 +57,4 @@ Tras el viaje, el empleado carga la [[Reseña]] de un [[Cliente]] sobre un [[Hot
 ## 🔎 Revisión
 > [!note] Paloma (10/09): (3) **Confirmado:** un cliente puede dejar varias reseñas del mismo hotel. (4) **Confirmado:** la reseña se puede **editar** pero **no borrar**.
 >
-> [!note] Francisco (11/09): Coherencia con el nuevo [[CU-29 Eliminar reseña]] — la `Reseña` nace `publicada` y su baja es lógica (`oculta`, moderación por `admin`), no física. El "no borrar" de Paloma se mantiene: no hay eliminación física. A ratificar con Paloma.
+> [!note] Francisco (11/09) — revisión de inconsistencias: **definido.** Coherencia con el nuevo [[CU-29 Eliminar reseña]] — la `Reseña` nace `publicada` y su baja es lógica (`oculta`, moderación por `admin`), no física. El "no borrar" de Paloma se mantiene: no hay eliminación física. Paloma: para tu conocimiento; ajustable en la sync.

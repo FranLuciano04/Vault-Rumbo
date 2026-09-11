@@ -56,4 +56,4 @@ El empleado consulta y edita la ficha de un [[Cliente]] existente —datos de co
 ## 🔎 Revisión
 > [!note] Paloma (10/09): Decisiones de la responsable — (1) **todos los empleados** pueden editar la ficha, sin campos restringidos por rol; (2) el `Cliente` **no se borra ni se archiva** y **no tiene estado**: la ficha solo se edita y se consulta, para conservar la memoria del cliente. El permiso de edición se ratifica en la sync junto con [[DEC-0005 Autenticación y modelo de roles]].
 >
-> [!note] Francisco (11/09): Coherente con [[DEC-0005 Autenticación y modelo de roles]] (edición global del `Cliente`). Se suma el campo editable `asesor_asignado` (opcional, no restringe acceso). A ratificar en la sync.
+> [!note] Francisco (11/09) — revisión de inconsistencias: **definido.** Coherente con [[DEC-0005 Autenticación y modelo de roles]] (edición global del `Cliente`). Se suma el campo editable `asesor_asignado` (opcional, no restringe acceso). Paloma: para tu conocimiento; ajustable en la sync si hace falta.
