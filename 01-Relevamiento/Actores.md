@@ -12,7 +12,7 @@ tags:: #tipo/actor #estado/formalizado #pc/pc1
 > En una PyME una misma persona puede cubrir varios roles. Roles y visibilidad definidos en [[DEC-0005 Autenticación y modelo de roles]].
 
 ## Empleado / Asesor — *usuario principal*
-Recibe consultas, gestiona clientes, cotiza, arma viajes y controla pagos y alertas. **Ve solo su propia cartera** (lo que gestionó él). Se modela como [[Usuario]] con rol `empleado`.
+Recibe consultas, gestiona clientes, cotiza, arma viajes y controla pagos y alertas. **Ve toda la agencia** (lectura global) y organiza **lo suyo** mediante la vista personal; su agenda de alertas es propia ([[DEC-0005 Autenticación y modelo de roles]]). Se modela como [[Usuario]] con rol `empleado`.
 Casos de uso: [[CU-01 De la consulta a la venta]].
 
 ## Administrador — *configuración y operación*

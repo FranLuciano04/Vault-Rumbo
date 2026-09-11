@@ -18,7 +18,7 @@ date: "2.º cuatrimestre 2026"
 - Nahuel Viniegra
 - Paloma Patiño
 
-<!-- Fecha de entrega objetivo: PC1 — 23/10/26 (confirmar la definitiva de la cátedra) -->
+**Fecha de entrega:** 23/10/26 (PC1)
 
 \newpage
 

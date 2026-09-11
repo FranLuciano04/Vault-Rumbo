@@ -27,7 +27,15 @@ tags:: #tipo/referencia #estado/formalizado
 - **Diagramas Mermaid:** se exportan aparte como imagen y se insertan; no se incrustan desde el `.md`.
 
 ## Cómo generar el DOCX de casos de uso
-Requiere **pandoc** instalado (ver [[Skills compartidas]]). Desde la raíz del repo:
+**Forma recomendada** (hace el filtrado + portada + actores + CU automáticamente). Desde la raíz del repo:
+```bash
+bash "07-Entregables/build/build-casos-de-uso.sh"
+```
+Genera `07-Entregables/Casos de uso/Rumbo — Casos de uso.docx`. Para estilos, pasar un `reference.docx` como argumento. Requiere **pandoc** (ver [[Skills compartidas]]).
+
+<details><summary>Comando pandoc manual (sin filtrado)</summary>
+
+Desde la raíz del repo:
 
 **PowerShell (Windows):**
 ```powershell
@@ -49,7 +57,10 @@ pandoc "07-Entregables/Casos de uso/00 - Portada e introducción.md" \
 - ⚠️ El comando de arriba exporta el `.md` **completo**; falta agregar el **paso de filtrado** (recortar `## 🔎 Revisión` y `tags::` de cada CU a un `.md` temporal antes de pasarlo a pandoc). Se arma al compilar el primer entregable.
 - Estilo opcional: agregar `--reference-doc=07-Entregables/build/plantilla.docx` con la portada/estilos de la cátedra.
 - Los diagramas Mermaid (p. ej. [[DGM — Casos de uso]]) se exportan aparte como imagen; no se incrustan en este paso.
+</details>
 
 ## Pendiente
-- Instalar y registrar **pandoc** cuando se compile el primer entregable (Windows: `winget install --id JohnMacFarlane.Pandoc`).
-- Definir si se versiona el `.docx` en Git o se genera al vuelo por PC.
+- ✅ **pandoc** instalado; primer DOCX de Casos de uso generado (11/09) con `build-casos-de-uso.sh`.
+- **Incrustar el diagrama de casos de uso** ([[DGM — Casos de uso]]) como imagen en el DOCX (hoy no se incluye; pandoc no renderiza Mermaid). Exportarlo desde Obsidian o con mermaid-cli.
+- **Plantilla estética** (`reference.docx`) con portada/estilos de la cátedra: opcional, se itera.
+- Se versiona el `.docx` en Git (queda en `07-Entregables/`) además de poder regenerarlo por script.
