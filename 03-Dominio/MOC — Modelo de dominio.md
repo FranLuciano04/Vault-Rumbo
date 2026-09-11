@@ -4,7 +4,7 @@ estado: en-revision
 modulo: []
 responsable: Guardián del dominio
 pc: pc1
-actualizado: 09/09/26
+actualizado: 10/09/26
 ---
 # MOC — Modelo de dominio
 
@@ -53,6 +53,10 @@ classDiagram
       +UUID id
       +String nombre
       +String destino
+      +String categoria
+      +Decimal precioReferencia
+      +String servicios
+      +String estado
     }
     class Resena {
       +UUID id
