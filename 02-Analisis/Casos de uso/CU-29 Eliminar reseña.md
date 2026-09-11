@@ -30,7 +30,7 @@ Dar de baja una [[Reseña]] inapropiada o errónea para que deje de incidir en e
 
 ## Flujos alternativos
 - **A1 — Restaurar:** el admin revierte una baja y la [[Reseña]] vuelve a `publicada`.
-- **A2 — Eliminación física:** solo excepcional y si no rompe integridad referencial; **por defecto siempre baja lógica** (decidido, ver Revisión).
+- **A2 — Eliminación física:** solo excepcional y si no rompe la integridad referencial; **por defecto siempre baja lógica**.
 
 ## Postcondiciones
 - La [[Reseña]] queda `oculta`: no aparece en el catálogo ni pondera en la recomendación; el historial se preserva.

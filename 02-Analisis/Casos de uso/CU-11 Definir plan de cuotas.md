@@ -41,7 +41,7 @@ Configurar los [[Pago|Pagos]] de un [[Viaje]] (seña, cuotas y saldo) con sus mo
 - El [[Viaje]] queda con su plan de [[Pago|Pagos]] definido y las [[Alerta|Alertas]] de vencimiento agendadas.
 
 ## Reglas de negocio aplicadas
-- _(candidata)_ La suma de [[Pago|Pagos]] debe igualar el `precioVenta` del [[Viaje]] — ver Revisión.
+- La suma de los [[Pago|Pagos]] del plan debe igualar el `precioVenta` del [[Viaje]].
 
 ## Entidades del dominio involucradas
 - [[Viaje]] · [[Pago]] · [[Alerta]]

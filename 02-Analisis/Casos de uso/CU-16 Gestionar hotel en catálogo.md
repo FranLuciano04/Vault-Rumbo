@@ -33,7 +33,7 @@ El empleado da de alta o edita un [[Hotel]] en el **catálogo compartido** de la
 - **A1 — Edición de un hotel existente:** en el paso 1 el empleado abre un `Hotel` del catálogo y modifica sus datos.
 - **A2 — Posible duplicado:** en el paso 3 existe un `Hotel` con el mismo nombre y destino → el sistema lo advierte y ofrece abrir el existente en lugar de crear uno nuevo.
 - **A3 — Datos mínimos incompletos:** falta el nombre o el destino → el sistema no guarda y pide completarlos.
-- **A4 — Baja de un hotel (cerró):** el empleado da de baja un `Hotel` que dejó de operar → **siempre baja lógica**: se marca `estado = cerrado` (se oculta del catálogo activo pero se conserva; **nunca se elimina físicamente**). **Definido** (ver Revisión).
+- **A4 — Baja de un hotel (cerró):** el empleado da de baja un `Hotel` que dejó de operar → **siempre baja lógica**: se marca `estado = cerrado` (se oculta del catálogo activo pero se conserva; **nunca se elimina físicamente**).
 
 ## Postcondiciones
 - El [[Hotel]] existe en el catálogo compartido, **visible para toda la agencia**, disponible para [[CU-18 Buscar y recomendar hoteles]], [[CU-17 Registrar reseña de hotel]] y [[CU-09 Armar itinerario de hoteles]].

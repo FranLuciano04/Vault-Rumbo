@@ -30,7 +30,7 @@ El dueño (o admin) visualiza en un **tablero en vivo** el embudo de ventas y lo
 5. Desde un indicador, navega al detalle correspondiente ([[CU-05 Seguir oportunidad]], [[CU-08 Gestionar estado del viaje]], [[CU-14 Ver y atender alertas del día]]).
 
 ## Flujos alternativos
-- **A1 — Vista del empleado:** un `empleado` ve el dashboard acotado a **lo suyo** (su embudo y sus indicadores), no al de toda la empresa ([[DEC-0005 Autenticación y modelo de roles]]). _(A validar si el empleado tiene dashboard propio en PC1.)_
+- **A1 — Vista del empleado:** un `empleado` ve el dashboard acotado a **lo suyo** (su embudo y sus indicadores), no al de toda la empresa ([[DEC-0005 Autenticación y modelo de roles]]).
 - **A2 — Sin datos en el período:** el rango elegido no tiene actividad → el tablero se muestra vacío para ese período.
 
 ## Postcondiciones

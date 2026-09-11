@@ -23,16 +23,31 @@ fi
 # Filtra cada .md: quita frontmatter YAML, líneas tags::, la sección '## 🔎 Revisión'
 # (hacia abajo), convierte wikilinks [[x|y]]/[[x]] a texto y limpia coletillas 'ver Revisión'.
 filtrar() {
+  # Quita frontmatter y tags; dropea las secciones internas (Diagramas, Revisión);
+  # convierte wikilinks a texto y limpia marcadores/coletillas internas.
   awk '
-    BEGIN{fm=0}
+    BEGIN{fm=0; skip=0}
     NR==1 && $0=="---"{fm=1; next}
     fm==1 && $0=="---"{fm=0; next}
     fm==1{next}
-    /^## .*Revisi/{exit}
+    /^## /{ if ($0 ~ /Revisi/ || $0 ~ /Diagramas/) skip=1; else skip=0 }
+    skip==1{next}
     /^tags::/{next}
     {print}
-  ' "$1" | sed -E 's/\[\[[^]|]*\|([^]]*)\]\]/\1/g; s/\[\[([^]]*)\]\]/\1/g; s/\s*—\s*ver Revisión\.?//g; s/\s*\(ver Revisión\.?\)//g; s/,?\s*ver Revisión\.?//g'
+  ' "$1" | sed -E '
+    s/\[\[[^]|]*\|([^]]*)\]\]/\1/g;
+    s/\[\[([^]]*)\]\]/\1/g;
+    s/⚠️//g;
+    s/\s*—\s*ver Revisión\.?//g;
+    s/\s*\(ver Revisión\.?\)//g;
+    s/,?\s*ver Revisión\.?//g'
 }
+
+# Sección del diagrama de casos de uso (imagen previamente renderizada)
+IMG="$ROOT/07-Entregables/Casos de uso/img/DGM-casos-de-uso.png"
+if [ -f "$IMG" ]; then
+  printf '# Diagrama de casos de uso\n\n![Diagrama de casos de uso de Rumbo](<%s>)\n' "$IMG" > "$BUILD/05-diagrama.md"
+fi
 
 filtrar "$ROOT/01-Relevamiento/Actores.md" > "$BUILD/10-actores.md"
 
@@ -42,12 +57,17 @@ for f in "$ROOT/02-Analisis/Casos de uso/"CU-*.md; do
   i=$((i+1))
 done
 
+# Plantilla de estilos: la del argumento 1, o la del repo si existe
+REF="${1:-$ROOT/07-Entregables/build/reference.docx}"
+REFARG=(); [ -f "$REF" ] && REFARG=(--reference-doc="$REF")
+
 "$PANDOC" \
   "$ROOT/07-Entregables/Casos de uso/00 - Portada e introducción.md" \
+  ${IMG:+"$BUILD/05-diagrama.md"} \
   "$BUILD/10-actores.md" \
   "$BUILD/"[0-9][0-9]-CU-*.md \
   --toc --toc-depth=1 \
-  ${1:+--reference-doc="$1"} \
+  "${REFARG[@]}" \
   -o "$OUT"
 
 rm -rf "$BUILD"

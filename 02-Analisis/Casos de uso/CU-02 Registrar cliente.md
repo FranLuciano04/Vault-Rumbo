@@ -50,7 +50,7 @@ El empleado da de alta un nuevo [[Cliente]] con sus datos de contacto y segmento
 - [[DGM — Casos de uso]] · (pendiente) diagrama de actividad del alta de cliente.
 
 ## Decisiones asociadas
-- [[DEC-0005 Autenticación y modelo de roles]] (visibilidad del `Cliente` según rol — en revisión).
+- [[DEC-0005 Autenticación y modelo de roles]] (visibilidad del `Cliente` según rol).
 
 ## 🔎 Revisión
 > [!note] Paloma (10/09): Decisiones confirmadas por la responsable, a ratificar en la sync — (1) datos mínimos = **nombre + al menos un contacto** (teléfono/WhatsApp o email); (2) el sistema **detecta duplicados** por contacto/nombre (A1); (3) el `Cliente` queda **visible para toda la agencia** una vez dado de alta. Conviene reflejar (3) en [[DEC-0005 Autenticación y modelo de roles]] (visibilidad — coordinar con Nahuel).

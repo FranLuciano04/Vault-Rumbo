@@ -11,7 +11,7 @@ actualizado: 11/09/26
 tags:: #tipo/caso-uso #estado/en-revision #pc/pc1 #accion/revisar
 
 ## Descripción
-El empleado **cierra la venta** creando el [[Viaje]] a partir de una [[Oportunidad]] ganada: fija destino, fechas, categoría y responsable, carga su economía ([[CU-10 Registrar economía del viaje]]) y plan de cuotas ([[CU-11 Definir plan de cuotas]]). El [[Viaje]] nace en estado **`reservado`** (el cliente aceptó la cotización); pasa a `vendido` recién cuando se cobra la **seña** ([[CU-12 Registrar cobro de un pago]]). *(Ojo con el nombre: "confirmar reserva" = crear la venta; el estado `confirmado` del [[Viaje]] significa "total pagado".)*
+El empleado **cierra la venta** creando el [[Viaje]] a partir de una [[Oportunidad]] ganada: fija destino, fechas, categoría y responsable, carga su economía ([[CU-10 Registrar economía del viaje]]) y plan de cuotas ([[CU-11 Definir plan de cuotas]]). El [[Viaje]] nace en estado **`reservado`** (el cliente aceptó la cotización) y pasa a `vendido` cuando se cobra la **seña** ([[CU-12 Registrar cobro de un pago]]). El estado `confirmado` del [[Viaje]] corresponde a "total pagado", y no debe confundirse con el acto de confirmar la reserva.
 
 ## Actor principal
 [[Actores|empleado]]

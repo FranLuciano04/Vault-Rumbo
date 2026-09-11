@@ -51,7 +51,7 @@ El empleado consulta y edita la ficha de un [[Cliente]] existente —datos de co
 - [[DGM — Casos de uso]] · (pendiente) diagrama de actividad de la edición de ficha.
 
 ## Decisiones asociadas
-- [[DEC-0005 Autenticación y modelo de roles]] (quién puede editar la ficha — en revisión).
+- [[DEC-0005 Autenticación y modelo de roles]] (quién puede editar la ficha).
 
 ## 🔎 Revisión
 > [!note] Paloma (10/09): Decisiones de la responsable — (1) **todos los empleados** pueden editar la ficha, sin campos restringidos por rol; (2) el `Cliente` **no se borra ni se archiva** y **no tiene estado**: la ficha solo se edita y se consulta, para conservar la memoria del cliente. El permiso de edición se ratifica en la sync junto con [[DEC-0005 Autenticación y modelo de roles]].

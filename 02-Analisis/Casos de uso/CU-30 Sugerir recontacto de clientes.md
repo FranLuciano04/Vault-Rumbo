@@ -40,7 +40,7 @@ tags:: #tipo/caso-uso #estado/en-revision #pc/pc1 #accion/revisar
 - Los [[Cliente|Clientes]] fieles inactivos quedan visibles como oportunidades de recontacto; los marcados con opt-out no vuelven a sugerirse; las gestiones pueden derivar en nuevas [[Oportunidad|Oportunidades]].
 
 ## Reglas de negocio aplicadas
-- **Criterio de candidato (a validar):** cliente con **≥ 2 [[Viaje|Viajes]]** (fiel/recurrente) y **último viaje/actividad hace más de X meses** (umbral configurable). Se excluye a los `no_recontactar` y, por defecto, a los clientes de **un solo viaje** para no resultar invasivo (definición pedida por Francisco).
+- **Criterio de candidato:** cliente con **≥ 2 [[Viaje|Viajes]]** (fiel/recurrente) y **último viaje/actividad hace más de X meses** (umbral configurable). Se excluye a los `no_recontactar` y, por defecto, a los clientes de **un solo viaje** para no resultar invasivo.
 - **Sin envío automático:** el sistema sugiere; el contacto lo hace una persona (coherente con "no reemplaza el asesoramiento", [[Alcance y fuera de alcance]]).
 
 ## Entidades del dominio involucradas
