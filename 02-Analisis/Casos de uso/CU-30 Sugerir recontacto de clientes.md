@@ -1,6 +1,6 @@
 ---
 tipo: caso-uso
-estado: borrador
+estado: en-revision
 modulo: [clientes, oportunidades]
 responsable: Francisco
 pc: pc1
@@ -8,7 +8,7 @@ actualizado: 11/09/26
 ---
 # CU-30 Sugerir recontacto de clientes
 
-tags:: #tipo/caso-uso #estado/borrador #pc/pc1 #accion/revisar
+tags:: #tipo/caso-uso #estado/en-revision #pc/pc1 #accion/revisar
 
 ## Descripción
 **CRM proactivo:** el sistema detecta [[Cliente|Clientes]] **fieles inactivos** (con historial de viajes pero sin actividad reciente) y sugiere al empleado **recontactarlos** para generar una nueva [[Oportunidad]]. La sugerencia es una ayuda, **no un envío automático**, y respeta un **opt-out** para no ser invasiva (nace de la idea original de "detector de oportunidades" del relevamiento, acotada — ver [[Alcance y fuera de alcance]]).

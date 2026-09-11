@@ -37,7 +37,7 @@ El empleado registra una consulta entrante (Instagram, WhatsApp o presencial) ca
 
 ## Postcondiciones
 - Existe una [[Oportunidad]] en estado **nueva**, asociada al `Cliente` y al `empleado`, lista para seguimiento ([[CU-05 Seguir oportunidad]]) y cotización ([[CU-06 Emitir cotización]]).
-- La `Oportunidad` queda bajo la visibilidad del empleado que la registró ([[DEC-0005 Autenticación y modelo de roles]]).
+- La `Oportunidad` queda con el empleado que la registró como `responsable` (vista "mis oportunidades"); es **legible por toda la agencia** ([[DEC-0005 Autenticación y modelo de roles]]).
 
 ## Reglas de negocio aplicadas
 - (Ninguna regla económica en este CU; la comisión aplica recién al confirmar el [[Viaje]].)

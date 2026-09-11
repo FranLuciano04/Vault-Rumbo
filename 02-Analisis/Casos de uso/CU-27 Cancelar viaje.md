@@ -1,10 +1,10 @@
 ---
 tipo: caso-uso
-estado: borrador
+estado: en-revision
 modulo: [viajes]
 responsable: Francisco
 pc: pc1
-actualizado: 10/09/26
+actualizado: 11/09/26
 ---
 # CU-27 Cancelar viaje
 
@@ -50,3 +50,5 @@ Dar de baja un [[Viaje]] que no se concreta (el cliente desiste, fuerza mayor), 
 
 ## 🔎 Revisión
 > [!question] Nahuel (10/09): **borrador propuesto para cubrir el gap de baja de [[Viaje]]** (revisión de cobertura ABM). A validar por **Francisco** (dueño del módulo Viajes): (1) se agrega `cancelado` como estado terminal de [[Viaje]]; (2) el tratamiento de reembolsos/penalidades ante pagos cobrados (A2) — confirmar si queda fuera de alcance; (3) si conviene como CU propio o como estado dentro de [[CU-08 Gestionar estado del viaje]].
+>
+> [!note] Francisco (11/09) — **validado.** Resuelvo las tres dudas de Nahuel: (1) **sí**, `cancelado` es estado terminal de [[Viaje]] (ya está en la entidad); (2) **reembolsos/penalidades fuera de alcance** para PC1 (Rumbo registra el saldo cobrado, no procesa devoluciones — [[Alcance y fuera de alcance]]); (3) **queda como CU propio** (la cancelación tiene efectos colaterales sobre [[Pago|Pagos]] y [[Alerta|Alertas]] que justifican separarlo de [[CU-08 Gestionar estado del viaje]]). Pasa a `en-revision`. Gracias Nahuel por el borrador.

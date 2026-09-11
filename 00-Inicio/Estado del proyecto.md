@@ -10,7 +10,7 @@ actualizado: 09/09/26
 > Memoria externa del equipo (y de Claude). Se actualiza en cada **sync semanal**. Es lo primero que se lee al retomar. Mantener **corto**.
 
 ## Fase actual
-**Análisis y diseño → rumbo a PC1 (23/10/26).** En curso: especificación de los casos de uso (repartida, ver [[MOC — Casos de uso]]). Próximo: diagrama de clases, ER, actividad, arquitectura y prototipo UI.
+**Análisis y diseño → rumbo a PC1 (23/10/26).** Los **30 casos de uso ya están especificados** (todos en `en-revision`, ver [[MOC — Casos de uso]]); falta **ratificarlos en la sync**. Próximo: diagrama de clases, ER, actividad, arquitectura y prototipo UI.
 
 ## Roles de esta quincena
 - **Coordinador de vault:** _(a asignar)_
