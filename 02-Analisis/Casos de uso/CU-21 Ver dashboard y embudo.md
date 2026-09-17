@@ -25,12 +25,19 @@ El dueño (o admin) visualiza en un **tablero en vivo** el embudo de ventas y lo
 ## Flujo principal
 1. El dueño abre el **dashboard**.
 2. El sistema muestra el **embudo de ventas**: [[Oportunidad|Oportunidades]] por estado (`nueva · cotizada · ganada · perdida`) y la **tasa de conversión**.
-3. Muestra los **indicadores del período**: ventas confirmadas y **comisiones** ([[RN-01 Comisión automática]]), [[Viaje|Viajes]] por estado, **pagos por cobrar / vencidos** ([[Pago]]) y alertas del día.
+3. Muestra los **indicadores del período** (KPIs definidos por la agencia, ver [[Relevamiento — respuestas de la agencia (17-09)]], bloque 2):
+   - **Ventas del mes** y comparación con meses anteriores.
+   - **Ganancia estimada** del mes ([[DEC-0007 Modelo económico — ganancia, margen y comisión de vendedor]]).
+   - **Cobrado** vs. **pendiente de cobrar** a pasajeros, y **pendiente de pagar** a operadores ([[Pago]]).
+   - **Próximos vencimientos** de pagos y **pasajeros/viajes próximos a salir**.
+   - **Consultas/presupuestos pendientes** de seguimiento, **reservas confirmadas** y **presupuestos abiertos** ([[Oportunidad]]).
+   - **Alertas** de pasajeros próximos a viajar (documentación, pagos, requisitos — [[Alerta]]).
+   - **Analítica:** destinos más vendidos, pasajeros por destino, **ticket promedio** y **ventas por vendedor/freelancer**.
 4. El dueño **filtra** por período y, opcionalmente, por empleado (`responsable`).
 5. Desde un indicador, navega al detalle correspondiente ([[CU-05 Seguir oportunidad]], [[CU-08 Gestionar estado del viaje]], [[CU-14 Ver y atender alertas del día]]).
 
 ## Flujos alternativos
-- **A1 — Vista del empleado:** un `empleado` ve el dashboard acotado a **lo suyo** (su embudo y sus indicadores), no al de toda la empresa ([[DEC-0005 Autenticación y modelo de roles]]).
+- **A1 — Vista acotada por propiedad:** un `empleado` puede ver su propio embudo/indicadores; un **`freelance`** ve **solo lo suyo** por diseño (visibilidad restringida, [[DEC-0008 Autenticación propia y rol de vendedor freelance]]). El tablero de empresa completo es de `admin`/`dueño` ([[DEC-0005 Autenticación y modelo de roles]]).
 - **A2 — Sin datos en el período:** el rango elegido no tiene actividad → el tablero se muestra vacío para ese período.
 
 ## Postcondiciones
@@ -51,3 +58,4 @@ El dueño (o admin) visualiza en un **tablero en vivo** el embudo de ventas y lo
 
 ## 🔎 Revisión
 > [!question] Francisco (11/09): especificado con un set estándar de indicadores. **A validar con la agencia** el **conjunto exacto de KPIs** que quieren ver (¿ranking de destinos?, ¿clientes top?, ¿ticket promedio?) y si el `empleado` tiene un dashboard propio (A1) o el tablero es solo para `admin`/`dueño` en PC1.
+> [!note] Paloma (17/09): **KPIs resueltos por la agencia** e incorporados al flujo principal (incluye ranking de destinos, pasajeros por destino, ticket promedio y ventas por vendedor). La ganancia del dashboard depende del nuevo modelo económico ([[DEC-0007 Modelo económico — ganancia, margen y comisión de vendedor]]) y la vista del `freelance` de [[DEC-0008 Autenticación propia y rol de vendedor freelance]]. Ratificar en la sync junto con esas DEC.

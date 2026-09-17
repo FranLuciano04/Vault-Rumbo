@@ -17,6 +17,8 @@ tags:: #tipo/modulo #estado/formalizado
 - [[DEC-0004 Comisión configurable por porcentaje]]
 - [[DEC-0005 Autenticación y modelo de roles]]
 - [[DEC-0006 Destino como entidad de catálogo]]
+- [[DEC-0007 Modelo económico — ganancia, margen y comisión de vendedor]] (`en-revision` — supersede a [[DEC-0004 Comisión configurable por porcentaje]])
+- [[DEC-0008 Autenticación propia y rol de vendedor freelance]] (`en-revision` — amplía a [[DEC-0005 Autenticación y modelo de roles]])
 
 ## Todas (Dataview)
 ```dataview

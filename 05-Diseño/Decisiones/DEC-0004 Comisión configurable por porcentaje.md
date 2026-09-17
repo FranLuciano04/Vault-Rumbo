@@ -11,6 +11,8 @@ actualizado: 10/09/26
 
 tags:: #tipo/decision #estado/formalizado #pc/pc1
 
+> ⚠️ **En revisión — probable supersesión.** La agencia respondió la pregunta de la que dependía esta DEC (ver [[Relevamiento — respuestas de la agencia (17-09)]], bloque 1) y el modelo **difiere**: la comisión no es `precioVenta × %`, sino **ganancia = venta − costo** + margen % + comisión del vendedor aparte, con multimoneda. Se propone superseder esta DEC con [[DEC-0007 Modelo económico — ganancia, margen y comisión de vendedor]] (`en-revision`). Se marcará `#estado/obsoleto` solo si la sync ratifica DEC-0007.
+
 ## Contexto
 [[RN-01 Comisión automática]] dejaba abierto si la comisión de un [[Viaje]] es una **diferencia fija** (`precioVenta − costoNeto`) o un **porcentaje configurable**.
 

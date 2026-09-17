@@ -2,7 +2,7 @@
 tipo: referencia
 estado: formalizado
 responsable: equipo
-actualizado: 10/09/26
+actualizado: 17/09/26
 ---
 # Bitácora de sesiones
 
@@ -29,6 +29,11 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Commits:** <hash>, <hash>
 - **Pendiente:** …
 ```
+
+## 17/09/26 — Paloma (Claude Opus 4.8)
+- **Hecho:** Se procesó la **2ª ronda de relevamiento** (respuestas de la agencia traídas por Francisco). Se registró íntegra en la nueva nota [[Relevamiento — respuestas de la agencia (17-09)]] (fuente de verdad) y se enlazó desde [[Relevamiento — Fuente de verdad]]. Como varias respuestas **contradicen decisiones selladas**, se abrieron dos DEC en `en-revision` (sin formalizar): **[[DEC-0007 Modelo económico — ganancia, margen y comisión de vendedor]]** (supersede a [[DEC-0004 Comisión configurable por porcentaje]]: `ganancia = precioVenta − costo`, margen en $ y %, **comisión del vendedor/freelancer aparte**, **multimoneda ARS/USD**) y **[[DEC-0008 Autenticación propia y rol de vendedor freelance]]** (login **usuario/contraseña individual** + auditoría; nuevo rol **`freelance`** con visibilidad restringida — excepción al *lectura global* de [[DEC-0005 Autenticación y modelo de roles]], que se anotó y amplió). Se actualizaron los CU dependientes con las respuestas concretas: [[CU-21 Ver dashboard y embudo|CU-21]] (KPIs), [[CU-22 Generar reportes y estadísticas|CU-22]] (catálogo de reportes + **Excel principal / PDF resumido**) y [[CU-30 Sugerir recontacto de clientes|CU-30]] (**≈ 6 meses**, recurrentes ≥ 2 viajes, + **segmentación comercial**). Se propagó al dominio (como propuesta atada a las DEC): [[Viaje]] (`moneda`, `costo`, `ganancia`, `margen`, `vendedor`, `comision_vendedor`), [[Usuario]] (rol `freelance` + auth propia), [[Alerta]] (tipos de aviso ampliados + fase 1 manual), [[Cliente]] (`pareja` + segmentación) y [[RN-01 Comisión automática]] (reescrita). Se marcaron las **preguntas a la agencia como respondidas** en [[Estado del proyecto]] y se registró DEC-0004 como "en revisión / probable supersesión".
+- **Commits:** _(por completar al cerrar)_.
+- **Pendiente:** **ratificar en la sync** DEC-0007 y DEC-0008 y todas las actualizaciones derivadas (siguen `en-revision`). Decisiones abiertas: base del margen %, forma de la comisión del vendedor (importe/%), regla de conversión **multimoneda** y si **Operador/Proveedor** pasa a ser la **13ª entidad** (reportes por operador + pendiente de pago a operadores). El módulo de economía es de Nahuel y el de seguridad también: conviene que revisen sus DEC.
 
 ## 11/09/26 — Nahuel (Claude Opus 4.8)
 - **Hecho:** **Rehecho el entregable DOCX de Casos de uso** en dos frentes. (1) **Diagrama** ([[DGM — Casos de uso]]): estaba compacto y con líneas cruzadas; se rehízo con óvalos por caso de uso, color por módulo, **generalización de roles** (`Admin`/`Dueño` *es-un* `Empleado`) y el `Pasajero/Cliente` movido a la derecha como actor externo con asociaciones etiquetadas (*recibe cotización* / *aporta reseña*). Tras comparar dagre vs **ELK**, se adoptó ELK (`mergeEdges` + `considerModelOrder`) por el ruteo ordenado. PNG regenerado en alta resolución e **incrustado** en el DOCX. (2) **DOCX**: estética **académica** (plantilla `reference.docx` migrada de Python a **PowerShell** `make-reference.ps1` — Python no estaba instalado: Cambria justificado, títulos navy con filete, A4 2,5 cm, **paginación** al pie), portada reescrita, y **bug de la imagen resuelto** (`--resource-path`). (3) **Contenido saneado**: el filtro del build ahora recorta toda la cocina interna (secciones `Revisión`/`Diagramas`/`Decisiones asociadas`, `tags::`, referencias `DEC-####` inline, notas meta y `#accion/...`); verificado **0 fugas**. Se reescribió el flujo A2 de [[CU-24 Iniciar sesión|CU-24]] (login con Google) en versión neutral, dejando el pendiente del mecanismo en su sección Revisión. Se instaló **pandoc 3.11**; se actualizaron [[Entregables — índice]], [[CONTINUAR — entregable Casos de uso]] y [[Skills compartidas]] (se agregó Node/mermaid-cli; se eliminó `make-reference.py`).

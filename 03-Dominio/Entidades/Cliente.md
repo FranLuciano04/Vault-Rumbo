@@ -19,7 +19,8 @@ Persona (o grupo) que consulta y viaja con la agencia. Concentra ficha, preferen
 | id | UUID | Identificador |
 | nombre | String | Nombre y apellido / grupo |
 | contacto | String | WhatsApp / Instagram / email |
-| segmento | Enum | familia · amigos · individual |
+| segmento | Enum | familia · amigos · individual · pareja |
+| etiquetas | Lista (opcional) | **Segmentación comercial** para acciones dirigidas: por destino/producto (Brasil, Caribe, Europa, cruceros, nacionales…) o perfil. ⚠️ Nuevo pedido de la agencia (17/09). Modelado a definir (etiquetas libres vs. entidad `Segmento`) — ver [[CU-30 Sugerir recontacto de clientes]] y [[Relevamiento — respuestas de la agencia (17-09)]], bloque 4 |
 | preferencias | Texto | Destinos, estilo de viaje, notas |
 | asesor_asignado | FK → [[Usuario]] (opcional) | Responsable de referencia; habilita el filtro "mis clientes" sin restringir la visibilidad. Ver [[DEC-0005 Autenticación y modelo de roles]] |
 | no_recontactar | Bool | Opt-out del CRM proactivo: si está activo, el cliente no se sugiere para recontacto. Ver [[CU-30 Sugerir recontacto de clientes]] |

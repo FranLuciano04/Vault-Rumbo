@@ -23,10 +23,14 @@ El dueño (o admin) genera **reportes del período** (mensuales) con las estadí
 - El [[Usuario]] inició sesión con rol `admin` o `dueño` ([[CU-24 Iniciar sesión]], [[DEC-0005 Autenticación y modelo de roles]]).
 
 ## Flujo principal
-1. El dueño abre **Reportes** y elige el **tipo** (ventas, comisiones, cobranzas, destinos, clientes) y el **período** (por defecto, el mes).
+1. El dueño abre **Reportes** y elige el **tipo** y el **período** (por defecto, el mes). Catálogo definido por la agencia ([[Relevamiento — respuestas de la agencia (17-09)]], bloque 3):
+   - Ventas totales del mes · **Ganancia/rentabilidad** ([[DEC-0007 Modelo económico — ganancia, margen y comisión de vendedor]]).
+   - **Cobrado vs. pendiente de cobro** · Pagos realizados y **pendientes a operadores**.
+   - Ventas **por destino** · **por operador/proveedor** · **por vendedor/freelancer y sus comisiones**.
+   - **Cantidad de pasajeros** · **formas de pago** utilizadas · **comparación con meses anteriores**.
 2. El sistema procesa los datos del período y arma el reporte con sus métricas y comparativas.
 3. El dueño **visualiza** el reporte (tablas y gráficos).
-4. **Exporta** el reporte (PDF / planilla) para compartir o archivar.
+4. **Exporta** el reporte: **Excel** como formato principal (para trabajar los datos) y **PDF resumido** para visualizar o compartir.
 
 ## Flujos alternativos
 - **A1 — Reporte mensual recurrente:** el dueño consulta el **reporte del mes** como cierre de período (requisito del relevamiento: "reportes mensuales").
@@ -41,7 +45,7 @@ El dueño (o admin) genera **reportes del período** (mensuales) con las estadí
 - Comisiones según [[RN-01 Comisión automática]].
 
 ## Entidades del dominio involucradas
-- [[Viaje]] · [[Pago]] · [[Oportunidad]] · [[Cliente]] · [[Destino]]
+- [[Viaje]] · [[Pago]] · [[Oportunidad]] · [[Cliente]] · [[Destino]] · [[Usuario]] (vendedor/freelance para ventas y comisiones)
 
 ## Diagramas
 - [[DGM — Casos de uso]] · (pendiente) diagrama de actividad de la generación de reportes.
@@ -51,3 +55,4 @@ El dueño (o admin) genera **reportes del período** (mensuales) con las estadí
 
 ## 🔎 Revisión
 > [!question] Francisco (11/09): especificado. **A validar con la agencia:** el **catálogo de reportes** que realmente necesitan (¿solo mensual de ventas?, ¿por empleado?, ¿por destino?) y el **formato de exportación** (PDF vs. planilla) para PC1.
+> [!note] Paloma (17/09): **catálogo y formato resueltos por la agencia** (bloque 3 del relevamiento): incorporados al flujo. Formato = **Excel principal + PDF resumido**. "Ganancia/rentabilidad", "ventas por operador" y "ventas por vendedor y comisiones" dependen de [[DEC-0007 Modelo económico — ganancia, margen y comisión de vendedor]] (incluye la pregunta abierta de si **Operador/Proveedor** se modela como entidad). Ratificar en la sync.

@@ -10,19 +10,24 @@ actualizado: 09/09/26
 
 tags:: #tipo/regla #estado/en-revision #pc/pc1
 
+> ⚠️ **En revisión (17/09).** El relevamiento de la agencia cambió el modelo (ganancia, no comisión = % de venta). Esta regla se reescribe según [[DEC-0007 Modelo económico — ganancia, margen y comisión de vendedor]] (`en-revision`, a ratificar en la sync).
+
 ## Enunciado
-Al registrar la economía de un [[Viaje]], la **comisión se calcula automáticamente** a partir del precio de venta y el costo neto; el agente no la carga a mano.
+Al registrar la economía de un [[Viaje]], el agente **carga precio de venta, costo, moneda y comisión del vendedor**; el sistema **calcula automáticamente la ganancia y el margen**.
 
 ## Fórmula
-`comisión = precioVenta × %comisión`, con `%comisión` **configurable por el rol admin**. Ver [[DEC-0004 Comisión configurable por porcentaje]].
-Se permite ajuste manual por viaje (override). La diferencia `precioVenta − costoNeto` queda como dato de **margen**, no como comisión.
+- `ganancia = precioVenta − costo` (importe, por operación; **no** es un % fijo).
+- `margen%` = la ganancia en porcentaje (base a confirmar: sobre venta o sobre costo — [[DEC-0007 Modelo económico — ganancia, margen y comisión de vendedor]]).
+- `comision_vendedor` = concepto **separado**, por vendedor/freelancer, para liquidar cuánto pagarle.
+
+> Modelo anterior (superseded): `comisión = precioVenta × %comisión` con `%` default de empresa — ver [[DEC-0004 Comisión configurable por porcentaje]].
 
 ## Restricciones
-- Moneda **ARS**. Fechas `dd/mm/aa`.
+- **Moneda por operación (ARS / USD)** — multimoneda, ya no solo ARS. Fechas `dd/mm/aa`.
 - No procesa pagos online: registra montos, cuotas y vencimientos ([[Pago]]), no cobra. Ver [[Alcance y fuera de alcance]].
 
 ## Aplica en
-- [[Viaje]] · [[Pago]] · [[CU-01 De la consulta a la venta]] (paso 4)
+- [[Viaje]] · [[Pago]] · [[CU-10 Registrar economía del viaje]] · [[CU-01 De la consulta a la venta]] (paso 4)
 
 ## Decisión asociada
-- [[DEC-0004 Comisión configurable por porcentaje]] (`en-revision`, ratificar en sync).
+- [[DEC-0007 Modelo económico — ganancia, margen y comisión de vendedor]] (`en-revision`, ratificar en sync) — supersede a [[DEC-0004 Comisión configurable por porcentaje]].

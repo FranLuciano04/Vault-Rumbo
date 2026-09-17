@@ -40,7 +40,8 @@ tags:: #tipo/caso-uso #estado/en-revision #pc/pc1 #accion/revisar
 - Los [[Cliente|Clientes]] fieles inactivos quedan visibles como oportunidades de recontacto; los marcados con opt-out no vuelven a sugerirse; las gestiones pueden derivar en nuevas [[Oportunidad|Oportunidades]].
 
 ## Reglas de negocio aplicadas
-- **Criterio de candidato:** cliente con **≥ 2 [[Viaje|Viajes]]** (fiel/recurrente) y **último viaje/actividad hace más de X meses** (umbral configurable). Se excluye a los `no_recontactar` y, por defecto, a los clientes de **un solo viaje** para no resultar invasivo.
+- **Criterio de candidato (agencia, 17/09 — ver [[Relevamiento — respuestas de la agencia (17-09)]], bloque 4):** cliente sin una nueva compra/viaje hace **≈ 6 meses** (umbral **configurable**, default 6). Aplica a **todos** los clientes, pero **prioriza/identifica a los recurrentes** (**≥ 2 [[Viaje|Viajes]]** con la agencia). Se excluye a los `no_recontactar`.
+- **Segmentación comercial:** el sistema permite **generar segmentos** de [[Cliente|Clientes]] para acciones dirigidas — por destino/producto (Brasil, Caribe, Europa, cruceros, nacionales) o por tipo (familias, parejas, etc.). Ver [[Cliente]] (`segmento`/etiquetas).
 - **Sin envío automático:** el sistema sugiere; el contacto lo hace una persona (coherente con "no reemplaza el asesoramiento", [[Alcance y fuera de alcance]]).
 
 ## Entidades del dominio involucradas
@@ -51,3 +52,4 @@ tags:: #tipo/caso-uso #estado/en-revision #pc/pc1 #accion/revisar
 
 ## 🔎 Revisión
 > [!note] Francisco (11/09) — nuevo CU nacido del "detector de oportunidades" del relevamiento crudo, acotado a **CRM proactivo** (se descartó el scraping de ofertas, ver [[Alcance y fuera de alcance]]). Impacto de dominio: agrega `no_recontactar` (Bool) a [[Cliente]] (módulo de Paloma) y el tipo `recontacto` al enum de [[Alerta]] (módulo de Nahuel). **A validar el criterio de candidato (X meses, ≥2 viajes) y el impacto en el dominio con Paloma y Nahuel en la sync.**
+> [!note] Paloma (17/09) — **criterio resuelto por la agencia:** X = **≈ 6 meses** (configurable), aplica a todos priorizando recurrentes (≥ 2 viajes). Se agrega **segmentación comercial** de clientes (nuevo pedido). Falta definir en la sync cómo se modela el segmento (¿enum ampliado, etiquetas libres o entidad `Segmento`?) en [[Cliente]].
