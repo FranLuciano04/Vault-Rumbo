@@ -48,13 +48,13 @@ Para sostener la propiedad sin bloquear la lectura, las entidades operativas lle
 - Se **separa** `admin` (configuración/operación) de `dueño` (visión del negocio); antes eran el mismo actor.
 - El **encargado de redes** deja de ser un rol: pasa a ser una **capacidad de acceso al módulo de redes** ([[ContenidoRed]]).
 
-## Ampliación propuesta 17/09 (`en-revision`)
-El relevamiento de la agencia ([[Relevamiento — respuestas de la agencia (17-09)]], bloque 6) responde el mecanismo de autenticación y agrega un rol. Se traslada a [[DEC-0008 Autenticación propia y rol de vendedor freelance]] (a ratificar en la sync):
-- **Mecanismo:** autenticación **propia con usuario y contraseña individual** (para auditar quién hizo cada acción). Google OAuth queda opcional/futuro.
+## Ampliación 17/09 — ratificada en [[DEC-0008 Autenticación propia y rol de vendedor freelance]]
+El relevamiento de la agencia ([[Relevamiento — respuestas de la agencia (17-09)]], bloque 6) resolvió el mecanismo de autenticación y agregó un rol. **Sellado en la sync del 17/09** vía [[DEC-0008 Autenticación propia y rol de vendedor freelance]]:
+- **Mecanismo:** autenticación **propia con usuario y contraseña individual** (para auditar quién hizo cada acción, con `created_by`/`updated_by`). Google OAuth queda opcional/futuro.
 - **Nuevo rol `freelance`** (vendedor externo) con **visibilidad restringida** (solo lo suyo): es la **excepción** al patrón *lectura global* de esta DEC, que sigue vigente para `empleado`/`admin`/`dueño`.
 
 ## Pendiente `#accion/decidir`
-- **Mecanismo de autenticación:** ~~aún no definido~~ → **resuelto como propuesta** en [[DEC-0008 Autenticación propia y rol de vendedor freelance]] (usuario/contraseña individual), pendiente de sellar en la sync.
+- **Mecanismo de autenticación:** ✅ **resuelto** en [[DEC-0008 Autenticación propia y rol de vendedor freelance]] (usuario/contraseña individual, sellado 17/09).
 - **Infraestructura de despliegue:** sigue pendiente, ver [[DEC-0001 Stack tecnológico]] y [[ARQ — Vista general]].
 
 ## Impacto

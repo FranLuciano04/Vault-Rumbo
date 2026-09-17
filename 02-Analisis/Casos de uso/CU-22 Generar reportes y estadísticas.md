@@ -4,7 +4,7 @@ estado: en-revision
 modulo: [dashboard]
 responsable: Francisco
 pc: pc1
-actualizado: 11/09/26
+actualizado: 17/09/26
 ---
 # CU-22 Generar reportes y estadísticas
 
@@ -55,4 +55,4 @@ El dueño (o admin) genera **reportes del período** (mensuales) con las estadí
 
 ## 🔎 Revisión
 > [!question] Francisco (11/09): especificado. **A validar con la agencia:** el **catálogo de reportes** que realmente necesitan (¿solo mensual de ventas?, ¿por empleado?, ¿por destino?) y el **formato de exportación** (PDF vs. planilla) para PC1.
-> [!note] Paloma (17/09): **catálogo y formato resueltos por la agencia** (bloque 3 del relevamiento): incorporados al flujo. Formato = **Excel principal + PDF resumido**. "Ganancia/rentabilidad", "ventas por operador" y "ventas por vendedor y comisiones" dependen de [[DEC-0007 Modelo económico — ganancia, margen y comisión de vendedor]] (incluye la pregunta abierta de si **Operador/Proveedor** se modela como entidad). Ratificar en la sync.
+> [!success] Paloma (17/09): **catálogo y formato resueltos por la agencia** (bloque 3): incorporados al flujo. Formato = **Excel principal + PDF resumido**. "Ganancia/rentabilidad", "ventas por operador" y "ventas por vendedor y comisiones" salen de [[DEC-0007 Modelo económico — ganancia, margen y comisión de vendedor]]; **Operador/Proveedor confirmado como entidad** ([[DEC-0009 Operador-Proveedor como entidad de catálogo]]). **Ratificado en la sync 17/09.**

@@ -36,7 +36,7 @@ tags:: #tipo/modulo #estado/en-revision #pc/pc1
 - [[CU-10 Registrar economía del viaje]] — venta y costo neto; comisión automática.
 - [[CU-11 Definir plan de cuotas]] — Pagos con montos y vencimientos.
 - [[CU-12 Registrar cobro de un pago]] — marcar Pago cobrado.
-- [[CU-13 Configurar porcentaje de comisión]] — %comisión de la empresa (admin).
+- [[CU-13 Configurar porcentaje de comisión]] — comisión por defecto del vendedor/freelancer (admin) — ver [[DEC-0007 Modelo económico — ganancia, margen y comisión de vendedor]].
 
 ### Alertas — *Nahuel*
 - [[CU-14 Ver y atender alertas del día]] — agenda de Alertas vigentes.

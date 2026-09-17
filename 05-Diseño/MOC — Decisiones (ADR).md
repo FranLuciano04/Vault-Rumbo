@@ -14,11 +14,12 @@ tags:: #tipo/modulo #estado/formalizado
 - [[DEC-0001 Stack tecnológico]]
 - [[DEC-0002 Modelar la consulta como Oportunidad]]
 - [[DEC-0003 Relación Viaje–Hotel y Reseña]]
-- [[DEC-0004 Comisión configurable por porcentaje]]
+- [[DEC-0004 Comisión configurable por porcentaje]] 🚫 (`obsoleto` — superseded por DEC-0007)
 - [[DEC-0005 Autenticación y modelo de roles]]
 - [[DEC-0006 Destino como entidad de catálogo]]
-- [[DEC-0007 Modelo económico — ganancia, margen y comisión de vendedor]] (`en-revision` — supersede a [[DEC-0004 Comisión configurable por porcentaje]])
-- [[DEC-0008 Autenticación propia y rol de vendedor freelance]] (`en-revision` — amplía a [[DEC-0005 Autenticación y modelo de roles]])
+- [[DEC-0007 Modelo económico — ganancia, margen y comisión de vendedor]] (supersede a [[DEC-0004 Comisión configurable por porcentaje]])
+- [[DEC-0008 Autenticación propia y rol de vendedor freelance]] (amplía a [[DEC-0005 Autenticación y modelo de roles]])
+- [[DEC-0009 Operador-Proveedor como entidad de catálogo]] (13ª entidad [[Operador]])
 
 ## Todas (Dataview)
 ```dataview

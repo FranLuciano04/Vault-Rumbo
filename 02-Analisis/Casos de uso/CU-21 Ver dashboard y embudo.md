@@ -4,7 +4,7 @@ estado: en-revision
 modulo: [dashboard]
 responsable: Francisco
 pc: pc1
-actualizado: 11/09/26
+actualizado: 17/09/26
 ---
 # CU-21 Ver dashboard y embudo
 
@@ -58,4 +58,4 @@ El dueño (o admin) visualiza en un **tablero en vivo** el embudo de ventas y lo
 
 ## 🔎 Revisión
 > [!question] Francisco (11/09): especificado con un set estándar de indicadores. **A validar con la agencia** el **conjunto exacto de KPIs** que quieren ver (¿ranking de destinos?, ¿clientes top?, ¿ticket promedio?) y si el `empleado` tiene un dashboard propio (A1) o el tablero es solo para `admin`/`dueño` en PC1.
-> [!note] Paloma (17/09): **KPIs resueltos por la agencia** e incorporados al flujo principal (incluye ranking de destinos, pasajeros por destino, ticket promedio y ventas por vendedor). La ganancia del dashboard depende del nuevo modelo económico ([[DEC-0007 Modelo económico — ganancia, margen y comisión de vendedor]]) y la vista del `freelance` de [[DEC-0008 Autenticación propia y rol de vendedor freelance]]. Ratificar en la sync junto con esas DEC.
+> [!success] Paloma (17/09): **KPIs resueltos por la agencia** e incorporados al flujo principal (incluye ranking de destinos, pasajeros por destino, ticket promedio, ventas por vendedor y **pendiente a operadores**). La ganancia del dashboard sale del nuevo modelo económico ([[DEC-0007 Modelo económico — ganancia, margen y comisión de vendedor]]) y la vista del `freelance` de [[DEC-0008 Autenticación propia y rol de vendedor freelance]]. **Ratificado en la sync 17/09** junto con esas DEC.

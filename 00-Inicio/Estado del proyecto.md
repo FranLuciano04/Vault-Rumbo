@@ -20,13 +20,13 @@ Los tres tomamos **los tres roles** (Coordinador de vault · Guardián del domin
 
 ### Obligatorio (piso del cronograma)
 - [ ] `01-Relevamiento/` formalizado
-- [ ] [[Actores]] formalizados (empleado, admin, dueño, cliente)
+- [ ] [[Actores]] formalizados (empleado, admin, dueño, freelance, cliente)
 - [ ] Especificación de los 30 CU + [[DGM — Casos de uso|diagrama de casos de uso]]
-- [ ] 12 entidades formalizadas (Usuario, Cliente, Oportunidad, Viaje, Pago, Hotel, Reseña, Alerta, Cotización, ContenidoRed, Destino, RequisitoDestino ⚠️nueva)
+- [ ] 13 entidades formalizadas (Usuario, Cliente, Oportunidad, Viaje, Pago, Hotel, Reseña, Alerta, Cotización, ContenidoRed, Destino, RequisitoDestino, Operador ⚠️nueva 17/09)
 - [ ] [[MOC — Modelo de dominio|Diagrama de clases]] + [[DGM-ER]] coherentes (atributos, tipos, multiplicidades)
 - [ ] Diagramas de **actividad** de flujos clave ([[CU-01 De la consulta a la venta|CU-01]] + críticos)
 - [ ] [[ARQ — Vista general]] formalizada
-- [x] DEC estructurales registradas y **ratificadas** (DEC-0001→0006, selladas 11/09; DEC-0002 sigue `en-revision`). ⚠️ **DEC-0007 y DEC-0008** (`en-revision`, 17/09) pendientes de sellar; DEC-0004 a superseder
+- [x] DEC estructurales registradas y **ratificadas** (DEC-0001→0006, selladas 11/09; DEC-0002 sigue `en-revision`). ✅ **DEC-0007, DEC-0008 y DEC-0009** selladas 17/09; **DEC-0004 obsoleta** (superseded por DEC-0007)
 - [ ] Prototipo UI de pantallas clave (Figma)
 
 ### Recomendado (buenas prácticas — refuerzan el modelo)
@@ -40,7 +40,7 @@ Los tres tomamos **los tres roles** (Coordinador de vault · Guardián del domin
 > Cierre PC1: la consulta `#pc/pc1 AND #estado/borrador` debe dar **cero** en lo obligatorio de arriba.
 
 ## Bitácora de decisiones recientes
-- 17/09/26 — **2ª ronda de relevamiento** (respuestas de la agencia, las trajo Francisco; procesadas por Paloma). Se registró todo en [[Relevamiento — respuestas de la agencia (17-09)]] y se abrieron dos DEC `en-revision`: **[[DEC-0007 Modelo económico — ganancia, margen y comisión de vendedor]]** (supersede a [[DEC-0004 Comisión configurable por porcentaje]]: ganancia = venta − costo, margen $/%, comisión de vendedor aparte, **multimoneda**) y **[[DEC-0008 Autenticación propia y rol de vendedor freelance]]** (login usuario/contraseña individual + auditoría; nuevo rol **freelance** con visibilidad restringida, amplía [[DEC-0005 Autenticación y modelo de roles]]). Se actualizaron [[CU-21 Ver dashboard y embudo|CU-21]] (KPIs), [[CU-22 Generar reportes y estadísticas|CU-22]] (catálogo + Excel/PDF), [[CU-30 Sugerir recontacto de clientes|CU-30]] (6 meses + segmentación) y las entidades [[Viaje]], [[Usuario]], [[Alerta]], [[Cliente]] y la regla [[RN-01 Comisión automática]]. **Todo a ratificar en la sync.** Abierto: ¿**Operador/Proveedor** como 13ª entidad?
+- 17/09/26 — **2ª ronda de relevamiento** (respuestas de la agencia, las trajo Francisco; procesadas por Paloma). Se registró todo en [[Relevamiento — respuestas de la agencia (17-09)]] y se abrieron dos DEC `en-revision`: **[[DEC-0007 Modelo económico — ganancia, margen y comisión de vendedor]]** (supersede a [[DEC-0004 Comisión configurable por porcentaje]]: ganancia = venta − costo, margen $/%, comisión de vendedor aparte, **multimoneda**) y **[[DEC-0008 Autenticación propia y rol de vendedor freelance]]** (login usuario/contraseña individual + auditoría; nuevo rol **freelance** con visibilidad restringida, amplía [[DEC-0005 Autenticación y modelo de roles]]). Se actualizaron [[CU-21 Ver dashboard y embudo|CU-21]] (KPIs), [[CU-22 Generar reportes y estadísticas|CU-22]] (catálogo + Excel/PDF), [[CU-30 Sugerir recontacto de clientes|CU-30]] (6 meses + segmentación) y las entidades [[Viaje]], [[Usuario]], [[Alerta]], [[Cliente]] y la regla [[RN-01 Comisión automática]]. **Ratificado en la sync del 17/09** (Francisco, Nahuel y Paloma): se sellaron DEC-0007, DEC-0008 y la nueva **[[DEC-0009 Operador-Proveedor como entidad de catálogo]]** (13ª entidad **[[Operador]]**); DEC-0004 quedó **obsoleta**. Detalle en "Definido y sellado en la sync 17/09".
 - 11/09/26 — **Entregable DOCX de Casos de uso rehecho** (Nahuel). Diagrama ([[DGM — Casos de uso]]) rehecho con motor **ELK** (más legible), generalización de roles y actor externo aclarado, e **incrustado** en el DOCX (bug de rutas con espacios resuelto). Estética **académica** (plantilla `make-reference.ps1`, migrada de Python a PowerShell) y **contenido saneado**: el `.docx` ya no filtra cocina interna (DEC, notas de revisión, tags). Detalle en [[Entregables — índice]] y [[CONTINUAR — entregable Casos de uso]].
 - 11/09/26 — **Cruce del relevamiento en crudo** (Francisco). La mayoría del relevamiento ya estaba cubierta. Definiciones: (1) **cotizador automático por scraping** y detección de ofertas → **fuera de alcance PC1** ([[Alcance y fuera de alcance]]); el cotizador queda asistido ([[CU-06 Emitir cotización]]). (2) Del "detector de oportunidades" se conserva un **CRM proactivo** acotado → nuevo **[[CU-30 Sugerir recontacto de clientes]]** (clientes fieles inactivos, con opt-out `no_recontactar` en [[Cliente]] y tipo `recontacto` en [[Alerta]]). (3) **Vencimiento de pago a proveedor por hotel** → modelado en `viaje_hotel` ([[DEC-0003 Relación Viaje–Hotel y Reseña]]) con [[Alerta]] un mes antes; nota en [[CU-09 Armar itinerario de hoteles]]. (4) **% pagado / checklist** reflejado en [[CU-12 Registrar cobro de un pago]]. Total ahora **30 CU**.
 - 11/09/26 — **Revisión cruzada de los CU de Paloma y Nahuel** (Francisco). Se resolvió el **modelo de visibilidad** en [[DEC-0005 Autenticación y modelo de roles]]: *lectura global + propiedad para organización* (`Cliente`/`Oportunidad`/`Viaje`/`Pago` legibles por toda la agencia con vista personal; `Alerta` personal; catálogo compartido; config/moderación = `admin`). Se agregó la 12ª entidad **[[RequisitoDestino]]** (cierra el gap de modelado de [[CU-15 Configurar recordatorios por destino]], cuyo actor pasa a `admin`). Se alinearon [[CU-02 Registrar cliente|CU-02]], [[CU-03 Gestionar ficha del cliente|CU-03]], [[CU-17 Registrar reseña de hotel|CU-17]], [[CU-24 Iniciar sesión|CU-24]], [[CU-14 Ver y atender alertas del día|CU-14]], [[CU-10 Registrar economía del viaje|CU-10]] (A4 rebalanceo) y [[CU-11 Definir plan de cuotas|CU-11]] (A5). Todo queda **a ratificar en la sync con Paloma y Nahuel**.
@@ -64,15 +64,23 @@ Acordado por el equipo (Francisco + Nahuel presentes; Paloma notificada por Git)
 - **`Oportunidad.destino`**: texto libre; se normaliza a [[Destino]] al derivar en [[Viaje]] (DEC-0006).
 
 ## Preguntas para la AGENCIA — ✅ RESPONDIDAS (17/09, las trajo Francisco)
-Registro completo en [[Relevamiento — respuestas de la agencia (17-09)]]. A ratificar en la sync las DEC/CU derivadas:
-- ✅ **Comisión vs. margen**: ganancia = venta − costo; margen en $ y %; comisión de vendedor aparte; multimoneda → **reabre [[DEC-0004 Comisión configurable por porcentaje]]** vía **[[DEC-0007 Modelo económico — ganancia, margen y comisión de vendedor]]** (`en-revision`).
+Registro completo en [[Relevamiento — respuestas de la agencia (17-09)]]. Las DEC/CU derivadas quedaron **ratificadas en la sync 17/09**:
+- ✅ **Comisión vs. margen**: ganancia = venta − costo; margen % **sobre venta**; comisión de vendedor aparte; multimoneda → **supersede [[DEC-0004 Comisión configurable por porcentaje]]** vía **[[DEC-0007 Modelo económico — ganancia, margen y comisión de vendedor]]** (`formalizada` 17/09).
 - ✅ **KPIs del dashboard** y **catálogo de reportes** (Excel principal + PDF) → [[CU-21 Ver dashboard y embudo]], [[CU-22 Generar reportes y estadísticas]].
 - ✅ **Criterio del CRM proactivo**: ≈ 6 meses; recurrentes ≥ 2 viajes; + **segmentación** → [[CU-30 Sugerir recontacto de clientes]], [[Cliente]].
 - ✅ **WhatsApp**: fase 1 manual (aviso interno); automatización configurable **fuera de PC1**.
-- ✅ **Autenticación**: usuario/contraseña individual + auditoría; rol **freelance** (visibilidad restringida) → **[[DEC-0008 Autenticación propia y rol de vendedor freelance]]** (`en-revision`, amplía [[DEC-0005 Autenticación y modelo de roles]]).
+- ✅ **Autenticación**: usuario/contraseña individual + auditoría (`created_by`/`updated_by`); rol **freelance** (visibilidad restringida) → **[[DEC-0008 Autenticación propia y rol de vendedor freelance]]** (`formalizada` 17/09, amplía [[DEC-0005 Autenticación y modelo de roles]]).
 
-> 🔶 **Pendiente de sync (17/09):** ratificar DEC-0007 y DEC-0008; decidir base del margen %, forma de la comisión del vendedor, regla multimoneda y si **Operador/Proveedor** pasa a entidad (13ª). Sigue abierta con la agencia una posible base de comisión (DEC-0004/0007).
+## Definido y sellado en la sync 17/09
+Acordado por el equipo (Francisco, Nahuel y Paloma presentes):
+- **DEC selladas** (`formalizado`, 17/09): [[DEC-0007 Modelo económico — ganancia, margen y comisión de vendedor|DEC-0007]] (supersede DEC-0004), [[DEC-0008 Autenticación propia y rol de vendedor freelance|DEC-0008]] (amplía DEC-0005) y [[DEC-0009 Operador-Proveedor como entidad de catálogo|DEC-0009]]. **[[DEC-0004 Comisión configurable por porcentaje|DEC-0004]] → `obsoleto`.**
+- **Modelo económico:** `ganancia = precioVenta − costo`; `margen% = ganancia / precioVenta` (**sobre venta**); **comisión del vendedor** aparte (importe o %, el % sobre la ganancia, default por vendedor + override); **multimoneda ARS/USD** con cotización manual por operación en PC1.
+- **13ª entidad [[Operador]]** (catálogo con ABM; `Viaje` gana FK `operador`). Falta un **CU de ABM de operadores** (análogo a [[CU-26 Gestionar destinos]]).
+- **Autenticación:** usuario/contraseña individual + auditoría (`created_by`/`updated_by`); Google OAuth opcional/futuro.
+- **Rol `freelance`:** ve solo lo suyo; ve catálogo compartido; crea clientes que quedan como suyos; ve solo sus comisiones. Dashboard: `admin`/`dueño` = empresa; `empleado`/`freelance` = lo suyo.
+- **CRM:** recontacto a ≈ **6 meses** (configurable), prioriza recurrentes (≥ 2 viajes); **segmentación** por **etiquetas libres** en [[Cliente]].
+- **Pendiente fino (no bloquea PC1):** valores del enum `forma_pago` ([[Pago]]) y de `Alerta.tipo` (Nahuel); consolidación multimoneda de reportes (fase posterior); CU de ABM de [[Operador]].
 
 ## Pendientes técnicos
-- **Mecanismo de autenticación** → **resuelto como propuesta** (usuario/contraseña individual) en [[DEC-0008 Autenticación propia y rol de vendedor freelance]]; falta sellar en la sync.
+- **Mecanismo de autenticación** → ✅ **resuelto y sellado** (usuario/contraseña individual + auditoría) en [[DEC-0008 Autenticación propia y rol de vendedor freelance]] (sync 17/09).
 - **Infraestructura de despliegue** → [[ARQ — Vista general]]. El servidor on-premise es una alternativa pendiente.

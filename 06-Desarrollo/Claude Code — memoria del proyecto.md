@@ -13,7 +13,7 @@ CRM para agencias de turismo PyME. Digitaliza el circuito consulta → cotizaci�
 
 ## Convenciones (no negociables)
 - Dominio en **español (Argentina)** con tildes; nombres de entidad = lenguaje ubicuo (`Reseña`, `Cotización`).
-- Moneda **ARS** · fechas **dd/mm/aa**.
+- Moneda **ARS** · fechas **dd/mm/aa**. La economía del [[Viaje]] es **multimoneda (ARS/USD)** por operación — ver [[DEC-0007 Modelo económico — ganancia, margen y comisión de vendedor]].
 - Diagramas en **Mermaid** (texto, versionable en Git). No imágenes para diagramas de diseño.
 - Comisión automática = [[RN-01 Comisión automática]].
 
@@ -26,7 +26,7 @@ CRM para agencias de turismo PyME. Digitaliza el circuito consulta → cotizaci�
 - Infraestructura de despliegue a definir; on-premise no está aprobado. Detalle y herramientas de calidad/pruebas: [[DEC-0001 Stack tecnológico]].
 
 ## Dominio (punteros, no copiar)
-11 entidades en `03-Dominio/Entidades/`. Empezar por [[MOC — Modelo de dominio]] y bajar a la entidad puntual que se necesite.
+13 entidades en `03-Dominio/Entidades/`. Empezar por [[MOC — Modelo de dominio]] y bajar a la entidad puntual que se necesite.
 
 ## Fuera de alcance (no implementar)
 Pagos online, publicación automática en redes, integración GDS/mayoristas, facturación (fase 2). Ver [[Alcance y fuera de alcance]].

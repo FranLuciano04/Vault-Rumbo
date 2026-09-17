@@ -1,21 +1,22 @@
 ---
 tipo: decision
-estado: en-revision
+estado: formalizado
 modulo: [seguridad]
-decisores: []
+decisores: [Francisco, Nahuel, Paloma]
 supersede:
+fecha_aprobacion: 17/09/26
 actualizado: 17/09/26
 ---
 # DEC-0008 Autenticación propia y rol de vendedor freelance
 
-tags:: #tipo/decision #estado/en-revision #pc/pc1 #accion/decidir
+tags:: #tipo/decision #estado/formalizado #pc/pc1
 
-> **Propuesta** redactada por Paloma (17/09) a partir de [[Relevamiento — respuestas de la agencia (17-09)]] (bloque 6). **A decidir en la sync.** **Amplía** (no supersede) a [[DEC-0005 Autenticación y modelo de roles]]: resuelve el mecanismo que quedó `#accion/decidir` y agrega un rol.
+> ✅ **Ratificada en la sync del 17/09/26** (Francisco, Nahuel y Paloma). **Amplía** (no supersede) a [[DEC-0005 Autenticación y modelo de roles]]: resuelve el mecanismo que quedó `#accion/decidir` y agrega un rol. Origen: [[Relevamiento — respuestas de la agencia (17-09)]] (bloque 6).
 
 ## Contexto
 [[DEC-0005 Autenticación y modelo de roles]] selló el **modelo de roles y visibilidad** (*lectura global + propiedad*) pero dejó el **mecanismo de autenticación** explícitamente `#accion/decidir` (propia y/o Google OAuth). La agencia respondió y, además, sumó un actor que **no** encaja en el modelo de lectura global: el **vendedor freelance**.
 
-## Decisión (propuesta)
+## Decisión
 
 ### 1. Mecanismo de autenticación: propia, individual
 - **Usuario y contraseña individual** por persona (sin cuentas compartidas).
@@ -24,32 +25,35 @@ tags:: #tipo/decision #estado/en-revision #pc/pc1 #accion/decidir
 - → Cierra el `#accion/decidir` de **mecanismo de autenticación** de [[DEC-0005 Autenticación y modelo de roles]].
 
 ### 2. Auditoría / trazabilidad
-- Registrar **autor y fecha** de las acciones (mínimo: creación/modificación de registros sensibles).
-- Base para un log de auditoría. _(Nivel de detalle a definir: `created_by`/`updated_by` vs. log completo.)_
+- Para PC1 alcanza con registrar **autor y fecha** de alta/modificación (`created_by` / `updated_by`) en los registros. *(Sync 17/09.)*
+- Un **log de acciones completo** queda para **fase 2**.
 
-### 3. Nuevo rol `freelance` (vendedor externo) con visibilidad restringida
+### 3. Rol `freelance` (vendedor externo) con visibilidad restringida
 - Roles resultantes: `dueño`, `admin`, `empleado`, **`freelance`**.
 - El `freelance` ve y opera **solo sus** clientes y operaciones (`asesor_asignado` / `responsable` propios); **no** accede a toda la agencia.
 - Es la **excepción** al patrón *lectura global* de [[DEC-0005 Autenticación y modelo de roles]] (que sigue vigente para `empleado`/`admin`/`dueño`): a diferencia del `empleado` —que lee todo pero filtra "lo suyo"—, el `freelance` tiene **bloqueo de lectura** fuera de lo propio.
-- Catálogo compartido ([[Hotel]], [[Destino]]) probablemente visible para el `freelance` _(a confirmar)_.
+- **Alcance del `freelance` (sync 17/09):**
+  - **Ve el catálogo compartido** ([[Hotel]], [[Destino]], [[Operador]]).
+  - **Crea clientes**, que quedan **como suyos** (`asesor_asignado` = él).
+  - **Ve solo sus** comisiones/liquidación ([[DEC-0007 Modelo económico — ganancia, margen y comisión de vendedor]]); no la rentabilidad global de la agencia.
 
 ### 4. Matriz de visibilidad
-Se agrega la dimensión `freelance` (scope = **propio**) a la tabla de [[DEC-0005 Autenticación y modelo de roles#2. Modelo de visibilidad|visibilidad]]. El resto de la matriz no cambia.
+Se agrega la dimensión `freelance` (scope = **propio**) a la tabla de [[DEC-0005 Autenticación y modelo de roles#2. Modelo de visibilidad|visibilidad]]. El resto de la matriz no cambia. En el dashboard, `admin`/`dueño` ven la empresa; `empleado` y `freelance` ven **lo suyo** ([[CU-21 Ver dashboard y embudo]] A1).
 
 ## Alternativas consideradas
 | Opción | Pros | Contras | ¿Elegida? |
 |---|---|---|---|
-| Auth propia individual + rol `freelance` con scope propio | Cumple auditoría por persona y el acceso acotado del vendedor externo | Requiere gestión de credenciales y filtros por rol | ✅ (propuesta) |
+| Auth propia individual + rol `freelance` con scope propio | Cumple auditoría por persona y el acceso acotado del vendedor externo | Requiere gestión de credenciales y filtros por rol | ✅ |
 | Solo Google OAuth | Menos gestión de contraseñas | No garantiza por sí solo identidad individual; no es la preferencia de la agencia | ❌ |
 | Cuentas compartidas | Simple | Imposible auditar quién hizo qué | ❌ |
 
-## Cuestiones abiertas `#accion/decidir`
-- Alcance exacto del `freelance`: ¿ve catálogo de hoteles/destinos? ¿ve sus propias comisiones/liquidación ([[DEC-0007 Modelo económico — ganancia, margen y comisión de vendedor]])?
-- Nivel de auditoría: `created_by`/`updated_by` vs. log completo de acciones.
-- Gestión de credenciales (alta/reset) en [[CU-25 Gestionar usuarios y roles]].
+## Cuestiones resueltas en la sync 17/09
+- **Alcance del `freelance`:** ve catálogo compartido; crea clientes que quedan como suyos; ve solo sus comisiones.
+- **Nivel de auditoría PC1:** `created_by` / `updated_by`; log completo = fase 2.
+- **Dashboard:** `admin`/`dueño` = empresa; `empleado` y `freelance` = lo suyo.
 
 ## Impacto
-- Afecta: [[Usuario]] (enum `rol` +`freelance`; login usuario/contraseña; auditoría), [[DEC-0005 Autenticación y modelo de roles]] (amplía: mecanismo resuelto + rol nuevo), [[CU-24 Iniciar sesión]] (login propio), [[CU-25 Gestionar usuarios y roles]] (gestiona freelance y credenciales), [[CU-21 Ver dashboard y embudo]] (A1: el freelance ve solo lo suyo) y, transversalmente, los filtros de visibilidad. La **comisión** del freelance se liquida vía [[DEC-0007 Modelo económico — ganancia, margen y comisión de vendedor]].
+- Afecta: [[Usuario]] (enum `rol` +`freelance`; login usuario/contraseña; auditoría `created_by`/`updated_by`), [[DEC-0005 Autenticación y modelo de roles]] (amplía: mecanismo resuelto + rol nuevo), [[CU-24 Iniciar sesión]] (login propio), [[CU-25 Gestionar usuarios y roles]] (gestiona freelance y credenciales), [[CU-21 Ver dashboard y embudo]] (A1: el freelance ve solo lo suyo) y, transversalmente, los filtros de visibilidad. La **comisión** del freelance se liquida vía [[DEC-0007 Modelo económico — ganancia, margen y comisión de vendedor]].
 
 ## Decisores y fecha
-- Propuesta por: **Paloma** (17/09/26), desde el relevamiento traído por Francisco. **Pendiente de ratificar en la sync** (módulo de seguridad es de Nahuel). Sin `fecha_aprobacion` hasta entonces.
+- Propuesta por **Paloma** (17/09/26) desde el relevamiento traído por Francisco; **ratificada en la sync del 17/09/26** (Francisco, Nahuel y Paloma presentes). **Aprobada: 17/09/26.**

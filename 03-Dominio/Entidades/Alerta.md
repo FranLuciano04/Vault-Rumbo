@@ -17,7 +17,7 @@ Recordatorio automático para no perder vencimientos ni tareas: pagos, formulari
 | Atributo | Tipo | Descripción |
 |---|---|---|
 | id | UUID | Identificador |
-| tipo | Enum | pago · documentacion · salida · requisito_destino · formulario_migratorio · seguro · voucher · insistencia · reseña · manual · recontacto — `manual` ([[CU-28 Crear recordatorio manual]]), `recontacto` ([[CU-30 Sugerir recontacto de clientes]]). ⚠️ Tipos de aviso al pasajero ampliados según la agencia (17/09, ver [[Relevamiento — respuestas de la agencia (17-09)]], bloque 5); ratificar el enum con Nahuel |
+| tipo | Enum | pago · documentacion · salida · requisito_destino · formulario_migratorio · seguro · voucher · insistencia · reseña · manual · recontacto — `manual` ([[CU-28 Crear recordatorio manual]]), `recontacto` ([[CU-30 Sugerir recontacto de clientes]]). Tipos de aviso al pasajero según la agencia (17/09, ver [[Relevamiento — respuestas de la agencia (17-09)]], bloque 5); valores finales del enum a cerrar por Nahuel (módulo alertas) |
 | fecha | Date (dd/mm/aa) | Cuándo dispara |
 | estado | Enum | pendiente · vista · resuelta |
 | propietario | FK → [[Usuario]] | Quien la recibe/creó; define la agenda personal. Ver [[DEC-0005 Autenticación y modelo de roles]] |

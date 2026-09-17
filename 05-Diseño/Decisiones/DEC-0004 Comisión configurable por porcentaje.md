@@ -1,17 +1,18 @@
 ---
 tipo: decision
-estado: formalizado
+estado: obsoleto
 modulo: [economia]
 decisores: [Francisco]
 fecha_aprobacion: 11/09/26
 supersede:
-actualizado: 10/09/26
+superseded_by: DEC-0007
+actualizado: 17/09/26
 ---
 # DEC-0004 Comisión configurable por porcentaje
 
-tags:: #tipo/decision #estado/formalizado #pc/pc1
+tags:: #tipo/decision #estado/obsoleto #pc/pc1
 
-> ⚠️ **En revisión — probable supersesión.** La agencia respondió la pregunta de la que dependía esta DEC (ver [[Relevamiento — respuestas de la agencia (17-09)]], bloque 1) y el modelo **difiere**: la comisión no es `precioVenta × %`, sino **ganancia = venta − costo** + margen % + comisión del vendedor aparte, con multimoneda. Se propone superseder esta DEC con [[DEC-0007 Modelo económico — ganancia, margen y comisión de vendedor]] (`en-revision`). Se marcará `#estado/obsoleto` solo si la sync ratifica DEC-0007.
+> 🚫 **OBSOLETA — superseded por [[DEC-0007 Modelo económico — ganancia, margen y comisión de vendedor]]** (sync 17/09/26). La agencia confirmó que el modelo es **ganancia = venta − costo** (+ margen %, comisión del vendedor aparte, multimoneda), no `comisión = precioVenta × %`. Se conserva por trazabilidad; **no usar como referencia vigente**.
 
 ## Contexto
 [[RN-01 Comisión automática]] dejaba abierto si la comisión de un [[Viaje]] es una **diferencia fija** (`precioVenta − costoNeto`) o un **porcentaje configurable**.

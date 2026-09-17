@@ -4,7 +4,7 @@ estado: borrador
 modulo: []
 responsable: Guardián del dominio
 pc: pc1
-actualizado: 09/09/26
+actualizado: 17/09/26
 ---
 # DGM-ER
 
@@ -15,6 +15,7 @@ tags:: #tipo/diagrama #estado/borrador #pc/pc1
 ```mermaid
 erDiagram
     USUARIO ||--o{ VIAJE : gestiona
+    USUARIO ||--o{ VIAJE : vende
     USUARIO ||--o{ CONTENIDO_RED : crea
     CLIENTE ||--o{ OPORTUNIDAD : genera
     CLIENTE ||--o{ VIAJE : realiza
@@ -23,6 +24,7 @@ erDiagram
     OPORTUNIDAD ||--o| VIAJE : deriva
     DESTINO ||--o{ VIAJE : ubica
     DESTINO ||--o{ HOTEL : agrupa
+    OPERADOR ||--o{ VIAJE : provee
     VIAJE ||--o{ PAGO : tiene
     VIAJE ||--o{ ALERTA : dispara
     VIAJE ||--o{ VIAJE_HOTEL : incluye
@@ -34,6 +36,7 @@ erDiagram
 
 > Relación N:M Viaje–Hotel modelada con la tabla intermedia `VIAJE_HOTEL`, y objeto de la Reseña (Hotel + Cliente, con Viaje opcional): ver [[DEC-0003 Relación Viaje–Hotel y Reseña]].
 > `VIAJE.destino_id` y `HOTEL.destino_id` son FK a `DESTINO` (antes texto libre): ver [[DEC-0006 Destino como entidad de catálogo]].
+> `VIAJE` suma `operador_id` (FK a `OPERADOR`), `vendedor_id` (FK a `USUARIO`), `moneda`, `costo`, `ganancia`, `margen`, `comision_vendedor`; `PAGO` suma `moneda` y `forma_pago` — ver [[DEC-0007 Modelo económico — ganancia, margen y comisión de vendedor]] y [[DEC-0009 Operador-Proveedor como entidad de catálogo]] (sync 17/09).
 
 ## Tabla intermedia VIAJE_HOTEL
 - FK `viaje_id` → VIAJE, FK `hotel_id` → HOTEL.

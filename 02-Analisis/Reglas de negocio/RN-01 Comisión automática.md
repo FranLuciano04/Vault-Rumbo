@@ -1,24 +1,24 @@
 ---
 tipo: regla
-estado: en-revision
+estado: formalizado
 modulo: [economia]
 responsable: Paloma
 pc: pc1
-actualizado: 09/09/26
+actualizado: 17/09/26
 ---
 # RN-01 Comisión automática
 
-tags:: #tipo/regla #estado/en-revision #pc/pc1
+tags:: #tipo/regla #estado/formalizado #pc/pc1
 
-> ⚠️ **En revisión (17/09).** El relevamiento de la agencia cambió el modelo (ganancia, no comisión = % de venta). Esta regla se reescribe según [[DEC-0007 Modelo económico — ganancia, margen y comisión de vendedor]] (`en-revision`, a ratificar en la sync).
+> ✅ **Ratificada en la sync 17/09.** Reescrita según [[DEC-0007 Modelo económico — ganancia, margen y comisión de vendedor]] (supersede a [[DEC-0004 Comisión configurable por porcentaje]]).
 
 ## Enunciado
 Al registrar la economía de un [[Viaje]], el agente **carga precio de venta, costo, moneda y comisión del vendedor**; el sistema **calcula automáticamente la ganancia y el margen**.
 
 ## Fórmula
 - `ganancia = precioVenta − costo` (importe, por operación; **no** es un % fijo).
-- `margen%` = la ganancia en porcentaje (base a confirmar: sobre venta o sobre costo — [[DEC-0007 Modelo económico — ganancia, margen y comisión de vendedor]]).
-- `comision_vendedor` = concepto **separado**, por vendedor/freelancer, para liquidar cuánto pagarle.
+- `margen%` = la ganancia en porcentaje **sobre el precio de venta**: `ganancia / precioVenta` ([[DEC-0007 Modelo económico — ganancia, margen y comisión de vendedor]]).
+- `comision_vendedor` = concepto **separado**, por vendedor/freelancer: **importe o %** (el % sobre la ganancia), con **default por vendedor + override** por viaje.
 
 > Modelo anterior (superseded): `comisión = precioVenta × %comisión` con `%` default de empresa — ver [[DEC-0004 Comisión configurable por porcentaje]].
 

@@ -17,8 +17,10 @@ Registro de un pago o cuota de un [[Viaje]], con vencimiento y estado. El sistem
 | Atributo | Tipo | Descripción |
 |---|---|---|
 | id | UUID | Identificador |
-| monto | Decimal (ARS) | Importe |
+| monto | Decimal | Importe (en `moneda`) |
+| moneda | Enum | ARS / USD — coherente con la `moneda` del [[Viaje]] ([[DEC-0007 Modelo económico — ganancia, margen y comisión de vendedor]]) |
 | tipo | Enum | seña · cuota · saldo |
+| forma_pago | Enum | Efectivo · transferencia · tarjeta · … — alimenta el reporte de **formas de pago** ([[CU-22 Generar reportes y estadísticas]]). ⚠️ Valores a cerrar por Nahuel |
 | vencimiento | Date (dd/mm/aa) | Fecha límite |
 | estado | Enum | pendiente · pagado · vencido |
 
