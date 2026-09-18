@@ -11,7 +11,7 @@ actualizado: 10/09/26
 tags:: #tipo/caso-uso #estado/en-revision #pc/pc1 #accion/revisar
 
 ## Descripción
-Consultar la agenda de [[Alerta|Alertas]] vigentes (pagos, formularios por destino, insistencia y reseñas), atenderlas y marcarlas como resueltas.
+Consultar la agenda de [[Alerta|Alertas]] vigentes (pagos, formularios por destino, próximas salidas, insistencia y reseñas), atenderlas y marcarlas como resueltas.
 
 ## Actor principal
 [[Actores|empleado]]
@@ -26,7 +26,7 @@ Consultar la agenda de [[Alerta|Alertas]] vigentes (pagos, formularios por desti
 1. El empleado abre la agenda de [[Alerta|Alertas]] del día.
 2. El sistema lista las [[Alerta|Alertas]] vigentes (`pendiente` y `vencida`), ordenadas por `fecha`, filtradas por propietario ([[DEC-0005 Autenticación y modelo de roles]]).
 3. El empleado abre una [[Alerta]] y ve su contexto ([[Viaje]], [[Pago]] u [[Oportunidad]] asociada).
-4. Realiza la acción correspondiente según el `tipo` (pago · formulario · insistencia · reseña · manual · recontacto).
+4. Realiza la acción correspondiente según el `tipo` (pago · formulario · salida · insistencia · reseña · manual · recontacto).
 5. Marca la [[Alerta]] como `vista` o `resuelta`.
 
 ## Flujos alternativos
@@ -51,3 +51,5 @@ Consultar la agenda de [[Alerta|Alertas]] vigentes (pagos, formularios por desti
 > [!question] Nahuel (10/09): ¿"del día" es solo la fecha de hoy o incluye vencidas arrastradas? Asumo que la agenda muestra **vigentes hasta hoy** (pendientes + vencidas). Confirmar el criterio de posponer (A4).
 >
 > [!note] Francisco (11/09) — revisión de inconsistencias: **definido.** Coherente con [[DEC-0005 Autenticación y modelo de roles]] — la agenda filtra por `propietario` (empleado ve las suyas; `admin`/`dueño`, todas). Sin cambios de fondo. Nahuel: para tu conocimiento.
+>
+> [!note] Nahuel (18/09) — se cerró el enum `tipo` de [[Alerta]] sumando `salida` (aviso de próxima salida, [[CU-07 Confirmar reserva]]).
