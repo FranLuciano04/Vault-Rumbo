@@ -24,10 +24,10 @@ Marcar un [[Pago]] como cobrado y actualizar el estado económico del [[Viaje]].
 
 ## Flujo principal
 1. El empleado abre el [[Viaje]] y ubica el [[Pago]] a cobrar.
-2. Registra el cobro: fecha efectiva (`dd/mm/aa`) y, como dato informativo, el medio.
+2. Registra el cobro: **fecha efectiva** (`dd/mm/aa`), **forma de pago** (`forma_pago`: efectivo · transferencia · tarjeta · cheque · depósito) y la **moneda real** del cobro (`moneda_pago`: ARS / USD). Si `moneda_pago` **difiere** de la moneda de referencia del [[Viaje]], carga el **tipo de cambio** (`tipo_cambio`) del día; el sistema calcula el `monto_cobrado` real.
 3. El sistema cambia el estado del [[Pago]] a `pagado`.
 4. El sistema resuelve la [[Alerta]] de vencimiento asociada a ese [[Pago]].
-5. El sistema actualiza el saldo pendiente del [[Viaje]] (suma de [[Pago|Pagos]] no cobrados) y el **porcentaje pagado** del total, y refleja el **checklist de pagos** (pagas / por pagar). Ver [[Alcance y fuera de alcance]] (Economía: checklist y % pagado).
+5. El sistema actualiza el saldo pendiente del [[Viaje]] (suma de los `monto` planificados de los [[Pago|Pagos]] no cobrados, en la moneda de referencia) y el **porcentaje pagado** del total, y refleja el **checklist de pagos** (pagas / por pagar). Ver [[Alcance y fuera de alcance]] (Economía: checklist y % pagado).
 
 ## Flujos alternativos
 - **A1 — Pago vencido:** si el [[Pago]] estaba `vencido`, igual pasa a `pagado` y se resuelve su [[Alerta]].
@@ -40,6 +40,8 @@ Marcar un [[Pago]] como cobrado y actualizar el estado económico del [[Viaje]].
 
 ## Reglas de negocio aplicadas
 - Sin cobro online: solo registro de montos y vencimientos ([[Pago]]). Ver [[Alcance y fuera de alcance]].
+- **Multimoneda por cobro (Q6.1):** la `moneda_pago` y el `tipo_cambio` se registran acá, al cobrar; un mismo viaje puede cobrarse parte en ARS y parte en USD. El % pagado y el saldo se calculan sobre los `monto` planificados en la moneda de referencia del [[Viaje]] ([[DEC-0007 Modelo económico — ganancia, margen y comisión de vendedor]]).
+- `forma_pago` capturada al cobrar; alimenta el reporte de **formas de pago** ([[CU-22 Generar reportes y estadísticas]]).
 
 ## Entidades del dominio involucradas
 - [[Pago]] · [[Alerta]] · [[Viaje]]
@@ -49,3 +51,5 @@ Marcar un [[Pago]] como cobrado y actualizar el estado económico del [[Viaje]].
 
 ## 🔎 Revisión
 > [!note] Nahuel (10/09): validado — el [[Pago]] es **indivisible** (se cobra completo, sin cobros parciales). Ratificar en sync.
+>
+> [!note] Nahuel (18/09, entrevista grill) — se suma la captura de `forma_pago` (Q7) y de la **moneda real + tipo de cambio** del cobro (Q6.1, multimoneda por pago). A ratificar en sync.

@@ -20,6 +20,7 @@ flowchart LR
   EMP["<b>Empleado</b>"]:::actor
   ADM["<b>Admin</b>"]:::actor
   DUE["<b>Dueño</b>"]:::actor
+  FRE["<b>Freelance</b>"]:::actor
 
   subgraph SYS[" Sistema Rumbo "]
     direction TB
@@ -44,18 +45,20 @@ flowchart LR
       CU18([Buscar y recomendar]):::m6
       CU29([Eliminar reseña]):::m6
     end
+    subgraph M11[Configuración / Catálogos]
+      CU13([Configurar comisión]):::m11
+      CU15([Generar recordatorios por destinos]):::m11
+      CU26([Gestionar destinos]):::m11
+      CU31([Gestionar operadores]):::m11
+    end
     subgraph M5[Alertas]
       CU14([Atender alertas]):::m5
-      CU15([Generar recordatorios por destinos]):::m5
-      CU26([Gestionar destinos]):::m5
       CU28([Crear recordatorio manual]):::m5
     end
     subgraph M4[Economía y pagos]
       CU10([Registrar economía]):::m4
       CU11([Definir cuotas]):::m4
       CU12([Registrar cobro]):::m4
-      CU13([Configurar comisión]):::m4
-      CU31([Gestionar operadores]):::m4
     end
     subgraph M3[Viajes]
       CU07([Confirmar reserva]):::m3
@@ -77,23 +80,24 @@ flowchart LR
 
   CLI["<b>Pasajero / Cliente</b><br/><i>actor externo</i>"]:::ext
 
-  %% Generalización: Admin y Dueño heredan los casos del Empleado
+  %% Generalización: Admin, Dueño y Freelance heredan los casos operativos del Empleado
   ADM -. "es-un" .-> EMP
   DUE -. "es-un" .-> EMP
+  FRE -. "es-un" .-> EMP
 
   %% Empleado: casos operativos
   EMP --- CU02 & CU03
   EMP --- CU04 & CU05 & CU06 & CU30
   EMP --- CU07 & CU08 & CU09 & CU27
   EMP --- CU10 & CU11 & CU12
-  EMP --- CU14 & CU15 & CU28
+  EMP --- CU14 & CU28
   EMP --- CU16 & CU17 & CU18
   EMP --- CU19 & CU20
   EMP --- CU23
   EMP --- CU24
 
-  %% Admin: casos exclusivos
-  ADM --- CU13 & CU25 & CU26 & CU29 & CU31
+  %% Admin: casos exclusivos (configuración, catálogos y moderación)
+  ADM --- CU13 & CU15 & CU25 & CU26 & CU29 & CU31
 
   %% Dueño: dashboard y reportes
   DUE --- CU21 & CU22
@@ -114,12 +118,15 @@ flowchart LR
   classDef m8 fill:#e0f2f1,stroke:#009688,color:#004d40;
   classDef m9 fill:#fff3e0,stroke:#fb8c00,color:#7a3f00;
   classDef m10 fill:#eceff1,stroke:#607d8b,color:#263238;
+  classDef m11 fill:#e0f7fa,stroke:#00838f,color:#004d52;
   style SYS fill:#fafafa,stroke:#cbd5e1,stroke-width:2px;
 ```
 
 > **Notas de lectura:**
-> - **Generalización de roles:** `Admin` y `Dueño` son *especializaciones* del `Empleado` (flechas `es-un`): heredan todos sus casos operativos y solo se dibujan aparte sus casos exclusivos (`Admin`: configurar comisión, gestionar usuarios/destinos/operadores, eliminar reseña; `Dueño`: dashboard y reportes). Esto refleja el modelo de visibilidad de [[DEC-0005 Autenticación y modelo de roles]].
+> - **Generalización de roles:** `Admin`, `Dueño` y `Freelance` son *especializaciones* del `Empleado` (flechas `es-un`): heredan sus casos operativos y solo se dibujan aparte los casos exclusivos (`Admin`: el módulo **Configuración/Catálogos** —configurar comisión, recordatorios por destino, destinos y operadores— más gestionar usuarios y moderar reseñas; `Dueño`: dashboard y reportes). Esto refleja el modelo de visibilidad de [[DEC-0005 Autenticación y modelo de roles]].
+> - **`Freelance` (vendedor externo):** hace los **mismos casos operativos** que el `Empleado`, pero con **visibilidad restringida a lo suyo** (excepción al *lectura global*, [[DEC-0008 Autenticación propia y rol de vendedor freelance]]). Esa restricción es de **alcance de datos**, no de casos de uso, por eso el diagrama lo modela como especialización del `Empleado`; el detalle de visibilidad va en las DEC.
 > - **Actor externo `Pasajero / Cliente`:** no opera el sistema; solo interactúa con dos casos: **recibe** la cotización (CU-06) y **aporta** la reseña que el empleado registra (CU-17). Por eso va a la derecha, con asociaciones etiquetadas.
 
 ## Pendiente
 - Refinar relaciones `<<include>>` / `<<extend>>` (p. ej. CU-10 economía incluida al confirmar reserva CU-07).
+- ⚠️ **Regenerar el entregable:** se sumó el actor **`Freelance`** (18/09, Q5) a la fuente Mermaid; falta **regenerar el PNG (mermaid-cli, ELK) y el DOCX** de `07-Entregables/Casos de uso/` para que reflejen el nuevo actor. Comando en [[CONTINUAR — entregable Casos de uso]].

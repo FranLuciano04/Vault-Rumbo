@@ -30,4 +30,4 @@ Al registrar la economía de un [[Viaje]], el agente **carga precio de venta, co
 - [[Viaje]] · [[Pago]] · [[CU-10 Registrar economía del viaje]] · [[CU-01 De la consulta a la venta]] (paso 4)
 
 ## Decisión asociada
-- [[DEC-0007 Modelo económico — ganancia, margen y comisión de vendedor]] (`en-revision`, ratificar en sync) — supersede a [[DEC-0004 Comisión configurable por porcentaje]].
+- [[DEC-0007 Modelo económico — ganancia, margen y comisión de vendedor]] (`formalizado`, sellada en la sync 17/09) — supersede a [[DEC-0004 Comisión configurable por porcentaje]].

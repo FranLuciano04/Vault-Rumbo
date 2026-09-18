@@ -4,7 +4,7 @@ estado: en-revision
 modulo: []
 responsable: Guardián del dominio
 pc: pc1
-actualizado: 17/09/26
+actualizado: 18/09/26
 ---
 # MOC — Modelo de dominio
 
@@ -21,34 +21,48 @@ classDiagram
     class Usuario {
       +UUID id
       +String nombre
+      +String email
       +String rol
     }
     class Cliente {
       +UUID id
       +String nombre
+      +String contacto
       +String segmento
       +String[] etiquetas
+      +String preferencias
+      +Bool noRecontactar
       +UUID asesorAsignadoId
     }
     class Oportunidad {
       +UUID id
+      +UUID clienteId
       +String canal
+      +String destino
+      +Int pasajeros
       +String estado
       +UUID responsableId
     }
     class Cotizacion {
       +UUID id
+      +UUID oportunidadId
+      +Date fecha
+      +String moneda
       +Decimal total
       +String estado
     }
     class Viaje {
       +UUID id
+      +UUID clienteId
+      +UUID oportunidadId
       +UUID destinoId
       +String estado
       +String moneda
       +Decimal precioVenta
       +Decimal costo
       +Decimal ganancia
+      +Decimal margen
+      +Decimal comisionVendedor
       +UUID operadorId
       +UUID vendedorId
       +UUID responsableId
@@ -76,9 +90,15 @@ classDiagram
     }
     class Pago {
       +UUID id
+      +UUID viajeId
       +Decimal monto
+      +String tipo
       +Date vencimiento
       +String estado
+      +String formaPago
+      +String monedaPago
+      +Decimal tipoCambio
+      +Decimal montoCobrado
     }
     class Hotel {
       +UUID id
@@ -91,18 +111,28 @@ classDiagram
     }
     class Resena {
       +UUID id
+      +UUID clienteId
+      +UUID hotelId
+      +UUID viajeId
       +Int puntaje
+      +String comentario
+      +Date fecha
+      +String estado
     }
     class Alerta {
       +UUID id
       +String tipo
       +Date fecha
+      +String estado
       +UUID propietarioId
     }
     class ContenidoRed {
       +UUID id
+      +UUID usuarioId
       +String titulo
+      +String canal
       +String estadoKanban
+      +Date fechaPublicacion
     }
 
     Cliente "1" --> "0..*" Oportunidad
@@ -129,6 +159,7 @@ classDiagram
 > Relación Viaje–Hotel (N:M) y objeto de la Reseña resueltos en [[DEC-0003 Relación Viaje–Hotel y Reseña]].
 > `destino` de [[Viaje]] y [[Hotel]] pasó de `String` a FK hacia [[Destino]] (catálogo) — ver [[DEC-0006 Destino como entidad de catálogo]].
 > [[Viaje]] gana el bloque económico (`moneda`, `costo`, `ganancia`, `margen`, `vendedor`, `comision_vendedor`) y FK `operador` — ver [[DEC-0007 Modelo económico — ganancia, margen y comisión de vendedor]] y [[DEC-0009 Operador-Proveedor como entidad de catálogo]] (sync 17/09).
+> **18/09 (entrevista grill):** se completaron los atributos del diagrama de clases para que quede coherente con las notas fuente ([[Pago]] con `forma_pago`/`moneda_pago`/`tipo_cambio`/`monto_cobrado`/estado `anulado`; [[Cliente]] con `contacto`/`preferencias`/`no_recontactar`; [[Reseña]], [[Cotización]], [[Alerta]] con sus atributos y FKs). `canal` de [[Oportunidad]] suma `presencial` y `segmento` de [[Cliente]] suma `pareja`.
 
 ## Diagrama ER
 - Ver [[DGM-ER]] (modelo relacional para PostgreSQL).

@@ -18,8 +18,9 @@ Documento que se genera desde una plantilla + formulario para responder una [[Op
 |---|---|---|
 | id | UUID | Identificador |
 | fecha | Date (dd/mm/aa) | Emisión |
-| items | Lista | Conceptos y precios |
-| total | Decimal (ARS) | Total |
+| moneda | Enum | ARS / USD — moneda de la operación; al derivar en [[Viaje]] queda como su moneda de referencia ([[DEC-0007 Modelo económico — ganancia, margen y comisión de vendedor]]) |
+| items | Lista | Conceptos y precios (en `moneda`) |
+| total | Decimal | Total (en `moneda`) |
 | estado | Enum | borrador · enviada · aceptada · rechazada |
 
 ## Relaciones

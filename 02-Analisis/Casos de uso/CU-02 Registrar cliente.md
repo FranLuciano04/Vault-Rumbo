@@ -24,7 +24,7 @@ El empleado da de alta un nuevo [[Cliente]] con sus datos de contacto y segmento
 
 ## Flujo principal
 1. El empleado abre **Nuevo cliente**.
-2. Carga los datos de la ficha: **nombre**, **contacto** (WhatsApp / Instagram / email), **segmento** (familia · amigos · individual), **preferencias** y, opcionalmente, un **asesor asignado** ([[Usuario]]) para organizarlo en la vista "mis clientes" (no restringe el acceso del resto — ver [[DEC-0005 Autenticación y modelo de roles]]).
+2. Carga los datos de la ficha: **nombre**, **contacto** (WhatsApp / Instagram / email), **segmento** (familia · amigos · individual · pareja), **preferencias** y, opcionalmente, un **asesor asignado** ([[Usuario]]) para organizarlo en la vista "mis clientes" (no restringe el acceso del resto — ver [[DEC-0005 Autenticación y modelo de roles]]).
 3. El sistema valida los datos mínimos (**nombre** y al menos un **contacto** válido: teléfono/WhatsApp o email) y busca posibles fichas duplicadas por contacto o nombre.
 4. El sistema crea el [[Cliente]] y confirma el alta.
 5. El sistema ofrece continuar registrando una consulta ([[CU-04 Registrar consulta]]) o completar la ficha ([[CU-03 Gestionar ficha del cliente]]).

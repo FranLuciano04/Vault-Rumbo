@@ -1,10 +1,10 @@
 ---
 tipo: caso-uso
 estado: en-revision
-modulo: [economia]
+modulo: [configuracion, economia]
 responsable: Nahuel
 pc: pc1
-actualizado: 17/09/26
+actualizado: 18/09/26
 ---
 # CU-13 Configurar porcentaje de comisión
 

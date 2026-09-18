@@ -25,7 +25,7 @@ El empleado genera una [[Cotización]] para una [[Oportunidad]] a partir de una 
 
 ## Flujo principal
 1. Desde la [[Oportunidad]], el empleado elige **Nueva cotización** y una **plantilla**.
-2. Completa el formulario: **ítems/conceptos** (aéreo, alojamiento, traslados, excursiones…) con sus **precios** en ARS; el sistema calcula el **total**.
+2. Completa el formulario: la **moneda** de la operación (ARS/USD), los **ítems/conceptos** (aéreo, alojamiento, traslados, excursiones…) con sus **precios** en esa moneda; el sistema calcula el **total**. La `moneda` de la cotización aceptada queda como moneda de referencia del [[Viaje]] ([[DEC-0007 Modelo económico — ganancia, margen y comisión de vendedor]]).
 3. El sistema genera el **documento** de la [[Cotización]] y la guarda en estado `borrador`.
 4. El empleado **envía** la cotización al cliente (por WhatsApp/email, por fuera del sistema) y la marca `enviada`.
 5. El sistema deja la [[Cotización]] asociada a la [[Oportunidad]], que pasa a estado `cotizada` ([[CU-05 Seguir oportunidad]]).

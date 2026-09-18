@@ -3,7 +3,7 @@ tipo: modulo
 estado: en-revision
 responsable: equipo
 pc: pc1
-actualizado: 17/09/26
+actualizado: 18/09/26
 ---
 # MOC — Casos de uso
 
@@ -34,16 +34,19 @@ tags:: #tipo/modulo #estado/en-revision #pc/pc1
 
 ### Economía y pagos — *Nahuel*
 - [[CU-10 Registrar economía del viaje]] — venta, costo, moneda y comisión del vendedor; ganancia/margen automáticos.
-- [[CU-11 Definir plan de cuotas]] — Pagos con montos y vencimientos.
-- [[CU-12 Registrar cobro de un pago]] — marcar Pago cobrado.
-- [[CU-13 Configurar porcentaje de comisión]] — comisión por defecto del vendedor/freelancer (admin) — ver [[DEC-0007 Modelo económico — ganancia, margen y comisión de vendedor]].
-- [[CU-31 Gestionar operadores]] — ABM del catálogo de operadores/proveedores (base de reportes por operador; actor admin/dueño). ⚠️ nuevo 17/09, [[DEC-0009 Operador-Proveedor como entidad de catálogo]].
+- [[CU-11 Definir plan de cuotas]] — Pagos con montos y vencimientos (plan en la moneda del viaje).
+- [[CU-12 Registrar cobro de un pago]] — marcar Pago cobrado; captura forma de pago y moneda real del cobro.
 
 ### Alertas — *Nahuel*
 - [[CU-14 Ver y atender alertas del día]] — agenda de Alertas vigentes.
-- [[CU-15 Configurar recordatorios por destino]] — formularios/recordatorios por destino.
-- [[CU-26 Gestionar destinos]] — ABM del catálogo de destinos (base de CU-15; actor admin/dueño). ⚠️ agregado 10/09, requiere [[DEC-0006 Destino como entidad de catálogo]]; ratificar módulo en sync.
 - [[CU-28 Crear recordatorio manual]] — alta manual de una Alerta (tipo `manual`). ⚠️ agregado 10/09, validar alcance en sync.
+
+### Configuración / Catálogos — *Nahuel*
+> Módulo definido en la entrevista grill del 18/09 (Q9): agrupa la configuración de negocio y los ABM de catálogo compartido. Actor `admin`/`dueño`.
+- [[CU-13 Configurar porcentaje de comisión]] — comisión por defecto del vendedor/freelancer — ver [[DEC-0007 Modelo económico — ganancia, margen y comisión de vendedor]].
+- [[CU-15 Configurar recordatorios por destino]] — [[RequisitoDestino|requisitos]]/formularios por destino que disparan Alertas.
+- [[CU-26 Gestionar destinos]] — ABM del catálogo de destinos ([[DEC-0006 Destino como entidad de catálogo]]).
+- [[CU-31 Gestionar operadores]] — ABM del catálogo de operadores/proveedores ([[DEC-0009 Operador-Proveedor como entidad de catálogo]]).
 
 ### Catálogo de hoteles — *Paloma*
 - [[CU-16 Gestionar hotel en catálogo]] — alta/edición de Hotel.

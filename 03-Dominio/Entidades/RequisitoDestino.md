@@ -1,7 +1,7 @@
 ---
 tipo: entidad
 estado: borrador
-modulo: [alertas, viajes]
+modulo: [configuracion, alertas, viajes]
 responsable:
 pc: pc1
 actualizado: 11/09/26
@@ -10,7 +10,7 @@ actualizado: 11/09/26
 
 tags:: #tipo/entidad #estado/borrador #pc/pc1
 
-> ⚠️ Entidad nueva (12ª), 11/09: nace para cerrar el gap de modelado de [[CU-15 Configurar recordatorios por destino]] (la regla "destino → requisitos" no tenía entidad). **Set de atributos ampliado y acordado en la sync con los tres** (se sumaron `tipo`, `obligatorio` y `descripcion`). Falta el sello formal (¿queda como entidad o se eleva a una `DEC-`?).
+> ⚠️ Entidad nueva (12ª), 11/09: nace para cerrar el gap de modelado de [[CU-15 Configurar recordatorios por destino]] (la regla "destino → requisitos" no tenía entidad). **Set de atributos ampliado y acordado en la sync con los tres** (se sumaron `tipo`, `obligatorio` y `descripcion`). **Sello (Q9, entrevista grill 18/09):** se mantiene como **entidad del dominio** (una de las 13), **sin elevarla a una `DEC-` propia**; su ABM/configuración vive en [[CU-15 Configurar recordatorios por destino]] dentro del módulo *Configuración / Catálogos*. A ratificar en la próxima sync.
 
 ## Responsabilidad
 Requisito o formulario que un [[Destino]] exige recordar (p. ej. visa, vacunación, documentación). Es la **regla de configuración** que dispara automáticamente las [[Alerta|Alertas]] de tipo `formulario` en los [[Viaje|Viajes]] a ese destino. Ver [[CU-15 Configurar recordatorios por destino]].

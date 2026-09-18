@@ -1,10 +1,10 @@
 ---
 tipo: caso-uso
 estado: en-revision
-modulo: [alertas]
+modulo: [configuracion, alertas]
 responsable: Nahuel
 pc: pc1
-actualizado: 10/09/26
+actualizado: 18/09/26
 ---
 # CU-15 Configurar recordatorios por destino
 

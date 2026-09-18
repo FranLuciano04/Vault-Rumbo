@@ -26,7 +26,7 @@ El empleado consulta y edita la ficha de un [[Cliente]] existente —datos de co
 ## Flujo principal
 1. El empleado **busca** al [[Cliente]] (por nombre o contacto) y abre su ficha.
 2. El sistema muestra los datos, el segmento, las preferencias y el **historial**: [[Oportunidad|Oportunidades]], [[Viaje|Viajes]] y [[Reseña|Reseñas]] asociados.
-3. El empleado edita los campos que necesite: **nombre**, **contacto** (teléfono/WhatsApp · Instagram · email), **segmento** (familia · amigos · individual), **preferencias** y el **asesor asignado** ([[Usuario]], opcional — ver [[DEC-0005 Autenticación y modelo de roles]]).
+3. El empleado edita los campos que necesite: **nombre**, **contacto** (teléfono/WhatsApp · Instagram · email), **segmento** (familia · amigos · individual · pareja), **preferencias** y el **asesor asignado** ([[Usuario]], opcional — ver [[DEC-0005 Autenticación y modelo de roles]]).
 4. El sistema valida que se conserven los datos mínimos (**nombre** y al menos un **contacto**) y guarda los cambios.
 5. El sistema confirma la actualización.
 

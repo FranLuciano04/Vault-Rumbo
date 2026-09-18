@@ -1,10 +1,10 @@
 ---
 tipo: caso-uso
 estado: en-revision
-modulo: [economia]
+modulo: [configuracion, economia]
 responsable: Nahuel
 pc: pc1
-actualizado: 17/09/26
+actualizado: 18/09/26
 ---
 # CU-31 Gestionar operadores
 
@@ -49,4 +49,6 @@ Alta, baja y modificación (ABM) de los **operadores/proveedores** del catálogo
 
 ## 🔎 Revisión
 > [!note] Paloma (17/09) — CU nuevo para dar ABM a la 13ª entidad [[Operador]] ([[DEC-0009 Operador-Proveedor como entidad de catálogo]], sync 17/09), análogo a [[CU-26 Gestionar destinos]]. Actor `admin`/`dueño`, baja lógica. **Pendiente:** confirmar el módulo (¿*Economía* o *Configuración/Catálogos*?) y el `responsable` de la especificación.
+>
+> [!success] Nahuel (18/09, entrevista grill) — **módulo resuelto (Q9):** pasa a **Configuración / Catálogos** (con [[CU-26 Gestionar destinos]], [[CU-15 Configurar recordatorios por destino]] y [[CU-13 Configurar porcentaje de comisión]]); `responsable` de la especificación = Nahuel. A ratificar en sync.
 > [!note] Nahuel (18/09) — Sumado el nodo CU-31 al [[DGM — Casos de uso]] (módulo *Economía y pagos*, actor `admin`) y regenerado el entregable DOCX. Se resolvió el pendiente de agregarlo al diagrama.

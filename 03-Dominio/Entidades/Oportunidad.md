@@ -17,7 +17,7 @@ Representa una **consulta / lead**: el interés de un cliente en un viaje antes 
 | Atributo | Tipo | Descripción |
 |---|---|---|
 | id | UUID | Identificador |
-| canal | Enum | instagram · whatsapp |
+| canal | Enum | instagram · whatsapp · presencial — canales de entrada de la consulta ([[CU-04 Registrar consulta]]) |
 | destino | String | Destino consultado |
 | fechas | Rango | Fechas tentativas |
 | pasajeros | Int | Cantidad |

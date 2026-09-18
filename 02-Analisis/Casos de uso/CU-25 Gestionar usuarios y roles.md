@@ -25,9 +25,9 @@ Alta, baja y edición de [[Usuario|Usuarios]], asignación de su `rol` y de la c
 ## Flujo principal
 1. El admin abre la gestión de [[Usuario|Usuarios]].
 2. El sistema lista los [[Usuario|Usuarios]] con su `rol` y estado.
-3. El admin da de alta un [[Usuario]] con `nombre`, `email` y `rol` (`empleado` · `admin` · `dueño`).
+3. El admin da de alta un [[Usuario]] con `nombre`, `email`, `rol` (`empleado` · `admin` · `dueño` · `freelance`) y sus **credenciales de acceso** (usuario/contraseña individual, [[DEC-0008 Autenticación propia y rol de vendedor freelance]]).
 4. Opcionalmente asigna la **capacidad de acceso al módulo de redes** ([[ContenidoRed]]), que no es un rol sino un permiso ([[Actores]]).
-5. El sistema valida y guarda el [[Usuario]].
+5. El sistema valida y guarda el [[Usuario]]. Si el rol es `freelance`, queda con **visibilidad restringida** (solo lo suyo, [[DEC-0008 Autenticación propia y rol de vendedor freelance]]); los [[Cliente|Clientes]] que cree quedan con él como `asesor_asignado`.
 
 ## Flujos alternativos
 - **A1 — Email duplicado:** el `email` ya existe → el sistema rechaza el alta.
@@ -49,3 +49,5 @@ Alta, baja y edición de [[Usuario|Usuarios]], asignación de su `rol` y de la c
 
 ## 🔎 Revisión
 > [!question] Nahuel (10/09): asumo **baja lógica** (A3) y la salvaguarda del **último admin** (A4). Confirmar en la sync. La creación de la propia contraseña/credencial depende del mecanismo pendiente en [[DEC-0005 Autenticación y modelo de roles]].
+>
+> [!success] Nahuel (18/09, entrevista grill) — **rol `freelance` y credenciales incorporados (Q5):** el alta ahora contempla el rol `freelance` (visibilidad restringida) y las **credenciales usuario/contraseña individual** ([[DEC-0008 Autenticación propia y rol de vendedor freelance]], que resolvió el mecanismo pendiente). A ratificar en sync.

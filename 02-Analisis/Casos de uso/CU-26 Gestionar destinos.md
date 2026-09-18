@@ -1,10 +1,10 @@
 ---
 tipo: caso-uso
 estado: en-revision
-modulo: [alertas]
+modulo: [configuracion, viajes]
 responsable: Nahuel
 pc: pc1
-actualizado: 10/09/26
+actualizado: 18/09/26
 ---
 # CU-26 Gestionar destinos
 
@@ -48,4 +48,6 @@ Alta, baja y modificación (ABM) de los **destinos** del catálogo. El catálogo
 - [[DGM — Casos de uso]] · [[MOC — Modelo de dominio]]
 
 ## 🔎 Revisión
-> [!note] Nahuel (10/09): CU nacido de separar el ABM de destino de [[CU-15 Configurar recordatorios por destino]]. **Resuelto:** [[Destino]] se promovió a entidad ([[DEC-0006 Destino como entidad de catálogo]], toca [[Viaje]] y [[Hotel]]); actor fijado en `admin`/`dueño`. Pendiente de sync: ratificar [[DEC-0006 Destino como entidad de catálogo]] (incluye el impacto en [[Hotel]], módulo de Paloma) y confirmar si el módulo del CU se separa como *Configuración/Catálogos*.
+> [!note] Nahuel (10/09): CU nacido de separar el ABM de destino de [[CU-15 Configurar recordatorios por destino]]. **Resuelto:** [[Destino]] se promovió a entidad ([[DEC-0006 Destino como entidad de catálogo]], toca [[Viaje]] y [[Hotel]]); actor fijado en `admin`/`dueño`. Pendiente de sync: ratificar [[DEC-0006 Destino como entidad de catálogo]] (incluye el impacto en [[Hotel]], módulo de Paloma).
+>
+> [!success] Nahuel (18/09, entrevista grill) — **módulo resuelto (Q9):** este CU pasa al módulo **Configuración / Catálogos** (junto con [[CU-31 Gestionar operadores]], [[CU-15 Configurar recordatorios por destino]] y [[CU-13 Configurar porcentaje de comisión]]). A ratificar en sync.

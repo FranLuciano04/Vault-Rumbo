@@ -24,7 +24,7 @@ El dueño (o admin) visualiza en un **tablero en vivo** el embudo de ventas y lo
 
 ## Flujo principal
 1. El dueño abre el **dashboard**.
-2. El sistema muestra el **embudo de ventas**: [[Oportunidad|Oportunidades]] por estado (`nueva · cotizada · ganada · perdida`) y la **tasa de conversión**.
+2. El sistema muestra el **embudo de ventas**: [[Oportunidad|Oportunidades]] por estado (`nueva · en_gestión · cotizada · ganada · perdida`) y la **tasa de conversión**.
 3. Muestra los **indicadores del período** (KPIs definidos por la agencia, ver [[Relevamiento — respuestas de la agencia (17-09)]], bloque 2):
    - **Ventas del mes** y comparación con meses anteriores.
    - **Ganancia estimada** del mes ([[DEC-0007 Modelo económico — ganancia, margen y comisión de vendedor]]).
@@ -54,7 +54,7 @@ El dueño (o admin) visualiza en un **tablero en vivo** el embudo de ventas y lo
 - [[DGM — Casos de uso]] · (pendiente) diagrama de actividad / wireframe del dashboard.
 
 ## Decisiones asociadas
-- [[DEC-0005 Autenticación y modelo de roles]] · [[DEC-0004 Comisión configurable por porcentaje]]
+- [[DEC-0005 Autenticación y modelo de roles]] · [[DEC-0007 Modelo económico — ganancia, margen y comisión de vendedor]] · [[DEC-0008 Autenticación propia y rol de vendedor freelance]]
 
 ## 🔎 Revisión
 > [!question] Francisco (11/09): especificado con un set estándar de indicadores. **A validar con la agencia** el **conjunto exacto de KPIs** que quieren ver (¿ranking de destinos?, ¿clientes top?, ¿ticket promedio?) y si el `empleado` tiene un dashboard propio (A1) o el tablero es solo para `admin`/`dueño` en PC1.
