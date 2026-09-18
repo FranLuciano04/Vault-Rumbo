@@ -32,7 +32,7 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 
 ## 18/09/26 — Nahuel (Claude Opus 4.8 / Sonnet 5)
 - **Hecho:** Se sumó el **CU-31 Gestionar operadores** al [[DGM — Casos de uso]] (módulo *Economía y pagos*, actor `admin`, análogo a [[CU-26 Gestionar destinos]]) y se regeneró el PNG del diagrama (mermaid-cli, motor ELK) y el DOCX entregable (31 CU verificados en el `.docx`). Se corrigieron 4 nombres de casos de uso en el diagrama para que todos inicien con verbo y sin detalle de implementación: *Propuesta con IA* → **Generar propuesta con IA**, *Reportes y estadísticas* → **Generar reportes y estadísticas**, *Recordatorios por destino* → **Generar recordatorios por destinos**, *Configurar % comisión* → **Configurar comisión** (se quitó el `%`). Los títulos de los `.md` fuente de cada CU no se modificaron (ya usaban verbo). Se actualizaron [[Estado del proyecto]], [[CONTINUAR — entregable Casos de uso]] y la nota de revisión de [[CU-31 Gestionar operadores|CU-31]] para reflejar el pendiente resuelto.
-- **Commits:** _(por completar al cerrar)_.
+- **Commits:** 0d7d537.
 - **Pendiente:** cerrar el enum `forma_pago` ([[Pago]]) y los valores de `Alerta.tipo`; ratificar los 31 CU en la próxima sync; avanzar con diagrama de clases, ER, actividad y arquitectura.
 
 ## 17/09/26 — Paloma (Claude Opus 4.8)
