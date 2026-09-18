@@ -3,14 +3,15 @@ tipo: referencia
 estado: formalizado
 responsable: Nahuel
 pc: pc1
-actualizado: 11/09/26
+actualizado: 18/09/26
 ---
 # Entregable de Casos de uso — estado y cómo regenerar
 
 > Nota operativa del entregable **DOCX de Casos de uso**. Contexto en [[Estado del proyecto]] y [[Bitácora de sesiones]]; parámetros en [[Entregables — índice]].
 
-## Estado (11/09) — completo
-- **30 CU** especificados; el DOCX se genera con `07-Entregables/build/build-casos-de-uso.sh` (filtra la cocina interna, arma portada + diagrama + actores + 30 CU y compila con pandoc).
+## Estado (18/09) — completo, 31 CU
+- **31 CU** especificados (se sumó [[CU-31 Gestionar operadores|CU-31]] el 18/09); el DOCX se genera con `07-Entregables/build/build-casos-de-uso.sh` (filtra la cocina interna, arma portada + diagrama + actores + los CU presentes en `02-Analisis/Casos de uso/` y compila con pandoc; toma todos los `CU-*.md` de la carpeta, sin lista fija).
+- **Diagrama:** nodo CU-31 agregado (módulo *Economía y pagos*, actor `admin`) y renombrados 4 casos de uso para que empiecen con verbo y sin detalles de implementación: *Propuesta con IA* → *Generar propuesta con IA*, *Reportes y estadísticas* → *Generar reportes y estadísticas*, *Recordatorios por destino* → *Generar recordatorios por destinos*, *Configurar % comisión* → *Configurar comisión*. Ver [[DGM — Casos de uso]].
 - **Diagrama de casos de uso rehecho** ([[DGM — Casos de uso]]): motor **ELK** (líneas ordenadas), óvalos por caso de uso, color por módulo, generalización de roles (`Admin`/`Dueño` *es-un* `Empleado`) y `Pasajero/Cliente` como actor externo a la derecha. PNG en `07-Entregables/Casos de uso/img/DGM-casos-de-uso.png`.
 - **Bug de incrustación resuelto:** la imagen se referencia por nombre y se resuelve con `--resource-path` (antes fallaba por los espacios de la ruta). La imagen queda **incrustada** en el DOCX.
 - **Estética académica:** plantilla `07-Entregables/build/reference.docx` generada por `make-reference.ps1` (PowerShell, sin dependencias): Cambria justificado 11pt/1.15, títulos navy jerarquizados con filete, A4 con márgenes 2,5 cm y numeración de páginas al pie.

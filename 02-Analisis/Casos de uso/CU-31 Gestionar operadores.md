@@ -48,4 +48,5 @@ Alta, baja y modificación (ABM) de los **operadores/proveedores** del catálogo
 - [[DGM — Casos de uso]] · [[MOC — Modelo de dominio]]
 
 ## 🔎 Revisión
-> [!note] Paloma (17/09) — CU nuevo para dar ABM a la 13ª entidad [[Operador]] ([[DEC-0009 Operador-Proveedor como entidad de catálogo]], sync 17/09), análogo a [[CU-26 Gestionar destinos]]. Actor `admin`/`dueño`, baja lógica. **Pendiente:** agregar el nodo CU-31 al [[DGM — Casos de uso]] al regenerar el entregable (lo mantiene Nahuel para no pisar el layout ELK); confirmar el módulo (¿*Economía* o *Configuración/Catálogos*?) y el `responsable` de la especificación.
+> [!note] Paloma (17/09) — CU nuevo para dar ABM a la 13ª entidad [[Operador]] ([[DEC-0009 Operador-Proveedor como entidad de catálogo]], sync 17/09), análogo a [[CU-26 Gestionar destinos]]. Actor `admin`/`dueño`, baja lógica. **Pendiente:** confirmar el módulo (¿*Economía* o *Configuración/Catálogos*?) y el `responsable` de la especificación.
+> [!note] Nahuel (18/09) — Sumado el nodo CU-31 al [[DGM — Casos de uso]] (módulo *Economía y pagos*, actor `admin`) y regenerado el entregable DOCX. Se resolvió el pendiente de agregarlo al diagrama.

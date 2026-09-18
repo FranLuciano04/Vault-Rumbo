@@ -2,7 +2,7 @@
 tipo: referencia
 estado: formalizado
 responsable: equipo
-actualizado: 17/09/26
+actualizado: 18/09/26
 ---
 
 # 📊 Estado del proyecto
@@ -10,7 +10,7 @@ actualizado: 17/09/26
 > Memoria externa del equipo (y de Claude). Se actualiza en cada **sync semanal**. Es lo primero que se lee al retomar. Mantener **corto**.
 
 ## Fase actual
-**Análisis y diseño → rumbo a PC1 (23/10/26).** Los **31 casos de uso ya están especificados** (todos en `en-revision`, ver [[MOC — Casos de uso]]); falta **ratificarlos en la sync**. (El **CU-31** se agregó el 17/09 para el ABM de [[Operador]]; falta sumarlo al [[DGM — Casos de uso|diagrama]] y al entregable.) Próximo: diagrama de clases, ER, actividad, arquitectura y prototipo UI.
+**Análisis y diseño → rumbo a PC1 (23/10/26).** Los **31 casos de uso ya están especificados** (todos en `en-revision`, ver [[MOC — Casos de uso]]); falta **ratificarlos en la sync**. (El **CU-31** se agregó el 17/09 para el ABM de [[Operador]]; sumado el 18/09 al [[DGM — Casos de uso|diagrama]] y al entregable.) Próximo: diagrama de clases, ER, actividad, arquitectura y prototipo UI.
 
 ## Roles de esta quincena
 Los tres tomamos **los tres roles** (Coordinador de vault · Guardián del dominio · Escriba de decisiones): todos estamos en todo. **Francisco** es el referente/mantenedor del vault (lo creó y chequea el rumbo general). Definido en la sync 11/09.
@@ -21,7 +21,7 @@ Los tres tomamos **los tres roles** (Coordinador de vault · Guardián del domin
 ### Obligatorio (piso del cronograma)
 - [ ] `01-Relevamiento/` formalizado
 - [ ] [[Actores]] formalizados (empleado, admin, dueño, freelance, cliente)
-- [ ] Especificación de los 31 CU + [[DGM — Casos de uso|diagrama de casos de uso]] (CU-31 pendiente de sumar al diagrama)
+- [ ] Especificación de los 31 CU + [[DGM — Casos de uso|diagrama de casos de uso]] (CU-31 sumado al diagrama y al entregable 18/09)
 - [ ] 13 entidades formalizadas (Usuario, Cliente, Oportunidad, Viaje, Pago, Hotel, Reseña, Alerta, Cotización, ContenidoRed, Destino, RequisitoDestino, Operador ⚠️nueva 17/09)
 - [ ] [[MOC — Modelo de dominio|Diagrama de clases]] + [[DGM-ER]] coherentes (atributos, tipos, multiplicidades)
 - [ ] Diagramas de **actividad** de flujos clave ([[CU-01 De la consulta a la venta|CU-01]] + críticos)
@@ -40,6 +40,7 @@ Los tres tomamos **los tres roles** (Coordinador de vault · Guardián del domin
 > Cierre PC1: la consulta `#pc/pc1 AND #estado/borrador` debe dar **cero** en lo obligatorio de arriba.
 
 ## Bitácora de decisiones recientes
+- 18/09/26 — **Diagrama y entregable de Casos de uso actualizados** (Nahuel). Se sumó el nodo **CU-31** ([[CU-31 Gestionar operadores|Gestionar operadores]]) al [[DGM — Casos de uso]] (módulo *Economía y pagos*, actor `admin`) y se regeneró el PNG (ELK) y el DOCX entregable. Además se corrigieron 4 nombres en el diagrama para que todos los casos de uso inicien con verbo y queden sin detalles de implementación: *Propuesta con IA* → **Generar propuesta con IA**; *Reportes y estadísticas* → **Generar reportes y estadísticas**; *Recordatorios por destino* → **Generar recordatorios por destinos**; *Configurar % comisión* → **Configurar comisión** (se sacó el `%` del nombre). Los títulos de los `.md` fuente de cada CU no se tocaron (ya iniciaban con verbo).
 - 17/09/26 — **2ª ronda de relevamiento** (respuestas de la agencia, las trajo Francisco; procesadas por Paloma). Se registró todo en [[Relevamiento — respuestas de la agencia (17-09)]] y se abrieron dos DEC `en-revision`: **[[DEC-0007 Modelo económico — ganancia, margen y comisión de vendedor]]** (supersede a [[DEC-0004 Comisión configurable por porcentaje]]: ganancia = venta − costo, margen $/%, comisión de vendedor aparte, **multimoneda**) y **[[DEC-0008 Autenticación propia y rol de vendedor freelance]]** (login usuario/contraseña individual + auditoría; nuevo rol **freelance** con visibilidad restringida, amplía [[DEC-0005 Autenticación y modelo de roles]]). Se actualizaron [[CU-21 Ver dashboard y embudo|CU-21]] (KPIs), [[CU-22 Generar reportes y estadísticas|CU-22]] (catálogo + Excel/PDF), [[CU-30 Sugerir recontacto de clientes|CU-30]] (6 meses + segmentación) y las entidades [[Viaje]], [[Usuario]], [[Alerta]], [[Cliente]] y la regla [[RN-01 Comisión automática]]. **Ratificado en la sync del 17/09** (Francisco, Nahuel y Paloma): se sellaron DEC-0007, DEC-0008 y la nueva **[[DEC-0009 Operador-Proveedor como entidad de catálogo]]** (13ª entidad **[[Operador]]**); DEC-0004 quedó **obsoleta**. Detalle en "Definido y sellado en la sync 17/09".
 - 11/09/26 — **Entregable DOCX de Casos de uso rehecho** (Nahuel). Diagrama ([[DGM — Casos de uso]]) rehecho con motor **ELK** (más legible), generalización de roles y actor externo aclarado, e **incrustado** en el DOCX (bug de rutas con espacios resuelto). Estética **académica** (plantilla `make-reference.ps1`, migrada de Python a PowerShell) y **contenido saneado**: el `.docx` ya no filtra cocina interna (DEC, notas de revisión, tags). Detalle en [[Entregables — índice]] y [[CONTINUAR — entregable Casos de uso]].
 - 11/09/26 — **Cruce del relevamiento en crudo** (Francisco). La mayoría del relevamiento ya estaba cubierta. Definiciones: (1) **cotizador automático por scraping** y detección de ofertas → **fuera de alcance PC1** ([[Alcance y fuera de alcance]]); el cotizador queda asistido ([[CU-06 Emitir cotización]]). (2) Del "detector de oportunidades" se conserva un **CRM proactivo** acotado → nuevo **[[CU-30 Sugerir recontacto de clientes]]** (clientes fieles inactivos, con opt-out `no_recontactar` en [[Cliente]] y tipo `recontacto` en [[Alerta]]). (3) **Vencimiento de pago a proveedor por hotel** → modelado en `viaje_hotel` ([[DEC-0003 Relación Viaje–Hotel y Reseña]]) con [[Alerta]] un mes antes; nota en [[CU-09 Armar itinerario de hoteles]]. (4) **% pagado / checklist** reflejado en [[CU-12 Registrar cobro de un pago]]. Total ahora **30 CU**.
@@ -79,7 +80,7 @@ Acordado por el equipo (Francisco, Nahuel y Paloma presentes):
 - **Autenticación:** usuario/contraseña individual + auditoría (`created_by`/`updated_by`); Google OAuth opcional/futuro.
 - **Rol `freelance`:** ve solo lo suyo; ve catálogo compartido; crea clientes que quedan como suyos; ve solo sus comisiones. Dashboard: `admin`/`dueño` = empresa; `empleado`/`freelance` = lo suyo.
 - **CRM:** recontacto a ≈ **6 meses** (configurable), prioriza recurrentes (≥ 2 viajes); **segmentación** por **etiquetas libres** en [[Cliente]].
-- **Pendiente fino (no bloquea PC1):** valores del enum `forma_pago` ([[Pago]]) y de `Alerta.tipo` (Nahuel); consolidación multimoneda de reportes (fase posterior); sumar **CU-31** al [[DGM — Casos de uso|diagrama de casos de uso]] y al entregable.
+- **Pendiente fino (no bloquea PC1):** valores del enum `forma_pago` ([[Pago]]) y de `Alerta.tipo` (Nahuel); consolidación multimoneda de reportes (fase posterior).
 
 ## Pendientes técnicos
 - **Mecanismo de autenticación** → ✅ **resuelto y sellado** (usuario/contraseña individual + auditoría) en [[DEC-0008 Autenticación propia y rol de vendedor freelance]] (sync 17/09).

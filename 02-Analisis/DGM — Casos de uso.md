@@ -4,7 +4,7 @@ estado: borrador
 modulo: []
 responsable: equipo
 pc: pc1
-actualizado: 11/09/26
+actualizado: 18/09/26
 ---
 # DGM — Casos de uso
 
@@ -32,11 +32,11 @@ flowchart LR
     end
     subgraph M8[Dashboard]
       CU21([Ver dashboard y embudo]):::m8
-      CU22([Reportes y estadísticas]):::m8
+      CU22([Generar reportes y estadísticas]):::m8
     end
     subgraph M7[Redes]
       CU19([Planificar contenido]):::m7
-      CU20([Propuesta con IA]):::m7
+      CU20([Generar propuesta con IA]):::m7
     end
     subgraph M6[Catálogo de hoteles]
       CU16([Gestionar hotel]):::m6
@@ -46,7 +46,7 @@ flowchart LR
     end
     subgraph M5[Alertas]
       CU14([Atender alertas]):::m5
-      CU15([Recordatorios por destino]):::m5
+      CU15([Generar recordatorios por destinos]):::m5
       CU26([Gestionar destinos]):::m5
       CU28([Crear recordatorio manual]):::m5
     end
@@ -54,7 +54,8 @@ flowchart LR
       CU10([Registrar economía]):::m4
       CU11([Definir cuotas]):::m4
       CU12([Registrar cobro]):::m4
-      CU13([Configurar % comisión]):::m4
+      CU13([Configurar comisión]):::m4
+      CU31([Gestionar operadores]):::m4
     end
     subgraph M3[Viajes]
       CU07([Confirmar reserva]):::m3
@@ -92,7 +93,7 @@ flowchart LR
   EMP --- CU24
 
   %% Admin: casos exclusivos
-  ADM --- CU13 & CU25 & CU26 & CU29
+  ADM --- CU13 & CU25 & CU26 & CU29 & CU31
 
   %% Dueño: dashboard y reportes
   DUE --- CU21 & CU22
@@ -117,7 +118,7 @@ flowchart LR
 ```
 
 > **Notas de lectura:**
-> - **Generalización de roles:** `Admin` y `Dueño` son *especializaciones* del `Empleado` (flechas `es-un`): heredan todos sus casos operativos y solo se dibujan aparte sus casos exclusivos (`Admin`: configurar % comisión, gestionar usuarios/destinos, eliminar reseña; `Dueño`: dashboard y reportes). Esto refleja el modelo de visibilidad de [[DEC-0005 Autenticación y modelo de roles]].
+> - **Generalización de roles:** `Admin` y `Dueño` son *especializaciones* del `Empleado` (flechas `es-un`): heredan todos sus casos operativos y solo se dibujan aparte sus casos exclusivos (`Admin`: configurar comisión, gestionar usuarios/destinos/operadores, eliminar reseña; `Dueño`: dashboard y reportes). Esto refleja el modelo de visibilidad de [[DEC-0005 Autenticación y modelo de roles]].
 > - **Actor externo `Pasajero / Cliente`:** no opera el sistema; solo interactúa con dos casos: **recibe** la cotización (CU-06) y **aporta** la reseña que el empleado registra (CU-17). Por eso va a la derecha, con asociaciones etiquetadas.
 
 ## Pendiente
