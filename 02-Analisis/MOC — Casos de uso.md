@@ -3,7 +3,7 @@ tipo: modulo
 estado: en-revision
 responsable: equipo
 pc: pc1
-actualizado: 10/09/26
+actualizado: 17/09/26
 ---
 # MOC — Casos de uso
 
@@ -33,10 +33,11 @@ tags:: #tipo/modulo #estado/en-revision #pc/pc1
 - [[CU-27 Cancelar viaje]] — baja/cancelación del Viaje (estado `cancelado`). ⚠️ borrador propuesto 10/09, validar Francisco.
 
 ### Economía y pagos — *Nahuel*
-- [[CU-10 Registrar economía del viaje]] — venta y costo neto; comisión automática.
+- [[CU-10 Registrar economía del viaje]] — venta, costo, moneda y comisión del vendedor; ganancia/margen automáticos.
 - [[CU-11 Definir plan de cuotas]] — Pagos con montos y vencimientos.
 - [[CU-12 Registrar cobro de un pago]] — marcar Pago cobrado.
 - [[CU-13 Configurar porcentaje de comisión]] — comisión por defecto del vendedor/freelancer (admin) — ver [[DEC-0007 Modelo económico — ganancia, margen y comisión de vendedor]].
+- [[CU-31 Gestionar operadores]] — ABM del catálogo de operadores/proveedores (base de reportes por operador; actor admin/dueño). ⚠️ nuevo 17/09, [[DEC-0009 Operador-Proveedor como entidad de catálogo]].
 
 ### Alertas — *Nahuel*
 - [[CU-14 Ver y atender alertas del día]] — agenda de Alertas vigentes.
@@ -70,10 +71,10 @@ tags:: #tipo/modulo #estado/en-revision #pc/pc1
 |---|---|---|
 | **Francisco** | CU-01, CU-04→09, CU-21, CU-22, CU-27, CU-30 | 10 (+núcleo) |
 | **Paloma** | CU-02, CU-03, CU-16→20, CU-23, CU-29 | 9 |
-| **Nahuel** | CU-10→15, CU-24, CU-25, CU-26, CU-28 | 10 |
+| **Nahuel** | CU-10→15, CU-24, CU-25, CU-26, CU-28, CU-31 | 11 |
 
 ## Reglas de negocio
-- [[RN-01 Comisión automática]] → [[DEC-0004 Comisión configurable por porcentaje]]
+- [[RN-01 Comisión automática]] → [[DEC-0007 Modelo económico — ganancia, margen y comisión de vendedor]] (supersede a [[DEC-0004 Comisión configurable por porcentaje]])
 
 ## Estado (Dataview — requiere plugin)
 ```dataview

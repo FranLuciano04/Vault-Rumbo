@@ -31,4 +31,4 @@ tags:: #tipo/entidad #estado/en-revision #pc/pc1
 ## Aparece en
 - [[CU-22 Generar reportes y estadísticas]] · [[CU-21 Ver dashboard y embudo]] · [[MOC — Modelo de dominio]] · [[DGM-ER]] · [[MOD-Economia-Pagos]]
 
-> ⚠️ **Entidad nueva (sync 17/09, [[DEC-0009 Operador-Proveedor como entidad de catálogo]]).** Falta su nota `#estado/formalizado` y un **CU de ABM** (análogo a [[CU-26 Gestionar destinos]]). Responsable a confirmar (módulo de economía = Nahuel).
+> ⚠️ **Entidad nueva (sync 17/09, [[DEC-0009 Operador-Proveedor como entidad de catálogo]]).** Su ABM es [[CU-31 Gestionar operadores]]. Falta formalizar (`#estado/formalizado`) al cerrar atributos; responsable a confirmar (módulo de economía = Nahuel).

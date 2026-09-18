@@ -10,7 +10,7 @@ actualizado: 17/09/26
 > Memoria externa del equipo (y de Claude). Se actualiza en cada **sync semanal**. Es lo primero que se lee al retomar. Mantener **corto**.
 
 ## Fase actual
-**Análisis y diseño → rumbo a PC1 (23/10/26).** Los **30 casos de uso ya están especificados** (todos en `en-revision`, ver [[MOC — Casos de uso]]); falta **ratificarlos en la sync**. Próximo: diagrama de clases, ER, actividad, arquitectura y prototipo UI.
+**Análisis y diseño → rumbo a PC1 (23/10/26).** Los **31 casos de uso ya están especificados** (todos en `en-revision`, ver [[MOC — Casos de uso]]); falta **ratificarlos en la sync**. (El **CU-31** se agregó el 17/09 para el ABM de [[Operador]]; falta sumarlo al [[DGM — Casos de uso|diagrama]] y al entregable.) Próximo: diagrama de clases, ER, actividad, arquitectura y prototipo UI.
 
 ## Roles de esta quincena
 Los tres tomamos **los tres roles** (Coordinador de vault · Guardián del dominio · Escriba de decisiones): todos estamos en todo. **Francisco** es el referente/mantenedor del vault (lo creó y chequea el rumbo general). Definido en la sync 11/09.
@@ -21,7 +21,7 @@ Los tres tomamos **los tres roles** (Coordinador de vault · Guardián del domin
 ### Obligatorio (piso del cronograma)
 - [ ] `01-Relevamiento/` formalizado
 - [ ] [[Actores]] formalizados (empleado, admin, dueño, freelance, cliente)
-- [ ] Especificación de los 30 CU + [[DGM — Casos de uso|diagrama de casos de uso]]
+- [ ] Especificación de los 31 CU + [[DGM — Casos de uso|diagrama de casos de uso]] (CU-31 pendiente de sumar al diagrama)
 - [ ] 13 entidades formalizadas (Usuario, Cliente, Oportunidad, Viaje, Pago, Hotel, Reseña, Alerta, Cotización, ContenidoRed, Destino, RequisitoDestino, Operador ⚠️nueva 17/09)
 - [ ] [[MOC — Modelo de dominio|Diagrama de clases]] + [[DGM-ER]] coherentes (atributos, tipos, multiplicidades)
 - [ ] Diagramas de **actividad** de flujos clave ([[CU-01 De la consulta a la venta|CU-01]] + críticos)
@@ -75,11 +75,11 @@ Registro completo en [[Relevamiento — respuestas de la agencia (17-09)]]. Las 
 Acordado por el equipo (Francisco, Nahuel y Paloma presentes):
 - **DEC selladas** (`formalizado`, 17/09): [[DEC-0007 Modelo económico — ganancia, margen y comisión de vendedor|DEC-0007]] (supersede DEC-0004), [[DEC-0008 Autenticación propia y rol de vendedor freelance|DEC-0008]] (amplía DEC-0005) y [[DEC-0009 Operador-Proveedor como entidad de catálogo|DEC-0009]]. **[[DEC-0004 Comisión configurable por porcentaje|DEC-0004]] → `obsoleto`.**
 - **Modelo económico:** `ganancia = precioVenta − costo`; `margen% = ganancia / precioVenta` (**sobre venta**); **comisión del vendedor** aparte (importe o %, el % sobre la ganancia, default por vendedor + override); **multimoneda ARS/USD** con cotización manual por operación en PC1.
-- **13ª entidad [[Operador]]** (catálogo con ABM; `Viaje` gana FK `operador`). Falta un **CU de ABM de operadores** (análogo a [[CU-26 Gestionar destinos]]).
+- **13ª entidad [[Operador]]** (catálogo con ABM; `Viaje` gana FK `operador`), con su caso de uso **[[CU-31 Gestionar operadores]]** (ABM, actor admin/dueño, baja lógica).
 - **Autenticación:** usuario/contraseña individual + auditoría (`created_by`/`updated_by`); Google OAuth opcional/futuro.
 - **Rol `freelance`:** ve solo lo suyo; ve catálogo compartido; crea clientes que quedan como suyos; ve solo sus comisiones. Dashboard: `admin`/`dueño` = empresa; `empleado`/`freelance` = lo suyo.
 - **CRM:** recontacto a ≈ **6 meses** (configurable), prioriza recurrentes (≥ 2 viajes); **segmentación** por **etiquetas libres** en [[Cliente]].
-- **Pendiente fino (no bloquea PC1):** valores del enum `forma_pago` ([[Pago]]) y de `Alerta.tipo` (Nahuel); consolidación multimoneda de reportes (fase posterior); CU de ABM de [[Operador]].
+- **Pendiente fino (no bloquea PC1):** valores del enum `forma_pago` ([[Pago]]) y de `Alerta.tipo` (Nahuel); consolidación multimoneda de reportes (fase posterior); sumar **CU-31** al [[DGM — Casos de uso|diagrama de casos de uso]] y al entregable.
 
 ## Pendientes técnicos
 - **Mecanismo de autenticación** → ✅ **resuelto y sellado** (usuario/contraseña individual + auditoría) en [[DEC-0008 Autenticación propia y rol de vendedor freelance]] (sync 17/09).

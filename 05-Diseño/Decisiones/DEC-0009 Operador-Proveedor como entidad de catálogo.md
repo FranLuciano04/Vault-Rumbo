@@ -33,7 +33,7 @@ El `costo` de un [[Viaje]] lo cobra un **operador/proveedor** (mayorista, operad
 - Alcance PC1: catálogo + FK + reportes. La gestión de **pagos a operadores** se apoya en [[Pago]] y en `vencimiento_pago_proveedor` de `viaje_hotel` ([[DEC-0003 Relación Viaje–Hotel y Reseña]]); su detalle fino puede ampliarse luego.
 
 ## Impacto
-- Afecta: nueva entidad **[[Operador]]**, [[Viaje]] (`operador` → FK), [[MOC — Modelo de dominio]] (12 → **13 entidades**), [[DGM-ER]], [[CU-22 Generar reportes y estadísticas]] (ventas/pagos por operador), [[CU-21 Ver dashboard y embudo]] (pendiente a operadores) y el checklist de entidades en [[Estado del proyecto]]. Requiere un **ABM de operadores** (CU a crear, análogo a [[CU-26 Gestionar destinos]]).
+- Afecta: nueva entidad **[[Operador]]**, [[Viaje]] (`operador` → FK), [[MOC — Modelo de dominio]] (12 → **13 entidades**), [[DGM-ER]], [[CU-22 Generar reportes y estadísticas]] (ventas/pagos por operador), [[CU-21 Ver dashboard y embudo]] (pendiente a operadores) y el checklist de entidades en [[Estado del proyecto]]. Su **ABM** es [[CU-31 Gestionar operadores]] (análogo a [[CU-26 Gestionar destinos]]).
 
 ## Decisores y fecha
 - Ratificada en la sync del 17/09/26 (Francisco, Nahuel y Paloma presentes). **Aprobada: 17/09/26.**
