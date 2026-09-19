@@ -49,6 +49,9 @@ filtrar() {
     s/[[:space:]]*—[[:space:]]*ver Revisión\.?//g;
     s/[[:space:]]*\(ver Revisión\.?\)//g;
     s/,?[[:space:]]*ver Revisión\.?//g;
+    s/[[:space:]]*,[[:space:]]*\)/)/g;
+    s/[[:space:]]*—[[:space:]]*\)/)/g;
+    s/[[:space:]]*;[[:space:]]*\)/)/g;
     s/\([[:space:]]*\)//g;
     s/[[:space:]]+\./\./g;
     s/\.\.+/\./g;
