@@ -87,5 +87,5 @@ Acordado por el equipo (Francisco, Nahuel y Paloma presentes):
 ## Pendientes técnicos
 - **Mecanismo de autenticación** → ✅ **resuelto y sellado** (usuario/contraseña individual + auditoría) en [[DEC-0008 Autenticación propia y rol de vendedor freelance]] (sync 17/09).
 - **Infraestructura de despliegue** → [[ARQ — Vista general]]. El servidor on-premise es una alternativa pendiente.
-- **Regenerar el entregable de Casos de uso** (PNG + DOCX) con el actor `freelance` sumado al [[DGM — Casos de uso]] el 18/09 (toolchain mermaid-cli ELK + pandoc, ver [[CONTINUAR — entregable Casos de uso]]).
+- ✅ **Entregable de Casos de uso regenerado** (18/09): PNG con el actor `freelance` y el módulo *Configuración/Catálogos*, y DOCX recompilado (0 fugas, 0 artefactos). Ver [[CONTINUAR — entregable Casos de uso]].
 - **A ratificar en la próxima sync (batch de la entrevista grill 18/09):** DEC-0002 (5 estados), multimoneda por pago, `Pago.anulado`, `forma_pago`, anticipación de `salida`, módulo *Configuración/Catálogos* y la reescritura de CU-01.
