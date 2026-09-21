@@ -32,7 +32,7 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 
 ## 21/09/26 — Nahuel (Claude Sonnet 5)
 - **Hecho:** Antes de armar los diagramas de clases y ER definitivos, se resolvió la única pregunta técnica abierta que quedaba en [[DGM-ER]]: la **PK de la tabla intermedia `viaje_hotel`**. Se optó por **`id` propio (UUID)** en vez de PK compuesta `(viaje_id, hotel_id)`, porque un mismo [[Hotel]] puede figurar en **tramos no consecutivos** del mismo [[Viaje]] (ej. Buenos Aires → Bariloche → Buenos Aires con el mismo hotel porteño en ida y vuelta), cada tramo con su propio `vencimiento_pago_proveedor`. Se agregó índice no-único en `(viaje_id, hotel_id)` y unicidad en `(viaje_id, orden)`. Esto resuelve el `#accion/decidir` que [[DEC-0003 Relación Viaje–Hotel y Reseña]] había dejado explícitamente abierto ("a refinar en DGM-ER"); se agregó como **addendum** a esa DEC (ya `formalizado`, no se reabre su `fecha_aprobacion`). Propagado a [[Hotel]] y [[CU-09 Armar itinerario de hoteles]] (nuevo flujo alternativo A5). **No se generaron los diagramas de clases/ER definitivos** (pedido explícito: se deja para después).
-- **Commits:** _(por completar al cerrar)_.
+- **Commits:** d83fcff.
 - **Pendiente:** ratificar en sync (junto con el resto del batch del 18/09); armar/renderizar los diagramas de clases y ER definitivos cuando se indique.
 
 ## 18/09/26 — Nahuel (Claude Opus 4.8) — entrevista de consistencia (grill)
