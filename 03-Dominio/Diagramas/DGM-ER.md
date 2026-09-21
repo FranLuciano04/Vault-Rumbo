@@ -4,7 +4,7 @@ estado: borrador
 modulo: []
 responsable: Guardián del dominio
 pc: pc1
-actualizado: 17/09/26
+actualizado: 21/09/26
 ---
 # DGM-ER
 
@@ -40,9 +40,10 @@ erDiagram
 > `PAGO` lleva `monto` (en la moneda del viaje), `tipo`, `vencimiento`, `estado` (`pendiente · pagado · vencido · anulado`) y, cargados al cobrar, `forma_pago`, `moneda_pago`, `tipo_cambio` y `monto_cobrado` (multimoneda por pago, Q6.1/Q4/Q7 del 18/09 — ver [[Pago]]).
 
 ## Tabla intermedia VIAJE_HOTEL
-- FK `viaje_id` → VIAJE, FK `hotel_id` → HOTEL.
-- Atributos: `check_in` (date), `check_out` (date), `orden` (int, itinerario), `vencimiento_pago_proveedor` (date, nullable) y `pago_proveedor_realizado` (bool) — vencimiento de pago al proveedor por hotel, con [[Alerta]] un mes antes ([[CU-09 Armar itinerario de hoteles]], [[DEC-0003 Relación Viaje–Hotel y Reseña]]).
+- **PK: `id` propio (UUID)** — no compuesta (ver "Resuelto 21/09" más abajo).
+- FK `viaje_id` → VIAJE, FK `hotel_id` → HOTEL (índice no-único en el par, para consultas).
+- Atributos: `check_in` (date), `check_out` (date), `orden` (int, itinerario; único junto a `viaje_id`), `vencimiento_pago_proveedor` (date, nullable) y `pago_proveedor_realizado` (bool) — vencimiento de pago al proveedor por hotel, con [[Alerta]] un mes antes ([[CU-09 Armar itinerario de hoteles]], [[DEC-0003 Relación Viaje–Hotel y Reseña]]).
 - La RESENA lleva FK `cliente_id`, `hotel_id` y `viaje_id` **nullable** (trazabilidad opcional).
 
-## Pendiente
-- Confirmar si `VIAJE_HOTEL` usa PK compuesta `(viaje_id, hotel_id)` o `id` propio (necesario si el mismo hotel se repite en dos tramos del itinerario).
+## Resuelto 21/09 (Nahuel, a ratificar en sync)
+- **`VIAJE_HOTEL` usa `id` propio, no PK compuesta `(viaje_id, hotel_id)`.** Motivo: un mismo `HOTEL` puede aparecer en **más de un tramo** del mismo `VIAJE` (ej. Buenos Aires → Bariloche → Buenos Aires, con el mismo hotel porteño en ida y vuelta), y cada tramo puede llevar su propio `vencimiento_pago_proveedor` — la PK compuesta lo impedía. Detalle y justificación completa en [[DEC-0003 Relación Viaje–Hotel y Reseña]] (refinamiento sobre el `#accion/decidir` que esa DEC había dejado abierto).

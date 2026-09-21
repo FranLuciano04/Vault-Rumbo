@@ -26,7 +26,7 @@ Hotel vendido, con reseñas, para consultar y recomendar (catálogo).
 
 ## Relaciones
 - *..1 con [[Destino]] — ver [[DEC-0006 Destino como entidad de catálogo]] (⚠️ ratificar con Paloma)
-- 0..* con [[Viaje]] (N:M vía `viaje_hotel`, que lleva `check_in`/`check_out`, `orden` y **`vencimiento_pago_proveedor`** + `pago_proveedor_realizado`) — ver [[DEC-0003 Relación Viaje–Hotel y Reseña]]
+- 0..* con [[Viaje]] (N:M vía `viaje_hotel`, con **`id` propio** — no PK compuesta, porque el mismo hotel puede repetirse en dos tramos de un mismo viaje —, que lleva `check_in`/`check_out`, `orden` y **`vencimiento_pago_proveedor`** + `pago_proveedor_realizado`) — ver [[DEC-0003 Relación Viaje–Hotel y Reseña]]
 - 1 a 0..* con [[Reseña]] (un hotel puede tener muchas reseñas)
 
 ## Reglas / invariantes

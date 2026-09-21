@@ -5,7 +5,7 @@ modulo: [viajes, hoteles, clientes]
 decisores: [Francisco]
 fecha_aprobacion: 11/09/26
 supersede:
-actualizado: 10/09/26
+actualizado: 21/09/26
 ---
 # DEC-0003 Relación Viaje–Hotel y Reseña
 
@@ -22,10 +22,12 @@ Las notas de dominio se contradecían sobre dos puntos (ver [[MOC — Modelo de 
 3. **Cardinalidades mínimas:** un `Viaje` puede tener **0** hoteles (solo aéreo, excursión, crucero) y un `Hotel` puede estar en catálogo con **0** viajes. → `Viaje 0..* — 0..* Hotel`. _(Supuesto a validar en la sync.)_
 
 ### Tabla intermedia `viaje_hotel`
-- Clave primaria compuesta `(viaje_id, hotel_id)` o `id` propio si se repite el hotel en tramos distintos.
-- Atributos sugeridos: `check_in` (Date), `check_out` (Date), `orden` (Int, para el itinerario). _(A refinar en [[DGM-ER]].)_
+- **Clave primaria: `id` propio (UUID)**, no compuesta `(viaje_id, hotel_id)` — ver refinamiento 21/09 más abajo.
+- Atributos: `viaje_id` (FK), `hotel_id` (FK), `check_in` (Date), `check_out` (Date), `orden` (Int, para el itinerario).
 - **`vencimiento_pago_proveedor`** (Date, opcional): fecha límite para pagar ese hotel al proveedor; genera una [[Alerta]] de tipo `pago` **un mes antes** (relevamiento: "cada hotel tiene una fecha de vencimiento"). Agregado 11/09 (Francisco).
 - **`pago_proveedor_realizado`** (Bool): marca si ya se abonó al proveedor; al confirmarse, resuelve la [[Alerta]] asociada.
+
+> [!success] Nahuel (21/09) — **Refinamiento del `#accion/decidir` que dejó abierto esta DEC** ("clave compuesta o `id` propio, a refinar en [[DGM-ER]]"): se resuelve por **`id` propio**. Un mismo [[Hotel]] puede aparecer en **más de un tramo** del mismo [[Viaje]] (ej. Buenos Aires → Bariloche → Buenos Aires, alojándose dos veces en el mismo hotel porteño en tramos no consecutivos), y cada tramo puede tener su **propio** `vencimiento_pago_proveedor` (son obligaciones de pago distintas). La PK compuesta `(viaje_id, hotel_id)` lo impediría. Se agrega un índice no-único en `(viaje_id, hotel_id)` para las consultas habituales y unicidad en `(viaje_id, orden)` para no permitir dos tramos en la misma posición del itinerario. Propagado a [[DGM-ER]], [[Hotel]] y [[CU-09 Armar itinerario de hoteles]]. **A ratificar en sync** (no se marca `fecha_aprobacion` nueva; es un refinamiento de detalle sobre una DEC ya sellada).
 
 ## Alternativas consideradas
 | Opción | Pros | Contras | ¿Elegida? |
