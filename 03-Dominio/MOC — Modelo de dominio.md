@@ -18,7 +18,8 @@ tags:: #tipo/diagrama #tipo/modulo #estado/en-revision #pc/pc1
 ## Diagrama de clases
 - Ver [[DGM — Diagrama de clases]] (vista principal + las 18 enumeraciones). **El borrador que vivía acá se movió a esa nota el 21/09**, para que este MOC quede corto y haya una sola fuente del diagrama.
 - Cambios respecto del borrador: los FK dejan de listarse como atributos (los expresan las asociaciones), las enumeraciones pasan a clases `<<enumeration>>` y `viaje_hotel` se promueve a la clase asociativa `ViajeHotel`. Detalle y motivo en la sección *Convenciones de lectura* de esa nota.
-- ⚠️ La nota deja **4 incoherencias** abiertas para la sync (multiplicidades `Viaje`–`Pago` y `Viaje`–`Alerta`, orígenes de `Alerta` faltantes en el ER, y si `Cotización.items` merece entidad propia).
+- De las 4 incoherencias detectadas, **3 las resolvió Nahuel el 21/09** (a ratificar): `Viaje`–`Pago` es **`1..*`** (todo viaje tiene al menos un pago: [[CU-07 Confirmar reserva]] incluye [[CU-11 Definir plan de cuotas|CU-11]]), `Viaje`–`Alerta` es **`0..1` → `0..*`**, y `Cotización.items` **queda como atributo**, sin entidad propia.
+- ⚠️ Sigue **abierta** una: cómo modela el [[DGM-ER]] el **origen de la `Alerta`** (cuatro FK nullable con CHECK vs. `origen_tipo`+`origen_id` polimórfico). Detalle en la nota del diagrama.
 
 > Relación Viaje–Hotel (N:M) y objeto de la Reseña resueltos en [[DEC-0003 Relación Viaje–Hotel y Reseña]].
 > `destino` de [[Viaje]] y [[Hotel]] pasó de `String` a FK hacia [[Destino]] (catálogo) — ver [[DEC-0006 Destino como entidad de catálogo]].
