@@ -13,6 +13,8 @@ tags:: #tipo/diagrama #estado/borrador #pc/pc1
 > **Diagrama de clases de dominio** de Rumbo: las **13 entidades** del [[MOC — Modelo de dominio]] más la clase asociativa `ViajeHotel`. Es una **salida derivada**: la verdad de cada clase vive en su nota de entidad (`03-Dominio/Entidades/`). Al cambiar una entidad, actualizar primero su nota y después este diagrama.
 >
 > Su par relacional es [[DGM-ER]] (modelo para PostgreSQL). Ambos deben quedar coherentes: **este describe objetos, aquel describe tablas.**
+>
+> **Render:** los cuatro bloques usan el motor **ELK** (routing ortogonal, líneas rectas), igual que [[DGM — Casos de uso]] y [[DGM-ER]]. ⚠️ Si Obsidian no soporta `layout: elk`, la vista previa del vault puede fallar; el render de referencia se genera con `mermaid-cli` (comando en [[CONTINUAR — entregable Casos de uso]]).
 
 ## Convenciones de lectura
 
@@ -25,10 +27,12 @@ Acordadas con Nahuel el 21/09 antes de armar el diagrama:
 | **Enumeraciones** | Todas modeladas como clases `<<enumeration>>`, en **tres bandas aparte** (agrupadas por módulo) para no cargar la vista principal. El tipo del atributo nombra la enumeración (`estado : EstadoViaje`). |
 | **Nomenclatura** | `PascalCase` para clases y `camelCase` para atributos (modelo de objetos). [[DGM-ER]] usa `snake_case` (modelo relacional). Es la convención que ya venían usando ambos diagramas. |
 | **Multiplicidades** | Notación UML `1`, `0..1`, `0..*`, `1..*` en ambos extremos. |
+| **Layout** | Motor **ELK** con `nodePlacementStrategy: BRANDES_KOEPF`: las líneas salen **ortogonales** (tramos rectos en ángulo recto) en vez de curvas, que es mucho más legible con 24 asociaciones. Mismo criterio que [[DGM — Casos de uso]]. |
 
 ## Diagrama de clases — vista principal
 
 ```mermaid
+%%{init: {'layout':'elk','elk':{'mergeEdges':false,'nodePlacementStrategy':'BRANDES_KOEPF'},'theme':'base','themeVariables':{'fontFamily':'Segoe UI, Arial, sans-serif','fontSize':'14px','primaryColor':'#f8fafc','primaryBorderColor':'#64748b','primaryTextColor':'#0f172a','lineColor':'#94a3b8'}}}%%
 classDiagram
     direction TB
 
@@ -207,6 +211,7 @@ Las **18 enumeraciones** son parte del mismo modelo; se muestran en tres bandas 
 ### 1 · CRM y seguridad
 
 ```mermaid
+%%{init: {'layout':'elk','elk':{'mergeEdges':false,'nodePlacementStrategy':'BRANDES_KOEPF'},'theme':'base','themeVariables':{'fontFamily':'Segoe UI, Arial, sans-serif','fontSize':'14px','primaryColor':'#f8fafc','primaryBorderColor':'#64748b','primaryTextColor':'#0f172a','lineColor':'#94a3b8'}}}%%
 classDiagram
     direction TB
     class Usuario
@@ -258,6 +263,7 @@ classDiagram
 ### 2 · Viaje, economía y pagos
 
 ```mermaid
+%%{init: {'layout':'elk','elk':{'mergeEdges':false,'nodePlacementStrategy':'BRANDES_KOEPF'},'theme':'base','themeVariables':{'fontFamily':'Segoe UI, Arial, sans-serif','fontSize':'14px','primaryColor':'#f8fafc','primaryBorderColor':'#64748b','primaryTextColor':'#0f172a','lineColor':'#94a3b8'}}}%%
 classDiagram
     direction TB
     class Viaje
@@ -317,6 +323,7 @@ classDiagram
 ### 3 · Catálogo, post-venta, alertas y redes
 
 ```mermaid
+%%{init: {'layout':'elk','elk':{'mergeEdges':false,'nodePlacementStrategy':'BRANDES_KOEPF'},'theme':'base','themeVariables':{'fontFamily':'Segoe UI, Arial, sans-serif','fontSize':'14px','primaryColor':'#f8fafc','primaryBorderColor':'#64748b','primaryTextColor':'#0f172a','lineColor':'#94a3b8'}}}%%
 classDiagram
     direction TB
     class Hotel
@@ -406,7 +413,8 @@ Se señalaron sin elegir una versión en silencio, según [[CLAUDE|CLAUDE.md#Ord
 - Ratificar el diagrama completo en la sync, junto con el batch del 18/09 y la PK de `viaje_hotel` del 21/09.
 - Cerrar los enums `FormaPago` y `CategoriaViaje`.
 - ✅ Lo resuelto el 21/09 ya está propagado a [[DGM-ER]] (`VIAJE ||--|{ PAGO` y los 4 orígenes de `ALERTA`) y a la nota de [[Viaje]].
-- ⚠️ El [[DGM-ER]] sigue **incompleto respecto de este diagrama** en 4 relaciones que nunca tuvo: `USUARIO`–`ALERTA` (propietario), `USUARIO`–`CLIENTE` (asesor asignado), `USUARIO`–`OPORTUNIDAD` (responsable) y `DESTINO`–`REQUISITO_DESTINO`. Completarlas al cerrar el ER.
+- ✅ El [[DGM-ER]] quedó **completo y coherente** con este diagrama el 21/09: sumó los atributos de las 14 tablas y las 4 relaciones que le faltaban (`USUARIO`–`ALERTA`, `USUARIO`–`CLIENTE`, `USUARIO`–`OPORTUNIDAD`, `DESTINO`–`REQUISITO_DESTINO`).
+- Definir el alcance de las columnas de auditoría (`created_by`/`updated_by`) que exige [[DEC-0008 Autenticación propia y rol de vendedor freelance]] — propuesta en [[DGM-ER]], a ratificar.
 - Renderizar el PNG (mermaid-cli, motor ELK) cuando el diagrama se incorpore a un entregable — ver [[Entregables — índice]].
 
 ## Relacionado

@@ -10,7 +10,7 @@ actualizado: 21/09/26
 > Memoria externa del equipo (y de Claude). Se actualiza en cada **sync semanal**. Es lo primero que se lee al retomar. Mantener **corto**.
 
 ## Fase actual
-**Análisis y diseño → rumbo a PC1 (23/10/26).** Los **31 casos de uso ya están especificados** (todos en `en-revision`, ver [[MOC — Casos de uso]]); falta **ratificarlos en la sync**. (El **CU-31** se agregó el 17/09 para el ABM de [[Operador]]; sumado el 18/09 al [[DGM — Casos de uso|diagrama]] y al entregable.) El **diagrama de clases** quedó armado el 21/09 en [[DGM — Diagrama de clases]] (borrador a ratificar). Próximo: cerrar el ER, actividad, arquitectura y prototipo UI.
+**Análisis y diseño → rumbo a PC1 (23/10/26).** Los **31 casos de uso ya están especificados** (todos en `en-revision`, ver [[MOC — Casos de uso]]); falta **ratificarlos en la sync**. (El **CU-31** se agregó el 17/09 para el ABM de [[Operador]]; sumado el 18/09 al [[DGM — Casos de uso|diagrama]] y al entregable.) El **diagrama de clases** ([[DGM — Diagrama de clases]]) y el **ER** ([[DGM-ER]]) quedaron armados y cruzados el 21/09 (borrador a ratificar). Próximo: diagramas de actividad, arquitectura y prototipo UI.
 
 ## Roles de esta quincena
 Los tres tomamos **los tres roles** (Coordinador de vault · Guardián del dominio · Escriba de decisiones): todos estamos en todo. **Francisco** es el referente/mantenedor del vault (lo creó y chequea el rumbo general). Definido en la sync 11/09.
@@ -23,7 +23,7 @@ Los tres tomamos **los tres roles** (Coordinador de vault · Guardián del domin
 - [ ] [[Actores]] formalizados (empleado, admin, dueño, freelance, cliente)
 - [ ] Especificación de los 31 CU + [[DGM — Casos de uso|diagrama de casos de uso]] (CU-31 sumado al diagrama y al entregable 18/09)
 - [ ] 13 entidades formalizadas (Usuario, Cliente, Oportunidad, Viaje, Pago, Hotel, Reseña, Alerta, Cotización, ContenidoRed, Destino, RequisitoDestino, Operador ⚠️nueva 17/09)
-- [ ] [[DGM — Diagrama de clases]] (✅ armado 21/09, a ratificar) + [[DGM-ER]] coherentes (atributos, tipos, multiplicidades) — al ER le faltan 4 relaciones (`USUARIO`–`ALERTA`/`CLIENTE`/`OPORTUNIDAD`, `DESTINO`–`REQUISITO_DESTINO`)
+- [ ] [[DGM — Diagrama de clases]] + [[DGM-ER]] coherentes (atributos, tipos, multiplicidades) — ✅ **ambos armados y cruzados el 21/09**, solo falta **ratificarlos en la sync**
 - [ ] Diagramas de **actividad** de flujos clave ([[CU-01 De la consulta a la venta|CU-01]] + críticos)
 - [ ] [[ARQ — Vista general]] formalizada
 - [x] DEC estructurales registradas y **ratificadas** (DEC-0001→0006, selladas 11/09; DEC-0002 sigue `en-revision`). ✅ **DEC-0007, DEC-0008 y DEC-0009** selladas 17/09; **DEC-0004 obsoleta** (superseded por DEC-0007)
