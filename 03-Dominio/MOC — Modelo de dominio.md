@@ -4,7 +4,7 @@ estado: en-revision
 modulo: []
 responsable: Guardián del dominio
 pc: pc1
-actualizado: 18/09/26
+actualizado: 21/09/26
 ---
 # MOC — Modelo de dominio
 
@@ -15,146 +15,10 @@ tags:: #tipo/diagrama #tipo/modulo #estado/en-revision #pc/pc1
 ## Entidades
 [[Usuario]] · [[Cliente]] · [[Oportunidad]] · [[Viaje]] · [[Pago]] · [[Hotel]] · [[Reseña]] · [[Alerta]] · [[Cotización]] · [[ContenidoRed]] · [[Destino]] · [[RequisitoDestino]] · [[Operador]] ⚠️(nueva 17/09, [[DEC-0009 Operador-Proveedor como entidad de catálogo]])
 
-## Diagrama de clases (borrador)
-```mermaid
-classDiagram
-    class Usuario {
-      +UUID id
-      +String nombre
-      +String email
-      +String rol
-    }
-    class Cliente {
-      +UUID id
-      +String nombre
-      +String contacto
-      +String segmento
-      +String[] etiquetas
-      +String preferencias
-      +Bool noRecontactar
-      +UUID asesorAsignadoId
-    }
-    class Oportunidad {
-      +UUID id
-      +UUID clienteId
-      +String canal
-      +String destino
-      +Int pasajeros
-      +String estado
-      +UUID responsableId
-    }
-    class Cotizacion {
-      +UUID id
-      +UUID oportunidadId
-      +Date fecha
-      +String moneda
-      +Decimal total
-      +String estado
-    }
-    class Viaje {
-      +UUID id
-      +UUID clienteId
-      +UUID oportunidadId
-      +UUID destinoId
-      +String estado
-      +String moneda
-      +Decimal precioVenta
-      +Decimal costo
-      +Decimal ganancia
-      +Decimal margen
-      +Decimal comisionVendedor
-      +UUID operadorId
-      +UUID vendedorId
-      +UUID responsableId
-    }
-    class Destino {
-      +UUID id
-      +String nombre
-      +String pais
-      +Bool activo
-    }
-    class RequisitoDestino {
-      +UUID id
-      +UUID destinoId
-      +String nombre
-      +String tipo
-      +Bool obligatorio
-      +String descripcion
-      +Int anticipacionDias
-      +Bool activo
-    }
-    class Operador {
-      +UUID id
-      +String nombre
-      +Bool activo
-    }
-    class Pago {
-      +UUID id
-      +UUID viajeId
-      +Decimal monto
-      +String tipo
-      +Date vencimiento
-      +String estado
-      +String formaPago
-      +String monedaPago
-      +Decimal tipoCambio
-      +Decimal montoCobrado
-    }
-    class Hotel {
-      +UUID id
-      +String nombre
-      +UUID destinoId
-      +String categoria
-      +Decimal precioReferencia
-      +String servicios
-      +String estado
-    }
-    class Resena {
-      +UUID id
-      +UUID clienteId
-      +UUID hotelId
-      +UUID viajeId
-      +Int puntaje
-      +String comentario
-      +Date fecha
-      +String estado
-    }
-    class Alerta {
-      +UUID id
-      +String tipo
-      +Date fecha
-      +String estado
-      +UUID propietarioId
-    }
-    class ContenidoRed {
-      +UUID id
-      +UUID usuarioId
-      +String titulo
-      +String canal
-      +String estadoKanban
-      +Date fechaPublicacion
-    }
-
-    Cliente "1" --> "0..*" Oportunidad
-    Cliente "1" --> "0..*" Viaje
-    Cliente "1" --> "0..*" Resena
-    Oportunidad "1" --> "0..*" Cotizacion
-    Oportunidad "1" --> "0..1" Viaje
-    Viaje "1" --> "0..*" Pago
-    Viaje "1" --> "0..*" Alerta
-    Viaje "0..*" --> "0..*" Hotel : viaje_hotel
-    Hotel "1" --> "0..*" Resena
-    Destino "1" --> "0..*" Viaje
-    Destino "1" --> "0..*" Hotel
-    Destino "1" --> "0..*" RequisitoDestino
-    Usuario "1" --> "0..*" ContenidoRed
-    Usuario "1" --> "0..*" Viaje : gestiona
-    Usuario "0..1" --> "0..*" Viaje : vendedor
-    Usuario "1" --> "0..*" Oportunidad : responsable
-    Usuario "0..1" --> "0..*" Cliente : asesor_asignado
-    Usuario "1" --> "0..*" Alerta : propietario
-    Operador "0..1" --> "0..*" Viaje : provee
-```
+## Diagrama de clases
+- Ver [[DGM — Diagrama de clases]] (vista principal + las 18 enumeraciones). **El borrador que vivía acá se movió a esa nota el 21/09**, para que este MOC quede corto y haya una sola fuente del diagrama.
+- Cambios respecto del borrador: los FK dejan de listarse como atributos (los expresan las asociaciones), las enumeraciones pasan a clases `<<enumeration>>` y `viaje_hotel` se promueve a la clase asociativa `ViajeHotel`. Detalle y motivo en la sección *Convenciones de lectura* de esa nota.
+- ⚠️ La nota deja **4 incoherencias** abiertas para la sync (multiplicidades `Viaje`–`Pago` y `Viaje`–`Alerta`, orígenes de `Alerta` faltantes en el ER, y si `Cotización.items` merece entidad propia).
 
 > Relación Viaje–Hotel (N:M) y objeto de la Reseña resueltos en [[DEC-0003 Relación Viaje–Hotel y Reseña]].
 > `destino` de [[Viaje]] y [[Hotel]] pasó de `String` a FK hacia [[Destino]] (catálogo) — ver [[DEC-0006 Destino como entidad de catálogo]].
