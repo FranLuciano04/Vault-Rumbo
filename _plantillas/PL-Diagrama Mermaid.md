@@ -8,7 +8,9 @@ actualizado:
 ---
 # DGM-<TIPO>-<Nombre>
 
-<!-- TIPO: (nada)=clases/ER · SEC=secuencia · ACT=actividad · CU=casos de uso -->
+<!-- TIPO: (nada)=clases/ER · EST=estados · SEC=secuencia · ACT=actividad · CU=casos de uso -->
+<!-- EST: la especificación va ANTES que el dibujo. Ver 03-Dominio/Diagramas/Estados/ para el formato:
+     estados · transiciones (origen, destino, evento, actor, CU, guarda, efectos) · invariantes · huecos detectados. -->
 tags:: #tipo/diagrama #estado/borrador
 
 ## Qué representa

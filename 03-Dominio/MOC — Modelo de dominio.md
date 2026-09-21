@@ -29,5 +29,21 @@ tags:: #tipo/diagrama #tipo/modulo #estado/en-revision #pc/pc1
 ## Diagrama ER
 - Ver [[DGM-ER]] (modelo relacional para PostgreSQL).
 
+## Diagramas de estado
+Especificaciones en `03-Dominio/Diagramas/Estados/` — **una nota por clase, autosuficiente**: quien dibuje el diagrama no necesita abrir los CU. Cada una trae estados, transiciones (evento, actor, CU, guarda, efectos), invariantes y los huecos detectados.
+
+| Clase | Nota | Estados |
+|---|---|---|
+| [[Viaje]] | [[EST-Viaje]] | `reservado · vendido · confirmado · en curso · finalizado · cancelado` |
+| [[Oportunidad]] | [[EST-Oportunidad]] | `nueva · en_gestión · cotizada · ganada · perdida` |
+| [[Pago]] | [[EST-Pago]] | `pendiente · pagado · vencido · anulado` |
+| [[Cotización]] | [[EST-Cotización]] | `borrador · enviada · aceptada · rechazada` |
+| [[Alerta]] | [[EST-Alerta]] | `pendiente · vista · resuelta` 🚨 |
+| [[ContenidoRed]] | [[EST-ContenidoRed]] | `idea · en producción · listo · publicado` |
+
+⏳ **Los 6 diagramas están especificados pero todavía no dibujados** (21/09). 🚨 [[EST-Alerta]] arrastra una contradicción abierta entre el enum y [[CU-14 Ver y atender alertas del día]] que puede cambiar la cantidad de estados.
+
+> [[Hotel]] (`activo · cerrado`) y [[Reseña]] (`publicada · oculta`) tienen `estado` pero **no llevan diagrama**: son bajas lógicas de dos estados. [[Destino]], [[Operador]] y [[RequisitoDestino]] usan un `activo` booleano, que tampoco es una máquina de estados.
+
 ## Pendientes de este diagrama
 - Cardinalidad Viaje–Hotel (N:M) y objeto de la `Reseña` (Hotel) → decidido en [[DEC-0003 Relación Viaje–Hotel y Reseña]] (`en-revision`, ratificar en sync).
