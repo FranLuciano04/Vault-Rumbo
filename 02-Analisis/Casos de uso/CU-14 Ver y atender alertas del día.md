@@ -24,7 +24,7 @@ Consultar la agenda de [[Alerta|Alertas]] vigentes (pagos, formularios por desti
 
 ## Flujo principal
 1. El empleado abre la agenda de [[Alerta|Alertas]] del día.
-2. El sistema lista las [[Alerta|Alertas]] vigentes (`pendiente` y `vencida`), ordenadas por `fecha`, filtradas por propietario ([[DEC-0005 Autenticación y modelo de roles]]).
+2. El sistema lista las [[Alerta|Alertas]] vigentes (estado `pendiente`, **incluidas las que ya pasaron su `fecha`**), ordenadas por `fecha`, filtradas por propietario ([[DEC-0005 Autenticación y modelo de roles]]).
 3. El empleado abre una [[Alerta]] y ve su contexto ([[Viaje]], [[Pago]] u [[Oportunidad]] asociada).
 4. Realiza la acción correspondiente según el `tipo` (pago · formulario · salida · insistencia · reseña · manual · recontacto).
 5. Marca la [[Alerta]] como `vista` o `resuelta`.
@@ -48,6 +48,8 @@ Consultar la agenda de [[Alerta|Alertas]] vigentes (pagos, formularios por desti
 - [[DGM — Casos de uso]] · [[MOC — Modelo de dominio]]
 
 ## 🔎 Revisión
+
+> [!note] Nahuel (21/09) — **corregido el paso 2: no existe un estado `vencida`.** La redacción anterior decía "vigentes (`pendiente` y `vencida`)", pero el enum `EstadoAlerta` es `pendiente · vista · resuelta`. Se resolvió que **una [[Alerta]] que pasó su fecha sin atenderse sigue `pendiente`**: el atraso es un criterio de **orden y filtro de la vista**, no un estado. A diferencia de [[Pago]], acá el atraso no tiene consecuencias de negocio (no hay exigibilidad), así que no justifica un estado propio. Detectado al especificar [[EST-Alerta]]. **Borrador a ratificar en la sync.**
 > [!question] Nahuel (10/09): ¿"del día" es solo la fecha de hoy o incluye vencidas arrastradas? Asumo que la agenda muestra **vigentes hasta hoy** (pendientes + vencidas). Confirmar el criterio de posponer (A4).
 >
 > [!note] Francisco (11/09) — revisión de inconsistencias: **definido.** Coherente con [[DEC-0005 Autenticación y modelo de roles]] — la agenda filtra por `propietario` (empleado ve las suyas; `admin`/`dueño`, todas). Sin cambios de fondo. Nahuel: para tu conocimiento.

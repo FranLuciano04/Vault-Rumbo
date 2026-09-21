@@ -59,6 +59,7 @@ tags:: #tipo/diagrama #estado/borrador #pc/pc1
 - **`confirmado` es económico, no operativo.** Significa "total pagado" y **no** debe confundirse con el acto de confirmar la reserva, que es [[CU-07 Confirmar reserva]] y produce `reservado` ([[CU-07 Confirmar reserva]], nota de la descripción).
 - **T2 y T3 son automáticas.** Las dispara el cobro en [[CU-12 Registrar cobro de un pago]]; el empleado no las ejecuta a mano ([[CU-08 Gestionar estado del viaje]] paso 2).
 - **T4 y T5 nunca se fuerzan por fecha.** El sistema sugiere, la persona confirma. Caso de referencia: si el vuelo de regreso está retrasado, el empleado **mantiene el viaje `en curso`** aunque la fecha de regreso ya haya pasado ([[CU-08 Gestionar estado del viaje]] A1).
+- **La secuencia es estricta** (resuelto 21/09): no se saltea `confirmado`. Un [[Viaje]] no pasa a `en curso` sin estar **totalmente pagado**, aunque ya haya llegado la fecha de salida.
 - **`finalizado` no se cancela** ([[CU-27 Cancelar viaje]] A1).
 - Si al cancelar hay [[Pago|Pagos]] ya `pagados`, el sistema **informa el importe cobrado** pero el reembolso/penalidad está **fuera de alcance** ([[CU-27 Cancelar viaje]] A2, [[Alcance y fuera de alcance]]).
 - Todo [[Viaje]] tiene al menos un [[Pago]] desde T1 (ver [[DGM — Diagrama de clases]]).
@@ -67,7 +68,7 @@ tags:: #tipo/diagrama #estado/borrador #pc/pc1
 
 Señalados, **no resueltos** — decisión del equipo en la sync, según [[CLAUDE|CLAUDE.md#Orden de autoridad del cerebro]]:
 
-1. **¿Se puede pasar de `vendido` a `en curso` sin pasar por `confirmado`?** [[CU-08 Gestionar estado del viaje]] describe el ciclo como `reservado → vendido → confirmado → en curso → finalizado`, lo que sugiere que **no**. Pero eso implica que un viaje que sale con saldo pendiente no puede marcarse `en curso`, y ningún CU dice qué hacer en ese caso. Hay que definir si la secuencia es estricta o si `confirmado` se puede saltear.
+1. ✅ **Resuelto 21/09 (Nahuel): la secuencia es estricta.** **No** se puede pasar de `vendido` a `en curso` sin pasar por `confirmado`: un [[Viaje]] no arranca hasta estar **totalmente pagado**. El ciclo `reservado → vendido → confirmado → en curso → finalizado` de [[CU-08 Gestionar estado del viaje]] se respeta al pie de la letra. **Para dibujar:** no hay flecha `vendido → en curso`. **Consecuencia operativa a tener presente:** si llega la fecha de salida con saldo pendiente, el [[Viaje]] **se queda en `vendido`** — el sistema no lo deja avanzar. La salida es cobrar el saldo ([[CU-12 Registrar cobro de un pago]]) o cancelar ([[CU-27 Cancelar viaje]]).
 2. **T7 dice "estado inmediato anterior", pero T2 y T3 son automáticas.** Si el empleado retrocede de `vendido` a `reservado` a mano, ¿qué pasa con el [[Pago]] de la seña que ya está `pagado`? Queda un estado incoherente (viaje `reservado` con seña cobrada) que ningún CU contempla.
 3. **T9 no dice a qué estado vuelve.** [[CU-27 Cancelar viaje]] A3 dice "reactiva el viaje" sin precisar si vuelve al estado previo a la cancelación o siempre a `reservado`. Hace falta definirlo para poder dibujar la flecha.
 4. **`cancelado` está declarado terminal** en [[CU-08 Gestionar estado del viaje]] ("`cancelado` es terminal"), pero T9 lo contradice: [[CU-27 Cancelar viaje]] A3 permite revertirlo. Hay que decidir si es terminal de verdad o terminal-salvo-corrección; afecta cómo se dibuja.

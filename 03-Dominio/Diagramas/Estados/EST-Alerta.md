@@ -14,12 +14,12 @@ tags:: #tipo/diagrama #estado/borrador #pc/pc1
 >
 > ⚠️ **El diagrama todavía no está dibujado.** Esta nota existe para que se pueda dibujar sin volver a leer los CU.
 >
-> 🚨 **Leer primero el hueco 1:** hay una **contradicción abierta** entre el enum y [[CU-14 Ver y atender alertas del día]]. Puede cambiar la cantidad de estados del diagrama.
+> ✅ **El diagrama va con 3 estados.** La contradicción con [[CU-14 Ver y atender alertas del día]] (el estado `vencida`) se resolvió el 21/09: era un filtro de la vista, no un estado. Ver hueco 1.
 
 ## Para la sesión que dibuje este diagrama
 
 1. **Con esta nota alcanza.** No hace falta abrir los CU ni las entidades.
-2. **Antes de dibujar, mirar el hueco 1.** Si el equipo todavía no lo resolvió, dibujar con los **3 estados del enum** (`pendiente · vista · resuelta`) y dejar anotado que falta resolverlo.
+2. Dibujar con los **3 estados del enum** (`pendiente · vista · resuelta`). Ya está resuelto: no se agrega `vencida` (ver hueco 1).
 3. Dibujar un `stateDiagram-v2` de Mermaid y **pegarlo en la sección `## Diagrama`** de esta misma nota.
 4. Usar el encabezado común del vault (motor ELK, líneas rectas):
    ```
@@ -87,7 +87,7 @@ tags:: #tipo/diagrama #estado/borrador #pc/pc1
 
 Señalados, **no resueltos** — decisión del equipo en la sync:
 
-1. 🚨 **Contradicción: [[CU-14 Ver y atender alertas del día]] usa un estado `vencida` que no existe en el enum.** El paso 2 dice que el sistema lista las alertas *"vigentes (`pendiente` y `vencida`)"*, pero `EstadoAlerta` es `pendiente · vista · resuelta` — **no hay `vencida`**. Hay dos salidas: (a) sumar `vencida` al enum, como se hizo con [[Pago]], y entonces el diagrama tiene 4 estados y una transición automática por fecha; o (b) aceptar que "vencida" en el CU es solo un **filtro de la vista** (`pendiente` con `fecha` pasada), no un estado, y corregir la redacción del CU. **Esto cambia el diagrama**, hay que decidirlo antes o dibujar con 3 estados y anotarlo.
+1. ✅ **Resuelto 21/09 (Nahuel): el enum se queda con 3 estados, no se agrega `vencida`.** [[CU-14 Ver y atender alertas del día]] paso 2 decía que el sistema lista las alertas *"vigentes (`pendiente` y `vencida`)"*, pero `EstadoAlerta` es `pendiente · vista · resuelta`. Se resolvió que **"vencida" era un filtro de la vista, no un estado**: una [[Alerta]] que pasó su `fecha` sin atenderse **sigue `pendiente`** (por eso aparece en la agenda del día, más arriba en el orden), y el ciclo cierra igual en `resuelta`. **A diferencia de [[Pago]], la [[Alerta]] no necesita un estado de atraso**: el `Pago` lo necesita porque el atraso tiene consecuencias de negocio (exigibilidad), mientras que en la alerta el atraso es solo un criterio de orden. Se corrigió la redacción de [[CU-14 Ver y atender alertas del día]]. **El diagrama se dibuja con 3 estados.**
 2. **T4 (`vista → resuelta`) no está escrita.** [[CU-14 Ver y atender alertas del día]] paso 5 dice "marca la alerta como `vista` **o** `resuelta`", como si fueran alternativas excluyentes del mismo paso. Falta confirmar que desde `vista` se puede cerrar después (que es lo lógico, si no `vista` sería un callejón sin salida).
 3. **¿`vista` se puede desmarcar?** No hay transición `vista → pendiente`. Si un empleado marca por error, no puede volver atrás.
 4. **T6 solo está definida para el `tipo = pago`.** [[CU-12 Registrar cobro de un pago]] A3 es el único CU que reabre una alerta. ¿Qué pasa si se revierte la cancelación de un [[Viaje]] ([[CU-27 Cancelar viaje]] A3, que dice "se reponen sus [[Alerta|Alertas]]")? No está claro si las alertas `resueltas` por la cancelación vuelven a `pendiente`.
@@ -95,7 +95,7 @@ Señalados, **no resueltos** — decisión del equipo en la sync:
 
 ## Diagrama
 
-> ⏳ **Pendiente de dibujar.** Ver las instrucciones al principio de esta nota, **y el hueco 1**.
+> ⏳ **Pendiente de dibujar.** Ver las instrucciones al principio de esta nota.
 
 ## Fuentes
 
