@@ -394,22 +394,19 @@ Estos puntos **no cambian el dominio**, solo lo expresan en términos de clases.
 
 ## Incoherencias detectadas
 
-Se señalaron sin elegir una versión en silencio, según [[CLAUDE|CLAUDE.md#Orden de autoridad del cerebro]]. Nahuel resolvió tres el 21/09; quedan a ratificar en la sync.
+Se señalaron sin elegir una versión en silencio, según [[CLAUDE|CLAUDE.md#Orden de autoridad del cerebro]]. **Nahuel las resolvió las cuatro el 21/09** y ya están propagadas a [[DGM-ER]] y a la nota de [[Viaje]]; quedan **a ratificar en la sync**.
 
 1. ✅ **`Viaje`–`Pago` = `1..*`** (resuelto 21/09, Nahuel). **Todo `Viaje` tiene al menos un `Pago`.** Vale la nota de [[Viaje]], no el `||--o{` del [[DGM-ER]]: [[CU-07 Confirmar reserva]] es el **único** CU que crea un `Viaje` y encadena [[CU-10 Registrar economía del viaje|CU-10]] y [[CU-11 Definir plan de cuotas|CU-11]] como `<<include>>` (no está completo sin ellos); su postcondición exige el plan cargado, el estado inicial `reservado` se define como *"economía y plan cargados"*, y [[CU-11 Definir plan de cuotas|CU-11]] A2 cubre el mínimo (sin cuotas se crea igual un `Pago` de tipo `saldo` por el total). El hueco entre "se crea el viaje" y "se carga el plan" es **intra-transacción**, no un estado válido del dominio, que es lo que modela un diagrama de clases conceptual. → **Corregir [[DGM-ER]]:** `VIAJE ||--o{ PAGO` pasa a **`VIAJE ||--|{ PAGO`**. La obligatoriedad se hace cumplir en la lógica de aplicación (una FK no puede exigir "al menos una fila hija").
 2. ✅ **`Viaje`–`Alerta` = `0..1` → `0..*`** (resuelto 21/09, Nahuel). La nota de [[Viaje]] dice `1..*`, pero [[Alerta]] admite alertas que **no** cuelgan de un viaje (insistencia sobre [[Oportunidad]], recontacto sobre [[Cliente]], vencimiento sobre [[Pago]], y las `manual` sueltas de [[CU-28 Crear recordatorio manual]]). → **Corregir la nota de [[Viaje]]**.
-3. ⚠️ **Abierto — cómo modela el ER el origen de la `Alerta`.** Este diagrama ya representa los cuatro orígenes; el [[DGM-ER]] declara **uno solo** (`VIAJE ||--o{ ALERTA`), así que hoy no hay dónde guardar de qué [[Oportunidad]], [[Pago]] o [[Cliente]] viene una alerta. Hay que elegir entre dos formas y recién después tocar el ER:
-   - **(a) Cuatro FK nullable** en `ALERTA` (`viaje_id`, `oportunidad_id`, `pago_id`, `cliente_id`), con un CHECK de que como mucho una esté cargada. Integridad referencial real y consultas directas; a cambio, la tabla se ensancha y cada origen nuevo agrega una columna.
-   - **(b) Origen polimórfico** (`origen_tipo` + `origen_id`). Tabla angosta y estable ante orígenes nuevos; a cambio **se pierde la FK** y la integridad queda en la aplicación.
-   → **Decidir en la sync** y propagar a [[DGM-ER]] y a la nota de [[Alerta]]. No bloquea este diagrama.
+3. ✅ **Origen de la `Alerta` en el ER: cuatro FK nullable + CHECK** (resuelto 21/09, Nahuel). El [[DGM-ER]] declaraba **un solo** origen (`VIAJE ||--o{ ALERTA`), así que no había dónde guardar de qué [[Oportunidad]], [[Pago]] o [[Cliente]] venía una alerta. Se optó por que `ALERTA` lleve `viaje_id`, `pago_id`, `oportunidad_id` y `cliente_id` **nullable**, con un **CHECK de que a lo sumo una esté cargada** (ninguna si es `manual` suelta). Se descartó el origen polimórfico (`origen_tipo` + `origen_id`) porque **pierde la FK** y deja la integridad en la aplicación; con 4 orígenes cerrados, la tabla más ancha es un costo menor frente a la integridad referencial real de PostgreSQL. → **Ya propagado al [[DGM-ER]]**.
 4. ✅ **`Cotización.items` queda como atributo `Lista`** (decidido 21/09, Nahuel): no se promueve a una 14.ª entidad `ItemCotizacion`. Si más adelante hacen falta reportes por concepto, se reabre.
 
 ## Pendientes
 
 - Ratificar el diagrama completo en la sync, junto con el batch del 18/09 y la PK de `viaje_hotel` del 21/09.
 - Cerrar los enums `FormaPago` y `CategoriaViaje`.
-- Propagar lo resuelto el 21/09: `VIAJE ||--|{ PAGO` en [[DGM-ER]] y la multiplicidad de `Alerta` en la nota de [[Viaje]].
-- Resolver el punto 3 de "Incoherencias detectadas" (cómo modela el ER el origen de la `Alerta`: cuatro FK nullable vs. origen polimórfico).
+- ✅ Lo resuelto el 21/09 ya está propagado a [[DGM-ER]] (`VIAJE ||--|{ PAGO` y los 4 orígenes de `ALERTA`) y a la nota de [[Viaje]].
+- ⚠️ El [[DGM-ER]] sigue **incompleto respecto de este diagrama** en 4 relaciones que nunca tuvo: `USUARIO`–`ALERTA` (propietario), `USUARIO`–`CLIENTE` (asesor asignado), `USUARIO`–`OPORTUNIDAD` (responsable) y `DESTINO`–`REQUISITO_DESTINO`. Completarlas al cerrar el ER.
 - Renderizar el PNG (mermaid-cli, motor ELK) cuando el diagrama se incorpore a un entregable — ver [[Entregables — índice]].
 
 ## Relacionado

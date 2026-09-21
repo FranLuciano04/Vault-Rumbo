@@ -4,7 +4,7 @@ estado: borrador
 modulo: [viajes, economia]
 responsable:
 pc: pc1
-actualizado: 09/09/26
+actualizado: 21/09/26
 ---
 # Viaje
 
@@ -40,7 +40,8 @@ Reserva concreta de un cliente: destino, fechas, categoría, estado y control ec
 - *..1 con [[Operador]] (`operador`, opcional) — ver [[DEC-0009 Operador-Proveedor como entidad de catálogo]]
 - *..0..1 con [[Usuario]] (`vendedor`, opcional) — quién vendió, para liquidar comisión ([[DEC-0007 Modelo económico — ganancia, margen y comisión de vendedor]])
 - 0..1 con [[Oportunidad]] (origen)
-- 1..* con [[Pago]] · 1..* con [[Alerta]]
+- **1..\* con [[Pago]]** — todo `Viaje` tiene al menos un `Pago`: [[CU-07 Confirmar reserva]] incluye (`<<include>>`) [[CU-11 Definir plan de cuotas]] y aun sin cuotas se crea un `Pago` de tipo `saldo` (A2). Confirmado 21/09, ver [[DGM — Diagrama de clases]]
+- **0..\* con [[Alerta]]** — corregido 21/09 (antes decía `1..*`): un `Viaje` puede no tener ninguna alerta, y además hay [[Alerta|Alertas]] que **no cuelgan de un viaje** (insistencia sobre [[Oportunidad]], recontacto sobre [[Cliente]], vencimiento sobre [[Pago]], y las `manual` sueltas de [[CU-28 Crear recordatorio manual]])
 - 0..* con [[Hotel]] (N:M vía `viaje_hotel`, con `vencimiento_pago_proveedor` por hotel → [[Alerta]] un mes antes) — ver [[DEC-0003 Relación Viaje–Hotel y Reseña]]
 
 ## Aparece en
