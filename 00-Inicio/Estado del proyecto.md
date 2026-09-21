@@ -31,7 +31,7 @@ Los tres tomamos **los tres roles** (Coordinador de vault · Guardián del domin
 
 ### Recomendado (buenas prácticas — refuerzan el modelo)
 - [ ] Diagramas de **secuencia** de CU clave (consulta→cotización→reserva, registrar pago)
-- [ ] Diagramas de **estado**: `Viaje`, `Oportunidad`, `Pago` (+ `Cotización`, `Alerta`, `ContenidoRed`) — ✅ **los 6 especificados** el 21/09 en `03-Dominio/Diagramas/Estados/`, ⏳ **falta dibujarlos** (ver tabla en [[MOC — Modelo de dominio]])
+- [ ] Diagramas de **estado**: `Viaje`, `Oportunidad`, `Pago` (+ `Cotización`, `Alerta`, `ContenidoRed`) — ✅ **los 6 especificados** el 21/09 en `03-Dominio/Diagramas/Estados/`; ✅ **3 dibujados** ([[EST-Viaje]], [[EST-Oportunidad]], [[EST-Pago]]), ⏳ **faltan [[EST-Cotización]], [[EST-Alerta]] y [[EST-ContenidoRed]]** (ver tabla en [[MOC — Modelo de dominio]])
 - [ ] **Matriz de trazabilidad** (objetivo → CU → entidad → regla)
 - [ ] Catálogo de **reglas de negocio** ampliado (hoy solo [[RN-01 Comisión automática]])
 - [ ] **Glosario** del lenguaje ubicuo (entidades + términos del negocio) → nueva nota, p. ej. `02-Analisis/Glosario.md`

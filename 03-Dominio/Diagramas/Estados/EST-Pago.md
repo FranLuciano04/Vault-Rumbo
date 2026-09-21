@@ -12,20 +12,20 @@ tags:: #tipo/diagrama #estado/borrador #pc/pc1
 
 > **Especificación** del ciclo de vida de [[Pago]], lista para dibujar. Derivada de [[CU-11 Definir plan de cuotas]], [[CU-12 Registrar cobro de un pago]] y [[CU-27 Cancelar viaje]], más la regla de vencimiento automático de la nota de [[Pago]]. El enum vive en [[DGM — Diagrama de clases]] (`EstadoPago`).
 >
-> ⚠️ **El diagrama todavía no está dibujado.** Esta nota existe para que se pueda dibujar sin volver a leer los CU.
+> ✅ **Diagrama dibujado el 21/09/26** (Nahuel) sobre esta especificación, con los 4 huecos resueltos ya incorporados. Sigue en `borrador`: se ratifica en la sync junto con el resto. El **recargo por mora** sigue abierto y **no está modelado**.
 
-## Para la sesión que dibuje este diagrama
+## Convenciones del diagrama
 
-1. **Con esta nota alcanza.** No hace falta abrir los CU ni las entidades.
-2. Dibujar un `stateDiagram-v2` de Mermaid y **pegarlo en la sección `## Diagrama`** de esta misma nota.
-3. Usar el encabezado común del vault (motor ELK, líneas rectas):
-   ```
-   %%{init: {'layout':'elk','theme':'base','themeVariables':{'fontFamily':'Segoe UI, Arial, sans-serif','fontSize':'14px','primaryColor':'#f8fafc','primaryBorderColor':'#64748b','primaryTextColor':'#0f172a','lineColor':'#94a3b8'}}}%%
-   ```
-4. **Etiquetar cada transición** con el evento disparador, no con el número.
-5. **Marcar visualmente T3**, que es la única transición **sin actor humano** (la dispara un proceso del sistema).
-6. **Validar renderizando** con `mermaid-cli` antes de commitear.
-7. Los huecos de la sección final **ya están resueltos** (21/09): respetar lo que dicen, son parte de la especificación.
+El diagrama de abajo se dibujó el 21/09/26 siguiendo estas convenciones, comunes a los seis `EST-*`:
+
+1. **Motor ELK** (`nodePlacementStrategy: BRANDES_KOEPF`), líneas ortogonales, paleta slate y Segoe UI — igual que [[DGM — Diagrama de clases]] y [[DGM-ER]].
+2. **Cada flecha lleva `Tn · <evento>`**: el evento disparador y, delante, el código de la fila correspondiente en la tabla de *Transiciones*, para poder cruzar diagrama ↔ tabla (actor, CU, guarda y efectos completos).
+3. **Las reversiones se dibujan desplegadas.** Donde la tabla da dos destinos posibles según la fecha (T6 y T10) el diagrama tiene una flecha por cada uno; el diagrama es así literal y no hay que interpretarlo.
+4. **Dos disparadores con el mismo salto van en una sola flecha, con las dos etiquetas.** `pendiente → anulado` se alcanza por T5 y por T7, y `vencido → anulado` por T8 y por T7: es el mismo cambio de estado, cambia el motivo.
+5. **Símbolos en la etiqueta:** `⚙` = transición **automática** del sistema (sin acción humana) · `↺` = **corrección o reversión** de un error de carga, no un paso del flujo de negocio · sin símbolo = acción de una persona dentro del flujo normal.
+6. **Color de los estados:** verde = cierre exitoso (terminal) · rojo = baja lógica · ámbar = atraso, sigue exigible.
+
+> ℹ️ Las correcciones se distinguen por símbolo y no por línea punteada porque **Mermaid no permite estilar flechas individuales en `stateDiagram-v2`**: `linkStyle` se parsea sin error pero no se aplica (verificado renderizando; todas las aristas salen `edge-pattern-solid`). El color sí funciona sobre los estados, vía `classDef`.
 
 ## Estados
 
@@ -63,6 +63,35 @@ tags:: #tipo/diagrama #estado/borrador #pc/pc1
 - **Se puede reprogramar** monto o vencimiento mientras el `Pago` **no esté cobrado ni anulado**; el sistema reagenda su [[Alerta]] ([[CU-11 Definir plan de cuotas]] A3). Si sigue `pendiente` no cambia de estado (auto-transición); si estaba `vencido` y la fecha nueva es futura, vuelve a `pendiente` (T9).
 - **T3 es la única transición sin actor humano** de todo el modelo de Rumbo.
 
+## Para qué se creó cada transición poco obvia
+
+> 📌 Los ejemplos de abajo son **ilustrativos**, para que se entienda en qué situación se pensó cada transición. **No son casos reales de la agencia ni salen del relevamiento**: sirven para leer el diagrama, no como fuente de verdad ([[Relevamiento — Fuente de verdad]] manda). Los importes son inventados.
+
+### T6 `pagado → vencido` — la transferencia que nunca entró
+**Situación.** Cuota 2 de $150.000, vence el **10/09/26**. El 08/09 el cliente avisa que transfirió y el empleado la marca `pagado`. El **21/09**, al conciliar el banco, se ve que la transferencia nunca llegó.
+**Qué es "revertir el cobro".** Es [[CU-12 Registrar cobro de un pago]] A3: **corregir un dato mal cargado**, no devolver plata. Los otros casos típicos son haber marcado la cuota equivocada, un cheque rechazado o un cobro cargado dos veces. El **reembolso real está fuera de alcance** ([[Alcance y fuera de alcance]]).
+**Por qué a `vencido` y no a `pendiente`.** Porque el estado **no depende de la historia de la cuota sino de su `vencimiento` contra hoy**. El 21/09 esa cuota está impaga y venció hace once días: está **en mora**. Si volviera a `pendiente`, el sistema mostraría al día una cuota atrasada, no aparecería en las [[Alerta|Alertas]] ni en el checklist de deuda, y nadie la iría a reclamar.
+**Efecto en cadena.** Se reabre su [[Alerta]] y, si ese cobro había dejado el saldo en cero, el [[Viaje]] vuelve de `confirmado` a `vendido` ([[EST-Viaje]] T8).
+
+### T9 `vencido → pendiente` — se refinancia una cuota atrasada
+**Situación.** La cuota venció el 10/09 y el cliente pide pasarla al 10/10. El empleado le cambia el `vencimiento` ([[CU-11 Definir plan de cuotas]] A3).
+**Por qué "des-vence".** Con la fecha nueva **ya no está en mora**: la regla es siempre la misma, `vencido` es `pendiente` con la fecha pasada. Al correr la fecha a futuro, la condición deja de cumplirse.
+**Qué más pasa.** Se reagenda su [[Alerta]] de vencimiento. Si la cuota estaba `pendiente` y solo se le corrige el monto o la fecha, **no cambia de estado**.
+
+### T7 y T8 desde `vencido` — anular una cuota que ya está en mora
+**Situación (T7).** Un viaje con la cuota 2 vencida el 10/09 se cancela el 15/09.
+**Situación (T8).** Un cliente rearma el plan de pagos y la cuota vencida ya no va.
+**Por qué hubo que agregarlas.** Los CU solo hablaban de anular pagos **`pendientes`**, así que una cuota **`vencida`** de un viaje cancelado **quedaba exigible para siempre**: seguía apareciendo como deuda de un viaje que no existe. Era el hueco más grave de esta nota y se cerró con la regla 🔑.
+
+### T10 `anulado → pendiente` **o** `vencido` — se revirtió la cancelación del viaje
+**Situación.** El 15/09 se cancela un viaje por error y se anulan sus tres cuotas. El 16/09 se revierte la cancelación ([[CU-27 Cancelar viaje]] A3).
+**Por qué se bifurca.** Las cuotas **no vuelven al estado que tenían**, vuelven al que les corresponde **según la fecha de hoy**: la que vencía el 10/09 vuelve a `vencido`, y las de octubre y noviembre vuelven a `pendiente`. Mismo criterio que T6.
+
+### T3 `pendiente → vencido` — la única sin actor humano
+**Situación.** Nadie hace nada. Pasa la medianoche del `vencimiento` y la cuota queda en mora.
+**Por qué importa señalarlo.** Es la **única transición de todo el modelo de Rumbo** que no dispara una persona, sino un proceso del sistema. No tiene CU asociado porque no hay actor que la ejecute, y eso al leer la tabla de transiciones puede parecer un olvido.
+**Ojo.** Pasar a `vencido` **no cobra nada extra**: el [[Pago]] sigue debiendo el mismo `monto`. El **recargo por mora** se propuso el 21/09 y **no está modelado** — sigue abierto.
+
 ## Huecos y ambigüedades — resueltos el 21/09
 
 ### ✅ Resueltos (Nahuel) — a ratificar en la sync
@@ -86,7 +115,45 @@ De ahí salen las cuatro transiciones que faltaban, ya incorporadas a la tabla d
 
 ## Diagrama
 
-> ⏳ **Pendiente de dibujar.** Ver las instrucciones al principio de esta nota.
+```mermaid
+%%{init: {'layout':'elk','elk':{'nodePlacementStrategy':'BRANDES_KOEPF','mergeEdges':false,'considerModelOrder':true},'theme':'base','themeVariables':{'fontFamily':'Segoe UI, Arial, sans-serif','fontSize':'14px','primaryColor':'#f8fafc','primaryBorderColor':'#64748b','primaryTextColor':'#0f172a','lineColor':'#94a3b8'}}}%%
+stateDiagram-v2
+    direction TB
+
+    [*] --> pendiente : T1 · se define el plan de cuotas
+
+    pendiente --> vencido : ⚙ T3 · se superó el vencimiento
+    vencido   --> pendiente : T9 · se reprograma el vencimiento
+
+    pendiente --> pagado : T2 · se registra el cobro
+    vencido   --> pagado : T4 · se registra el cobro
+    pagado --> [*]
+
+    pendiente --> anulado : T5 · cambio del plan<br>T7 · cancelación del viaje
+    vencido   --> anulado : T8 · cambio del plan<br>T7 · cancelación del viaje
+    anulado --> [*]
+
+    pagado  --> pendiente : ↺ T6 · reversión del cobro
+    pagado  --> vencido   : ↺ T6 · reversión del cobro
+    anulado --> pendiente : ↺ T10 · reversión de la cancelación
+    anulado --> vencido   : ↺ T10 · reversión de la cancelación
+
+    classDef terminal fill:#dcfce7,stroke:#16a34a,stroke-width:2px,color:#14532d
+    classDef baja fill:#fee2e2,stroke:#dc2626,stroke-width:2px,color:#7f1d1d
+    classDef atraso fill:#fef3c7,stroke:#d97706,stroke-width:2px,color:#78350f
+    class pagado terminal
+    class anulado baja
+    class vencido atraso
+```
+
+**Leyenda:** `⚙` automática del sistema · `↺` corrección/reversión · sin símbolo, acción de una persona. 🟩 `pagado` = cobrado · 🟥 `anulado` = baja lógica · 🟧 `vencido` = en atraso, **sigue exigible**. El texto completo de cada evento, con actor, CU, guarda y efectos, está en la tabla de *Transiciones*.
+
+**Lo que el diagrama deja ver de un vistazo:**
+- 🔑 **`pendiente` y `vencido` son el mismo mundo.** Tienen exactamente las mismas salidas — a `pagado` (T2/T4) y a `anulado` (T5-T7/T8-T7) — y `vencido` vuelve a `pendiente` si se reprograma la fecha (T9). Eso es la regla "`vencido` es `pendiente` con la fecha pasada" hecha dibujo: es la que cierra los 4 huecos que dejaban una cuota vencida de un viaje cancelado exigible para siempre.
+- **`⚙ T3` es la única flecha automática** de todo el modelo de Rumbo: ningún actor la dispara, la corre un proceso del sistema al pasar la fecha.
+- **La única baja es `anulado`**, y se alcanza desde los dos estados no cobrados, nunca desde `pagado`.
+- **No hay estado "parcialmente pagado"**: el [[Pago]] es indivisible, se cobra completo.
+- Tanto `↺ T6` como `↺ T10` **se bifurcan según la fecha**: vuelven a `pendiente` si el `vencimiento` es futuro, o a `vencido` si ya pasó.
 
 ## Fuentes
 

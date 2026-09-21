@@ -30,18 +30,18 @@ tags:: #tipo/diagrama #tipo/modulo #estado/en-revision #pc/pc1
 - Ver [[DGM-ER]] (modelo relacional para PostgreSQL).
 
 ## Diagramas de estado
-Especificaciones en `03-Dominio/Diagramas/Estados/` — **una nota por clase, autosuficiente**: quien dibuje el diagrama no necesita abrir los CU. Cada una trae estados, transiciones (evento, actor, CU, guarda, efectos), invariantes y los huecos detectados.
+Especificaciones en `03-Dominio/Diagramas/Estados/` — **una nota por clase, autosuficiente**: quien dibuje el diagrama no necesita abrir los CU. Cada una trae estados, transiciones (evento, actor, CU, guarda, efectos), invariantes y los huecos detectados. Las ya dibujadas suman **"Para qué se creó cada transición poco obvia"**: el caso concreto que justifica cada flecha que no se explica sola, para no tener que reconstruirlo de memoria en la sync.
 
-| Clase | Nota | Estados |
-|---|---|---|
-| [[Viaje]] | [[EST-Viaje]] | `reservado · vendido · confirmado · en curso · finalizado · cancelado` |
-| [[Oportunidad]] | [[EST-Oportunidad]] | `nueva · en_gestión · cotizada · ganada · perdida` |
-| [[Pago]] | [[EST-Pago]] | `pendiente · pagado · vencido · anulado` |
-| [[Cotización]] | [[EST-Cotización]] | `borrador · enviada · aceptada · rechazada · vencida` ⚠️nuevo |
-| [[Alerta]] | [[EST-Alerta]] | `pendiente · vista · resuelta` |
-| [[ContenidoRed]] | [[EST-ContenidoRed]] | `idea · en producción · listo · publicado · descartado` ⚠️nuevo |
+| Clase | Nota | Estados | Dibujado |
+|---|---|---|---|
+| [[Viaje]] | [[EST-Viaje]] | `reservado · vendido · confirmado · en curso · finalizado · cancelado` | ✅ 21/09 |
+| [[Oportunidad]] | [[EST-Oportunidad]] | `nueva · en_gestión · cotizada · ganada · perdida` | ✅ 21/09 |
+| [[Pago]] | [[EST-Pago]] | `pendiente · pagado · vencido · anulado` | ✅ 21/09 |
+| [[Cotización]] | [[EST-Cotización]] | `borrador · enviada · aceptada · rechazada · vencida` ⚠️nuevo | ⏳ |
+| [[Alerta]] | [[EST-Alerta]] | `pendiente · vista · resuelta` | ⏳ |
+| [[ContenidoRed]] | [[EST-ContenidoRed]] | `idea · en producción · listo · publicado · descartado` ⚠️nuevo | ⏳ |
 
-⏳ **Los 6 diagramas están especificados pero todavía no dibujados** (21/09). ✅ Los **25 huecos** detectados al especificarlos **se resolvieron el 21/09** (a ratificar en la sync): ver la sección *"Huecos — resueltos"* de cada nota.
+✅ **Los 6 están especificados; 3 ya están dibujados** ([[EST-Viaje]], [[EST-Oportunidad]] y [[EST-Pago]], 21/09) y ⏳ **faltan los otros 3**. Convención de dibujo (motor ELK, etiqueta `Tn · evento`, `⚙` automática, `↺` corrección, color por tipo de estado): ver la sección *Convenciones del diagrama* de cualquiera de los tres ya dibujados. ✅ Los **25 huecos** detectados al especificarlos **se resolvieron el 21/09** (a ratificar en la sync): ver la sección *"Huecos — resueltos"* de cada nota.
 
 > [[Hotel]] (`activo · cerrado`) y [[Reseña]] (`publicada · oculta`) tienen `estado` pero **no llevan diagrama**: son bajas lógicas de dos estados. [[Destino]], [[Operador]] y [[RequisitoDestino]] usan un `activo` booleano, que tampoco es una máquina de estados.
 

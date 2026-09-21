@@ -4,7 +4,7 @@ estado: en-revision
 modulo: [clientes]
 responsable: Francisco
 pc: pc1
-actualizado: 11/09/26
+actualizado: 21/09/26
 ---
 # CU-05 Seguir oportunidad
 
@@ -35,7 +35,7 @@ El empleado da seguimiento a una [[Oportunidad]] a lo largo del embudo: registra
 ## Flujos alternativos
 - **A1 — El cliente no responde:** vence la insistencia sin respuesta → el sistema reagenda o el empleado reprograma un nuevo contacto.
 - **A2 — Oportunidad perdida:** el cliente desiste o no hay acuerdo → estado `perdida` con motivo; queda en el historial para el embudo y reportes.
-- **A3 — Reactivar:** un cliente que había desistido retoma → se reabre la `Oportunidad` (vuelve a `nueva`/`cotizada`) o se registra una nueva ([[CU-04 Registrar consulta]]).
+- **A3 — Reactivar:** un cliente que había desistido retoma → se reabre la `Oportunidad`, que **vuelve a `en_gestión`** (se la está volviendo a trabajar: ya no es una consulta sin atender, y la cotización vieja probablemente no sirva), o se registra una nueva ([[CU-04 Registrar consulta]]). Resuelto el 21/09, ver [[EST-Oportunidad]] T8.
 - **A4 — Ganada sin cotización formal:** el cliente confirma sin cotización escrita → se cierra `ganada` y se continúa en [[CU-07 Confirmar reserva]].
 
 ## Postcondiciones
