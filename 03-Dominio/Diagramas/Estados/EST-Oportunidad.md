@@ -24,7 +24,7 @@ tags:: #tipo/diagrama #estado/borrador #pc/pc1
    ```
 4. **Etiquetar cada transición** con el evento disparador, no con el número.
 5. **Validar renderizando** con `mermaid-cli` antes de commitear.
-6. **No resolver los huecos** de la sección final.
+6. Los huecos de la sección final **ya están resueltos** (21/09): respetar lo que dicen, son parte de la especificación.
 
 ## Estados
 
@@ -33,8 +33,8 @@ tags:: #tipo/diagrama #estado/borrador #pc/pc1
 | `nueva` | Consulta recibida, **sin atender** todavía. | Estado inicial: la crea [[CU-04 Registrar consulta]] | No |
 | `en_gestión` | Se está **atendiendo/asesorando**, antes de cotizar. | El empleado empieza a trabajarla ([[CU-05 Seguir oportunidad]]) | No |
 | `cotizada` | Se emitió y **envió** una [[Cotización]]. | [[CU-06 Emitir cotización]] | No |
-| `ganada` | El cliente compró. Deriva en [[Viaje]]. | Cierre en [[CU-05 Seguir oportunidad]] | **Sí** |
-| `perdida` | No se concretó, **con motivo** registrado. | Cierre en [[CU-05 Seguir oportunidad]] | **Sí** (reabrible, ver T8) |
+| `ganada` | El cliente compró. Deriva en [[Viaje]]. | Cierre en [[CU-05 Seguir oportunidad]] | **Sí** (no vuelve atrás ni si el [[Viaje]] se cancela) |
+| `perdida` | No se concretó, **con motivo** registrado. | Cierre en [[CU-05 Seguir oportunidad]] | **Sí** (reabrible a `en_gestión`, T8) |
 
 **Estado inicial:** `nueva`.
 **Estados finales:** `ganada` y `perdida`.
@@ -47,12 +47,11 @@ tags:: #tipo/diagrama #estado/borrador #pc/pc1
 |---|---|---|---|---|---|---|---|
 | T1 | *(inicial)* | `nueva` | Llega una consulta por Instagram, WhatsApp o presencial y se registra | empleado | [[CU-04 Registrar consulta]] | Hay que identificar o crear el [[Cliente]] ([[CU-02 Registrar cliente]]) | Se crea la [[Oportunidad]] asociada al `Cliente` y al empleado que la registra (`responsable`) |
 | T2 | `nueva` | `en_gestión` | El empleado **empieza a atender** la consulta | empleado | [[CU-05 Seguir oportunidad]] paso 2 | — | Se registran interacciones; se puede agendar una [[Alerta]] de tipo `insistencia` |
-| T3 | `en_gestión` | `cotizada` | Se **envía** la [[Cotización]] al cliente | empleado | [[CU-06 Emitir cotización]] paso 5 | Existe una [[Cotización]] que pasó a `enviada` | La [[Cotización]] queda asociada a la [[Oportunidad]] |
+| T3 | `nueva` · `en_gestión` | `cotizada` | Se **envía** la [[Cotización]] al cliente | empleado | [[CU-06 Emitir cotización]] paso 5 | Existe una [[Cotización]] que pasó a `enviada` | La [[Cotización]] queda asociada a la [[Oportunidad]] |
 | T4 | `nueva` · `en_gestión` · `cotizada` | `ganada` | El cliente **confirma la compra** | empleado | [[CU-05 Seguir oportunidad]] paso 6 | — | **Resuelve las [[Alerta|Alertas]] de `insistencia` pendientes** (paso 7); habilita [[CU-07 Confirmar reserva]], que crea el [[Viaje]] |
 | T5 | `nueva` · `en_gestión` · `cotizada` | `perdida` | El cliente desiste o no hay acuerdo | empleado | [[CU-05 Seguir oportunidad]] paso 6 / A2 | **Obligatorio registrar el motivo** (ver Invariantes) | Resuelve las [[Alerta|Alertas]] de `insistencia` pendientes; queda en el historial para el embudo y los reportes |
-| T6 | `cotizada` | `en_gestión` | El cliente pide cambios y se vuelve a asesorar antes de recotizar | empleado | [[CU-06 Emitir cotización]] A1 | ⚠️ **Implícita**, ver hueco 2 | Se genera otra versión de la [[Cotización]] |
 | T7 | `en_gestión` · `cotizada` | *(se mantiene)* | **Insistencia vencida sin respuesta** | sistema / empleado | [[CU-05 Seguir oportunidad]] A1 | — | **No cambia el estado**: se reagenda o reprograma la [[Alerta]] de `insistencia`. Dibujar como auto-transición |
-| T8 | `perdida` | `nueva` · `cotizada` | **Reactivación**: un cliente que había desistido retoma | empleado | [[CU-05 Seguir oportunidad]] A3 | Alternativa: registrar una [[Oportunidad]] nueva ([[CU-04 Registrar consulta]]) | — |
+| T8 | `perdida` | `en_gestión` | **Reactivación**: un cliente que había desistido retoma | empleado | [[CU-05 Seguir oportunidad]] A3 | Vuelve a `en_gestión` porque se la está volviendo a trabajar. Alternativa: registrar una [[Oportunidad]] nueva ([[CU-04 Registrar consulta]]) | — |
 
 ## Invariantes y reglas
 
@@ -63,14 +62,14 @@ tags:: #tipo/diagrama #estado/borrador #pc/pc1
 - **Los 5 estados alimentan el embudo** del dashboard ([[CU-21 Ver dashboard y embudo]]); alinearlos fue la Q1 del 18/09.
 - Visibilidad: la gestiona el `responsable`; es legible por toda la agencia ([[DEC-0005 Autenticación y modelo de roles]]).
 
-## Huecos y ambigüedades detectadas
+## Huecos y ambigüedades — resueltos el 21/09
 
-Señalados, **no resueltos** — decisión del equipo en la sync:
+Se detectaron al especificar y **Nahuel los resolvió el mismo día**. Quedan **a ratificar en la sync**; lo que dice acá ya es lo que hay que dibujar.
 
-1. **¿Se puede ir de `nueva` a `cotizada` salteando `en_gestión`?** La precondición de [[CU-06 Emitir cotización]] solo pide que exista una [[Oportunidad]], sin exigir `en_gestión`. Pero [[CU-05 Seguir oportunidad]] presenta `en_gestión` como el paso previo natural. Si se permite el salto, hay que dibujar la flecha `nueva → cotizada`.
-2. **T6 (`cotizada → en_gestión`) es una inferencia mía, no está escrita.** [[CU-06 Emitir cotización]] A1 dice que se genera otra versión de la cotización, pero **no aclara si la `Oportunidad` retrocede** a `en_gestión` o se queda en `cotizada`. Lo más probable es que se quede en `cotizada`; hay que confirmarlo antes de dibujar T6.
-3. **T8 no precisa el destino.** [[CU-05 Seguir oportunidad]] A3 dice que se reabre "vuelve a `nueva`/`cotizada`" sin criterio para elegir entre los dos. Hace falta una regla (¿vuelve al estado que tenía antes de perderse?).
-4. **`ganada` no tiene salida.** Si se confirma la reserva y después el [[Viaje]] se cancela ([[CU-27 Cancelar viaje]]), ningún CU dice qué pasa con la `Oportunidad`: ¿queda `ganada` para siempre, o vuelve a `perdida`? Afecta las métricas del embudo del [[CU-21 Ver dashboard y embudo|dashboard]].
+1. ✅ **Resuelto 21/09 (Nahuel): sí, se permite `nueva → cotizada`.** Emitir una cotización ya implica haber trabajado la consulta; obligar a un paso intermedio no aporta nada. **Para dibujar:** va la flecha directa `nueva → cotizada`, además de la que pasa por `en_gestión`.
+2. ✅ **Resuelto 21/09 (Nahuel): T6 no existe — la `Oportunidad` NO retrocede.** Al generar una versión nueva de la [[Cotización]] ([[CU-06 Emitir cotización]] A1), la `Oportunidad` **se queda en `cotizada`**. Versionar es crear otra [[Cotización]], no mover la oportunidad hacia atrás. **Para dibujar:** eliminar T6 de la tabla de arriba; no se dibuja.
+3. ✅ **Resuelto 21/09 (Nahuel): T8 vuelve a `en_gestión`.** Si un cliente que se había perdido retoma, la oportunidad se está **volviendo a trabajar**, así que corresponde `en_gestión` — no `nueva` (ya no es una consulta sin atender) ni `cotizada` (la cotización vieja probablemente ya no sirve). **Para dibujar:** una sola flecha `perdida → en_gestión`.
+4. ✅ **Resuelto 21/09 (Nahuel): `ganada` es terminal, no vuelve atrás.** Si después se cancela el [[Viaje]], la `Oportunidad` **queda `ganada`**. El embudo mide la **venta**, no la ejecución: la cancelación se mide en [[Viaje]] (estado `cancelado`), que es donde corresponde. Si la oportunidad volviera a `perdida`, el embudo histórico del [[CU-21 Ver dashboard y embudo|dashboard]] cambiaría retroactivamente y dejaría de ser comparable entre períodos.
 
 ## Diagrama
 

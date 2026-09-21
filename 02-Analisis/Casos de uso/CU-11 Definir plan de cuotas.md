@@ -33,8 +33,8 @@ Configurar los [[Pago|Pagos]] de un [[Viaje]] (seña, cuotas y saldo) con sus mo
 ## Flujos alternativos
 - **A1 — La suma no coincide:** `Σ montos ≠ precioVenta` → el sistema rechaza y muestra la diferencia hasta corregir.
 - **A2 — Pago único:** sin cuotas, se crea un solo [[Pago]] `saldo` por el total.
-- **A3 — Reprogramar:** mientras un [[Pago]] siga `pendiente`, se pueden editar monto o vencimiento; el sistema reagenda su [[Alerta]].
-- **A4 — Anular un pago:** mientras esté `pendiente`, el empleado anula un [[Pago]] del plan (cambió el esquema); el sistema lo pasa a estado **`anulado`** (baja lógica, conserva el registro), cierra su [[Alerta]] y vuelve a exigir que `Σ montos = precioVenta` sobre los pagos no anulados.
+- **A3 — Reprogramar:** mientras un [[Pago]] **no esté cobrado ni anulado** (`pendiente` o `vencido`), se pueden editar monto o vencimiento; el sistema reagenda su [[Alerta]]. Si estaba `vencido` y la fecha nueva es futura, vuelve a `pendiente` (21/09).
+- **A4 — Anular un pago:** mientras **no esté cobrado** (es decir, `pendiente` **o** `vencido` — regla del 21/09), el empleado anula un [[Pago]] del plan (cambió el esquema); el sistema lo pasa a estado **`anulado`** (baja lógica, conserva el registro), cierra su [[Alerta]] y vuelve a exigir que `Σ montos = precioVenta` sobre los pagos no anulados.
 - **A5 — Cambió el `precioVenta`:** si se edita la economía del [[Viaje]] ([[CU-10 Registrar economía del viaje]] A4) y el plan queda descalzado, el sistema exige rebalancear los [[Pago|Pagos]] `pendientes` hasta volver a cumplir `Σ montos = precioVenta`.
 
 ## Postcondiciones

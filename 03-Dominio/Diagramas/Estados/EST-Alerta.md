@@ -28,7 +28,7 @@ tags:: #tipo/diagrama #estado/borrador #pc/pc1
 5. **Etiquetar cada transición** con el evento disparador, no con el número.
 6. **No dibujar los 7 `tipo` como estados.** El `tipo` de la [[Alerta]] (`pago`, `formulario`, `salida`…) es un atributo fijo que se define al crearla; **no** es parte de la máquina de estados. Solo determina *quién* la crea (T1) y *qué acción* se hace al atenderla.
 7. **Validar renderizando** con `mermaid-cli` antes de commitear.
-8. **No resolver los huecos** de la sección final.
+8. Los huecos de la sección final **ya están resueltos** (21/09): respetar lo que dicen, son parte de la especificación.
 
 ## Estados
 
@@ -48,11 +48,12 @@ tags:: #tipo/diagrama #estado/borrador #pc/pc1
 | T1 | *(inicial)* | `pendiente` | Se genera la alerta. **Siete orígenes** según el `tipo` (ver tabla de abajo) | sistema o empleado | varios | — | Queda en la agenda del propietario ([[CU-14 Ver y atender alertas del día]]) |
 | T2 | `pendiente` | `vista` | El empleado **abre** la alerta y la marca como vista | empleado | [[CU-14 Ver y atender alertas del día]] paso 5 | — | — |
 | T3 | `pendiente` | `resuelta` | El empleado la atiende y **la cierra directamente** | empleado | [[CU-14 Ver y atender alertas del día]] paso 5 | — | — |
-| T4 | `vista` | `resuelta` | El empleado **termina** de atenderla | empleado | [[CU-14 Ver y atender alertas del día]] paso 5 | ⚠️ **Implícita**, ver hueco 2 | — |
+| T4 | `vista` | `resuelta` | El empleado **termina** de atenderla | empleado | [[CU-14 Ver y atender alertas del día]] paso 5 | Confirmada el 21/09 | — |
 | T5 | `pendiente` · `vista` | `resuelta` | **Cierre automático**: el evento que la motivaba se cumplió o dejó de aplicar | **sistema** | ver tabla de cierres automáticos | — | Ninguno |
-| T6 | `resuelta` | `pendiente` | **Reapertura**: se revirtió el cobro que la había cerrado | sistema | [[CU-12 Registrar cobro de un pago]] A3 | Solo aplica a alertas de `tipo = pago` | El [[Pago]] vuelve a `pendiente`/`vencido` |
-| T7 | `pendiente` | *(se mantiene)* | **Posponer**: el empleado reprograma la `fecha` a un día posterior | empleado | [[CU-14 Ver y atender alertas del día]] A4 | — | **No cambia el estado.** Dibujar como auto-transición |
-| T8 | `pendiente` | *(se mantiene)* | **Reprogramar/editar** una alerta `manual` (fecha o descripción) | empleado | [[CU-28 Crear recordatorio manual]] A2 | Solo mientras esté `pendiente` | **No cambia el estado.** Auto-transición |
+| T6 | `resuelta` | `pendiente` | **Reapertura**: se revirtió el hecho que la había cerrado | sistema | [[CU-12 Registrar cobro de un pago]] A3 · [[CU-27 Cancelar viaje]] A3 | Aplica a **cualquier `tipo`** (generalizada el 21/09): si se deshace el cobro o la cancelación, la alerta vuelve | El [[Pago]] vuelve a `pendiente`/`vencido`, o el [[Viaje]] a su estado previo |
+| T7 | `vista` | `pendiente` | **Corrección**: el empleado la había marcado por error | empleado | — *(sumado el 21/09)* | — | Línea punteada en el diagrama (es corrección, no flujo) |
+| T8 | `pendiente` | *(se mantiene)* | **Posponer**: el empleado reprograma la `fecha` a un día posterior | empleado | [[CU-14 Ver y atender alertas del día]] A4 | — | **No cambia el estado.** Dibujar como auto-transición |
+| T9 | `pendiente` | *(se mantiene)* | **Reprogramar/editar** una alerta `manual` (fecha o descripción) | empleado | [[CU-28 Crear recordatorio manual]] A2 | Solo mientras esté `pendiente` | **No cambia el estado.** Auto-transición |
 
 ### Los siete orígenes de T1
 
@@ -83,15 +84,15 @@ tags:: #tipo/diagrama #estado/borrador #pc/pc1
 - Una alerta `manual` puede quedar **suelta**, sin asociación a ninguna entidad ([[CU-28 Crear recordatorio manual]] A1).
 - El listado de la agenda se ordena por `fecha` ([[CU-14 Ver y atender alertas del día]] paso 2).
 
-## Huecos y ambigüedades detectadas
+## Huecos y ambigüedades — resueltos el 21/09
 
-Señalados, **no resueltos** — decisión del equipo en la sync:
+Se detectaron al especificar y **Nahuel los resolvió el mismo día**. Quedan **a ratificar en la sync**; lo que dice acá ya es lo que hay que dibujar.
 
 1. ✅ **Resuelto 21/09 (Nahuel): el enum se queda con 3 estados, no se agrega `vencida`.** [[CU-14 Ver y atender alertas del día]] paso 2 decía que el sistema lista las alertas *"vigentes (`pendiente` y `vencida`)"*, pero `EstadoAlerta` es `pendiente · vista · resuelta`. Se resolvió que **"vencida" era un filtro de la vista, no un estado**: una [[Alerta]] que pasó su `fecha` sin atenderse **sigue `pendiente`** (por eso aparece en la agenda del día, más arriba en el orden), y el ciclo cierra igual en `resuelta`. **A diferencia de [[Pago]], la [[Alerta]] no necesita un estado de atraso**: el `Pago` lo necesita porque el atraso tiene consecuencias de negocio (exigibilidad), mientras que en la alerta el atraso es solo un criterio de orden. Se corrigió la redacción de [[CU-14 Ver y atender alertas del día]]. **El diagrama se dibuja con 3 estados.**
-2. **T4 (`vista → resuelta`) no está escrita.** [[CU-14 Ver y atender alertas del día]] paso 5 dice "marca la alerta como `vista` **o** `resuelta`", como si fueran alternativas excluyentes del mismo paso. Falta confirmar que desde `vista` se puede cerrar después (que es lo lógico, si no `vista` sería un callejón sin salida).
-3. **¿`vista` se puede desmarcar?** No hay transición `vista → pendiente`. Si un empleado marca por error, no puede volver atrás.
-4. **T6 solo está definida para el `tipo = pago`.** [[CU-12 Registrar cobro de un pago]] A3 es el único CU que reabre una alerta. ¿Qué pasa si se revierte la cancelación de un [[Viaje]] ([[CU-27 Cancelar viaje]] A3, que dice "se reponen sus [[Alerta|Alertas]]")? No está claro si las alertas `resueltas` por la cancelación vuelven a `pendiente`.
-5. **`resuelta` no distingue "la atendí" de "ya no aplica".** Una alerta cerrada por T3/T4 (el empleado hizo algo) y una cerrada por T5 (el evento dejó de aplicar) quedan iguales. Para los reportes de cumplimiento podría convenir diferenciarlas; hoy no se puede.
+2. ✅ **Resuelto 21/09 (Nahuel): T4 (`vista → resuelta`) existe.** Es lo lógico: si no, `vista` sería un callejón sin salida. El "`vista` **o** `resuelta`" del paso 5 de [[CU-14 Ver y atender alertas del día]] son dos formas de cerrar el paso, no alternativas excluyentes del ciclo.
+3. ✅ **Resuelto 21/09 (Nahuel): sí, `vista` se puede desmarcar.** Se agrega `vista → pendiente` como **corrección** (T9), para el caso de que el empleado la marque por error.
+4. ✅ **Resuelto 21/09 (Nahuel): la reapertura aplica a cualquier `tipo`, no solo a `pago`.** Sigue la misma regla que el resto: **si se revierte el hecho que cerró la alerta, la alerta se reabre**. Vale para el cobro revertido ([[CU-12 Registrar cobro de un pago]] A3) y también para la cancelación revertida de un [[Viaje]] ([[CU-27 Cancelar viaje]] A3, "se reponen sus [[Alerta|Alertas]]"). T6 queda generalizada en la tabla de arriba.
+5. ✅ **Resuelto 21/09 (Nahuel): `resuelta` no se desdobla.** No se diferencia "la atendí" de "ya no aplicaba": no hay ningún reporte que lo pida y agregar un estado más solo complica el modelo. Si en algún momento quieren un **reporte de cumplimiento** (cuántas alertas se atendieron de verdad), se reabre — queda anotado como **posible fase 2**.
 
 ## Diagrama
 

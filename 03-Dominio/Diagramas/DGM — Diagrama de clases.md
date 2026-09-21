@@ -67,6 +67,7 @@ classDiagram
         +Moneda moneda
         +Lista items
         +Decimal total
+        +Date validezHasta
         +EstadoCotizacion estado
     }
 
@@ -252,6 +253,7 @@ classDiagram
         enviada
         aceptada
         rechazada
+        vencida
     }
     Usuario ..> RolUsuario : rol
     Cliente ..> SegmentoCliente : segmento
@@ -378,6 +380,7 @@ classDiagram
         en_producción
         listo
         publicado
+        descartado
     }
     Hotel ..> EstadoHotel : estado
     Resena ..> EstadoResena : estado

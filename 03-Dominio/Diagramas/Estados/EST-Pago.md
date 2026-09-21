@@ -25,7 +25,7 @@ tags:: #tipo/diagrama #estado/borrador #pc/pc1
 4. **Etiquetar cada transición** con el evento disparador, no con el número.
 5. **Marcar visualmente T3**, que es la única transición **sin actor humano** (la dispara un proceso del sistema).
 6. **Validar renderizando** con `mermaid-cli` antes de commitear.
-7. **No resolver los huecos** de la sección final.
+7. Los huecos de la sección final **ya están resueltos** (21/09): respetar lo que dicen, son parte de la especificación.
 
 ## Estados
 
@@ -33,8 +33,8 @@ tags:: #tipo/diagrama #estado/borrador #pc/pc1
 |---|---|---|---|
 | `pendiente` | Cuota planificada, **todavía no cobrada** y sin vencer. | Estado inicial: lo crea [[CU-11 Definir plan de cuotas]] | No |
 | `pagado` | Se cobró **completo** (el `Pago` es indivisible). | [[CU-12 Registrar cobro de un pago]] | No (reversible, T6) |
-| `vencido` | Pasó su `vencimiento` sin cobrarse. **Sigue siendo exigible.** | **Proceso automático del sistema** | No |
-| `anulado` | **Baja lógica**: se dio de baja del plan. Deja de ser exigible y de contar para `Σ montos = precioVenta`, pero se conserva el registro. | [[CU-11 Definir plan de cuotas]] A4 o [[CU-27 Cancelar viaje]] | **Sí** (reversible, ver hueco 3) |
+| `vencido` | Pasó su `vencimiento` sin cobrarse. **Sigue siendo exigible.** Es **`pendiente` con la fecha pasada**, no un estado paralelo (regla 🔑). | **Proceso automático del sistema** | No |
+| `anulado` | **Baja lógica**: se dio de baja del plan. Deja de ser exigible y de contar para `Σ montos = precioVenta`, pero se conserva el registro. | [[CU-11 Definir plan de cuotas]] A4 o [[CU-27 Cancelar viaje]] | **Sí** para el flujo de negocio (reversible solo por corrección, T10) |
 
 **Estado inicial:** `pendiente`.
 **Estados finales:** `pagado` y `anulado`.
@@ -49,27 +49,40 @@ tags:: #tipo/diagrama #estado/borrador #pc/pc1
 | T4 | `vencido` | `pagado` | El empleado registra el cobro de una cuota ya vencida | empleado | [[CU-12 Registrar cobro de un pago]] A1 | Igual que T2 | Igual que T2: la [[Alerta]] se resuelve lo mismo |
 | T5 | `pendiente` | `anulado` | Se **cambió el esquema** del plan de cuotas | empleado | [[CU-11 Definir plan de cuotas]] A4 | Solo mientras el `Pago` esté **`pendiente`** | Cierra su [[Alerta]]; vuelve a exigirse `Σ montos = precioVenta` **sobre los no anulados** |
 | T6 | `pagado` | `pendiente` · `vencido` | **Reversión del cobro** (se registró por error) | empleado | [[CU-12 Registrar cobro de un pago]] A3 | Vuelve al estado que tenía según su `vencimiento` | Su [[Alerta]] **se reabre**; si el [[Viaje]] había pasado a `confirmado` por saldo cero, vuelve a `vendido` |
-| T7 | `pendiente` | `anulado` | **Se canceló el [[Viaje]]** | empleado | [[CU-27 Cancelar viaje]] paso 4 | El CU dice explícitamente "los [[Pago|Pagos]] **pendientes**" (ver hueco 1) | Se resuelven las [[Alerta|Alertas]] vigentes del viaje |
+| T7 | `pendiente` · `vencido` | `anulado` | **Se canceló el [[Viaje]]** | empleado | [[CU-27 Cancelar viaje]] paso 4 | Aplica a los **no cobrados**, estén vencidos o no (regla 🔑) | Se resuelven las [[Alerta|Alertas]] vigentes del viaje |
+| T8 | `vencido` | `anulado` | Se **cambió el esquema** del plan | empleado | [[CU-11 Definir plan de cuotas]] A4 | Ídem T5, pero para una cuota ya vencida (regla 🔑) | Cierra su [[Alerta]]; vuelve a exigirse `Σ montos = precioVenta` sobre los no anulados |
+| T9 | `vencido` | `pendiente` | Se **reprograma el `vencimiento`** a una fecha futura | empleado | [[CU-11 Definir plan de cuotas]] A3 | La nueva fecha es posterior a hoy | Se reagenda su [[Alerta]] |
+| T10 | `anulado` | `pendiente` · `vencido` | **Se revirtió la cancelación** del [[Viaje]] | empleado | [[CU-27 Cancelar viaje]] A3 | Vuelve a `pendiente` si su `vencimiento` es futuro, o a `vencido` si ya pasó | Se reponen sus [[Alerta|Alertas]] |
 
 ## Invariantes y reglas
 
 - **El `Pago` es indivisible:** se cobra completo, **sin cobros parciales** ([[CU-12 Registrar cobro de un pago]], nota de [[Pago]]). Por eso no existe un estado "parcialmente pagado".
 - **`Σ montos = precioVenta`** sobre los [[Pago|Pagos]] **no anulados**, en la **moneda de referencia** del [[Viaje]] ([[CU-11 Definir plan de cuotas]] paso 4 y A4).
 - **Multimoneda por cobro:** el plan se denomina íntegro en `Viaje.moneda`; la moneda real (`moneda_pago`) y el `tipo_cambio` se eligen recién **al cobrar** (T2/T4). El **% pagado** y el saldo se calculan siempre sobre los `monto` planificados ([[DEC-0007 Modelo económico — ganancia, margen y comisión de vendedor]]).
-- **`vencido` sigue siendo exigible**: es un aviso de atraso, no una baja. La baja es `anulado`.
-- **Mientras esté `pendiente` se puede reprogramar** monto o vencimiento sin cambiar de estado; el sistema reagenda su [[Alerta]] ([[CU-11 Definir plan de cuotas]] A3). Dibujar como auto-transición si se quiere reflejar.
+- 🔑 **`vencido` es "`pendiente` con la fecha pasada"** (resuelto 21/09). Sigue siendo exigible: es un aviso de atraso, no una baja. La baja es `anulado`. **Toda regla de los CU que diga `pendiente` aplica también a `vencido`.**
+- **Se puede reprogramar** monto o vencimiento mientras el `Pago` **no esté cobrado ni anulado**; el sistema reagenda su [[Alerta]] ([[CU-11 Definir plan de cuotas]] A3). Si sigue `pendiente` no cambia de estado (auto-transición); si estaba `vencido` y la fecha nueva es futura, vuelve a `pendiente` (T9).
 - **T3 es la única transición sin actor humano** de todo el modelo de Rumbo.
 
-## Huecos y ambigüedades detectadas
+## Huecos y ambigüedades — resueltos el 21/09
 
-Señalados, **no resueltos** — decisión del equipo en la sync:
+### ✅ Resueltos (Nahuel) — a ratificar en la sync
 
-1. **¿Qué pasa con un `Pago` `vencido` cuando se cancela el [[Viaje]]?** [[CU-27 Cancelar viaje]] paso 4 dice que pasa a `anulado` los [[Pago|Pagos]] **`pendientes`**, y [[CU-11 Definir plan de cuotas]] A4 también limita la anulación a los `pendientes`. Un `Pago` `vencido` de un viaje cancelado **quedaría exigible para siempre**, que claramente no es la intención. Falta la transición `vencido → anulado`.
-2. **Tampoco se puede anular un `vencido` por cambio de plan.** Mismo problema que 1 pero por [[CU-11 Definir plan de cuotas]] A4: si una cuota venció y el esquema cambia, no hay forma de sacarla del plan.
-3. **¿`anulado` es reversible?** [[CU-27 Cancelar viaje]] A3 dice que al revertir la cancelación "se reponen sus [[Pago|Pagos]]", lo que implica `anulado → pendiente`. Pero no está escrito como transición del `Pago` ni se dice a qué estado vuelve (¿`pendiente` o `vencido`, según la fecha?).
-4. **Reprogramar un `vencido`.** [[CU-11 Definir plan de cuotas]] A3 permite editar monto y vencimiento "mientras siga `pendiente`". Si se le corre la fecha a una cuota vencida, ¿vuelve a `pendiente`? No hay transición `vencido → pendiente` definida.
+Los cuatro huecos tenían la misma raíz (**los CU trataban `vencido` como si no existiera** al anular o reprogramar) y se cerraron con **una sola regla**:
 
-> Los cuatro huecos son la misma raíz: **los CU tratan `vencido` como si no existiera** a la hora de anular o reprogramar. Conviene resolverlos juntos.
+> 🔑 **`vencido` no es un estado paralelo: es "`pendiente` con la fecha pasada".** Donde los CU digan `pendiente`, leer **`pendiente` o `vencido`**.
+
+De ahí salen las cuatro transiciones que faltaban, ya incorporadas a la tabla de arriba (T7 ampliada, T8, T9, T10):
+
+1. **`vencido → anulado` al cancelar el [[Viaje]]** ([[CU-27 Cancelar viaje]] paso 4). Antes una cuota vencida de un viaje cancelado **quedaba exigible para siempre**.
+2. **`vencido → anulado` al cambiar el plan** ([[CU-11 Definir plan de cuotas]] A4).
+3. **`anulado → pendiente` o `vencido`** al revertir la cancelación ([[CU-27 Cancelar viaje]] A3): vuelve a `pendiente` si su `vencimiento` es futuro, o a `vencido` si ya pasó.
+4. **`vencido → pendiente`** al reprogramar el `vencimiento` a una fecha futura ([[CU-11 Definir plan de cuotas]] A3).
+
+> Es el mismo criterio que se aplicó a [[Alerta]] el mismo día (el atraso no crea un mundo aparte), con una diferencia: en `Pago` el atraso **sí** es un estado propio, porque cambia si la cuota está en mora o no. En `Alerta` el atraso es solo un criterio de orden.
+
+### ⚠️ Abierto
+
+5. **Recargo por mora.** Idea de Nahuel (21/09) al resolver lo anterior: si una cuota pasa a `vencido`, podría corresponder un **recargo**. **No se modeló** — hay que confirmarlo con el equipo y con la agencia antes de tocar nada. Si se aprueba, impacta en [[Pago]] (atributo de recargo), [[CU-12 Registrar cobro de un pago]] (cobrar monto + recargo) y en la regla `Σ montos = precioVenta`, que dejaría de cerrar exacto. #accion/decidir
 
 ## Diagrama
 

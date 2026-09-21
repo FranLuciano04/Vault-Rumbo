@@ -23,9 +23,9 @@ tags:: #tipo/diagrama #estado/borrador #pc/pc1
    %%{init: {'layout':'elk','theme':'base','themeVariables':{'fontFamily':'Segoe UI, Arial, sans-serif','fontSize':'14px','primaryColor':'#f8fafc','primaryBorderColor':'#64748b','primaryTextColor':'#0f172a','lineColor':'#94a3b8'}}}%%
    ```
 4. **Etiquetar cada transición** con el evento disparador, no con el número.
-5. Es la máquina **más simple** de las seis: 4 estados, lineal con una bifurcación. No hace falta agrupar ni anidar.
+5. Son **5 estados** (incluido `vencida`, sumado el 21/09). Estructura simple: lineal con una bifurcación triple al final. **Marcar T5** como la única transición sin actor humano.
 6. **Validar renderizando** con `mermaid-cli` antes de commitear.
-7. **No resolver los huecos** de la sección final.
+7. Los huecos de la sección final **ya están resueltos** (21/09): respetar lo que dicen, son parte de la especificación.
 
 ## Estados
 
@@ -35,9 +35,12 @@ tags:: #tipo/diagrama #estado/borrador #pc/pc1
 | `enviada` | Se le pasó al cliente (por WhatsApp o email, **fuera del sistema**) y el empleado la marcó como enviada. | [[CU-06 Emitir cotización]] paso 4 | No |
 | `aceptada` | El cliente aceptó. **Habilita confirmar la reserva.** | [[CU-06 Emitir cotización]] A2 | **Sí** |
 | `rechazada` | El cliente no aceptó. | [[CU-06 Emitir cotización]] A3 | **Sí** |
+| `vencida` ⚠️ | Pasó su `validez_hasta` sin que el cliente se decidiera. Los precios ya no se sostienen. | **Proceso automático del sistema** | **Sí** |
 
 **Estado inicial:** `borrador`.
-**Estados finales:** `aceptada` y `rechazada`.
+**Estados finales:** `aceptada`, `rechazada` y `vencida`.
+
+> ⚠️ **`vencida` es nuevo (21/09, Nahuel).** El enum pasa de 4 a **5 valores** y [[Cotización]] gana el atributo **`validez_hasta`**. Motivo: en turismo los precios cambian, así que una cotización no puede quedar vigente para siempre. **Default: 1 mes** desde la `fecha` de emisión, como parámetro global configurable por `admin` (mismo patrón que la anticipación de la [[Alerta]] `salida`). ⚠️ **El valor de 1 mes es una propuesta de Nahuel, sin validar con la agencia** — igual que se hizo con `forma_pago` y los 7 días de `salida`. #accion/decidir
 
 ## Transiciones
 
@@ -47,6 +50,7 @@ tags:: #tipo/diagrama #estado/borrador #pc/pc1
 | T2 | `borrador` | `enviada` | El empleado **envía** la cotización al cliente y la marca como enviada | empleado | [[CU-06 Emitir cotización]] paso 4 | El envío ocurre **por fuera del sistema** (WhatsApp/email); el sistema solo registra el hecho | La [[Oportunidad]] pasa a `cotizada` ([[EST-Oportunidad]] T3) |
 | T3 | `enviada` | `aceptada` | El cliente **acepta** | empleado (lo registra) | [[CU-06 Emitir cotización]] A2 | — | Habilita [[CU-07 Confirmar reserva]]; la `moneda` de esta cotización queda como **moneda de referencia del [[Viaje]]**; la [[Oportunidad]] se cierra `ganada` |
 | T4 | `enviada` | `rechazada` | El cliente **no acepta** | empleado (lo registra) | [[CU-06 Emitir cotización]] A3 | — | El seguimiento continúa o la [[Oportunidad]] se cierra `perdida` ([[CU-05 Seguir oportunidad]]) |
+| T5 | `enviada` | `vencida` | **Pasó la `validez_hasta`** sin respuesta del cliente | **sistema** (proceso automático) | *ninguno* — no es un CU con actor | Solo desde `enviada`: un `borrador` nunca vence porque el cliente no lo vio | La [[Oportunidad]] **no cambia de estado** (sigue `cotizada`). Para retomar hay que emitir una cotización nueva |
 
 ## Invariantes y reglas
 
@@ -55,15 +59,16 @@ tags:: #tipo/diagrama #estado/borrador #pc/pc1
 - **La moneda de la cotización aceptada define la moneda de referencia del [[Viaje]]** ([[DEC-0007 Modelo económico — ganancia, margen y comisión de vendedor]]).
 - **Se puede vender sin cotización.** [[CU-05 Seguir oportunidad]] A4 y [[CU-07 Confirmar reserva]] A1 permiten cerrar `ganada` sin cotización escrita: esta máquina de estados **no siempre se ejecuta**.
 - El `total` lo calcula el sistema a partir de los ítems ([[CU-06 Emitir cotización]] paso 2).
+- **Vigencia (21/09):** la cotización vale hasta su `validez_hasta`, por default **1 mes** desde la `fecha` de emisión. Pasada esa fecha pasa a `vencida` sola (T5) y hay que emitir una nueva. Solo vencen las `enviada`: un `borrador` no vence. ⚠️ El default de 1 mes está **sin validar con la agencia**.
 
-## Huecos y ambigüedades detectadas
+## Huecos y ambigüedades — resueltos el 21/09
 
-Señalados, **no resueltos** — decisión del equipo en la sync:
+Se detectaron al especificar y **Nahuel los resolvió el mismo día**. Quedan **a ratificar en la sync**; lo que dice acá ya es lo que hay que dibujar.
 
-1. **¿En qué estado queda la cotización vieja al generar una versión nueva?** [[CU-06 Emitir cotización]] A1 dice que "la anterior queda en el historial", pero no dice **en qué estado**. Se queda `enviada` para siempre (y entonces una [[Oportunidad]] puede tener varias `enviada` a la vez), o pasa a `rechazada`, o hace falta un estado `reemplazada`/`obsoleta` que hoy **no existe en el enum**.
-2. **¿Se puede aceptar o rechazar una cotización en `borrador`?** Formalmente no, porque el cliente no la vio. Pero si el empleado se la mostró en persona y el cliente aceptó ahí mismo, tendría que marcarla `enviada` primero solo para poder aceptarla. Ningún CU lo aclara.
-3. **`rechazada` no tiene salida.** Si el cliente rechaza y después se arrepiente, hay que generar una cotización nueva (no se puede reactivar). Es coherente con A1, pero conviene dejarlo escrito para que quede claro que es terminal a propósito.
-4. **No hay estado de vencimiento.** Una cotización de turismo normalmente tiene validez (los precios cambian), pero ni el enum ni los CU contemplan `vencida` ni un campo `validez_hasta`. ⚠️ Esto **no está en el relevamiento**: habría que preguntarle a la agencia si manejan vigencia de cotizaciones.
+1. ✅ **Resuelto 21/09 (Nahuel): la cotización vieja se queda `enviada`.** No se inventa un estado `reemplazada`. La **vigente es la de `fecha` más reciente**; las anteriores quedan `enviada` en el historial, que además es cierto (se enviaron). Sí, una [[Oportunidad]] puede tener varias `enviada` a la vez: es su historial de versiones, no una inconsistencia. *(Con `vencida` esto se resuelve solo en la práctica: las versiones viejas terminan venciendo por T5.)*
+2. ✅ **Resuelto 21/09 (Nahuel): no se puede aceptar ni rechazar un `borrador`.** Si el cliente la aceptó es porque alguien se la mostró, así que corresponde marcarla `enviada` y después `aceptada`. Mantiene el dato de que se envió y evita saltear el registro. **Para dibujar:** de `borrador` solo sale la flecha a `enviada`.
+3. ✅ **Resuelto 21/09 (Nahuel): `rechazada` es terminal a propósito.** Si el cliente se arrepiente, se emite una cotización **nueva**; no se reactiva la vieja. Coherente con el criterio de versionado de A1.
+4. ✅ **Resuelto 21/09 (Nahuel): las cotizaciones SÍ vencen.** Se suma el estado **`vencida`** al enum y el atributo **`validez_hasta`** a [[Cotización]], con **default 1 mes** desde la emisión (parámetro global configurable por `admin`). Ver la nota bajo la tabla de estados y la transición **T5**. ⚠️ **El valor de 1 mes está sin validar con la agencia** — queda `#accion/decidir` para la sync, igual que `forma_pago` y los 7 días de la [[Alerta]] `salida`.
 
 ## Diagrama
 

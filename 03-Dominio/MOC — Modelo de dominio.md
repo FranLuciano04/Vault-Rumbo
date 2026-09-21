@@ -37,11 +37,11 @@ Especificaciones en `03-Dominio/Diagramas/Estados/` — **una nota por clase, au
 | [[Viaje]] | [[EST-Viaje]] | `reservado · vendido · confirmado · en curso · finalizado · cancelado` |
 | [[Oportunidad]] | [[EST-Oportunidad]] | `nueva · en_gestión · cotizada · ganada · perdida` |
 | [[Pago]] | [[EST-Pago]] | `pendiente · pagado · vencido · anulado` |
-| [[Cotización]] | [[EST-Cotización]] | `borrador · enviada · aceptada · rechazada` |
-| [[Alerta]] | [[EST-Alerta]] | `pendiente · vista · resuelta` 🚨 |
-| [[ContenidoRed]] | [[EST-ContenidoRed]] | `idea · en producción · listo · publicado` |
+| [[Cotización]] | [[EST-Cotización]] | `borrador · enviada · aceptada · rechazada · vencida` ⚠️nuevo |
+| [[Alerta]] | [[EST-Alerta]] | `pendiente · vista · resuelta` |
+| [[ContenidoRed]] | [[EST-ContenidoRed]] | `idea · en producción · listo · publicado · descartado` ⚠️nuevo |
 
-⏳ **Los 6 diagramas están especificados pero todavía no dibujados** (21/09). 🚨 [[EST-Alerta]] arrastra una contradicción abierta entre el enum y [[CU-14 Ver y atender alertas del día]] que puede cambiar la cantidad de estados.
+⏳ **Los 6 diagramas están especificados pero todavía no dibujados** (21/09). ✅ Los **25 huecos** detectados al especificarlos **se resolvieron el 21/09** (a ratificar en la sync): ver la sección *"Huecos — resueltos"* de cada nota.
 
 > [[Hotel]] (`activo · cerrado`) y [[Reseña]] (`publicada · oculta`) tienen `estado` pero **no llevan diagrama**: son bajas lógicas de dos estados. [[Destino]], [[Operador]] y [[RequisitoDestino]] usan un `activo` booleano, que tampoco es una máquina de estados.
 

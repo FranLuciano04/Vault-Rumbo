@@ -62,7 +62,8 @@ erDiagram
         enum moneda "ARS, USD"
         jsonb items "conceptos y precios"
         numeric total
-        enum estado "borrador, enviada, aceptada, rechazada"
+        date validez_hasta "default fecha + 1 mes, configurable"
+        enum estado "borrador, enviada, aceptada, rechazada, vencida"
     }
     VIAJE {
         uuid id PK
@@ -164,7 +165,7 @@ erDiagram
         uuid usuario_id FK
         varchar titulo
         enum canal "instagram, tiktok, whatsapp_ventas"
-        enum estado_kanban "idea, en_produccion, listo, publicado"
+        enum estado_kanban "idea, en_produccion, listo, publicado, descartado"
         date fecha_publicacion "programada"
     }
 

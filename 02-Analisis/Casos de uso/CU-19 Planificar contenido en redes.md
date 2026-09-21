@@ -33,6 +33,8 @@ El empleado planifica las piezas de [[ContenidoRed]] en un **tablero kanban** co
 - **A1 — Generar borrador con IA:** desde una pieza en *idea* o *en producción*, el empleado invoca [[CU-20 Generar propuesta de contenido con IA]] para obtener un borrador.
 - **A2 — Reprogramar:** el empleado cambia la fecha de publicación → el calendario se actualiza.
 - **A3 — Marcar publicado:** tras publicar manualmente en la red, el empleado mueve la pieza a **publicado** (Rumbo no publica por sí mismo — ver [[Alcance y fuera de alcance]]).
+- **A4 — Descartar una pieza (21/09, a ratificar):** la idea no va más → el empleado la pasa a **`descartado`** desde cualquier columna previa a `publicado`. Es **baja lógica**: la pieza se conserva, no se borra (mismo criterio que [[Hotel]], [[Reseña]], [[Destino]] y [[Operador]]).
+- **A5 — Retroceder una tarjeta:** el tablero se arrastra en **las dos direcciones**; una pieza `listo` que hay que rehacer vuelve a `en producción` (confirmado 21/09).
 
 ## Postcondiciones
 - La pieza de [[ContenidoRed]] queda registrada con su **estado kanban** y su **fecha**, y el calendario refleja lo programado.

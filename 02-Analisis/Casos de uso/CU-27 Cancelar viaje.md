@@ -26,14 +26,14 @@ Dar de baja un [[Viaje]] que no se concreta (el cliente desiste, fuerza mayor), 
 1. El empleado abre el [[Viaje]] y elige **cancelar**.
 2. Registra el **motivo** y la fecha de cancelación (`dd/mm/aa`).
 3. El sistema cambia el `estado` del [[Viaje]] a **`cancelado`**.
-4. El sistema pasa los [[Pago|Pagos]] `pendientes` del plan a estado **`anulado`** (baja lógica: dejan de ser exigibles pero se conservan) y **resuelve** las [[Alerta|Alertas]] vigentes del viaje.
+4. El sistema pasa los [[Pago|Pagos]] **no cobrados** del plan (`pendientes` **y** `vencidos` — regla del 21/09) a estado **`anulado`** (baja lógica: dejan de ser exigibles pero se conservan) y **resuelve** las [[Alerta|Alertas]] vigentes del viaje.
 5. El sistema deja constancia de que la **comisión proyectada no se realiza** ([[RN-01 Comisión automática]]).
 6. El [[Viaje]] permanece en el historial (baja lógica; no se elimina).
 
 ## Flujos alternativos
 - **A1 — Viaje finalizado:** si el [[Viaje]] ya está `finalizado`, no se cancela; el sistema lo impide.
 - **A2 — Pagos ya cobrados:** si hay [[Pago|Pagos]] `pagados`, el sistema informa el importe cobrado; el **reembolso/penalidad queda fuera de alcance** (Rumbo no procesa pagos online — [[Alcance y fuera de alcance]]), solo se documenta el saldo.
-- **A3 — Revertir cancelación:** si fue un error y el [[Viaje]] no está `finalizado`, el empleado reactiva el viaje y se reponen sus [[Pago|Pagos]]/[[Alerta|Alertas]].
+- **A3 — Revertir cancelación:** si fue un error y el [[Viaje]] no está `finalizado`, el empleado reactiva el viaje, que **vuelve al estado que tenía justo antes de cancelarse**; sus [[Pago|Pagos]] vuelven a `pendiente` o `vencido` según su fecha, y sus [[Alerta|Alertas]] se reabren (21/09).
 
 ## Postcondiciones
 - El [[Viaje]] queda en `cancelado`, con sus [[Pago|Pagos]] pendientes en estado `anulado` y sus [[Alerta|Alertas]] cerradas, preservando el historial.

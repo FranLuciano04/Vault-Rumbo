@@ -19,7 +19,7 @@ Pieza de contenido para redes sociales, gestionada en un **tablero kanban** con 
 | id | UUID | Identificador |
 | titulo | String | Título / idea |
 | canal | Enum | instagram · tiktok · whatsapp_ventas |
-| estadoKanban | Enum | idea · en producción · listo · publicado |
+| estadoKanban | Enum | idea · en producción · listo · publicado · **descartado** — `descartado` es la **baja lógica** de una pieza que no va más (se conserva, no se borra); no sale desde `publicado`. Sumado 21/09, ver [[EST-ContenidoRed]] |
 | fechaPublicacion | Date (dd/mm/aa) | Programada |
 
 ## Relaciones

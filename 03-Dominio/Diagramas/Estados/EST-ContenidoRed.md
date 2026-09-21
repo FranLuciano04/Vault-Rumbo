@@ -23,9 +23,9 @@ tags:: #tipo/diagrama #estado/borrador #pc/pc1
    %%{init: {'layout':'elk','theme':'base','themeVariables':{'fontFamily':'Segoe UI, Arial, sans-serif','fontSize':'14px','primaryColor':'#f8fafc','primaryBorderColor':'#64748b','primaryTextColor':'#0f172a','lineColor':'#94a3b8'}}}%%
    ```
 4. **Etiquetar cada transición** con el evento disparador, no con el número.
-5. **Ojo con el hueco 1:** si el equipo confirma que el kanban permite arrastrar hacia atrás, hay que dibujar también las flechas de retroceso (T5). Si no se resolvió, dibujar solo el avance y anotarlo.
+5. Son **5 estados** (incluido `descartado`, sumado el 21/09) y el kanban **se arrastra en las dos direcciones**: dibujar las flechas de avance y de retroceso entre `idea`, `en producción` y `listo`.
 6. **Validar renderizando** con `mermaid-cli` antes de commitear.
-7. **No resolver los huecos** de la sección final.
+7. Los huecos de la sección final **ya están resueltos** (21/09): respetar lo que dicen, son parte de la especificación.
 
 ## Estados
 
@@ -35,9 +35,12 @@ tags:: #tipo/diagrama #estado/borrador #pc/pc1
 | `en producción` | Se está **armando** el contenido (texto, imágenes). | El empleado mueve la tarjeta ([[CU-19 Planificar contenido en redes]] paso 3) | No |
 | `listo` | Contenido **terminado**, esperando su fecha de publicación. | El empleado mueve la tarjeta | No |
 | `publicado` | Ya se **publicó manualmente** en la red. | El empleado mueve la tarjeta después de publicar ([[CU-19 Planificar contenido en redes]] A3) | **Sí** |
+| `descartado` ⚠️ | **Baja lógica**: la pieza no va más. Se conserva el registro, no se borra. | El empleado la descarta desde cualquier columna previa a `publicado` | **Sí** |
 
 **Estado inicial:** `idea`.
-**Estado final:** `publicado`.
+**Estados finales:** `publicado` y `descartado`.
+
+> ⚠️ **`descartado` es nuevo (21/09, Nahuel).** `EstadoKanban` pasa de 4 a **5 valores**. Motivo: hoy la única forma de sacar una idea que no sirve sería borrarla físicamente, lo que rompe el criterio de **baja lógica** que el equipo aplicó a [[Hotel]], [[Reseña]], [[Destino]] y [[Operador]].
 
 > Es un **flujo kanban**, no una máquina de estados de negocio: los estados son columnas de un tablero que mueve una persona. No hay transiciones automáticas ni disparadas por el sistema. Es la única de las seis máquinas donde **el sistema nunca cambia el estado por su cuenta**.
 
@@ -49,9 +52,10 @@ tags:: #tipo/diagrama #estado/borrador #pc/pc1
 | T2 | `idea` | `en producción` | El empleado **arrastra la tarjeta** a la siguiente columna | empleado | [[CU-19 Planificar contenido en redes]] paso 3 | — | — |
 | T3 | `en producción` | `listo` | El empleado arrastra la tarjeta | empleado | [[CU-19 Planificar contenido en redes]] paso 3 | El contenido está terminado | — |
 | T4 | `listo` | `publicado` | El empleado **publicó manualmente** en la red y mueve la tarjeta | empleado | [[CU-19 Planificar contenido en redes]] A3 | **Rumbo no publica por sí mismo** ([[Alcance y fuera de alcance]]) | — |
-| T5 | `en producción` · `listo` | *columna anterior* | El empleado **retrocede** la tarjeta | empleado | — | ⚠️ **No está escrita en ningún CU**, ver hueco 1 | — |
-| T6 | `idea` · `en producción` | *(se mantiene)* | **Generar un borrador con IA** y guardarlo en la pieza | empleado + servicio de IA (Claude) | [[CU-20 Generar propuesta de contenido con IA]] / [[CU-19 Planificar contenido en redes]] A1 | Solo desde `idea` o `en producción` | **No cambia el estado.** Dibujar como auto-transición. La IA usa solo tema/canal/tono: **no accede a datos del negocio** |
-| T7 | cualquiera | *(se mantiene)* | **Reprogramar** la fecha de publicación | empleado | [[CU-19 Planificar contenido en redes]] A2 | — | **No cambia el estado**; se actualiza el calendario |
+| T5 | `en producción` · `listo` | *columna anterior* | El empleado **retrocede** la tarjeta | empleado | [[CU-19 Planificar contenido en redes]] paso 3 | Confirmado el 21/09: el kanban se arrastra en **las dos direcciones** | — |
+| T6 | `idea` · `en producción` · `listo` | `descartado` | La pieza **no va más** | empleado | — *(sumado el 21/09)* | **Baja lógica**: no se borra físicamente. **No** sale desde `publicado` | — |
+| T7 | `idea` · `en producción` | *(se mantiene)* | **Generar un borrador con IA** y guardarlo en la pieza | empleado + servicio de IA (Claude) | [[CU-20 Generar propuesta de contenido con IA]] / [[CU-19 Planificar contenido en redes]] A1 | Solo desde `idea` o `en producción` | **No cambia el estado.** Dibujar como auto-transición. La IA usa solo tema/canal/tono: **no accede a datos del negocio** |
+| T8 | cualquiera | *(se mantiene)* | **Reprogramar** la fecha de publicación | empleado | [[CU-19 Planificar contenido en redes]] A2 | — | **No cambia el estado**; se actualiza el calendario |
 
 ## Invariantes y reglas
 
@@ -61,14 +65,14 @@ tags:: #tipo/diagrama #estado/borrador #pc/pc1
 - La pieza tiene un `canal` (`instagram · tiktok · whatsapp_ventas`) que **no** es parte de la máquina de estados.
 - La gestión **no está restringida a un rol**: cualquier empleado con acceso al módulo puede mover tarjetas ([[DEC-0005 Autenticación y modelo de roles]]).
 
-## Huecos y ambigüedades detectadas
+## Huecos y ambigüedades — resueltos el 21/09
 
-Señalados, **no resueltos** — decisión del equipo en la sync:
+Se detectaron al especificar y **Nahuel los resolvió el mismo día**. Quedan **a ratificar en la sync**; lo que dice acá ya es lo que hay que dibujar.
 
-1. **¿Se puede retroceder una tarjeta (T5)?** Ningún CU lo dice. En un tablero kanban real se arrastra en las dos direcciones, y es lo esperable (ej. una pieza `listo` que hay que rehacer). Pero **no está escrito**, así que hay que confirmarlo: define si el diagrama es lineal o bidireccional.
-2. **No hay estado para descartar una pieza.** Si una idea no sirve, no hay `descartado` ni `archivado` en el enum. [[CU-20 Generar propuesta de contenido con IA]] A2 habla de descartar *la propuesta de la IA*, que es antes de que exista la pieza — no es lo mismo. Hoy la única salida sería **borrarla físicamente**, lo que rompe el criterio de **baja lógica** que el equipo aplicó a [[Hotel]], [[Reseña]], [[Destino]] y [[Operador]]. ⚠️ Vale la pena revisarlo.
-3. **`publicado` es terminal, pero no hay CU que lo diga.** Se infiere de que es la última columna. Tampoco está claro si se puede despublicar (borrar el posteo de la red y volver la tarjeta atrás).
-4. **La `fecha_publicacion` no gobierna ninguna transición.** Es una fecha *programada*, pero nada pasa si llega y la pieza sigue en `listo`: no se genera [[Alerta]] ni se avisa. Podría ser deseable una alerta de "pieza programada para hoy sin publicar", pero **no está en el relevamiento** — habría que preguntarlo antes de agregar nada.
+1. ✅ **Resuelto 21/09 (Nahuel): sí, se puede retroceder.** Es un tablero kanban y se arrastra en las dos direcciones (ej. una pieza `listo` que hay que rehacer vuelve a `en producción`). **Para dibujar:** flechas **bidireccionales** entre `idea`, `en producción` y `listo`. T5 queda confirmada.
+2. ✅ **Resuelto 21/09 (Nahuel): se suma `descartado` al enum.** Es el único cambio de modelo de esta máquina. Motivo: hoy la única forma de sacar una idea que no sirve sería **borrarla físicamente**, lo que rompe el criterio de **baja lógica** que el equipo aplicó a [[Hotel]], [[Reseña]], [[Destino]] y [[Operador]]. `EstadoKanban` pasa a `idea · en producción · listo · publicado · descartado`. Ver la transición **T8**.
+3. ✅ **Resuelto 21/09 (Nahuel): `publicado` es terminal.** No se modela despublicar: Rumbo **no publica** ([[Alcance y fuera de alcance]]), así que tampoco despublica. Si hiciera falta rehacer una pieza ya publicada, se crea una nueva.
+4. ✅ **Resuelto 21/09 (Nahuel): no hace falta aviso por `fecha_publicacion`.** Se evaluó generar una [[Alerta]] del tipo "pieza programada para hoy sin publicar" y **se descartó**: no está en el relevamiento y no lo pidieron. La `fecha_publicacion` sigue siendo solo informativa para el calendario. Si más adelante la agencia lo pide, se reabre.
 
 ## Diagrama
 

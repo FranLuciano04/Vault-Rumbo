@@ -24,7 +24,7 @@ tags:: #tipo/diagrama #estado/borrador #pc/pc1
    ```
 4. **Etiquetar cada transición** con el evento disparador de la tabla (columna *Evento*), no con el número.
 5. **Validar renderizando** con `mermaid-cli` antes de commitear (el validador del MCP de Mermaid falla con algunas directivas; el motor real es el que manda).
-6. **No resolver los huecos** de la sección final: son decisiones del equipo para la sync.
+6. Los huecos de la sección final **ya están resueltos** (21/09): respetar lo que dicen, son parte de la especificación.
 
 ## Estados
 
@@ -50,9 +50,9 @@ tags:: #tipo/diagrama #estado/borrador #pc/pc1
 | T4 | `confirmado` | `en curso` | Llegó la **fecha de salida** | sistema **sugiere**, empleado **confirma** | [[CU-08 Gestionar estado del viaje]] | Nunca se fuerza por fecha (ver A1 en Invariantes) | Actualiza calendario y dashboard |
 | T5 | `en curso` | `finalizado` | Llegó la **fecha de regreso** | sistema **sugiere**, empleado **confirma** | [[CU-08 Gestionar estado del viaje]] | Nunca se fuerza por fecha | Habilita la post-venta: agenda una [[Alerta]] de tipo `reseña` ([[CU-17 Registrar reseña de hotel]]) |
 | T6 | `reservado` · `vendido` · `confirmado` · `en curso` | `cancelado` | El empleado cancela el viaje | empleado | [[CU-27 Cancelar viaje]] | **No** desde `finalizado` (A1) ni desde `cancelado` | Registra motivo y fecha; pasa los [[Pago|Pagos]] `pendientes` a `anulado`; resuelve las [[Alerta|Alertas]] vigentes; deja constancia de que la comisión proyectada no se realiza ([[RN-01 Comisión automática]]) |
-| T7 | `vendido` · `confirmado` · `en curso` | *estado inmediato anterior* | **Corrección**: se cargó un estado por error | empleado | [[CU-08 Gestionar estado del viaje]] A2 | Solo al **inmediato anterior**, mientras sea coherente y el viaje no esté `finalizado` ni `cancelado` | — |
+| T7 | `en curso` · `finalizado` | *estado inmediato anterior* | **Corrección**: se cargó un estado por error | empleado | [[CU-08 Gestionar estado del viaje]] A2 | Solo deshace transiciones **manuales** (T4, T5). Las automáticas (T2, T3) se deshacen revirtiendo el cobro | Línea punteada en el diagrama |
 | T8 | `confirmado` | `vendido` | **Reversión de un cobro** que había dejado el saldo en cero | empleado | [[CU-12 Registrar cobro de un pago]] A3 | El cobro se había registrado por error | El [[Pago]] vuelve a `pendiente`/`vencido` y su [[Alerta]] se reabre |
-| T9 | `cancelado` | *estado previo a la cancelación* | **Reversión de la cancelación** (fue un error) | empleado | [[CU-27 Cancelar viaje]] A3 | El viaje **no** está `finalizado` | Se reponen sus [[Pago|Pagos]] y [[Alerta|Alertas]] |
+| T9 | `cancelado` | *el estado que tenía justo antes de cancelarse* | **Reversión de la cancelación** (fue un error) | empleado | [[CU-27 Cancelar viaje]] A3 | El viaje **no** está `finalizado` | Se reponen sus [[Pago|Pagos]] (a `pendiente` o `vencido` según su fecha) y [[Alerta|Alertas]]. Línea punteada |
 
 ## Invariantes y reglas
 
@@ -64,14 +64,14 @@ tags:: #tipo/diagrama #estado/borrador #pc/pc1
 - Si al cancelar hay [[Pago|Pagos]] ya `pagados`, el sistema **informa el importe cobrado** pero el reembolso/penalidad está **fuera de alcance** ([[CU-27 Cancelar viaje]] A2, [[Alcance y fuera de alcance]]).
 - Todo [[Viaje]] tiene al menos un [[Pago]] desde T1 (ver [[DGM — Diagrama de clases]]).
 
-## Huecos y ambigüedades detectadas
+## Huecos y ambigüedades — resueltos el 21/09
 
-Señalados, **no resueltos** — decisión del equipo en la sync, según [[CLAUDE|CLAUDE.md#Orden de autoridad del cerebro]]:
+Se detectaron al especificar y **Nahuel los resolvió el mismo día**. Quedan **a ratificar en la sync**; lo que dice acá ya es lo que hay que dibujar.
 
 1. ✅ **Resuelto 21/09 (Nahuel): la secuencia es estricta.** **No** se puede pasar de `vendido` a `en curso` sin pasar por `confirmado`: un [[Viaje]] no arranca hasta estar **totalmente pagado**. El ciclo `reservado → vendido → confirmado → en curso → finalizado` de [[CU-08 Gestionar estado del viaje]] se respeta al pie de la letra. **Para dibujar:** no hay flecha `vendido → en curso`. **Consecuencia operativa a tener presente:** si llega la fecha de salida con saldo pendiente, el [[Viaje]] **se queda en `vendido`** — el sistema no lo deja avanzar. La salida es cobrar el saldo ([[CU-12 Registrar cobro de un pago]]) o cancelar ([[CU-27 Cancelar viaje]]).
-2. **T7 dice "estado inmediato anterior", pero T2 y T3 son automáticas.** Si el empleado retrocede de `vendido` a `reservado` a mano, ¿qué pasa con el [[Pago]] de la seña que ya está `pagado`? Queda un estado incoherente (viaje `reservado` con seña cobrada) que ningún CU contempla.
-3. **T9 no dice a qué estado vuelve.** [[CU-27 Cancelar viaje]] A3 dice "reactiva el viaje" sin precisar si vuelve al estado previo a la cancelación o siempre a `reservado`. Hace falta definirlo para poder dibujar la flecha.
-4. **`cancelado` está declarado terminal** en [[CU-08 Gestionar estado del viaje]] ("`cancelado` es terminal"), pero T9 lo contradice: [[CU-27 Cancelar viaje]] A3 permite revertirlo. Hay que decidir si es terminal de verdad o terminal-salvo-corrección; afecta cómo se dibuja.
+2. ✅ **Resuelto 21/09 (Nahuel): la corrección manual (T7) solo aplica a las transiciones manuales.** Es decir, solo permite deshacer T4 (`en curso → confirmado`) y T5 (`finalizado → en curso`). **No** se puede retroceder `vendido → reservado` ni `confirmado → vendido` a mano, porque esas las produjo un cobro: para deshacerlas hay que **revertir el cobro** ([[CU-12 Registrar cobro de un pago]] A3), que ya cambia el estado del [[Viaje]] solo (T8). Así se evita el estado incoherente de un viaje `reservado` con la seña cobrada. **Para dibujar:** T7 sale únicamente de `en curso` y `finalizado`.
+3. ✅ **Resuelto 21/09 (Nahuel): T9 vuelve al estado que el [[Viaje]] tenía inmediatamente antes de cancelarse**, no siempre a `reservado`.
+4. ✅ **Resuelto 21/09 (Nahuel): `cancelado` es terminal para el flujo de negocio.** T9 no es un paso del flujo sino la **corrección de un error de carga**, igual que T7. Se mantiene lo que dice [[CU-08 Gestionar estado del viaje]]. **Para dibujar:** T7, T8 y T9 van en **línea punteada** (correcciones), y T1-T6 en línea llena (flujo de negocio).
 
 ## Diagrama
 
