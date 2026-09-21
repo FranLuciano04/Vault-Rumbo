@@ -22,9 +22,10 @@ tags:: #tipo/diagrama #estado/borrador #pc/pc1
 | **Claves** | `PK` = clave primaria (siempre `uuid`), `FK` = clave foránea, `UK` = único. Los FK **sí** se listan acá; en el diagrama de clases no, porque allá los expresan las asociaciones. |
 | **Enums** | Se declaran como `enum` con sus valores en el comentario. El catálogo completo está en las bandas de enumeraciones de [[DGM — Diagrama de clases]]. |
 | **Nullable** | Se aclara en el comentario de la columna. Sin aclaración, `NOT NULL`. |
+| **Layout** | Motor **ELK** (líneas ortogonales) y fuente **12px** — un punto menos que el diagrama de clases, para compensar que acá hay 14 tablas y ~110 columnas. Ver "Sobre el tamaño" al final. |
 
 ```mermaid
-%%{init: {'layout':'elk','elk':{'mergeEdges':false,'nodePlacementStrategy':'BRANDES_KOEPF'},'theme':'base','themeVariables':{'fontFamily':'Segoe UI, Arial, sans-serif','fontSize':'14px','primaryColor':'#f8fafc','primaryBorderColor':'#64748b','primaryTextColor':'#0f172a','lineColor':'#94a3b8'}}}%%
+%%{init: {'layout':'elk','elk':{'mergeEdges':false,'nodePlacementStrategy':'BRANDES_KOEPF'},'theme':'base','themeVariables':{'fontFamily':'Segoe UI, Arial, sans-serif','fontSize':'12px','primaryColor':'#f8fafc','primaryBorderColor':'#64748b','primaryTextColor':'#0f172a','lineColor':'#94a3b8'}}}%%
 erDiagram
     USUARIO {
         uuid id PK
@@ -217,6 +218,20 @@ erDiagram
 ## Resuelto 21/09 (Nahuel, a ratificar en sync)
 - **`VIAJE_HOTEL` usa `id` propio, no PK compuesta `(viaje_id, hotel_id)`.** Motivo: un mismo `HOTEL` puede aparecer en **más de un tramo** del mismo `VIAJE` (ej. Buenos Aires → Bariloche → Buenos Aires, con el mismo hotel porteño en ida y vuelta), y cada tramo puede llevar su propio `vencimiento_pago_proveedor` — la PK compuesta lo impedía. Detalle y justificación completa en [[DEC-0003 Relación Viaje–Hotel y Reseña]] (refinamiento sobre el `#accion/decidir` que esa DEC había dejado abierto).
 - **ER completado:** se agregaron los **atributos de las 14 tablas** y las **4 relaciones que faltaban** (`USUARIO`–`ALERTA` propietario, `USUARIO`–`CLIENTE` asesor asignado, `USUARIO`–`OPORTUNIDAD` responsable y `DESTINO`–`REQUISITO_DESTINO`), se corrigió `VIAJE`–`PAGO` a `||--|{`, se sumaron los 4 orígenes de `ALERTA` y se eliminó una línea `CLIENTE`–`RESENA` duplicada. El diagrama pasó al motor **ELK**.
+
+## Sobre el tamaño del diagrama
+
+El ER es grande (≈ 2650 × 3133 px) porque el modelo **es** grande: 14 tablas, ~110 columnas y 24 relaciones. Se midieron las alternativas antes de dejarlo así (21/09):
+
+| Variante | Tamaño | Veredicto |
+|---|---|---|
+| Original (fuente 14px) | 2940 × 3265 | — |
+| **Fuente 12px** ✅ **aplicada** | **2650 × 3133** | **−14% de área, no se pierde nada** |
+| `mergeEdges: true` | 3454 × 3165 | ❌ queda **más ancho**, no menos |
+| Sin los valores de enum en los comentarios | 2373 × 3133 | −23%, pero se pierde info útil de un vistazo |
+| Partirlo en vistas por módulo | ≈ 1265 × 2048 c/u | La única reducción real; se pierde la vista global |
+
+**La altura (~3133) es estructural:** la fija la cantidad de capas que arma ELK a partir de las 14 tablas y sus 24 relaciones, y no baja recortando texto. Si en algún momento molesta para imprimirlo, la salida es **partirlo en 3 vistas** (comercial · economía · catálogo y post-venta) y conservar esta como vista global — igual que se hizo con las bandas de enumeraciones en [[DGM — Diagrama de clases]]. Queda como opción, no como pendiente.
 
 ## Pendientes
 - Ratificar en la sync junto con el resto del batch (18/09 y 21/09).
