@@ -18,8 +18,9 @@ Se compone de:
 
 - **153 requisitos funcionales**, agrupados en los once módulos del sistema.
 - **16 requisitos no funcionales**, organizados por atributo de calidad y justificados en las necesidades del negocio.
-- El **alcance del sistema**, con los límites deliberados de esta etapa.
 - La **matriz de trazabilidad** entre requisitos y casos de uso.
+
+El **alcance del sistema** —los módulos que cubre, lo que queda fuera de esta etapa y lo previsto para una segunda— está definido en el **documento de relevamiento** y no se repite aquí: este documento especifica los requisitos dentro de ese alcance.
 
 ## Elaboración de los requisitos
 

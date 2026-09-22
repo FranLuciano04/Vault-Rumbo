@@ -17,8 +17,11 @@ tags:: #tipo/referencia #estado/formalizado
 ## Entregables
 | Entregable | Fuente (.md) | Salida | PC |
 |---|---|---|---|
-| Casos de uso | `02-Analisis/Casos de uso/CU-*.md` | `07-Entregables/Casos de uso/Rumbo — Casos de uso.docx` | PC1 |
+| Relevamiento | `01-Relevamiento/*.md` (6 notas) | `07-Entregables/Relevamiento/Rumbo — Relevamiento.docx` | PC1 |
 | Requisitos | `02-Analisis/Requisitos funcionales.md` | `07-Entregables/Requisitos/Rumbo — Requisitos.docx` | PC1 |
+| Casos de uso | `02-Analisis/Casos de uso/CU-*.md` | `07-Entregables/Casos de uso/Rumbo — Casos de uso.docx` | PC1 |
+
+> **Los tres se entregan juntos y se leen en ese orden:** el relevamiento define el problema y el alcance, los requisitos especifican qué debe hacer el sistema dentro de ese alcance, y los casos de uso describen cómo se realiza cada requisito. Para que no se contradigan, **cada contenido vive en un solo documento** y los otros lo referencian: el **alcance** está únicamente en el relevamiento, y la **especificación formal del circuito** (precondiciones, flujos alternativos) únicamente en casos de uso.
 
 ## Parámetros del entregable de Casos de uso (definido en la sync 11/09)
 - **Contenido:** documento **completo** → carátula + breve **introducción** + **diagrama de casos de uso** ([[DGM — Casos de uso]], como imagen incrustada) + **actores** ([[Actores]]) + los **30 CU** especificados.
@@ -44,6 +47,19 @@ tags:: #tipo/referencia #estado/formalizado
 bash "07-Entregables/build/build-casos-de-uso.sh"
 ```
 Genera `07-Entregables/Casos de uso/Rumbo — Casos de uso.docx`. Usa por defecto la plantilla `07-Entregables/build/reference.docx` (o pasar otra como 1.er argumento). Requiere **pandoc** (ver [[Skills compartidas]]). Para una compilación de prueba sin tocar el docx del vault: `OUT_OVERRIDE=/ruta/prueba.docx bash "07-Entregables/build/build-casos-de-uso.sh"`.
+
+## Parámetros del entregable de Relevamiento (22/09)
+- **Contenido:** portada + **justificación del sistema** + **herramientas del proyecto** (agente de IA y modelado) + **objetivos** + **alcance y fuera de alcance** + **actores** + **circuito de la consulta a la venta** + la **Figura 1** con el diagrama de secuencia.
+- **Fuente:** seis notas de `01-Relevamiento/` — [[Justificación del sistema]], [[Herramientas del proyecto]], [[Objetivos del sistema]], [[Alcance y fuera de alcance]], [[Actores]] y [[Circuito de la consulta a la venta]]. El `.docx` ya no se edita a mano: el original que circulaba suelto se incorporó al vault el 22/09.
+- **El alcance vive acá y solo acá.** El documento de requisitos lo referencia en vez de repetirlo. Si cambia el alcance, se toca [[Alcance y fuera de alcance]] y nada más.
+- **Figura 1:** se renderiza desde el Mermaid de [[DGM-SEC — De la consulta a la venta]] a `07-Entregables/Relevamiento/img/`. El comando está al pie de `build-relevamiento.sh`.
+- **Filtrado y estética:** el mismo `filtrar()` y la misma plantilla `reference.docx` que los otros dos entregables.
+
+## Cómo generar el DOCX de relevamiento
+Desde la raíz del repo:
+```bash
+bash "07-Entregables/build/build-relevamiento.sh"
+```
 
 ## Cómo generar el DOCX de requisitos
 Desde la raíz del repo:

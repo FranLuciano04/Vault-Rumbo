@@ -12,13 +12,15 @@ tags:: #tipo/analisis #estado/en-revision #pc/pc1 #accion/revisar
 
 > Catálogo de requisitos de Rumbo. Enuncia **qué debe hacer el sistema** —los requisitos funcionales (RF)— y **cómo debe comportarse al hacerlo** —los requisitos no funcionales (RNF)—. Es la base del análisis: los casos de uso de [[MOC — Casos de uso]] son la **realización** de estos requisitos, y cada requisito indica en cuáles se concreta.
 
-## Alcance y origen de los requisitos
+## Origen de los requisitos
 
 Los requisitos funcionales surgen de las necesidades relevadas con la agencia: el circuito comercial completo, de la consulta a la venta; la memoria del cliente; el control económico de cada viaje con sus cobros y vencimientos; los recordatorios que hoy se pierden en papel; el catálogo de hoteles con sus reseñas; la planificación del contenido de redes; y la visión del negocio para decidir con datos.
 
 Los requisitos no funcionales responden a la naturaleza de la operación: un sistema que guarda datos personales de los pasajeros y la economía de la agencia, que se usa desde el escritorio y desde el teléfono, y del que dependen vencimientos con consecuencias reales si se pasan por alto.
 
 Cada requisito funcional está identificado, es verificable y se realiza en uno o más casos de uso. La correspondencia completa está en la **matriz de trazabilidad**, al final del documento.
+
+> **Alcance del sistema.** Los módulos que cubre Rumbo, lo que queda deliberadamente fuera de esta etapa y lo previsto para una segunda están definidos en el **documento de relevamiento**, y no se repiten acá para que exista una sola fuente. Este catálogo especifica los requisitos **dentro** de ese alcance.
 
 ## Convenciones de este catálogo
 
@@ -1111,18 +1113,6 @@ Cada requisito funcional está identificado, es verificable y se realiza en uno 
 - **Descripción:** el sistema opera en español, con el vocabulario del negocio turístico, importes en pesos argentinos y dólares según la moneda de cada operación, y fechas en formato día/mes/año. Los datos personales de los pasajeros y la información comercial de la agencia se usan únicamente dentro del sistema: no se ceden ni se envían a servicios externos, incluidas las funciones asistidas por inteligencia artificial, que operan solo con lo que la persona escribe en el pedido.
 - **Justificación:** es información de terceros que la agencia administra por su relación comercial, y su uso indebido compromete tanto la confianza del pasajero como la responsabilidad de la agencia. Las convenciones locales, además, evitan errores de interpretación en fechas y montos, que en este negocio se traducen en vencimientos mal leídos.
 - **Verificación:** no se transmiten datos de clientes ni operaciones a servicios externos, y los formatos de fecha y moneda se corresponden con los acordados.
-
-# Alcance del sistema
-
-El sistema acompaña el circuito comercial de la agencia y deja deliberadamente fuera aquello que no le corresponde resolver:
-
-- **Registra** los pagos y su estado, pero **no los procesa**: no hay cobro en línea, ni reembolsos, ni penalidades.
-- **Planifica y propone** el contenido de redes, pero **no publica**: la publicación la realiza una persona.
-- **Asiste** la cotización mediante plantillas y formularios, con precios cargados por el asesor. No consulta precios de proveedores de forma automática.
-- **No se integra** con mayoristas ni con sistemas de distribución global.
-- **No reemplaza** el asesoramiento del agente: lo apoya con información y recordatorios.
-- Los avisos al pasajero se generan dentro del sistema y el envío lo realiza una persona por el canal que corresponda.
-- La **facturación** queda fuera del alcance de esta etapa.
 
 # Matriz de trazabilidad
 
