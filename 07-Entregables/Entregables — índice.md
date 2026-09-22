@@ -18,8 +18,9 @@ tags:: #tipo/referencia #estado/formalizado
 | Entregable | Fuente (.md) | Salida | PC |
 |---|---|---|---|
 | Casos de uso | `02-Analisis/Casos de uso/CU-*.md` | `07-Entregables/Casos de uso/Rumbo — Casos de uso.docx` | PC1 |
+| Requisitos | `02-Analisis/Requisitos funcionales.md` | `07-Entregables/Requisitos/Rumbo — Requisitos.docx` | PC1 |
 
-## Parámetros del entregable (definido en la sync 11/09)
+## Parámetros del entregable de Casos de uso (definido en la sync 11/09)
 - **Contenido:** documento **completo** → carátula + breve **introducción** + **diagrama de casos de uso** ([[DGM — Casos de uso]], como imagen incrustada) + **actores** ([[Actores]]) + los **30 CU** especificados.
 - **Filtrado (importante):** el docx **no** incluye la cocina interna del equipo. El script recorta, en cada CU, las secciones **`## 🔎 Revisión`**, **`## Diagramas`** y **`## Decisiones asociadas`**; la línea **`tags::`**; las **notas meta en blockquote** con referencias a decisiones; las **referencias inline a decisiones `DEC-####`** (con su conector); y los **hashtags de acción `#accion/...`**. El frontmatter YAML pandoc lo toma como metadata (no se imprime). Solo quedan las **funcionalidades**: descripción, actores, precondiciones, flujos, postcondiciones, reglas de negocio y entidades.
 - **Orden:** numérico `CU-01 … CU-30` (por defecto del glob). _(Si se prefiere por módulo, se reordena la lista de entrada.)_
@@ -27,12 +28,26 @@ tags:: #tipo/referencia #estado/formalizado
 - **Estética:** plantilla `reference.docx` generada por `07-Entregables/build/make-reference.ps1` (PowerShell, sin dependencias): Cambria justificado, títulos navy jerarquizados con filete, A4 con márgenes 2,5 cm y numeración de páginas al pie.
 - **Diagramas Mermaid:** se exportan aparte como imagen con `mermaid-cli` (motor **ELK**) y se **incrustan** por nombre vía `--resource-path` (resuelve el bug de rutas con espacios). Ver [[CONTINUAR — entregable Casos de uso]].
 
+## Parámetros del entregable de Requisitos (21/09)
+- **Contenido:** carátula + **introducción con el método** (ingeniería inversa sobre los 31 CU) + los **153 RF** agrupados en 11 módulos + los **13 RNF**, las restricciones de alcance y los atributos de calidad sin definir + la **matriz de trazabilidad CU → RF** + los **RF con dependencias abiertas**.
+- **Fuente única:** [[Requisitos funcionales]]. La carátula y la introducción viven en `07-Entregables/Requisitos/00 - Portada e introducción.md`.
+- **Filtrado:** usa **el mismo `filtrar()`** que el entregable de casos de uso, así que recorta lo mismo (frontmatter, `tags::`, la sección `## 🔎 Revisión`, las notas meta en blockquote y las referencias inline a `DEC-####`). Verificado: **0 fugas y 0 artefactos** en la compilación del 21/09.
+- **Estética:** la misma plantilla `reference.docx`, sin cambios.
+- ⚠️ Al escribir en el `.md` fuente, **no encadenar dos referencias `DEC-` dentro de un mismo paréntesis**: al recortarlas quedan separadores sueltos que el limpiador no resuelve. Poner la referencia a la decisión **al final** del paréntesis.
+
 ## Cómo generar el DOCX de casos de uso
 **Forma recomendada** (hace el filtrado + portada + actores + CU automáticamente). Desde la raíz del repo:
 ```bash
 bash "07-Entregables/build/build-casos-de-uso.sh"
 ```
 Genera `07-Entregables/Casos de uso/Rumbo — Casos de uso.docx`. Usa por defecto la plantilla `07-Entregables/build/reference.docx` (o pasar otra como 1.er argumento). Requiere **pandoc** (ver [[Skills compartidas]]). Para una compilación de prueba sin tocar el docx del vault: `OUT_OVERRIDE=/ruta/prueba.docx bash "07-Entregables/build/build-casos-de-uso.sh"`.
+
+## Cómo generar el DOCX de requisitos
+Desde la raíz del repo:
+```bash
+bash "07-Entregables/build/build-requisitos.sh"
+```
+Genera `07-Entregables/Requisitos/Rumbo — Requisitos.docx` desde [[Requisitos funcionales]], con la misma plantilla y el mismo filtrado. Admite igual `OUT_OVERRIDE` para una compilación de prueba.
 
 Regenerar la **plantilla** estética (si se cambian estilos):
 ```bash
