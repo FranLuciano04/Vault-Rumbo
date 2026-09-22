@@ -28,12 +28,15 @@ tags:: #tipo/referencia #estado/formalizado
 - **Estética:** plantilla `reference.docx` generada por `07-Entregables/build/make-reference.ps1` (PowerShell, sin dependencias): Cambria justificado, títulos navy jerarquizados con filete, A4 con márgenes 2,5 cm y numeración de páginas al pie.
 - **Diagramas Mermaid:** se exportan aparte como imagen con `mermaid-cli` (motor **ELK**) y se **incrustan** por nombre vía `--resource-path` (resuelve el bug de rutas con espacios). Ver [[CONTINUAR — entregable Casos de uso]].
 
-## Parámetros del entregable de Requisitos (21/09)
-- **Contenido:** carátula + **introducción con el método** (ingeniería inversa sobre los 31 CU) + los **153 RF** agrupados en 11 módulos + los **13 RNF**, las restricciones de alcance y los atributos de calidad sin definir + la **matriz de trazabilidad CU → RF** + los **RF con dependencias abiertas**.
+## Parámetros del entregable de Requisitos (22/09)
+- **Contenido:** carátula + introducción + los **153 RF** agrupados en 11 módulos + los **16 RNF** por atributo de calidad (seguridad, fiabilidad y robustez, rendimiento, usabilidad, disponibilidad, portabilidad, mantenibilidad, localización y privacidad), cada uno con **justificación** y **criterio de verificación** + el **alcance del sistema** + la **matriz de trazabilidad**.
+- **Narrativa (importante):** el documento se presenta en el sentido **requisitos → casos de uso**: los requisitos son la base del análisis y los CU son su **realización**. Cada RF lleva el campo *Casos de uso*, no *Origen*, y la matriz se lee "este CU realiza estos requisitos". Al editar el `.md` fuente hay que **sostener ese sentido**.
+- **Sin cocina interna:** el cuerpo **no menciona** decisiones internas, estados `en-revision`, pendientes ni valores a validar. Todo eso vive en la sección `## 🔎 Revisión` de [[Requisitos funcionales]], que el filtro recorta.
 - **Fuente única:** [[Requisitos funcionales]]. La carátula y la introducción viven en `07-Entregables/Requisitos/00 - Portada e introducción.md`.
-- **Filtrado:** usa **el mismo `filtrar()`** que el entregable de casos de uso, así que recorta lo mismo (frontmatter, `tags::`, la sección `## 🔎 Revisión`, las notas meta en blockquote y las referencias inline a `DEC-####`). Verificado: **0 fugas y 0 artefactos** en la compilación del 21/09.
+- **Filtrado:** usa **el mismo `filtrar()`** que el entregable de casos de uso (frontmatter, `tags::`, la sección `## 🔎 Revisión`, las notas meta en blockquote y las referencias inline a `DEC-####`). Verificado el 22/09: **0 fugas y 0 artefactos**.
 - **Estética:** la misma plantilla `reference.docx`, sin cambios.
-- ⚠️ Al escribir en el `.md` fuente, **no encadenar dos referencias `DEC-` dentro de un mismo paréntesis**: al recortarlas quedan separadores sueltos que el limpiador no resuelve. Poner la referencia a la decisión **al final** del paréntesis.
+- ⚠️ Al escribir en el `.md` fuente, **no encadenar dos referencias `DEC-` dentro de un mismo paréntesis**: al recortarlas quedan separadores sueltos que el limpiador no resuelve. Mejor todavía: **no citar `DEC-` en el cuerpo**, porque el entregable no las muestra.
+- ⚠️ **Cerrar el `.docx` en Word antes de compilar**: si está abierto, el script falla con *permission denied* al escribir la salida.
 
 ## Cómo generar el DOCX de casos de uso
 **Forma recomendada** (hace el filtrado + portada + actores + CU automáticamente). Desde la raíz del repo:

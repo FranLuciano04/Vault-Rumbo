@@ -12,30 +12,28 @@ date: "2.º cuatrimestre 2026 · Entrega: 23/10/26"
 
 **Rumbo** es un CRM a medida para agencias de turismo PyME. Digitaliza el circuito completo del negocio —de la consulta a la venta— que hoy se lleva con papel, carpetas físicas y planillas: registro de clientes y su historial, oportunidades y cotizaciones, viajes con su control económico (venta, costo, comisión y cuotas), alertas y vencimientos, catálogo de hoteles con reseñas, contenido de redes, y dashboard con reportes.
 
-Este documento presenta la **especificación de requisitos** del sistema para la primera prueba de concepto (PC1). Es el complemento del documento de casos de uso: donde aquel describe *cómo se usa* el sistema, este enuncia *qué debe hacer*.
+Este documento presenta la **especificación de requisitos** del sistema para la primera prueba de concepto (PC1). Es la base del análisis: enuncia *qué debe hacer* el sistema y *cómo debe comportarse* al hacerlo. Los **casos de uso**, especificados en el documento que lo acompaña, son la **realización** de estos requisitos: describen cómo cada uno se concreta en la interacción entre los actores y el sistema.
 
 Se compone de:
 
 - **153 requisitos funcionales**, agrupados en los once módulos del sistema.
-- **13 requisitos no funcionales**, más las restricciones de alcance acordadas y el listado de atributos de calidad que todavía deben definirse.
-- La **matriz de trazabilidad** entre casos de uso y requisitos funcionales.
-- El listado de **requisitos con dependencias abiertas**, que esperan una confirmación de la agencia o del equipo.
+- **16 requisitos no funcionales**, organizados por atributo de calidad y justificados en las necesidades del negocio.
+- El **alcance del sistema**, con los límites deliberados de esta etapa.
+- La **matriz de trazabilidad** entre requisitos y casos de uso.
 
-## Método
+## Elaboración de los requisitos
 
-Los requisitos funcionales se obtuvieron por **ingeniería inversa sobre los 31 casos de uso ya especificados**. De cada caso de uso se recorrieron el flujo principal, los flujos alternativos, las precondiciones, las postcondiciones y las reglas de negocio, y de allí se extrajo la capacidad funcional que el sistema debe ofrecer, separándola del guion de interacción propio del caso de uso. Cada requisito declara el caso de uso del que proviene y el punto exacto —paso o flujo alternativo— que lo respalda.
+Los **requisitos funcionales** surgen de las necesidades relevadas con la agencia. El negocio se lleva hoy con papel, carpetas físicas y planillas, y de ese relevamiento se desprenden las capacidades que el sistema debe ofrecer: registrar y conservar la memoria del cliente; ordenar el circuito comercial desde la consulta hasta el cierre de la venta; controlar la economía de cada viaje, sus cobros y sus vencimientos; sostener los recordatorios que hoy se pierden; mantener el catálogo de hoteles con sus reseñas; planificar el contenido de redes; y dar visibilidad del negocio para decidir con datos.
 
-Cuando dos casos de uso describen la misma capacidad, se enunció **un solo requisito**, referenciado desde ambos en la matriz de trazabilidad.
+Cada requisito se enunció de forma **atómica y verificable**, con un identificador propio, el actor que lo ejercita, las entidades del dominio que involucra y su prioridad. A partir de ellos se especificaron los casos de uso, que los agrupan según la tarea concreta que resuelve cada actor; la correspondencia entre unos y otros se detalla en la matriz de trazabilidad. Cuando una misma capacidad interviene en más de una tarea, se enunció **un solo requisito**, referenciado desde todos los casos de uso que la realizan.
 
-Los **requisitos no funcionales no se derivan de los casos de uso**: describen cómo debe comportarse el sistema y provienen del relevamiento, de las decisiones de arquitectura y del alcance acordado.
-
-Este documento **no incorpora funcionalidad que no estuviera ya especificada**. Los puntos sin definir se declaran como tales y no se completaron con valores estimados.
+Los **requisitos no funcionales** no describen funciones sino atributos de calidad, y se organizan por categoría: seguridad, fiabilidad y robustez, rendimiento, usabilidad, disponibilidad, portabilidad y compatibilidad, mantenibilidad, y localización y privacidad. Cada uno se acompaña de la **justificación** que lo hace necesario en este negocio en particular y del **criterio de verificación** con el que se comprueba su cumplimiento.
 
 ## Convenciones
 
 - **Identificación:** `RF-###` para los requisitos funcionales, numerados de forma correlativa y agrupados por módulo; `RNF-##` para los no funcionales.
-- **Prioridad:** se derivó con un criterio explícito, porque el proyecto no registra prioridades de negocio: **alta** si el requisito pertenece al flujo principal de su caso de uso, **media** si proviene de un flujo alternativo, una validación o una corrección, y **baja** si el requisito está marcado como opcional o futuro. Los 31 casos de uso pertenecen al alcance de PC1, de modo que la prioridad ordena el trabajo dentro de esa etapa y no decide qué entra en ella.
-- **Tipo:** alta, baja, modificación, consulta, validación, cálculo, automático (lo ejecuta el sistema sin intervención) o seguridad.
+- **Prioridad:** **alta** si el sistema no cumple su objetivo sin ese requisito; **media** si mejora la operación o cubre una situación de excepción; **baja** si es una conveniencia que puede posponerse sin afectar la operación.
+- **Tipo:** alta, baja, modificación, consulta, validación, cálculo, automático (lo ejecuta el sistema sin intervención de una persona) o seguridad.
 - El documento usa el **lenguaje ubicuo** del dominio: *Cliente*, *Oportunidad*, *Cotización*, *Viaje*, *Pago*, *Alerta*, *Hotel*, *Reseña*, *Usuario*, *Destino*, *Operador* y *ContenidoRed*.
 - Los importes se expresan en **pesos argentinos (ARS)** y **dólares (USD)** según la moneda de cada operación; las fechas de negocio, en formato **dd/mm/aa**.
 
