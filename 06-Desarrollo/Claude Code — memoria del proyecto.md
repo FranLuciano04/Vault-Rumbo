@@ -14,7 +14,7 @@ CRM para agencias de turismo PyME. Digitaliza el circuito consulta → cotizaci�
 ## Convenciones (no negociables)
 - Dominio en **español (Argentina)** con tildes; nombres de entidad = lenguaje ubicuo (`Reseña`, `Cotización`).
 - Moneda **ARS** · fechas **dd/mm/aa**. La economía del [[Viaje]] es **multimoneda (ARS/USD)** por operación — ver [[DEC-0007 Modelo económico — ganancia, margen y comisión de vendedor]].
-- Diagramas en **Mermaid** (texto, versionable en Git). No imágenes para diagramas de diseño.
+- Diagramas en **Mermaid** (texto, versionable en Git). No imágenes para diagramas de diseño. Notación de **actividad** y de **secuencia**: [[DEC-0010 Notación de los diagramas de actividad y de secuencia]].
 - Comisión automática = [[RN-01 Comisión automática]].
 
 ## Stack

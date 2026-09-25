@@ -20,6 +20,7 @@ tags:: #tipo/modulo #estado/formalizado
 - [[DEC-0007 Modelo económico — ganancia, margen y comisión de vendedor]] (supersede a [[DEC-0004 Comisión configurable por porcentaje]])
 - [[DEC-0008 Autenticación propia y rol de vendedor freelance]] (amplía a [[DEC-0005 Autenticación y modelo de roles]])
 - [[DEC-0009 Operador-Proveedor como entidad de catálogo]] (13ª entidad [[Operador]])
+- [[DEC-0010 Notación de los diagramas de actividad y de secuencia]] (`en-revision`, 25/09)
 
 ## Todas (Dataview)
 ```dataview
