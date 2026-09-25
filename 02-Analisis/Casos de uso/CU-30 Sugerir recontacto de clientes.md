@@ -48,7 +48,7 @@ tags:: #tipo/caso-uso #estado/en-revision #pc/pc1 #accion/revisar
 - [[Cliente]] (`no_recontactar`) · [[Oportunidad]] · [[Alerta]] (`recontacto`) · [[Viaje]] · [[Usuario]]
 
 ## Diagramas
-- [[DGM — Casos de uso]] · [[MOC — Modelo de dominio]]
+- [[DGM — Casos de uso]] · [[MOC — Modelo de dominio]] · [[DGM-ACT — Proceso automático diario]] (actividad, tarea 4)
 
 ## 🔎 Revisión
 > [!note] Francisco (11/09) — nuevo CU nacido del "detector de oportunidades" del relevamiento crudo, acotado a **CRM proactivo** (se descartó el scraping de ofertas, ver [[Alcance y fuera de alcance]]). Impacto de dominio: agrega `no_recontactar` (Bool) a [[Cliente]] (módulo de Paloma) y el tipo `recontacto` al enum de [[Alerta]] (módulo de Nahuel). **A validar el criterio de candidato (X meses, ≥2 viajes) y el impacto en el dominio con Paloma y Nahuel en la sync.**

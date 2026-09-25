@@ -9,7 +9,7 @@ actualizado: 18/09/26
 
 tags:: #tipo/modulo #estado/en-revision #pc/pc1
 
-> Índice y catálogo completo de casos de uso. Punto de entrada de bajo costo de contexto: desde acá se baja al CU puntual. Diagrama en [[DGM — Casos de uso]]. Diagramas de actividad de los flujos clave en `Diagramas de actividad/`: [[DGM-ACT — De la consulta a la venta]] · [[DGM-ACT — Confirmar reserva]]. Flujo de especificación y entregables en [[Especificación de casos de uso — flujo]].
+> Índice y catálogo completo de casos de uso. Punto de entrada de bajo costo de contexto: desde acá se baja al CU puntual. Diagrama en [[DGM — Casos de uso]]. Diagramas de actividad de los flujos clave en `Diagramas de actividad/`: [[DGM-ACT — De la consulta a la venta]] · [[DGM-ACT — Confirmar reserva]] · [[DGM-ACT — Registrar cobro de un pago]] · [[DGM-ACT — Cancelar viaje]] · [[DGM-ACT — Proceso automático diario]]. Flujo de especificación y entregables en [[Especificación de casos de uso — flujo]].
 
 ## Flujo núcleo
 - [[CU-01 De la consulta a la venta]] — flujo end-to-end del negocio; los CU atómicos de abajo lo componen.

@@ -19,5 +19,8 @@ render() {
 
 render "DGM-ACT — De la consulta a la venta.md" "DGM-ACT-consulta-a-venta"
 render "DGM-ACT — Confirmar reserva.md"         "DGM-ACT-confirmar-reserva"
+render "DGM-ACT — Registrar cobro de un pago.md" "DGM-ACT-registrar-cobro"
+render "DGM-ACT — Cancelar viaje.md"            "DGM-ACT-cancelar-viaje"
+render "DGM-ACT — Proceso automático diario.md" "DGM-ACT-proceso-diario"
 
 rm -rf "$TMP"

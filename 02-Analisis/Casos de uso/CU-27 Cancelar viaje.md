@@ -48,7 +48,7 @@ Dar de baja un [[Viaje]] que no se concreta (el cliente desiste, fuerza mayor), 
 - [[Viaje]] · [[Pago]] · [[Alerta]] · [[Cliente]]
 
 ## Diagramas
-- [[DGM — Casos de uso]] · [[MOC — Modelo de dominio]]
+- [[DGM — Casos de uso]] · [[MOC — Modelo de dominio]] · [[DGM-ACT — Cancelar viaje]] (actividad)
 
 ## 🔎 Revisión
 > [!question] Nahuel (10/09): **borrador propuesto para cubrir el gap de baja de [[Viaje]]** (revisión de cobertura ABM). A validar por **Francisco** (dueño del módulo Viajes): (1) se agrega `cancelado` como estado terminal de [[Viaje]]; (2) el tratamiento de reembolsos/penalidades ante pagos cobrados (A2) — confirmar si queda fuera de alcance; (3) si conviene como CU propio o como estado dentro de [[CU-08 Gestionar estado del viaje]].

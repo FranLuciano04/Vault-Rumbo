@@ -48,7 +48,7 @@ El empleado sigue y hace avanzar el [[Viaje]] por su ciclo de vida (`reservado �
 - [[Viaje]] · [[Pago]] · [[Alerta]] · [[Usuario]]
 
 ## Diagramas
-- [[DGM — Casos de uso]] · [[MOC — Modelo de dominio]] · (pendiente) diagrama de **estado** de [[Viaje]].
+- [[DGM — Casos de uso]] · [[MOC — Modelo de dominio]] · [[EST-Viaje]] (estado) · [[DGM-ACT — Proceso automático diario]] (actividad, tarea 3: la sugerencia por fecha)
 
 ## 🔎 Revisión
 > [!note] Francisco (11/09) — **definido en la sync:** ciclo `vendido → confirmado → en curso → finalizado` (+`cancelado`). (1) `vendido→confirmado` lo dispara el **pago total** ([[CU-12 Registrar cobro de un pago]]); (2) `en curso`/`finalizado` son **sugeridos por fecha pero confirmados por el empleado** — no se fuerzan (caso real: vuelo retrasado → se mantiene `en curso` aunque pase la fecha, A1); (3) retroceso solo al estado inmediato anterior (A2).
