@@ -33,7 +33,7 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 ## 25/09/26 — Nahuel (Sonnet 5) — diagramas de secuencia 3 de 3, completos
 - **Hecho:** Se dibujó el tercer y último diagrama de secuencia acordado: [[DGM-SEC — Cancelar viaje]] (CU-27), con la misma notación ya cerrada en [[DEC-0010 Notación de los diagramas de actividad y de secuencia|DEC-0010]] (actor → `Interfaz` → `Sistema Rumbo` → `Viaje`/`Pago`/`Alerta` → `Base de Datos`). Sigue paso a paso el camino principal de [[DGM-ACT — Cancelar viaje]]: el `alt` de A1 (viaje `finalizado`) corta antes de cancelar; dentro del camino principal, un `alt` anidado cubre A2 (pagos ya cobrados) y otro cubre A4 (viaje `en curso`, mantiene la comisión); A3 (revertir la cancelación) va como continuación cronológica al final, igual que en CU-12. Se enlazó desde CU-27 y el [[MOC — Casos de uso]], se sumó al `render-diagramas-secuencia.sh` y se verificó el render con `mermaid-cli`. Con este quedan **los 3 `DGM-SEC` de análisis completos** (CU-07, CU-12, CU-27), más el de negocio ([[DGM-SEC — De la consulta a la venta]]) sin tocar.
 - **Sin hallazgos nuevos:** el diagrama dibuja lo que ya decía [[DGM-ACT — Cancelar viaje]]; los huecos son los mismos (ver su Revisión).
-- **Commits:** _(pendiente, ver hash al cierre)_.
+- **Commits:** df1560b.
 - **Pendiente:** ratificar en la sync los 3 `DGM-SEC` y la convención de participantes (`Interfaz` + `Base de Datos`, sumadas en dos ampliaciones durante el día).
 
 ## 25/09/26 — Nahuel (Sonnet 5) — diagramas de secuencia 1 y 2 de 3
