@@ -69,7 +69,7 @@ filtrar "$ROOT/01-Relevamiento/Actores.md"                            > "$BUILD/
 filtrar "$ROOT/01-Relevamiento/Circuito de la consulta a la venta.md" > "$BUILD/60-circuito.md"
 
 # Figura del diagrama de secuencia (imagen previamente renderizada desde el Mermaid
-# de 02-Analisis/DGM-SEC — De la consulta a la venta.md). Se referencia SOLO por
+# de 03-Dominio/Diagramas/Secuencia/DGM-SEC — De la consulta a la venta.md). Se referencia SOLO por
 # nombre y se resuelve con --resource-path, para evitar el bug de rutas con espacios.
 IMGDIR="$ROOT/07-Entregables/Relevamiento/img"
 IMG="$IMGDIR/DGM-SEC-consulta-a-venta.png"
@@ -98,5 +98,5 @@ REFARG=(); [ -f "$REF" ] && REFARG=(--reference-doc="$REF")
 rm -rf "$BUILD"
 echo "OK -> $OUT"
 # Regenerar la imagen del diagrama de secuencia desde su bloque Mermaid:
-#   awk '/^```mermaid/{f=1;next} /^```/{f=0} f' "02-Analisis/DGM-SEC — De la consulta a la venta.md" > /tmp/sec.mmd
+#   awk '/^```mermaid/{f=1;next} /^```/{f=0} f' "03-Dominio/Diagramas/Secuencia/DGM-SEC — De la consulta a la venta.md" > /tmp/sec.mmd
 #   npx -y @mermaid-js/mermaid-cli -i /tmp/sec.mmd -o "07-Entregables/Relevamiento/img/DGM-SEC-consulta-a-venta.png" -b white -s 2

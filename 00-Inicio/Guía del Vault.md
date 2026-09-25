@@ -44,9 +44,6 @@ Vault-Rumbo/
 │
 ├── 02-Analisis/                   ← QUÉ hace el sistema
 │   ├── MOC — Casos de uso.md
-│   ├── DGM-SEC — De la consulta a la venta.md   ← vista de negocio (Figura 1 del relevamiento), no se toca
-│   ├── Diagramas de actividad/    ← DGM-ACT-*, uno por flujo clave (+ img/)
-│   ├── Diagramas de secuencia/    ← DGM-SEC-* de análisis, clases del sistema como participantes (+ img/)
 │   ├── Casos de uso/
 │   │   ├── CU-01 De la consulta a la venta.md
 │   │   ├── CU-02 Registrar cliente.md
@@ -62,9 +59,14 @@ Vault-Rumbo/
 │   │   ├── Viaje.md        Pago.md        Hotel.md
 │   │   ├── Reseña.md       Alerta.md      Cotización.md
 │   │   └── ContenidoRed.md
-│   └── Diagramas/
-│       ├── DGM-Clases-dominio.md   (Mermaid classDiagram)
-│       └── DGM-ER.md               (Mermaid erDiagram)
+│   └── Diagramas/                 ← TODOS los diagramas del modelo UML
+│       ├── DGM — Diagrama de clases.md   (Mermaid classDiagram)
+│       ├── DGM-ER.md                     (Mermaid erDiagram)
+│       ├── Estados/                      ← EST-*, uno por clase con máquina de estados
+│       ├── Actividad/                    ← DGM-ACT-*, uno por flujo clave (+ img/)
+│       ├── Secuencia/                    ← DGM-SEC-*: la vista de negocio (Figura 1 del relevamiento)
+│       │                                   y los de análisis, con las clases como participantes (+ img/)
+│       └── img/                          ← PNG de clases, ER y estados
 │
 ├── 04-Modulos/                    ← una nota-MOC por módulo funcional
 │   ├── MOD-Clientes.md            MOD-Viajes.md        MOD-Economia-Pagos.md

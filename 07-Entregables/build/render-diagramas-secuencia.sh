@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 # Renderiza a PNG los diagramas de secuencia (DGM-SEC) de análisis desde su bloque Mermaid.
 # Uso: desde la raíz del repo:  bash "07-Entregables/build/render-diagramas-secuencia.sh"
-# Requiere Node.js (npx). Salida: 02-Analisis/Diagramas de secuencia/img/
-# No incluye DGM-SEC — De la consulta a la venta (vista de negocio, sigue en 02-Analisis/).
+# Requiere Node.js (npx). Salida: 03-Dominio/Diagramas/Secuencia/img/
+# No incluye DGM-SEC — De la consulta a la venta (vista de negocio, se renderiza desde build-relevamiento.sh).
 set -e
 
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
-DIR="$ROOT/02-Analisis/Diagramas de secuencia"
+DIR="$ROOT/03-Dominio/Diagramas/Secuencia"
 OUT="$DIR/img"
 TMP="$(mktemp -d)"
 mkdir -p "$OUT"

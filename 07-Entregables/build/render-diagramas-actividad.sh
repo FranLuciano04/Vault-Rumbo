@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 # Renderiza a PNG los diagramas de actividad (DGM-ACT) desde su bloque Mermaid.
 # Uso: desde la raíz del repo:  bash "07-Entregables/build/render-diagramas-actividad.sh"
-# Requiere Node.js (npx). Salida: 02-Analisis/Diagramas de actividad/img/
+# Requiere Node.js (npx). Salida: 03-Dominio/Diagramas/Actividad/img/
 set -e
 
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
-DIR="$ROOT/02-Analisis/Diagramas de actividad"
+DIR="$ROOT/03-Dominio/Diagramas/Actividad"
 OUT="$DIR/img"
 TMP="$(mktemp -d)"
 mkdir -p "$OUT"

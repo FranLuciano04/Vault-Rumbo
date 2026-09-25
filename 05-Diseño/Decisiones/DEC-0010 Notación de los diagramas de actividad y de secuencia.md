@@ -19,13 +19,13 @@ El checklist de PC1 pide diagramas de **actividad** de los flujos clave, y el eq
 Al rehacerlos apareció un límite técnico: **Mermaid no dibuja carriles en columnas.** Se probaron subgrafos con ELK, con el motor por defecto y con `flowchart LR` + `direction TB`; en los tres casos los carriles se apilan o se desordenan. El diagrama de bloques (`block-beta`) falla al dibujar flechas en Mermaid 12. La regla del vault es que los diagramas de diseño se hagan en Mermaid ([[CLAUDE|CLAUDE.md]]).
 
 ## Decisión
-**Diagramas de actividad** (`DGM-ACT`, en `02-Analisis/Diagramas de actividad/`):
+**Diagramas de actividad** (`DGM-ACT`, en `03-Dominio/Diagramas/Actividad/`):
 - `flowchart` de Mermaid con la **notación UML de actividad**: nodo inicial ●, final ◉, acciones redondeadas, rombo de decisión y de fusión, barra de fork/join, guardas entre corchetes.
 - **Carril escrito dentro de cada acción**, como admite UML para las particiones: `(Empleado) Registra el cobro`, reforzado con un color por carril (amarillo = Cliente, azul = Empleado, gris = Sistema).
 - **Un marco por paso del camino principal** del caso de uso, con su número y nombre, y el código del flujo alternativo en la guarda de la rama que lo origina. Los flujos que ocurren en otro momento (por ejemplo, revertir un cobro) van como **actividad aparte**, con su propio nodo inicial.
 - Encabezado `%%{init}%%` común (motor ELK y un `themeCSS` para los nodos inicial y final), copiado de [[DGM-ACT — De la consulta a la venta]].
 
-**Diagramas de secuencia** (`DGM-SEC`, en `02-Analisis/Diagramas de secuencia/` salvo el principal del relevamiento, que queda en `02-Analisis/` como vista de negocio — ver más abajo):
+**Diagramas de secuencia** (`DGM-SEC`, en `03-Dominio/Diagramas/Secuencia/` incluido el principal del relevamiento, que se conserva como vista de negocio — ver más abajo):
 - `sequenceDiagram` de Mermaid, con **las clases del sistema como participantes** (además de los actores), según la documentación enlazada arriba.
 - **Convenciones acordadas con Nahuel el 25/09** al construir los dos primeros (CU-07 y CU-12):
   - **Participantes:** actores (`actor`) más la capa **boundary-control-entity** completa: una **única clase de interfaz** por diagrama, `Interfaz <<boundary>>` (corregido el 25/09: el actor **nunca** habla directo con el control; siempre pasa por la interfaz), una **única clase de control**, `Sistema Rumbo <<control>>` (mismo nombre que usa [[DGM-SEC — De la consulta a la venta]] para la caja negra de negocio), y las **clases de dominio** del [[DGM — Diagrama de clases]] usadas ese CU, marcadas `<<entity>>` (`Viaje <<entity>>`, `Pago <<entity>>`, etc.). El orden de las líneas de vida es siempre **actor → Interfaz → Sistema Rumbo → entidades → Base de Datos**. La `Interfaz` no representa una pantalla concreta del prototipo de Figma (eso es diseño visual, todavía no hecho); es la clase boundary genérica que absorbe la entrada/salida, y solo reenvía: no toma decisiones ni guarda estado.
@@ -50,7 +50,7 @@ Al rehacerlos apareció un límite técnico: **Mermaid no dibuja carriles en col
 Se prioriza mantener **una sola herramienta** de diagramas, versionable y visible en Obsidian sin instalar nada, sobre la fidelidad visual de los carriles. La notación de partición dentro de la acción es UML válido, así que el diagrama sigue siendo correcto aunque no dibuje columnas. Separar con claridad los dos formatos evita volver a confundir actividad con secuencia.
 
 ## Impacto
-- Diagramas afectados: los 5 `DGM-ACT` de `02-Analisis/Diagramas de actividad/` y los futuros `DGM-SEC`.
+- Diagramas afectados: los 5 `DGM-ACT` de `03-Dominio/Diagramas/Actividad/` y los futuros `DGM-SEC`.
 - Restricciones que respeta: diagramas en Mermaid ([[CLAUDE|CLAUDE.md]]), sin dependencias nuevas.
 - ⚠️ Las formas `@{ shape: … }` requieren Mermaid 11.3 o superior: falta verificar que el Obsidian del equipo las renderice.
 

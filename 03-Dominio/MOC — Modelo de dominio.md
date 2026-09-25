@@ -48,5 +48,14 @@ Especificaciones en `03-Dominio/Diagramas/Estados/` — **una nota por clase, au
 
 > [[Hotel]] (`activo · cerrado`) y [[Reseña]] (`publicada · oculta`) tienen `estado` pero **no llevan diagrama**: son bajas lógicas de dos estados. [[Destino]], [[Operador]] y [[RequisitoDestino]] usan un `activo` booleano, que tampoco es una máquina de estados.
 
+## Diagramas de actividad
+En `03-Dominio/Diagramas/Actividad/` (PNG en `img/`, se regeneran con `render-diagramas-actividad.sh`). Notación en [[DEC-0010 Notación de los diagramas de actividad y de secuencia]].
+- [[DGM-ACT — De la consulta a la venta]] · [[DGM-ACT — Confirmar reserva]] · [[DGM-ACT — Registrar cobro de un pago]] · [[DGM-ACT — Cancelar viaje]] · [[DGM-ACT — Proceso automático diario]]
+
+## Diagramas de secuencia
+En `03-Dominio/Diagramas/Secuencia/` (PNG en `img/`, se regeneran con `render-diagramas-secuencia.sh`; el de consulta a venta, desde `build-relevamiento.sh`).
+- Vista de negocio: [[DGM-SEC — De la consulta a la venta]] (Figura 1 del relevamiento).
+- De análisis, con las clases como participantes: [[DGM-SEC — Confirmar reserva]] · [[DGM-SEC — Registrar cobro de un pago]] · [[DGM-SEC — Cancelar viaje]]
+
 ## Pendientes de este diagrama
 - Cardinalidad Viaje–Hotel (N:M) y objeto de la `Reseña` (Hotel) → decidido en [[DEC-0003 Relación Viaje–Hotel y Reseña]] (`en-revision`, ratificar en sync).
