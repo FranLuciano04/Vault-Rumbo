@@ -11,131 +11,151 @@ actualizado: 25/09/26
 tags:: #tipo/diagrama #estado/borrador #pc/pc1 #accion/revisar
 
 ## Qué representa
-El **flujo de actividad** de [[CU-01 De la consulta a la venta]]: los seis pasos de su camino principal, en orden, con las decisiones y repeticiones que lo desvían (el cliente no responde, desiste, paga en cuotas, el destino tiene requisitos). Complementa a [[DGM-SEC — De la consulta a la venta]], que muestra solo el camino feliz en el tiempo: acá el foco está en **dónde se bifurca el flujo y por qué**.
+El **diagrama de actividad** de [[CU-01 De la consulta a la venta]]: los seis pasos de su camino principal, en orden, con las decisiones, bucles y acciones en paralelo que lo desvían (el cliente no responde, desiste, paga en cuotas, el destino tiene requisitos) y quién hace cada acción: Cliente, Empleado o Sistema Rumbo.
 
 Notas de origen: [[CU-01 De la consulta a la venta]] · [[CU-02 Registrar cliente]] · [[CU-04 Registrar consulta]] · [[CU-05 Seguir oportunidad]] · [[CU-06 Emitir cotización]] · [[CU-07 Confirmar reserva]] · [[CU-10 Registrar economía del viaje]] · [[CU-11 Definir plan de cuotas]] · [[CU-12 Registrar cobro de un pago]] · [[CU-17 Registrar reseña de hotel]] · [[EST-Oportunidad]] · [[EST-Cotización]] · [[EST-Viaje]] · [[EST-Pago]]
 
 ## Diagrama
 ```mermaid
-%%{init: {'theme':'base','themeVariables':{'fontFamily':'Segoe UI, Arial, sans-serif','fontSize':'15px','primaryColor':'#e2e8f0','primaryTextColor':'#0f172a','primaryBorderColor':'#475569','lineColor':'#475569','actorBkg':'#e2e8f0','actorBorder':'#475569','actorTextColor':'#0f172a','signalColor':'#334155','signalTextColor':'#0f172a','noteBkgColor':'#fef3c7','noteBorderColor':'#d97706','noteTextColor':'#0f172a','labelBoxBkgColor':'#1e3a5f','labelBoxBorderColor':'#1e3a5f','labelTextColor':'#ffffff','loopTextColor':'#1e3a5f'}}}%%
-sequenceDiagram
-    box rgb(248,250,252) Externo
-        actor C as Cliente
-    end
-    box rgb(241,245,249) Agencia
-        actor E as Empleado
-        participant R as Sistema Rumbo
+%%{init: {'theme':'base','flowchart':{'defaultRenderer':'elk','wrappingWidth':260},'themeVariables':{'fontFamily':'Segoe UI, Arial, sans-serif','fontSize':'14px','lineColor':'#334155','clusterBkg':'#f8fafc','clusterBorder':'#94a3b8','edgeLabelBackground':'#ffffff'},'themeCSS':'.state-start{fill:#0f172a !important;stroke:#0f172a !important} [id*=flowchart-fin] g path{fill:#ffffff !important;stroke:#0f172a !important} [id*=flowchart-fin] g g path{fill:#0f172a !important}'}}%%
+flowchart TB
+    ini@{ shape: sm-circ }
+    ini --> c1
+
+    subgraph P1["Paso 1 · Consulta"]
+        c1("(Cliente)<br/>Hace una consulta por Instagram, WhatsApp o presencial")
+        e1("(Empleado)<br/>Registra canal, destino, fechas y pasajeros")
+        s1("(Sistema)<br/>Crea la Oportunidad · Oportunidad → nueva (T1)")
+        e1b("(Empleado)<br/>Empieza a atender la consulta")
+        s1b("(Sistema)<br/>Oportunidad → en_gestión (T2)")
+        c1 --> e1 --> s1 --> e1b --> s1b
     end
 
-    rect rgb(224,236,250)
-    Note over C,R: Paso 1 · Consulta (CU-04, CU-05)
-    C->>E: Consulta por Instagram, WhatsApp o presencial
-    E->>+R: Registra canal, destino, fechas y pasajeros
-    R-->>-E: Oportunidad → nueva (T1)
-    E->>+R: Empieza a atender la consulta
-    R-->>-E: Oportunidad → en_gestión (T2)
+    subgraph P2["Paso 2 · Cliente"]
+        e2("(Empleado)<br/>Busca al cliente")
+        d2{ }
+        e2b("(Empleado)<br/>Crea la ficha: preferencias y segmento")
+        m2{ }
+        e2 --> d2
+        d2 -- "[no tiene ficha] · CU-04 A1" --> e2b --> m2
+        d2 -- "[tiene ficha]" --> m2
     end
 
-    rect rgb(240,246,253)
-    Note over C,R: Paso 2 · Cliente (CU-02)
-    E->>+R: Busca al cliente
-    alt Ya tiene ficha
-        R-->>E: Muestra la ficha existente
-    else Cliente nuevo (CU-04 A1)
-        E->>R: Crea la ficha: preferencias y segmento
-    end
-    deactivate R
-    end
-
-    rect rgb(224,236,250)
-    Note over C,R: Paso 3 · Cotización (CU-06)
-    E->>+R: Genera la cotización desde una plantilla
-    R-->>-E: Documento listo · Cotización → borrador
-    E->>C: Envía la cotización (fuera del sistema)
-    E->>+R: La marca como enviada
-    R-->>-E: Cotización → enviada · Oportunidad → cotizada (T3)
-    loop A1 · El cliente no responde
-        R-->>E: Alerta de insistencia
-        E->>C: Vuelve a contactarlo
-    end
-    break El cliente desiste o no hay acuerdo (CU-05 A2)
-        E->>R: Cierra la oportunidad con su motivo
-        R-->>E: Oportunidad → perdida (T5)
-    end
-    C->>E: Acepta la propuesta
+    subgraph P3["Paso 3 · Cotización"]
+        e3("(Empleado)<br/>Genera la cotización desde una plantilla")
+        s3("(Sistema)<br/>Genera el documento · Cotización → borrador")
+        e3b("(Empleado)<br/>Envía la cotización y la marca como enviada")
+        s3b("(Sistema)<br/>Cotización → enviada · Oportunidad → cotizada (T3)")
+        m3{ }
+        d3{ }
+        s3c("(Sistema)<br/>Genera una alerta de insistencia")
+        e3c("(Empleado)<br/>Vuelve a contactar al cliente")
+        d3b{ }
+        e3d("(Empleado)<br/>Cierra la oportunidad con su motivo")
+        s3d("(Sistema)<br/>Oportunidad → perdida (T5)")
+        fin1@{ shape: fr-circ }
+        e3 --> s3 --> e3b --> s3b --> m3 --> d3
+        d3 -- "[no responde] · A1" --> s3c --> e3c --> m3
+        d3 -- "[responde]" --> d3b
+        d3b -- "[desiste o no hay acuerdo] · CU-05 A2" --> e3d --> s3d --> fin1
     end
 
-    rect rgb(240,246,253)
-    Note over C,R: Paso 4 · Reserva (CU-07, CU-10, CU-11, CU-12)
-    E->>+R: Confirma la reserva
-    R-->>-E: Viaje → reservado (T1) · Oportunidad → ganada (T4)
-    E->>+R: Carga venta, costo del operador, moneda y comisión del vendedor
-    R-->>-E: Calcula ganancia y margen (RN-01)
-    E->>+R: Define el plan de pagos
-    R-->>-E: Pagos → pendiente
-    C->>E: Paga la seña
-    E->>+R: Registra el cobro
-    R-->>-E: Pago → pagado · Viaje → vendido (T2)
-    loop A2 · Pago en cuotas, por cada cuota restante
-        C->>E: Paga la cuota, en ARS o en USD
-        E->>+R: Registra el cobro
-        R-->>-E: Pago → pagado
-    end
-    R-->>E: Saldo en cero · Viaje → confirmado (T3)
-    end
-
-    rect rgb(224,236,250)
-    Note over C,R: Paso 5 · Seguimiento (automático)
-    par Vencimientos
-        R-->>E: Aviso un mes antes de cada cuota
-    and A3 · Destino con requisitos
-        R-->>E: Recordatorio del formulario del destino
-    and Próxima salida
-        R-->>E: Aviso previo a la fecha de salida
-    end
-    E-)C: Le transmite los recordatorios (fuera del sistema)
+    subgraph P4["Paso 4 · Reserva"]
+        e4("(Empleado)<br/>Confirma la reserva")
+        s4("(Sistema)<br/>Viaje → reservado (T1) · Oportunidad → ganada (T4)")
+        e4b("(Empleado)<br/>Carga venta, costo del operador, moneda y comisión del vendedor")
+        s4b("(Sistema)<br/>Calcula ganancia y margen · RN-01")
+        e4c("(Empleado)<br/>Define el plan de pagos")
+        s4c("(Sistema)<br/>Pagos → pendiente")
+        c4("(Cliente)<br/>Paga la seña")
+        e4d("(Empleado)<br/>Registra el cobro")
+        s4d("(Sistema)<br/>Pago → pagado · Viaje → vendido (T2)")
+        m4{ }
+        d4{ }
+        c4b("(Cliente)<br/>Paga la cuota, en ARS o en USD")
+        e4e("(Empleado)<br/>Registra el cobro")
+        s4e("(Sistema)<br/>Viaje → confirmado (T3)")
+        e4 --> s4 --> e4b --> s4b --> e4c --> s4c --> c4 --> e4d --> s4d --> m4 --> d4
+        d4 -- "[queda saldo] · A2" --> c4b --> e4e --> m4
+        d4 -- "[saldo en cero]" --> s4e
     end
 
-    rect rgb(240,246,253)
-    Note over C,R: Paso 6 · Post-venta (CU-17)
-    Note over E,R: El viaje transcurre: en curso (T4) y finalizado (T5)
-    R-->>E: Alerta de reseña post-viaje
-    E->>C: Le pide la reseña del hotel
-    C->>E: Deja su reseña
-    E->>+R: Registra la reseña
-    R-->>-E: Hotel consolidado en el catálogo
+    subgraph P5["Paso 5 · Seguimiento"]
+        f5@{ shape: fork }
+        s5a("(Sistema)<br/>Avisa un mes antes de cada vencimiento")
+        d5{ }
+        s5b("(Sistema)<br/>Recuerda el formulario del destino")
+        m5{ }
+        s5c("(Sistema)<br/>Avisa antes de la fecha de salida")
+        j5@{ shape: fork }
+        e5("(Empleado)<br/>Transmite los recordatorios al pasajero")
+        f5 --> s5a --> j5
+        f5 --> d5
+        d5 -- "[destino con requisitos] · A3" --> s5b --> m5
+        d5 -- "[sin requisitos]" --> m5
+        m5 --> j5
+        f5 --> s5c --> j5
+        j5 --> e5
     end
+
+    subgraph P6["Paso 6 · Post-venta"]
+        s6("(Sistema)<br/>Viaje → en curso (T4) y → finalizado (T5)")
+        s6b("(Sistema)<br/>Genera la alerta de reseña")
+        e6("(Empleado)<br/>Le pide la reseña del hotel al cliente")
+        c6("(Cliente)<br/>Deja su reseña")
+        e6b("(Empleado)<br/>Registra la reseña")
+        s6c("(Sistema)<br/>Consolida el hotel en el catálogo")
+        fin2@{ shape: fr-circ }
+        s6 --> s6b --> e6 --> c6 --> e6b --> s6c --> fin2
+    end
+
+    s1b --> e2
+    m2 --> e3
+    d3b -- "[acepta]" --> e4
+    s4e --> f5
+    e5 --> s6
+
+    classDef cli fill:#fef3c7,stroke:#b45309,color:#0f172a
+    classDef emp fill:#dbeafe,stroke:#1d4ed8,color:#0f172a
+    classDef sis fill:#e2e8f0,stroke:#475569,color:#0f172a
+    classDef ctl fill:#ffffff,stroke:#334155
+    classDef barra fill:#0f172a,stroke:#0f172a
+    class c1,c4,c4b,c6 cli
+    class e1,e1b,e2,e2b,e3,e3b,e3c,e3d,e4,e4b,e4c,e4d,e4e,e5,e6,e6b emp
+    class s1,s1b,s3,s3b,s3c,s3d,s4,s4b,s4c,s4d,s4e,s5a,s5b,s5c,s6,s6b,s6c sis
+    class d2,m2,m3,d3,d3b,m4,d4,d5,m5 ctl
+    class f5,j5 barra
 ```
 
 ## Trazabilidad con el caso de uso
-Cada franja azul del diagrama es **un paso del camino principal** de [[CU-01 De la consulta a la venta]], en el mismo orden y con el mismo nombre. Los fragmentos (`alt`, `loop`, `break`, `par`) son los desvíos, y cada uno lleva el código del flujo alternativo que lo origina.
+Cada marco del diagrama es **un paso del camino principal** de [[CU-01 De la consulta a la venta]], en el mismo orden y con el mismo nombre. Cada rama alternativa lleva en su guarda el código del flujo alternativo que la origina.
 
-| Paso de CU-01 | Franja del diagrama | Casos de uso que lo detallan | Estados que cambia |
+| Paso de CU-01 | Marco del diagrama | Casos de uso que lo detallan | Estados que cambia |
 |---|---|---|---|
 | 1 · Consulta | Paso 1 | [[CU-04 Registrar consulta]], [[CU-05 Seguir oportunidad]] | [[EST-Oportunidad]] T1, T2 |
 | 2 · Cliente | Paso 2 | [[CU-02 Registrar cliente]] | — |
-| 3 · Cotización | Paso 3 | [[CU-06 Emitir cotización]] | [[EST-Cotización]] T1, T2 · [[EST-Oportunidad]] T3 |
+| 3 · Cotización | Paso 3 | [[CU-06 Emitir cotización]] | [[EST-Cotización]] T1, T2 · [[EST-Oportunidad]] T3, T5 |
 | 4 · Reserva | Paso 4 | [[CU-07 Confirmar reserva]], [[CU-10 Registrar economía del viaje]], [[CU-11 Definir plan de cuotas]], [[CU-12 Registrar cobro de un pago]] | [[EST-Viaje]] T1, T2, T3 · [[EST-Oportunidad]] T4 · [[EST-Pago]] T1, T2 |
 | 5 · Seguimiento | Paso 5 | [[CU-07 Confirmar reserva]] (formulario y salida), [[CU-11 Definir plan de cuotas]] (vencimientos) | — |
 | 6 · Post-venta | Paso 6 | [[CU-17 Registrar reseña de hotel]] | [[EST-Viaje]] T4, T5 |
 
-| Flujo alternativo | Fragmento |
+| Flujo alternativo | Dónde está |
 |---|---|
-| **A1** · El cliente no responde | `loop` en el paso 3 |
-| **A2** · Pago en cuotas | `loop` en el paso 4 |
-| **A3** · Destino con requisitos | rama del `par` en el paso 5 |
-| *CU-04 A1* · Cliente nuevo | `alt` en el paso 2 |
-| *CU-05 A2* · Oportunidad perdida | `break` en el paso 3: el flujo termina ahí |
+| **A1** · El cliente no responde | Paso 3: bucle de insistencia que vuelve a la decisión «¿responde?» |
+| **A2** · Pago en cuotas | Paso 4: bucle `[queda saldo]` |
+| **A3** · Destino con requisitos | Paso 5: rama de la decisión dentro del paralelo |
+| *CU-04 A1* · Cliente nuevo | Paso 2: rama `[no tiene ficha]` |
+| *CU-05 A2* · Oportunidad perdida | Paso 3: rama que termina en un final de actividad |
 
 ## Convenciones del diagrama
-- **Notación:** diagrama de actividad expresado con la sintaxis de secuencia de Mermaid, a pedido de Nahuel (25/09). Equivalencias con UML de actividad: `alt` = decisión, `loop` = iteración, `break` = salida anticipada (final de flujo), `par` = bifurcación en paralelo (fork/join), `opt` = rama opcional.
-- **Franjas alternadas** = pasos del camino principal. **Notas ámbar** = encabezado del paso o acción automática.
-- **Barras de activación** sobre el Sistema Rumbo = el sistema está procesando el pedido del empleado.
-- **Estados** con la flecha `→` y el número de transición de su nota `EST-*`, para cruzarlo con los diagramas de estado.
-- **Flecha abierta** (`-)`) = comunicación con el cliente que ocurre fuera del sistema.
+- **Notación UML de actividad**, dibujada con `flowchart` de Mermaid: nodo inicial ●, final de actividad ◉, acciones con bordes redondeados, rombo vacío para **decisión** y para **fusión**, barra negra para **bifurcación y unión en paralelo** (fork/join). Las guardas van entre corchetes sobre la flecha: `[saldo en cero]`.
+- **Carriles:** Mermaid no dibuja carriles en columnas (se probó el 25/09 con tres variantes y todas los apilan), así que se usa la **notación de partición dentro de la acción** que admite UML: `(Empleado) Registra el cobro`. Refuerza cada carril un color: **amarillo = Cliente**, **azul = Empleado**, **gris = Sistema Rumbo**.
+- **Marcos = pasos del camino principal** del caso de uso, con su número y nombre. No son un elemento UML: están para la trazabilidad.
+- **Código del flujo alternativo** en la guarda de la rama que lo origina (`· A1`), y **cambios de estado** con la flecha `→` y la transición de su nota `EST-*`.
+- Encabezado común (`%%{init}%%`): motor ELK y un `themeCSS` que pinta el nodo inicial y el final. Copiarlo tal cual en los diagramas nuevos.
 
 ## Cómo mantenerlo
-- **Source → output:** la verdad vive en [[CU-01 De la consulta a la venta]] y los CU que compone. Si cambia el camino principal o un flujo alternativo, se actualiza primero el CU y después este diagrama, **manteniendo la franja por paso** para no perder la trazabilidad.
+- **Source → output:** la verdad vive en [[CU-01 De la consulta a la venta]] y los CU que compone. Si cambia el camino principal o un flujo alternativo, se actualiza primero el CU y después este diagrama, **manteniendo un marco por paso** para no perder la trazabilidad.
 - **PNG:** `bash "07-Entregables/build/render-diagramas-actividad.sh"` lo regenera en `img/`.
 - **Un solo editor a la vez** (el bloque Mermaid es indivisible). Ver [[Guía del Vault#3 · Workflow colaborativo]].
 
