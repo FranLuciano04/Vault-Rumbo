@@ -33,7 +33,7 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 ## 25/09/26 — Nahuel (Claude Opus 5.5) — diagramas de actividad rehechos en notación UML
 - **Hecho:** Nahuel aclaró que el formato de secuencia que había pedido era para los **diagramas de secuencia** (que también hay que hacer, con las clases del sistema como participantes), y que los de actividad siguen el formato UML clásico con carriles. Se rehicieron [[DGM-ACT — De la consulta a la venta]] y [[DGM-ACT — Confirmar reserva]] como `flowchart` de Mermaid con nodo inicial ●, final ◉, decisiones y fusiones en rombo, fork/join en barra y guardas entre corchetes. Se conservaron los **marcos por paso** del camino principal, las tablas de trazabilidad y los huecos detectados (siguen vigentes).
 - **Límite técnico:** Mermaid **no dibuja carriles en columnas**: se probaron subgrafos con ELK, con el motor por defecto y con `flowchart LR` + `direction TB`, y en todos los casos los apila o los desordena; el diagrama de bloques (`block-beta`) falla al dibujar flechas en Mermaid 12. Nahuel eligió quedarse en Mermaid con la **notación de partición dentro de la acción** que admite UML (`(Empleado) Registra el cobro`) más un color por carril, en vez de pasar a PlantUML (que exigía una DEC, Java y un plugin de Obsidian). Además, Mermaid ignora `classDef` en los nodos inicial y final: se pintan con un `themeCSS` en el encabezado, que **no puede llevar el carácter `>`** porque Mermaid lo descarta.
-- **Commits:** _(ver git log)_.
+- **Commits:** 171a574.
 - **Pendiente:** revisión de Nahuel; después, los diagramas 3 a 5. Verificar que Obsidian renderice las formas nuevas (`@{ shape: … }` requiere Mermaid 11.3 o superior).
 
 ## 25/09/26 — Nahuel (Claude Opus 5.5) — diagramas de actividad (1 y 2 de 5)
