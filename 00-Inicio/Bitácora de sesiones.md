@@ -27,7 +27,7 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 ## 25/09/26 — Nahuel (Claude Opus 5.5) — diagramas movidos a 03-Dominio/Diagramas
 - **Hecho:** A pedido de Nahuel, **todos los diagramas del modelo UML viven en `03-Dominio/Diagramas/`**, con una subcarpeta por tipo: los 5 de actividad pasaron a `Actividad/` y los 4 de secuencia (incluido [[DGM-SEC — De la consulta a la venta]], la vista de negocio) a `Secuencia/`, cada uno con su `img/`. Se actualizaron las rutas en `render-diagramas-actividad.sh`, `render-diagramas-secuencia.sh` y `build-relevamiento.sh`, la [[Guía del Vault]], [[DEC-0010 Notación de los diagramas de actividad y de secuencia]] y el [[MOC — Casos de uso]], y se sumaron las secciones de actividad y secuencia al [[MOC — Modelo de dominio]]. Los enlaces `[[ ]]` no cambian porque los nombres de nota son los mismos.
 - **Verificado:** los dos scripts regeneran los 8 PNG y el entregable de relevamiento compila con la Figura 1 desde la ruta nueva.
-- **Commits:** _(ver git log)_.
+- **Commits:** a6a1169.
 - **Pendiente:** la sesión que hace los diagramas de secuencia tiene que trabajar sobre las rutas nuevas (se le avisó).
 
 ## dd/mm/aa — <persona> (<modelo>)
