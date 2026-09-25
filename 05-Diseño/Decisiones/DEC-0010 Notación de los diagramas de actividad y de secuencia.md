@@ -25,9 +25,16 @@ Al rehacerlos apareció un límite técnico: **Mermaid no dibuja carriles en col
 - **Un marco por paso del camino principal** del caso de uso, con su número y nombre, y el código del flujo alternativo en la guarda de la rama que lo origina. Los flujos que ocurren en otro momento (por ejemplo, revertir un cobro) van como **actividad aparte**, con su propio nodo inicial.
 - Encabezado `%%{init}%%` común (motor ELK y un `themeCSS` para los nodos inicial y final), copiado de [[DGM-ACT — De la consulta a la venta]].
 
-**Diagramas de secuencia** (`DGM-SEC`, en `02-Analisis/`):
+**Diagramas de secuencia** (`DGM-SEC`, en `02-Analisis/Diagramas de secuencia/` salvo el principal del relevamiento, que queda en `02-Analisis/` como vista de negocio — ver más abajo):
 - `sequenceDiagram` de Mermaid, con **las clases del sistema como participantes** (además de los actores), según la documentación enlazada arriba.
-- El detalle de convenciones (qué clases aparecen, si se usan los tipos de participante `boundary`/`control`/`entity`, nombres de los mensajes) se define al construir el primero y se agrega acá.
+- **Convenciones acordadas con Nahuel el 25/09** al construir los dos primeros (CU-07 y CU-12):
+  - **Participantes:** actores (`actor`) más una capa **boundary-control-entity** parcial: una **única clase de control** por diagrama, `Sistema Rumbo <<control>>` (mismo nombre que usa [[DGM-SEC — De la consulta a la venta]] para la caja negra de negocio), que media entre los actores y las **clases de dominio** del [[DGM — Diagrama de clases]] usadas ese CU, marcadas `<<entity>>` (`Viaje <<entity>>`, `Pago <<entity>>`, etc.). **No hay clase boundary** (pantalla/formulario): no está modelada como clase de dominio y el vault no define pantallas en PC1 (eso es el prototipo de Figma).
+  - **Solo entran las clases que el CU manipula**, no las 13 del dominio. Se elige por CU, igual que el análisis ya usaba "Entidades del dominio involucradas" en cada nota `CU-`.
+  - **Mensajes en español, en lenguaje natural** (no firmas de método `nombreMetodo(args)`): `E->>S: Carga destino, fechas, categoría y responsable`. Motivo: el [[DGM — Diagrama de clases]] es de dominio y **no lleva operaciones**; inventar firmas de método en la secuencia sugeriría un contrato de API que todavía no se diseñó (eso es tarea de PC2/arquitectura). El mensaje describe la **interacción**, no un método real.
+  - **Un marco (`Note over`) por paso del camino principal**, igual que en los `DGM-ACT`, para poder cruzar el diagrama con la tabla de trazabilidad del CU. El flujo alternativo que abre una rama usa `alt`/`opt`; el paralelo real (ej. las dos alertas de CU-07 paso 4) usa `par`/`and`. Un **flujo aparte** que ocurre en otro momento (ej. revertir un cobro) **no necesita un truco de layout** como en actividad: al ser un diagrama de secuencia ya es cronológico de arriba a abajo, así que se dibuja simplemente más abajo, con una `Note` que lo anuncia (`A3 · Corregir un cobro mal registrado (flujo aparte)`).
+  - **Cambios de estado** en la respuesta de la entidad, citando la transición: `V-->>S: reservado (EST-Viaje T1)`.
+  - `autonumber` y la misma paleta (`%%{init}%%` con `theme: base`) que [[DGM-SEC — De la consulta a la venta]], para que los dos tipos de `DGM-SEC` se vean parientes.
+- **El `DGM-SEC` del relevamiento no se toca:** [[DGM-SEC — De la consulta a la venta]] queda como está (actores + "Sistema Rumbo" como caja negra) porque es la Figura 1 del entregable de relevamiento, un documento de negocio para la agencia; los `DGM-SEC` nuevos con clases son la vista de **análisis/diseño**, en una nota aparte por CU.
 
 ## Alternativas consideradas
 | Opción | Pros | Contras | ¿Elegida? |

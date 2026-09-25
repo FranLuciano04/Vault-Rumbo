@@ -47,7 +47,7 @@ Marcar un [[Pago]] como cobrado y actualizar el estado económico del [[Viaje]].
 - [[Pago]] · [[Alerta]] · [[Viaje]]
 
 ## Diagramas
-- [[DGM — Casos de uso]] · [[MOC — Modelo de dominio]] · [[DGM-ACT — Registrar cobro de un pago]] (actividad)
+- [[DGM — Casos de uso]] · [[MOC — Modelo de dominio]] · [[DGM-ACT — Registrar cobro de un pago]] (actividad) · [[DGM-SEC — Registrar cobro de un pago]] (secuencia, clases del sistema)
 
 ## 🔎 Revisión
 > [!note] Nahuel (10/09): validado — el [[Pago]] es **indivisible** (se cobra completo, sin cobros parciales). Ratificar en sync.

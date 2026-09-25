@@ -44,8 +44,9 @@ Vault-Rumbo/
 │
 ├── 02-Analisis/                   ← QUÉ hace el sistema
 │   ├── MOC — Casos de uso.md
-│   ├── DGM-SEC — De la consulta a la venta.md
+│   ├── DGM-SEC — De la consulta a la venta.md   ← vista de negocio (Figura 1 del relevamiento), no se toca
 │   ├── Diagramas de actividad/    ← DGM-ACT-*, uno por flujo clave (+ img/)
+│   ├── Diagramas de secuencia/    ← DGM-SEC-* de análisis, clases del sistema como participantes (+ img/)
 │   ├── Casos de uso/
 │   │   ├── CU-01 De la consulta a la venta.md
 │   │   ├── CU-02 Registrar cliente.md
