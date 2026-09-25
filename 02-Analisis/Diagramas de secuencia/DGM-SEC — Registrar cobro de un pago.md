@@ -25,10 +25,13 @@ sequenceDiagram
     participant P as "Pago <<entity>>"
     participant A as "Alerta <<entity>>"
     participant V as "Viaje <<entity>>"
+    participant BD as "Base de Datos <<database>>"
 
     Note over E: Paso 1 · Ubicar el pago
     E->>S: Abre el Viaje y ubica el Pago a cobrar
     S->>P: Busca el Pago pendiente o vencido
+    P->>BD: Busca el Pago
+    BD-->>P: datos del Pago
     P-->>S: Pago encontrado
 
     Note over E: Paso 2 · Registrar el cobro
@@ -41,36 +44,54 @@ sequenceDiagram
     Note over S,P: Paso 3 · Marcar el pago como pagado
     alt estaba pendiente
         S->>P: Marca el Pago como pagado
+        P->>BD: Guarda el Pago
+        BD-->>P: OK
         P-->>S: pagado (EST-Pago T2)
     else estaba vencido · A1
         S->>P: Marca el Pago como pagado
+        P->>BD: Guarda el Pago
+        BD-->>P: OK
         P-->>S: pagado (EST-Pago T4)
     end
 
     Note over S,A: Paso 4 · Cerrar la alerta
     S->>A: Resuelve la alerta de vencimiento del pago
+    A->>BD: Guarda la Alerta
+    BD-->>A: OK
     A-->>S: resuelta (EST-Alerta T5)
 
     Note over S,V: Paso 5 · Actualizar el saldo
     S->>V: Actualiza saldo pendiente, % pagado y checklist
+    V->>BD: Guarda el saldo del Viaje
+    BD-->>V: OK
     V-->>S: saldo actualizado
     alt era la seña y el viaje estaba reservado · A0
         S->>V: Cambia el estado del viaje
+        V->>BD: Guarda el Viaje
+        BD-->>V: OK
         V-->>S: vendido (EST-Viaje T2)
     end
     alt saldo en cero y viaje vendido · A2
         S->>V: Cambia el estado del viaje
+        V->>BD: Guarda el Viaje
+        BD-->>V: OK
         V-->>S: confirmado (EST-Viaje T3)
     end
 
     Note over E,V: A3 · Corregir un cobro mal registrado (flujo aparte, ocurre en otro momento)
     E->>S: Revierte el cobro
     S->>P: Cambia el estado del Pago según su fecha
+    P->>BD: Guarda el Pago
+    BD-->>P: OK
     P-->>S: pendiente o vencido (EST-Pago T6)
     S->>A: Reabre la alerta del pago
+    A->>BD: Guarda la Alerta
+    BD-->>A: OK
     A-->>S: pendiente (EST-Alerta T6)
     alt el viaje estaba confirmado
         S->>V: Cambia el estado del viaje
+        V->>BD: Guarda el Viaje
+        BD-->>V: OK
         V-->>S: vendido (EST-Viaje T8)
     end
 ```
@@ -80,11 +101,11 @@ Cada `Note over` marca **un paso del camino principal** de [[CU-12 Registrar cob
 
 | Paso de CU-12 | Marco del diagrama | Mensajes clave | Estados que cambia |
 |---|---|---|---|
-| 1 · Ubicar el pago | Paso 1 | `E->>S` · `S->>P` | — |
+| 1 · Ubicar el pago | Paso 1 | `E->>S` · `S->>P` (busca en BD) | — |
 | 2 · Registrar el cobro (fecha, forma de pago, moneda, tipo de cambio) | Paso 2 | `E->>S` ×2 | — |
-| 3 · Marcar el pago como pagado | Paso 3 | `S->>P` | [[EST-Pago]] T2 o T4 |
-| 4 · Resolver la alerta del pago | Paso 4 | `S->>A` | [[EST-Alerta]] T5 |
-| 5 · Actualizar saldo, % pagado y checklist | Paso 5 | `S->>V` | [[EST-Viaje]] T2, T3 |
+| 3 · Marcar el pago como pagado | Paso 3 | `S->>P` (guarda en BD) | [[EST-Pago]] T2 o T4 |
+| 4 · Resolver la alerta del pago | Paso 4 | `S->>A` (guarda en BD) | [[EST-Alerta]] T5 |
+| 5 · Actualizar saldo, % pagado y checklist | Paso 5 | `S->>V` (guarda en BD) | [[EST-Viaje]] T2, T3 |
 
 | Flujo alternativo | Dónde está |
 |---|---|
@@ -94,7 +115,7 @@ Cada `Note over` marca **un paso del camino principal** de [[CU-12 Registrar cob
 | **A3** · Corregir el cobro | Continuación cronológica al final, sin rama · [[EST-Pago]] T6 · [[EST-Alerta]] T6 · [[EST-Viaje]] T8 |
 
 ## Convenciones del diagrama
-Ver [[DEC-0010 Notación de los diagramas de actividad y de secuencia]] y [[DGM-SEC — Confirmar reserva#Convenciones del diagrama]] (mismas reglas).
+Ver [[DEC-0010 Notación de los diagramas de actividad y de secuencia]] y [[DGM-SEC — Confirmar reserva#Convenciones del diagrama]] (mismas reglas, incluida la **Base de Datos** como participante final: toda búsqueda o guardado de una entidad tiene su ida y vuelta con `BD`).
 - **Flujo aparte (A3):** a diferencia de [[DGM-ACT — Registrar cobro de un pago]] (que necesita un nodo inicial separado por el layout de `flowchart`), en `sequenceDiagram` alcanza con dibujarlo **más abajo**, con un `Note` que lo anuncia: la secuencia ya es cronológica de arriba a abajo.
 
 ## Cómo mantenerlo
