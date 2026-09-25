@@ -67,7 +67,7 @@ REFARG=(); [ -f "$REF" ] && REFARG=(--reference-doc="$REF")
 "$PANDOC" \
   "$ROOT/07-Entregables/Requisitos/00 - Portada e introducción.md" \
   "$BUILD/10-requisitos.md" \
-  --toc --toc-depth=1 \
+  --toc --toc-depth=1 -M toc-title="Índice" \
   "${REFARG[@]}" \
   -o "$OUT"
 

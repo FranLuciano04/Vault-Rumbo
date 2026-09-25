@@ -136,10 +136,10 @@ if (-not $rxSect.IsMatch($doc)) { throw "No se encontró <w:sectPr> en document.
 $doc = $rxSect.Replace($doc, [System.Text.RegularExpressions.MatchEvaluator]{ param($m) $sectPr }, 1)
 Set-Text 'word/document.xml' $doc
 
-# --- footer1.xml: numeración de páginas centrada ---
+# --- footer1.xml: numeración de páginas centrada (solo el número, sin guiones) ---
 $footer = @"
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<w:ftr xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><w:p><w:pPr><w:jc w:val="center" /></w:pPr><w:r><w:rPr><w:rFonts w:ascii="Cambria" w:hAnsi="Cambria" /><w:color w:val="808080" /><w:sz w:val="18" /><w:szCs w:val="18" /></w:rPr><w:t xml:space="preserve">— </w:t></w:r><w:r><w:rPr><w:color w:val="808080" /><w:sz w:val="18" /></w:rPr><w:fldChar w:fldCharType="begin" /></w:r><w:r><w:rPr><w:color w:val="808080" /><w:sz w:val="18" /></w:rPr><w:instrText xml:space="preserve"> PAGE </w:instrText></w:r><w:r><w:rPr><w:color w:val="808080" /><w:sz w:val="18" /></w:rPr><w:fldChar w:fldCharType="end" /></w:r><w:r><w:rPr><w:rFonts w:ascii="Cambria" w:hAnsi="Cambria" /><w:color w:val="808080" /><w:sz w:val="18" /><w:szCs w:val="18" /></w:rPr><w:t xml:space="preserve"> —</w:t></w:r></w:p></w:ftr>
+<w:ftr xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><w:p><w:pPr><w:jc w:val="center" /></w:pPr><w:r><w:rPr><w:rFonts w:ascii="Cambria" w:hAnsi="Cambria" /><w:color w:val="808080" /><w:sz w:val="18" /><w:szCs w:val="18" /></w:rPr><w:fldChar w:fldCharType="begin" /></w:r><w:r><w:rPr><w:rFonts w:ascii="Cambria" w:hAnsi="Cambria" /><w:color w:val="808080" /><w:sz w:val="18" /><w:szCs w:val="18" /></w:rPr><w:instrText xml:space="preserve"> PAGE </w:instrText></w:r><w:r><w:rPr><w:rFonts w:ascii="Cambria" w:hAnsi="Cambria" /><w:color w:val="808080" /><w:sz w:val="18" /><w:szCs w:val="18" /></w:rPr><w:fldChar w:fldCharType="separate" /></w:r><w:r><w:rPr><w:rFonts w:ascii="Cambria" w:hAnsi="Cambria" /><w:color w:val="808080" /><w:sz w:val="18" /><w:szCs w:val="18" /></w:rPr><w:t>1</w:t></w:r><w:r><w:rPr><w:rFonts w:ascii="Cambria" w:hAnsi="Cambria" /><w:color w:val="808080" /><w:sz w:val="18" /><w:szCs w:val="18" /></w:rPr><w:fldChar w:fldCharType="end" /></w:r></w:p></w:ftr>
 "@
 Set-Text 'word/footer1.xml' $footer
 

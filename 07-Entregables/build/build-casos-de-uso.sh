@@ -85,7 +85,7 @@ REFARG=(); [ -f "$REF" ] && REFARG=(--reference-doc="$REF")
   ${IMG:+"$BUILD/05-diagrama.md"} \
   "$BUILD/10-actores.md" \
   "$BUILD/"[0-9][0-9]-CU-*.md \
-  --toc --toc-depth=1 \
+  --toc --toc-depth=1 -M toc-title="Índice" \
   ${IMG:+--resource-path="$IMGDIR"} \
   "${REFARG[@]}" \
   -o "$OUT"

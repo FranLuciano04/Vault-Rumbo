@@ -2,7 +2,7 @@
 tipo: referencia
 estado: formalizado
 responsable: equipo
-actualizado: 21/09/26
+actualizado: 25/09/26
 ---
 
 # 📊 Estado del proyecto
@@ -96,4 +96,5 @@ Acordado por el equipo (Francisco, Nahuel y Paloma presentes):
 - **Infraestructura de despliegue** → [[ARQ — Vista general]]. El servidor on-premise es una alternativa pendiente.
 - ✅ **Entregable de Casos de uso regenerado** (18/09): PNG con el actor `freelance` y el módulo *Configuración/Catálogos*, y DOCX recompilado (0 fugas, 0 artefactos). Ver [[CONTINUAR — entregable Casos de uso]].
 - **A ratificar en la próxima sync (batch de la entrevista grill 18/09):** DEC-0002 (5 estados), multimoneda por pago, `Pago.anulado`, `forma_pago`, anticipación de `salida`, módulo *Configuración/Catálogos* y la reescritura de CU-01.
+- **Entregable de Casos de uso desactualizado** (25/09): no se regenera desde el 21/09 y, al hacerlo, se filtran marcas internas de los CU («a ratificar», «regla del 21/09», «ver EST-…») y un recorte roto en CU-27. Limpiar los CU fuente y regenerar. Las ediciones manuales de Relevamiento y Requisitos ya se pasaron a la fuente (ver [[Bitácora de sesiones]]).
 - ✅ **PK de `viaje_hotel` resuelta** (21/09): `id` propio, no compuesta. Ver [[DGM-ER]], [[DEC-0003 Relación Viaje–Hotel y Reseña]]. A ratificar en sync (no bloquea armar los diagramas de clases/ER; solo su cierre formal).

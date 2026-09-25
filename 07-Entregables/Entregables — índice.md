@@ -11,7 +11,7 @@ tags:: #tipo/referencia #estado/formalizado
 > Sección del cerebro para los **entregables a los profesores** (formatos pesados: `.docx`, PDF, imágenes). Son **artefactos derivados**: la fuente de verdad son los `.md` del vault. Ver [[Especificación de casos de uso — flujo]].
 
 ## Regla
-- Nada acá se edita a mano: se **genera** desde los `.md` en cada punto de control.
+- Nada acá se edita a mano: se **genera** desde los `.md` en cada punto de control. Si igual se retoca un `.docx` en Word, **pasar el cambio a su `.md` o al script de build** antes de volver a compilar, o se pierde (pasó el 22/09 y se trasladó el 25/09).
 - Para *leer* contenido, usá el `.md` fuente (barato en tokens), no el `.docx`.
 
 ## Entregables
@@ -28,7 +28,7 @@ tags:: #tipo/referencia #estado/formalizado
 - **Filtrado (importante):** el docx **no** incluye la cocina interna del equipo. El script recorta, en cada CU, las secciones **`## 🔎 Revisión`**, **`## Diagramas`** y **`## Decisiones asociadas`**; la línea **`tags::`**; las **notas meta en blockquote** con referencias a decisiones; las **referencias inline a decisiones `DEC-####`** (con su conector); y los **hashtags de acción `#accion/...`**. El frontmatter YAML pandoc lo toma como metadata (no se imprime). Solo quedan las **funcionalidades**: descripción, actores, precondiciones, flujos, postcondiciones, reglas de negocio y entidades.
 - **Orden:** numérico `CU-01 … CU-30` (por defecto del glob). _(Si se prefiere por módulo, se reordena la lista de entrada.)_
 - **Carátula e introducción:** redactadas como fuente en `07-Entregables/Casos de uso/00 - Portada e introducción.md` (carátula por metadata: título, subtítulo, autores, fecha). Datos: **Universidad de Morón · Ingeniería Informática · Trabajo de Campo · 2.º cuatrimestre 2026**; integrantes **Francisco Luciano, Nahuel Viniegra, Paloma Patiño**. _(Fecha de entrega definitiva y comisión: confirmar con la cátedra.)_ Este archivo se pasa **primero** a pandoc, antes de los `CU-*.md`.
-- **Estética:** plantilla `reference.docx` generada por `07-Entregables/build/make-reference.ps1` (PowerShell, sin dependencias): Cambria justificado, títulos navy jerarquizados con filete, A4 con márgenes 2,5 cm y numeración de páginas al pie.
+- **Estética:** plantilla `reference.docx` generada por `07-Entregables/build/make-reference.ps1` (PowerShell, sin dependencias): Cambria justificado, títulos navy jerarquizados con filete, A4 con márgenes 2,5 cm y número de página solo, centrado al pie. El índice se titula «Índice» (`-M toc-title` en cada script; sin eso pandoc pone «Table of Contents»).
 - **Diagramas Mermaid:** se exportan aparte como imagen con `mermaid-cli` (motor **ELK**) y se **incrustan** por nombre vía `--resource-path` (resuelve el bug de rutas con espacios). Ver [[CONTINUAR — entregable Casos de uso]].
 
 ## Parámetros del entregable de Requisitos (22/09)
@@ -52,7 +52,8 @@ Genera `07-Entregables/Casos de uso/Rumbo — Casos de uso.docx`. Usa por defect
 - **Contenido:** portada + **justificación del sistema** + **herramientas del proyecto** (agente de IA y modelado) + **objetivos** + **alcance y fuera de alcance** + **actores** + **circuito de la consulta a la venta** + la **Figura 1** con el diagrama de secuencia.
 - **Fuente:** seis notas de `01-Relevamiento/` — [[Justificación del sistema]], [[Herramientas del proyecto]], [[Objetivos del sistema]], [[Alcance y fuera de alcance]], [[Actores]] y [[Circuito de la consulta a la venta]]. El `.docx` ya no se edita a mano: el original que circulaba suelto se incorporó al vault el 22/09.
 - **El alcance vive acá y solo acá.** El documento de requisitos lo referencia en vez de repetirlo. Si cambia el alcance, se toca [[Alcance y fuera de alcance]] y nada más.
-- **Figura 1:** se renderiza desde el Mermaid de [[DGM-SEC — De la consulta a la venta]] a `07-Entregables/Relevamiento/img/`. El comando está al pie de `build-relevamiento.sh`.
+- **Figura 1:** se renderiza desde el Mermaid de [[DGM-SEC — De la consulta a la venta]] a `07-Entregables/Relevamiento/img/`. El comando está al pie de `build-relevamiento.sh`. Se inserta al 95 % del ancho de página.
+- **Marcas ❌/✅ del alcance:** quedan en la nota (sirven en Obsidian) y el script las quita al generar el entregable.
 - **Filtrado y estética:** el mismo `filtrar()` y la misma plantilla `reference.docx` que los otros dos entregables.
 
 ## Cómo generar el DOCX de relevamiento

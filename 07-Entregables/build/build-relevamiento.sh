@@ -63,7 +63,8 @@ filtrar() {
 filtrar "$ROOT/01-Relevamiento/Justificación del sistema.md"          > "$BUILD/10-justificacion.md"
 filtrar "$ROOT/01-Relevamiento/Herramientas del proyecto.md"          > "$BUILD/20-herramientas.md"
 filtrar "$ROOT/01-Relevamiento/Objetivos del sistema.md"              > "$BUILD/30-objetivos.md"
-filtrar "$ROOT/01-Relevamiento/Alcance y fuera de alcance.md"         > "$BUILD/40-alcance.md"
+# Las marcas ❌/✅ de las listas de alcance sirven en Obsidian, pero no van al entregable.
+filtrar "$ROOT/01-Relevamiento/Alcance y fuera de alcance.md" | sed -E 's/^- (❌|✅) /- /' > "$BUILD/40-alcance.md"
 filtrar "$ROOT/01-Relevamiento/Actores.md"                            > "$BUILD/50-actores.md"
 filtrar "$ROOT/01-Relevamiento/Circuito de la consulta a la venta.md" > "$BUILD/60-circuito.md"
 
@@ -73,7 +74,7 @@ filtrar "$ROOT/01-Relevamiento/Circuito de la consulta a la venta.md" > "$BUILD/
 IMGDIR="$ROOT/07-Entregables/Relevamiento/img"
 IMG="$IMGDIR/DGM-SEC-consulta-a-venta.png"
 if [ -f "$IMG" ]; then
-  printf '![*Figura 1.* Diagrama de secuencia del circuito de la consulta a la venta.](DGM-SEC-consulta-a-venta.png){ width=85%% }\n' > "$BUILD/70-figura.md"
+  printf '![Figura 1. Diagrama de secuencia del circuito de la consulta a la venta.](DGM-SEC-consulta-a-venta.png){ width=95%% }\n' > "$BUILD/70-figura.md"
 fi
 
 # Plantilla de estilos: la del argumento 1, o la del repo si existe
@@ -89,7 +90,7 @@ REFARG=(); [ -f "$REF" ] && REFARG=(--reference-doc="$REF")
   "$BUILD/50-actores.md" \
   "$BUILD/60-circuito.md" \
   ${IMG:+"$BUILD/70-figura.md"} \
-  --toc --toc-depth=1 \
+  --toc --toc-depth=1 -M toc-title="Índice" \
   ${IMG:+--resource-path="$IMGDIR"} \
   "${REFARG[@]}" \
   -o "$OUT"

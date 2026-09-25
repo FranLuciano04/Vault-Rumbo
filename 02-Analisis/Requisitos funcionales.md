@@ -996,19 +996,19 @@ Cada requisito funcional está identificado, es verificable y se realiza en uno 
 - **Casos de uso:** [[CU-25 Gestionar usuarios y roles]]
 - **Entidades:** [[Usuario]] · [[Cliente]]
 
-#### RF-151 — Aplicar la visibilidad por propiedad y rol *(transversal)*
+#### RF-151 — Aplicar la visibilidad por propiedad y rol (transversal)
 - **Descripción:** el sistema aplica autorización a nivel de fila en todos los módulos, según la matriz de visibilidad del proyecto: lectura global para colaborar, propiedad para responsabilidad y filtro personal, escritura mayormente abierta salvo configuración y moderación, que quedan en `admin`. La [[Alerta]] es personal por defecto y el rol `freelance` es la excepción, con bloqueo de lectura fuera de lo propio.
 - **Actor:** sistema · **Tipo:** seguridad · **Prioridad:** alta
 - **Casos de uso:** transversal — se aplica en todos los casos de uso del sistema
 - **Entidades:** [[Usuario]] · [[Cliente]] · [[Oportunidad]] · [[Viaje]] · [[Pago]] · [[Alerta]]
 
-#### RF-152 — Registrar autor y fecha de cada cambio *(transversal)*
+#### RF-152 — Registrar autor y fecha de cada cambio (transversal)
 - **Descripción:** el sistema registra quién creó y quién modificó por última vez cada registro, junto con la fecha, para poder identificar quién realizó cada acción dentro del CRM. Un log de acciones completo queda para una fase posterior.
 - **Actor:** sistema · **Tipo:** seguridad · **Prioridad:** alta
 - **Casos de uso:** transversal — se aplica sobre los registros que crea o modifica cualquier caso de uso
 - **Entidades:** todas las entidades operativas
 
-#### RF-153 — Conservar los registros mediante baja lógica *(transversal)*
+#### RF-153 — Conservar los registros mediante baja lógica (transversal)
 - **Descripción:** ninguna baja del sistema borra información: [[Hotel]], [[Reseña]], [[Destino]], [[Operador]], [[Usuario]], [[Pago]], [[Viaje]] y [[ContenidoRed]] se dan de baja marcándolos como inactivos, cerrados, ocultos, anulados, cancelados o descartados, conservando el historial y la trazabilidad. La eliminación física es excepcional y solo procede si no rompe la integridad referencial.
 - **Actor:** sistema · **Tipo:** validación · **Prioridad:** alta
 - **Casos de uso:** transversal — rige toda baja del sistema: [[CU-11 Definir plan de cuotas]], [[CU-16 Gestionar hotel en catálogo]], [[CU-19 Planificar contenido en redes]], [[CU-25 Gestionar usuarios y roles]], [[CU-26 Gestionar destinos]], [[CU-27 Cancelar viaje]], [[CU-29 Eliminar reseña]] y [[CU-31 Gestionar operadores]]

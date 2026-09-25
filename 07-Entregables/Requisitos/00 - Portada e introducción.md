@@ -10,9 +10,9 @@ date: "2.º cuatrimestre 2026 · Entrega: 23/10/26"
 
 # Introducción
 
-**Rumbo** es un CRM a medida para agencias de turismo PyME. Digitaliza el circuito completo del negocio —de la consulta a la venta— que hoy se lleva con papel, carpetas físicas y planillas: registro de clientes y su historial, oportunidades y cotizaciones, viajes con su control económico (venta, costo, comisión y cuotas), alertas y vencimientos, catálogo de hoteles con reseñas, contenido de redes, y dashboard con reportes.
+**Rumbo** es un CRM a medida para agencias de turismo PyME. Digitaliza el circuito completo del negocio que hoy se lleva con papel, carpetas físicas y planillas: registro de clientes y su historial, oportunidades y cotizaciones, viajes con su control económico (venta, costo, comisión y cuotas), alertas y vencimientos, catálogo de hoteles con reseñas, contenido de redes, y dashboard con reportes.
 
-Este documento presenta la **especificación de requisitos** del sistema para la primera prueba de concepto (PC1). Es la base del análisis: enuncia *qué debe hacer* el sistema y *cómo debe comportarse* al hacerlo. Los **casos de uso**, especificados en el documento que lo acompaña, son la **realización** de estos requisitos: describen cómo cada uno se concreta en la interacción entre los actores y el sistema.
+Este documento presenta la **especificación de requisitos** del sistema. Es la base del análisis: enuncia *qué debe hacer* el sistema y *cómo debe comportarse* al hacerlo. Los **casos de uso**, especificados en el documento que lo acompaña, son la **realización** de estos requisitos: describen cómo cada uno se concreta en la interacción entre los actores y el sistema.
 
 Se compone de:
 
