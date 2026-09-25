@@ -35,7 +35,7 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Hallazgo de layout:** en `sequenceDiagram` un "flujo aparte" (como A3 de CU-12, que ocurre en otro momento) **no necesita el truco de layout** que sí hace falta en `flowchart` (nodo inicial + enlace invisible): al ser cronológico de arriba a abajo, alcanza con seguir dibujando más abajo y anunciarlo con un `Note`.
 - **Sin hallazgos nuevos de dominio:** ambos diagramas dibujan lo que ya decían sus `DGM-ACT`; los huecos son los mismos (ver la Revisión de cada nota).
 - **Ampliación (mismo día, a pedido de Nahuel):** se sumó la **Base de Datos** como participante `<<database>>` al final de la fila, en ambos `DGM-SEC`. Regla agregada a [[DEC-0010 Notación de los diagramas de actividad y de secuencia|DEC-0010]]: **toda vez que una clase de entidad busca o guarda información, se comunica con la Base de Datos** (ida y vuelta propio, debajo del mensaje entidad↔control). No es una clase de dominio nueva (no va al [[DGM — Diagrama de clases]]); es infraestructura, como el [[DGM-ER]]. Los dos diagramas se re-renderizaron y verificaron.
-- **Commits:** b3650e7, a69c6c7 y el de esta ampliación (ver hash al cierre).
+- **Commits:** b3650e7, a69c6c7, 4ac98cb.
 - **Pendiente:** falta el tercero, [[CU-27 Cancelar viaje|CU-27]] (ahora también con la Base de Datos). Ratificar en la sync los dos ya hechos, la convención de participantes y el agregado de la Base de Datos.
 
 ## 25/09/26 — Nahuel (Claude Opus 5.5) — cierre: decisiones documentadas y handoff
