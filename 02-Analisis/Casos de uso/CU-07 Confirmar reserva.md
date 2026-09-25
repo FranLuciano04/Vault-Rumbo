@@ -47,7 +47,7 @@ El empleado **cierra la venta** creando el [[Viaje]] a partir de una [[Oportunid
 - [[Viaje]] · [[Oportunidad]] · [[Cliente]] · [[Destino]] · [[Alerta]] · [[RequisitoDestino]] · [[Usuario]]
 
 ## Diagramas
-- [[DGM — Casos de uso]] · [[MOC — Modelo de dominio]] · (pendiente) diagrama de secuencia consulta→reserva.
+- [[DGM — Casos de uso]] · [[MOC — Modelo de dominio]] · [[DGM-SEC — De la consulta a la venta]] (secuencia) · [[DGM-ACT — Confirmar reserva]] (actividad).
 
 ## Decisiones asociadas
 - [[DEC-0006 Destino como entidad de catálogo]] · [[DEC-0005 Autenticación y modelo de roles]]

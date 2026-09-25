@@ -44,6 +44,8 @@ Vault-Rumbo/
 │
 ├── 02-Analisis/                   ← QUÉ hace el sistema
 │   ├── MOC — Casos de uso.md
+│   ├── DGM-SEC — De la consulta a la venta.md
+│   ├── Diagramas de actividad/    ← DGM-ACT-*, uno por flujo clave (+ img/)
 │   ├── Casos de uso/
 │   │   ├── CU-01 De la consulta a la venta.md
 │   │   ├── CU-02 Registrar cliente.md
@@ -73,11 +75,8 @@ Vault-Rumbo/
 │   ├── Decisiones/
 │   │   ├── DEC-0001 Stack tecnológico.md
 │   │   └── DEC-0002 Modelar la consulta como Oportunidad.md
-│   ├── Arquitectura/
-│   │   └── ARQ — Vista general.md
-│   ├── Diagramas de secuencia/
-│   │   └── DGM-SEC-Consulta-a-venta.md
-│   └── Diagramas de actividad/
+│   └── Arquitectura/
+│       └── ARQ — Vista general.md
 │
 ├── 06-Desarrollo/                 ← se ACTIVA en PC2 (hoy vive casi vacía)
 │   ├── Bitácora técnica.md

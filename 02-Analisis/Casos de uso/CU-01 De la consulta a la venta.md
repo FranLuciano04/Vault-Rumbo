@@ -45,7 +45,7 @@ Flujo núcleo del negocio: desde que llega una consulta por redes hasta que el v
 - [[Oportunidad]] · [[Cliente]] · [[Cotización]] · [[Viaje]] · [[Operador]] · [[Destino]] · [[Pago]] · [[Alerta]] · [[RequisitoDestino]] · [[Reseña]] · [[Hotel]]
 
 ## Diagramas
-- [[MOC — Modelo de dominio]] · [[DGM — Casos de uso]] · (pendiente) diagrama de secuencia y de actividad
+- [[MOC — Modelo de dominio]] · [[DGM — Casos de uso]] · [[DGM-SEC — De la consulta a la venta]] (secuencia) · [[DGM-ACT — De la consulta a la venta]] (actividad)
 
 ## 🔎 Revisión
 > [!note] Nahuel (09/09): ¿"Consulta" es exactamente la entidad [[Oportunidad]]? Ver [[DEC-0002 Modelar la consulta como Oportunidad]]. → **Resuelto:** sí, la consulta se modela como [[Oportunidad]] (DEC-0002, alineada a los 5 estados el 18/09, a ratificar en sync).
