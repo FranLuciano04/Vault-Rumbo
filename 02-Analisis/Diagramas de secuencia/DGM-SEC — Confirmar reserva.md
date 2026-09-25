@@ -22,6 +22,7 @@ sequenceDiagram
     autonumber
     actor C as Cliente
     actor E as Empleado
+    participant I as "Interfaz <<boundary>>"
     participant S as "Sistema Rumbo <<control>>"
     participant O as "Oportunidad <<entity>>"
     participant V as "Viaje <<entity>>"
@@ -31,7 +32,8 @@ sequenceDiagram
 
     Note over E: Paso 1 · Elige «Confirmar reserva»
     C->>E: Confirma la compra
-    E->>S: Elige "Confirmar reserva" sobre la Oportunidad
+    E->>I: Elige "Confirmar reserva" sobre la Oportunidad
+    I->>S: Elige "Confirmar reserva" sobre la Oportunidad
     S->>O: Consulta el estado
     O->>BD: Busca la Oportunidad
     BD-->>O: datos de la Oportunidad
@@ -42,9 +44,11 @@ sequenceDiagram
     end
 
     Note over E: Paso 2 · Datos del viaje
-    E->>S: Carga destino, fechas, categoría y responsable
+    E->>I: Carga destino, fechas, categoría y responsable
+    I->>S: Carga destino, fechas, categoría y responsable
     alt falta destino o fechas · A3
-        S-->>E: Pide completar los datos
+        S-->>I: Pide completar los datos
+        I-->>E: Pide completar los datos
     else datos completos
         Note over E: Paso 3 · Crear el viaje
         S->>V: Crea el Viaje asociado al Cliente y a la Oportunidad
@@ -74,15 +78,19 @@ sequenceDiagram
         end
 
         Note over E: Paso 5 · Economía, plan de cuotas e itinerario · CU-10, CU-11, CU-09
-        E->>S: Carga moneda, operador, precio de venta, costo, vendedor y comisión
+        E->>I: Carga moneda, operador, precio de venta, costo, vendedor y comisión
+        I->>S: Carga moneda, operador, precio de venta, costo, vendedor y comisión
         S->>V: Calcula ganancia y margen · RN-01
         V->>BD: Guarda la economía del Viaje
         BD-->>V: OK
         V-->>S: ganancia, margen
-        E->>S: Define las cuotas y la seña, con monto y vencimiento
+        E->>I: Define las cuotas y la seña, con monto y vencimiento
+        I->>S: Define las cuotas y la seña, con monto y vencimiento
         loop Σ montos ≠ precio de venta · CU-11 A1
-            S-->>E: Rechaza el plan y muestra la diferencia
-            E->>S: Corrige los montos
+            S-->>I: Rechaza el plan y muestra la diferencia
+            I-->>E: Rechaza el plan y muestra la diferencia
+            E->>I: Corrige los montos
+            I->>S: Corrige los montos
         end
         S->>P: Crea el plan de pagos
         P->>BD: Guarda los Pagos del plan
@@ -93,7 +101,8 @@ sequenceDiagram
         BD-->>A: OK
         A-->>S: pendiente (EST-Alerta T1)
         opt arma el itinerario · CU-09
-            E->>S: Suma los hoteles del viaje
+            E->>I: Suma los hoteles del viaje
+            I->>S: Suma los hoteles del viaje
         end
     end
 ```
@@ -103,11 +112,11 @@ Cada `Note over` marca **un paso del camino principal** de [[CU-07 Confirmar res
 
 | Paso de CU-07 | Marco del diagrama | Mensajes clave | Estados que cambia |
 |---|---|---|---|
-| 1 · Elegir «Confirmar reserva» | Paso 1 | `E->>S` · `S->>O` (busca en BD) | — |
-| 2 · Cargar los datos del viaje | Paso 2 | `E->>S` | — |
+| 1 · Elegir «Confirmar reserva» | Paso 1 | `E->>I->>S` · `S->>O` (busca en BD) | — |
+| 2 · Cargar los datos del viaje | Paso 2 | `E->>I->>S` | — |
 | 3 · Crear el viaje | Paso 3 | `S->>V` · `S->>O` (ambas guardan en BD) | [[EST-Viaje]] T1 |
 | 4 · Generar alertas de formulario y salida | Paso 4 | `par` → `S->>A` ×2 (guardan en BD) | [[EST-Alerta]] T1 |
-| 5 · Economía, plan de cuotas e itinerario | Paso 5 | `S->>V` · `S->>P` · `S->>A` (todas guardan en BD) | [[EST-Pago]] T1 · [[EST-Alerta]] T1 |
+| 5 · Economía, plan de cuotas e itinerario | Paso 5 | `E->>I->>S` ×2 · `S->>V` · `S->>P` · `S->>A` (todas guardan en BD) | [[EST-Pago]] T1 · [[EST-Alerta]] T1 |
 
 | Flujo alternativo | Dónde está |
 |---|---|
@@ -120,8 +129,9 @@ Los flujos alternativos propios de [[CU-10 Registrar economía del viaje]] (over
 
 ## Convenciones del diagrama
 Ver [[DEC-0010 Notación de los diagramas de actividad y de secuencia]]:
-- Participantes: actores (`Cliente`, `Empleado`) + una única clase de **control** (`Sistema Rumbo`) + las clases de **entidad** del dominio que este CU manipula (`Oportunidad`, `Viaje`, `Pago`, `Alerta`) + la **Base de Datos**. No hay clase *boundary*.
+- Participantes, en orden: `Cliente`, `Empleado` → **`Interfaz`** (boundary) → **`Sistema Rumbo`** (control) → las clases de **entidad** del dominio que este CU manipula (`Oportunidad`, `Viaje`, `Pago`, `Alerta`) → **Base de Datos**.
 - Mensajes en **español, lenguaje natural** (no firmas de método): describen la interacción, no un contrato de API.
+- **El Empleado nunca habla directo con `Sistema Rumbo`:** cada mensaje pasa por `Interfaz`, que solo reenvía (`E->>I->>S` y, en la vuelta, `S-->>I-->>E`). No aplica a `Cliente`, que es externo y solo habla con `Empleado`.
 - **Toda búsqueda o guardado pasa por la Base de Datos:** cada vez que una entidad consulta o persiste algo, se agrega su propio ida y vuelta con `BD` (`V->>BD: Guarda el Viaje` / `BD-->>V: OK`), debajo del mensaje entidad↔control correspondiente.
 - **Un `Note over` por paso** del camino principal, con su número y nombre. Las ramas usan `alt`/`opt`; el paralelo real de las dos alertas usa `par`/`and`.
 - Los cambios de estado citan su transición: `V-->>S: reservado (EST-Viaje T1)`.
