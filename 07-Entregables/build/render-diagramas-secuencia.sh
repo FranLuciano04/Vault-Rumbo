@@ -20,5 +20,6 @@ render() {
 
 render "DGM-SEC — Confirmar reserva.md"           "DGM-SEC-confirmar-reserva"
 render "DGM-SEC — Registrar cobro de un pago.md"  "DGM-SEC-registrar-cobro"
+render "DGM-SEC — Cancelar viaje.md"              "DGM-SEC-cancelar-viaje"
 
 rm -rf "$TMP"

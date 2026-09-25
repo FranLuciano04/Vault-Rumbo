@@ -9,7 +9,7 @@ actualizado: 18/09/26
 
 tags:: #tipo/modulo #estado/en-revision #pc/pc1
 
-> Índice y catálogo completo de casos de uso. Punto de entrada de bajo costo de contexto: desde acá se baja al CU puntual. Diagrama en [[DGM — Casos de uso]]. Diagramas de actividad de los flujos clave en `Diagramas de actividad/`: [[DGM-ACT — De la consulta a la venta]] · [[DGM-ACT — Confirmar reserva]] · [[DGM-ACT — Registrar cobro de un pago]] · [[DGM-ACT — Cancelar viaje]] · [[DGM-ACT — Proceso automático diario]]. Diagramas de secuencia con las clases del sistema en `Diagramas de secuencia/`: [[DGM-SEC — Confirmar reserva]] · [[DGM-SEC — Registrar cobro de un pago]] (falta CU-27; [[DGM-SEC — De la consulta a la venta]] sigue aparte, como vista de negocio del relevamiento). Flujo de especificación y entregables en [[Especificación de casos de uso — flujo]].
+> Índice y catálogo completo de casos de uso. Punto de entrada de bajo costo de contexto: desde acá se baja al CU puntual. Diagrama en [[DGM — Casos de uso]]. Diagramas de actividad de los flujos clave en `Diagramas de actividad/`: [[DGM-ACT — De la consulta a la venta]] · [[DGM-ACT — Confirmar reserva]] · [[DGM-ACT — Registrar cobro de un pago]] · [[DGM-ACT — Cancelar viaje]] · [[DGM-ACT — Proceso automático diario]]. Diagramas de secuencia con las clases del sistema en `Diagramas de secuencia/`: [[DGM-SEC — Confirmar reserva]] · [[DGM-SEC — Registrar cobro de un pago]] · [[DGM-SEC — Cancelar viaje]] ([[DGM-SEC — De la consulta a la venta]] sigue aparte, como vista de negocio del relevamiento). Flujo de especificación y entregables en [[Especificación de casos de uso — flujo]].
 
 ## Flujo núcleo
 - [[CU-01 De la consulta a la venta]] — flujo end-to-end del negocio; los CU atómicos de abajo lo componen.
