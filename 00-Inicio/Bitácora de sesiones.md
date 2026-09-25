@@ -32,7 +32,7 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 
 ## 25/09/26 — Nahuel (Claude Opus 5.5) — cierre: decisiones documentadas y handoff
 - **Hecho:** Se registró [[DEC-0010 Notación de los diagramas de actividad y de secuencia]] (`en-revision`): notación UML de actividad en `flowchart` de Mermaid y diagramas de secuencia con las clases del sistema como participantes, con las alternativas descartadas (PlantUML, sintaxis de secuencia, `block-beta`). Se agregó al [[Estado del proyecto]] una **Agenda para la próxima sync** que indexa todas las decisiones abiertas (ratificaciones, los 18 huecos de los diagramas de actividad y los pendientes previos), con punteros a su nota. Se sumó el puntero a DEC-0010 en el [[MOC — Decisiones (ADR)]] y en la memoria del proyecto.
-- **Commits:** _(ver git log)_.
+- **Commits:** feddd66.
 - **Pendiente:** próxima sesión, **diagramas de secuencia** (lanzada con handoff). Sigue la tarea de limpiar y regenerar el entregable de Casos de uso.
 
 ## 25/09/26 — Nahuel (Claude Opus 5.5) — diagramas de actividad 3 a 5
