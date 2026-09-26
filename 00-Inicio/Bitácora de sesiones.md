@@ -27,7 +27,7 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 ## 25/09/26 — Nahuel (Claude Opus 5.5) — reorganización de las imágenes de dominio
 - **Hecho:** Nahuel reordenó a mano las imágenes de `03-Dominio/Diagramas/` para que cada tipo tenga su carpeta: los PNG de clases a `Clases/`, el del ER a `DER/`, los de estado a `Estados/img/` y `mermaid-config.json` a la raíz de `Diagramas/`; se eliminó `Diagramas/img/`. Se adaptó `render-diagramas-dominio.sh` para que regenere cada PNG en su carpeta nueva y se actualizaron el [[MOC — Modelo de dominio]] y la [[Guía del Vault]].
 - **Verificado:** el script regenera los 11 PNG en las rutas nuevas y no vuelve a crear `Diagramas/img/`.
-- **Commits:** _(ver git log)_.
+- **Commits:** 128b08b.
 - **Pendiente:** —
 
 ## 25/09/26 — Nahuel (Claude Opus 5.5) — diagramas movidos a 03-Dominio/Diagramas
