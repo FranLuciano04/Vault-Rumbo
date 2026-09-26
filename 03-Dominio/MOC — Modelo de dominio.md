@@ -30,7 +30,7 @@ tags:: #tipo/diagrama #tipo/modulo #estado/en-revision #pc/pc1
 - Ver [[DGM-ER]] (modelo relacional para PostgreSQL).
 
 ## Imágenes exportadas
-Los 11 diagramas de dominio están exportados a PNG en `03-Dominio/Diagramas/img/`: `DGM-clases.png` (vista principal), `DGM-clases-enums-1..3.png` (las tres bandas de enumeraciones), `DGM-ER.png` y `EST-<Clase>.png` para los seis de estado. **La fuente sigue siendo el bloque Mermaid de cada nota**: si se cambia un diagrama, se regeneran todos con `bash "07-Entregables/build/render-diagramas-dominio.sh"`.
+Los 11 diagramas de dominio están exportados a PNG dentro de `03-Dominio/Diagramas/`: en `Clases/`, `DGM-clases.png` (vista principal) y `DGM-clases-enums-1..3.png` (las tres bandas de enumeraciones); en `DER/`, `DGM-ER.png`; y en `Estados/img/`, `EST-<Clase>.png` para los seis de estado. **La fuente sigue siendo el bloque Mermaid de cada nota**: si se cambia un diagrama, se regeneran todos con `bash "07-Entregables/build/render-diagramas-dominio.sh"`.
 
 ## Diagramas de estado
 Especificaciones en `03-Dominio/Diagramas/Estados/` — **una nota por clase, autosuficiente**: quien dibuje el diagrama no necesita abrir los CU. Cada una trae estados, transiciones (evento, actor, CU, guarda, efectos), invariantes y los huecos detectados. Cada una suma además **"Para qué se creó cada transición poco obvia"**: el caso concreto que justifica cada flecha que no se explica sola, para no tener que reconstruirlo de memoria en la sync.

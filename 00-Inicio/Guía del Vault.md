@@ -62,11 +62,13 @@ Vault-Rumbo/
 │   └── Diagramas/                 ← TODOS los diagramas del modelo UML
 │       ├── DGM — Diagrama de clases.md   (Mermaid classDiagram)
 │       ├── DGM-ER.md                     (Mermaid erDiagram)
-│       ├── Estados/                      ← EST-*, uno por clase con máquina de estados
+│       ├── mermaid-config.json           ← configuración de render de clases y ER
+│       ├── Clases/                       ← PNG del diagrama de clases
+│       ├── DER/                          ← PNG del ER
+│       ├── Estados/                      ← EST-*, uno por clase con máquina de estados (+ img/)
 │       ├── Actividad/                    ← DGM-ACT-*, uno por flujo clave (+ img/)
-│       ├── Secuencia/                    ← DGM-SEC-*: la vista de negocio (Figura 1 del relevamiento)
-│       │                                   y los de análisis, con las clases como participantes (+ img/)
-│       └── img/                          ← PNG de clases, ER y estados
+│       └── Secuencia/                    ← DGM-SEC-*: la vista de negocio (Figura 1 del relevamiento)
+│                                           y los de análisis, con las clases como participantes (+ img/)
 │
 ├── 04-Modulos/                    ← una nota-MOC por módulo funcional
 │   ├── MOD-Clientes.md            MOD-Viajes.md        MOD-Economia-Pagos.md

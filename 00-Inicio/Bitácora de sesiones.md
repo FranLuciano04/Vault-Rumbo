@@ -24,6 +24,12 @@ La **persona** de cada sesión es quien la corre, identificada por su identidad 
 ## Formato
 Es **obligatorio** nombrar a la persona que hizo la sesión.
 ```
+## 25/09/26 — Nahuel (Claude Opus 5.5) — reorganización de las imágenes de dominio
+- **Hecho:** Nahuel reordenó a mano las imágenes de `03-Dominio/Diagramas/` para que cada tipo tenga su carpeta: los PNG de clases a `Clases/`, el del ER a `DER/`, los de estado a `Estados/img/` y `mermaid-config.json` a la raíz de `Diagramas/`; se eliminó `Diagramas/img/`. Se adaptó `render-diagramas-dominio.sh` para que regenere cada PNG en su carpeta nueva y se actualizaron el [[MOC — Modelo de dominio]] y la [[Guía del Vault]].
+- **Verificado:** el script regenera los 11 PNG en las rutas nuevas y no vuelve a crear `Diagramas/img/`.
+- **Commits:** _(ver git log)_.
+- **Pendiente:** —
+
 ## 25/09/26 — Nahuel (Claude Opus 5.5) — diagramas movidos a 03-Dominio/Diagramas
 - **Hecho:** A pedido de Nahuel, **todos los diagramas del modelo UML viven en `03-Dominio/Diagramas/`**, con una subcarpeta por tipo: los 5 de actividad pasaron a `Actividad/` y los 4 de secuencia (incluido [[DGM-SEC — De la consulta a la venta]], la vista de negocio) a `Secuencia/`, cada uno con su `img/`. Se actualizaron las rutas en `render-diagramas-actividad.sh`, `render-diagramas-secuencia.sh` y `build-relevamiento.sh`, la [[Guía del Vault]], [[DEC-0010 Notación de los diagramas de actividad y de secuencia]] y el [[MOC — Casos de uso]], y se sumaron las secciones de actividad y secuencia al [[MOC — Modelo de dominio]]. Los enlaces `[[ ]]` no cambian porque los nombres de nota son los mismos.
 - **Verificado:** los dos scripts regeneran los 8 PNG y el entregable de relevamiento compila con la Figura 1 desde la ruta nueva.
