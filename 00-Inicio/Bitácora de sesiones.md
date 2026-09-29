@@ -30,6 +30,10 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
+## 29/09/26 — Nahuel (Claude Opus 5.5) — PC1 adelantado: plan comprimido a 3 días
+- **Hecho:** El PC1 se adelantó. En [[Estado del proyecto]] se agregó el *Plan comprimido a 3 días* (30/09 → 02/10): tres frentes en paralelo (arquitectura/datos/API, prototipo UI, IA/documento único), sync express el día 1 para decidir A1, A4, A5, B1 y E1 y repartir los frentes, ratificación de ARQ al cierre del día 2 e integración, documento único y ensayo el día 3. Los recomendados C1–C3 salen del PC1. El calendario por semanas quedó marcado como superado.
+- **Pendiente:** confirmar la fecha y hora exactas de entrega y actualizar [[Cronograma y PC]] y las portadas de los `.docx`; asignar los frentes en la sync del 30/09.
+
 ## 29/09/26 — Nahuel (Claude Opus 5.5) — plan del PC1 ajustado a la documentación obligatoria de la cátedra
 - **Hecho:** Se compararon las láminas del PC1 (contenido, entrega «Documento con el MVC» y documentación obligatoria) con el vault. El análisis y el UML están completos; faltaban frentes de diseño técnico e IA. Se sumaron al plan de [[Estado del proyecto]] cuatro frentes obligatorios nuevos: **E** (modelo de IA del producto con `DEC-0012`, cadena de LangChain y prompts, agentes de desarrollo y del producto), **F** (contrato OpenAPI en JSON, script SQL desde el ER, diagramas de dominio a un entregable), **G** (modelo C4 de contexto, contenedores y componentes, sección MVC, modelo conceptual por capa) y **H** (preguntas a la cátedra, antecedentes, modelo de desarrollo, documento único `build-pc1.sh` y presentación oral). Se recalculó el calendario, se sumaron las casillas al checklist obligatorio y la lista oficial quedó en [[Cronograma y PC]].
 - **Commits:** 5352451.

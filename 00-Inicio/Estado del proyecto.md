@@ -10,7 +10,7 @@ actualizado: 29/09/26
 > Memoria externa del equipo (y de Claude). Se actualiza en cada **sync semanal**. Es lo primero que se lee al retomar. Mantener **corto**.
 
 ## Fase actual
-**Análisis y diseño → rumbo a PC1 (23/10/26).** ✅ **Sync del 29/09: todo el análisis quedó ratificado y formalizado** — 31 CU y su diagrama, 13 entidades, clases y ER, 6 diagramas de estado, 5 de actividad, 4 de secuencia y [[Requisitos funcionales]] (153 RF + 16 RNF con valores). Se cerraron los 18 huecos de los diagramas de actividad y las abiertas anteriores (ver *Definido y sellado en la sync 29/09*). **Próximo:** arquitectura y prototipo UI en Figma (ver *Pasos restantes hacia PC1*).
+**Análisis y diseño → rumbo a PC1, ⚠️ adelantado: hay 3 días (30/09 → 02/10/26; fecha exacta de entrega a confirmar).** El plan se comprimió en *Plan comprimido a 3 días*. ✅ **Sync del 29/09: todo el análisis quedó ratificado y formalizado** — 31 CU y su diagrama, 13 entidades, clases y ER, 6 diagramas de estado, 5 de actividad, 4 de secuencia y [[Requisitos funcionales]] (153 RF + 16 RNF con valores). Se cerraron los 18 huecos de los diagramas de actividad y las abiertas anteriores (ver *Definido y sellado en la sync 29/09*). **Próximo:** arquitectura y prototipo UI en Figma (ver *Pasos restantes hacia PC1*).
 
 ## Roles de esta quincena
 Los tres tomamos **los tres roles** (Coordinador de vault · Guardián del dominio · Escriba de decisiones): todos estamos en todo. **Francisco** es el referente/mantenedor del vault (lo creó y chequea el rumbo general). Definido en la sync 11/09.
@@ -52,10 +52,36 @@ Los tres tomamos **los tres roles** (Coordinador de vault · Guardián del domin
 - **Modelo de IA del producto** (E1, `DEC-0012`).
 - **Preguntas para la cátedra** (H0): qué significa «MVC» y a qué se refiere «Modelo de desarrollo».
 
-## Pasos restantes hacia PC1 (23/10/26) — plan detallado
+## Plan comprimido a 3 días (PC1 adelantado)
+> 29/09/26 (Nahuel): **el PC1 se adelantó** y lo pendiente se hace en tres días. Este plan **reemplaza el calendario por semanas** de abajo; el detalle de cada paso (qué se entrega y dónde) sigue en *Pasos restantes hacia PC1*. Tres frentes en paralelo, uno por persona; **quién toma cada frente se decide en la sync express del día 1**. Fecha y hora exactas de entrega: **a confirmar** (hay que actualizar [[Cronograma y PC]] y las portadas de los `.docx`).
+
+**Frentes:** **F-Arq** = arquitectura, datos y API (A, F1, F2, G1) · **F-UI** = prototipo y modelo de desarrollo (B, H2) · **F-IA/Doc** = IA, MVC, antecedentes y documento único (E, G2, G3, H0, H1, H3).
+
+**Recortes:** los recomendados **C1–C3 salen del PC1** (reglas, matriz completa y glosario quedan para después; C1 solo si sobra tiempo el día 2). Las pantallas **mobile** (RNF-14) entran solo si Figma avanza bien. Si la cátedra no contesta H0 a tiempo, se toma **MVC = Modelo-Vista-Controlador** y **modelo de desarrollo = metodología de trabajo**, y se deja escrito el supuesto.
+
+### Día 1 — mié 30/09: decidir y construir las bases
+- **Sync express (30 min, los tres, a primera hora):** decidir A1 (infraestructura), A4 (ORM y migraciones), A5 (Dependabot o Renovate), B1 (pantallas) y E1 (modelo de IA); repartir los frentes. Lo que se apruebe ahí se escribe ya ratificado. Enviar las preguntas de **H0** a la cátedra.
+- **F-Arq:** `DEC-0011` (A1) → A2 (vista de despliegue) → A3 (vista lógica del backend) → registrar A4 y A5 → **F2** script SQL validado contra un PostgreSQL local.
+- **F-UI:** B2 wireframes rápidos de las pantallas de B1 recorriendo CU-01 → arrancar B3 en Figma.
+- **F-IA/Doc:** `DEC-0012` (E1) → E2 (cadena de LangChain y prompts) → H1 (antecedentes).
+- **Cierre del día:** commit, `pull --rebase` y push de cada frente.
+
+### Día 2 — jue 01/10: producir los entregables de diseño
+- **F-Arq:** **F1** contrato OpenAPI en JSON → **G1** modelo C4 (el nivel 3 reusa A3) → dejar ARQ lista para ratificar.
+- **F-UI:** **B3** diseño en Figma de todas las pantallas acordadas → **H2** modelo de desarrollo.
+- **F-IA/Doc:** E3 (agentes) → E4 (justificación de la IA en el producto) → **G2** sección MVC (con el borrador de F1 y los diagramas de secuencia) → G3 (modelo conceptual por capa) → esqueleto de **H3** `build-pc1.sh` con lo que ya exista.
+- **Cierre del día (30 min, los tres):** **A6** ratificar ARQ y las DEC nuevas; revisar qué falta para el día 3.
+
+### Día 3 — vie 02/10: integrar, revisar y presentar
+- **Mañana:** B4 (link de Figma + PNG en `07-Entregables/Prototipo/`) · F3 (diagramas de dominio al documento único) · **H3** generar el `.docx` único · **D1** la consulta `#pc/pc1 AND #estado/borrador` da cero · **D2** revisión completa y regenerar los tres `.docx` anexos.
+- **Tarde:** **H4** deck en el mismo orden del documento y **ensayo** · **D3** `git tag pc1` · último push.
+
+## Pasos restantes hacia PC1 — plan detallado
+> ⚠️ Las semanas de este bloque quedaron **superadas** por el *Plan comprimido a 3 días*; el contenido de cada paso sigue vigente.
+>
 > Lo que falta para el PC1. El análisis ya está cerrado. Obligatorio: **arquitectura** (A), **prototipo UI** (B), **IA del producto y agentes** (E), **contrato de la API y SQL** (F), **C4 y MVC** (G) y el **documento único con su presentación** (H), según la documentación obligatoria de la cátedra (ver [[Cronograma y PC]]). Además hay tres recomendados (C). Las semanas y los responsables son una **propuesta**: se confirman en la sync. Cada paso dice qué se entrega y dónde queda.
 
-**Calendario propuesto:** semana 6 (hasta el 02/10) → A1, A2, B1, E1 y H0 · semana 7 (hasta el 09/10) → A3–A5, B2, E2, E3, F1, F2, G1, G2, H1, H2 y C1 · semana 8 (hasta el 16/10) → B3, B4, E4, F3, G3, H3, C2, C3 y la sync de cierre · semana 9 → H4 (ensayo) y **PC1 el 23/10**.
+~~**Calendario propuesto:**~~ (superado por el plan a 3 días) semana 6 (hasta el 02/10) → A1, A2, B1, E1 y H0 · semana 7 (hasta el 09/10) → A3–A5, B2, E2, E3, F1, F2, G1, G2, H1, H2 y C1 · semana 8 (hasta el 16/10) → B3, B4, E4, F3, G3, H3, C2, C3 y la sync de cierre · semana 9 → H4 (ensayo) y **PC1 el 23/10**.
 
 ### A · Arquitectura — obligatorio (`[[ARQ — Vista general]]`, hoy `en-revision`)
 - [ ] **A1. Decidir la infraestructura de despliegue** con una `DEC-0011`. Se comparan tres opciones: **PaaS** (servicio gestionado para la API y PostgreSQL), **VPS** propio y **servidor on-premise** en la agencia. Criterios, todos ya fijados en [[Requisitos funcionales]]: disponibilidad **24/7** (RNF-13), respaldo **diario con copia fuera del servidor** (RNF-08), que el proceso automático corra a las **00:00**, y el costo para una PyME. De esta decisión dependen Nginx y el runner self-hosted de CI.
