@@ -1,14 +1,15 @@
 ---
 tipo: caso-uso
-estado: en-revision
+estado: formalizado
 modulo: [alertas]
 responsable: Nahuel
 pc: pc1
-actualizado: 10/09/26
+actualizado: 29/09/26
+fecha_aprobacion: 29/09/26
 ---
 # CU-28 Crear recordatorio manual
 
-tags:: #tipo/caso-uso #estado/en-revision #pc/pc1 #accion/revisar
+tags:: #tipo/caso-uso #estado/formalizado #pc/pc1
 
 ## Descripción
 Crear una [[Alerta]] **manual**: un recordatorio propio del empleado no derivado de un evento automático (pago, formulario, insistencia o reseña), opcionalmente asociado a un [[Viaje]], [[Cliente]] u [[Oportunidad]].

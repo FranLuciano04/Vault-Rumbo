@@ -1,14 +1,15 @@
 ---
 tipo: caso-uso
-estado: en-revision
+estado: formalizado
 modulo: [viajes]
 responsable: Francisco
 pc: pc1
-actualizado: 21/09/26
+actualizado: 29/09/26
+fecha_aprobacion: 29/09/26
 ---
 # CU-27 Cancelar viaje
 
-tags:: #tipo/caso-uso #estado/en-revision #pc/pc1 #accion/revisar
+tags:: #tipo/caso-uso #estado/formalizado #pc/pc1
 
 ## Descripción
 Dar de baja un [[Viaje]] que no se concreta (el cliente desiste, fuerza mayor), registrando el motivo, desactivando los [[Pago|Pagos]] pendientes y cerrando las [[Alerta|Alertas]] vigentes, sin perder el historial.
@@ -26,18 +27,18 @@ Dar de baja un [[Viaje]] que no se concreta (el cliente desiste, fuerza mayor), 
 1. El empleado abre el [[Viaje]] y elige **cancelar**.
 2. Registra el **motivo** y la fecha de cancelación (`dd/mm/aa`).
 3. El sistema cambia el `estado` del [[Viaje]] a **`cancelado`**.
-4. El sistema pasa los [[Pago|Pagos]] **no cobrados** del plan (`pendientes` **y** `vencidos` — regla del 21/09) a estado **`anulado`** (baja lógica: dejan de ser exigibles pero se conservan) y **resuelve** las [[Alerta|Alertas]] vigentes del viaje.
+4. El sistema pasa los [[Pago|Pagos]] **no cobrados** del plan (`pendientes` **y** `vencidos`) a estado **`anulado`** (baja lógica: dejan de ser exigibles pero se conservan) y **resuelve** las [[Alerta|Alertas]] vigentes del viaje, **marcándolas como cerradas por la cancelación** (`cerrada_por_cancelacion`).
 5. El sistema deja constancia de que la **comisión proyectada no se realiza** ([[RN-01 Comisión automática]]) — **salvo que el [[Viaje]] ya estuviera `en curso`**, donde el servicio ya se prestó y la comisión **se mantiene** (ver **A4**).
 6. El [[Viaje]] permanece en el historial (baja lógica; no se elimina).
 
 ## Flujos alternativos
 - **A1 — Viaje finalizado:** si el [[Viaje]] ya está `finalizado`, no se cancela; el sistema lo impide.
 - **A2 — Pagos ya cobrados:** si hay [[Pago|Pagos]] `pagados`, el sistema informa el importe cobrado; el **reembolso/penalidad queda fuera de alcance** (Rumbo no procesa pagos online — [[Alcance y fuera de alcance]]), solo se documenta el saldo.
-- **A3 — Revertir cancelación:** si fue un error y el [[Viaje]] no está `finalizado`, el empleado reactiva el viaje, que **vuelve al estado que tenía justo antes de cancelarse**; sus [[Pago|Pagos]] vuelven a `pendiente` o `vencido` según su fecha, y sus [[Alerta|Alertas]] se reabren (21/09).
-- **A4 — Viaje ya iniciado (`en curso`):** si el [[Viaje]] estaba **`en curso`**, el servicio **ya se prestó** (total o parcialmente), así que la cancelación **no toca la economía ya realizada**: la **comisión del vendedor se mantiene** (no se revierte, a diferencia del paso 5) y los [[Pago|Pagos]] ya `pagados` quedan como están. Se anulan igual los [[Pago|Pagos]] **no cobrados** (paso 4), con lo cual `Σ montos` deja de coincidir con el `precioVenta` y pasa a reflejar **lo efectivamente cobrado** ([[CU-11 Definir plan de cuotas]] A4). Es la **interrupción** de un viaje en marcha, no una venta que no ocurrió. El reembolso o la penalidad por la parte no usada siguen **fuera de alcance** (A2). Decidido el 21/09 (borrador a ratificar).
+- **A3 — Revertir cancelación:** si fue un error y el [[Viaje]] no está `finalizado`, el empleado reactiva el viaje, que **vuelve al estado que tenía justo antes de cancelarse**; sus [[Pago|Pagos]] vuelven a `pendiente` o `vencido` según su fecha, y se reabren **solo las [[Alerta|Alertas]] que cerró la cancelación** (las marcadas en el paso 4); las que ya estaban resueltas por otro motivo (un pago cobrado, un formulario entregado) no vuelven. Si el paso 5 había dejado constancia de que la comisión no se realizaba, esa constancia se anula y la **comisión vuelve a quedar proyectada** ([[RN-01 Comisión automática]]).
+- **A4 — Viaje ya iniciado (`en curso`):** si el [[Viaje]] estaba **`en curso`**, el servicio **ya se prestó** (total o parcialmente), así que la cancelación **no toca la economía ya realizada**: la **comisión del vendedor se mantiene** (no se revierte, a diferencia del paso 5) y los [[Pago|Pagos]] ya `pagados` quedan como están. Se anulan igual los [[Pago|Pagos]] **no cobrados** (paso 4), con lo cual `Σ montos` deja de coincidir con el `precioVenta` y pasa a reflejar **lo efectivamente cobrado** ([[CU-11 Definir plan de cuotas]] A4). Es la **interrupción** de un viaje en marcha, no una venta que no ocurrió. El reembolso o la penalidad por la parte no usada siguen **fuera de alcance** (A2).
 
 ## Postcondiciones
-- El [[Viaje]] queda en `cancelado`, con sus [[Pago|Pagos]] pendientes en estado `anulado` y sus [[Alerta|Alertas]] cerradas, preservando el historial.
+- El [[Viaje]] queda en `cancelado`, con sus [[Pago|Pagos]] no cobrados (`pendientes` y `vencidos`) en estado `anulado` y sus [[Alerta|Alertas]] cerradas, preservando el historial.
 - Si el [[Viaje]] estaba `en curso` al cancelarse, **conserva además la comisión del vendedor** y los cobros ya registrados (A4).
 
 ## Reglas de negocio aplicadas

@@ -1,14 +1,15 @@
 ---
 tipo: caso-uso
-estado: en-revision
+estado: formalizado
 modulo: [dashboard]
 responsable: Francisco
 pc: pc1
-actualizado: 17/09/26
+actualizado: 29/09/26
+fecha_aprobacion: 29/09/26
 ---
 # CU-22 Generar reportes y estadísticas
 
-tags:: #tipo/caso-uso #estado/en-revision #pc/pc1 #accion/revisar
+tags:: #tipo/caso-uso #estado/formalizado #pc/pc1
 
 ## Descripción
 El dueño (o admin) genera **reportes del período** (mensuales) con las estadísticas del negocio —ventas, comisiones, cobranzas, destinos y clientes— para analizar y exportar. A diferencia del [[CU-21 Ver dashboard y embudo|dashboard]] (foto en vivo), acá el resultado es un **reporte consolidado y exportable**.

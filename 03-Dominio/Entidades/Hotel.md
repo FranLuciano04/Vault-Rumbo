@@ -1,14 +1,15 @@
 ---
 tipo: entidad
-estado: borrador
+estado: formalizado
 modulo: [hoteles]
 responsable:
 pc: pc1
-actualizado: 10/09/26
+actualizado: 29/09/26
+fecha_aprobacion: 29/09/26
 ---
 # Hotel
 
-tags:: #tipo/entidad #estado/borrador #pc/pc1
+tags:: #tipo/entidad #estado/formalizado #pc/pc1
 
 ## Responsabilidad
 Hotel vendido, con reseñas, para consultar y recomendar (catálogo).
@@ -18,14 +19,14 @@ Hotel vendido, con reseñas, para consultar y recomendar (catálogo).
 |---|---|---|
 | id | UUID | Identificador |
 | nombre | String | Nombre |
-| destino | FK → [[Destino]] | Ubicación del catálogo — ver [[DEC-0006 Destino como entidad de catálogo]] (⚠️ ratificar con Paloma) |
+| destino | FK → [[Destino]] | Ubicación del catálogo — ver [[DEC-0006 Destino como entidad de catálogo]] |
 | categoria | String | Estrellas / tipo |
 | precio_referencia | Decimal (ARS) | Precio de referencia por noche; permite filtrar por rango ([[CU-18 Buscar y recomendar hoteles]]) |
 | servicios | Texto / lista | Servicios / amenities (wifi, pileta, desayuno…); filtrable ([[CU-18 Buscar y recomendar hoteles]]) |
 | estado | Enum | `activo` · `cerrado` — soporta la baja de hoteles que cerraron conservando el historial ([[CU-16 Gestionar hotel en catálogo]]). |
 
 ## Relaciones
-- *..1 con [[Destino]] — ver [[DEC-0006 Destino como entidad de catálogo]] (⚠️ ratificar con Paloma)
+- *..1 con [[Destino]] — ver [[DEC-0006 Destino como entidad de catálogo]]
 - 0..* con [[Viaje]] (N:M vía `viaje_hotel`, con **`id` propio** — no PK compuesta, porque el mismo hotel puede repetirse en dos tramos de un mismo viaje —, que lleva `check_in`/`check_out`, `orden` y **`vencimiento_pago_proveedor`** + `pago_proveedor_realizado`) — ver [[DEC-0003 Relación Viaje–Hotel y Reseña]]
 - 1 a 0..* con [[Reseña]] (un hotel puede tener muchas reseñas)
 

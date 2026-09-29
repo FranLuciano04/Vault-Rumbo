@@ -1,19 +1,20 @@
 ---
 tipo: diagrama
-estado: borrador
+estado: formalizado
 modulo: [economia, cotizaciones, viajes, clientes, alertas]
 responsable: Nahuel
 pc: pc1
-actualizado: 25/09/26
+actualizado: 29/09/26
+fecha_aprobacion: 29/09/26
 ---
 # DGM-ACT — Proceso automático diario
 
-tags:: #tipo/diagrama #estado/borrador #pc/pc1 #accion/revisar
+tags:: #tipo/diagrama #estado/formalizado #pc/pc1
 
 ## Qué representa
-El **diagrama de actividad** de lo que el sistema hace **solo, sin que nadie lo dispare**: vencer pagos y cotizaciones, sugerir el avance de los viajes según sus fechas y detectar clientes para recontactar. **No es un caso de uso**: no tiene actor humano. Junta en una sola corrida las transiciones marcadas con ⚙ en los diagramas de estado y los pasos automáticos de los CU. Las cuatro tareas son **independientes**, por eso van en paralelo.
+El **diagrama de actividad** de lo que el sistema hace **solo, sin que nadie lo dispare**: vencer pagos y cotizaciones, sugerir el avance de los viajes según sus fechas y detectar clientes para recontactar. **No es un caso de uso**: no tiene actor humano. Junta en una sola corrida las transiciones marcadas con ⚙ en los diagramas de estado y los pasos automáticos de los CU. Las cuatro tareas son **independientes**, por eso van en paralelo. Corre **una vez por día, a las 00:00** (sync 29/09).
 
-**Qué no hace esta corrida:** no *genera* las alertas de pago, formulario y salida. Esas se crean con su fecha al confirmar la reserva y al definir el plan de cuotas ([[DGM-ACT — Confirmar reserva]]), y aparecen en la agenda cuando llega su fecha ([[CU-14 Ver y atender alertas del día]]).
+**Qué no hace esta corrida:** no *genera* las alertas de pago, formulario y salida (solo las de `viaje` y `recontacto`). Esas se crean con su fecha al confirmar la reserva y al definir el plan de cuotas ([[DGM-ACT — Confirmar reserva]]), y aparecen en la agenda cuando llega su fecha ([[CU-14 Ver y atender alertas del día]]).
 
 Notas de origen: [[EST-Pago]] · [[EST-Cotización]] · [[EST-Viaje]] · [[EST-Alerta]] · [[CU-06 Emitir cotización]] · [[CU-08 Gestionar estado del viaje]] · [[CU-30 Sugerir recontacto de clientes]] · [[CU-14 Ver y atender alertas del día]]
 
@@ -24,8 +25,8 @@ flowchart TB
     ini@{ shape: sm-circ }
     ini --> s0
 
-    subgraph P0["Inicio · Corrida diaria"]
-        s0("(Sistema)<br/>Arranca la corrida del día")
+    subgraph P0["Inicio · Corrida diaria, 00:00"]
+        s0("(Sistema)<br/>Arranca la corrida del día a las 00:00")
         f0@{ shape: fork }
         s0 --> f0
     end
@@ -33,7 +34,7 @@ flowchart TB
     subgraph T1["Tarea 1 · Vencer pagos"]
         s1("(Sistema)<br/>Busca Pagos pendientes con vencimiento anterior a hoy")
         d1{ }
-        s1b("(Sistema)<br/>Pago → vencido (T3) y actualiza su alerta")
+        s1b("(Sistema)<br/>Pago → vencido (T3); su alerta sigue pendiente")
         m1{ }
         s1 --> d1
         d1 -- "[hay pagos vencidos]" --> s1b --> m1
@@ -53,7 +54,7 @@ flowchart TB
     subgraph T3["Tarea 3 · Sugerir el avance de los viajes"]
         s3("(Sistema)<br/>Busca Viajes confirmados con salida hoy y Viajes en curso con regreso hoy")
         d3{ }
-        s3b("(Sistema)<br/>Sugiere el cambio a en curso o finalizado; no lo aplica")
+        s3b("(Sistema)<br/>Genera una alerta «viaje» para el responsable, que sugiere pasar a en curso o finalizado; no lo aplica")
         m3{ }
         s3 --> d3
         d3 -- "[hay viajes en fecha]" --> s3b --> m3
@@ -63,7 +64,7 @@ flowchart TB
     subgraph T4["Tarea 4 · Detectar recontactos"]
         s4("(Sistema)<br/>Evalúa el historial de cada Cliente: fiel, inactivo y sin no_recontactar")
         d4{ }
-        s4b("(Sistema)<br/>Genera una alerta «recontacto» por candidato · Alerta → pendiente (T1)")
+        s4b("(Sistema)<br/>Genera una alerta «recontacto» para el responsable del cliente, salvo que ya tenga una sin resolver · Alerta → pendiente (T1)")
         m4{ }
         s4 --> d4
         d4 -- "[hay candidatos]" --> s4b --> m4
@@ -100,7 +101,7 @@ Como no hay un caso de uso propio, cada marco es **una tarea** y se traza a la t
 |---|---|---|
 | 1 · Vencer pagos | [[EST-Pago]] T3 | [[EST-Pago]] T3 |
 | 2 · Vencer cotizaciones | [[EST-Cotización]] T5 · [[CU-06 Emitir cotización]] A5 | [[EST-Cotización]] T5 |
-| 3 · Sugerir el avance de los viajes | [[CU-08 Gestionar estado del viaje]] paso 3 y A1 · [[EST-Viaje]] T4, T5 | — (solo sugiere; confirma el empleado) |
+| 3 · Sugerir el avance de los viajes | [[CU-08 Gestionar estado del viaje]] paso 3 y A1 · [[EST-Viaje]] T4, T5 | [[EST-Alerta]] T1 (alerta `viaje`); el viaje no cambia: confirma el empleado |
 | 4 · Detectar recontactos | [[CU-30 Sugerir recontacto de clientes]] pasos 1–2 y A4 | [[EST-Alerta]] T1 |
 
 ## Convenciones del diagrama
@@ -113,7 +114,9 @@ Las mismas que [[DGM-ACT — De la consulta a la venta#Convenciones del diagrama
 - **Un solo editor a la vez** (el bloque Mermaid es indivisible). Ver [[Guía del Vault#3 · Workflow colaborativo]].
 
 ## 🔎 Revisión
-> [!warning] Huecos detectados al dibujar (25/09, Nahuel + Claude) — no se resolvieron. #accion/decidir
+> [!success] **Resueltos en la sync del 29/09** (Francisco, Nahuel y Paloma): (1) el proceso corre **una vez por día, a las 00:00**; (2) [[EST-Pago]] ya no dice que T3 es la única automática; (3) al vencer un pago **su alerta no cambia**: sigue `pendiente` y [[CU-14 Ver y atender alertas del día]] la muestra atrasada; (4) la sugerencia de avance del viaje llega con una **[[Alerta]] de tipo `viaje`** (8.º tipo) el día de salida y el de regreso; (5) el recontacto **no se duplica** si el cliente ya tiene uno sin resolver (`pendiente` o `vista`, incluidos los pospuestos), y se asigna al **responsable del [[Cliente]]** (o a un `admin` si no tiene uno activo).
+>
+> [!note] Huecos detectados al dibujar (25/09, Nahuel + Claude), conservados como historial:
 > 1. **Frecuencia y horario no definidos.** Los diagramas de estado hablan de «proceso automático» y [[CU-30 Sugerir recontacto de clientes]] de que el sistema evalúa «periódicamente». **Que sea una corrida diaria es un supuesto de este diagrama**, no algo acordado: hay que ratificarlo (y definir a qué hora).
 > 2. **[[EST-Pago]] quedó desactualizada.** Dice que T3 es «la única transición automática de todo el modelo», pero desde el 21/09 también es automática la de [[EST-Cotización]] T5 (`enviada → vencida`).
 > 3. **«Actualiza su alerta» no está definido.** [[EST-Pago]] T3 dice que al vencer el pago se actualiza la [[Alerta]] asociada, pero no qué cambia: la alerta no tiene estado `vencida` y [[CU-14 Ver y atender alertas del día]] ya muestra las que pasaron su fecha.

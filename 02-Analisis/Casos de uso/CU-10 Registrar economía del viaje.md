@@ -1,14 +1,15 @@
 ---
 tipo: caso-uso
-estado: en-revision
+estado: formalizado
 modulo: [economia]
 responsable: Nahuel
 pc: pc1
-actualizado: 17/09/26
+actualizado: 29/09/26
+fecha_aprobacion: 29/09/26
 ---
 # CU-10 Registrar economía del viaje
 
-tags:: #tipo/caso-uso #estado/en-revision #pc/pc1 #accion/revisar
+tags:: #tipo/caso-uso #estado/formalizado #pc/pc1
 
 ## Descripción
 Cargar la economía de un [[Viaje]] —precio de venta, costo del operador, moneda y comisión del vendedor—; el sistema **calcula automáticamente** la **ganancia** (`venta − costo`) y el **margen %**. Ver [[RN-01 Comisión automática]] y [[DEC-0007 Modelo económico — ganancia, margen y comisión de vendedor]].
@@ -20,7 +21,7 @@ Cargar la economía de un [[Viaje]] —precio de venta, costo del operador, mone
 - [[Actores|admin]] — configura la comisión por defecto de cada vendedor ([[CU-13 Configurar porcentaje de comisión]]).
 
 ## Precondiciones
-- Existe el [[Viaje]] (creado/`vendido` en [[CU-07 Confirmar reserva]]).
+- Existe el [[Viaje]], creado en estado `reservado` por [[CU-07 Confirmar reserva]] (la economía se carga antes del primer cobro).
 - Existe el catálogo de [[Operador|Operadores]] ([[DEC-0009 Operador-Proveedor como entidad de catálogo]]) y, si aplica, el `vendedor` con su comisión por defecto ([[CU-13 Configurar porcentaje de comisión]]).
 
 ## Flujo principal

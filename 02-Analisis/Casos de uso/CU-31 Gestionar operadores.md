@@ -1,14 +1,15 @@
 ---
 tipo: caso-uso
-estado: en-revision
+estado: formalizado
 modulo: [configuracion, economia]
 responsable: Nahuel
 pc: pc1
-actualizado: 18/09/26
+actualizado: 29/09/26
+fecha_aprobacion: 29/09/26
 ---
 # CU-31 Gestionar operadores
 
-tags:: #tipo/caso-uso #estado/en-revision #pc/pc1 #accion/revisar
+tags:: #tipo/caso-uso #estado/formalizado #pc/pc1
 
 ## Descripción
 Alta, baja y modificación (ABM) de los **operadores/proveedores** del catálogo. El catálogo de operadores es la **contraparte del `costo`** de un [[Viaje]] y la base de los reportes de **ventas por operador** y **pendiente de pago a operadores** ([[CU-22 Generar reportes y estadísticas]], [[CU-21 Ver dashboard y embudo]]). Ver [[DEC-0009 Operador-Proveedor como entidad de catálogo]].

@@ -1,14 +1,15 @@
 ---
 tipo: caso-uso
-estado: en-revision
+estado: formalizado
 modulo: [hoteles]
 responsable: Paloma
 pc: pc1
-actualizado: 10/09/26
+actualizado: 29/09/26
+fecha_aprobacion: 29/09/26
 ---
 # CU-18 Buscar y recomendar hoteles
 
-tags:: #tipo/caso-uso #estado/en-revision #pc/pc1 #accion/revisar
+tags:: #tipo/caso-uso #estado/formalizado #pc/pc1
 
 ## Descripción
 El empleado consulta el catálogo de [[Hotel|Hoteles]] filtrando por destino y categoría, y usa las [[Reseña|Reseñas]] para recomendar opciones al [[Cliente]] al cotizar o armar el itinerario. Es una consulta de **solo lectura** sobre el catálogo.
@@ -24,7 +25,7 @@ El empleado consulta el catálogo de [[Hotel|Hoteles]] filtrando por destino y c
 - Hay [[Hotel|Hoteles]] cargados en el catálogo ([[CU-16 Gestionar hotel en catálogo]]).
 
 ## Flujo principal
-1. El empleado abre el **catálogo de hoteles** y filtra por **destino**, **categoría**, **rango de precio** y **servicios**. _(Precio y servicios requieren sumar esos atributos a [[Hotel]] — ver Revisión.)_
+1. El empleado abre el **catálogo de hoteles** y filtra por **destino**, **categoría**, **rango de precio** y **servicios**.
 2. El sistema lista los [[Hotel|Hoteles]] que coinciden, mostrando su **puntaje promedio** (cálculo derivado de las [[Reseña|Reseñas]], no un atributo del `Hotel`).
 3. El empleado abre un `Hotel` para ver su detalle y sus reseñas.
 4. El empleado usa el resultado para recomendar al `Cliente`, típicamente al [[CU-06 Emitir cotización|cotizar]] o [[CU-09 Armar itinerario de hoteles|armar el itinerario]].

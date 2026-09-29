@@ -1,14 +1,15 @@
 ---
 tipo: caso-uso
-estado: en-revision
+estado: formalizado
 modulo: [viajes]
 responsable: Francisco
 pc: pc1
-actualizado: 11/09/26
+actualizado: 29/09/26
+fecha_aprobacion: 29/09/26
 ---
 # CU-07 Confirmar reserva
 
-tags:: #tipo/caso-uso #estado/en-revision #pc/pc1 #accion/revisar
+tags:: #tipo/caso-uso #estado/formalizado #pc/pc1
 
 ## Descripción
 El empleado **cierra la venta** creando el [[Viaje]] a partir de una [[Oportunidad]] ganada: fija destino, fechas, categoría y responsable, carga su economía ([[CU-10 Registrar economía del viaje]]) y plan de cuotas ([[CU-11 Definir plan de cuotas]]). El [[Viaje]] nace en estado **`reservado`** (el cliente aceptó la cotización) y pasa a `vendido` cuando se cobra la **seña** ([[CU-12 Registrar cobro de un pago]]). El estado `confirmado` del [[Viaje]] corresponde a "total pagado", y no debe confundirse con el acto de confirmar la reserva.
@@ -21,14 +22,14 @@ El empleado **cierra la venta** creando el [[Viaje]] a partir de una [[Oportunid
 
 ## Precondiciones
 - El empleado está autenticado ([[CU-24 Iniciar sesión]]).
-- Existe una [[Oportunidad]] `ganada` (o una [[Cotización]] `aceptada`) para un [[Cliente]] ([[CU-05 Seguir oportunidad]], [[CU-06 Emitir cotización]]).
+- Existe una [[Oportunidad]] abierta con una [[Cotización]] `aceptada` ([[CU-06 Emitir cotización]]), o una [[Oportunidad]] ya cerrada `ganada` por venta directa ([[CU-05 Seguir oportunidad]] A4).
 
 ## Flujo principal
-1. Desde la [[Oportunidad]] ganada, el empleado elige **Confirmar reserva**.
+1. Desde la [[Oportunidad]] (con su [[Cotización]] aceptada), el empleado elige **Confirmar reserva**.
 2. Carga/confirma los datos del [[Viaje]]: **destino** (del catálogo, [[CU-26 Gestionar destinos]]), **fechas** (salida/regreso), **categoría** (ej. salida grupal, individual) y **responsable** ([[Usuario]]).
-3. El sistema crea el [[Viaje]] en estado `reservado`, asociado al [[Cliente]] y vinculado a la [[Oportunidad]] de origen.
-4. El sistema genera automáticamente las [[Alerta|Alertas]] de tipo `formulario` según los [[RequisitoDestino|requisitos del destino]] ([[CU-15 Configurar recordatorios por destino]]) y una [[Alerta]] de tipo `salida` con aviso previo a la fecha de salida del [[Viaje]] (anticipación **configurable, default 7 días** ⚠️ valor a validar con la agencia).
-5. El sistema encadena el **control económico** ([[CU-10 Registrar economía del viaje]] — `<<include>>`) y el **plan de cuotas** con la seña ([[CU-11 Definir plan de cuotas]]); al cobrarse la seña ([[CU-12 Registrar cobro de un pago]]) el [[Viaje]] pasa a `vendido`. También ofrece armar el **itinerario de hoteles** ([[CU-09 Armar itinerario de hoteles]]).
+3. El sistema crea el [[Viaje]] en estado `reservado`, asociado al [[Cliente]] y vinculado a la [[Oportunidad]] de origen, y **cierra la [[Oportunidad]] como `ganada`** si todavía no lo estaba ([[EST-Oportunidad]] T4).
+4. El sistema genera automáticamente las [[Alerta|Alertas]] de tipo `formulario` según los [[RequisitoDestino|requisitos del destino]] ([[CU-15 Configurar recordatorios por destino]]) y una [[Alerta]] de tipo `salida` con aviso previo a la fecha de salida del [[Viaje]] (anticipación **configurable, default 7 días**).
+5. El sistema encadena el **control económico** ([[CU-10 Registrar economía del viaje]] — `<<include>>`) y el **plan de cuotas**, con o sin seña ([[CU-11 Definir plan de cuotas]]); con el **primer cobro** ([[CU-12 Registrar cobro de un pago]] A0) el [[Viaje]] pasa a `vendido`. También ofrece armar el **itinerario de hoteles** ([[CU-09 Armar itinerario de hoteles]]).
 
 ## Flujos alternativos
 - **A1 — Venta directa (sin cotización formal):** la [[Oportunidad]] se cerró `ganada` sin [[Cotización]] escrita ([[CU-05 Seguir oportunidad]] A4) → igual se confirma el [[Viaje]].
@@ -36,8 +37,8 @@ El empleado **cierra la venta** creando el [[Viaje]] a partir de una [[Oportunid
 - **A3 — Datos faltantes:** falta destino o fechas → el sistema no confirma y pide completarlos.
 
 ## Postcondiciones
-- Existe un [[Viaje]] `reservado` asociado al [[Cliente]] y a su [[Oportunidad]], con las [[Alerta|Alertas]] de formulario por destino y de salida generadas y su economía/plan cargados; pasará a `vendido` al cobrarse la seña ([[CU-12 Registrar cobro de un pago]]).
-- La [[Oportunidad]] queda `ganada` y cerrada.
+- Existe un [[Viaje]] `reservado` asociado al [[Cliente]] y a su [[Oportunidad]], con las [[Alerta|Alertas]] de formulario por destino y de salida generadas y su economía/plan cargados; pasará a `vendido` con el primer cobro ([[CU-12 Registrar cobro de un pago]] A0).
+- La [[Oportunidad]] queda `ganada` y cerrada: **la cierra este CU** al confirmar la reserva.
 
 ## Reglas de negocio aplicadas
 - La **comisión** no se calcula acá: se determina al registrar la economía ([[CU-10 Registrar economía del viaje]], [[RN-01 Comisión automática]]).

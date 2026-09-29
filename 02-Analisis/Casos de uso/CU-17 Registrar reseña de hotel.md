@@ -1,14 +1,15 @@
 ---
 tipo: caso-uso
-estado: en-revision
+estado: formalizado
 modulo: [hoteles, clientes]
 responsable: Paloma
 pc: pc1
-actualizado: 10/09/26
+actualizado: 29/09/26
+fecha_aprobacion: 29/09/26
 ---
 # CU-17 Registrar reseña de hotel
 
-tags:: #tipo/caso-uso #estado/en-revision #pc/pc1 #accion/revisar
+tags:: #tipo/caso-uso #estado/formalizado #pc/pc1
 
 ## Descripción
 Tras el viaje, el empleado carga la [[Reseña]] de un [[Cliente]] sobre un [[Hotel]] en el que se alojó. La reseña alimenta el catálogo y la recomendación de hoteles. Ver [[DEC-0003 Relación Viaje–Hotel y Reseña]].

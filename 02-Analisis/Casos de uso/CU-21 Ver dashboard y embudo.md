@@ -1,14 +1,15 @@
 ---
 tipo: caso-uso
-estado: en-revision
+estado: formalizado
 modulo: [dashboard]
 responsable: Francisco
 pc: pc1
-actualizado: 17/09/26
+actualizado: 29/09/26
+fecha_aprobacion: 29/09/26
 ---
 # CU-21 Ver dashboard y embudo
 
-tags:: #tipo/caso-uso #estado/en-revision #pc/pc1 #accion/revisar
+tags:: #tipo/caso-uso #estado/formalizado #pc/pc1
 
 ## Descripción
 El dueño (o admin) visualiza en un **tablero en vivo** el embudo de ventas y los indicadores del negocio (ventas, comisiones, viajes por estado, cobranzas), para tener la foto del momento y decidir. Es una vista de **solo lectura**.

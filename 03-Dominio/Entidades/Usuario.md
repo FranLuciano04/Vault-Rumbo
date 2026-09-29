@@ -1,14 +1,15 @@
 ---
 tipo: entidad
-estado: borrador
+estado: formalizado
 modulo: []
 responsable:
 pc: pc1
-actualizado: 09/09/26
+actualizado: 29/09/26
+fecha_aprobacion: 29/09/26
 ---
 # Usuario
 
-tags:: #tipo/entidad #estado/borrador #pc/pc1
+tags:: #tipo/entidad #estado/formalizado #pc/pc1
 
 ## Responsabilidad
 Persona que **opera** el sistema. Un mismo Usuario puede tener varios roles (PyME). Ver [[Actores]].

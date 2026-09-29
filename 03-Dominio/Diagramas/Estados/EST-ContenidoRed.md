@@ -1,18 +1,19 @@
 ---
 tipo: diagrama
-estado: borrador
+estado: formalizado
 modulo: [redes]
 responsable: Guardián del dominio
 pc: pc1
-actualizado: 21/09/26
+actualizado: 29/09/26
+fecha_aprobacion: 29/09/26
 ---
 # EST-ContenidoRed — Especificación de estados
 
-tags:: #tipo/diagrama #estado/borrador #pc/pc1
+tags:: #tipo/diagrama #estado/formalizado #pc/pc1
 
 > **Especificación** del flujo kanban de [[ContenidoRed]], lista para dibujar. Derivada de [[CU-19 Planificar contenido en redes]] y [[CU-20 Generar propuesta de contenido con IA]]. El enum vive en [[DGM — Diagrama de clases]] (`EstadoKanban`).
 >
-> ✅ **Diagrama dibujado el 21/09/26** (Nahuel) sobre esta especificación, con los 4 huecos ya resueltos incorporados. Sigue en `borrador`: se ratifica en la sync junto con el resto.
+> ✅ **Diagrama dibujado el 21/09/26** (Nahuel) sobre esta especificación, con los 4 huecos ya resueltos incorporados. ✅ **Ratificado en la sync del 29/09/26** (Francisco, Nahuel y Paloma).
 
 ## Convenciones del diagrama
 
@@ -56,7 +57,7 @@ El diagrama de abajo se dibujó el 21/09/26 siguiendo estas convenciones, comune
 | T5 | `en producción` · `listo` | *columna anterior* | El empleado **retrocede** la tarjeta | empleado | [[CU-19 Planificar contenido en redes]] paso 3 | Confirmado el 21/09: el kanban se arrastra en **las dos direcciones** | — |
 | T6 | `idea` · `en producción` · `listo` | `descartado` | La pieza **no va más** | empleado | — *(sumado el 21/09)* | **Baja lógica**: no se borra físicamente. **No** sale desde `publicado` | — |
 | T7 | `idea` · `en producción` | *(se mantiene)* | **Generar un borrador con IA** y guardarlo en la pieza | empleado + servicio de IA (Claude) | [[CU-20 Generar propuesta de contenido con IA]] / [[CU-19 Planificar contenido en redes]] A1 | Solo desde `idea` o `en producción` | **No cambia el estado.** Dibujar como auto-transición. La IA usa solo tema/canal/tono: **no accede a datos del negocio** |
-| T8 | cualquiera | *(se mantiene)* | **Reprogramar** la fecha de publicación | empleado | [[CU-19 Planificar contenido en redes]] A2 | — | **No cambia el estado**; se actualiza el calendario |
+| T8 | `idea` · `en producción` · `listo` | *(se mantiene)* | **Reprogramar** la fecha de publicación | empleado | [[CU-19 Planificar contenido en redes]] A2 | — | **No cambia el estado**; se actualiza el calendario |
 
 ## Invariantes y reglas
 
@@ -149,7 +150,7 @@ stateDiagram-v2
 - **Ninguna flecha la dispara el sistema.** Es la única de las seis así. `T4` la ejecuta el empleado **después** de haber publicado a mano: el sistema registra el hecho, no lo produce.
 - **Las auto-transiciones** muestran que pedirle un borrador a la IA (T7) o correr la fecha de publicación (T8) **no mueven la tarjeta de columna**.
 
-> ⚠️ **Precisión sobre T8.** La tabla dice que reprogramar la fecha aplica a *cualquier* estado, pero el diagrama la dibuja solo sobre las tres columnas activas: reprogramar algo ya `publicado` o `descartado` no tiene sentido. Si el equipo coincide, conviene ajustar la fila T8 para que diga exactamente eso. #accion/decidir
+> ✅ **Precisión sobre T8 (sync 29/09).** Reprogramar la fecha aplica solo a las tres columnas activas (`idea`, `en producción`, `listo`): sobre algo ya `publicado` o `descartado` no tiene sentido. La fila T8 ya lo dice.
 
 ## Fuentes
 

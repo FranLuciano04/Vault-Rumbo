@@ -50,7 +50,7 @@ flowchart LR
 
 ## Pendiente
 - **Roles y visibilidad** ([[Usuario]]): decidido en [[DEC-0005 Autenticación y modelo de roles]] (`en-revision`) — roles `admin`/`empleado`/`dueño` con autorización a nivel de fila y catálogo compartido.
-- **Mecanismo de autenticación** (propia y/o Google OAuth): aún sin definir. `#accion/decidir`
+- ✅ **Mecanismo de autenticación:** resuelto en [[DEC-0008 Autenticación propia y rol de vendedor freelance]] (usuario/contraseña individual; Google OAuth opcional y futuro).
 - Definir la infraestructura y el mecanismo de despliegue. El servidor on-premise es solo una alternativa; Nginx y el runner self-hosted dependen de esa decisión. `#accion/decidir`
 - Definir la capa de persistencia y migraciones de PostgreSQL.
 - Elegir Dependabot o Renovate.

@@ -1,14 +1,15 @@
 ---
 tipo: entidad
-estado: borrador
+estado: formalizado
 modulo: [economia]
 responsable:
 pc: pc1
-actualizado: 18/09/26
+actualizado: 29/09/26
+fecha_aprobacion: 29/09/26
 ---
 # Pago
 
-tags:: #tipo/entidad #estado/borrador #pc/pc1
+tags:: #tipo/entidad #estado/formalizado #pc/pc1
 
 ## Responsabilidad
 Registro de un pago o cuota de un [[Viaje]], con vencimiento y estado. El sistema **registra**, no cobra online ([[Alcance y fuera de alcance]]).
@@ -21,7 +22,7 @@ Registro de un pago o cuota de un [[Viaje]], con vencimiento y estado. El sistem
 | tipo | Enum | seña · cuota · saldo |
 | vencimiento | Date (dd/mm/aa) | Fecha límite |
 | estado | Enum | `pendiente · pagado · vencido · anulado` — `anulado` es la **baja lógica** de un pago del plan (se cambió el esquema o se canceló el viaje), conserva el registro ([[CU-11 Definir plan de cuotas]] A4, [[CU-27 Cancelar viaje]]) |
-| forma_pago | Enum (se completa al cobrar) | `efectivo · transferencia · tarjeta_credito · tarjeta_debito · cheque · deposito` — se captura **al registrar el cobro** ([[CU-12 Registrar cobro de un pago]]); alimenta el reporte de **formas de pago** ([[CU-22 Generar reportes y estadísticas]]). ⚠️ **Borrador sin validar:** no está en el relevamiento; son los medios habituales de una agencia PyME argentina, propuestos por Nahuel. Falta confirmar con la agencia (¿Mercado Pago, cuenta corriente con el cliente, otro?) |
+| forma_pago | Enum (se completa al cobrar) | `efectivo · transferencia · tarjeta_credito · tarjeta_debito · cheque · deposito` — se captura **al registrar el cobro** ([[CU-12 Registrar cobro de un pago]]); alimenta el reporte de **formas de pago** ([[CU-22 Generar reportes y estadísticas]]). **Cerrado en la sync del 29/09:** las **billeteras virtuales** (Mercado Pago y similares) se registran como `transferencia`; no llevan valor propio. |
 | moneda_pago | Enum (se completa al cobrar) | ARS / USD — **moneda real** en que se cobró el pago; **puede diferir** de `Viaje.moneda` (un mismo viaje admite pagos parte en ARS y parte en USD). Ver [[DEC-0007 Modelo económico — ganancia, margen y comisión de vendedor]] |
 | tipo_cambio | Decimal (se completa al cobrar, opcional) | Cotización que **carga el empleado al cobrar** cuando `moneda_pago` ≠ `Viaje.moneda`; permite reconstruir el equivalente en la moneda de referencia |
 | monto_cobrado | Decimal (se completa al cobrar) | Importe **real recibido** en `moneda_pago` (= `monto` si misma moneda; `monto × tipo_cambio` si difiere). Sirve para caja y para el reporte de formas de pago |
@@ -40,6 +41,6 @@ Registro de un pago o cuota de un [[Viaje]], con vencimiento y estado. El sistem
 - [[CU-01 De la consulta a la venta]] · [[RN-01 Comisión automática]] · [[MOD-Economia-Pagos]]
 
 ## 🔎 Revisión
-> [!note] Nahuel (18/09) — cerrado el enum `forma_pago` como **propuesta borrador** (no hay dato del relevamiento): `efectivo · transferencia · tarjeta_credito · tarjeta_debito · cheque · deposito`. #accion/decidir — validar con la agencia en la próxima sync; si usan Mercado Pago u otro medio digital, se agrega.
+> [!note] Nahuel (18/09) — cerrado el enum `forma_pago` como **propuesta borrador** (no hay dato del relevamiento): `efectivo · transferencia · tarjeta_credito · tarjeta_debito · cheque · deposito`. **Cerrado en la sync del 29/09:** quedan los 6 valores y las billeteras virtuales se registran como `transferencia`.
 >
 > [!note] Nahuel (18/09, entrevista grill) — **Multimoneda por pago (Q6.1, a ratificar en sync):** un viaje se puede pagar parte en ARS y parte en USD. El plan se denomina en la moneda de referencia del viaje; al cobrar se registran `moneda_pago`, `tipo_cambio` y `monto_cobrado`. Se agregó el estado **`anulado`** (Q4) para la baja lógica de un pago (unifica el "desactivar/eliminar" de [[CU-11 Definir plan de cuotas]] A4 y [[CU-27 Cancelar viaje]]). `forma_pago` se captura al cobrar (Q7).

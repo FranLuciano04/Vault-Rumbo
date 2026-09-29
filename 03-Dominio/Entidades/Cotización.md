@@ -1,14 +1,15 @@
 ---
 tipo: entidad
-estado: borrador
+estado: formalizado
 modulo: [cotizaciones]
 responsable:
 pc: pc1
-actualizado: 09/09/26
+actualizado: 29/09/26
+fecha_aprobacion: 29/09/26
 ---
 # Cotización
 
-tags:: #tipo/entidad #estado/borrador #pc/pc1
+tags:: #tipo/entidad #estado/formalizado #pc/pc1
 
 ## Responsabilidad
 Documento que se genera desde una plantilla + formulario para responder una [[Oportunidad]]. Cotizador asistido.

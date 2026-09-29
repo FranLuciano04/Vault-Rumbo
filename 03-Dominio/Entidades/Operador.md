@@ -1,14 +1,15 @@
 ---
 tipo: entidad
-estado: en-revision
+estado: formalizado
 modulo: [economia, viajes]
 responsable: Nahuel
 pc: pc1
-actualizado: 17/09/26
+actualizado: 29/09/26
+fecha_aprobacion: 29/09/26
 ---
 # Operador
 
-tags:: #tipo/entidad #estado/en-revision #pc/pc1
+tags:: #tipo/entidad #estado/formalizado #pc/pc1
 
 ## Responsabilidad
 **Operador/proveedor** (mayorista, operador turístico) al que la agencia le compra el viaje: es la **contraparte del `costo`** del [[Viaje]]. Catálogo compartido con ABM. Habilita reportes de **ventas por operador** y **pendiente de pago a operadores**. Ver [[DEC-0009 Operador-Proveedor como entidad de catálogo]].
@@ -31,4 +32,4 @@ tags:: #tipo/entidad #estado/en-revision #pc/pc1
 ## Aparece en
 - [[CU-22 Generar reportes y estadísticas]] · [[CU-21 Ver dashboard y embudo]] · [[MOC — Modelo de dominio]] · [[DGM-ER]] · [[MOD-Economia-Pagos]]
 
-> ⚠️ **Entidad nueva (sync 17/09, [[DEC-0009 Operador-Proveedor como entidad de catálogo]]).** Su ABM es [[CU-31 Gestionar operadores]]. Falta formalizar (`#estado/formalizado`) al cerrar atributos; responsable a confirmar (módulo de economía = Nahuel).
+> ⚠️ **Entidad nueva (sync 17/09, [[DEC-0009 Operador-Proveedor como entidad de catálogo]]).** Su ABM es [[CU-31 Gestionar operadores]]. ✅ Formalizada en la sync del 29/09/26 junto con el resto de las entidades.

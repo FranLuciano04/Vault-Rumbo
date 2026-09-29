@@ -1,14 +1,15 @@
 ---
 tipo: diagrama
-estado: borrador
+estado: formalizado
 modulo: [viajes, economia, alertas]
 responsable: Nahuel
 pc: pc1
-actualizado: 25/09/26
+actualizado: 29/09/26
+fecha_aprobacion: 29/09/26
 ---
 # DGM-ACT — Confirmar reserva
 
-tags:: #tipo/diagrama #estado/borrador #pc/pc1 #accion/revisar
+tags:: #tipo/diagrama #estado/formalizado #pc/pc1
 
 ## Qué representa
 El **diagrama de actividad** de [[CU-07 Confirmar reserva]]: el momento en que una [[Oportunidad]] ganada se convierte en [[Viaje]]. Crea el viaje, genera en paralelo las alertas del destino y de la salida, e incluye el control económico ([[CU-10 Registrar economía del viaje]]) y el plan de cuotas ([[CU-11 Definir plan de cuotas]]) con su validación `Σ montos = precioVenta`.
@@ -45,7 +46,7 @@ flowchart TB
 
     subgraph P3["Paso 3 · Crear el viaje"]
         s3("(Sistema)<br/>Crea el Viaje asociado al Cliente y a la Oportunidad · Viaje → reservado (T1)")
-        s3b("(Sistema)<br/>Deja la Oportunidad ganada y cerrada")
+        s3b("(Sistema)<br/>Cierra la Oportunidad · Oportunidad → ganada (T4)")
         s3 --> s3b
     end
 
@@ -66,7 +67,7 @@ flowchart TB
     subgraph P5["Paso 5 · Economía y plan de cuotas · incluye CU-10 y CU-11"]
         e5("(Empleado)<br/>Carga moneda, operador, precio de venta, costo, vendedor y comisión")
         s5("(Sistema)<br/>Calcula ganancia y margen · RN-01")
-        e5b("(Empleado)<br/>Define las cuotas y la seña, con monto y vencimiento")
+        e5b("(Empleado)<br/>Define las cuotas y, si hay, la seña, con monto y vencimiento")
         m5{ }
         d5{ }
         s5c("(Sistema)<br/>Rechaza el plan y muestra la diferencia")
@@ -107,9 +108,9 @@ Cada marco es **un paso del camino principal** de [[CU-07 Confirmar reserva]], e
 
 | Paso de CU-07 | Marco del diagrama | Detalle | Estados que cambia |
 |---|---|---|---|
-| 1 · Elegir «Confirmar reserva» | Paso 1 | Precondición: oportunidad `ganada` o cotización `aceptada` | — |
+| 1 · Elegir «Confirmar reserva» | Paso 1 | Precondición: cotización `aceptada`, u oportunidad `ganada` por venta directa | — |
 | 2 · Cargar los datos del viaje | Paso 2 | Destino desde [[CU-26 Gestionar destinos]] | — |
-| 3 · Crear el viaje | Paso 3 | — | [[EST-Viaje]] T1 |
+| 3 · Crear el viaje | Paso 3 | — | [[EST-Viaje]] T1 · [[EST-Oportunidad]] T4 |
 | 4 · Generar alertas de formulario y salida | Paso 4 | Requisitos de [[CU-15 Configurar recordatorios por destino]] | [[EST-Alerta]] T1 |
 | 5 · Economía, plan de cuotas e itinerario | Paso 5 | [[CU-10 Registrar economía del viaje]] pasos 2–6 · [[CU-11 Definir plan de cuotas]] pasos 2–6 · [[CU-09 Armar itinerario de hoteles]] | [[EST-Pago]] T1 · [[EST-Alerta]] T1 |
 
@@ -135,7 +136,9 @@ Los flujos alternativos propios de [[CU-10 Registrar economía del viaje]] (over
 - **Un solo editor a la vez** (el bloque Mermaid es indivisible). Ver [[Guía del Vault#3 · Workflow colaborativo]].
 
 ## 🔎 Revisión
-> [!warning] Huecos detectados al dibujar (25/09, Nahuel + Claude) — no se resolvieron; se dibujó lo que dice el CU. #accion/decidir
+> [!success] **Resueltos en la sync del 29/09** (Francisco, Nahuel y Paloma): (1) el **primer cobro, de cualquier tipo**, pasa el viaje a `vendido` ([[EST-Viaje]] T2, [[CU-12 Registrar cobro de un pago]] A0); (2) la precondición de CU-10 dice `reservado`; (3) **CU-07 cierra la Oportunidad como `ganada`** al crear el viaje (paso 3, [[EST-Oportunidad]] T4); (4) la anticipación de 7 días de la alerta `salida` **quedó verificada con la agencia**. El diagrama ya refleja (1) y (3).
+>
+> [!note] Huecos detectados al dibujar (25/09, Nahuel + Claude), conservados como historial:
 > 1. **Viaje sin seña: nunca pasa a `vendido`.** [[CU-11 Definir plan de cuotas]] dice que la seña es **opcional** y su A2 permite un **pago único** de `tipo = saldo`, pero la guarda de [[EST-Viaje]] T2 exige cobrar un [[Pago]] de `tipo = seña`. Con un plan sin seña, el viaje queda en `reservado` hasta que el saldo llegue a cero, y T3 solo sale de `vendido`: **el viaje quedaría trabado en `reservado` aun totalmente pagado.** Hay que decidir si el primer cobro de cualquier tipo cuenta como seña, o si la seña pasa a ser obligatoria.
 > 2. **Precondición de [[CU-10 Registrar economía del viaje]] desactualizada.** Dice que el viaje fue «creado/`vendido` en CU-07», pero CU-07 lo crea en `reservado` y la economía se carga **antes** del cobro de la seña. Debería decir `reservado`.
 > 3. **Quién cierra la oportunidad como `ganada`.** La precondición de CU-07 exige una oportunidad **ya** `ganada` (o una cotización `aceptada`), y su postcondición dice que «queda `ganada` y cerrada». Con la cotización aceptada pero la oportunidad todavía `cotizada`, no queda claro si CU-07 hace la transición T4 o si el empleado debe cerrarla antes en [[CU-05 Seguir oportunidad]]. Mismo hueco que el punto 4 de [[DGM-ACT — De la consulta a la venta]].

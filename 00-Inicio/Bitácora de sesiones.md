@@ -24,6 +24,18 @@ La **persona** de cada sesión es quien la corre, identificada por su identidad 
 ## Formato
 Es **obligatorio** nombrar a la persona que hizo la sesión.
 ```
+## dd/mm/aa — <persona> (<modelo>)
+- **Hecho:** …
+- **Commits:** <hash>, <hash>
+- **Pendiente:** …
+```
+
+## 29/09/26 — Nahuel, con Francisco y Paloma (Claude Opus 5.5) — sync: cierre de todas las disyuntivas y ratificación
+- **Hecho:** Sync con el equipo completo. Se recorrió toda la *Agenda para la próxima sync* de [[Estado del proyecto]] y se decidió cada punto. **Viaje y cobros:** el primer cobro de cualquier tipo pasa el viaje a `vendido`; nueva reversión `vendido → reservado` ([[EST-Viaje]] T10); el [[Pago]] es indivisible y un pago parcial se resuelve dividiendo la cuota (nuevo [[CU-11 Definir plan de cuotas]] A6). **Oportunidad:** la cierra `ganada` [[CU-07 Confirmar reserva]]. **Cancelación:** al revertirla la comisión vuelve a quedar proyectada y se reabren solo las alertas que cerró (nuevo `Alerta.cerrada_por_cancelacion`). **CU-01** reordenado (cliente → consulta) y con 5 pasos. **Proceso diario** a las 00:00; nuevo tipo de [[Alerta]] `viaje`; recontacto sin duplicar y asignado al responsable del cliente. **Defaults:** `salida` 7 días verificado con la agencia; vigencia de cotización 1 mes, falta validar; `forma_pago` sin cambios (billeteras virtuales = `transferencia`). **Recargo por mora descartado.** **Requisitos:** auditoría en todas las entidades, RF-106 conserva sus filtros (al plantear la pregunta se usó una nota desactualizada y el equipo lo corrigió), y RNF con valores fijados por el equipo (respaldo diario de 30 días, p95 ≤ 2 s con 10 usuarios, 24/7, navegadores y SO). Se **formalizaron** (29/09/26) 66 notas: 31 CU, diagrama de CU, 13 entidades, clases, ER, 6 EST, 5 DGM-ACT, 4 DGM-SEC, Requisitos, Circuito de la consulta a la venta, DEC-0002 y DEC-0010.
+- **Verificado:** se re-renderizaron los PNG de actividad, secuencia, clases, ER y estados (todos OK); se regeneró `Rumbo — Requisitos.docx` sin fugas de cocina interna.
+- **Commits:** ver el commit «Sync 29/09: cerrar disyuntivas y formalizar el análisis».
+- **Pendiente:** **limpiar y regenerar el entregable de casos de uso** (no se regeneró a propósito, porque filtraría marcas internas); validar con la agencia la vigencia de la cotización; cerrar `CategoriaViaje`; arquitectura, infraestructura y prototipo en Figma.
+
 ## 25/09/26 — Nahuel (Claude Opus 5.5) — reorganización de las imágenes de dominio
 - **Hecho:** Nahuel reordenó a mano las imágenes de `03-Dominio/Diagramas/` para que cada tipo tenga su carpeta: los PNG de clases a `Clases/`, el del ER a `DER/`, los de estado a `Estados/img/` y `mermaid-config.json` a la raíz de `Diagramas/`; se eliminó `Diagramas/img/`. Se adaptó `render-diagramas-dominio.sh` para que regenere cada PNG en su carpeta nueva y se actualizaron el [[MOC — Modelo de dominio]] y la [[Guía del Vault]].
 - **Verificado:** el script regenera los 11 PNG en las rutas nuevas y no vuelve a crear `Diagramas/img/`.
@@ -36,11 +48,6 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Commits:** a6a1169.
 - **Pendiente:** la sesión que hace los diagramas de secuencia tiene que trabajar sobre las rutas nuevas (se le avisó).
 
-## dd/mm/aa — <persona> (<modelo>)
-- **Hecho:** …
-- **Commits:** <hash>, <hash>
-- **Pendiente:** …
-```
 
 ## 25/09/26 — Nahuel (Sonnet 5) — diagramas de secuencia 3 de 3, completos
 - **Hecho:** Se dibujó el tercer y último diagrama de secuencia acordado: [[DGM-SEC — Cancelar viaje]] (CU-27), con la misma notación ya cerrada en [[DEC-0010 Notación de los diagramas de actividad y de secuencia|DEC-0010]] (actor → `Interfaz` → `Sistema Rumbo` → `Viaje`/`Pago`/`Alerta` → `Base de Datos`). Sigue paso a paso el camino principal de [[DGM-ACT — Cancelar viaje]]: el `alt` de A1 (viaje `finalizado`) corta antes de cancelar; dentro del camino principal, un `alt` anidado cubre A2 (pagos ya cobrados) y otro cubre A4 (viaje `en curso`, mantiene la comisión); A3 (revertir la cancelación) va como continuación cronológica al final, igual que en CU-12. Se enlazó desde CU-27 y el [[MOC — Casos de uso]], se sumó al `render-diagramas-secuencia.sh` y se verificó el render con `mermaid-cli`. Con este quedan **los 3 `DGM-SEC` de análisis completos** (CU-07, CU-12, CU-27), más el de negocio ([[DGM-SEC — De la consulta a la venta]]) sin tocar.

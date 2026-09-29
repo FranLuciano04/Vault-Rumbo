@@ -1,14 +1,15 @@
 ---
 tipo: diagrama
-estado: borrador
+estado: formalizado
 modulo: [viajes, economia, alertas]
 responsable: Nahuel
 pc: pc1
-actualizado: 25/09/26
+actualizado: 29/09/26
+fecha_aprobacion: 29/09/26
 ---
 # DGM-ACT — Cancelar viaje
 
-tags:: #tipo/diagrama #estado/borrador #pc/pc1 #accion/revisar
+tags:: #tipo/diagrama #estado/formalizado #pc/pc1
 
 ## Qué representa
 El **diagrama de actividad** de [[CU-27 Cancelar viaje]]: el flujo que más ramifica según el estado del [[Viaje]]. Un viaje `finalizado` no se cancela; los [[Pago|Pagos]] no cobrados se anulan, los cobrados solo se informan, y la comisión del vendedor se pierde o se mantiene según el viaje hubiera empezado o no (regla del 21/09). Incluye como **flujo aparte** la reversión de una cancelación hecha por error (A3).
@@ -41,7 +42,7 @@ flowchart TB
 
     subgraph P4["Paso 4 · Pagos y alertas"]
         s4("(Sistema)<br/>Pagos no cobrados (pendientes y vencidos) → anulado (T7)")
-        s4b("(Sistema)<br/>Resuelve las alertas vigentes del viaje · Alerta → resuelta (T5)")
+        s4b("(Sistema)<br/>Resuelve las alertas vigentes del viaje y las marca como cerradas por la cancelación · Alerta → resuelta (T5)")
         d4{ }
         s4c("(Sistema)<br/>Informa el importe ya cobrado; el reembolso queda fuera de alcance")
         m4{ }
@@ -70,9 +71,15 @@ flowchart TB
         e7("(Empleado)<br/>Reactiva el viaje cancelado")
         s7("(Sistema)<br/>Viaje → estado que tenía antes de cancelarse (T9)")
         s7b("(Sistema)<br/>Pagos anulados → pendiente o vencido, según su fecha (T10)")
-        s7c("(Sistema)<br/>Reabre las alertas del viaje · Alerta → pendiente (T6)")
+        s7c("(Sistema)<br/>Reabre solo las alertas que cerró la cancelación · Alerta → pendiente (T6)")
+        d7{ }
+        s7d("(Sistema)<br/>Anula la constancia: la comisión vuelve a quedar proyectada · RN-01")
+        m7{ }
         fin3@{ shape: fr-circ }
-        ini3 --> e7 --> s7 --> s7b --> s7c --> fin3
+        ini3 --> e7 --> s7 --> s7b --> s7c --> d7
+        d7 -- "[había constancia de la comisión]" --> s7d --> m7
+        d7 -- "[la comisión se había mantenido]" --> m7
+        m7 --> fin3
     end
 
     d1 -- "[reservado, vendido, confirmado o en curso]" --> e2
@@ -88,8 +95,8 @@ flowchart TB
     classDef ctl fill:#ffffff,stroke:#334155
     classDef barra fill:#0f172a,stroke:#0f172a
     class e1,e2,e7 emp
-    class s1,s3,s4,s4b,s4c,s5a,s5b,s6,s7,s7b,s7c sis
-    class d1,d4,m4,d5,m5 ctl
+    class s1,s3,s4,s4b,s4c,s5a,s5b,s6,s7,s7b,s7c,s7d sis
+    class d1,d4,m4,d5,m5,d7,m7 ctl
 ```
 
 ## Trazabilidad con el caso de uso
@@ -121,7 +128,9 @@ Las mismas que [[DGM-ACT — De la consulta a la venta#Convenciones del diagrama
 - **Un solo editor a la vez** (el bloque Mermaid es indivisible). Ver [[Guía del Vault#3 · Workflow colaborativo]].
 
 ## 🔎 Revisión
-> [!warning] Huecos detectados al dibujar (25/09, Nahuel + Claude) — no se resolvieron; se dibujó lo que dice el CU. #accion/decidir
+> [!success] **Resueltos en la sync del 29/09** (Francisco, Nahuel y Paloma): (1) al revertir la cancelación la comisión **vuelve a quedar proyectada**; (2) A3 reabre **solo las alertas que cerró la cancelación**, identificadas por el atributo `cerrada_por_cancelacion` de [[Alerta]]; (3) la postcondición de CU-27 ya menciona los pagos `vencidos`.
+>
+> [!note] Huecos detectados al dibujar (25/09, Nahuel + Claude), conservados como historial:
 > 1. **Revertir la cancelación no dice qué pasa con la comisión.** Si el viaje no había empezado, el paso 5 dejó constancia de que la comisión **no se realiza**; A3 repone el estado, los pagos y las alertas, pero no menciona anular esa constancia. ¿La comisión vuelve a quedar proyectada?
 > 2. **Qué alertas se reabren en A3.** El CU dice «sus alertas se reabren», pero no distingue las que cerró la cancelación de las que ya estaban resueltas antes por otro motivo (un pago cobrado, un formulario entregado). Para distinguirlas habría que registrar qué alertas cerró la cancelación.
 > 3. **Postcondición desactualizada.** Dice que quedan «sus Pagos pendientes en estado `anulado`», pero desde el 21/09 el paso 4 anula también los `vencidos`.

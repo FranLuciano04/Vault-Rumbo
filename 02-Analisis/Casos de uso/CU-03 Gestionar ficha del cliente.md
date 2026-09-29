@@ -1,14 +1,15 @@
 ---
 tipo: caso-uso
-estado: en-revision
+estado: formalizado
 modulo: [clientes]
 responsable: Paloma
 pc: pc1
-actualizado: 10/09/26
+actualizado: 29/09/26
+fecha_aprobacion: 29/09/26
 ---
 # CU-03 Gestionar ficha del cliente
 
-tags:: #tipo/caso-uso #estado/en-revision #pc/pc1 #accion/revisar
+tags:: #tipo/caso-uso #estado/formalizado #pc/pc1
 
 ## Descripción
 El empleado consulta y edita la ficha de un [[Cliente]] existente —datos de contacto, segmento y preferencias— y revisa su **historial** (oportunidades, viajes y reseñas), manteniendo viva la memoria del cliente ([[Relevamiento — Fuente de verdad]]).

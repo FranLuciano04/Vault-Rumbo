@@ -1,14 +1,15 @@
 ---
 tipo: caso-uso
-estado: en-revision
+estado: formalizado
 modulo: [hoteles]
 responsable: Paloma
 pc: pc1
-actualizado: 10/09/26
+actualizado: 29/09/26
+fecha_aprobacion: 29/09/26
 ---
 # CU-16 Gestionar hotel en catálogo
 
-tags:: #tipo/caso-uso #estado/en-revision #pc/pc1 #accion/revisar
+tags:: #tipo/caso-uso #estado/formalizado #pc/pc1
 
 ## Descripción
 El empleado da de alta o edita un [[Hotel]] en el **catálogo compartido** de la agencia, para poder recomendarlo, asociarlo a itinerarios y recibir reseñas.

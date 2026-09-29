@@ -1,14 +1,15 @@
 ---
 tipo: entidad
-estado: borrador
+estado: formalizado
 modulo: [viajes, economia]
 responsable:
 pc: pc1
-actualizado: 21/09/26
+actualizado: 29/09/26
+fecha_aprobacion: 29/09/26
 ---
 # Viaje
 
-tags:: #tipo/entidad #estado/borrador #pc/pc1
+tags:: #tipo/entidad #estado/formalizado #pc/pc1
 
 ## Responsabilidad
 Reserva concreta de un cliente: destino, fechas, categoría, estado y control económico. Núcleo operativo del sistema.
@@ -20,7 +21,7 @@ Reserva concreta de un cliente: destino, fechas, categoría, estado y control ec
 | destino | FK → [[Destino]] | Destino del catálogo — ver [[DEC-0006 Destino como entidad de catálogo]] |
 | fechas | Rango | Salida / regreso |
 | categoria | Enum | ej. salida grupal, individual |
-| estado | Enum | `reservado` (aceptó cotización; economía y plan cargados, seña sin cobrar) · `vendido` (pagó la seña) · `confirmado` (pagó el total) · `en curso` (inició por fecha) · `finalizado` (terminó) · `cancelado` (baja, [[CU-27 Cancelar viaje]]). Transiciones: `reservado → vendido` la dispara el **cobro de la seña** y `vendido → confirmado` el **pago total** ([[CU-12 Registrar cobro de un pago]]); `en curso`/`finalizado` van por **fecha** (sugeridas, confirma el empleado — [[CU-08 Gestionar estado del viaje]]) |
+| estado | Enum | `reservado` (aceptó cotización; economía y plan cargados, sin cobros) · `vendido` (primer cobro: la seña, o la primera cuota si no hay seña) · `confirmado` (pagó el total) · `en curso` (inició por fecha) · `finalizado` (terminó) · `cancelado` (baja, [[CU-27 Cancelar viaje]]). Transiciones: `reservado → vendido` la dispara el **cobro de la seña** y `vendido → confirmado` el **pago total** ([[CU-12 Registrar cobro de un pago]]); `en curso`/`finalizado` van por **fecha** (sugeridas, confirma el empleado — [[CU-08 Gestionar estado del viaje]]) |
 | moneda | Enum | **Moneda de la operación** (ARS / USD) — multimoneda ([[DEC-0007 Modelo económico — ganancia, margen y comisión de vendedor]]) |
 | precioVenta | Decimal | Precio al cliente (en `moneda`) |
 | costo | Decimal | **Costo del operador/proveedor** (en `moneda`). Renombra `costoNeto` — [[DEC-0007 Modelo económico — ganancia, margen y comisión de vendedor]] |

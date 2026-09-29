@@ -18,7 +18,7 @@ tags:: #tipo/diagrama #tipo/modulo #estado/en-revision #pc/pc1
 ## Diagrama de clases
 - Ver [[DGM — Diagrama de clases]] (vista principal + las 18 enumeraciones). **El borrador que vivía acá se movió a esa nota el 21/09**, para que este MOC quede corto y haya una sola fuente del diagrama.
 - Cambios respecto del borrador: los FK dejan de listarse como atributos (los expresan las asociaciones), las enumeraciones pasan a clases `<<enumeration>>` y `viaje_hotel` se promueve a la clase asociativa `ViajeHotel`. Detalle y motivo en la sección *Convenciones de lectura* de esa nota.
-- Las **4 incoherencias detectadas las resolvió Nahuel el 21/09** (a ratificar en sync) y ya están propagadas a [[DGM-ER]] y a la nota de [[Viaje]]: `Viaje`–`Pago` es **`1..*`** (todo viaje tiene al menos un pago: [[CU-07 Confirmar reserva]] incluye [[CU-11 Definir plan de cuotas|CU-11]]), `Viaje`–`Alerta` es **`0..1` → `0..*`**, el **origen de la `Alerta`** en el ER se modela con **cuatro FK nullable + CHECK** (no polimórfico), y `Cotización.items` **queda como atributo**, sin entidad propia.
+- Las **4 incoherencias detectadas las resolvió Nahuel el 21/09** (ratificadas en la sync del 29/09) y ya están propagadas a [[DGM-ER]] y a la nota de [[Viaje]]: `Viaje`–`Pago` es **`1..*`** (todo viaje tiene al menos un pago: [[CU-07 Confirmar reserva]] incluye [[CU-11 Definir plan de cuotas|CU-11]]), `Viaje`–`Alerta` es **`0..1` → `0..*`**, el **origen de la `Alerta`** en el ER se modela con **cuatro FK nullable + CHECK** (no polimórfico), y `Cotización.items` **queda como atributo**, sin entidad propia.
 - ✅ El [[DGM-ER]] quedó **completo** el 21/09: atributos de las 14 tablas y las 4 relaciones que le faltaban (`USUARIO`–`ALERTA`, `USUARIO`–`CLIENTE`, `USUARIO`–`OPORTUNIDAD`, `DESTINO`–`REQUISITO_DESTINO`). Los dos diagramas usan el motor **ELK** (líneas rectas ortogonales).
 
 > Relación Viaje–Hotel (N:M) y objeto de la Reseña resueltos en [[DEC-0003 Relación Viaje–Hotel y Reseña]].
@@ -44,7 +44,7 @@ Especificaciones en `03-Dominio/Diagramas/Estados/` — **una nota por clase, au
 | [[Alerta]] | [[EST-Alerta]] | `pendiente · vista · resuelta` | ✅ 21/09 |
 | [[ContenidoRed]] | [[EST-ContenidoRed]] | `idea · en producción · listo · publicado · descartado` ⚠️nuevo | ✅ 21/09 |
 
-✅ **Los 6 están especificados y dibujados** (21/09). Convención común (motor ELK, etiqueta `Tn · evento`, `⚙` automática, `↺` corrección, color por tipo de estado): ver la sección *Convenciones del diagrama* de cualquiera de las notas. ✅ Los **25 huecos** detectados al especificarlos **se resolvieron el 21/09** (a ratificar en la sync): ver la sección *"Huecos — resueltos"* de cada nota.
+✅ **Los 6 están especificados y dibujados** (21/09). Convención común (motor ELK, etiqueta `Tn · evento`, `⚙` automática, `↺` corrección, color por tipo de estado): ver la sección *Convenciones del diagrama* de cualquiera de las notas. ✅ Los **25 huecos** detectados al especificarlos **se resolvieron el 21/09** (ratificados en la sync del 29/09, junto con los diagramas): ver la sección *"Huecos — resueltos"* de cada nota.
 
 > [[Hotel]] (`activo · cerrado`) y [[Reseña]] (`publicada · oculta`) tienen `estado` pero **no llevan diagrama**: son bajas lógicas de dos estados. [[Destino]], [[Operador]] y [[RequisitoDestino]] usan un `activo` booleano, que tampoco es una máquina de estados.
 
@@ -58,4 +58,4 @@ En `03-Dominio/Diagramas/Secuencia/` (PNG en `img/`, se regeneran con `render-di
 - De análisis, con las clases como participantes: [[DGM-SEC — Confirmar reserva]] · [[DGM-SEC — Registrar cobro de un pago]] · [[DGM-SEC — Cancelar viaje]]
 
 ## Pendientes de este diagrama
-- Cardinalidad Viaje–Hotel (N:M) y objeto de la `Reseña` (Hotel) → decidido en [[DEC-0003 Relación Viaje–Hotel y Reseña]] (`en-revision`, ratificar en sync).
+- Cardinalidad Viaje–Hotel (N:M) y objeto de la `Reseña` (Hotel) → decidido en [[DEC-0003 Relación Viaje–Hotel y Reseña]] (formalizada).

@@ -1,14 +1,15 @@
 ---
 tipo: caso-uso
-estado: en-revision
+estado: formalizado
 modulo: [alertas]
 responsable: Nahuel
 pc: pc1
-actualizado: 10/09/26
+actualizado: 29/09/26
+fecha_aprobacion: 29/09/26
 ---
 # CU-14 Ver y atender alertas del día
 
-tags:: #tipo/caso-uso #estado/en-revision #pc/pc1 #accion/revisar
+tags:: #tipo/caso-uso #estado/formalizado #pc/pc1
 
 ## Descripción
 Consultar la agenda de [[Alerta|Alertas]] vigentes (pagos, formularios por destino, próximas salidas, insistencia y reseñas), atenderlas y marcarlas como resueltas.
@@ -26,7 +27,7 @@ Consultar la agenda de [[Alerta|Alertas]] vigentes (pagos, formularios por desti
 1. El empleado abre la agenda de [[Alerta|Alertas]] del día.
 2. El sistema lista las [[Alerta|Alertas]] vigentes (estado `pendiente`, **incluidas las que ya pasaron su `fecha`**), ordenadas por `fecha`, filtradas por propietario ([[DEC-0005 Autenticación y modelo de roles]]).
 3. El empleado abre una [[Alerta]] y ve su contexto ([[Viaje]], [[Pago]] u [[Oportunidad]] asociada).
-4. Realiza la acción correspondiente según el `tipo` (pago · formulario · salida · insistencia · reseña · manual · recontacto).
+4. Realiza la acción correspondiente según el `tipo` (pago · formulario · salida · insistencia · reseña · manual · recontacto · viaje).
 5. Marca la [[Alerta]] como `vista` o `resuelta`.
 
 ## Flujos alternativos

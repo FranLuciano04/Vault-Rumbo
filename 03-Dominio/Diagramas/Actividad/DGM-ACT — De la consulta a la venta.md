@@ -1,17 +1,18 @@
 ---
 tipo: diagrama
-estado: borrador
+estado: formalizado
 modulo: [clientes, cotizaciones, viajes, economia, alertas, hoteles]
 responsable: Nahuel
 pc: pc1
-actualizado: 25/09/26
+actualizado: 29/09/26
+fecha_aprobacion: 29/09/26
 ---
 # DGM-ACT — De la consulta a la venta
 
-tags:: #tipo/diagrama #estado/borrador #pc/pc1 #accion/revisar
+tags:: #tipo/diagrama #estado/formalizado #pc/pc1
 
 ## Qué representa
-El **diagrama de actividad** de [[CU-01 De la consulta a la venta]]: los seis pasos de su camino principal, en orden, con las decisiones, bucles y acciones en paralelo que lo desvían (el cliente no responde, desiste, paga en cuotas, el destino tiene requisitos) y quién hace cada acción: Cliente, Empleado o Sistema Rumbo.
+El **diagrama de actividad** de [[CU-01 De la consulta a la venta]]: los cinco pasos de su camino principal, en orden, con las decisiones, bucles y acciones en paralelo que lo desvían (el cliente no responde, desiste, paga en cuotas, el destino tiene requisitos) y quién hace cada acción: Cliente, Empleado o Sistema Rumbo.
 
 Notas de origen: [[CU-01 De la consulta a la venta]] · [[CU-02 Registrar cliente]] · [[CU-04 Registrar consulta]] · [[CU-05 Seguir oportunidad]] · [[CU-06 Emitir cotización]] · [[CU-07 Confirmar reserva]] · [[CU-10 Registrar economía del viaje]] · [[CU-11 Definir plan de cuotas]] · [[CU-12 Registrar cobro de un pago]] · [[CU-17 Registrar reseña de hotel]] · [[EST-Oportunidad]] · [[EST-Cotización]] · [[EST-Viaje]] · [[EST-Pago]]
 
@@ -22,23 +23,23 @@ flowchart TB
     ini@{ shape: sm-circ }
     ini --> c1
 
-    subgraph P1["Paso 1 · Consulta"]
+    subgraph P1["Paso 1 · Cliente"]
         c1("(Cliente)<br/>Hace una consulta por Instagram, WhatsApp o presencial")
-        e1("(Empleado)<br/>Registra canal, destino, fechas y pasajeros")
-        s1("(Sistema)<br/>Crea la Oportunidad · Oportunidad → nueva (T1)")
-        e1b("(Empleado)<br/>Empieza a atender la consulta")
-        s1b("(Sistema)<br/>Oportunidad → en_gestión (T2)")
-        c1 --> e1 --> s1 --> e1b --> s1b
-    end
-
-    subgraph P2["Paso 2 · Cliente"]
         e2("(Empleado)<br/>Busca al cliente")
         d2{ }
         e2b("(Empleado)<br/>Crea la ficha: preferencias y segmento")
         m2{ }
-        e2 --> d2
+        c1 --> e2 --> d2
         d2 -- "[no tiene ficha] · CU-04 A1" --> e2b --> m2
         d2 -- "[tiene ficha]" --> m2
+    end
+
+    subgraph P2["Paso 2 · Consulta"]
+        e1("(Empleado)<br/>Registra canal, destino, fechas y pasajeros")
+        s1("(Sistema)<br/>Crea la Oportunidad asociada al cliente · Oportunidad → nueva (T1)")
+        e1b("(Empleado)<br/>Empieza a atender la consulta")
+        s1b("(Sistema)<br/>Oportunidad → en_gestión (T2)")
+        e1 --> s1 --> e1b --> s1b
     end
 
     subgraph P3["Paso 3 · Cotización"]
@@ -60,14 +61,19 @@ flowchart TB
         d3b -- "[desiste o no hay acuerdo] · CU-05 A2" --> e3d --> s3d --> fin1
     end
 
-    subgraph P4["Paso 4 · Reserva"]
+    subgraph P4["Paso 4 · Reserva y seguimiento"]
         e4("(Empleado)<br/>Confirma la reserva")
         s4("(Sistema)<br/>Viaje → reservado (T1) · Oportunidad → ganada (T4)")
+        d5{ }
+        s5b("(Sistema)<br/>Genera las alertas de formulario del destino")
+        m5{ }
+        s5c("(Sistema)<br/>Genera la alerta de salida")
         e4b("(Empleado)<br/>Carga venta, costo del operador, moneda y comisión del vendedor")
         s4b("(Sistema)<br/>Calcula ganancia y margen · RN-01")
         e4c("(Empleado)<br/>Define el plan de pagos")
-        s4c("(Sistema)<br/>Pagos → pendiente")
-        c4("(Cliente)<br/>Paga la seña")
+        s4c("(Sistema)<br/>Pagos → pendiente · genera una alerta por vencimiento")
+        f5@{ shape: fork }
+        c4("(Cliente)<br/>Paga la seña o la primera cuota")
         e4d("(Empleado)<br/>Registra el cobro")
         s4d("(Sistema)<br/>Pago → pagado · Viaje → vendido (T2)")
         m4{ }
@@ -75,30 +81,20 @@ flowchart TB
         c4b("(Cliente)<br/>Paga la cuota, en ARS o en USD")
         e4e("(Empleado)<br/>Registra el cobro")
         s4e("(Sistema)<br/>Viaje → confirmado (T3)")
-        e4 --> s4 --> e4b --> s4b --> e4c --> s4c --> c4 --> e4d --> s4d --> m4 --> d4
-        d4 -- "[queda saldo] · A2" --> c4b --> e4e --> m4
-        d4 -- "[saldo en cero]" --> s4e
-    end
-
-    subgraph P5["Paso 5 · Seguimiento"]
-        f5@{ shape: fork }
-        s5a("(Sistema)<br/>Avisa un mes antes de cada vencimiento")
-        d5{ }
-        s5b("(Sistema)<br/>Recuerda el formulario del destino")
-        m5{ }
-        s5c("(Sistema)<br/>Avisa antes de la fecha de salida")
-        j5@{ shape: fork }
+        s5a("(Sistema)<br/>Avisa antes de cada vencimiento, del formulario y de la salida")
         e5("(Empleado)<br/>Transmite los recordatorios al pasajero")
-        f5 --> s5a --> j5
-        f5 --> d5
+        j5@{ shape: fork }
+        e4 --> s4 --> d5
         d5 -- "[destino con requisitos] · A3" --> s5b --> m5
         d5 -- "[sin requisitos]" --> m5
-        m5 --> j5
-        f5 --> s5c --> j5
-        j5 --> e5
+        m5 --> s5c --> e4b --> s4b --> e4c --> s4c --> f5
+        f5 --> c4 --> e4d --> s4d --> m4 --> d4
+        d4 -- "[queda saldo] · A2" --> c4b --> e4e --> m4
+        d4 -- "[saldo en cero]" --> s4e --> j5
+        f5 --> s5a --> e5 --> j5
     end
 
-    subgraph P6["Paso 6 · Post-venta"]
+    subgraph P5["Paso 5 · Post-venta"]
         s6("(Sistema)<br/>Viaje → en curso (T4) y → finalizado (T5)")
         s6b("(Sistema)<br/>Genera la alerta de reseña")
         e6("(Empleado)<br/>Le pide la reseña del hotel al cliente")
@@ -109,11 +105,10 @@ flowchart TB
         s6 --> s6b --> e6 --> c6 --> e6b --> s6c --> fin2
     end
 
-    s1b --> e2
-    m2 --> e3
+    m2 --> e1
+    s1b --> e3
     d3b -- "[acepta]" --> e4
-    s4e --> f5
-    e5 --> s6
+    j5 --> s6
 
     classDef cli fill:#fef3c7,stroke:#b45309,color:#0f172a
     classDef emp fill:#dbeafe,stroke:#1d4ed8,color:#0f172a
@@ -132,19 +127,18 @@ Cada marco del diagrama es **un paso del camino principal** de [[CU-01 De la con
 
 | Paso de CU-01 | Marco del diagrama | Casos de uso que lo detallan | Estados que cambia |
 |---|---|---|---|
-| 1 · Consulta | Paso 1 | [[CU-04 Registrar consulta]], [[CU-05 Seguir oportunidad]] | [[EST-Oportunidad]] T1, T2 |
-| 2 · Cliente | Paso 2 | [[CU-02 Registrar cliente]] | — |
+| 1 · Cliente | Paso 1 | [[CU-02 Registrar cliente]] | — |
+| 2 · Consulta | Paso 2 | [[CU-04 Registrar consulta]], [[CU-05 Seguir oportunidad]] | [[EST-Oportunidad]] T1, T2 |
 | 3 · Cotización | Paso 3 | [[CU-06 Emitir cotización]] | [[EST-Cotización]] T1, T2 · [[EST-Oportunidad]] T3, T5 |
-| 4 · Reserva | Paso 4 | [[CU-07 Confirmar reserva]], [[CU-10 Registrar economía del viaje]], [[CU-11 Definir plan de cuotas]], [[CU-12 Registrar cobro de un pago]] | [[EST-Viaje]] T1, T2, T3 · [[EST-Oportunidad]] T4 · [[EST-Pago]] T1, T2 |
-| 5 · Seguimiento | Paso 5 | [[CU-07 Confirmar reserva]] (formulario y salida), [[CU-11 Definir plan de cuotas]] (vencimientos) | — |
-| 6 · Post-venta | Paso 6 | [[CU-17 Registrar reseña de hotel]] | [[EST-Viaje]] T4, T5 |
+| 4 · Reserva y seguimiento | Paso 4 | [[CU-07 Confirmar reserva]] (formulario y salida), [[CU-10 Registrar economía del viaje]], [[CU-11 Definir plan de cuotas]] (vencimientos), [[CU-12 Registrar cobro de un pago]] | [[EST-Viaje]] T1, T2, T3 · [[EST-Oportunidad]] T4 · [[EST-Pago]] T1, T2 |
+| 5 · Post-venta | Paso 5 | [[CU-17 Registrar reseña de hotel]] | [[EST-Viaje]] T4, T5 |
 
 | Flujo alternativo | Dónde está |
 |---|---|
 | **A1** · El cliente no responde | Paso 3: bucle de insistencia que vuelve a la decisión «¿responde?» |
-| **A2** · Pago en cuotas | Paso 4: bucle `[queda saldo]` |
-| **A3** · Destino con requisitos | Paso 5: rama de la decisión dentro del paralelo |
-| *CU-04 A1* · Cliente nuevo | Paso 2: rama `[no tiene ficha]` |
+| **A2** · Pago en cuotas | Paso 4: bucle `[queda saldo]`, en paralelo con los avisos |
+| **A3** · Destino con requisitos | Paso 4: decisión `[destino con requisitos]` al confirmar la reserva |
+| *CU-04 A1* · Cliente nuevo | Paso 1: rama `[no tiene ficha]` |
 | *CU-05 A2* · Oportunidad perdida | Paso 3: rama que termina en un final de actividad |
 
 ## Convenciones del diagrama
@@ -160,7 +154,9 @@ Cada marco del diagrama es **un paso del camino principal** de [[CU-01 De la con
 - **Un solo editor a la vez** (el bloque Mermaid es indivisible). Ver [[Guía del Vault#3 · Workflow colaborativo]].
 
 ## 🔎 Revisión
-> [!warning] Huecos detectados al dibujar (25/09, Nahuel + Claude) — no se resolvieron; se dibujó lo que dice el CU. #accion/decidir
+> [!success] **Resueltos en la sync del 29/09** (Francisco, Nahuel y Paloma). Los cuatro huecos que quedan abajo se cerraron así: (1) CU-01 se alineó a CU-04: primero el cliente, después la consulta; (2) el seguimiento se fusionó en el paso 4, que pasó a llamarse *Reserva y seguimiento*, y la post-venta quedó como paso 5; (3) la precondición de CU-05 suma `en_gestión`; (4) la Oportunidad pasa a `ganada` **en CU-07 al confirmar la reserva**. El diagrama ya está redibujado con los cinco pasos.
+>
+> [!note] Huecos detectados al dibujar (25/09, Nahuel + Claude), conservados como historial:
 > 1. **Orden de los pasos 1 y 2.** CU-01 registra la oportunidad (paso 1) y *después* identifica al cliente (paso 2), pero [[CU-04 Registrar consulta]] hace al revés: identifica al cliente en su paso 2 y crea la [[Oportunidad]] en el paso 4, ya asociada a él. El diagrama sigue el orden de CU-01. ¿Se alinea CU-01 a CU-04?
 > 2. **El paso 5 ocurre antes de lo que indica su número.** Las alertas de seguimiento no se generan después del cobro: las de formulario y salida nacen al confirmar la reserva ([[CU-07 Confirmar reserva]] paso 4) y las de vencimiento al definir el plan ([[CU-11 Definir plan de cuotas]] paso 6), es decir, **dentro del paso 4**. El diagrama respeta la numeración de CU-01; convendría aclararlo en el CU o reordenar.
 > 3. **Precondición de [[CU-05 Seguir oportunidad]] incompleta.** Pide una oportunidad `nueva` o `cotizada`, pero omite `en_gestión`, que es justamente el estado en que se la sigue (T2). Parece un olvido de cuando se sumó el quinto estado el 18/09.

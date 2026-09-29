@@ -1,14 +1,15 @@
 ---
 tipo: entidad
-estado: en-revision
+estado: formalizado
 modulo: [clientes, cotizaciones]
 responsable: Nahuel
 pc: pc1
-actualizado: 09/09/26
+actualizado: 29/09/26
+fecha_aprobacion: 29/09/26
 ---
 # Oportunidad
 
-tags:: #tipo/entidad #estado/en-revision #pc/pc1
+tags:: #tipo/entidad #estado/formalizado #pc/pc1
 
 ## Responsabilidad
 Representa una **consulta / lead**: el interés de un cliente en un viaje antes de convertirse en venta. Ordena el circuito de la consulta al cierre sin perder pasos.

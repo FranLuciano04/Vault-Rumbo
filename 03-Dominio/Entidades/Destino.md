@@ -1,14 +1,15 @@
 ---
 tipo: entidad
-estado: borrador
+estado: formalizado
 modulo: [viajes]
 responsable:
 pc: pc1
-actualizado: 10/09/26
+actualizado: 29/09/26
+fecha_aprobacion: 29/09/26
 ---
 # Destino
 
-tags:: #tipo/entidad #estado/borrador #pc/pc1
+tags:: #tipo/entidad #estado/formalizado #pc/pc1
 
 ## Responsabilidad
 Lugar ofrecido por la agencia (ciudad/país). Catálogo compartido que da consistencia al `destino` de los [[Viaje|Viajes]] y [[Hotel|Hoteles]], y sostiene las reglas de recordatorio por destino. Ver [[DEC-0006 Destino como entidad de catálogo]].

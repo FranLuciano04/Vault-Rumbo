@@ -1,14 +1,15 @@
 ---
 tipo: entidad
-estado: en-revision
+estado: formalizado
 modulo: [clientes]
 responsable: Paloma
 pc: pc1
-actualizado: 09/09/26
+actualizado: 29/09/26
+fecha_aprobacion: 29/09/26
 ---
 # Cliente
 
-tags:: #tipo/entidad #estado/en-revision #pc/pc1
+tags:: #tipo/entidad #estado/formalizado #pc/pc1
 
 ## Responsabilidad
 Persona (o grupo) que consulta y viaja con la agencia. Concentra ficha, preferencias, historial y segmentación. Es el **activo del negocio** (fidelización).

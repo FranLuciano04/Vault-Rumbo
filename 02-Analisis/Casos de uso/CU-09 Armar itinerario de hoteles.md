@@ -1,14 +1,15 @@
 ---
 tipo: caso-uso
-estado: en-revision
+estado: formalizado
 modulo: [viajes, hoteles]
 responsable: Francisco
 pc: pc1
-actualizado: 21/09/26
+actualizado: 29/09/26
+fecha_aprobacion: 29/09/26
 ---
 # CU-09 Armar itinerario de hoteles
 
-tags:: #tipo/caso-uso #estado/en-revision #pc/pc1 #accion/revisar
+tags:: #tipo/caso-uso #estado/formalizado #pc/pc1
 
 ## Descripción
 El empleado asocia uno o varios [[Hotel|Hoteles]] del catálogo al [[Viaje]], definiendo cada tramo (check-in/out y orden) y, cuando corresponde, la **fecha de vencimiento de pago al proveedor** de ese hotel. Ver [[DEC-0003 Relación Viaje–Hotel y Reseña]].

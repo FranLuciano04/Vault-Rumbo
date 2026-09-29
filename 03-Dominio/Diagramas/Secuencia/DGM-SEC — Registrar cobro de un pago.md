@@ -1,14 +1,15 @@
 ---
 tipo: diagrama
-estado: borrador
+estado: formalizado
 modulo: [economia, viajes, alertas]
 responsable: Nahuel
 pc: pc1
-actualizado: 25/09/26
+actualizado: 29/09/26
+fecha_aprobacion: 29/09/26
 ---
 # DGM-SEC — Registrar cobro de un pago
 
-tags:: #tipo/diagrama #estado/borrador #pc/pc1 #accion/revisar
+tags:: #tipo/diagrama #estado/formalizado #pc/pc1
 
 ## Qué representa
 El **diagrama de secuencia** de [[CU-12 Registrar cobro de un pago]]: los mensajes entre el empleado y las clases del sistema al registrar un cobro, resolver la alerta de vencimiento y avanzar el [[Viaje]] a `vendido` o `confirmado` según corresponda. Incluye como continuación cronológica (no como rama) la corrección de un cobro mal registrado (A3). Vista de secuencia **de análisis** (clases como participantes), complementaria de [[DGM-ACT — Registrar cobro de un pago]] (mismo CU, notación de actividad).
@@ -69,7 +70,7 @@ sequenceDiagram
     V->>BD: Guarda el saldo del Viaje
     BD-->>V: OK
     V-->>S: saldo actualizado
-    alt era la seña y el viaje estaba reservado · A0
+    alt primer cobro y viaje reservado · A0
         S->>V: Cambia el estado del viaje
         V->>BD: Guarda el Viaje
         BD-->>V: OK
@@ -98,6 +99,11 @@ sequenceDiagram
         V->>BD: Guarda el Viaje
         BD-->>V: OK
         V-->>S: vendido (EST-Viaje T8)
+    else era el único cobro y el viaje estaba vendido
+        S->>V: Cambia el estado del viaje
+        V->>BD: Guarda el Viaje
+        BD-->>V: OK
+        V-->>S: reservado (EST-Viaje T10)
     end
 ```
 
@@ -114,10 +120,10 @@ Cada `Note over` marca **un paso del camino principal** de [[CU-12 Registrar cob
 
 | Flujo alternativo | Dónde está |
 |---|---|
-| **A0** · Cobro de la seña | Paso 5: `alt era la seña y el viaje estaba reservado` |
+| **A0** · Primer cobro del viaje | Paso 5: `alt primer cobro y viaje reservado` |
 | **A1** · Pago vencido | Paso 3: rama `else estaba vencido` |
 | **A2** · Último pago, viaje saldado | Paso 5: `alt saldo en cero y viaje vendido` |
-| **A3** · Corregir el cobro | Continuación cronológica al final, sin rama · [[EST-Pago]] T6 · [[EST-Alerta]] T6 · [[EST-Viaje]] T8 |
+| **A3** · Corregir el cobro | Continuación cronológica al final, sin rama · [[EST-Pago]] T6 · [[EST-Alerta]] T6 · [[EST-Viaje]] T8 y T10 |
 
 ## Convenciones del diagrama
 Ver [[DEC-0010 Notación de los diagramas de actividad y de secuencia]] y [[DGM-SEC — Confirmar reserva#Convenciones del diagrama]] (mismas reglas: la **Interfaz** entre el Empleado y `Sistema Rumbo`, y la **Base de Datos** como participante final para toda búsqueda o guardado de una entidad).
@@ -129,4 +135,6 @@ Ver [[DEC-0010 Notación de los diagramas de actividad y de secuencia]] y [[DGM-
 - **Un solo editor a la vez** (el bloque Mermaid es indivisible). Ver [[Guía del Vault#3 · Workflow colaborativo]].
 
 ## 🔎 Revisión
-> [!warning] Mismos huecos que [[DGM-ACT — Registrar cobro de un pago#🔎 Revisión]] (no se resolvieron; se dibujó lo que dice el CU): revertir el cobro de la seña deja el viaje `vendido` sin seña; un plan sin seña nunca hace que el viaje pase a `vendido`; el enum `forma_pago` del CU no coincide con el de [[Pago]]; los cobros parciales no están contemplados. #accion/decidir
+> [!success] **Resueltos en la sync del 29/09** (Francisco, Nahuel y Paloma): ver [[DGM-ACT — Registrar cobro de un pago#🔎 Revisión]]; el diagrama ya refleja las resoluciones.
+>
+> [!note] Historial (25/09): Mismos huecos que [[DGM-ACT — Registrar cobro de un pago#🔎 Revisión]] (no se resolvieron; se dibujó lo que dice el CU): revertir el cobro de la seña deja el viaje `vendido` sin seña; un plan sin seña nunca hace que el viaje pase a `vendido`; el enum `forma_pago` del CU no coincide con el de [[Pago]]; los cobros parciales no están contemplados.

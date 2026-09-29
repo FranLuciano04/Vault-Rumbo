@@ -1,14 +1,15 @@
 ---
 tipo: caso-uso
-estado: en-revision
+estado: formalizado
 modulo: [seguridad]
 responsable: Nahuel
 pc: pc1
-actualizado: 10/09/26
+actualizado: 29/09/26
+fecha_aprobacion: 29/09/26
 ---
 # CU-25 Gestionar usuarios y roles
 
-tags:: #tipo/caso-uso #estado/en-revision #pc/pc1 #accion/revisar
+tags:: #tipo/caso-uso #estado/formalizado #pc/pc1
 
 ## Descripción
 Alta, baja y edición de [[Usuario|Usuarios]], asignación de su `rol` y de la capacidad de acceso al módulo de redes ([[Actores]], [[DEC-0005 Autenticación y modelo de roles]]).

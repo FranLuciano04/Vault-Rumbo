@@ -1,15 +1,17 @@
 ---
 tipo: decision
-estado: en-revision
+estado: formalizado
 modulo: [clientes, cotizaciones]
-decisores: [Nahuel, Francisco]
-fecha_aprobacion:
+decisores: [Francisco, Nahuel, Paloma]
+fecha_aprobacion: 29/09/26
 supersede:
-actualizado: 09/09/26
+actualizado: 29/09/26
 ---
 # DEC-0002 Modelar la consulta como Oportunidad
 
-tags:: #tipo/decision #estado/en-revision #pc/pc1
+tags:: #tipo/decision #estado/formalizado #pc/pc1
+
+> ✅ **Ratificada en la sync del 29/09/26** (Francisco, Nahuel y Paloma).
 
 ## Contexto
 El relevamiento habla de "consulta" (paso 1 de [[CU-01 De la consulta a la venta]]). Hay que decidir si es una entidad propia o solo un estado del [[Viaje]].

@@ -1,14 +1,15 @@
 ---
 tipo: caso-uso
-estado: en-revision
+estado: formalizado
 modulo: [hoteles]
 responsable: Paloma
 pc: pc1
-actualizado: 11/09/26
+actualizado: 29/09/26
+fecha_aprobacion: 29/09/26
 ---
 # CU-29 Eliminar reseña
 
-tags:: #tipo/caso-uso #estado/en-revision #pc/pc1 #accion/revisar
+tags:: #tipo/caso-uso #estado/formalizado #pc/pc1
 
 ## Descripción
 Dar de baja una [[Reseña]] inapropiada o errónea para que deje de incidir en el catálogo y la recomendación, preservando la trazabilidad ([[DEC-0003 Relación Viaje–Hotel y Reseña]]).

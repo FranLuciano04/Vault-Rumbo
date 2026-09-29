@@ -1,18 +1,19 @@
 ---
 tipo: diagrama
-estado: borrador
+estado: formalizado
 modulo: [cotizaciones]
 responsable: Guardián del dominio
 pc: pc1
-actualizado: 21/09/26
+actualizado: 29/09/26
+fecha_aprobacion: 29/09/26
 ---
 # EST-Cotización — Especificación de estados
 
-tags:: #tipo/diagrama #estado/borrador #pc/pc1
+tags:: #tipo/diagrama #estado/formalizado #pc/pc1
 
 > **Especificación** del ciclo de vida de [[Cotización]], lista para dibujar. Derivada de [[CU-06 Emitir cotización]] y [[CU-07 Confirmar reserva]]. El enum vive en [[DGM — Diagrama de clases]] (`EstadoCotizacion`).
 >
-> ✅ **Diagrama dibujado el 21/09/26** (Nahuel) sobre esta especificación, con los 4 huecos ya resueltos incorporados. Sigue en `borrador`: se ratifica en la sync junto con el resto, y el **default de 1 mes de vigencia sigue sin validar con la agencia**.
+> ✅ **Diagrama dibujado el 21/09/26** (Nahuel) sobre esta especificación, con los 4 huecos ya resueltos incorporados. ✅ **Ratificado en la sync del 29/09/26** (Francisco, Nahuel y Paloma).
 
 ## Convenciones del diagrama
 
@@ -68,7 +69,7 @@ El diagrama de abajo se dibujó el 21/09/26 siguiendo estas convenciones, comune
 **Por qué se agregó el estado.** En turismo los precios se mueven todo el tiempo: tarifas aéreas, tipo de cambio, tarifas hoteleras. Sin `vencida`, esa cotización quedaba **vigente para siempre** y el sistema no tenía forma de decir que ya no vale.
 **Cómo funciona.** La [[Cotización]] tiene `validez_hasta`, por default **1 mes** desde la emisión (parámetro global que configura el `admin`). Pasada esa fecha, un proceso del sistema la pasa a `vencida` sin que nadie haga nada.
 **Efecto en la [[Oportunidad]].** **Ninguno**: sigue `cotizada`. Que la cotización venza no gana ni pierde la venta — el cliente puede seguir interesado, solo hay que cotizarle de nuevo.
-> ⚠️ **El default de 1 mes es una propuesta sin validar con la agencia.** Es el valor más discutible de esta nota: si trabajan con vigencias más cortas para aéreos, habría que diferenciarlas por tipo de producto. #accion/decidir
+> ⚠️ **El default de 1 mes quedó ratificado en la sync del 29/09 como valor configurable, pero falta validarlo con la agencia.** Es el valor más discutible de esta nota: si trabajan con vigencias más cortas para aéreos, habría que diferenciarlas por tipo de producto. #accion/decidir
 
 ### Por qué **no** se puede aceptar un `borrador`
 **Situación.** El empleado arma la cotización, se la muestra al cliente en el mostrador desde la pantalla y el cliente dice que sí en el momento. Nunca se envió nada por WhatsApp ni por mail.

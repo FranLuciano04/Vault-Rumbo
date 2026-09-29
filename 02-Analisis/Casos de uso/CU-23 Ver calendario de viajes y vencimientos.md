@@ -1,14 +1,15 @@
 ---
 tipo: caso-uso
-estado: en-revision
+estado: formalizado
 modulo: [calendario]
 responsable: Paloma
 pc: pc1
-actualizado: 10/09/26
+actualizado: 29/09/26
+fecha_aprobacion: 29/09/26
 ---
 # CU-23 Ver calendario de viajes y vencimientos
 
-tags:: #tipo/caso-uso #estado/en-revision #pc/pc1 #accion/revisar
+tags:: #tipo/caso-uso #estado/formalizado #pc/pc1
 
 ## Descripción
 El empleado consulta en un **calendario** una vista consolidada de los [[Viaje|Viajes]] y de los vencimientos de [[Pago|Pagos]] y [[Alerta|Alertas]], para anticiparse a las fechas clave. Es una consulta de **solo lectura** con navegación a la gestión de cada ítem.

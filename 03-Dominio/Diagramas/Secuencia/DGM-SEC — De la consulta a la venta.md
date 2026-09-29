@@ -1,14 +1,15 @@
 ---
 tipo: diagrama
-estado: en-revision
+estado: formalizado
 modulo: [clientes, cotizaciones, viajes, economia, alertas, hoteles]
 responsable: Nahuel
 pc: pc1
-actualizado: 22/09/26
+actualizado: 29/09/26
+fecha_aprobacion: 29/09/26
 ---
 # DGM-SEC — De la consulta a la venta
 
-tags:: #tipo/diagrama #estado/en-revision #pc/pc1
+tags:: #tipo/diagrama #estado/formalizado #pc/pc1
 
 ## Qué representa
 El flujo **end-to-end** del negocio en el tiempo: desde que llega la consulta hasta que el viaje queda cobrado y el hotel sumado al catálogo, mostrando quién hace cada cosa y qué resuelve el sistema por su cuenta. Es la vista de secuencia de [[CU-01 De la consulta a la venta]], y entra en el entregable de relevamiento.

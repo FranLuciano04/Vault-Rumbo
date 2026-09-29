@@ -1,14 +1,15 @@
 ---
 tipo: caso-uso
-estado: en-revision
+estado: formalizado
 modulo: [redes]
 responsable: Paloma
 pc: pc1
-actualizado: 10/09/26
+actualizado: 29/09/26
+fecha_aprobacion: 29/09/26
 ---
 # CU-20 Generar propuesta de contenido con IA
 
-tags:: #tipo/caso-uso #estado/en-revision #pc/pc1 #accion/revisar
+tags:: #tipo/caso-uso #estado/formalizado #pc/pc1
 
 ## Descripción
 El empleado genera **borradores** de [[ContenidoRed]] asistidos por IA para agilizar la creación de posteos. La persona revisa y edita el resultado; **no hay publicación automática** ([[Alcance y fuera de alcance]]). La IA es Claude (ver [[DEC-0001 Stack tecnológico]]).

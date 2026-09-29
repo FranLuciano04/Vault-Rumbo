@@ -1,14 +1,15 @@
 ---
 tipo: caso-uso
-estado: en-revision
+estado: formalizado
 modulo: [clientes]
 responsable: Francisco
 pc: pc1
-actualizado: 21/09/26
+actualizado: 29/09/26
+fecha_aprobacion: 29/09/26
 ---
 # CU-05 Seguir oportunidad
 
-tags:: #tipo/caso-uso #estado/en-revision #pc/pc1 #accion/revisar
+tags:: #tipo/caso-uso #estado/formalizado #pc/pc1
 
 ## Descripción
 El empleado da seguimiento a una [[Oportunidad]] a lo largo del embudo: registra interacciones, agenda insistencias para no perder el lead y la cierra como **ganada** (deriva en reserva) o **perdida** (con motivo). Es el corazón del embudo de ventas del negocio ([[CU-01 De la consulta a la venta]]).
@@ -21,7 +22,7 @@ El empleado da seguimiento a una [[Oportunidad]] a lo largo del embudo: registra
 
 ## Precondiciones
 - El empleado está autenticado ([[CU-24 Iniciar sesión]]).
-- Existe una [[Oportunidad]] en estado `nueva` o `cotizada` ([[CU-04 Registrar consulta]]).
+- Existe una [[Oportunidad]] abierta, en estado `nueva`, `en_gestión` o `cotizada` ([[CU-04 Registrar consulta]]).
 
 ## Flujo principal
 1. El empleado abre la [[Oportunidad]] y revisa su contexto ([[Cliente]], destino, fechas, [[Cotización|Cotizaciones]] emitidas).
@@ -29,7 +30,7 @@ El empleado da seguimiento a una [[Oportunidad]] a lo largo del embudo: registra
 3. Registra una **interacción/nota** de seguimiento (qué se habló, próximos pasos).
 4. Agenda una **insistencia**: el sistema crea una [[Alerta]] de tipo `insistencia` para volver a contactar en X días ([[CU-01 De la consulta a la venta]] A1).
 5. Según avance, actualiza el estado: pasa a `cotizada` al emitir la [[Cotización]] ([[CU-06 Emitir cotización]]).
-6. **Cierre:** marca la [[Oportunidad]] como `ganada` (continúa en [[CU-07 Confirmar reserva]]) o `perdida` (registra el **motivo**, de una lista fija: *precio · fechas/disponibilidad · desistió · compró en otra agencia · sin respuesta · otro* [texto libre]).
+6. **Cierre:** cuando el cliente acepta, el empleado **confirma la reserva** en [[CU-07 Confirmar reserva]], que cierra la [[Oportunidad]] como `ganada`; si no hay acuerdo, la marca `perdida` (registra el **motivo**, de una lista fija: *precio · fechas/disponibilidad · desistió · compró en otra agencia · sin respuesta · otro* [texto libre]).
 7. El sistema resuelve las [[Alerta|Alertas]] de insistencia pendientes al cerrarse la [[Oportunidad]].
 
 ## Flujos alternativos

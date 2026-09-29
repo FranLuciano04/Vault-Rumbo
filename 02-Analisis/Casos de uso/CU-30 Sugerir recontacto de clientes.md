@@ -1,14 +1,15 @@
 ---
 tipo: caso-uso
-estado: en-revision
+estado: formalizado
 modulo: [clientes, oportunidades]
 responsable: Francisco
 pc: pc1
-actualizado: 17/09/26
+actualizado: 29/09/26
+fecha_aprobacion: 29/09/26
 ---
 # CU-30 Sugerir recontacto de clientes
 
-tags:: #tipo/caso-uso #estado/en-revision #pc/pc1 #accion/revisar
+tags:: #tipo/caso-uso #estado/formalizado #pc/pc1
 
 ## Descripción
 **CRM proactivo:** el sistema detecta [[Cliente|Clientes]] **fieles inactivos** (con historial de viajes pero sin actividad reciente) y sugiere al empleado **recontactarlos** para generar una nueva [[Oportunidad]]. La sugerencia es una ayuda, **no un envío automático**, y respeta un **opt-out** para no ser invasiva (nace de la idea original de "detector de oportunidades" del relevamiento, acotada — ver [[Alcance y fuera de alcance]]).
@@ -24,8 +25,8 @@ tags:: #tipo/caso-uso #estado/en-revision #pc/pc1 #accion/revisar
 - Existen [[Cliente|Clientes]] con historial de [[Viaje|Viajes]] ([[CU-02 Registrar cliente]]).
 
 ## Flujo principal
-1. El sistema evalúa periódicamente el historial de cada [[Cliente]] y detecta a los **candidatos a recontacto**: cumplen el criterio de fidelidad/inactividad (ver Reglas) y **no** tienen el opt-out `no_recontactar`.
-2. Genera una [[Alerta]] de tipo `recontacto` para el [[Cliente]] (o lo lista en un panel de "clientes a recontactar").
+1. El sistema evalúa **todos los días, a las 00:00** (en el proceso automático diario), el historial de cada [[Cliente]] y detecta a los **candidatos a recontacto**: cumplen el criterio de fidelidad/inactividad (ver Reglas) y **no** tienen el opt-out `no_recontactar`.
+2. Genera una [[Alerta]] de tipo `recontacto` para el [[Cliente]], **asignada a su responsable** (si no tiene un responsable activo, a un `admin`). **No la duplica:** si el [[Cliente]] ya tiene una alerta de `recontacto` sin resolver (`pendiente` o `vista`, incluidas las pospuestas), no genera otra.
 3. El empleado abre la sugerencia y ve el contexto del [[Cliente]] (último viaje, preferencias, historial).
 4. Decide: **recontactar** (típicamente registrando una consulta nueva, [[CU-04 Registrar consulta]]), **posponer** o **marcar que no se lo recontacte** (opt-out).
 5. El sistema registra la acción y resuelve/actualiza la [[Alerta]].

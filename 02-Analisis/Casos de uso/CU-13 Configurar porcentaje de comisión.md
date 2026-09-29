@@ -1,14 +1,15 @@
 ---
 tipo: caso-uso
-estado: en-revision
+estado: formalizado
 modulo: [configuracion, economia]
 responsable: Nahuel
 pc: pc1
-actualizado: 18/09/26
+actualizado: 29/09/26
+fecha_aprobacion: 29/09/26
 ---
 # CU-13 Configurar porcentaje de comisión
 
-tags:: #tipo/caso-uso #estado/en-revision #pc/pc1 #accion/revisar
+tags:: #tipo/caso-uso #estado/formalizado #pc/pc1
 
 ## Descripción
 Definir la **comisión por defecto de cada vendedor/freelancer**: el valor (**importe o %**) con el que el sistema pre-carga la `comision_vendedor` de cada [[Viaje]] que ese vendedor genere. Cada viaje admite **override** ([[CU-10 Registrar economía del viaje]]). No configura la rentabilidad de la agencia (ganancia/margen se calculan solos). Ver [[RN-01 Comisión automática]] y [[DEC-0007 Modelo económico — ganancia, margen y comisión de vendedor]].

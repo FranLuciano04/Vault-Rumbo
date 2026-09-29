@@ -1,14 +1,15 @@
 ---
 tipo: diagrama
-estado: borrador
+estado: formalizado
 modulo: [viajes, economia, alertas]
 responsable: Nahuel
 pc: pc1
-actualizado: 25/09/26
+actualizado: 29/09/26
+fecha_aprobacion: 29/09/26
 ---
 # DGM-SEC — Cancelar viaje
 
-tags:: #tipo/diagrama #estado/borrador #pc/pc1 #accion/revisar
+tags:: #tipo/diagrama #estado/formalizado #pc/pc1
 
 ## Qué representa
 El **diagrama de secuencia** de [[CU-27 Cancelar viaje]]: los mensajes entre el empleado y las clases del sistema al cancelar un [[Viaje]], anular sus [[Pago|Pagos]] no cobrados, resolver sus [[Alerta|Alertas]] y dejar constancia sobre la comisión según el viaje hubiera empezado o no. Incluye como continuación cronológica (no como rama) revertir una cancelación hecha por error (A3). Vista de secuencia **de análisis** (clases como participantes), complementaria de [[DGM-ACT — Cancelar viaje]] (mismo CU, notación de actividad). Es el tercero y último de los `DGM-SEC` de análisis acordados, después de [[DGM-SEC — Confirmar reserva]] y [[DGM-SEC — Registrar cobro de un pago]].
@@ -55,7 +56,7 @@ sequenceDiagram
         P->>BD: Guarda los Pagos
         BD-->>P: OK
         P-->>S: anulado (EST-Pago T7)
-        S->>A: Resuelve las alertas vigentes del viaje
+        S->>A: Resuelve las alertas vigentes del viaje y las marca como cerradas por la cancelación
         A->>BD: Guarda las Alertas
         BD-->>A: OK
         A-->>S: resuelta (EST-Alerta T5)
@@ -92,10 +93,15 @@ sequenceDiagram
     P->>BD: Guarda los Pagos
     BD-->>P: OK
     P-->>S: pendiente o vencido (EST-Pago T10)
-    S->>A: Reabre las alertas del viaje
+    S->>A: Reabre solo las alertas que cerró la cancelación
     A->>BD: Guarda las Alertas
     BD-->>A: OK
     A-->>S: pendiente (EST-Alerta T6)
+    opt la cancelación había dejado constancia de la comisión
+        S->>V: Anula la constancia: la comisión vuelve a quedar proyectada · RN-01
+        V->>BD: Guarda el Viaje
+        BD-->>V: OK
+    end
 ```
 
 ## Trazabilidad con el caso de uso
@@ -128,4 +134,6 @@ Ver [[DEC-0010 Notación de los diagramas de actividad y de secuencia]] y [[DGM-
 - **Un solo editor a la vez** (el bloque Mermaid es indivisible). Ver [[Guía del Vault#3 · Workflow colaborativo]].
 
 ## 🔎 Revisión
-> [!warning] Mismos huecos que [[DGM-ACT — Cancelar viaje#🔎 Revisión]] (no se resolvieron; se dibujó lo que dice el CU): revertir la cancelación no dice qué pasa con la constancia de la comisión que dejó el Paso 5; el CU no distingue qué alertas reabre A3 (las que cerró la cancelación) de las que ya estaban resueltas por otro motivo; la postcondición de CU-27 sigue sin mencionar que el Paso 4 también anula los Pagos `vencidos` (dice solo `pendientes`). #accion/decidir
+> [!success] **Resueltos en la sync del 29/09** (Francisco, Nahuel y Paloma): ver [[DGM-ACT — Cancelar viaje#🔎 Revisión]]; el diagrama ya refleja las resoluciones.
+>
+> [!note] Historial (25/09): Mismos huecos que [[DGM-ACT — Cancelar viaje#🔎 Revisión]] (no se resolvieron; se dibujó lo que dice el CU): revertir la cancelación no dice qué pasa con la constancia de la comisión que dejó el Paso 5; el CU no distingue qué alertas reabre A3 (las que cerró la cancelación) de las que ya estaban resueltas por otro motivo; la postcondición de CU-27 sigue sin mencionar que el Paso 4 también anula los Pagos `vencidos` (dice solo `pendientes`).

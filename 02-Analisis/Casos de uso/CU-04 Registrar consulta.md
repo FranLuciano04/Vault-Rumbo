@@ -1,14 +1,15 @@
 ---
 tipo: caso-uso
-estado: en-revision
+estado: formalizado
 modulo: [clientes, cotizaciones]
 responsable: Francisco
 pc: pc1
-actualizado: 10/09/26
+actualizado: 29/09/26
+fecha_aprobacion: 29/09/26
 ---
 # CU-04 Registrar consulta
 
-tags:: #tipo/caso-uso #estado/en-revision #pc/pc1 #accion/revisar
+tags:: #tipo/caso-uso #estado/formalizado #pc/pc1
 
 ## Descripción
 El empleado registra una consulta entrante (Instagram, WhatsApp o presencial) capturando pasajeros, destino y fechas tentativas, y crea una [[Oportunidad]] para gestionar el embudo de ventas. Ver [[DEC-0002 Modelar la consulta como Oportunidad]].

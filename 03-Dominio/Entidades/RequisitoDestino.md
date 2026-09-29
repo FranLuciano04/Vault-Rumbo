@@ -1,14 +1,15 @@
 ---
 tipo: entidad
-estado: borrador
+estado: formalizado
 modulo: [configuracion, alertas, viajes]
 responsable:
 pc: pc1
-actualizado: 11/09/26
+actualizado: 29/09/26
+fecha_aprobacion: 29/09/26
 ---
 # RequisitoDestino
 
-tags:: #tipo/entidad #estado/borrador #pc/pc1
+tags:: #tipo/entidad #estado/formalizado #pc/pc1
 
 > ⚠️ Entidad nueva (12ª), 11/09: nace para cerrar el gap de modelado de [[CU-15 Configurar recordatorios por destino]] (la regla "destino → requisitos" no tenía entidad). **Set de atributos ampliado y acordado en la sync con los tres** (se sumaron `tipo`, `obligatorio` y `descripcion`). **Sello (Q9, entrevista grill 18/09):** se mantiene como **entidad del dominio** (una de las 13), **sin elevarla a una `DEC-` propia**; su ABM/configuración vive en [[CU-15 Configurar recordatorios por destino]] dentro del módulo *Configuración / Catálogos*. A ratificar en la próxima sync.
 

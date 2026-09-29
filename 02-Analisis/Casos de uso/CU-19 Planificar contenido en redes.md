@@ -1,14 +1,15 @@
 ---
 tipo: caso-uso
-estado: en-revision
+estado: formalizado
 modulo: [redes]
 responsable: Paloma
 pc: pc1
-actualizado: 10/09/26
+actualizado: 29/09/26
+fecha_aprobacion: 29/09/26
 ---
 # CU-19 Planificar contenido en redes
 
-tags:: #tipo/caso-uso #estado/en-revision #pc/pc1 #accion/revisar
+tags:: #tipo/caso-uso #estado/formalizado #pc/pc1
 
 ## Descripción
 El empleado planifica las piezas de [[ContenidoRed]] en un **tablero kanban** con calendario, moviéndolas por estados hasta su publicación. El sistema organiza; **no publica automáticamente** ([[Alcance y fuera de alcance]]).

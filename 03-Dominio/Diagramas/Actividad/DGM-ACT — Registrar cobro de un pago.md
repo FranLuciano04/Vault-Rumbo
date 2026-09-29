@@ -1,17 +1,18 @@
 ---
 tipo: diagrama
-estado: borrador
+estado: formalizado
 modulo: [economia, viajes, alertas]
 responsable: Nahuel
 pc: pc1
-actualizado: 25/09/26
+actualizado: 29/09/26
+fecha_aprobacion: 29/09/26
 ---
 # DGM-ACT — Registrar cobro de un pago
 
-tags:: #tipo/diagrama #estado/borrador #pc/pc1 #accion/revisar
+tags:: #tipo/diagrama #estado/formalizado #pc/pc1
 
 ## Qué representa
-El **diagrama de actividad** de [[CU-12 Registrar cobro de un pago]]: el camino de la plata. El empleado registra un cobro (con tipo de cambio si se paga en otra moneda), el sistema marca el [[Pago]], cierra su [[Alerta]] y actualiza el saldo; según el caso, el [[Viaje]] avanza a `vendido` (seña) o a `confirmado` (saldo en cero). Incluye como **flujo aparte** la corrección de un cobro mal registrado (A3), que ocurre en otro momento y tiene su propio inicio.
+El **diagrama de actividad** de [[CU-12 Registrar cobro de un pago]]: el camino de la plata. El empleado registra un cobro (con tipo de cambio si se paga en otra moneda), el sistema marca el [[Pago]], cierra su [[Alerta]] y actualiza el saldo; según el caso, el [[Viaje]] avanza a `vendido` (primer cobro) o a `confirmado` (saldo en cero). Incluye como **flujo aparte** la corrección de un cobro mal registrado (A3), que ocurre en otro momento y tiene su propio inicio.
 
 Notas de origen: [[CU-12 Registrar cobro de un pago]] · [[CU-08 Gestionar estado del viaje]] · [[Pago]] · [[EST-Pago]] · [[EST-Viaje]] · [[EST-Alerta]] · [[DEC-0007 Modelo económico — ganancia, margen y comisión de vendedor]]
 
@@ -61,7 +62,7 @@ flowchart TB
         m5b{ }
         fin@{ shape: fr-circ }
         s5 --> d5
-        d5 -- "[era la seña y el viaje estaba reservado] · A0" --> s5b --> m5
+        d5 -- "[primer cobro y viaje reservado] · A0" --> s5b --> m5
         d5 -- "[otro caso]" --> m5
         m5 --> d5b
         d5b -- "[saldo en cero y viaje vendido] · A2" --> s5c --> m5b
@@ -76,10 +77,12 @@ flowchart TB
         s6b("(Sistema)<br/>Reabre la alerta del pago · Alerta → pendiente (T6)")
         d6{ }
         s6c("(Sistema)<br/>Viaje → vendido (T8)")
+        s6d("(Sistema)<br/>Viaje → reservado (T10)")
         m6{ }
         fin3@{ shape: fr-circ }
         ini3 --> e6 --> s6 --> s6b --> d6
         d6 -- "[el viaje estaba confirmado]" --> s6c --> m6
+        d6 -- "[era el único cobro y el viaje estaba vendido]" --> s6d --> m6
         d6 -- "[otro caso]" --> m6
         m6 --> fin3
     end
@@ -96,7 +99,7 @@ flowchart TB
     classDef ctl fill:#ffffff,stroke:#334155
     classDef barra fill:#0f172a,stroke:#0f172a
     class e1,e2,e2b,e6 emp
-    class s2,s3a,s3b,s4,s5,s5b,s5c,s6,s6b,s6c sis
+    class s2,s3a,s3b,s4,s5,s5b,s5c,s6,s6b,s6c,s6d sis
     class d2,m2,d3,m3,d5,m5,d5b,m5b,d6,m6 ctl
 ```
 
@@ -113,10 +116,10 @@ Cada marco es **un paso del camino principal** de [[CU-12 Registrar cobro de un 
 
 | Flujo alternativo | Dónde está |
 |---|---|
-| **A0** · Cobro de la seña | Paso 5: rama `[era la seña y el viaje estaba reservado]` |
+| **A0** · Primer cobro del viaje | Paso 5: rama `[primer cobro y viaje reservado]` |
 | **A1** · Pago vencido | Paso 3: rama `[estaba vencido]` |
 | **A2** · Último pago, viaje saldado | Paso 5: rama `[saldo en cero y viaje vendido]` |
-| **A3** · Corregir el cobro | Flujo aparte, con su propio inicio y final · [[EST-Pago]] T6 · [[EST-Alerta]] T6 · [[EST-Viaje]] T8 |
+| **A3** · Corregir el cobro | Flujo aparte, con su propio inicio y final · [[EST-Pago]] T6 · [[EST-Alerta]] T6 · [[EST-Viaje]] T8 y T10 |
 
 ## Convenciones del diagrama
 Las mismas que [[DGM-ACT — De la consulta a la venta#Convenciones del diagrama]]: notación UML de actividad, carril escrito en cada acción (`(Empleado)`, `(Sistema)`) con su color, marcos por paso y código del flujo alternativo en la guarda.
@@ -128,7 +131,9 @@ Las mismas que [[DGM-ACT — De la consulta a la venta#Convenciones del diagrama
 - **Un solo editor a la vez** (el bloque Mermaid es indivisible). Ver [[Guía del Vault#3 · Workflow colaborativo]].
 
 ## 🔎 Revisión
-> [!warning] Huecos detectados al dibujar (25/09, Nahuel + Claude) — no se resolvieron; se dibujó lo que dice el CU. #accion/decidir
+> [!success] **Resueltos en la sync del 29/09** (Francisco, Nahuel y Paloma): (1) revertir el único cobro devuelve el viaje a `reservado` (nueva [[EST-Viaje]] T10, rama nueva en A3); (2) el primer cobro de cualquier tipo pasa el viaje a `vendido` (A0); (3) CU-12 se alineó al enum de [[Pago]]: las billeteras virtuales se registran como `transferencia`; (4) **no hay cobros parciales**: el [[Pago]] es indivisible y, para cobrar una parte, antes se divide la cuota en [[CU-11 Definir plan de cuotas]] A6; la diferencia por tipo de cambio queda en `monto_cobrado`.
+>
+> [!note] Huecos detectados al dibujar (25/09, Nahuel + Claude), conservados como historial:
 > 1. **Revertir el cobro de la seña deja el viaje en `vendido` sin seña.** A3 solo contempla volver de `confirmado` a `vendido` ([[EST-Viaje]] T8); no hay transición `vendido → reservado`. Sin embargo, [[EST-Viaje]] (hueco 2, resuelto el 21/09) dice que revertir el cobro existe justamente para evitar estados incoherentes, y dejar `vendido` un viaje cuya seña se revirtió es el caso simétrico. ¿Se agrega esa reversión a A3 y a EST-Viaje?
 > 2. **Viaje sin seña.** La rama A0 exige que el pago cobrado sea la seña; con un plan de pago único no hay seña y el viaje nunca pasa a `vendido`. Mismo hueco que el punto 1 de [[DGM-ACT — Confirmar reserva]].
 > 3. **Enum de forma de pago distinto.** El paso 2 de CU-12 lista `efectivo · transferencia · tarjeta · cheque · depósito`, pero el enum cerrado el 18/09 en [[Pago]] separa `tarjeta_credito` y `tarjeta_debito`. El diagrama dice «forma de pago» sin detallar; hay que alinear el CU.

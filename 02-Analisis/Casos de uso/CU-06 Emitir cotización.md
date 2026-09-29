@@ -1,14 +1,15 @@
 ---
 tipo: caso-uso
-estado: en-revision
+estado: formalizado
 modulo: [cotizaciones]
 responsable: Francisco
 pc: pc1
-actualizado: 11/09/26
+actualizado: 29/09/26
+fecha_aprobacion: 29/09/26
 ---
 # CU-06 Emitir cotización
 
-tags:: #tipo/caso-uso #estado/en-revision #pc/pc1 #accion/revisar
+tags:: #tipo/caso-uso #estado/formalizado #pc/pc1
 
 ## Descripción
 El empleado genera una [[Cotización]] para una [[Oportunidad]] a partir de una **plantilla + formulario**, produciendo un documento para enviar al [[Cliente]]. Es un **cotizador asistido** (no automático por scraping — ver [[Alcance y fuera de alcance]]). Permite versionar y reenviar.
@@ -55,5 +56,5 @@ El empleado genera una [[Cotización]] para una [[Oportunidad]] a partir de una 
 
 ## 🔎 Revisión
 
-> [!note] Nahuel (21/09) — **las cotizaciones ahora vencen.** Se sumó el estado `vencida` al enum y el atributo `validez_hasta` a [[Cotización]] (default **1 mes** desde la emisión, configurable por `admin`), más el flujo alternativo **A5**. Motivo: en turismo los precios cambian y una cotización no puede quedar vigente para siempre. ⚠️ **El default de 1 mes es una propuesta sin validar con la agencia** — confirmar en la próxima ronda, igual que `forma_pago` y los 7 días de la [[Alerta]] `salida`. Detectado al especificar [[EST-Cotización]]. #accion/decidir
+> [!note] Nahuel (21/09) — **las cotizaciones ahora vencen.** Se sumó el estado `vencida` al enum y el atributo `validez_hasta` a [[Cotización]] (default **1 mes** desde la emisión, configurable por `admin`), más el flujo alternativo **A5**. Motivo: en turismo los precios cambian y una cotización no puede quedar vigente para siempre. ⚠️ **El default de 1 mes es una propuesta sin validar con la agencia** — ratificado en la sync del 29/09 como default; falta validarlo con la agencia. Detectado al especificar [[EST-Cotización]]. #accion/decidir
 > [!question] Francisco (11/09): especificado como cotizador asistido. A validar en la sync: (1) ¿los precios se cargan **100% manual** o hay un **catálogo de precios de referencia** (p. ej. `precio_referencia` de [[Hotel]])?; (2) formato del documento (PDF) y si el **envío** queda siempre por fuera (manual) en PC1; (3) el **versionado** — ¿cada versión es una `Cotización` nueva ligada a la misma [[Oportunidad]]?

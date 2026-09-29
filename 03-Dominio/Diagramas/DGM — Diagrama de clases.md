@@ -1,14 +1,15 @@
 ---
 tipo: diagrama
-estado: borrador
+estado: formalizado
 modulo: []
 responsable: Guardián del dominio
 pc: pc1
-actualizado: 21/09/26
+actualizado: 29/09/26
+fecha_aprobacion: 29/09/26
 ---
 # DGM — Diagrama de clases
 
-tags:: #tipo/diagrama #estado/borrador #pc/pc1
+tags:: #tipo/diagrama #estado/formalizado #pc/pc1
 
 > **Diagrama de clases de dominio** de Rumbo: las **13 entidades** del [[MOC — Modelo de dominio]] más la clase asociativa `ViajeHotel`. Es una **salida derivada**: la verdad de cada clase vive en su nota de entidad (`03-Dominio/Entidades/`). Al cambiar una entidad, actualizar primero su nota y después este diagrama.
 >
@@ -151,6 +152,7 @@ classDiagram
         +TipoAlerta tipo
         +Date fecha
         +EstadoAlerta estado
+        +Bool cerradaPorCancelacion
     }
     class ContenidoRed {
         +UUID id
@@ -189,7 +191,7 @@ classDiagram
     Usuario "1" --> "0..*" ContenidoRed : crea
 
     %% ======== Origen de la alerta ========
-    Viaje "0..1" --> "0..*" Alerta : salida / reseña
+    Viaje "0..1" --> "0..*" Alerta : salida / reseña / viaje
     Pago "0..1" --> "0..*" Alerta : vencimiento
     Oportunidad "0..1" --> "0..*" Alerta : insistencia
     Cliente "0..1" --> "0..*" Alerta : recontacto
@@ -361,6 +363,7 @@ classDiagram
         reseña
         manual
         recontacto
+        viaje
     }
     class EstadoAlerta {
         <<enumeration>>
@@ -391,7 +394,7 @@ classDiagram
     ContenidoRed ..> EstadoKanban : estadoKanban
 ```
 
-> ⚠️ **Enumeraciones todavía en borrador:** `FormaPago` (propuesta sin dato del relevamiento, [[Pago]]) y `CategoriaViaje` (la nota de [[Viaje]] solo da los ejemplos *salida grupal* e *individual*; el enum no está cerrado). Ambas siguen `#accion/decidir` para la próxima sync.
+> ⚠️ **Enumeración todavía en borrador:** `CategoriaViaje` (la nota de [[Viaje]] solo da los ejemplos *salida grupal* e *individual*; el enum no está cerrado). #accion/decidir `FormaPago` se cerró en la sync del 29/09.
 
 ## Refinamientos introducidos al pasar del borrador al diagrama
 
@@ -413,11 +416,11 @@ Se señalaron sin elegir una versión en silencio, según [[CLAUDE|CLAUDE.md#Ord
 
 ## Pendientes
 
-- Ratificar el diagrama completo en la sync, junto con el batch del 18/09 y la PK de `viaje_hotel` del 21/09.
-- Cerrar los enums `FormaPago` y `CategoriaViaje`.
+- ✅ Ratificado en la sync del 29/09 (Francisco, Nahuel y Paloma), con el batch del 18/09 y la PK de `viaje_hotel`. En la misma sync se sumaron el tipo de alerta `viaje` y el atributo `cerradaPorCancelacion`.
+- ✅ `FormaPago` cerrado en la sync del 29/09 (6 valores; las billeteras virtuales van como `transferencia`). Sigue abierto `CategoriaViaje`.
 - ✅ Lo resuelto el 21/09 ya está propagado a [[DGM-ER]] (`VIAJE ||--|{ PAGO` y los 4 orígenes de `ALERTA`) y a la nota de [[Viaje]].
 - ✅ El [[DGM-ER]] quedó **completo y coherente** con este diagrama el 21/09: sumó los atributos de las 14 tablas y las 4 relaciones que le faltaban (`USUARIO`–`ALERTA`, `USUARIO`–`CLIENTE`, `USUARIO`–`OPORTUNIDAD`, `DESTINO`–`REQUISITO_DESTINO`).
-- Definir el alcance de las columnas de auditoría (`created_by`/`updated_by`) que exige [[DEC-0008 Autenticación propia y rol de vendedor freelance]] — propuesta en [[DGM-ER]], a ratificar.
+- ✅ Auditoría (sync 29/09): `created_by`/`updated_by`/`created_at`/`updated_at` en **todas** las tablas de entidad (operativas y catálogos); no se dibujan para no multiplicar las líneas hacia `Usuario`. Ver [[DGM-ER]].
 - Renderizar el PNG (mermaid-cli, motor ELK) cuando el diagrama se incorpore a un entregable — ver [[Entregables — índice]].
 
 ## Relacionado

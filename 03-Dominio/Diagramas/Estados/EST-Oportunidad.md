@@ -1,18 +1,19 @@
 ---
 tipo: diagrama
-estado: borrador
+estado: formalizado
 modulo: [clientes, cotizaciones]
 responsable: Guardián del dominio
 pc: pc1
-actualizado: 21/09/26
+actualizado: 29/09/26
+fecha_aprobacion: 29/09/26
 ---
 # EST-Oportunidad — Especificación de estados
 
-tags:: #tipo/diagrama #estado/borrador #pc/pc1
+tags:: #tipo/diagrama #estado/formalizado #pc/pc1
 
 > **Especificación** del embudo de ventas de [[Oportunidad]], lista para dibujar. Derivada de [[CU-04 Registrar consulta]], [[CU-05 Seguir oportunidad]], [[CU-06 Emitir cotización]] y [[CU-07 Confirmar reserva]]. El enum vive en [[DGM — Diagrama de clases]] (`EstadoOportunidad`).
 >
-> ✅ **Diagrama dibujado el 21/09/26** (Nahuel) sobre esta especificación, con los 4 huecos ya resueltos incorporados. Sigue en `borrador`: se ratifica en la sync junto con el resto.
+> ✅ **Diagrama dibujado el 21/09/26** (Nahuel) sobre esta especificación, con los 4 huecos ya resueltos incorporados. ✅ **Ratificado en la sync del 29/09/26** (Francisco, Nahuel y Paloma).
 
 ## Convenciones del diagrama
 
@@ -33,7 +34,7 @@ El diagrama de abajo se dibujó el 21/09/26 siguiendo estas convenciones, comune
 | `nueva` | Consulta recibida, **sin atender** todavía. | Estado inicial: la crea [[CU-04 Registrar consulta]] | No |
 | `en_gestión` | Se está **atendiendo/asesorando**, antes de cotizar. | El empleado empieza a trabajarla ([[CU-05 Seguir oportunidad]]) | No |
 | `cotizada` | Se emitió y **envió** una [[Cotización]]. | [[CU-06 Emitir cotización]] | No |
-| `ganada` | El cliente compró. Deriva en [[Viaje]]. | Cierre en [[CU-05 Seguir oportunidad]] | **Sí** (no vuelve atrás ni si el [[Viaje]] se cancela) |
+| `ganada` | El cliente compró. Deriva en [[Viaje]]. | Al confirmar la reserva ([[CU-07 Confirmar reserva]]), o a mano en una venta directa ([[CU-05 Seguir oportunidad]] A4) | **Sí** (no vuelve atrás ni si el [[Viaje]] se cancela) |
 | `perdida` | No se concretó, **con motivo** registrado. | Cierre en [[CU-05 Seguir oportunidad]] | **Sí** (reabrible a `en_gestión`, T8) |
 
 **Estado inicial:** `nueva`.
@@ -48,7 +49,7 @@ El diagrama de abajo se dibujó el 21/09/26 siguiendo estas convenciones, comune
 | T1 | *(inicial)* | `nueva` | Llega una consulta por Instagram, WhatsApp o presencial y se registra | empleado | [[CU-04 Registrar consulta]] | Hay que identificar o crear el [[Cliente]] ([[CU-02 Registrar cliente]]) | Se crea la [[Oportunidad]] asociada al `Cliente` y al empleado que la registra (`responsable`) |
 | T2 | `nueva` | `en_gestión` | El empleado **empieza a atender** la consulta | empleado | [[CU-05 Seguir oportunidad]] paso 2 | — | Se registran interacciones; se puede agendar una [[Alerta]] de tipo `insistencia` |
 | T3 | `nueva` · `en_gestión` | `cotizada` | Se **envía** la [[Cotización]] al cliente | empleado | [[CU-06 Emitir cotización]] paso 5 | Existe una [[Cotización]] que pasó a `enviada` | La [[Cotización]] queda asociada a la [[Oportunidad]] |
-| T4 | `nueva` · `en_gestión` · `cotizada` | `ganada` | El cliente **confirma la compra** | empleado | [[CU-05 Seguir oportunidad]] paso 6 | — | **Resuelve las [[Alerta|Alertas]] de `insistencia` pendientes** (paso 7); habilita [[CU-07 Confirmar reserva]], que crea el [[Viaje]] |
+| T4 | `nueva` · `en_gestión` · `cotizada` | `ganada` | El cliente **confirma la compra** | empleado | [[CU-07 Confirmar reserva]] paso 3 (desde `cotizada`, con la [[Cotización]] aceptada) · [[CU-05 Seguir oportunidad]] A4 (venta directa, sin cotización) | — | **Resuelve las [[Alerta|Alertas]] de `insistencia` pendientes** ([[CU-05 Seguir oportunidad]] paso 7). En el caso normal la transición la hace **CU-07 al crear el [[Viaje]]** (sync 29/09); en la venta directa se cierra a mano y CU-07 A1 crea el viaje |
 | T5 | `nueva` · `en_gestión` · `cotizada` | `perdida` | El cliente desiste o no hay acuerdo | empleado | [[CU-05 Seguir oportunidad]] paso 6 / A2 | **Obligatorio registrar el motivo** (ver Invariantes) | Resuelve las [[Alerta|Alertas]] de `insistencia` pendientes; queda en el historial para el embudo y los reportes |
 | T7 | `en_gestión` · `cotizada` | *(se mantiene)* | **Insistencia vencida sin respuesta** | sistema / empleado | [[CU-05 Seguir oportunidad]] A1 | — | **No cambia el estado**: se reagenda o reprograma la [[Alerta]] de `insistencia`. Dibujar como auto-transición |
 | T8 | `perdida` | `en_gestión` | **Reactivación**: un cliente que había desistido retoma | empleado | [[CU-05 Seguir oportunidad]] A3 | Vuelve a `en_gestión` porque se la está volviendo a trabajar. Alternativa: registrar una [[Oportunidad]] nueva ([[CU-04 Registrar consulta]]) | — |

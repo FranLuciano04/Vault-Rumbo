@@ -1,14 +1,15 @@
 ---
 tipo: caso-uso
-estado: en-revision
+estado: formalizado
 modulo: [configuracion, alertas]
 responsable: Nahuel
 pc: pc1
-actualizado: 18/09/26
+actualizado: 29/09/26
+fecha_aprobacion: 29/09/26
 ---
 # CU-15 Configurar recordatorios por destino
 
-tags:: #tipo/caso-uso #estado/en-revision #pc/pc1 #accion/revisar
+tags:: #tipo/caso-uso #estado/formalizado #pc/pc1
 
 ## Descripción
 Definir, por destino, qué formularios o requisitos deben recordarse (p. ej. visa, vacunación, documentación) para que el sistema genere automáticamente [[Alerta|Alertas]] de tipo `formulario` en los [[Viaje|Viajes]] a ese destino.

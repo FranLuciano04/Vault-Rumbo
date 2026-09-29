@@ -1,14 +1,15 @@
 ---
 tipo: referencia
-estado: en-revision
+estado: formalizado
 modulo: [clientes, cotizaciones, viajes, economia, alertas, hoteles]
 responsable: Nahuel
 pc: pc1
-actualizado: 22/09/26
+actualizado: 29/09/26
+fecha_aprobacion: 29/09/26
 ---
 # Circuito de la consulta a la venta
 
-tags:: #tipo/referencia #estado/en-revision #pc/pc1
+tags:: #tipo/referencia #estado/formalizado #pc/pc1
 
 Así trabaja hoy la agencia y así lo acompaña el sistema, de punta a punta.
 

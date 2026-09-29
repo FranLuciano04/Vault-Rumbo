@@ -1,14 +1,15 @@
 ---
 tipo: caso-uso
-estado: en-revision
+estado: formalizado
 modulo: [configuracion, viajes]
 responsable: Nahuel
 pc: pc1
-actualizado: 18/09/26
+actualizado: 29/09/26
+fecha_aprobacion: 29/09/26
 ---
 # CU-26 Gestionar destinos
 
-tags:: #tipo/caso-uso #estado/en-revision #pc/pc1 #accion/revisar
+tags:: #tipo/caso-uso #estado/formalizado #pc/pc1
 
 ## Descripción
 Alta, baja y modificación (ABM) de los **destinos** del catálogo. El catálogo de destinos es la base para el `destino` de un [[Viaje]] y para las reglas de recordatorio por destino ([[CU-15 Configurar recordatorios por destino]]).

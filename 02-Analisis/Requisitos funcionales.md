@@ -1,14 +1,15 @@
 ---
 tipo: analisis
-estado: en-revision
+estado: formalizado
 modulo: [clientes, cotizaciones, viajes, economia, alertas, configuracion, hoteles, redes, dashboard, calendario, seguridad]
 responsable: Nahuel
 pc: pc1
-actualizado: 22/09/26
+actualizado: 29/09/26
+fecha_aprobacion: 29/09/26
 ---
 # Requisitos funcionales y no funcionales
 
-tags:: #tipo/analisis #estado/en-revision #pc/pc1 #accion/revisar
+tags:: #tipo/analisis #estado/formalizado #pc/pc1
 
 > Catálogo de requisitos de Rumbo. Enuncia **qué debe hacer el sistema** —los requisitos funcionales (RF)— y **cómo debe comportarse al hacerlo** —los requisitos no funcionales (RNF)—. Es la base del análisis: los casos de uso de [[MOC — Casos de uso]] son la **realización** de estos requisitos, y cada requisito indica en cuáles se concreta.
 
@@ -156,7 +157,7 @@ Cada requisito funcional está identificado, es verificable y se realiza en uno 
 - **Entidades:** [[Oportunidad]] · [[Cotización]]
 
 #### RF-017 — Cerrar la oportunidad
-- **Descripción:** el sistema permite cerrar la [[Oportunidad]] como `ganada` —con o sin [[Cotización]] formal previa— o como `perdida`, exigiendo en este último caso un motivo de una lista fija: precio · fechas/disponibilidad · desistió · compró en otra agencia · sin respuesta · otro (con texto libre). El motivo queda en el historial para el embudo y los reportes.
+- **Descripción:** el sistema permite cerrar la [[Oportunidad]] como `perdida`, exigiendo un motivo de una lista fija: precio · fechas/disponibilidad · desistió · compró en otra agencia · sin respuesta · otro (con texto libre), o como `ganada` cuando la venta se cierra sin [[Cotización]] formal. Cuando hay una cotización aceptada, la [[Oportunidad]] pasa a `ganada` al confirmarse la reserva (RF-032). El motivo queda en el historial para el embudo y los reportes.
 - **Actor:** empleado · **Tipo:** modificación · **Prioridad:** alta
 - **Casos de uso:** [[CU-05 Seguir oportunidad]]
 - **Entidades:** [[Oportunidad]]
@@ -216,13 +217,13 @@ Cada requisito funcional está identificado, es verificable y se realiza en uno 
 - **Entidades:** [[Cotización]]
 
 #### RF-027 — Detectar clientes fieles inactivos
-- **Descripción:** el sistema evalúa periódicamente el historial de cada [[Cliente]] y detecta a los candidatos a recontacto: los que llevan aproximadamente seis meses sin una nueva compra o viaje —umbral configurable— y no tienen marcado el opt-out. El criterio aplica a todos los clientes, identificando especialmente a los recurrentes (dos o más [[Viaje|Viajes]] con la agencia).
+- **Descripción:** el sistema evalúa todos los días, en el proceso automático de las 00:00, el historial de cada [[Cliente]] y detecta a los candidatos a recontacto: los que llevan aproximadamente seis meses sin una nueva compra o viaje —umbral configurable— y no tienen marcado el opt-out. El criterio aplica a todos los clientes, identificando especialmente a los recurrentes (dos o más [[Viaje|Viajes]] con la agencia).
 - **Actor:** sistema · **Tipo:** automático · **Prioridad:** alta
 - **Casos de uso:** [[CU-30 Sugerir recontacto de clientes]]
 - **Entidades:** [[Cliente]] · [[Viaje]]
 
 #### RF-028 — Sugerir el recontacto
-- **Descripción:** para cada candidato, el sistema genera una [[Alerta]] de tipo `recontacto` o lo lista en un panel de clientes a recontactar, y muestra el contexto del [[Cliente]] (último viaje, preferencias, historial). El sistema sugiere; el contacto lo hace una persona, sin envío automático.
+- **Descripción:** para cada candidato, el sistema genera una [[Alerta]] de tipo `recontacto` asignada al responsable del [[Cliente]] —o a un administrador si no tiene un responsable activo— y muestra el contexto del cliente (último viaje, preferencias, historial). No genera una segunda alerta mientras el cliente tenga otra de recontacto sin resolver. El sistema sugiere; el contacto lo hace una persona, sin envío automático.
 - **Actor:** sistema · **Tipo:** automático · **Prioridad:** alta
 - **Casos de uso:** [[CU-30 Sugerir recontacto de clientes]]
 - **Entidades:** [[Alerta]] · [[Cliente]]
@@ -250,7 +251,7 @@ Cada requisito funcional está identificado, es verificable y se realiza en uno 
 > Casos de uso que los realizan: [[CU-07 Confirmar reserva]], [[CU-08 Gestionar estado del viaje]], [[CU-09 Armar itinerario de hoteles]] y [[CU-27 Cancelar viaje]]. El [[Viaje]] recorre el ciclo `reservado → vendido → confirmado → en curso → finalizado`, más `cancelado`.
 
 #### RF-032 — Confirmar la reserva creando el viaje
-- **Descripción:** desde una [[Oportunidad]] `ganada`, el sistema crea el [[Viaje]] en estado `reservado` con destino del catálogo, fechas de salida y regreso, categoría y responsable, vinculado al [[Cliente]] y a la [[Oportunidad]] de origen, que queda cerrada como ganada. La reserva también puede confirmarse sin [[Cotización]] formal previa.
+- **Descripción:** desde una [[Oportunidad]] con su [[Cotización]] aceptada, el sistema crea el [[Viaje]] en estado `reservado` con destino del catálogo, fechas de salida y regreso, categoría y responsable, vinculado al [[Cliente]] y a la [[Oportunidad]] de origen, y cierra esa oportunidad como `ganada`. La reserva también puede confirmarse sin [[Cotización]] formal previa, desde una oportunidad ya cerrada como ganada.
 - **Actor:** empleado · **Tipo:** alta · **Prioridad:** alta
 - **Casos de uso:** [[CU-07 Confirmar reserva]]
 - **Entidades:** [[Viaje]] · [[Oportunidad]] · [[Cliente]] · [[Destino]] · [[Usuario]]
@@ -274,7 +275,7 @@ Cada requisito funcional está identificado, es verificable y se realiza en uno 
 - **Entidades:** [[Alerta]] · [[Viaje]]
 
 #### RF-036 — Encadenar la economía y el plan de cuotas
-- **Descripción:** al confirmar la reserva, el sistema encadena el registro del control económico y la definición del plan de cuotas con su seña, y ofrece armar el itinerario de hoteles. El [[Viaje]] no queda cerrado sin su economía y su plan cargados.
+- **Descripción:** al confirmar la reserva, el sistema encadena el registro del control económico y la definición del plan de cuotas —con o sin seña— y ofrece armar el itinerario de hoteles. El [[Viaje]] no queda cerrado sin su economía y su plan cargados.
 - **Actor:** empleado · **Tipo:** alta · **Prioridad:** alta
 - **Casos de uso:** [[CU-07 Confirmar reserva]]
 - **Entidades:** [[Viaje]] · [[Pago]]
@@ -286,13 +287,13 @@ Cada requisito funcional está identificado, es verificable y se realiza en uno 
 - **Entidades:** [[Viaje]] · [[Pago]] · [[Hotel]]
 
 #### RF-038 — Avanzar el estado del viaje por el cobro
-- **Descripción:** el sistema pasa el [[Viaje]] de `reservado` a `vendido` al cobrarse la seña y de `vendido` a `confirmado` al saldarse el total. Son transiciones automáticas disparadas por el cobro, no acciones manuales.
+- **Descripción:** el sistema pasa el [[Viaje]] de `reservado` a `vendido` con el primer cobro registrado, sea la seña, una cuota o el pago único, y de `vendido` a `confirmado` al saldarse el total; si un mismo cobro salda el total, aplica las dos transiciones en orden. Son transiciones automáticas disparadas por el cobro, no acciones manuales.
 - **Actor:** sistema · **Tipo:** automático · **Prioridad:** alta
 - **Casos de uso:** [[CU-08 Gestionar estado del viaje]] · [[CU-12 Registrar cobro de un pago]]
 - **Entidades:** [[Viaje]] · [[Pago]]
 
 #### RF-039 — Sugerir el avance a en curso y finalizado
-- **Descripción:** el sistema sugiere el paso a `en curso` y a `finalizado` según las fechas de salida y regreso, pero exige que el empleado lo confirme y nunca lo fuerza: si el regreso se demora, el viaje se mantiene `en curso` aunque la fecha ya haya pasado.
+- **Descripción:** el día de salida y el de regreso, el sistema genera una [[Alerta]] de tipo `viaje` para el responsable, que sugiere el paso a `en curso` o a `finalizado`; exige que el empleado lo confirme y nunca lo fuerza: si el regreso se demora, el viaje se mantiene `en curso` aunque la fecha ya haya pasado.
 - **Actor:** empleado · **Tipo:** modificación · **Prioridad:** alta
 - **Casos de uso:** [[CU-08 Gestionar estado del viaje]]
 - **Entidades:** [[Viaje]]
@@ -376,7 +377,7 @@ Cada requisito funcional está identificado, es verificable y se realiza en uno 
 - **Entidades:** [[Viaje]] · [[Pago]]
 
 #### RF-053 — Revertir la cancelación de un viaje
-- **Descripción:** si la cancelación fue un error y el [[Viaje]] no está `finalizado`, el sistema permite reactivarlo: vuelve al estado que tenía justo antes de cancelarse, sus [[Pago|Pagos]] vuelven a `pendiente` o `vencido` según su fecha y sus [[Alerta|Alertas]] se reabren.
+- **Descripción:** si la cancelación fue un error y el [[Viaje]] no está `finalizado`, el sistema permite reactivarlo: vuelve al estado que tenía justo antes de cancelarse, sus [[Pago|Pagos]] vuelven a `pendiente` o `vencido` según su fecha, se reabren solo las [[Alerta|Alertas]] que había cerrado la cancelación y, si se había dejado constancia de que la comisión no se realizaba, la comisión vuelve a quedar proyectada.
 - **Actor:** empleado · **Tipo:** modificación · **Prioridad:** media
 - **Casos de uso:** [[CU-27 Cancelar viaje]]
 - **Entidades:** [[Viaje]] · [[Pago]] · [[Alerta]]
@@ -483,7 +484,7 @@ Cada requisito funcional está identificado, es verificable y se realiza en uno 
 - **Entidades:** [[Viaje]] · [[Pago]]
 
 #### RF-070 — Revertir un cobro registrado por error
-- **Descripción:** el sistema permite revertir un cobro: el [[Pago]] vuelve a `pendiente` o `vencido` según su fecha, su [[Alerta]] se reabre y, si el [[Viaje]] había pasado a `confirmado` por saldo cero, vuelve a `vendido`.
+- **Descripción:** el sistema permite revertir un cobro: el [[Pago]] vuelve a `pendiente` o `vencido` según su fecha y su [[Alerta]] se reabre. Si el [[Viaje]] había pasado a `confirmado` por saldo cero, vuelve a `vendido`; si era el único cobro del viaje, vuelve a `reservado`.
 - **Actor:** empleado · **Tipo:** modificación · **Prioridad:** media
 - **Casos de uso:** [[CU-12 Registrar cobro de un pago]]
 - **Entidades:** [[Pago]] · [[Alerta]] · [[Viaje]]
@@ -495,7 +496,7 @@ Cada requisito funcional está identificado, es verificable y se realiza en uno 
 - **Entidades:** [[Pago]]
 
 #### RF-072 — Cobrar cada pago de forma íntegra
-- **Descripción:** el [[Pago]] es indivisible: se cobra completo, sin cobros parciales. Un esquema de cobro distinto se modela cambiando el plan de cuotas, no partiendo un pago.
+- **Descripción:** el [[Pago]] es indivisible: se cobra completo, sin cobros parciales. Si el cliente paga solo una parte, antes de cobrar se divide la cuota en dos dentro del plan de cuotas, respetando que la suma siga igual al precio de venta. La diferencia que produzca el tipo de cambio queda registrada en el monto cobrado.
 - **Actor:** sistema · **Tipo:** validación · **Prioridad:** alta
 - **Casos de uso:** [[CU-12 Registrar cobro de un pago]]
 - **Entidades:** [[Pago]]
@@ -505,7 +506,7 @@ Cada requisito funcional está identificado, es verificable y se realiza en uno 
 > Casos de uso que los realizan: [[CU-14 Ver y atender alertas del día]] y [[CU-28 Crear recordatorio manual]]. La mayoría de las [[Alerta|Alertas]] las genera el sistema desde otros módulos; este módulo las consolida en una agenda y permite crearlas a mano.
 
 #### RF-073 — Clasificar las alertas por tipo
-- **Descripción:** el sistema clasifica cada [[Alerta]] según su origen, con los tipos `pago`, `formulario`, `salida`, `insistencia`, `reseña`, `manual` y `recontacto`, y ofrece la acción correspondiente a cada uno.
+- **Descripción:** el sistema clasifica cada [[Alerta]] según su origen, con los tipos `pago`, `formulario`, `salida`, `insistencia`, `reseña`, `manual`, `recontacto` y `viaje`, y ofrece la acción correspondiente a cada uno.
 - **Actor:** sistema · **Tipo:** automático · **Prioridad:** alta
 - **Casos de uso:** [[CU-14 Ver y atender alertas del día]]
 - **Entidades:** [[Alerta]]
@@ -1003,7 +1004,7 @@ Cada requisito funcional está identificado, es verificable y se realiza en uno 
 - **Entidades:** [[Usuario]] · [[Cliente]] · [[Oportunidad]] · [[Viaje]] · [[Pago]] · [[Alerta]]
 
 #### RF-152 — Registrar autor y fecha de cada cambio (transversal)
-- **Descripción:** el sistema registra quién creó y quién modificó por última vez cada registro, junto con la fecha, para poder identificar quién realizó cada acción dentro del CRM. Un log de acciones completo queda para una fase posterior.
+- **Descripción:** el sistema registra quién creó y quién modificó por última vez cada registro de todas las entidades, operativas y de catálogo, junto con la fecha, para poder identificar quién realizó cada acción dentro del CRM. Un log de acciones completo queda para una fase posterior.
 - **Actor:** sistema · **Tipo:** seguridad · **Prioridad:** alta
 - **Casos de uso:** transversal — se aplica sobre los registros que crea o modifica cualquier caso de uso
 - **Entidades:** todas las entidades operativas
@@ -1058,21 +1059,21 @@ Cada requisito funcional está identificado, es verificable y se realiza en uno 
 - **Verificación:** ninguna operación deja registros huérfanos ni altera reportes de períodos ya cerrados.
 
 #### RNF-08 — Resguardo y recuperación
-- **Descripción:** la información se respalda periódicamente y el respaldo permite restaurar el sistema a un estado consistente anterior.
+- **Descripción:** la base de datos se respalda de forma automática una vez por día, después del proceso automático de las 00:00. Cada respaldo se conserva 30 días, con una copia guardada fuera del servidor, y permite restaurar el sistema a un estado consistente anterior.
 - **Justificación:** el sistema reemplaza las carpetas físicas y las planillas: pasa a ser la única copia de la información del negocio. Perderla sin resguardo equivale a perder la cartera de clientes y el estado de las cobranzas.
-- **Verificación:** existe un respaldo verificable y probado mediante una restauración completa.
+- **Verificación:** existe un respaldo de cada uno de los últimos 30 días, con su copia externa, y se prueba mediante una restauración completa.
 
 ## Rendimiento
 
 #### RNF-09 — Respuesta ágil en la operación diaria
-- **Descripción:** las pantallas de uso frecuente —la agenda de alertas, la búsqueda de clientes y hoteles, y la ficha del viaje— responden con fluidez y sin esperas perceptibles en condiciones normales de uso.
+- **Descripción:** las pantallas de uso frecuente —la agenda de alertas, la búsqueda de clientes y hoteles, y la ficha del viaje— responden en 2 segundos o menos en el 95 % de los casos, con hasta 10 usuarios trabajando en simultáneo.
 - **Justificación:** estas pantallas se abren decenas de veces por día, buena parte de ellas con el cliente esperando del otro lado del teléfono. Una demora que sería tolerable en un reporte mensual vuelve inusable la atención cotidiana.
-- **Verificación:** las consultas frecuentes se resuelven en tiempos que no interrumpen el ritmo de la atención.
+- **Verificación:** una prueba de carga con 10 usuarios simultáneos mide el percentil 95 de las pantallas frecuentes en 2 segundos o menos.
 
 #### RNF-10 — Comportamiento estable ante el crecimiento del histórico
-- **Descripción:** el rendimiento de las consultas se sostiene a medida que se acumulan clientes, viajes y pagos de sucesivas temporadas. Los listados extensos se entregan paginados y los reportes se acotan al período solicitado.
+- **Descripción:** el rendimiento de las consultas se sostiene a medida que se acumulan clientes, viajes y pagos de sucesivas temporadas, y cumple la meta de RNF-09 con al menos 5.000 clientes y su historial cargados. Los listados extensos se entregan paginados y los reportes se acotan al período solicitado.
 - **Justificación:** el sistema está pensado para conservar el historial completo, que crece temporada a temporada y nunca se depura. Una solución que responde bien el primer año y se degrada al tercero no resuelve el problema, solo lo pospone.
-- **Verificación:** los tiempos de respuesta se mantienen estables al crecer el volumen de datos históricos.
+- **Verificación:** con una base de prueba de 5.000 clientes y su historial, los tiempos de respuesta siguen dentro de la meta de RNF-09.
 
 ## Usabilidad
 
@@ -1088,17 +1089,17 @@ Cada requisito funcional está identificado, es verificable y se realiza en uno 
 
 ## Disponibilidad
 
-#### RNF-13 — Disponibilidad en el horario de operación
-- **Descripción:** el sistema está disponible durante el horario de atención de la agencia. Las tareas de mantenimiento se realizan fuera de ese horario.
-- **Justificación:** durante la atención el sistema es la única fuente de la información del cliente y del estado de su viaje. Una caída en horario comercial deja al asesor sin poder cotizar, cobrar ni responder.
-- **Verificación:** las interrupciones planificadas quedan fuera del horario de atención.
+#### RNF-13 — Disponibilidad permanente
+- **Descripción:** el sistema está disponible las 24 horas, todos los días. Las tareas de mantenimiento planificado se programan en la franja de menor uso y se avisan a los usuarios con anticipación.
+- **Justificación:** durante la atención el sistema es la única fuente de la información del cliente y del estado de su viaje. Además, las consultas llegan por Instagram y WhatsApp a cualquier hora y el proceso automático corre a medianoche. Una caída en horario comercial deja al asesor sin poder cotizar, cobrar ni responder.
+- **Verificación:** el sistema responde a cualquier hora, y toda interrupción planificada se anuncia antes y se hace en la franja de menor uso.
 
 ## Portabilidad y compatibilidad
 
 #### RNF-14 — Acceso desde escritorio y desde el teléfono
-- **Descripción:** el sistema ofrece una aplicación web para la gestión completa y una aplicación mobile para el acceso a la agenda, las alertas y los clientes. Ambas comparten la misma información en tiempo real y funcionan sobre navegadores y dispositivos de uso corriente.
+- **Descripción:** el sistema ofrece una aplicación web para la gestión completa y una aplicación mobile para el acceso a la agenda, las alertas y los clientes. Ambas comparten la misma información en tiempo real. La web soporta las dos últimas versiones de Chrome, Edge y Firefox (Safari, sin garantía); la mobile, Android 10 o superior e iOS 15 o superior.
 - **Justificación:** el trabajo de la agencia no ocurre solo frente al escritorio: la consulta llega por Instagram o WhatsApp a cualquier hora y los vencimientos hay que poder verlos fuera de la oficina. Sin acceso desde el teléfono, la parte del circuito que sucede fuera del mostrador queda sin registrar.
-- **Verificación:** agenda, alertas y clientes son accesibles y operables desde ambas plataformas, con la misma información.
+- **Verificación:** agenda, alertas y clientes son accesibles y operables desde ambas plataformas, con la misma información, en los navegadores y versiones de sistema indicados.
 
 ## Mantenibilidad
 
@@ -1158,6 +1159,14 @@ Los requisitos **RF-151** (control de acceso por rol y propiedad) y **RF-152** (
 
 > [!important] **Esta sección es interna y no sale en el entregable** (el `filtrar()` de `build-requisitos.sh` la recorta). Acá vive lo que el equipo necesita saber y los profesores no: cómo se armó realmente el catálogo, qué está sin cerrar y qué hay que confirmar con la agencia. **No mover nada de esto al cuerpo de la nota.**
 
+### Ratificación en la sync del 29/09
+> [!success] **Ratificado por Francisco, Nahuel y Paloma el 29/09/26.** Se aprobaron el catálogo completo, el criterio de prioridad derivado de la estructura del CU y los tres RF compartidos (RF-034, RF-038 y RF-059). Lo que se cerró en esa sync y ya está en el cuerpo:
+>
+> - **RNF con valores que fijó el equipo** (no la agencia, por decisión explícita): RNF-08, respaldo diario automático después del proceso de las 00:00, 30 días de retención y copia fuera del servidor; RNF-09/10, 2 segundos o menos en el percentil 95 con 10 usuarios simultáneos y 5.000 clientes; RNF-13, disponibilidad 24/7 con mantenimiento avisado en la franja de menor uso; RNF-14, las 2 últimas versiones de Chrome, Edge y Firefox (Safari sin garantía), Android 10+ e iOS 15+. RNF-03 (cifrado en tránsito y hash de contraseñas) queda como decisión de diseño.
+> - **RF reescritos** por las resoluciones de la sync: RF-017 y RF-032 (la Oportunidad pasa a `ganada` al confirmar la reserva), RF-027 y RF-028 (corrida diaria a las 00:00; recontacto sin duplicar y asignado al responsable del cliente), RF-036 y RF-038 (el primer cobro de cualquier tipo pasa el viaje a `vendido`), RF-039 y RF-073 (nuevo tipo de alerta `viaje`), RF-053 (la reversión de la cancelación reabre solo las alertas que cerró y repone la comisión), RF-070 (revertir el único cobro devuelve el viaje a `reservado`), RF-072 (para un pago parcial se divide la cuota) y RF-152 (auditoría en todas las entidades).
+> - **Siguen abiertos:** la vigencia por defecto de la cotización (1 mes) se ratificó como default configurable, pero **queda por validar con la agencia** (RF-022).
+> - **Descartado:** el recargo por mora. No se modela.
+
 ### Cómo se armó realmente (21/09)
 > [!note] Nahuel (21/09) — los 153 RF se obtuvieron por **ingeniería inversa sobre los 31 CU ya especificados**: se recorrió cada CU entero (flujo principal, alternativos, precondiciones, postcondiciones y reglas) y se extrajo la capacidad funcional, separándola del guion de interacción. **El documento se presenta en el sentido inverso** —requisitos primero, casos de uso como su realización— porque así corresponde leerlo en el entregable y así quedará ordenado el análisis de acá en adelante. La trazabilidad es la misma en las dos direcciones; lo único que cambia es cómo se narra.
 >
@@ -1169,6 +1178,8 @@ Los requisitos **RF-151** (control de acceso por rol y propiedad) y **RF-152** (
 > 5. **RF-153** es el criterio de baja lógica que el vault aplica en ocho entidades sin tenerlo escrito en un solo lugar. Si se ratifica, quizá merezca una **RN propia**, como [[RN-01 Comisión automática]].
 
 ### Los RNF son una propuesta del equipo (22/09)
+> [!success] **Superado en la sync del 29/09:** el equipo decidió fijar los valores él mismo, sin esperar a la agencia (ver *Ratificación en la sync del 29/09*). La tabla de abajo queda como historial.
+>
 > [!warning] Nahuel (22/09) — **los 16 RNF los redactó el equipo, no salen del relevamiento.** La primera versión (21/09) solo incluía los 13 que el vault respaldaba y dejaba ocho atributos listados como "sin definir"; a pedido de Nahuel se reescribieron como un cuadro completo de atributos de calidad, **genéricos y justificados**, para que el entregable no exhiba huecos. Se redactaron **sin comprometer valores numéricos** (no se fijaron tiempos de respuesta, porcentajes de disponibilidad ni volúmenes), justamente para no inventar un dato de negocio: las exigencias están enunciadas de forma cualitativa y verificable.
 >
 > **Lo que sigue siendo cierto es que estos puntos no se hablaron con la agencia.** Antes de comprometerlos en PC2 hay que confirmar, al menos:
@@ -1184,21 +1195,15 @@ Los requisitos **RF-151** (control de acceso por rol y propiedad) y **RF-152** (
 > El resto (RNF-01 a RNF-07, RNF-11, RNF-12, RNF-15 y RNF-16) se apoya en decisiones ya selladas o en criterios que el vault aplica de hecho, así que no agrega compromiso nuevo.
 
 ### Requisitos con dependencias abiertas
-> [!question] Estos RF están escritos con el valor que hoy figura en el vault, pero ese valor **no está cerrado**. Se sacaron del cuerpo de la nota para que el entregable no exhiba pendientes; siguen abiertos igual. #accion/decidir
+> [!question] Después de la sync del 29/09 queda **uno solo** con un valor sin cerrar. #accion/decidir
 >
 > | Requisito | Qué falta cerrar |
 > |---|---|
-> | RF-022 | La vigencia por defecto de la cotización (1 mes) es propuesta del equipo, sin validar con la agencia. |
-> | RF-026 | El vencimiento automático de cotizaciones es un cambio de modelo del 21/09, pendiente de ratificar. |
-> | RF-035 | La anticipación por defecto del aviso de salida (7 días) no está validada con la agencia. |
-> | RF-051 | El tratamiento de la comisión al cancelar un viaje `en curso` es resolución del 21/09, pendiente de ratificar. |
-> | RF-067, RF-071 | El enum `forma_pago` es propuesta del equipo: no surgió del relevamiento y falta confirmar si incluye medios digitales. |
-> | RF-072 | La indivisibilidad del [[Pago]] está validada por el responsable del módulo, falta ratificación del equipo. |
-> | RF-106 | El filtro por rango de precio y por servicios necesita atributos que todavía no se agregaron a [[Hotel]]. |
-> | RF-117 | El descarte de una pieza de [[ContenidoRed]] es un cambio de modelo del 21/09, pendiente de ratificar. |
-> | RF-152 | Falta definir el alcance exacto de las columnas de auditoría sobre las tablas operativas. |
+> | RF-022 | La vigencia por defecto de la cotización (1 mes) quedó ratificada como default configurable, pero falta validarla con la agencia. |
 >
-> Dos ideas **planteadas y no modeladas**, que por eso no generan requisitos: el **recargo por mora** al vencer una cuota y el **inicio de sesión con Google**, que [[DEC-0008 Autenticación propia y rol de vendedor freelance]] registra como conveniencia opcional y futura.
+> Los demás que figuraban acá (RF-026, RF-035, RF-051, RF-067, RF-071, RF-072, RF-106, RF-117 y RF-152) se cerraron en la sync: se ratificaron los cambios de modelo del 21/09, la agencia verificó los 7 días de la alerta `salida`, `forma_pago` quedó con 6 valores (las billeteras virtuales van como `transferencia`), [[Hotel]] ya tenía `precio_referencia` y `servicios` (la fila estaba desactualizada) y la auditoría alcanza a todas las entidades.
+>
+> Ideas **no modeladas**: el **recargo por mora** se **descartó** en la sync del 29/09; el **inicio de sesión con Google** sigue como conveniencia opcional y futura según [[DEC-0008 Autenticación propia y rol de vendedor freelance]].
 
 ### Al editar esta nota
 > [!note] Dos cuidados de formato, por el filtro del entregable:

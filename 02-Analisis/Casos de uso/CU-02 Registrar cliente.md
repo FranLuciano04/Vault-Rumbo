@@ -1,14 +1,15 @@
 ---
 tipo: caso-uso
-estado: en-revision
+estado: formalizado
 modulo: [clientes]
 responsable: Paloma
 pc: pc1
-actualizado: 10/09/26
+actualizado: 29/09/26
+fecha_aprobacion: 29/09/26
 ---
 # CU-02 Registrar cliente
 
-tags:: #tipo/caso-uso #estado/en-revision #pc/pc1 #accion/revisar
+tags:: #tipo/caso-uso #estado/formalizado #pc/pc1
 
 ## Descripción
 El empleado da de alta un nuevo [[Cliente]] con sus datos de contacto y segmento, para conservar su ficha e historial y poder asociarlo a consultas y viajes. Es la base de la **memoria del cliente**, el activo del negocio (ver [[Relevamiento — Fuente de verdad]]).

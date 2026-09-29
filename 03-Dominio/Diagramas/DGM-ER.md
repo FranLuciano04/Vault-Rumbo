@@ -1,14 +1,15 @@
 ---
 tipo: diagrama
-estado: borrador
+estado: formalizado
 modulo: []
 responsable: Guardián del dominio
 pc: pc1
-actualizado: 21/09/26
+actualizado: 29/09/26
+fecha_aprobacion: 29/09/26
 ---
 # DGM-ER
 
-tags:: #tipo/diagrama #estado/borrador #pc/pc1
+tags:: #tipo/diagrama #estado/formalizado #pc/pc1
 
 > Modelo entidad-relación para **PostgreSQL**. Salida del [[MOC — Modelo de dominio|modelo de dominio]]; su par conceptual es [[DGM — Diagrama de clases]]. Mantener sincronizado con las notas de entidad: **este describe tablas, aquel describe objetos.**
 >
@@ -156,9 +157,10 @@ erDiagram
         uuid pago_id FK "nullable, origen"
         uuid oportunidad_id FK "nullable, origen"
         uuid cliente_id FK "nullable, origen"
-        enum tipo "pago, formulario, salida, insistencia, reseña, manual, recontacto"
+        enum tipo "pago, formulario, salida, insistencia, reseña, manual, recontacto, viaje"
         date fecha
         enum estado "pendiente, vista, resuelta"
+        boolean cerrada_por_cancelacion "default false"
     }
     CONTENIDO_RED {
         uuid id PK
@@ -204,7 +206,7 @@ erDiagram
 - **`VIAJE ||--|{ PAGO` — todo viaje tiene al menos un pago** (resuelto 21/09, ver [[DGM — Diagrama de clases]]). [[CU-07 Confirmar reserva]] es el único CU que crea un `VIAJE` e incluye (`<<include>>`) [[CU-11 Definir plan de cuotas]], y aun sin cuotas se crea un `PAGO` de tipo `saldo` (A2). ⚠️ Una FK no puede exigir "al menos una fila hija": la obligatoriedad la hace cumplir la **lógica de aplicación**, no el motor.
 - **`ALERTA` tiene cuatro orígenes posibles y excluyentes** (resuelto 21/09): `viaje_id`, `pago_id`, `oportunidad_id` y `cliente_id`, **las cuatro nullable**, con un **CHECK de que a lo sumo una esté cargada** — ninguna cuando es una alerta `manual` suelta ([[CU-28 Crear recordatorio manual]]). Se descartó el origen polimórfico (`origen_tipo` + `origen_id`) porque pierde la integridad referencial; con 4 orígenes cerrados, la tabla más ancha es un costo menor.
 - **`USUARIO` aparece cinco veces** (`responsable` de viaje y de oportunidad, `vendedor`, `asesor_asignado`, `propietario` de alerta): es lo que implementa el modelo de visibilidad *lectura global + propiedad* de [[DEC-0005 Autenticación y modelo de roles]] y la restricción del rol `freelance` de [[DEC-0008 Autenticación propia y rol de vendedor freelance]].
-- **Auditoría:** [[DEC-0008 Autenticación propia y rol de vendedor freelance]] exige registrar **autor y fecha** de las acciones. La propuesta es agregar `created_by` / `updated_by` (FK a `USUARIO`) y `created_at` / `updated_at` a las tablas operativas (`CLIENTE`, `OPORTUNIDAD`, `COTIZACION`, `VIAJE`, `PAGO`, `RESENA`); no se dibujan en el diagrama para no multiplicar las líneas hacia `USUARIO`. ⚠️ **A ratificar** el alcance exacto de las tablas auditadas.
+- **Auditoría:** [[DEC-0008 Autenticación propia y rol de vendedor freelance]] exige registrar **autor y fecha** de las acciones. **Decidido en la sync del 29/09:** `created_by` / `updated_by` (FK a `USUARIO`) y `created_at` / `updated_at` van en **todas las tablas de entidad**, operativas y catálogos (las 13 entidades; la tabla asociativa `VIAJE_HOTEL` hereda la auditoría de `VIAJE`). No se dibujan en el diagrama para no multiplicar las líneas hacia `USUARIO`.
 - `VIAJE.destino_id` y `HOTEL.destino_id` son FK a `DESTINO` (antes texto libre): ver [[DEC-0006 Destino como entidad de catálogo]]. `OPORTUNIDAD.destino_consultado` sigue siendo **texto libre** y se normaliza recién al derivar en `VIAJE`.
 - `VIAJE` suma `operador_id`, `vendedor_id`, `moneda`, `costo`, `ganancia`, `margen` y `comision_vendedor` — ver [[DEC-0007 Modelo económico — ganancia, margen y comisión de vendedor]] y [[DEC-0009 Operador-Proveedor como entidad de catálogo]] (sync 17/09). `ganancia` y `margen` son **calculados**: se pueden materializar como columnas generadas o resolver en la vista.
 - `COTIZACION.items` se modela como **`jsonb`**, no como tabla propia: decidido el 21/09 no promoverlo a entidad ([[DGM — Diagrama de clases]], punto 4). Si más adelante hacen falta reportes por concepto, se reabre.
@@ -235,7 +237,7 @@ El ER es grande (≈ 2650 × 3133 px) porque el modelo **es** grande: 14 tablas,
 **La altura (~3133) es estructural:** la fija la cantidad de capas que arma ELK a partir de las 14 tablas y sus 24 relaciones, y no baja recortando texto. Si en algún momento molesta para imprimirlo, la salida es **partirlo en 3 vistas** (comercial · economía · catálogo y post-venta) y conservar esta como vista global — igual que se hizo con las bandas de enumeraciones en [[DGM — Diagrama de clases]]. Queda como opción, no como pendiente.
 
 ## Pendientes
-- Ratificar en la sync junto con el resto del batch (18/09 y 21/09).
-- Definir el alcance exacto de las columnas de auditoría (`created_by`/`updated_by`/`created_at`/`updated_at`).
-- Cerrar los enums `forma_pago` y `categoria` de `VIAJE`, todavía en borrador ([[Pago]], [[Viaje]]).
+- ✅ Ratificado en la sync del 29/09 (Francisco, Nahuel y Paloma).
+- ✅ Alcance de la auditoría definido en la sync del 29/09: todas las tablas de entidad.
+- ✅ `forma_pago` cerrado en la sync del 29/09. Sigue abierto `categoria` de `VIAJE` ([[Viaje]]).
 - Índices y constraints finos (además de los ya anotados en `VIAJE_HOTEL` y el CHECK de `ALERTA`) al pasar a las migraciones de PC2.

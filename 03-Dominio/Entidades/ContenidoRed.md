@@ -1,14 +1,15 @@
 ---
 tipo: entidad
-estado: borrador
+estado: formalizado
 modulo: [redes]
 responsable:
 pc: pc1
-actualizado: 10/09/26
+actualizado: 29/09/26
+fecha_aprobacion: 29/09/26
 ---
 # ContenidoRed
 
-tags:: #tipo/entidad #estado/borrador #pc/pc1
+tags:: #tipo/entidad #estado/formalizado #pc/pc1
 
 ## Responsabilidad
 Pieza de contenido para redes sociales, gestionada en un **tablero kanban** con calendario. El sistema **propone y organiza**, no publica solo ([[Alcance y fuera de alcance]]).

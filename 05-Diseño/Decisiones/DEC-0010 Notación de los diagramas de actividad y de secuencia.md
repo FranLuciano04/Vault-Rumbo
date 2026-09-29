@@ -1,15 +1,17 @@
 ---
 tipo: decision
-estado: en-revision
+estado: formalizado
 modulo: []
-decisores: [Nahuel]
-fecha_aprobacion:
+decisores: [Francisco, Nahuel, Paloma]
+fecha_aprobacion: 29/09/26
 supersede:
-actualizado: 25/09/26
+actualizado: 29/09/26
 ---
 # DEC-0010 Notación de los diagramas de actividad y de secuencia
 
-tags:: #tipo/decision #estado/en-revision #accion/revisar
+tags:: #tipo/decision #estado/formalizado #pc/pc1
+
+> ✅ **Ratificada en la sync del 29/09/26** (Francisco, Nahuel y Paloma).
 
 ## Contexto
 El checklist de PC1 pide diagramas de **actividad** de los flujos clave, y el equipo también va a hacer diagramas de **secuencia**. El 25/09 se dibujaron primero los de actividad con la sintaxis de secuencia de Mermaid, por una confusión sobre qué formato correspondía a cada tipo. Nahuel lo aclaró:
@@ -55,7 +57,7 @@ Se prioriza mantener **una sola herramienta** de diagramas, versionable y visibl
 - ⚠️ Las formas `@{ shape: … }` requieren Mermaid 11.3 o superior: falta verificar que el Obsidian del equipo las renderice.
 
 ## Decisores y fecha
-- Decisores: Nahuel (25/09/26). **A ratificar en la sync** con Francisco y Paloma.
+- Decisores: Nahuel (25/09/26); ratificada por Francisco, Nahuel y Paloma en la sync del 29/09/26.
 - Aprobada: _(pendiente)_
 
 ## Vínculo con el código (a partir de PC2)

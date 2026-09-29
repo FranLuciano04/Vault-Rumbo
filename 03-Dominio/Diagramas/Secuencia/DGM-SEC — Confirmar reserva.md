@@ -1,17 +1,18 @@
 ---
 tipo: diagrama
-estado: borrador
+estado: formalizado
 modulo: [viajes, economia, alertas]
 responsable: Nahuel
 pc: pc1
-actualizado: 25/09/26
+actualizado: 29/09/26
+fecha_aprobacion: 29/09/26
 ---
 # DGM-SEC — Confirmar reserva
 
-tags:: #tipo/diagrama #estado/borrador #pc/pc1 #accion/revisar
+tags:: #tipo/diagrama #estado/formalizado #pc/pc1
 
 ## Qué representa
-El **diagrama de secuencia** de [[CU-07 Confirmar reserva]]: los mensajes entre el empleado y las clases del sistema al convertir una [[Oportunidad]] ganada en [[Viaje]], con las alertas generadas en paralelo y el plan de cuotas ([[CU-10 Registrar economía del viaje]], [[CU-11 Definir plan de cuotas]]). Es la vista de secuencia **de análisis** (clases como participantes), distinta de [[DGM-SEC — De la consulta a la venta]] (vista de negocio, con "Sistema Rumbo" como caja negra) y complementaria de [[DGM-ACT — Confirmar reserva]] (mismo CU, notación de actividad).
+El **diagrama de secuencia** de [[CU-07 Confirmar reserva]]: los mensajes entre el empleado y las clases del sistema al convertir en [[Viaje]] una [[Oportunidad]] con su cotización aceptada (y cerrarla como `ganada`), con las alertas generadas en paralelo y el plan de cuotas ([[CU-10 Registrar economía del viaje]], [[CU-11 Definir plan de cuotas]]). Es la vista de secuencia **de análisis** (clases como participantes), distinta de [[DGM-SEC — De la consulta a la venta]] (vista de negocio, con "Sistema Rumbo" como caja negra) y complementaria de [[DGM-ACT — Confirmar reserva]] (mismo CU, notación de actividad).
 
 Notas de origen: [[CU-07 Confirmar reserva]] · [[CU-10 Registrar economía del viaje]] · [[CU-11 Definir plan de cuotas]] · [[RN-01 Comisión automática]] · [[EST-Viaje]] · [[EST-Pago]] · [[EST-Alerta]] · [[EST-Oportunidad]] · [[DEC-0010 Notación de los diagramas de actividad y de secuencia]]
 
@@ -40,7 +41,7 @@ sequenceDiagram
     alt sin cotización formal · A1
         O-->>S: ganada (venta directa)
     else con cotización aceptada
-        O-->>S: ganada, cotización aceptada
+        O-->>S: cotizada, con cotización aceptada
     end
 
     Note over E: Paso 2 · Datos del viaje
@@ -58,7 +59,7 @@ sequenceDiagram
         S->>O: Cierra la Oportunidad
         O->>BD: Guarda el cambio de estado
         BD-->>O: OK
-        O-->>S: ganada y cerrada (EST-Oportunidad)
+        O-->>S: ganada, si no lo estaba (EST-Oportunidad T4)
 
         Note over S,A: Paso 4 · Alertas del viaje (automático)
         par requisitos del destino
@@ -71,7 +72,7 @@ sequenceDiagram
                 Note over S: No genera alertas de formulario
             end
         and próxima salida
-            S->>A: Genera la alerta "salida" (anticipación 7 días ⚠️ sin validar)
+            S->>A: Genera la alerta "salida" (anticipación 7 días)
             A->>BD: Guarda la Alerta
             BD-->>A: OK
             A-->>S: pendiente (EST-Alerta T1)
@@ -84,8 +85,8 @@ sequenceDiagram
         V->>BD: Guarda la economía del Viaje
         BD-->>V: OK
         V-->>S: ganancia, margen
-        E->>I: Define las cuotas y la seña, con monto y vencimiento
-        I->>S: Define las cuotas y la seña, con monto y vencimiento
+        E->>I: Define las cuotas y, si hay, la seña, con monto y vencimiento
+        I->>S: Define las cuotas y, si hay, la seña, con monto y vencimiento
         loop Σ montos ≠ precio de venta · CU-11 A1
             S-->>I: Rechaza el plan y muestra la diferencia
             I-->>E: Rechaza el plan y muestra la diferencia
@@ -143,4 +144,6 @@ Ver [[DEC-0010 Notación de los diagramas de actividad y de secuencia]]:
 - **Un solo editor a la vez** (el bloque Mermaid es indivisible). Ver [[Guía del Vault#3 · Workflow colaborativo]].
 
 ## 🔎 Revisión
-> [!warning] Mismos huecos que [[DGM-ACT — Confirmar reserva#🔎 Revisión]] (no se resolvieron; se dibujó lo que dice el CU): un viaje sin seña nunca pasa a `vendido`; la precondición de CU-10 dice `vendido` en vez de `reservado`; no está claro quién hace la transición de la Oportunidad a `ganada` cuando la cotización está `aceptada` pero la oportunidad sigue `cotizada`; la anticipación de la alerta `salida` (7 días) sigue sin validar con la agencia. #accion/decidir
+> [!success] **Resueltos en la sync del 29/09** (Francisco, Nahuel y Paloma): ver [[DGM-ACT — Confirmar reserva#🔎 Revisión]]; el diagrama ya refleja las resoluciones.
+>
+> [!note] Historial (25/09): Mismos huecos que [[DGM-ACT — Confirmar reserva#🔎 Revisión]] (no se resolvieron; se dibujó lo que dice el CU): un viaje sin seña nunca pasa a `vendido`; la precondición de CU-10 dice `vendido` en vez de `reservado`; no está claro quién hace la transición de la Oportunidad a `ganada` cuando la cotización está `aceptada` pero la oportunidad sigue `cotizada`; la anticipación de la alerta `salida` (7 días) sigue sin validar con la agencia.

@@ -1,14 +1,15 @@
 ---
 tipo: caso-uso
-estado: en-revision
+estado: formalizado
 modulo: [economia]
 responsable: Nahuel
 pc: pc1
-actualizado: 10/09/26
+actualizado: 29/09/26
+fecha_aprobacion: 29/09/26
 ---
 # CU-11 Definir plan de cuotas
 
-tags:: #tipo/caso-uso #estado/en-revision #pc/pc1 #accion/revisar
+tags:: #tipo/caso-uso #estado/formalizado #pc/pc1
 
 ## Descripción
 Configurar los [[Pago|Pagos]] de un [[Viaje]] (seña, cuotas y saldo) con sus montos y vencimientos escalonados; el sistema agenda una [[Alerta]] de vencimiento por cada pago.
@@ -36,6 +37,7 @@ Configurar los [[Pago|Pagos]] de un [[Viaje]] (seña, cuotas y saldo) con sus mo
 - **A3 — Reprogramar:** mientras un [[Pago]] **no esté cobrado ni anulado** (`pendiente` o `vencido`), se pueden editar monto o vencimiento; el sistema reagenda su [[Alerta]]. Si estaba `vencido` y la fecha nueva es futura, vuelve a `pendiente` (21/09).
 - **A4 — Anular un pago:** mientras **no esté cobrado** (es decir, `pendiente` **o** `vencido` — regla del 21/09), el empleado anula un [[Pago]] del plan (cambió el esquema); el sistema lo pasa a estado **`anulado`** (baja lógica, conserva el registro), cierra su [[Alerta]] y vuelve a exigir que `Σ montos = precioVenta` sobre los pagos no anulados.
 - **A5 — Cambió el `precioVenta`:** si se edita la economía del [[Viaje]] ([[CU-10 Registrar economía del viaje]] A4) y el plan queda descalzado, el sistema exige rebalancear los [[Pago|Pagos]] `pendientes` hasta volver a cumplir `Σ montos = precioVenta`.
+- **A6 — Dividir una cuota (pago parcial):** si el cliente va a pagar solo una parte de un [[Pago]] `pendiente` o `vencido`, el empleado lo divide en dos: uno por el importe que se cobra ahora y otro por el resto, con su propio vencimiento. Se sigue cumpliendo `Σ montos = precioVenta` y el sistema agenda la [[Alerta]] del pago nuevo. Después se cobra el primero en [[CU-12 Registrar cobro de un pago]] (el [[Pago]] es indivisible).
 
 ## Postcondiciones
 - El [[Viaje]] queda con su plan de [[Pago|Pagos]] definido y las [[Alerta|Alertas]] de vencimiento agendadas.

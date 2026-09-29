@@ -1,14 +1,15 @@
 ---
 tipo: diagrama
-estado: borrador
+estado: formalizado
 modulo: []
 responsable: equipo
 pc: pc1
-actualizado: 18/09/26
+actualizado: 29/09/26
+fecha_aprobacion: 29/09/26
 ---
 # DGM — Casos de uso
 
-tags:: #tipo/diagrama #estado/borrador #pc/pc1
+tags:: #tipo/diagrama #estado/formalizado #pc/pc1
 
 > Diagrama de casos de uso de Rumbo (salida del [[MOC — Casos de uso]]). Actores según [[Actores]] y [[DEC-0005 Autenticación y modelo de roles]]. Un editor por vez.
 >

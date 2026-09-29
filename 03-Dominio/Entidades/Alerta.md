@@ -1,26 +1,28 @@
 ---
 tipo: entidad
-estado: borrador
+estado: formalizado
 modulo: [alertas]
 responsable:
 pc: pc1
-actualizado: 18/09/26
+actualizado: 29/09/26
+fecha_aprobacion: 29/09/26
 ---
 # Alerta
 
-tags:: #tipo/entidad #estado/borrador #pc/pc1
+tags:: #tipo/entidad #estado/formalizado #pc/pc1
 
 ## Responsabilidad
-Recordatorio automático para no perder vencimientos ni tareas: pagos, formularios por destino, próximas salidas, insistencia y reseñas post-viaje.
+Recordatorio automático para no perder vencimientos ni tareas: pagos, formularios por destino, próximas salidas, avance del viaje, insistencia, recontacto y reseñas post-viaje.
 
 ## Atributos
 | Atributo | Tipo | Descripción |
 |---|---|---|
 | id | UUID | Identificador |
-| tipo | Enum | `pago · formulario · salida · insistencia · reseña · manual · recontacto` — `pago` (vencimiento de cuota/proveedor, [[CU-12 Registrar cobro de un pago]]/[[CU-09 Armar itinerario de hoteles]]), `formulario` (requisito de destino: visa, vacunación, documentación, seguro, voucher… la categoría fina la da [[RequisitoDestino]]`.tipo`, no se duplica acá — [[CU-07 Confirmar reserva]]/[[CU-15 Configurar recordatorios por destino]]), `salida` (aviso de próxima salida del viaje — [[CU-07 Confirmar reserva]]), `insistencia` ([[CU-05 Seguir oportunidad]]), `reseña` ([[CU-08 Gestionar estado del viaje]]), `manual` ([[CU-28 Crear recordatorio manual]]), `recontacto` ([[CU-30 Sugerir recontacto de clientes]]) |
+| tipo | Enum | `pago · formulario · salida · insistencia · reseña · manual · recontacto · viaje` — `pago` (vencimiento de cuota/proveedor, [[CU-12 Registrar cobro de un pago]]/[[CU-09 Armar itinerario de hoteles]]), `formulario` (requisito de destino: visa, vacunación, documentación, seguro, voucher… la categoría fina la da [[RequisitoDestino]]`.tipo`, no se duplica acá — [[CU-07 Confirmar reserva]]/[[CU-15 Configurar recordatorios por destino]]), `salida` (aviso de próxima salida del viaje — [[CU-07 Confirmar reserva]]), `insistencia` ([[CU-05 Seguir oportunidad]]), `reseña` ([[CU-08 Gestionar estado del viaje]]), `manual` ([[CU-28 Crear recordatorio manual]]), `recontacto` ([[CU-30 Sugerir recontacto de clientes]]), `viaje` (sugerencia de pasar el [[Viaje]] a `en curso` o `finalizado`, generada por el proceso automático diario el día de salida y el de regreso — [[CU-08 Gestionar estado del viaje]]) |
 | fecha | Date (dd/mm/aa) | Cuándo dispara |
 | estado | Enum | pendiente · vista · resuelta |
 | propietario | FK → [[Usuario]] | Quien la recibe/creó; define la agenda personal. Ver [[DEC-0005 Autenticación y modelo de roles]] |
+| cerrada_por_cancelacion | Boolean | `true` si la resolvió la cancelación del [[Viaje]] ([[CU-27 Cancelar viaje]] paso 4). Al revertir la cancelación (A3) se reabren **solo** las alertas con esta marca, y la marca se limpia. Default `false` |
 
 ## Relaciones
 - *..1 con [[Viaje]] (o [[Oportunidad]] para insistencia, [[Pago]] para vencimientos)
@@ -30,7 +32,10 @@ Recordatorio automático para no perder vencimientos ni tareas: pagos, formulari
 ## Reglas / invariantes
 - **Visibilidad:** por defecto cada empleado ve **sus** alertas (agenda del día); `admin`/`dueño` ven las de toda la empresa. Ver [[DEC-0005 Autenticación y modelo de roles]].
 - **Fase 1 — aviso interno, envío manual:** la alerta se genera **dentro del sistema**; el mensaje al pasajero (WhatsApp) lo envía **una persona** cuando decide. La automatización configurable de WhatsApp queda **fuera de PC1** (ver [[Relevamiento — respuestas de la agencia (17-09)]], bloque 5, y [[Alcance y fuera de alcance]]).
-- **`salida`:** se genera automáticamente al confirmarse la reserva ([[CU-07 Confirmar reserva]]), con una anticipación sobre la fecha de salida del [[Viaje]]. La anticipación es un **parámetro de configuración global** (lo ajusta `admin`), con **default 7 días** (análogo a `anticipacion_dias` de [[RequisitoDestino]], pero uno por viaje en vez de por requisito). ⚠️ El **valor** default (7 días) queda a confirmar con la agencia; no bloquea PC1.
+- **`viaje`:** la genera el proceso automático diario (00:00) para el **responsable del [[Viaje]]**: el día de salida de un viaje `confirmado` y el de regreso de uno `en curso`. Solo sugiere; el cambio lo confirma el empleado ([[CU-08 Gestionar estado del viaje]]).
+- **`recontacto`:** se asigna al **responsable del [[Cliente]]** (o a un `admin` si no tiene uno activo) y **no se duplica** mientras el cliente tenga otra sin resolver ([[CU-30 Sugerir recontacto de clientes]]).
+- **El atraso no es un estado:** al vencer un [[Pago]], su alerta sigue `pendiente`; [[CU-14 Ver y atender alertas del día]] la muestra como atrasada porque su fecha ya pasó.
+- **`salida`:** se genera automáticamente al confirmarse la reserva ([[CU-07 Confirmar reserva]]), con una anticipación sobre la fecha de salida del [[Viaje]]. La anticipación es un **parámetro de configuración global** (lo ajusta `admin`), con **default 7 días** (análogo a `anticipacion_dias` de [[RequisitoDestino]], pero uno por viaje en vez de por requisito). El valor de 7 días **quedó verificado con la agencia** (sync 29/09).
 
 ## Aparece en
 - [[CU-01 De la consulta a la venta]] (flujos A1/A2/A3) · [[CU-07 Confirmar reserva]] · [[CU-14 Ver y atender alertas del día]] · [[MOD-Alertas]]

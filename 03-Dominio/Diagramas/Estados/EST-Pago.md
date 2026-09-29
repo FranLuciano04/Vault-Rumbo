@@ -1,18 +1,19 @@
 ---
 tipo: diagrama
-estado: borrador
+estado: formalizado
 modulo: [economia]
 responsable: Guardián del dominio
 pc: pc1
-actualizado: 21/09/26
+actualizado: 29/09/26
+fecha_aprobacion: 29/09/26
 ---
 # EST-Pago — Especificación de estados
 
-tags:: #tipo/diagrama #estado/borrador #pc/pc1
+tags:: #tipo/diagrama #estado/formalizado #pc/pc1
 
 > **Especificación** del ciclo de vida de [[Pago]], lista para dibujar. Derivada de [[CU-11 Definir plan de cuotas]], [[CU-12 Registrar cobro de un pago]] y [[CU-27 Cancelar viaje]], más la regla de vencimiento automático de la nota de [[Pago]]. El enum vive en [[DGM — Diagrama de clases]] (`EstadoPago`).
 >
-> ✅ **Diagrama dibujado el 21/09/26** (Nahuel) sobre esta especificación, con los 4 huecos resueltos ya incorporados. Sigue en `borrador`: se ratifica en la sync junto con el resto. El **recargo por mora** sigue abierto y **no está modelado**.
+> ✅ **Diagrama dibujado el 21/09/26** (Nahuel) sobre esta especificación, con los 4 huecos resueltos ya incorporados. ✅ **Ratificado en la sync del 29/09/26** (Francisco, Nahuel y Paloma).
 
 ## Convenciones del diagrama
 
@@ -45,7 +46,7 @@ El diagrama de abajo se dibujó el 21/09/26 siguiendo estas convenciones, comune
 |---|---|---|---|---|---|---|---|
 | T1 | *(inicial)* | `pendiente` | Se define el plan de cuotas del [[Viaje]] | empleado | [[CU-11 Definir plan de cuotas]] paso 5 | `Σ montos = precioVenta` en la moneda de referencia del [[Viaje]] | Se genera **una [[Alerta]] de vencimiento por cada `Pago`** (aviso un mes antes) |
 | T2 | `pendiente` | `pagado` | El empleado **registra el cobro** | empleado | [[CU-12 Registrar cobro de un pago]] paso 3 | Se cargan `forma_pago`, `moneda_pago` y, si difiere de `Viaje.moneda`, el `tipo_cambio` | **Resuelve** la [[Alerta]] de vencimiento; actualiza saldo y **% pagado** del [[Viaje]]; si es la **seña** el [[Viaje]] pasa a `vendido`; si el saldo queda en **cero**, pasa a `confirmado` |
-| T3 | `pendiente` | `vencido` | **Se superó la fecha de `vencimiento` sin cobro** | **sistema** (proceso automático) | *ninguno* — no es un CU con actor | — | Actualiza la [[Alerta]] asociada. **No requiere acción humana** |
+| T3 | `pendiente` | `vencido` | **Se superó la fecha de `vencimiento` sin cobro** | **sistema** (proceso automático) | *ninguno* — no es un CU con actor | — | La [[Alerta]] asociada **no cambia**: sigue `pendiente` y [[CU-14 Ver y atender alertas del día]] la muestra atrasada porque su fecha ya pasó. Corre en el proceso automático diario de las 00:00. **No requiere acción humana** |
 | T4 | `vencido` | `pagado` | El empleado registra el cobro de una cuota ya vencida | empleado | [[CU-12 Registrar cobro de un pago]] A1 | Igual que T2 | Igual que T2: la [[Alerta]] se resuelve lo mismo |
 | T5 | `pendiente` | `anulado` | Se **cambió el esquema** del plan de cuotas | empleado | [[CU-11 Definir plan de cuotas]] A4 | Solo mientras el `Pago` esté **`pendiente`** | Cierra su [[Alerta]]; vuelve a exigirse `Σ montos = precioVenta` **sobre los no anulados** |
 | T6 | `pagado` | `pendiente` · `vencido` | **Reversión del cobro** (se registró por error) | empleado | [[CU-12 Registrar cobro de un pago]] A3 | Vuelve al estado que tenía según su `vencimiento` | Su [[Alerta]] **se reabre**; si el [[Viaje]] había pasado a `confirmado` por saldo cero, vuelve a `vendido` |
@@ -61,7 +62,7 @@ El diagrama de abajo se dibujó el 21/09/26 siguiendo estas convenciones, comune
 - **Multimoneda por cobro:** el plan se denomina íntegro en `Viaje.moneda`; la moneda real (`moneda_pago`) y el `tipo_cambio` se eligen recién **al cobrar** (T2/T4). El **% pagado** y el saldo se calculan siempre sobre los `monto` planificados ([[DEC-0007 Modelo económico — ganancia, margen y comisión de vendedor]]).
 - 🔑 **`vencido` es "`pendiente` con la fecha pasada"** (resuelto 21/09). Sigue siendo exigible: es un aviso de atraso, no una baja. La baja es `anulado`. **Toda regla de los CU que diga `pendiente` aplica también a `vencido`.**
 - **Se puede reprogramar** monto o vencimiento mientras el `Pago` **no esté cobrado ni anulado**; el sistema reagenda su [[Alerta]] ([[CU-11 Definir plan de cuotas]] A3). Si sigue `pendiente` no cambia de estado (auto-transición); si estaba `vencido` y la fecha nueva es futura, vuelve a `pendiente` (T9).
-- **T3 es la única transición sin actor humano** de todo el modelo de Rumbo.
+- **T3 es una transición sin actor humano**: la corre el [[DGM-ACT — Proceso automático diario|proceso automático diario]] (00:00), igual que [[EST-Cotización]] T5 (`enviada → vencida`).
 
 ## Para qué se creó cada transición poco obvia
 
@@ -87,9 +88,9 @@ El diagrama de abajo se dibujó el 21/09/26 siguiendo estas convenciones, comune
 **Situación.** El 15/09 se cancela un viaje por error y se anulan sus tres cuotas. El 16/09 se revierte la cancelación ([[CU-27 Cancelar viaje]] A3).
 **Por qué se bifurca.** Las cuotas **no vuelven al estado que tenían**, vuelven al que les corresponde **según la fecha de hoy**: la que vencía el 10/09 vuelve a `vencido`, y las de octubre y noviembre vuelven a `pendiente`. Mismo criterio que T6.
 
-### T3 `pendiente → vencido` — la única sin actor humano
+### T3 `pendiente → vencido` — sin actor humano
 **Situación.** Nadie hace nada. Pasa la medianoche del `vencimiento` y la cuota queda en mora.
-**Por qué importa señalarlo.** Es la **única transición de todo el modelo de Rumbo** que no dispara una persona, sino un proceso del sistema. No tiene CU asociado porque no hay actor que la ejecute, y eso al leer la tabla de transiciones puede parecer un olvido.
+**Por qué importa señalarlo.** Es una de las **dos transiciones de todo el modelo de Rumbo** que no dispara una persona, sino un proceso del sistema (la otra es [[EST-Cotización]] T5). No tiene CU asociado porque no hay actor que la ejecute, y eso al leer la tabla de transiciones puede parecer un olvido.
 **Ojo.** Pasar a `vencido` **no cobra nada extra**: el [[Pago]] sigue debiendo el mismo `monto`. El **recargo por mora** se propuso el 21/09 y **no está modelado** — sigue abierto.
 
 ## Huecos y ambigüedades — resueltos el 21/09
@@ -109,9 +110,9 @@ De ahí salen las cuatro transiciones que faltaban, ya incorporadas a la tabla d
 
 > Es el mismo criterio que se aplicó a [[Alerta]] el mismo día (el atraso no crea un mundo aparte), con una diferencia: en `Pago` el atraso **sí** es un estado propio, porque cambia si la cuota está en mora o no. En `Alerta` el atraso es solo un criterio de orden.
 
-### ⚠️ Abierto
+### ❌ Descartado (sync 29/09)
 
-5. **Recargo por mora.** Idea de Nahuel (21/09) al resolver lo anterior: si una cuota pasa a `vencido`, podría corresponder un **recargo**. **No se modeló** — hay que confirmarlo con el equipo y con la agencia antes de tocar nada. Si se aprueba, impacta en [[Pago]] (atributo de recargo), [[CU-12 Registrar cobro de un pago]] (cobrar monto + recargo) y en la regla `Σ montos = precioVenta`, que dejaría de cerrar exacto. #accion/decidir
+5. **Recargo por mora.** Idea de Nahuel (21/09): si una cuota pasa a `vencido`, podría corresponder un **recargo**. **Descartada en la sync del 29/09** (Francisco, Nahuel y Paloma): no se modela. Una cuota vencida se cobra por su `monto` original.
 
 ## Diagrama
 
@@ -150,7 +151,7 @@ stateDiagram-v2
 
 **Lo que el diagrama deja ver de un vistazo:**
 - 🔑 **`pendiente` y `vencido` son el mismo mundo.** Tienen exactamente las mismas salidas — a `pagado` (T2/T4) y a `anulado` (T5-T7/T8-T7) — y `vencido` vuelve a `pendiente` si se reprograma la fecha (T9). Eso es la regla "`vencido` es `pendiente` con la fecha pasada" hecha dibujo: es la que cierra los 4 huecos que dejaban una cuota vencida de un viaje cancelado exigible para siempre.
-- **`⚙ T3` es la única flecha automática** de todo el modelo de Rumbo: ningún actor la dispara, la corre un proceso del sistema al pasar la fecha.
+- **`⚙ T3` es la única flecha automática de este diagrama**: ningún actor la dispara, la corre el proceso automático diario al pasar la fecha. En el resto del modelo también es automática [[EST-Cotización]] T5.
 - **La única baja es `anulado`**, y se alcanza desde los dos estados no cobrados, nunca desde `pagado`.
 - **No hay estado "parcialmente pagado"**: el [[Pago]] es indivisible, se cobra completo.
 - Tanto `↺ T6` como `↺ T10` **se bifurcan según la fecha**: vuelven a `pendiente` si el `vencimiento` es futuro, o a `vencido` si ya pasó.

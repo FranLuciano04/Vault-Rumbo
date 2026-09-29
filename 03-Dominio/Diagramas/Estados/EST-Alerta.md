@@ -1,18 +1,19 @@
 ---
 tipo: diagrama
-estado: borrador
+estado: formalizado
 modulo: [alertas]
 responsable: Guardián del dominio
 pc: pc1
-actualizado: 21/09/26
+actualizado: 29/09/26
+fecha_aprobacion: 29/09/26
 ---
 # EST-Alerta — Especificación de estados
 
-tags:: #tipo/diagrama #estado/borrador #pc/pc1
+tags:: #tipo/diagrama #estado/formalizado #pc/pc1
 
 > **Especificación** del ciclo de vida de [[Alerta]], lista para dibujar. Derivada de [[CU-14 Ver y atender alertas del día]], [[CU-28 Crear recordatorio manual]], [[CU-12 Registrar cobro de un pago]], [[CU-11 Definir plan de cuotas]], [[CU-05 Seguir oportunidad]] y [[CU-27 Cancelar viaje]]. El enum vive en [[DGM — Diagrama de clases]] (`EstadoAlerta`).
 >
-> ✅ **Diagrama dibujado el 21/09/26** (Nahuel) sobre esta especificación, con los 5 huecos ya resueltos incorporados. Sigue en `borrador`: se ratifica en la sync junto con el resto.
+> ✅ **Diagrama dibujado el 21/09/26** (Nahuel) sobre esta especificación, con los 5 huecos ya resueltos incorporados. ✅ **Ratificado en la sync del 29/09/26** (Francisco, Nahuel y Paloma).
 >
 > ✅ **El diagrama va con 3 estados.** La contradicción con [[CU-14 Ver y atender alertas del día]] (el estado `vencida`) se resolvió el 21/09: era un filtro de la vista, no un estado. Ver hueco 1.
 
@@ -43,27 +44,28 @@ El diagrama de abajo se dibujó el 21/09/26 siguiendo estas convenciones, comune
 
 | # | Origen | Destino | Evento / disparador | Actor | CU | Guarda / condición | Efectos colaterales |
 |---|---|---|---|---|---|---|---|
-| T1 | *(inicial)* | `pendiente` | Se genera la alerta. **Siete orígenes** según el `tipo` (ver tabla de abajo) | sistema o empleado | varios | — | Queda en la agenda del propietario ([[CU-14 Ver y atender alertas del día]]) |
+| T1 | *(inicial)* | `pendiente` | Se genera la alerta. **Ocho orígenes** según el `tipo` (ver tabla de abajo) | sistema o empleado | varios | — | Queda en la agenda del propietario ([[CU-14 Ver y atender alertas del día]]) |
 | T2 | `pendiente` | `vista` | El empleado **abre** la alerta y la marca como vista | empleado | [[CU-14 Ver y atender alertas del día]] paso 5 | — | — |
 | T3 | `pendiente` | `resuelta` | El empleado la atiende y **la cierra directamente** | empleado | [[CU-14 Ver y atender alertas del día]] paso 5 | — | — |
 | T4 | `vista` | `resuelta` | El empleado **termina** de atenderla | empleado | [[CU-14 Ver y atender alertas del día]] paso 5 | Confirmada el 21/09 | — |
 | T5 | `pendiente` · `vista` | `resuelta` | **Cierre automático**: el evento que la motivaba se cumplió o dejó de aplicar | **sistema** | ver tabla de cierres automáticos | — | Ninguno |
-| T6 | `resuelta` | `pendiente` | **Reapertura**: se revirtió el hecho que la había cerrado | sistema | [[CU-12 Registrar cobro de un pago]] A3 · [[CU-27 Cancelar viaje]] A3 | Aplica a **cualquier `tipo`** (generalizada el 21/09): si se deshace el cobro o la cancelación, la alerta vuelve | El [[Pago]] vuelve a `pendiente`/`vencido`, o el [[Viaje]] a su estado previo |
+| T6 | `resuelta` | `pendiente` | **Reapertura**: se revirtió el hecho que la había cerrado | sistema | [[CU-12 Registrar cobro de un pago]] A3 · [[CU-27 Cancelar viaje]] A3 | Aplica a **cualquier `tipo`** (generalizada el 21/09): si se deshace el cobro o la cancelación, la alerta vuelve. Al revertir una cancelación, **solo** vuelven las que tienen `cerrada_por_cancelacion` (sync 29/09) | El [[Pago]] vuelve a `pendiente`/`vencido`, o el [[Viaje]] a su estado previo |
 | T7 | `vista` | `pendiente` | **Corrección**: el empleado la había marcado por error | empleado | — *(sumado el 21/09)* | — | Se marca con `↺` en el diagrama (es corrección, no flujo) |
 | T8 | `pendiente` | *(se mantiene)* | **Posponer**: el empleado reprograma la `fecha` a un día posterior | empleado | [[CU-14 Ver y atender alertas del día]] A4 | — | **No cambia el estado.** Dibujar como auto-transición |
 | T9 | `pendiente` | *(se mantiene)* | **Reprogramar/editar** una alerta `manual` (fecha o descripción) | empleado | [[CU-28 Crear recordatorio manual]] A2 | Solo mientras esté `pendiente` | **No cambia el estado.** Auto-transición |
 
-### Los siete orígenes de T1
+### Los ocho orígenes de T1
 
 | `tipo` | Quién la genera | CU |
 |---|---|---|
 | `pago` | Al definir el plan de cuotas: **una por cada [[Pago]]**, con aviso un mes antes. También el vencimiento de pago a proveedor por hotel. | [[CU-11 Definir plan de cuotas]] paso 6 · [[CU-09 Armar itinerario de hoteles]] |
 | `formulario` | Al confirmar la reserva, según los [[RequisitoDestino|requisitos del destino]] | [[CU-07 Confirmar reserva]] paso 4 · [[CU-15 Configurar recordatorios por destino]] |
-| `salida` | Al confirmar la reserva, con anticipación configurable (**default 7 días** ⚠️ sin validar) | [[CU-07 Confirmar reserva]] paso 4 |
+| `salida` | Al confirmar la reserva, con anticipación configurable (**default 7 días**, verificado con la agencia) | [[CU-07 Confirmar reserva]] paso 4 |
 | `insistencia` | Al agendar un recontacto sobre una [[Oportunidad]] | [[CU-05 Seguir oportunidad]] paso 4 |
 | `reseña` | Al pasar el [[Viaje]] a `finalizado` | [[CU-08 Gestionar estado del viaje]] paso 5 |
 | `manual` | La crea el empleado a mano | [[CU-28 Crear recordatorio manual]] paso 4 |
-| `recontacto` | Cliente fiel inactivo (≈ 6 meses, configurable) | [[CU-30 Sugerir recontacto de clientes]] |
+| `recontacto` | Proceso automático diario: cliente fiel inactivo (≈ 6 meses, configurable). Se asigna al responsable del [[Cliente]] y no se duplica si ya tiene una sin resolver | [[CU-30 Sugerir recontacto de clientes]] |
+| `viaje` | Proceso automático diario: el día de salida de un [[Viaje]] `confirmado` y el de regreso de uno `en curso`, para su responsable (sumado en la sync 29/09) | [[CU-08 Gestionar estado del viaje]] paso 3 |
 
 ### Los cierres automáticos de T5
 
@@ -72,7 +74,8 @@ El diagrama de abajo se dibujó el 21/09/26 siguiendo estas convenciones, comune
 | Se **cobra** un [[Pago]] | La de vencimiento de ese pago | [[CU-12 Registrar cobro de un pago]] paso 4 |
 | Se **anula** un [[Pago]] del plan | La de ese pago | [[CU-11 Definir plan de cuotas]] A4 |
 | Se **cierra** una [[Oportunidad]] (`ganada` o `perdida`) | Las de `insistencia` pendientes | [[CU-05 Seguir oportunidad]] paso 7 |
-| Se **cancela** un [[Viaje]] | Todas las vigentes de ese viaje | [[CU-27 Cancelar viaje]] paso 4 |
+| Se **cancela** un [[Viaje]] | Todas las vigentes de ese viaje, marcándolas con `cerrada_por_cancelacion` | [[CU-27 Cancelar viaje]] paso 4 |
+| El empleado **pasa el [[Viaje]]** a `en curso` o `finalizado` | La de `viaje` que lo sugería | [[CU-08 Gestionar estado del viaje]] paso 3 |
 
 ## Invariantes y reglas
 

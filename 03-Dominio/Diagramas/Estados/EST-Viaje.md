@@ -1,18 +1,19 @@
 ---
 tipo: diagrama
-estado: borrador
+estado: formalizado
 modulo: [viajes]
 responsable: Guardián del dominio
 pc: pc1
-actualizado: 21/09/26
+actualizado: 29/09/26
+fecha_aprobacion: 29/09/26
 ---
 # EST-Viaje — Especificación de estados
 
-tags:: #tipo/diagrama #estado/borrador #pc/pc1
+tags:: #tipo/diagrama #estado/formalizado #pc/pc1
 
 > **Especificación** del ciclo de vida de [[Viaje]], lista para dibujar. Derivada de [[CU-07 Confirmar reserva]], [[CU-08 Gestionar estado del viaje]], [[CU-12 Registrar cobro de un pago]] y [[CU-27 Cancelar viaje]]. El enum vive en [[DGM — Diagrama de clases]] (`EstadoViaje`).
 >
-> ✅ **Diagrama dibujado el 21/09/26** (Nahuel) sobre esta especificación, con los huecos ya resueltos incorporados (los 4 originales + el 5.º detectado al dibujar). Sigue en `borrador`: se ratifica en la sync junto con el resto.
+> ✅ **Diagrama dibujado el 21/09/26** (Nahuel) sobre esta especificación, con los huecos ya resueltos incorporados (los 4 originales + el 5.º detectado al dibujar). ✅ **Ratificado en la sync del 29/09/26** (Francisco, Nahuel y Paloma).
 
 ## Convenciones del diagrama
 
@@ -30,8 +31,8 @@ El diagrama de abajo se dibujó el 21/09/26 siguiendo estas convenciones, comune
 
 | Estado | Significado | Cómo se entra | ¿Terminal? |
 |---|---|---|---|
-| `reservado` | El cliente aceptó la cotización. Economía y plan de pagos cargados, **seña sin cobrar**. | Estado inicial: lo crea [[CU-07 Confirmar reserva]] | No |
-| `vendido` | Se cobró la **seña**. | Cobro de la seña ([[CU-12 Registrar cobro de un pago]]) | No |
+| `reservado` | El cliente aceptó la cotización. Economía y plan de pagos cargados, **sin ningún cobro todavía**. | Estado inicial: lo crea [[CU-07 Confirmar reserva]] | No |
+| `vendido` | Se registró el **primer cobro**: la seña, o la primera cuota o el pago único si el plan no tiene seña. | Primer cobro ([[CU-12 Registrar cobro de un pago]] A0) | No |
 | `confirmado` | Se pagó el **total**: saldo en cero. Es el hito **económico**, no el operativo. | Último cobro que deja el saldo en cero ([[CU-12 Registrar cobro de un pago]]) | No |
 | `en curso` | El viaje **inició** (pasó la fecha de salida y el empleado lo confirmó). | Sugerido por fecha, confirmado por el empleado ([[CU-08 Gestionar estado del viaje]]) | No |
 | `finalizado` | El viaje **terminó**. Habilita la post-venta. | Sugerido por fecha, confirmado por el empleado ([[CU-08 Gestionar estado del viaje]]) | **Sí** |
@@ -44,15 +45,16 @@ El diagrama de abajo se dibujó el 21/09/26 siguiendo estas convenciones, comune
 
 | # | Origen | Destino | Evento / disparador | Actor | CU | Guarda / condición | Efectos colaterales |
 |---|---|---|---|---|---|---|---|
-| T1 | *(inicial)* | `reservado` | Se confirma la reserva desde una [[Oportunidad]] `ganada` | empleado | [[CU-07 Confirmar reserva]] | Existe `Oportunidad` ganada o [[Cotización]] aceptada; destino y fechas cargados | Se crea el [[Viaje]]; se generan las [[Alerta|Alertas]] `formulario` del destino y la `salida`; se encadenan [[CU-10 Registrar economía del viaje|CU-10]] y [[CU-11 Definir plan de cuotas|CU-11]] |
-| T2 | `reservado` | `vendido` | **Cobro de la seña** | sistema | [[CU-12 Registrar cobro de un pago]] A0 | El [[Pago]] cobrado es de `tipo = seña` | Automática, **no es una acción manual** |
+| T1 | *(inicial)* | `reservado` | Se confirma la reserva desde una [[Oportunidad]] con [[Cotización]] aceptada (o ganada por venta directa) | empleado | [[CU-07 Confirmar reserva]] | Existe [[Cotización]] aceptada u `Oportunidad` ganada; destino y fechas cargados | Se crea el [[Viaje]]; la [[Oportunidad]] pasa a `ganada` ([[EST-Oportunidad]] T4); se generan las [[Alerta|Alertas]] `formulario` del destino y la `salida`; se encadenan [[CU-10 Registrar economía del viaje|CU-10]] y [[CU-11 Definir plan de cuotas|CU-11]] |
+| T2 | `reservado` | `vendido` | **Primer cobro del viaje** | sistema | [[CU-12 Registrar cobro de un pago]] A0 | Es el primer [[Pago]] cobrado del viaje, **de cualquier tipo** (seña, cuota o saldo). Resuelto en la sync del 29/09: antes exigía `tipo = seña` y un plan sin seña dejaba el viaje trabado en `reservado` | Automática, **no es una acción manual**. Si ese cobro deja el saldo en cero, se encadena T3 en la misma operación |
 | T3 | `vendido` | `confirmado` | **Saldo en cero** (se cobró el último pago) | sistema | [[CU-12 Registrar cobro de un pago]] A2 | Σ de los [[Pago|Pagos]] no cobrados y no anulados = 0 | Automática |
-| T4 | `confirmado` | `en curso` | Llegó la **fecha de salida** | sistema **sugiere**, empleado **confirma** | [[CU-08 Gestionar estado del viaje]] | Nunca se fuerza por fecha (ver A1 en Invariantes) | Actualiza calendario y dashboard |
-| T5 | `en curso` | `finalizado` | Llegó la **fecha de regreso** | sistema **sugiere**, empleado **confirma** | [[CU-08 Gestionar estado del viaje]] | Nunca se fuerza por fecha | Habilita la post-venta: agenda una [[Alerta]] de tipo `reseña` ([[CU-17 Registrar reseña de hotel]]) |
+| T4 | `confirmado` | `en curso` | Llegó la **fecha de salida** | sistema **sugiere** (con una [[Alerta]] de tipo `viaje`), empleado **confirma** | [[CU-08 Gestionar estado del viaje]] | Nunca se fuerza por fecha (ver A1 en Invariantes) | Actualiza calendario y dashboard |
+| T5 | `en curso` | `finalizado` | Llegó la **fecha de regreso** | sistema **sugiere** (con una [[Alerta]] de tipo `viaje`), empleado **confirma** | [[CU-08 Gestionar estado del viaje]] | Nunca se fuerza por fecha | Habilita la post-venta: agenda una [[Alerta]] de tipo `reseña` ([[CU-17 Registrar reseña de hotel]]) |
 | T6 | `reservado` · `vendido` · `confirmado` · `en curso` | `cancelado` | El empleado cancela el viaje | empleado | [[CU-27 Cancelar viaje]] | **No** desde `finalizado` (A1) ni desde `cancelado` | Registra motivo y fecha; pasa los [[Pago|Pagos]] no cobrados (`pendiente` **y** `vencido`) a `anulado`; resuelve las [[Alerta|Alertas]] vigentes; deja constancia de que la comisión proyectada no se realiza ([[RN-01 Comisión automática]]) — **salvo desde `en curso`**, donde la comisión **se mantiene** porque el servicio ya se prestó ([[CU-27 Cancelar viaje]] A4, resuelto 21/09) |
 | T7 | `en curso` · `finalizado` | *estado inmediato anterior* | **Corrección**: se cargó un estado por error | empleado | [[CU-08 Gestionar estado del viaje]] A2 | Solo deshace transiciones **manuales** (T4, T5). Las automáticas (T2, T3) se deshacen revirtiendo el cobro | Se marca con `↺` en el diagrama (corrección, no flujo de negocio) |
 | T8 | `confirmado` | `vendido` | **Reversión de un cobro** que había dejado el saldo en cero | empleado | [[CU-12 Registrar cobro de un pago]] A3 | El cobro se había registrado por error | El [[Pago]] vuelve a `pendiente`/`vencido` y su [[Alerta]] se reabre |
-| T9 | `cancelado` | *el estado que tenía justo antes de cancelarse* | **Reversión de la cancelación** (fue un error) | empleado | [[CU-27 Cancelar viaje]] A3 | El viaje **no** está `finalizado` | Se reponen sus [[Pago|Pagos]] (a `pendiente` o `vencido` según su fecha) y [[Alerta|Alertas]]. Se marca con `↺` en el diagrama (corrección) |
+| T9 | `cancelado` | *el estado que tenía justo antes de cancelarse* | **Reversión de la cancelación** (fue un error) | empleado | [[CU-27 Cancelar viaje]] A3 | El viaje **no** está `finalizado` | Se reponen sus [[Pago|Pagos]] (a `pendiente` o `vencido` según su fecha), se reabren **solo las [[Alerta|Alertas]] que cerró la cancelación** y la comisión **vuelve a quedar proyectada** (sync 29/09). Se marca con `↺` en el diagrama (corrección) |
+| T10 | `vendido` | `reservado` | **Reversión del primer cobro** (el único cobro del viaje se había registrado por error) | empleado | [[CU-12 Registrar cobro de un pago]] A3 | No queda ningún otro [[Pago]] cobrado en el viaje | El [[Pago]] vuelve a `pendiente`/`vencido` y su [[Alerta]] se reabre. Caso simétrico de T8, agregado en la sync del 29/09. Se marca con `↺` en el diagrama (corrección) |
 
 ## Invariantes y reglas
 
@@ -78,7 +80,7 @@ El diagrama de abajo se dibujó el 21/09/26 siguiendo estas convenciones, comune
 ### T7 — se cargó un estado por error
 **Situación.** El cliente tiene dos viajes abiertos. El empleado marca `finalizado` el que todavía está en curso porque se confundió de ficha.
 **Por qué existe.** Sin T7 habría que cancelar el viaje y rehacerlo, perdiendo el historial. Es un **deshacer**, no un paso del negocio.
-**Límite.** Solo revierte lo que se cargó a mano (T4 y T5). Un `vendido → reservado` no se hace acá: eso lo produjo un cobro y se deshace revirtiendo el cobro (T8).
+**Límite.** Solo revierte lo que se cargó a mano (T4 y T5). Un `vendido → reservado` no se hace acá: eso lo produjo un cobro y se deshace revirtiendo el cobro (T10, o T8 para `confirmado → vendido`).
 
 ### T8 `confirmado → vendido` — el saldo en cero era mentira
 **Situación.** El 02/08 se marca cobrada la última cuota y el [[Viaje]] pasa solo a `confirmado`. El 09/08, al conciliar, se ve que el depósito nunca entró.
@@ -100,10 +102,19 @@ El diagrama de abajo se dibujó el 21/09/26 siguiendo estas convenciones, comune
 Se detectaron al especificar y **Nahuel los resolvió el mismo día**. Quedan **a ratificar en la sync**; lo que dice acá ya es lo que hay que dibujar.
 
 1. ✅ **Resuelto 21/09 (Nahuel): la secuencia es estricta.** **No** se puede pasar de `vendido` a `en curso` sin pasar por `confirmado`: un [[Viaje]] no arranca hasta estar **totalmente pagado**. El ciclo `reservado → vendido → confirmado → en curso → finalizado` de [[CU-08 Gestionar estado del viaje]] se respeta al pie de la letra. **Para dibujar:** no hay flecha `vendido → en curso`. **Consecuencia operativa a tener presente:** si llega la fecha de salida con saldo pendiente, el [[Viaje]] **se queda en `vendido`** — el sistema no lo deja avanzar. La salida es cobrar el saldo ([[CU-12 Registrar cobro de un pago]]) o cancelar ([[CU-27 Cancelar viaje]]).
-2. ✅ **Resuelto 21/09 (Nahuel): la corrección manual (T7) solo aplica a las transiciones manuales.** Es decir, solo permite deshacer T4 (`en curso → confirmado`) y T5 (`finalizado → en curso`). **No** se puede retroceder `vendido → reservado` ni `confirmado → vendido` a mano, porque esas las produjo un cobro: para deshacerlas hay que **revertir el cobro** ([[CU-12 Registrar cobro de un pago]] A3), que ya cambia el estado del [[Viaje]] solo (T8). Así se evita el estado incoherente de un viaje `reservado` con la seña cobrada. **Para dibujar:** T7 sale únicamente de `en curso` y `finalizado`.
+2. ✅ **Resuelto 21/09 (Nahuel): la corrección manual (T7) solo aplica a las transiciones manuales.** Es decir, solo permite deshacer T4 (`en curso → confirmado`) y T5 (`finalizado → en curso`). **No** se puede retroceder `vendido → reservado` ni `confirmado → vendido` a mano, porque esas las produjo un cobro: para deshacerlas hay que **revertir el cobro** ([[CU-12 Registrar cobro de un pago]] A3), que ya cambia el estado del [[Viaje]] solo (T8, y desde el 29/09 también T10). Así se evita el estado incoherente de un viaje `reservado` con la seña cobrada. **Para dibujar:** T7 sale únicamente de `en curso` y `finalizado`.
 3. ✅ **Resuelto 21/09 (Nahuel): T9 vuelve al estado que el [[Viaje]] tenía inmediatamente antes de cancelarse**, no siempre a `reservado`.
 4. ✅ **Resuelto 21/09 (Nahuel): `cancelado` es terminal para el flujo de negocio.** T9 no es un paso del flujo sino la **corrección de un error de carga**, igual que T7. Se mantiene lo que dice [[CU-08 Gestionar estado del viaje]]. **Para dibujar:** T7, T8 y T9 se marcan como correcciones (con `↺`), y T1-T6 quedan como flujo de negocio.
 5. ✅ **Resuelto 21/09 (Nahuel), detectado al dibujar: cancelar desde `en curso` no borra la comisión.** La precondición de [[CU-27 Cancelar viaje]] siempre permitió cancelar un viaje ya iniciado, pero arrastraba el paso 5 completo, así que un viaje que **ya había arrancado** perdía la comisión proyectada — cuando la agencia **ya prestó el servicio** y ya se la ganó. Desde `en curso` la cancelación es una **interrupción**: la comisión se mantiene, los cobros quedan y solo se anulan las cuotas no cobradas (nuevo **A4** en [[CU-27 Cancelar viaje]]). Se descartó un estado `interrumpido` propio (costaba enum, entidad, [[DGM — Diagrama de clases|clases]], [[DGM-ER|ER]] y CU para un caso de borde) y también sacar `en curso` de los orígenes, porque la fuerza mayor durante el viaje es un caso real. **Para dibujar:** no cambia nada, las cuatro flechas `T6` siguen; cambia el efecto, que está en la tabla y en los invariantes.
+
+## Cambios de la sync del 29/09
+
+Ratificados por Francisco, Nahuel y Paloma al cerrar los huecos que dejaron los diagramas de actividad ([[DGM-ACT — Confirmar reserva]], [[DGM-ACT — Registrar cobro de un pago]], [[DGM-ACT — Cancelar viaje]]):
+
+1. **T2 = primer cobro, de cualquier tipo.** La seña sigue siendo opcional ([[CU-11 Definir plan de cuotas]]); con un plan de pago único, el primer cobro pasa el viaje a `vendido` y, si deja el saldo en cero, sigue a `confirmado` en la misma operación.
+2. **Nueva T10 `vendido → reservado`**: revertir el único cobro del viaje lo devuelve a `reservado`. Es la contracara de T2, como T8 lo es de T3.
+3. **T9 repone la comisión** proyectada y reabre **solo** las [[Alerta|Alertas]] que había cerrado la cancelación ([[CU-27 Cancelar viaje]] A3).
+4. **T4 y T5 se sugieren con una [[Alerta]] de tipo `viaje`** que genera el [[DGM-ACT — Proceso automático diario|proceso automático diario]].
 
 ## Diagrama
 
@@ -115,7 +126,7 @@ stateDiagram-v2
     state "en curso" as en_curso
 
     [*] --> reservado : T1 · se confirma la reserva
-    reservado  --> vendido     : ⚙ T2 · cobro de la seña
+    reservado  --> vendido     : ⚙ T2 · primer cobro
     vendido    --> confirmado  : ⚙ T3 · saldo en cero
     confirmado --> en_curso    : T4 · llegó la fecha de salida
     en_curso   --> finalizado  : T5 · llegó la fecha de regreso
@@ -128,6 +139,7 @@ stateDiagram-v2
     cancelado  --> [*]
 
     confirmado --> vendido    : ↺ T8 · reversión del cobro
+    vendido    --> reservado  : ↺ T10 · reversión del primer cobro
     en_curso   --> confirmado : ↺ T7 · corrección
     finalizado --> en_curso   : ↺ T7 · corrección
 
@@ -147,7 +159,7 @@ stateDiagram-v2
 **Lo que el diagrama deja ver de un vistazo:**
 - La **secuencia es estricta**: no hay flecha `vendido → en curso`. Un [[Viaje]] no arranca sin estar totalmente pagado (hueco 1).
 - Las **cuatro flechas `↺ T9`** saliendo de `cancelado` son la contracara de las cuatro `T6`: la cancelación se puede revertir al estado exacto que el viaje tenía antes.
-- `↺ T7` sale **solo** de `en curso` y `finalizado`, las dos transiciones manuales (hueco 2). Lo que produjo un cobro se deshace revirtiendo el cobro (`↺ T8`), no a mano.
+- `↺ T7` sale **solo** de `en curso` y `finalizado`, las dos transiciones manuales (hueco 2). Lo que produjo un cobro se deshace revirtiendo el cobro (`↺ T8` y `↺ T10`), no a mano.
 - `finalizado` **no tiene flecha a `cancelado`**: un viaje terminado no se cancela.
 - La `T6` que sale de **`en curso`** es la excepción económica: ahí cancelar **interrumpe** un viaje ya prestado y **no borra la comisión** (hueco 5).
 

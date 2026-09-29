@@ -1,14 +1,15 @@
 ---
 tipo: caso-uso
-estado: en-revision
+estado: formalizado
 modulo: [seguridad]
 responsable: Nahuel
 pc: pc1
-actualizado: 11/09/26
+actualizado: 29/09/26
+fecha_aprobacion: 29/09/26
 ---
 # CU-24 Iniciar sesión
 
-tags:: #tipo/caso-uso #estado/en-revision #pc/pc1 #accion/revisar
+tags:: #tipo/caso-uso #estado/formalizado #pc/pc1
 
 ## Descripción
 Autenticar a un [[Usuario]] y cargar su contexto de trabajo según el rol, aplicando la visibilidad segmentada del negocio ([[DEC-0005 Autenticación y modelo de roles]]).
