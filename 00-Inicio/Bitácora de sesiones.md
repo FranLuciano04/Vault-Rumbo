@@ -32,7 +32,7 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 
 ## 29/09/26 — Nahuel (Claude Opus 5.5) — plan del PC1 ajustado a la documentación obligatoria de la cátedra
 - **Hecho:** Se compararon las láminas del PC1 (contenido, entrega «Documento con el MVC» y documentación obligatoria) con el vault. El análisis y el UML están completos; faltaban frentes de diseño técnico e IA. Se sumaron al plan de [[Estado del proyecto]] cuatro frentes obligatorios nuevos: **E** (modelo de IA del producto con `DEC-0012`, cadena de LangChain y prompts, agentes de desarrollo y del producto), **F** (contrato OpenAPI en JSON, script SQL desde el ER, diagramas de dominio a un entregable), **G** (modelo C4 de contexto, contenedores y componentes, sección MVC, modelo conceptual por capa) y **H** (preguntas a la cátedra, antecedentes, modelo de desarrollo, documento único `build-pc1.sh` y presentación oral). Se recalculó el calendario, se sumaron las casillas al checklist obligatorio y la lista oficial quedó en [[Cronograma y PC]].
-- **Commits:** ver el commit «Sumar al plan del PC1…».
+- **Commits:** 5352451.
 - **Pendiente:** confirmar con la cátedra qué significan «MVC» y «Modelo de desarrollo» (H0); repartir los frentes A a H en la sync.
 
 ## 29/09/26 — Nahuel (Claude Opus 5.5) — entregable de casos de uso limpio, cotización validada, enum cerrado y plan a PC1
