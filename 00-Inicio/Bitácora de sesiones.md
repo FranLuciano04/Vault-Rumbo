@@ -30,6 +30,10 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
+## 29/09/26 — Nahuel (Claude Opus 5.5) — aprobaciones y traspaso
+- **Hecho:** Nahuel aprobó (1) `created_by`/`updated_by` vacíos para las acciones del proceso automático y (2) los tres ajustes del túnel en DEC-0011. Quedaron registrados en *Decidido en el día 0* de [[Estado del proyecto]], todavía sin aplicar.
+- **Pendiente (siguiente sesión):** aplicar los ajustes del túnel en DEC-0011 y ARQ, anotar la nulabilidad en [[DGM-ER]] y seguir con F2 (script SQL); después F1 y G1.
+
 ## 29/09/26 — Nahuel (Claude Opus 5.5) — ARQ: paquete core fuera de las tres capas
 - **Hecho:** A pedido de Nahuel, la vista lógica de [[ARQ — Vista general]] suma un paquete **`core`** transversal, fuera de las tres capas (convención que Nahuel ya usa en otro proyecto): `config`, `db` (motor, sesión y auditoría), `seguridad` (hash y tokens de DEC-0008) e `ia` (cliente LangChain + Claude). Regla: `core` no usa ninguna capa y todas pueden usarlo; solo entra lo técnico, transversal y sin reglas del negocio. La IA de CU-20 quedó **partida en dos**: el prompt y sus límites en `negocio/prompts/` y el cable técnico en `core/ia.py`; `datos/` queda solo con modelos y repositorios. Diagrama de capas rehecho con `core` al costado; tabla, reglas transversales, estructura de carpetas y resumen actualizados.
 
