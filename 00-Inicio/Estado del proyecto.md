@@ -27,7 +27,11 @@ Los tres tomamos **los tres roles** (Coordinador de vault · Guardián del domin
 - [x] Diagramas de **actividad** de flujos clave — ✅ los 5 en `03-Dominio/Diagramas/Actividad/` ([[DGM-ACT — De la consulta a la venta|CU-01]], [[DGM-ACT — Confirmar reserva|CU-07]], [[DGM-ACT — Registrar cobro de un pago|CU-12]], [[DGM-ACT — Cancelar viaje|CU-27]], [[DGM-ACT — Proceso automático diario|proceso diario]]); sus 18 huecos se resolvieron y se **formalizaron el 29/09**
 - [ ] [[ARQ — Vista general]] formalizada
 - [x] DEC estructurales registradas y **ratificadas**: DEC-0001→0009 selladas (11/09 y 17/09; DEC-0004 obsoleta); **DEC-0002 y DEC-0010 formalizadas el 29/09**
-- [ ] Prototipo UI de pantallas clave (Figma)
+- [ ] Prototipo UI de pantallas clave (Figma) — plan B
+- [ ] Modelos de IA del producto, prompts y agentes documentados — plan E
+- [ ] Contrato OpenAPI (JSON) y script SQL del modelo de datos — plan F
+- [ ] Modelo C4 y sección MVC en la arquitectura — plan G
+- [ ] Documento único del PC1 (con antecedentes y modelo de desarrollo) y presentación — plan H
 
 ### Recomendado (buenas prácticas — refuerzan el modelo)
 - [x] Diagramas de **secuencia** de CU clave (consulta→cotización→reserva, registrar pago) — ✅ el de negocio ya estaba: [[DGM-SEC — De la consulta a la venta]] (22/09, Figura 1 del relevamiento, se conserva tal cual). **25/09 (Nahuel):** se sumaron los **3** diagramas de secuencia de análisis acordados (boundary-control-entity completo: `Interfaz` entre el actor y el control `Sistema Rumbo`, entidades del CU, y **Base de Datos** para cada búsqueda/guardado), en `03-Dominio/Diagramas/Secuencia/`: [[DGM-SEC — Confirmar reserva|CU-07]], [[DGM-SEC — Registrar cobro de un pago|CU-12]] y [[DGM-SEC — Cancelar viaje|CU-27]]. La notación quedó cerrada en [[DEC-0010 Notación de los diagramas de actividad y de secuencia|DEC-0010]]. ✅ Formalizados el 29/09
@@ -44,12 +48,14 @@ Los tres tomamos **los tres roles** (Coordinador de vault · Guardián del domin
 
 - **Infraestructura de despliegue** (paso A1 del plan) → [[ARQ — Vista general]], [[DEC-0001 Stack tecnológico]].
 - **Capa de persistencia y migraciones** (A4) y **Dependabot o Renovate** (A5) → [[ARQ — Vista general]].
-- **Pantallas del prototipo** (B1) y quién toma cada frente.
+- **Pantallas del prototipo** (B1) y quién toma cada frente (A a H).
+- **Modelo de IA del producto** (E1, `DEC-0012`).
+- **Preguntas para la cátedra** (H0): qué significa «MVC» y a qué se refiere «Modelo de desarrollo».
 
 ## Pasos restantes hacia PC1 (23/10/26) — plan detallado
-> Lo que falta del checklist. El análisis ya está cerrado; quedan dos obligatorios (**arquitectura** y **prototipo UI**) y tres recomendados. Las semanas y los responsables son una **propuesta**: se confirman en la sync. Cada paso dice qué se entrega y dónde queda.
+> Lo que falta para el PC1. El análisis ya está cerrado. Obligatorio: **arquitectura** (A), **prototipo UI** (B), **IA del producto y agentes** (E), **contrato de la API y SQL** (F), **C4 y MVC** (G) y el **documento único con su presentación** (H), según la documentación obligatoria de la cátedra (ver [[Cronograma y PC]]). Además hay tres recomendados (C). Las semanas y los responsables son una **propuesta**: se confirman en la sync. Cada paso dice qué se entrega y dónde queda.
 
-**Calendario propuesto:** semana 6 (hasta el 02/10) → A1, A2 y B1 · semana 7 (hasta el 09/10) → A3–A5, B2 y C1 · semana 8 (hasta el 16/10) → B3, B4, C2, C3 y la sync de cierre · semana 9 → **PC1 el 23/10**.
+**Calendario propuesto:** semana 6 (hasta el 02/10) → A1, A2, B1, E1 y H0 · semana 7 (hasta el 09/10) → A3–A5, B2, E2, E3, F1, F2, G1, G2, H1, H2 y C1 · semana 8 (hasta el 16/10) → B3, B4, E4, F3, G3, H3, C2, C3 y la sync de cierre · semana 9 → H4 (ensayo) y **PC1 el 23/10**.
 
 ### A · Arquitectura — obligatorio (`[[ARQ — Vista general]]`, hoy `en-revision`)
 - [ ] **A1. Decidir la infraestructura de despliegue** con una `DEC-0011`. Se comparan tres opciones: **PaaS** (servicio gestionado para la API y PostgreSQL), **VPS** propio y **servidor on-premise** en la agencia. Criterios, todos ya fijados en [[Requisitos funcionales]]: disponibilidad **24/7** (RNF-13), respaldo **diario con copia fuera del servidor** (RNF-08), que el proceso automático corra a las **00:00**, y el costo para una PyME. De esta decisión dependen Nginx y el runner self-hosted de CI.
@@ -70,9 +76,32 @@ Los tres tomamos **los tres roles** (Coordinador de vault · Guardián del domin
 - [ ] **C2. Matriz de trazabilidad completa.** Ya está CU → RF en [[Requisitos funcionales]]. Faltan los tramos **objetivo → CU** (desde [[Objetivos del sistema]]) y **CU → entidad/regla**.
 - [ ] **C3. Glosario** del lenguaje ubicuo en `02-Analisis/Glosario.md`: las 13 entidades más los términos del negocio (seña, operador, salida grupal, recontacto…).
 
+### E · IA del producto y agentes — obligatorio (lámina del PC1: «Modelos de IA utilizados y justificación» y «Agentes IA implementados»)
+- [ ] **E1. Elegir el modelo de IA del producto** con una `DEC-0012`. Hoy la única función con IA es [[CU-20 Generar propuesta de contenido con IA|CU-20]] (borradores de posteos a partir del tema, el canal y el tono). La DEC compara al menos un modelo rápido y barato (Haiku 4.5) con uno de más calidad (Sonnet 5.5), según costo por borrador, latencia y calidad del texto en español, y fija los parámetros (temperatura, largo máximo).
+- [ ] **E2. Diseñar la cadena de LangChain y los prompts** en una nota nueva de `05-Diseño/` (p. ej. `IA — Diseño de la generación de contenido`): prompt de sistema, plantilla con variables (tema, canal, tono), formato de salida, límites (no usa datos del negocio, no publica) y cómo se versionan los prompts en el repo.
+- [ ] **E3. Documentar los agentes de IA del proyecto:** el **agente de desarrollo** (Claude Code con `CLAUDE.md`, las skills de `.claude/skills/` y el vault como memoria compartida, ver [[Trabajo en equipo — Git y memoria]]) y el **componente de IA del producto** (E2). Para cada uno: qué hace, con qué modelo, qué herramientas usa y qué límites tiene.
+- [ ] **E4. Ampliar la justificación** de [[Herramientas del proyecto]] para que distinga la IA **para desarrollar** (ya justificada) de la IA **dentro del producto** (E1).
+
+### F · Contrato de la API y modelo de datos SQL — obligatorio (láminas: «Comunicación V-C: Open API (formato JSON)» y «Model de datos SQL»)
+- [ ] **F1. Contrato OpenAPI preliminar en JSON** (`05-Diseño/API/openapi.json` más una nota índice): endpoints REST por módulo, derivados de los 31 CU, con los esquemas JSON de request y response derivados del [[DGM-ER]], los códigos de error y el rol que exige cada uno (DEC-0005/0008). Es la «comunicación Vista–Controlador» que pide la cátedra y la base del `openapi-typescript` de [[DEC-0001 Stack tecnológico]].
+- [ ] **F2. Script SQL del modelo de datos** (`05-Diseño/Datos/rumbo.sql`): `CREATE TABLE` de las 14 tablas con claves, FK, enums, el CHECK de origen de `ALERTA`, la unicidad de `VIAJE_HOTEL` y las columnas de auditoría. Se deriva del [[DGM-ER]] y se valida corriéndolo contra un PostgreSQL local.
+- [ ] **F3. Llevar los diagramas de dominio a un entregable:** clases, ER y los de estado, actividad y secuencia hoy **no están en ningún `.docx`**; entran en el documento único (H).
+
+### G · Arquitectura ampliada: C4 y MVC — obligatorio (láminas: «Modelo conceptual: Frontend, Backend, Base de datos», «C4 Model» y «Documento con el MVC»)
+- [ ] **G1. Modelo C4 en Mermaid** dentro de [[ARQ — Vista general]]: **nivel 1, contexto** (Rumbo, los usuarios de la agencia, el pasajero, Claude y WhatsApp/Instagram como canales manuales), **nivel 2, contenedores** (web, mobile, API, PostgreSQL, scheduler, IA) y **nivel 3, componentes** de la API (reusa A3).
+- [ ] **G2. Sección MVC:** qué es **Modelo** (entidades y reglas en el backend + PostgreSQL), **Vista** (React y React Native) y **Controlador** (routers y servicios de FastAPI) en Rumbo, y cómo se comunican Vista y Controlador por el contrato OpenAPI en JSON (F1). Los diagramas de secuencia ya separan interfaz, control y entidades, así que se usan como ejemplo.
+- [ ] **G3. Modelo conceptual por capa** (frontend, backend de negocio y base de datos): una página por capa con sus responsabilidades, tecnologías y los módulos que atiende.
+
+### H · Documento único del PC1 y presentación — obligatorio (láminas: «Entrega: Documento con el MVC» y «Presentación de la documentación»)
+- [ ] **H0. Confirmar con la cátedra** dos interpretaciones que cambian el alcance: si «MVC» es Modelo-Vista-Controlador (así se lee por «Comunicación V-C») y si «Modelo de desarrollo» se refiere a la metodología de trabajo o al modelo de ciclo de vida.
+- [ ] **H1. Antecedentes:** nota nueva en `01-Relevamiento/` con cómo trabaja hoy la agencia (carpetas, planillas, WhatsApp) y qué ofrecen los CRM genéricos y los de turismo, y por qué no alcanzan. Completa la «Presentación general» junto con [[Objetivos del sistema]], [[Justificación del sistema]] y [[Alcance y fuera de alcance]].
+- [ ] **H2. Modelo de desarrollo:** nota con la metodología del equipo: iteraciones por punto de control, vault versionado como fuente de verdad, commits pequeños en `main` para documentación y ramas `feature/` con pull requests para código, sync semanal y pipeline de calidad de [[DEC-0001 Stack tecnológico]]. Se presenta **junto con las interfaces gráficas** del prototipo (B).
+- [ ] **H3. Script del documento único** (`07-Entregables/build/build-pc1.sh`, con el mismo `filtrar()` y la misma plantilla): un solo `.docx` en el orden de la lámina → presentación general (con antecedentes) · modelos de IA y justificación · agentes IA · modelo de datos y relaciones (clases, ER, SQL) · modelo de desarrollo con interfaces gráficas · arquitectura (C4, MVC, OpenAPI) · y como anexos los requisitos, los casos de uso y los diagramas UML. Se suma a [[Entregables — índice]].
+- [ ] **H4. Presentación oral:** deck que siga el mismo orden, con los diagramas y el prototipo; ensayo en la semana 9.
+
 ### D · Cierre de PC1 (sync de la semana 8)
 - [ ] **D1.** La consulta `#pc/pc1 AND #estado/borrador` da **cero** en lo obligatorio.
-- [ ] **D2.** Regenerar y revisar los tres `.docx` (Relevamiento, Requisitos y Casos de uso) y sumar el prototipo.
+- [ ] **D2.** Generar el documento único (H3), revisarlo entero y regenerar los tres `.docx` que quedan como anexos.
 - [ ] **D3.** `git tag pc1` para dejar el snapshot del vault ([[Cronograma y PC]]).
 
 ## Definido y sellado en la sync 29/09

@@ -2,7 +2,7 @@
 tipo: referencia
 estado: formalizado
 responsable: equipo
-actualizado: 09/09/26
+actualizado: 29/09/26
 ---
 # 🗓️ Cronograma y Puntos de Control
 
@@ -29,7 +29,10 @@ Fuentes: [[Rumbo — cronograma.docx|cronograma completado]] · [[Modelo institu
 | **16** | **11/12/26** | **🏁 Cierre / Defensa** |
 
 ## Qué se exige en cada PC
-- **PC1:** modelo conceptual UML terminado (casos de uso, clases, ER, actividad, arquitectura). Checklist en [[Estado del proyecto]].
+- **PC1 — Análisis, diseño y planificación** (9 semanas). **Entrega: un documento con el MVC.** Según las láminas de la cátedra (29/09):
+  - **Contenido:** definición del problema; alcances y límites; modelo conceptual de frontend, backend (negocio) y base de datos; modelo de flujo con gráficos UML y **C4 Model**; **modelo de datos SQL**; comunicación Vista–Controlador con **OpenAPI (formato JSON)**; selección de modelos de IA (chat) y agentes, con sus **prompts**. Modelado en Mermaid.
+  - **Documentación obligatoria:** presentación general (objetivos, **antecedentes**, justificación, alcances y límites) · modelos de IA utilizados y justificación · agentes IA implementados · modelo de datos y relaciones · modelo de desarrollo utilizado con interfaces gráficas · arquitectura de la solución · presentación de la documentación.
+  - Checklist y plan (frentes A a H) en [[Estado del proyecto]].
 - **PC2:** código funcional de los módulos núcleo. Se activa `06-Desarrollo/`.
 - **PC3:** testing y documentación. Diseño congelado salvo `DEC-` de supersesión.
 
