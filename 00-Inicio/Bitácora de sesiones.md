@@ -30,6 +30,9 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
+## 29/09/26 — Nahuel (Claude Opus 5.5) — ARQ: paquete core fuera de las tres capas
+- **Hecho:** A pedido de Nahuel, la vista lógica de [[ARQ — Vista general]] suma un paquete **`core`** transversal, fuera de las tres capas (convención que Nahuel ya usa en otro proyecto): `config`, `db` (motor, sesión y auditoría), `seguridad` (hash y tokens de DEC-0008) e `ia` (cliente LangChain + Claude). Regla: `core` no usa ninguna capa y todas pueden usarlo; solo entra lo técnico, transversal y sin reglas del negocio. La IA de CU-20 quedó **partida en dos**: el prompt y sus límites en `negocio/prompts/` y el cable técnico en `core/ia.py`; `datos/` queda solo con modelos y repositorios. Diagrama de capas rehecho con `core` al costado; tabla, reglas transversales, estructura de carpetas y resumen actualizados.
+
 ## 29/09/26 — Nahuel (Claude Opus 5.5) — ARQ: resumen general al día
 - **Hecho:** En [[ARQ — Vista general]] se reemplazó la introducción y la vieja sección *Componentes* por un **Resumen** con la tabla de piezas (web, mobile, paquete compartido, API en tres capas, base, proceso automático, IA, servidor y calidad). Se rehízo el diagrama del **monorepo** para que se lea impreso (frontend y backend separados, contrato OpenAPI y despliegue «si el pipeline pasa en `main`» en lugar de «deploy condicionado») y se corrigió la ruta del job a `rumbo.presentacion.jobs.diario`. La sección *Pendiente* pasó a *Decisiones que sostienen esta arquitectura* más los pendientes reales (C4, ratificación y ajustes del túnel).
 

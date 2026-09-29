@@ -20,7 +20,7 @@ Rumbo es una aplicación **cliente-servidor**: dos clientes (web y mobile) habla
 | **Web** | React + TypeScript + Vite | Gestión completa: el back-office de la agencia (RNF-14). |
 | **Mobile** | React Native + Expo | Acceso rápido a la agenda, las alertas y los clientes; se distribuye de forma interna con EAS Build, sin tiendas. |
 | **Paquete compartido** | TypeScript, zod, Axios, TanStack Query | Tipos generados del contrato OpenAPI, validaciones y acceso a la API, reutilizados por web y mobile. |
-| **API** | Python + FastAPI, en **tres capas** | Única puerta al dominio: presentación, lógica de negocio y acceso a datos (ver *Vista lógica del backend*). |
+| **API** | Python + FastAPI, en **tres capas** más un paquete `core` transversal | Única puerta al dominio: presentación, lógica de negocio y acceso a datos; `core` reúne configuración, base, seguridad y el cliente de IA (ver *Vista lógica del backend*). |
 | **Base de datos** | PostgreSQL, con SQLAlchemy 2.0 async y Alembic | Persistencia de las 13 entidades del [[DGM-ER]]. |
 | **Proceso automático** | Contenedor con cron | Todos los días a las 00:00 vence pagos y cotizaciones y genera alertas, usando los mismos servicios que la API. |
 | **IA del producto** | LangChain + Claude Sonnet 5.5 | Solo para los borradores de contenido de CU-20 ([[DEC-0012 Modelo de IA del producto]]). |
@@ -118,61 +118,74 @@ flowchart LR
 ```
 
 ## Vista lógica del backend
-La API de FastAPI sigue el **modelo de tres capas**: **presentación**, **lógica de negocio** y **acceso a datos**. Cada capa solo usa a la de abajo: presentación → negocio → datos, **nunca hacia arriba y sin saltear capas** (un router nunca llama a un repositorio). Dentro de cada capa hay una subcarpeta por **módulo funcional** del [[MOC — Casos de uso]].
+La API de FastAPI sigue el **modelo de tres capas** (**presentación**, **lógica de negocio** y **acceso a datos**) más un paquete **`core`** transversal, fuera de las capas.
+- **Entre capas:** cada capa solo usa a la de abajo: presentación → negocio → datos, **nunca hacia arriba y sin saltear capas**. Por ejemplo, un router nunca llama a un repositorio.
+- **`core`:** reúne lo **técnico y transversal que no es negocio**: configuración, conexión a la base, seguridad y el cliente de IA. **`core` no usa ninguna capa, y cualquier capa puede usar `core`.** El criterio para que algo entre ahí es que sea técnico, transversal y sin reglas del negocio; así no se convierte en un cajón de sastre.
+- **Módulos:** dentro de cada capa hay un archivo por **módulo funcional** del [[MOC — Casos de uso]].
 
 ### Capas
 ```mermaid
 %%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
-flowchart TB
+flowchart LR
     Front["Web y mobile<br/>JSON según el contrato OpenAPI"]
     Sched["scheduler<br/>cron a las 00:00"]
 
-    subgraph P["1 · Capa de presentación"]
-      direction LR
-      R["routers<br/>endpoints REST por módulo"]
-      Esq["esquemas<br/>Pydantic · contrato OpenAPI"]
-      Dep["dependencias<br/>usuario actual a partir del token"]
-      Job["jobs<br/>proceso automático diario"]
+    subgraph Capas["Tres capas"]
+      direction TB
+      subgraph P["1 · Capa de presentación"]
+        direction LR
+        R["routers<br/>endpoints REST por módulo"]
+        Esq["esquemas<br/>Pydantic · contrato OpenAPI"]
+        Dep["dependencias<br/>usuario actual a partir del token"]
+        Job["jobs<br/>proceso automático diario"]
+      end
+      subgraph N["2 · Capa de lógica de negocio"]
+        direction LR
+        S["servicios<br/>un caso de uso = una transacción"]
+        Est["estados<br/>máquinas de estado de los EST-*"]
+        Pol["políticas<br/>visibilidad y permisos<br/>DEC-0005 y DEC-0008"]
+        Pr["prompts<br/>plantilla y reglas de CU-20"]
+      end
+      subgraph D["3 · Capa de acceso a datos"]
+        direction LR
+        Rep["repositorios<br/>consultas con el filtro recibido"]
+        Mod["modelos<br/>SQLAlchemy · DGM-ER"]
+      end
+      P --> N
+      N --> D
     end
 
-    subgraph N["2 · Capa de lógica de negocio"]
-      direction LR
-      S["servicios<br/>un caso de uso = una transacción"]
-      Est["estados<br/>máquinas de estado de los EST-*"]
-      Pol["políticas<br/>visibilidad y permisos<br/>DEC-0005 y DEC-0008"]
-    end
-
-    subgraph D["3 · Capa de acceso a datos"]
-      direction LR
-      Rep["repositorios<br/>consultas con el filtro recibido"]
-      Mod["modelos<br/>SQLAlchemy · DGM-ER"]
-      Ses["sesión y auditoría<br/>created_by / updated_by"]
-      IA["ia<br/>LangChain + Claude"]
+    subgraph C["core · transversal, fuera de las capas"]
+      direction TB
+      Cfg["config<br/>variables de entorno"]
+      Sec["seguridad<br/>contraseñas y tokens · DEC-0008"]
+      Db["db<br/>motor, sesión y auditoría"]
+      IA["ia<br/>cliente LangChain + Claude · DEC-0012"]
     end
 
     DB[("PostgreSQL")]
     Claude["API de Claude"]
 
-    Front --> P
+    Front --> R
     Sched --> Job
-    P --> N
-    N --> D
-    Mod --> DB
-    Ses --> DB
+    Capas -. "cualquier capa usa core" .-> C
+    Db --> DB
     IA --> Claude
 ```
 
-| Capa | Carpeta | Qué hace | Qué **no** hace |
+| Paquete | Carpeta | Qué hace | Qué **no** hace |
 |---|---|---|---|
-| **1 · Presentación** | `presentacion/` | Recibe el pedido HTTP, valida el JSON con los esquemas Pydantic (que publican el contrato OpenAPI), identifica al usuario por su token ([[DEC-0008 Autenticación propia y rol de vendedor freelance\|DEC-0008]]) y llama a un servicio. `jobs/diario.py` es el otro punto de entrada: lo ejecuta el scheduler a las 00:00. | No tiene reglas de negocio ni consultas. |
-| **2 · Lógica de negocio** | `negocio/` | Los **servicios** orquestan un caso de uso completo en **una transacción**: por ejemplo, confirmar la reserva crea el `Viaje`, el plan de cuotas y las alertas, y pasa la `Oportunidad` a `ganada` (CU-07). Los **estados** aplican las transiciones de los `EST-*` y rechazan las inválidas. Las **políticas** deciden qué puede ver y editar cada rol. | No arma SQL ni conoce HTTP. |
-| **3 · Acceso a datos** | `datos/` | Los **modelos** mapean las 14 tablas del [[DGM-ER]]. Los **repositorios** buscan y guardan. La **sesión** abre una transacción por pedido y la **auditoría** completa `created_by`, `updated_by`, `created_at` y `updated_at` antes de cada guardado. **`ia`** accede a la API de Claude, igual que los repositorios acceden a la base. | No decide reglas de negocio. |
+| **1 · Presentación** | `presentacion/` | Recibe el pedido HTTP, valida el JSON con los esquemas Pydantic (que publican el contrato OpenAPI), identifica al usuario validando su token con `core.seguridad` y llama a un servicio. `jobs/diario.py` es el otro punto de entrada: lo ejecuta el scheduler a las 00:00. | No tiene reglas de negocio ni consultas. |
+| **2 · Lógica de negocio** | `negocio/` | Los **servicios** orquestan un caso de uso completo en **una transacción**: por ejemplo, confirmar la reserva crea el `Viaje`, el plan de cuotas y las alertas, y pasa la `Oportunidad` a `ganada` (CU-07). Los **estados** aplican las transiciones de los `EST-*` y rechazan las inválidas. Las **políticas** deciden qué puede ver y editar cada rol. Los **prompts** definen qué se le pide a la IA y con qué límites. | No arma SQL ni conoce HTTP. |
+| **3 · Acceso a datos** | `datos/` | Los **modelos** mapean las 14 tablas del [[DGM-ER]] y los **repositorios** buscan y guardan, usando la sesión de `core.db`. | No decide reglas de negocio. |
+| **core** | `core/` | **`config`** lee la configuración del entorno. **`db`** crea el motor y la sesión de SQLAlchemy (una transacción por pedido) y completa la auditoría antes de cada guardado. **`seguridad`** hashea contraseñas y emite y valida tokens. **`ia`** habla con la API de Claude por LangChain. | No conoce ninguna capa ni tiene reglas del negocio. |
 
-**Cómo se reparten las reglas transversales entre capas:**
+**Cómo se reparten las reglas transversales:**
 - **Visibilidad por fila.** La capa de negocio decide el filtro: `freelance` solo ve lo propio; las `Alerta` son propias salvo para `admin` y `dueño`; el resto de los roles lee toda la agencia ([[DEC-0005 Autenticación y modelo de roles|DEC-0005]]). El servicio se lo pasa al repositorio como **parámetro obligatorio** de toda consulta de lectura. Así datos no depende de negocio y ningún listado puede olvidar el filtro.
 - **Permisos de escritura.** Los valida el servicio antes de modificar: el responsable del registro o `admin`/`dueño`; configuración y moderación, solo `admin`.
-- **Auditoría.** Presentación deja el usuario del pedido en el contexto de la sesión, y la capa de datos lo usa para completar las columnas de auditoría en **todas las tablas** sin que cada servicio tenga que acordarse. Lo que hace el proceso automático queda con `created_by`/`updated_by` **vacíos**, que se lee como «lo hizo el sistema».
-- **Integración con Claude.** Solo el servicio de `redes` usa `datos/ia` (CU-20), y no le pasa datos de clientes ([[DEC-0012 Modelo de IA del producto|DEC-0012]]). Si la API de Claude falla, CU-20 informa el error y el resto del sistema sigue funcionando.
+- **Autenticación.** El login de CU-24 es un servicio de negocio (`seguridad`) que verifica la contraseña con `core.seguridad` y devuelve un token. En cada pedido, presentación valida el token con `core.seguridad` y obtiene el usuario actual ([[DEC-0008 Autenticación propia y rol de vendedor freelance|DEC-0008]]).
+- **Auditoría.** Presentación deja el usuario del pedido en el contexto de la sesión, y `core.db` lo usa para completar `created_by`, `updated_by`, `created_at` y `updated_at` en **todas las tablas**, sin que cada servicio tenga que acordarse. Lo que hace el proceso automático queda con `created_by`/`updated_by` **vacíos**, que se lee como «lo hizo el sistema».
+- **IA (CU-20), partida en dos.** La **regla de negocio** vive en `negocio/prompts/`: la plantilla con tema, canal y tono, y los límites (no usa datos de clientes, no publica). El **cable técnico** vive en `core/ia.py`: el modelo `claude-sonnet-5-5`, la clave de API, los tiempos de espera y el manejo de errores ([[DEC-0012 Modelo de IA del producto|DEC-0012]]). El servicio de `redes` arma el prompt y se lo pasa a `core.ia`. Si la API de Claude falla, CU-20 informa el error y el resto del sistema sigue funcionando. Es **una sola llamada** (entra un prompt, sale un borrador), no un agente.
 - **Proceso automático.** `jobs/diario.py` llama a los **mismos servicios** que los routers. Así vencer un pago a medianoche aplica exactamente las mismas reglas que si lo hiciera una persona.
 
 ### Módulos (dependencias entre servicios)
@@ -201,7 +214,7 @@ flowchart LR
       Seg["seguridad<br/>CU-24 · 25"]
     end
 
-    IA["ia<br/>LangChain + Claude"]
+    IA["core.ia<br/>LangChain + Claude"]
 
     Opo --> Cli
     Opo --> Ale
@@ -221,7 +234,7 @@ flowchart LR
     Cal -.-> Operacion
 ```
 
-- **Once módulos**, con los mismos nombres que el [[MOC — Casos de uso]]. Cada uno tiene su archivo en las tres capas: su router y sus esquemas en presentación, su servicio en negocio y su repositorio en datos.
+- **Once módulos**, con los mismos nombres que el [[MOC — Casos de uso]]. Cada uno tiene su archivo en las tres capas: su router y sus esquemas en presentación, su servicio en negocio y su repositorio en datos. `redes` es el único que usa `core.ia`.
 - **Una flecha es «el servicio de A usa al servicio de B»**, dentro de la capa de negocio. Las dependencias van **en un solo sentido, sin ciclos**. El caso delicado es viajes ↔ economía: confirmar la reserva (viajes) crea el plan de cuotas (economía), y el primer cobro (economía) cambia el estado del viaje. El ciclo se evita porque ese cambio lo aplica `negocio/estados/viaje.py`, que usan los dos servicios, y no el servicio de viajes.
 - **`dashboard` y `calendario` solo leen:** hacen consultas agregadas sobre los módulos de operación.
 - **`seguridad`** gestiona usuarios y roles (CU-24 y CU-25). Los demás módulos lo usan de forma indirecta, a través del usuario actual que resuelve presentación; por eso no se dibujan esas flechas.
@@ -230,10 +243,15 @@ flowchart LR
 ```text
 backend/rumbo/
 ├── main.py                     # arma la app FastAPI y registra los routers
-├── config.py                   # configuración leída del entorno (.env fuera de Git)
+│
+├── core/                       # TRANSVERSAL · no usa ninguna capa; todas pueden usarlo
+│   ├── config.py               # configuración leída del entorno (.env fuera de Git)
+│   ├── db.py                   # motor y sesión async de SQLAlchemy + auditoría automática
+│   ├── seguridad.py            # hash de contraseñas, emisión y validación de tokens (DEC-0008)
+│   └── ia.py                   # cliente LangChain + Claude Sonnet 5.5 (DEC-0012)
 │
 ├── presentacion/               # CAPA 1 · Presentación
-│   ├── dependencias.py         # usuario actual a partir del token (DEC-0008)
+│   ├── dependencias.py         # usuario actual a partir del token
 │   ├── routers/                # un archivo por módulo: clientes.py, viajes.py, …
 │   ├── esquemas/               # Pydantic por módulo; generan el contrato OpenAPI
 │   └── jobs/
@@ -243,15 +261,13 @@ backend/rumbo/
 │   ├── servicios/              # un archivo por módulo: clientes.py, viajes.py, …
 │   ├── estados/                # viaje.py, oportunidad.py, pago.py, cotizacion.py,
 │   │                           # alerta.py, contenido_red.py (reglas de los EST-*)
-│   └── politicas.py            # visibilidad por fila y permisos (DEC-0005 y DEC-0008)
+│   ├── politicas.py            # visibilidad por fila y permisos (DEC-0005 y DEC-0008)
+│   └── prompts/
+│       └── contenido_red.py    # plantilla y límites de CU-20, versionados en el repo
 │
 └── datos/                      # CAPA 3 · Acceso a datos
-    ├── sesion.py               # sesión async de SQLAlchemy, una transacción por pedido
-    ├── auditoria.py            # completa created_by / updated_by antes de guardar
     ├── modelos/                # una clase SQLAlchemy por entidad del DGM-ER
-    ├── repositorios/           # un archivo por módulo; reciben el filtro de visibilidad
-    └── ia/
-        └── claude.py           # cadena LangChain + Claude (DEC-0012)
+    └── repositorios/           # un archivo por módulo; reciben el filtro de visibilidad
 ```
 
 Los once módulos (`clientes`, `oportunidades`, `viajes`, `economia`, `alertas`, `configuracion`, `hoteles`, `redes`, `dashboard`, `calendario` y `seguridad`) aparecen con el mismo nombre de archivo en `routers/`, `esquemas/`, `servicios/` y `repositorios/`. Cotización y recontacto (CU-06 y CU-30) viven dentro de `oportunidades`.
