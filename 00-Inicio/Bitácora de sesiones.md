@@ -30,6 +30,10 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
+## 29/09/26 — Nahuel (Claude Opus 5.5) — ajustes del túnel y auditoría nullable aplicados
+- **Hecho:** [[DEC-0011 Infraestructura de despliegue on-premise]] suma el quinto contenedor `cloudflared` (token en el `.env` del servidor, fuera de Git), el acceso de **todos** los usuarios por la URL del túnel (la entrada local directa queda como respaldo) y el riesgo aceptado de que Cloudflare vea el tráfico descifrado. La vista de despliegue de [[ARQ — Vista general]] (diagrama, viñetas, resumen y *Pendiente*) quedó igual y su PNG se regeneró. En [[DGM-ER]] se anotó que `created_by`/`updated_by` son nullable (vacío = proceso automático).
+- **Pendiente:** F2, F1 y G1.
+
 ## 29/09/26 — Nahuel (Claude Opus 5.5) — aprobaciones y traspaso
 - **Hecho:** Nahuel aprobó (1) `created_by`/`updated_by` vacíos para las acciones del proceso automático y (2) los tres ajustes del túnel en DEC-0011. Quedaron registrados en *Decidido en el día 0* de [[Estado del proyecto]], todavía sin aplicar.
 - **Pendiente (siguiente sesión):** aplicar los ajustes del túnel en DEC-0011 y ARQ, anotar la nulabilidad en [[DGM-ER]] y seguir con F2 (script SQL); después F1 y G1.

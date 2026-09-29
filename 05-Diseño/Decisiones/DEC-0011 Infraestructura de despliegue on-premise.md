@@ -18,12 +18,14 @@ tags:: #tipo/decision #estado/formalizado #pc/pc1
 
 ## Decisión
 - **Servidor on-premise en la agencia:** una mini PC dedicada con **Ubuntu Server LTS** y una **UPS** para absorber cortes de luz breves.
-- **Ejecución con Docker Compose**, con cuatro servicios:
+- **Ejecución con Docker Compose**, con cinco servicios:
   - `nginx`: sirve la web compilada y deriva `/api` al backend;
   - `api`: FastAPI;
   - `postgres`: PostgreSQL con un volumen persistente;
-  - `scheduler`: un contenedor con **cron** que a las **00:00**, en la zona horaria `America/Argentina/Buenos_Aires`, ejecuta el proceso diario como comando del backend (por ejemplo `python -m rumbo.jobs.diario`). El proceso es **idempotente**: si corre dos veces el mismo día, no duplica alertas ni vencimientos.
-- **Acceso desde fuera de la agencia** (freelance y app mobile, RNF-14): **Cloudflare Tunnel** delante de Nginx. No abre puertos en el router, trae TLS y no depende de la IP pública del local. Su configuración **no es prioritaria** en esta etapa.
+  - `scheduler`: un contenedor con **cron** que a las **00:00**, en la zona horaria `America/Argentina/Buenos_Aires`, ejecuta el proceso diario como comando del backend (`python -m rumbo.presentacion.jobs.diario`). El proceso es **idempotente**: si corre dos veces el mismo día, no duplica alertas ni vencimientos;
+  - `cloudflared`: el conector de **Cloudflare Tunnel**. Abre la conexión saliente hacia Cloudflare y le entrega el tráfico a `nginx`. Su token vive en el `.env` del servidor y **nunca se guarda en Git**.
+- **Acceso de los usuarios por Cloudflare Tunnel** (RNF-14): **todos** los usuarios, también los que están en la red local de la agencia, entran por la URL pública del túnel. No abre puertos en el router, trae TLS y no depende de la IP pública del local. La **entrada local directa** a `nginx` queda solo como **respaldo** si se corta internet en la agencia. Su configuración **no es prioritaria** en esta etapa.
+- **Riesgo aceptado del túnel:** Cloudflare termina el TLS, así que **ve el tráfico descifrado** que pasa por el túnel. El equipo lo acepta a cambio de no exponer la red de la agencia.
 - **Despliegue:** un **runner self-hosted de GitHub Actions** instalado en el servidor. Cuando el pipeline de calidad de DEC-0001 pasa en `main`, ejecuta `docker compose up`. Condiciones: el repositorio de código es **privado** y el runner **solo ejecuta jobs de `main`**, porque un runner self-hosted en un repositorio público ejecutaría código de cualquier pull request.
 - **Los requisitos no cambian.** RNF-08 y RNF-13 expresan necesidades del negocio y se mantienen tal como están. Lo que se difiere es la implementación:
   - **Respaldo (RNF-08):** no es prioritario para el PC1; el mecanismo (volcado diario y copia externa) se define y se implementa en PC2.
@@ -45,10 +47,11 @@ El equipo prioriza no tener costo mensual y mantener el control del entorno, y a
 ## Impacto
 - [[ARQ — Vista general]]: la vista de despliegue tiene que reemplazar la caja «a definir» y sumar el `scheduler` (paso A2 del plan).
 - [[DEC-0001 Stack tecnológico]]: se cierra su pendiente de infraestructura; Nginx y el runner self-hosted quedan confirmados.
-- Riesgos aceptados: cortes de luz o de internet en la agencia; respaldo sin implementar hasta PC2.
+- Riesgos aceptados: cortes de luz o de internet en la agencia; respaldo sin implementar hasta PC2; Cloudflare ve el tráfico descifrado del túnel.
 
 ## Decisores y fecha
 - Decisores: Francisco, Nahuel y Paloma — **aprobada el 29/09/26**.
+- Ajustes del túnel (contenedor `cloudflared`, acceso de todos los usuarios por el túnel y riesgo del TLS) — **aprobados el 29/09/26**.
 
 ## Vínculo con el código (a partir de PC2)
 - Rama: `-` · Commits: `-`

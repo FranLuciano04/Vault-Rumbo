@@ -24,13 +24,13 @@ Rumbo es una aplicación **cliente-servidor**: dos clientes (web y mobile) habla
 | **Base de datos** | PostgreSQL, con SQLAlchemy 2.0 async y Alembic | Persistencia de las 13 entidades del [[DGM-ER]]. |
 | **Proceso automático** | Contenedor con cron | Todos los días a las 00:00 vence pagos y cotizaciones y genera alertas, usando los mismos servicios que la API. |
 | **IA del producto** | LangChain + Claude Sonnet 5.5 | Solo para los borradores de contenido de CU-20 ([[DEC-0012 Modelo de IA del producto]]). |
-| **Servidor** | Ubuntu Server LTS + Docker Compose + UPS | Aloja la API, la base, el proceso automático y nginx; se accede desde afuera por Cloudflare Tunnel. |
+| **Servidor** | Ubuntu Server LTS + Docker Compose + UPS | Aloja la API, la base, el proceso automático, nginx y el conector `cloudflared`; todos los usuarios entran por Cloudflare Tunnel. |
 | **Calidad y despliegue** | GitHub Actions + runner self-hosted + Dependabot | Lint, tipos, pruebas y seguridad en cada push; despliega solo si el pipeline pasa en `main`. |
 
 La arquitectura se describe en tres vistas: **despliegue** (dónde corre cada pieza), **componentes del monorepo** (cómo se organiza el código) y **vista lógica del backend** (las tres capas de la API y sus módulos).
 
 ## Vista de despliegue
-Dónde corre cada pieza en producción, según [[DEC-0011 Infraestructura de despliegue on-premise]]. Todo el backend vive en un servidor dentro de la agencia; desde afuera se entra solo por Cloudflare Tunnel, que abre la conexión desde el servidor hacia la nube, así que el router no expone ningún puerto. La caja punteada es lo que se difiere a PC2.
+Dónde corre cada pieza en producción, según [[DEC-0011 Infraestructura de despliegue on-premise]]. Todo el backend vive en un servidor dentro de la agencia. **Todos los usuarios**, también los de la red local, entran por la URL de Cloudflare Tunnel: el contenedor `cloudflared` abre la conexión desde el servidor hacia la nube, así que el router no expone ningún puerto. La flecha punteada desde el navegador es la entrada local directa, que queda solo como respaldo si se corta internet; la caja punteada es lo que se difiere a PC2.
 
 ```mermaid
 %%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
@@ -40,12 +40,13 @@ flowchart LR
       Tel["Teléfono<br/>app mobile Android / iOS"]
     end
 
-    subgraph Entrada["Entrada desde internet"]
-      CF["Cloudflare Tunnel<br/>TLS y acceso desde fuera de la agencia"]
+    subgraph Entrada["Entrada de todos los usuarios"]
+      CF["Cloudflare Tunnel<br/>URL pública con TLS<br/>Cloudflare ve el tráfico descifrado"]
     end
 
     subgraph Agencia["Servidor on-premise en la agencia · Ubuntu Server LTS + UPS · DEC-0011"]
-      subgraph Compose["Docker Compose"]
+      subgraph Compose["Docker Compose · cinco contenedores"]
+        Cfd["cloudflared<br/>conector del túnel<br/>token en el .env, fuera de Git"]
         Nginx["nginx<br/>web compilada + proxy de /api"]
         API["api<br/>FastAPI + LangChain"]
         DB[("postgres<br/>volumen persistente")]
@@ -60,10 +61,11 @@ flowchart LR
       GH["GitHub<br/>repositorio privado + Actions"]
     end
 
-    Nav -->|"desde afuera"| CF
+    Nav --> CF
     Tel --> CF
-    Nav -. "red local" .-> Nginx
-    CF -->|"túnel saliente,<br/>sin puertos abiertos"| Nginx
+    Nav -. "respaldo local<br/>si se corta internet" .-> Nginx
+    CF -->|"túnel abierto desde el servidor,<br/>sin puertos en el router"| Cfd
+    Cfd --> Nginx
     Nginx -->|"/api"| API
     API --> DB
     Sched -->|"vence pagos y cotizaciones,<br/>genera alertas"| DB
@@ -76,11 +78,12 @@ flowchart LR
     class Backup pendiente
 ```
 
-- **nginx** sirve la web de React ya compilada y deriva `/api` al backend. Es el único punto de entrada, tanto desde la red local como desde el túnel.
+- **cloudflared** es el conector de Cloudflare Tunnel: abre la conexión saliente hacia Cloudflare y le entrega el tráfico a `nginx`. Su token vive en el `.env` del servidor y nunca se guarda en Git.
+- **nginx** sirve la web de React ya compilada y deriva `/api` al backend. Recibe el tráfico del túnel, que es la entrada normal de **todos** los usuarios; la entrada directa desde la red local queda solo como respaldo si se corta internet.
 - **scheduler** ejecuta a las 00:00 el mismo código del backend como comando (`python -m rumbo.presentacion.jobs.diario`): vence pagos y cotizaciones y genera las alertas `viaje` y `recontacto` ([[DGM-ACT — Proceso automático diario]]). Es idempotente, así que correrlo dos veces no duplica nada.
 - **Runner self-hosted:** cuando el pipeline de calidad pasa en `main`, reconstruye y levanta los contenedores. Solo toma jobs de `main` del repositorio privado.
 - **App mobile:** EAS Build genera los binarios y se distribuyen de forma interna, sin tiendas; la app habla con la misma API por el túnel.
-- **Riesgos aceptados:** un corte de luz más largo que la autonomía de la UPS, o de internet en el local, deja el sistema inaccesible desde afuera (RNF-13).
+- **Riesgos aceptados:** un corte de luz más largo que la autonomía de la UPS, o de internet en el local, deja el sistema inaccesible desde afuera (RNF-13). Además, Cloudflare termina el TLS, así que ve el tráfico descifrado que pasa por el túnel.
 
 ## Vista de componentes del monorepo
 Cómo se organiza el código y qué genera cada parte, según [[DEC-0001 Stack tecnológico]].
@@ -283,4 +286,3 @@ Los once módulos (`clientes`, `oportunidades`, `viajes`, `economia`, `alertas`,
 ## Pendiente
 - **G1 · Modelo C4** (contexto, contenedores y componentes), que reutiliza estas vistas.
 - **A6 · Ratificar esta nota** en el cierre del día 2 y pasarla a `formalizado`.
-- **Acceso por Cloudflare Tunnel:** falta confirmar tres ajustes en DEC-0011 y en la vista de despliegue: el contenedor `cloudflared`, el riesgo de que Cloudflare vea el tráfico descifrado y que el acceso desde la red local también pase por el túnel.
