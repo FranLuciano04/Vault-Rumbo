@@ -75,6 +75,29 @@ powershell -ExecutionPolicy Bypass -File "07-Entregables/build/make-reference.ps
 ```
 Regenerar la **imagen del diagrama** desde el Mermaid de [[DGM — Casos de uso]] (motor ELK): ver el comando en [[CONTINUAR — entregable Casos de uso]].
 
+## Diagramas en PNG (para el documento único y la presentación)
+La entrega y la exposición no muestran los `.md`, así que **todo diagrama que vaya al PDF o al deck se usa como PNG**. Cada PNG se genera desde el bloque Mermaid de su nota, que sigue siendo la fuente: **no se editan a mano** y se regeneran cada vez que cambia la nota. Desde la raíz del repo:
+```bash
+bash "07-Entregables/build/render-diagramas-dominio.sh"
+bash "07-Entregables/build/render-diagramas-actividad.sh"
+bash "07-Entregables/build/render-diagramas-secuencia.sh"
+bash "07-Entregables/build/render-diagramas-diseno.sh"
+```
+
+| Diagramas | Carpeta de los PNG |
+|---|---|
+| Casos de uso | `07-Entregables/Casos de uso/img/` (comando en [[CONTINUAR — entregable Casos de uso]]) |
+| Secuencia de negocio (de la consulta a la venta) | `07-Entregables/Relevamiento/img/` (comando al final de `build-relevamiento.sh`) |
+| Clases (principal y 3 de enumeraciones) | `03-Dominio/Diagramas/Clases/` |
+| Entidad-relación | `03-Dominio/Diagramas/DER/` |
+| Estados (6) | `03-Dominio/Diagramas/Estados/img/` |
+| Actividad (5) | `03-Dominio/Diagramas/Actividad/img/` |
+| Secuencia de análisis (3) | `03-Dominio/Diagramas/Secuencia/img/` |
+| Arquitectura: despliegue y monorepo | `05-Diseño/Arquitectura/img/` |
+| IA: ciclo de trabajo con el agente | `05-Diseño/img/` |
+
+Los diagramas nuevos de `05-Diseño` (vista lógica, C4…) se suman como una línea en `render-diagramas-diseno.sh`.
+
 <details><summary>Comando pandoc manual (sin filtrado)</summary>
 
 Desde la raíz del repo:

@@ -30,6 +30,10 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
+## 29/09/26 — Nahuel (Claude Opus 5.5) — diagramas exportados a PNG
+- **Hecho:** Como la entrega y la exposición van en PDF y no muestran los `.md`, todos los diagramas quedan exportados a PNG. Nuevo script `render-diagramas-diseno.sh` para los de `05-Diseño` (despliegue, monorepo y ciclo de trabajo del agente). La vista de despliegue de [[ARQ — Vista general]] se reordenó de izquierda a derecha para que se lea en papel (EAS Build queda solo en la vista del monorepo). Al volver a exportar el dominio aparecieron **tres PNG desactualizados** desde la sync de hoy: clases, ER y actividad del proceso diario; ya están regenerados. El resto coincide con su Mermaid. En [[Entregables — índice]] se sumó la tabla de dónde está cada PNG y cómo regenerarlo.
+- **Pendiente:** A3 y F2.
+
 ## 29/09/26 — Nahuel (Claude Opus 5.5) — A2: vista de despliegue
 - **Hecho:** En [[ARQ — Vista general]] se rehízo la *Vista de despliegue* según [[DEC-0011 Infraestructura de despliegue on-premise]]: usuarios, servicios externos (Cloudflare Tunnel, API de Claude, GitHub, EAS Build) y el servidor de la agencia con los cuatro contenedores, el runner self-hosted y el respaldo marcado como pendiente de PC2. El diagrama viejo quedó como *Vista de componentes del monorepo*, con la caja «a definir» reemplazada. Mermaid validado.
 - **Pendiente:** A3 (vista lógica del backend) y F2 (script SQL).

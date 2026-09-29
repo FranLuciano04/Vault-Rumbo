@@ -23,11 +23,8 @@ flowchart LR
       Tel["Teléfono<br/>app mobile Android / iOS"]
     end
 
-    subgraph Externos["Servicios externos"]
+    subgraph Entrada["Entrada desde internet"]
       CF["Cloudflare Tunnel<br/>TLS y acceso desde fuera de la agencia"]
-      Claude["API de Claude<br/>Sonnet 5.5 · DEC-0012"]
-      GH["GitHub<br/>repositorio privado + Actions"]
-      EAS["EAS Build<br/>binarios APK / IPA"]
     end
 
     subgraph Agencia["Servidor on-premise en la agencia · Ubuntu Server LTS + UPS · DEC-0011"]
@@ -41,18 +38,22 @@ flowchart LR
       Backup["Respaldo diario + copia externa<br/>RNF-08 · se implementa en PC2"]
     end
 
+    subgraph Nube["Servicios en la nube"]
+      Claude["API de Claude<br/>Sonnet 5.5 · DEC-0012"]
+      GH["GitHub<br/>repositorio privado + Actions"]
+    end
+
     Nav -->|"desde afuera"| CF
     Tel --> CF
     Nav -. "red local" .-> Nginx
-    CF -->|"túnel saliente, sin puertos abiertos"| Nginx
+    CF -->|"túnel saliente,<br/>sin puertos abiertos"| Nginx
     Nginx -->|"/api"| API
     API --> DB
-    API -->|"CU-20"| Claude
     Sched -->|"vence pagos y cotizaciones,<br/>genera alertas"| DB
-    GH -->|"pipeline OK en main"| Runner
-    Runner -->|"docker compose up"| Compose
-    EAS -. "distribución interna" .-> Tel
     Backup -.-> DB
+    API -->|"CU-20"| Claude
+    Runner -->|"toma los jobs de main"| GH
+    Runner -->|"docker compose up"| Compose
 
     classDef pendiente stroke-dasharray: 5 5,color:#777
     class Backup pendiente
