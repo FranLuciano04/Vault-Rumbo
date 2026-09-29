@@ -8,9 +8,10 @@
 BEGIN;
 
 -- -----------------------------------------------------------------------------
--- Enumeraciones (18), con los valores del DGM-ER
+-- Enumeraciones (19), con los valores del DGM-ER
 -- -----------------------------------------------------------------------------
 CREATE TYPE rol_usuario        AS ENUM ('admin', 'empleado', 'dueño', 'freelance');
+CREATE TYPE tipo_comision      AS ENUM ('importe', 'porcentaje');  -- el porcentaje es sobre la ganancia (DEC-0007, DEC-0013)
 CREATE TYPE segmento_cliente   AS ENUM ('familia', 'amigos', 'individual', 'pareja');
 CREATE TYPE canal_oportunidad  AS ENUM ('instagram', 'whatsapp', 'presencial');
 CREATE TYPE estado_oportunidad AS ENUM ('nueva', 'en_gestion', 'cotizada', 'ganada', 'perdida');
@@ -30,7 +31,7 @@ CREATE TYPE canal_contenido    AS ENUM ('instagram', 'tiktok', 'whatsapp_ventas'
 CREATE TYPE estado_kanban      AS ENUM ('idea', 'en_produccion', 'listo', 'publicado', 'descartado');
 
 -- -----------------------------------------------------------------------------
--- Auditoría (DEC-0008): en las 13 tablas de entidad van
+-- Auditoría (DEC-0008): en las 13 tablas de entidad y en configuracion van
 --   created_by / updated_by  uuid NULL → usuario   (vacío = lo hizo el proceso automático)
 --   created_at / updated_at  timestamptz NOT NULL
 -- viaje_hotel no las lleva: hereda la auditoría de viaje.
@@ -45,11 +46,31 @@ CREATE TABLE usuario (
     email         varchar(254) NOT NULL UNIQUE,
     password_hash varchar(255) NOT NULL,              -- login propio, DEC-0008
     rol           rol_usuario  NOT NULL,
+    acceso_redes  boolean      NOT NULL DEFAULT false, -- capacidad; admin y dueño la tienen por rol (DEC-0013)
+    comision_default_tipo  tipo_comision,              -- comisión por defecto del vendedor (CU-13)
+    comision_default_valor numeric(14,2) CHECK (comision_default_valor >= 0),
     created_by    uuid REFERENCES usuario (id),
     updated_by    uuid REFERENCES usuario (id),
     created_at    timestamptz NOT NULL DEFAULT now(),
-    updated_at    timestamptz NOT NULL DEFAULT now()
+    updated_at    timestamptz NOT NULL DEFAULT now(),
+    CONSTRAINT usuario_comision_default_ck CHECK (
+        (comision_default_tipo IS NULL) = (comision_default_valor IS NULL)
+        AND (comision_default_tipo IS DISTINCT FROM 'porcentaje' OR comision_default_valor <= 100)
+    )
 );
+
+-- Parámetros del negocio que edita admin (DEC-0013). Una sola fila; no es una entidad del dominio.
+CREATE TABLE configuracion (
+    id                        smallint PRIMARY KEY DEFAULT 1 CHECK (id = 1),
+    vigencia_cotizacion_meses integer NOT NULL DEFAULT 1 CHECK (vigencia_cotizacion_meses >= 1),
+    anticipacion_salida_dias  integer NOT NULL DEFAULT 7 CHECK (anticipacion_salida_dias >= 0),
+    recontacto_meses          integer NOT NULL DEFAULT 6 CHECK (recontacto_meses >= 1),
+    created_by                uuid REFERENCES usuario (id),
+    updated_by                uuid REFERENCES usuario (id),
+    created_at                timestamptz NOT NULL DEFAULT now(),
+    updated_at                timestamptz NOT NULL DEFAULT now()
+);
+INSERT INTO configuracion DEFAULT VALUES;  -- valores validados con la agencia
 
 CREATE TABLE destino (
     id         uuid PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -173,12 +194,14 @@ CREATE TABLE viaje (
     margen            numeric(7,4)    GENERATED ALWAYS AS (
                           CASE WHEN precio_venta > 0 THEN (precio_venta - costo) / precio_venta END
                       ) STORED,                       -- fracción sobre la venta (0,25 = 25 %)
-    comision_vendedor numeric(14,2)   NOT NULL CHECK (comision_vendedor >= 0),  -- importe o % sobre la ganancia (DEC-0007)
+    comision_tipo     tipo_comision   NOT NULL,       -- cómo se lee comision_vendedor (DEC-0013)
+    comision_vendedor numeric(14,2)   NOT NULL CHECK (comision_vendedor >= 0),  -- importe, o % sobre la ganancia (DEC-0007)
     created_by        uuid REFERENCES usuario (id),
     updated_by        uuid REFERENCES usuario (id),
     created_at        timestamptz NOT NULL DEFAULT now(),
     updated_at        timestamptz NOT NULL DEFAULT now(),
-    CHECK (fecha_regreso >= fecha_salida)
+    CHECK (fecha_regreso >= fecha_salida),
+    CONSTRAINT viaje_comision_porcentaje_ck CHECK (comision_tipo <> 'porcentaje' OR comision_vendedor <= 100)
 );
 
 -- Todo viaje tiene al menos un pago (VIAJE ||--|{ PAGO): lo garantiza la API en CU-07,
@@ -194,6 +217,7 @@ CREATE TABLE pago (
     moneda_pago   moneda,                                    -- se carga al cobrar
     tipo_cambio   numeric(14,4) CHECK (tipo_cambio > 0),     -- si difiere de viaje.moneda
     monto_cobrado numeric(14,2) CHECK (monto_cobrado > 0),   -- real recibido
+    fecha_cobro   date,                                      -- fecha efectiva del cobro (DEC-0013)
     created_by    uuid REFERENCES usuario (id),
     updated_by    uuid REFERENCES usuario (id),
     created_at    timestamptz NOT NULL DEFAULT now(),

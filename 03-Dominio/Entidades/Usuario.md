@@ -21,6 +21,8 @@ Persona que **opera** el sistema. Un mismo Usuario puede tener varios roles (PyM
 | nombre | String | Nombre |
 | email | String | Login |
 | rol | Enum | admin · empleado · dueño · **freelance** — `freelance` (vendedor externo, visibilidad restringida) según [[DEC-0008 Autenticación propia y rol de vendedor freelance]]. Ver [[DEC-0005 Autenticación y modelo de roles]] y [[Actores]] |
+| acceso_redes | Bool | **Capacidad** de usar el módulo de redes ([[ContenidoRed]]), asignada por `admin`; `admin` y `dueño` la tienen por rol — [[DEC-0013 Datos que faltaban en el ER|DEC-0013]] |
+| comision_default_tipo / comision_default_valor | Enum `importe · porcentaje` + Decimal (opcionales) | **Comisión por defecto** del vendedor ([[CU-13 Configurar porcentaje de comisión|CU-13]]); el porcentaje es sobre la ganancia — [[DEC-0013 Datos que faltaban en el ER|DEC-0013]] |
 
 ## Relaciones
 - 1..* con [[Viaje]] — gestiona

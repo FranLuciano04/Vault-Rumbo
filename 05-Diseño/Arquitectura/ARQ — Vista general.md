@@ -180,7 +180,7 @@ flowchart LR
 |---|---|---|---|
 | **1 · Presentación** | `presentacion/` | Recibe el pedido HTTP, valida el JSON con los esquemas Pydantic (que publican el contrato OpenAPI), identifica al usuario validando su token con `core.seguridad` y llama a un servicio. `jobs/diario.py` es el otro punto de entrada: lo ejecuta el scheduler a las 00:00. | No tiene reglas de negocio ni consultas. |
 | **2 · Lógica de negocio** | `negocio/` | Los **servicios** orquestan un caso de uso completo en **una transacción**: por ejemplo, confirmar la reserva crea el `Viaje`, el plan de cuotas y las alertas, y pasa la `Oportunidad` a `ganada` (CU-07). Los **estados** aplican las transiciones de los `EST-*` y rechazan las inválidas. Las **políticas** deciden qué puede ver y editar cada rol. Los **prompts** definen qué se le pide a la IA y con qué límites. | No arma SQL ni conoce HTTP. |
-| **3 · Acceso a datos** | `datos/` | Los **modelos** mapean las 14 tablas del [[DGM-ER]] y los **repositorios** buscan y guardan, usando la sesión de `core.db`. | No decide reglas de negocio. |
+| **3 · Acceso a datos** | `datos/` | Los **modelos** mapean las 15 tablas del [[DGM-ER]] y los **repositorios** buscan y guardan, usando la sesión de `core.db`. | No decide reglas de negocio. |
 | **core** | `core/` | **`config`** lee la configuración del entorno. **`db`** crea el motor y la sesión de SQLAlchemy (una transacción por pedido) y completa la auditoría antes de cada guardado. **`seguridad`** hashea contraseñas y emite y valida tokens. **`ia`** habla con la API de Claude por LangChain. | No conoce ninguna capa ni tiene reglas del negocio. |
 
 **Cómo se reparten las reglas transversales:**

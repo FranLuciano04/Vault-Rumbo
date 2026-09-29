@@ -26,6 +26,7 @@ Registro de un pago o cuota de un [[Viaje]], con vencimiento y estado. El sistem
 | moneda_pago | Enum (se completa al cobrar) | ARS / USD — **moneda real** en que se cobró el pago; **puede diferir** de `Viaje.moneda` (un mismo viaje admite pagos parte en ARS y parte en USD). Ver [[DEC-0007 Modelo económico — ganancia, margen y comisión de vendedor]] |
 | tipo_cambio | Decimal (se completa al cobrar, opcional) | Cotización que **carga el empleado al cobrar** cuando `moneda_pago` ≠ `Viaje.moneda`; permite reconstruir el equivalente en la moneda de referencia |
 | monto_cobrado | Decimal (se completa al cobrar) | Importe **real recibido** en `moneda_pago` (= `monto` si misma moneda; `monto × tipo_cambio` si difiere). Sirve para caja y para el reporte de formas de pago |
+| fecha_cobro | Date (dd/mm/aa, se completa al cobrar) | **Fecha efectiva** del cobro ([[CU-12 Registrar cobro de un pago|CU-12]]); se borra si se revierte el cobro — [[DEC-0013 Datos que faltaban en el ER|DEC-0013]] |
 
 ## Relaciones
 - *..1 con [[Viaje]]

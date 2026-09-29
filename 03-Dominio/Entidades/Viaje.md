@@ -29,6 +29,7 @@ Reserva concreta de un cliente: destino, fechas, categoría, estado y control ec
 | ganancia | Decimal (calc.) | `precioVenta − costo`. Se calcula automáticamente — [[RN-01 Comisión automática]], [[DEC-0007 Modelo económico — ganancia, margen y comisión de vendedor]] |
 | margen | Decimal % (calc.) | Ganancia en porcentaje **sobre la venta**: `ganancia / precioVenta` — [[DEC-0007 Modelo económico — ganancia, margen y comisión de vendedor]] |
 | vendedor | FK → [[Usuario]] (opcional) | Vendedor/freelancer que hizo la venta (para liquidar su comisión) — [[DEC-0007 Modelo económico — ganancia, margen y comisión de vendedor]], [[DEC-0008 Autenticación propia y rol de vendedor freelance]] |
+| comision_tipo | Enum | `importe · porcentaje`: cómo se lee `comision_vendedor` — [[DEC-0013 Datos que faltaban en el ER|DEC-0013]] |
 | comision_vendedor | Decimal | Comisión a pagar al `vendedor`: **importe o %** (el % sobre la ganancia); **default por vendedor + override** por viaje. **Separada** de la ganancia — [[DEC-0007 Modelo económico — ganancia, margen y comisión de vendedor]] |
 | responsable | FK → [[Usuario]] | Empleado a cargo del viaje; define la vista personal. Ver [[DEC-0005 Autenticación y modelo de roles]] |
 

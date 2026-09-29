@@ -43,6 +43,9 @@ classDiagram
         +String nombre
         +String email
         +RolUsuario rol
+        +Bool accesoRedes
+        +TipoComision comisionDefaultTipo
+        +Decimal comisionDefaultValor
     }
     class Cliente {
         +UUID id
@@ -84,6 +87,7 @@ classDiagram
         +Decimal costo
         +Decimal ganancia
         +Decimal margen
+        +TipoComision comisionTipo
         +Decimal comisionVendedor
     }
     class Pago {
@@ -96,6 +100,7 @@ classDiagram
         +Moneda monedaPago
         +Decimal tipoCambio
         +Decimal montoCobrado
+        +Date fechaCobro
     }
     class Operador {
         +UUID id
@@ -209,7 +214,7 @@ classDiagram
 
 ## Enumeraciones del dominio
 
-Las **18 enumeraciones** son parte del mismo modelo; se muestran en tres bandas agrupadas por módulo para que cada una entre legible en una hoja. La caja de la clase va **sin atributos** (ya están en la vista principal) y cada **dependencia punteada** indica qué atributo usa la enumeración. `Moneda` es la única compartida: la usan [[Viaje]], [[Cotización]] y [[Pago]].
+Las **19 enumeraciones** son parte del mismo modelo; se muestran en tres bandas agrupadas por módulo para que cada una entre legible en una hoja. La caja de la clase va **sin atributos** (ya están en la vista principal) y cada **dependencia punteada** indica qué atributo usa la enumeración. `Moneda` es la única compartida: la usan [[Viaje]], [[Cotización]] y [[Pago]].
 
 ### 1 · CRM y seguridad
 
@@ -314,6 +319,11 @@ classDiagram
         cheque
         deposito
     }
+    class TipoComision {
+        <<enumeration>>
+        importe
+        porcentaje
+    }
     Viaje ..> CategoriaViaje : categoria
     Viaje ..> EstadoViaje : estado
     Viaje ..> Moneda : moneda
@@ -322,6 +332,8 @@ classDiagram
     Pago ..> TipoPago : tipo
     Pago ..> EstadoPago : estado
     Pago ..> FormaPago : formaPago
+    Viaje ..> TipoComision : comisionTipo
+    Usuario ..> TipoComision : comisionDefaultTipo
 ```
 
 ### 3 · Catálogo, post-venta, alertas y redes
@@ -421,6 +433,7 @@ Se señalaron sin elegir una versión en silencio, según [[CLAUDE|CLAUDE.md#Ord
 - ✅ Lo resuelto el 21/09 ya está propagado a [[DGM-ER]] (`VIAJE ||--|{ PAGO` y los 4 orígenes de `ALERTA`) y a la nota de [[Viaje]].
 - ✅ El [[DGM-ER]] quedó **completo y coherente** con este diagrama el 21/09: sumó los atributos de las 14 tablas y las 4 relaciones que le faltaban (`USUARIO`–`ALERTA`, `USUARIO`–`CLIENTE`, `USUARIO`–`OPORTUNIDAD`, `DESTINO`–`REQUISITO_DESTINO`).
 - ✅ Auditoría (sync 29/09): `created_by`/`updated_by`/`created_at`/`updated_at` en **todas** las tablas de entidad (operativas y catálogos); no se dibujan para no multiplicar las líneas hacia `Usuario`. Ver [[DGM-ER]].
+- ⏳ [[DEC-0013 Datos que faltaban en el ER]] (29/09, a ratificar): `Pago.fechaCobro`, `Viaje.comisionTipo`, `Usuario.accesoRedes` y la comisión por defecto del vendedor, con el nuevo enum `TipoComision`.
 - Renderizar el PNG (mermaid-cli, motor ELK) cuando el diagrama se incorpore a un entregable — ver [[Entregables — índice]].
 
 ## Relacionado
