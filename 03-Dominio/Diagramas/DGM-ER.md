@@ -239,5 +239,5 @@ El ER es grande (≈ 2650 × 3133 px) porque el modelo **es** grande: 14 tablas,
 ## Pendientes
 - ✅ Ratificado en la sync del 29/09 (Francisco, Nahuel y Paloma).
 - ✅ Alcance de la auditoría definido en la sync del 29/09: todas las tablas de entidad.
-- ✅ `forma_pago` cerrado en la sync del 29/09. Sigue abierto `categoria` de `VIAJE` ([[Viaje]]).
+- ✅ `forma_pago` y `categoria` de `VIAJE` (`grupal, individual`) cerrados el 29/09.
 - Índices y constraints finos (además de los ya anotados en `VIAJE_HOTEL` y el CHECK de `ALERTA`) al pasar a las migraciones de PC2.

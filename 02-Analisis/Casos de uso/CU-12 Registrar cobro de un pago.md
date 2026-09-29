@@ -42,7 +42,7 @@ Marcar un [[Pago]] como cobrado y actualizar el estado económico del [[Viaje]].
 ## Reglas de negocio aplicadas
 - Sin cobro online: solo registro de montos y vencimientos ([[Pago]]). Ver [[Alcance y fuera de alcance]].
 - **El [[Pago]] es indivisible:** se cobra completo, sin cobros parciales. Si el cliente paga solo una parte de una cuota, antes de cobrar se **divide la cuota en dos** en [[CU-11 Definir plan de cuotas]] A6 y se cobra la parte que corresponde. Si por el tipo de cambio el importe real difiere del planificado, la diferencia queda registrada en `monto_cobrado` y `tipo_cambio`; el saldo se sigue calculando sobre los `monto` planificados.
-- **Multimoneda por cobro (Q6.1):** la `moneda_pago` y el `tipo_cambio` se registran acá, al cobrar; un mismo viaje puede cobrarse parte en ARS y parte en USD. El % pagado y el saldo se calculan sobre los `monto` planificados en la moneda de referencia del [[Viaje]] ([[DEC-0007 Modelo económico — ganancia, margen y comisión de vendedor]]).
+- **Multimoneda por cobro:** la `moneda_pago` y el `tipo_cambio` se registran acá, al cobrar; un mismo viaje puede cobrarse parte en ARS y parte en USD. El % pagado y el saldo se calculan sobre los `monto` planificados en la moneda de referencia del [[Viaje]] ([[DEC-0007 Modelo económico — ganancia, margen y comisión de vendedor]]).
 - `forma_pago` capturada al cobrar (las billeteras virtuales se registran como `transferencia`); alimenta el reporte de **formas de pago** ([[CU-22 Generar reportes y estadísticas]]).
 
 ## Entidades del dominio involucradas

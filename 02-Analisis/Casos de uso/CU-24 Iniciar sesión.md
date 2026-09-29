@@ -27,7 +27,7 @@ Autenticar a un [[Usuario]] y cargar su contexto de trabajo según el rol, aplic
 1. El [[Usuario]] ingresa sus credenciales.
 2. El sistema valida la identidad.
 3. El sistema abre una sesión.
-4. El sistema carga el contexto según el `rol` ([[DEC-0005 Autenticación y modelo de roles]], [[DEC-0008 Autenticación propia y rol de vendedor freelance]]):
+4. El sistema carga el contexto según el `rol`:
    - `empleado` → **lectura global** de [[Cliente|Clientes]], [[Oportunidad|Oportunidades]], [[Viaje|Viajes]] y [[Pago|Pagos]] de toda la agencia, con **vista personal** por defecto de lo que tiene a cargo (filtro "lo mío"); su **agenda de [[Alerta|Alertas]]** muestra las propias.
    - `admin` / `dueño` → toda la empresa (incluidas todas las [[Alerta|Alertas]]), más configuración y reportes.
    - `freelance` → **solo lo suyo** (excepción al *lectura global*, [[DEC-0008 Autenticación propia y rol de vendedor freelance]]): ve y opera únicamente sus [[Cliente|Clientes]], [[Oportunidad|Oportunidades]], [[Viaje|Viajes]], [[Pago|Pagos]] y comisiones; ve el **catálogo compartido** ([[Hotel]], [[Destino]], [[Operador]]) y su agenda de [[Alerta|Alertas]] propias. No accede a la información de toda la agencia.

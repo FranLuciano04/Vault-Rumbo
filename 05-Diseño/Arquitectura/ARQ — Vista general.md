@@ -45,11 +45,11 @@ flowchart LR
 - **Mobile (React Native + Expo):** acceso rápido a agenda, alertas y clientes; EAS Build genera los binarios.
 - **Paquete compartido:** tipos OpenAPI, validaciones zod, Axios y hooks de TanStack Query para ambas aplicaciones.
 - **FastAPI:** única puerta al dominio; sirve JSON a web y mobile e integra Claude mediante LangChain.
-- **PostgreSQL:** persistencia relacional de las 10 entidades → [[DGM-ER]].
+- **PostgreSQL:** persistencia relacional de las 13 entidades → [[DGM-ER]].
 - **GitHub Actions:** ejecuta lint, type-checking, pruebas y controles de seguridad en cada push.
 
 ## Pendiente
-- **Roles y visibilidad** ([[Usuario]]): decidido en [[DEC-0005 Autenticación y modelo de roles]] (`en-revision`) — roles `admin`/`empleado`/`dueño` con autorización a nivel de fila y catálogo compartido.
+- ✅ **Roles y visibilidad** ([[Usuario]]): sellado en [[DEC-0005 Autenticación y modelo de roles]] y ampliado por [[DEC-0008 Autenticación propia y rol de vendedor freelance]] — roles `admin`/`dueño`/`empleado`/`freelance`, con autorización a nivel de fila y catálogo compartido.
 - ✅ **Mecanismo de autenticación:** resuelto en [[DEC-0008 Autenticación propia y rol de vendedor freelance]] (usuario/contraseña individual; Google OAuth opcional y futuro).
 - Definir la infraestructura y el mecanismo de despliegue. El servidor on-premise es solo una alternativa; Nginx y el runner self-hosted dependen de esa decisión. `#accion/decidir`
 - Definir la capa de persistencia y migraciones de PostgreSQL.

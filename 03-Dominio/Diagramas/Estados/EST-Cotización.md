@@ -39,7 +39,7 @@ El diagrama de abajo se dibujó el 21/09/26 siguiendo estas convenciones, comune
 **Estado inicial:** `borrador`.
 **Estados finales:** `aceptada`, `rechazada` y `vencida`.
 
-> ⚠️ **`vencida` es nuevo (21/09, Nahuel).** El enum pasa de 4 a **5 valores** y [[Cotización]] gana el atributo **`validez_hasta`**. Motivo: en turismo los precios cambian, así que una cotización no puede quedar vigente para siempre. **Default: 1 mes** desde la `fecha` de emisión, como parámetro global configurable por `admin` (mismo patrón que la anticipación de la [[Alerta]] `salida`). ⚠️ **El valor de 1 mes es una propuesta de Nahuel, sin validar con la agencia** — igual que se hizo con `forma_pago` y los 7 días de `salida`. #accion/decidir
+> ℹ️ **`vencida` se sumó el 21/09 (Nahuel).** El enum pasa de 4 a **5 valores** y [[Cotización]] gana el atributo **`validez_hasta`**. Motivo: en turismo los precios cambian, así que una cotización no puede quedar vigente para siempre. **Default: 1 mes** desde la `fecha` de emisión, como parámetro global configurable por `admin` (mismo patrón que la anticipación de la [[Alerta]] `salida`). ✅ El valor de 1 mes lo propuso Nahuel y **la agencia lo validó** el 29/09.
 
 ## Transiciones
 
@@ -69,7 +69,7 @@ El diagrama de abajo se dibujó el 21/09/26 siguiendo estas convenciones, comune
 **Por qué se agregó el estado.** En turismo los precios se mueven todo el tiempo: tarifas aéreas, tipo de cambio, tarifas hoteleras. Sin `vencida`, esa cotización quedaba **vigente para siempre** y el sistema no tenía forma de decir que ya no vale.
 **Cómo funciona.** La [[Cotización]] tiene `validez_hasta`, por default **1 mes** desde la emisión (parámetro global que configura el `admin`). Pasada esa fecha, un proceso del sistema la pasa a `vencida` sin que nadie haga nada.
 **Efecto en la [[Oportunidad]].** **Ninguno**: sigue `cotizada`. Que la cotización venza no gana ni pierde la venta — el cliente puede seguir interesado, solo hay que cotizarle de nuevo.
-> ⚠️ **El default de 1 mes quedó ratificado en la sync del 29/09 como valor configurable, pero falta validarlo con la agencia.** Es el valor más discutible de esta nota: si trabajan con vigencias más cortas para aéreos, habría que diferenciarlas por tipo de producto. #accion/decidir
+> ✅ **El default de 1 mes quedó validado con la agencia** (29/09). Sigue siendo configurable por `admin`.
 
 ### Por qué **no** se puede aceptar un `borrador`
 **Situación.** El empleado arma la cotización, se la muestra al cliente en el mostrador desde la pantalla y el cliente dice que sí en el momento. Nunca se envió nada por WhatsApp ni por mail.
@@ -93,7 +93,7 @@ Se detectaron al especificar y **Nahuel los resolvió el mismo día**. Quedan **
 1. ✅ **Resuelto 21/09 (Nahuel): la cotización vieja se queda `enviada`.** No se inventa un estado `reemplazada`. La **vigente es la de `fecha` más reciente**; las anteriores quedan `enviada` en el historial, que además es cierto (se enviaron). Sí, una [[Oportunidad]] puede tener varias `enviada` a la vez: es su historial de versiones, no una inconsistencia. *(Con `vencida` esto se resuelve solo en la práctica: las versiones viejas terminan venciendo por T5.)*
 2. ✅ **Resuelto 21/09 (Nahuel): no se puede aceptar ni rechazar un `borrador`.** Si el cliente la aceptó es porque alguien se la mostró, así que corresponde marcarla `enviada` y después `aceptada`. Mantiene el dato de que se envió y evita saltear el registro. **Para dibujar:** de `borrador` solo sale la flecha a `enviada`.
 3. ✅ **Resuelto 21/09 (Nahuel): `rechazada` es terminal a propósito.** Si el cliente se arrepiente, se emite una cotización **nueva**; no se reactiva la vieja. Coherente con el criterio de versionado de A1.
-4. ✅ **Resuelto 21/09 (Nahuel): las cotizaciones SÍ vencen.** Se suma el estado **`vencida`** al enum y el atributo **`validez_hasta`** a [[Cotización]], con **default 1 mes** desde la emisión (parámetro global configurable por `admin`). Ver la nota bajo la tabla de estados y la transición **T5**. ⚠️ **El valor de 1 mes está sin validar con la agencia** — queda `#accion/decidir` para la sync, igual que `forma_pago` y los 7 días de la [[Alerta]] `salida`.
+4. ✅ **Resuelto 21/09 (Nahuel): las cotizaciones SÍ vencen.** Se suma el estado **`vencida`** al enum y el atributo **`validez_hasta`** a [[Cotización]], con **default 1 mes** desde la emisión (parámetro global configurable por `admin`). Ver la nota bajo la tabla de estados y la transición **T5**. ✅ El valor de 1 mes **quedó validado con la agencia** (29/09).
 
 ## Diagrama
 

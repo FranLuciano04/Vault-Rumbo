@@ -1164,7 +1164,7 @@ Los requisitos **RF-151** (control de acceso por rol y propiedad) y **RF-152** (
 >
 > - **RNF con valores que fijó el equipo** (no la agencia, por decisión explícita): RNF-08, respaldo diario automático después del proceso de las 00:00, 30 días de retención y copia fuera del servidor; RNF-09/10, 2 segundos o menos en el percentil 95 con 10 usuarios simultáneos y 5.000 clientes; RNF-13, disponibilidad 24/7 con mantenimiento avisado en la franja de menor uso; RNF-14, las 2 últimas versiones de Chrome, Edge y Firefox (Safari sin garantía), Android 10+ e iOS 15+. RNF-03 (cifrado en tránsito y hash de contraseñas) queda como decisión de diseño.
 > - **RF reescritos** por las resoluciones de la sync: RF-017 y RF-032 (la Oportunidad pasa a `ganada` al confirmar la reserva), RF-027 y RF-028 (corrida diaria a las 00:00; recontacto sin duplicar y asignado al responsable del cliente), RF-036 y RF-038 (el primer cobro de cualquier tipo pasa el viaje a `vendido`), RF-039 y RF-073 (nuevo tipo de alerta `viaje`), RF-053 (la reversión de la cancelación reabre solo las alertas que cerró y repone la comisión), RF-070 (revertir el único cobro devuelve el viaje a `reservado`), RF-072 (para un pago parcial se divide la cuota) y RF-152 (auditoría en todas las entidades).
-> - **Siguen abiertos:** la vigencia por defecto de la cotización (1 mes) se ratificó como default configurable, pero **queda por validar con la agencia** (RF-022).
+> - La vigencia por defecto de la cotización (1 mes, RF-022) se ratificó como default configurable y **la agencia la validó el mismo 29/09**.
 > - **Descartado:** el recargo por mora. No se modela.
 
 ### Cómo se armó realmente (21/09)
@@ -1195,13 +1195,9 @@ Los requisitos **RF-151** (control de acceso por rol y propiedad) y **RF-152** (
 > El resto (RNF-01 a RNF-07, RNF-11, RNF-12, RNF-15 y RNF-16) se apoya en decisiones ya selladas o en criterios que el vault aplica de hecho, así que no agrega compromiso nuevo.
 
 ### Requisitos con dependencias abiertas
-> [!question] Después de la sync del 29/09 queda **uno solo** con un valor sin cerrar. #accion/decidir
+> [!success] **No quedan requisitos con valores abiertos.** RF-022 (vigencia de 1 mes de la cotización) se validó con la agencia el 29/09.
 >
-> | Requisito | Qué falta cerrar |
-> |---|---|
-> | RF-022 | La vigencia por defecto de la cotización (1 mes) quedó ratificada como default configurable, pero falta validarla con la agencia. |
->
-> Los demás que figuraban acá (RF-026, RF-035, RF-051, RF-067, RF-071, RF-072, RF-106, RF-117 y RF-152) se cerraron en la sync: se ratificaron los cambios de modelo del 21/09, la agencia verificó los 7 días de la alerta `salida`, `forma_pago` quedó con 6 valores (las billeteras virtuales van como `transferencia`), [[Hotel]] ya tenía `precio_referencia` y `servicios` (la fila estaba desactualizada) y la auditoría alcanza a todas las entidades.
+> Los que figuraban acá (RF-022, RF-026, RF-035, RF-051, RF-067, RF-071, RF-072, RF-106, RF-117 y RF-152) se cerraron en la sync: se ratificaron los cambios de modelo del 21/09, la agencia verificó los 7 días de la alerta `salida`, `forma_pago` quedó con 6 valores (las billeteras virtuales van como `transferencia`), [[Hotel]] ya tenía `precio_referencia` y `servicios` (la fila estaba desactualizada) y la auditoría alcanza a todas las entidades.
 >
 > Ideas **no modeladas**: el **recargo por mora** se **descartó** en la sync del 29/09; el **inicio de sesión con Google** sigue como conveniencia opcional y futura según [[DEC-0008 Autenticación propia y rol de vendedor freelance]].
 

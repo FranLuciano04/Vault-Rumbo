@@ -24,7 +24,7 @@ El dueño (o admin) genera **reportes del período** (mensuales) con las estadí
 - El [[Usuario]] inició sesión con rol `admin` o `dueño` ([[CU-24 Iniciar sesión]], [[DEC-0005 Autenticación y modelo de roles]]).
 
 ## Flujo principal
-1. El dueño abre **Reportes** y elige el **tipo** y el **período** (por defecto, el mes). Catálogo definido por la agencia ([[Relevamiento — respuestas de la agencia (17-09)]], bloque 3):
+1. El dueño abre **Reportes** y elige el **tipo** y el **período** (por defecto, el mes). Catálogo definido por la agencia:
    - Ventas totales del mes · **Ganancia/rentabilidad** ([[DEC-0007 Modelo económico — ganancia, margen y comisión de vendedor]]).
    - **Cobrado vs. pendiente de cobro** · Pagos realizados y **pendientes a operadores**.
    - Ventas **por destino** · **por operador/proveedor** · **por vendedor/freelancer y sus comisiones**.

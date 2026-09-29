@@ -12,7 +12,7 @@ fecha_aprobacion: 29/09/26
 tags:: #tipo/caso-uso #estado/formalizado #pc/pc1
 
 ## Descripción
-Crear una [[Alerta]] **manual**: un recordatorio propio del empleado no derivado de un evento automático (pago, formulario, insistencia o reseña), opcionalmente asociado a un [[Viaje]], [[Cliente]] u [[Oportunidad]].
+Crear una [[Alerta]] **manual**: un recordatorio propio del empleado no derivado de un evento automático (como un vencimiento de pago, un formulario del destino o la reseña post-viaje), opcionalmente asociado a un [[Viaje]], [[Cliente]] u [[Oportunidad]].
 
 ## Actor principal
 [[Actores|empleado]]

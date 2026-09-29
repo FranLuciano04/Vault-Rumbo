@@ -10,7 +10,7 @@ actualizado: 29/09/26
 > Memoria externa del equipo (y de Claude). Se actualiza en cada **sync semanal**. Es lo primero que se lee al retomar. Mantener **corto**.
 
 ## Fase actual
-**Análisis y diseño → rumbo a PC1 (23/10/26).** ✅ **Sync del 29/09: todo el análisis quedó ratificado y formalizado** — 31 CU y su diagrama, 13 entidades, clases y ER, 6 diagramas de estado, 5 de actividad, 4 de secuencia y [[Requisitos funcionales]] (153 RF + 16 RNF con valores). Se cerraron los 18 huecos de los diagramas de actividad y las abiertas anteriores (ver *Definido y sellado en la sync 29/09*). **Próximo:** limpiar y regenerar el entregable de casos de uso, [[ARQ — Vista general|arquitectura]] y prototipo UI en Figma.
+**Análisis y diseño → rumbo a PC1 (23/10/26).** ✅ **Sync del 29/09: todo el análisis quedó ratificado y formalizado** — 31 CU y su diagrama, 13 entidades, clases y ER, 6 diagramas de estado, 5 de actividad, 4 de secuencia y [[Requisitos funcionales]] (153 RF + 16 RNF con valores). Se cerraron los 18 huecos de los diagramas de actividad y las abiertas anteriores (ver *Definido y sellado en la sync 29/09*). **Próximo:** arquitectura y prototipo UI en Figma (ver *Pasos restantes hacia PC1*).
 
 ## Roles de esta quincena
 Los tres tomamos **los tres roles** (Coordinador de vault · Guardián del dominio · Escriba de decisiones): todos estamos en todo. **Francisco** es el referente/mantenedor del vault (lo creó y chequea el rumbo general). Definido en la sync 11/09.
@@ -40,11 +40,40 @@ Los tres tomamos **los tres roles** (Coordinador de vault · Guardián del domin
 > Cierre PC1: la consulta `#pc/pc1 AND #estado/borrador` debe dar **cero** en lo obligatorio de arriba.
 
 ## Agenda para la próxima sync — decisiones abiertas
-> Índice de **todo lo que espera decisión**. La agenda anterior se cerró completa en la sync del 29/09 (ver *Definido y sellado en la sync 29/09*).
+> Índice de **todo lo que espera decisión**. Desde el 29/09 no quedan huecos de análisis: lo abierto es de **diseño** (ver el plan de abajo).
 
-- **Vigencia por defecto de la [[Cotización]]** (1 mes): ratificada como default configurable, **falta validarla con la agencia** → [[EST-Cotización]], RF-022.
-- **Enum `CategoriaViaje`** (hoy solo *salida grupal* e *individual*) → [[Viaje]], [[DGM — Diagrama de clases]].
-- **Infraestructura de despliegue** → [[ARQ — Vista general]], [[DEC-0001 Stack tecnológico]].
+- **Infraestructura de despliegue** (paso A1 del plan) → [[ARQ — Vista general]], [[DEC-0001 Stack tecnológico]].
+- **Capa de persistencia y migraciones** (A4) y **Dependabot o Renovate** (A5) → [[ARQ — Vista general]].
+- **Pantallas del prototipo** (B1) y quién toma cada frente.
+
+## Pasos restantes hacia PC1 (23/10/26) — plan detallado
+> Lo que falta del checklist. El análisis ya está cerrado; quedan dos obligatorios (**arquitectura** y **prototipo UI**) y tres recomendados. Las semanas y los responsables son una **propuesta**: se confirman en la sync. Cada paso dice qué se entrega y dónde queda.
+
+**Calendario propuesto:** semana 6 (hasta el 02/10) → A1, A2 y B1 · semana 7 (hasta el 09/10) → A3–A5, B2 y C1 · semana 8 (hasta el 16/10) → B3, B4, C2, C3 y la sync de cierre · semana 9 → **PC1 el 23/10**.
+
+### A · Arquitectura — obligatorio (`[[ARQ — Vista general]]`, hoy `en-revision`)
+- [ ] **A1. Decidir la infraestructura de despliegue** con una `DEC-0011`. Se comparan tres opciones: **PaaS** (servicio gestionado para la API y PostgreSQL), **VPS** propio y **servidor on-premise** en la agencia. Criterios, todos ya fijados en [[Requisitos funcionales]]: disponibilidad **24/7** (RNF-13), respaldo **diario con copia fuera del servidor** (RNF-08), que el proceso automático corra a las **00:00**, y el costo para una PyME. De esta decisión dependen Nginx y el runner self-hosted de CI.
+- [ ] **A2. Actualizar la vista de despliegue** (bloque Mermaid de [[ARQ — Vista general]]). Hay que sumar el **proceso automático diario** (scheduler que vence pagos y cotizaciones y genera las alertas `viaje` y `recontacto`, ver [[DGM-ACT — Proceso automático diario]]) y el **job de respaldo**, y reemplazar la caja «a definir» por la infraestructura de A1.
+- [ ] **A3. Vista lógica del backend**, con un diagrama Mermaid nuevo en ARQ: capas de FastAPI (routers → servicios → repositorios → modelos) y un paquete por módulo funcional (`04-Modulos/MOD-*`). Tiene que mostrar dónde viven la autorización por fila (DEC-0005/0008), la auditoría `created_by`/`updated_by` y la integración con Claude vía LangChain.
+- [ ] **A4. Persistencia y migraciones:** elegir ORM y herramienta de migraciones para PostgreSQL y registrarlo en ARQ (o en una DEC si no es obvio). El [[DGM-ER]] ya es la fuente del esquema inicial.
+- [ ] **A5. Dependabot o Renovate:** elegir uno para el monorepo y anotarlo en [[DEC-0001 Stack tecnológico]].
+- [ ] **A6. Ratificar** ARQ y la DEC-0011 en la sync y pasarlas a `formalizado`.
+
+### B · Prototipo UI en Figma — obligatorio
+- [ ] **B1. Acordar las pantallas clave.** Propuesta, una por cada CU central: inicio de sesión ([[CU-24 Iniciar sesión|CU-24]]) · **agenda de alertas del día** ([[CU-14 Ver y atender alertas del día|CU-14]]) · ficha del cliente ([[CU-03 Gestionar ficha del cliente|CU-03]]) · embudo de oportunidades ([[CU-05 Seguir oportunidad|CU-05]]) · emitir cotización ([[CU-06 Emitir cotización|CU-06]]) · **ficha del viaje** con economía, plan de cuotas y checklist de pagos ([[CU-07 Confirmar reserva|CU-07]], [[CU-10 Registrar economía del viaje|CU-10]], [[CU-11 Definir plan de cuotas|CU-11]]) · registrar cobro ([[CU-12 Registrar cobro de un pago|CU-12]]) · dashboard ([[CU-21 Ver dashboard y embudo|CU-21]]) · catálogo de hoteles ([[CU-18 Buscar y recomendar hoteles|CU-18]]). **Mobile** (RNF-14): agenda y ficha del cliente.
+- [ ] **B2. Wireframes** de baja fidelidad de esas pantallas, recorriendo el camino principal de [[CU-01 De la consulta a la venta|CU-01]] de punta a punta.
+- [ ] **B3. Diseño en Figma** (vía MCP) con el vocabulario del lenguaje ubicuo y los estados reales del modelo (`reservado → vendido → confirmado…`, alertas `pendiente/vista/resuelta`).
+- [ ] **B4. Publicar:** link de Figma + PNG de cada pantalla en `07-Entregables/Prototipo/`, y una fila nueva en [[Entregables — índice]].
+
+### C · Recomendados — refuerzan el modelo
+- [ ] **C1. Catálogo de reglas de negocio.** Hoy solo existe [[RN-01 Comisión automática]]. Candidatas que ya están decididas y dispersas en los CU: **RN-02** `Σ montos = precioVenta` ([[CU-11 Definir plan de cuotas|CU-11]]), **RN-03** el Pago es indivisible (RF-072), **RN-04** baja lógica en todo el sistema (RF-153), **RN-05** el primer cobro pasa el viaje a `vendido` y la secuencia del viaje es estricta ([[EST-Viaje]]).
+- [ ] **C2. Matriz de trazabilidad completa.** Ya está CU → RF en [[Requisitos funcionales]]. Faltan los tramos **objetivo → CU** (desde [[Objetivos del sistema]]) y **CU → entidad/regla**.
+- [ ] **C3. Glosario** del lenguaje ubicuo en `02-Analisis/Glosario.md`: las 13 entidades más los términos del negocio (seña, operador, salida grupal, recontacto…).
+
+### D · Cierre de PC1 (sync de la semana 8)
+- [ ] **D1.** La consulta `#pc/pc1 AND #estado/borrador` da **cero** en lo obligatorio.
+- [ ] **D2.** Regenerar y revisar los tres `.docx` (Relevamiento, Requisitos y Casos de uso) y sumar el prototipo.
+- [ ] **D3.** `git tag pc1` para dejar el snapshot del vault ([[Cronograma y PC]]).
 
 ## Definido y sellado en la sync 29/09
 Acordado por el equipo (Francisco, Nahuel y Paloma presentes). Se cerraron los 18 huecos de los diagramas de actividad, las abiertas desde antes y se ratificó todo lo pendiente:
@@ -54,7 +83,7 @@ Acordado por el equipo (Francisco, Nahuel y Paloma presentes). Se cerraron los 1
 - **Cancelación:** al revertirla, la comisión **vuelve a quedar proyectada** y se reabren **solo las alertas que cerró la cancelación** (nuevo atributo `Alerta.cerrada_por_cancelacion`).
 - **CU-01:** primero el cliente, después la consulta; el seguimiento se fusionó en el paso 4 (*Reserva y seguimiento*). Quedan 5 pasos.
 - **Proceso automático:** corre **una vez por día a las 00:00**. Al vencer un pago su alerta sigue `pendiente` (el atraso es vista). Nuevo tipo de [[Alerta]] **`viaje`** (8.º) para sugerir `en curso`/`finalizado`. El recontacto **no se duplica** y va al **responsable del cliente** (o a un `admin`).
-- **Defaults:** anticipación de `salida` = **7 días, verificado con la agencia**. Vigencia de cotización = 1 mes (falta validar). `forma_pago` queda con 6 valores: las **billeteras virtuales van como `transferencia`**.
+- **Defaults:** anticipación de `salida` = **7 días** y vigencia de cotización = **1 mes**, ambos **validados con la agencia**. `CategoriaViaje` cerrado con `grupal · individual`. `forma_pago` queda con 6 valores: las **billeteras virtuales van como `transferencia`**.
 - **Descartado:** el **recargo por mora**.
 - **Requisitos:** RF-106 conserva los filtros de precio y servicios ([[Hotel]] ya tenía `precio_referencia` y `servicios`); auditoría (`created_by`/`updated_by`/`created_at`/`updated_at`) en **todas las entidades**. **RNF con valores fijados por el equipo:** respaldo diario, 30 días y copia externa; p95 ≤ 2 s con 10 usuarios y 5.000 clientes; disponibilidad 24/7; 2 últimas versiones de Chrome/Edge/Firefox, Android 10+ e iOS 15+. RNF-03 es decisión de diseño.
 - Correcciones de redacción: precondiciones de CU-05 y CU-10, postcondición de CU-27, [[EST-Pago]] (T3 ya no es la única automática) y fila T8 de [[EST-ContenidoRed]].
@@ -118,5 +147,5 @@ Acordado por el equipo (Francisco, Nahuel y Paloma presentes):
 - **Infraestructura de despliegue** → [[ARQ — Vista general]]. El servidor on-premise es una alternativa pendiente.
 - ✅ **Entregable de Casos de uso regenerado** (18/09): PNG con el actor `freelance` y el módulo *Configuración/Catálogos*, y DOCX recompilado (0 fugas, 0 artefactos). Ver [[CONTINUAR — entregable Casos de uso]].
 - ✅ **Batch de la entrevista grill 18/09 ratificado** en la sync del 29/09.
-- [ ] **TAREA — Limpiar y regenerar el entregable de Casos de uso** (25/09, Nahuel): no se regenera desde el 21/09 y, al hacerlo, se filtran marcas internas de los CU («a ratificar», «regla del 21/09», «ver EST-…») y un recorte roto en CU-27. Limpiar los CU fuente y regenerar. Las ediciones manuales de Relevamiento y Requisitos ya se pasaron a la fuente (ver [[Bitácora de sesiones]]). ⚠️ Ahora es más urgente: la sync del 29/09 cambió CU-01, 05, 07, 08, 10, 11, 12, 14, 18, 27 y 30, y el `.docx` no se regeneró para no filtrar las marcas internas.
+- ✅ **Entregable de Casos de uso limpio y regenerado** (29/09, Nahuel): se sacaron de los CU fuente las marcas internas (fechas de resolución, «a ratificar», «Q6.1», referencias a `EST-*` y a la entrevista) y se arreglaron seis frases que el filtro dejaba cortadas al borrar referencias a DEC (CU-09, CU-10, CU-22, CU-24, CU-27 y CU-29). Verificado: 31 CU, diagrama incrustado y 0 fugas.
 - ✅ **PK de `viaje_hotel` resuelta** (21/09): `id` propio, no compuesta. Ver [[DGM-ER]], [[DEC-0003 Relación Viaje–Hotel y Reseña]]. Ratificada el 29/09.

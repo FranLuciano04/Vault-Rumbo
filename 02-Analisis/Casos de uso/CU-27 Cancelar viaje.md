@@ -12,7 +12,7 @@ fecha_aprobacion: 29/09/26
 tags:: #tipo/caso-uso #estado/formalizado #pc/pc1
 
 ## Descripción
-Dar de baja un [[Viaje]] que no se concreta (el cliente desiste, fuerza mayor), registrando el motivo, desactivando los [[Pago|Pagos]] pendientes y cerrando las [[Alerta|Alertas]] vigentes, sin perder el historial.
+Dar de baja un [[Viaje]] que no se concreta (el cliente desiste, fuerza mayor), registrando el motivo, anulando los [[Pago|Pagos]] no cobrados y cerrando las [[Alerta|Alertas]] vigentes, sin perder el historial.
 
 ## Actor principal
 [[Actores|empleado]]
@@ -42,7 +42,7 @@ Dar de baja un [[Viaje]] que no se concreta (el cliente desiste, fuerza mayor), 
 - Si el [[Viaje]] estaba `en curso` al cancelarse, **conserva además la comisión del vendedor** y los cobros ya registrados (A4).
 
 ## Reglas de negocio aplicadas
-- [[RN-01 Comisión automática]]: al cancelar, la comisión proyectada no se realiza **si el viaje no había empezado** (`reservado`, `vendido` o `confirmado`). Si estaba **`en curso`**, la comisión se mantiene porque el servicio se prestó (A4). La regla en sí no cambia: sigue valiendo lo de [[DEC-0007 Modelo económico — ganancia, margen y comisión de vendedor]]; esto es cuándo se considera realizada.
+- [[RN-01 Comisión automática]]: al cancelar, la comisión proyectada no se realiza **si el viaje no había empezado** (`reservado`, `vendido` o `confirmado`). Si estaba **`en curso`**, la comisión se mantiene porque el servicio se prestó (A4). El cálculo de la comisión no cambia; esta regla solo define cuándo se considera realizada.
 - Sin pagos online: reembolsos/penalidades fuera de alcance ([[Alcance y fuera de alcance]]).
 
 ## Entidades del dominio involucradas

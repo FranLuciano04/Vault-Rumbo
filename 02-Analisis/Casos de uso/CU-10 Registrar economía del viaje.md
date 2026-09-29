@@ -12,7 +12,7 @@ fecha_aprobacion: 29/09/26
 tags:: #tipo/caso-uso #estado/formalizado #pc/pc1
 
 ## Descripción
-Cargar la economía de un [[Viaje]] —precio de venta, costo del operador, moneda y comisión del vendedor—; el sistema **calcula automáticamente** la **ganancia** (`venta − costo`) y el **margen %**. Ver [[RN-01 Comisión automática]] y [[DEC-0007 Modelo económico — ganancia, margen y comisión de vendedor]].
+Cargar la economía de un [[Viaje]] —precio de venta, costo del operador, moneda y comisión del vendedor—; el sistema **calcula automáticamente** la **ganancia** (`venta − costo`) y el **margen %**. Ver [[RN-01 Comisión automática]].
 
 ## Actor principal
 [[Actores|empleado]]

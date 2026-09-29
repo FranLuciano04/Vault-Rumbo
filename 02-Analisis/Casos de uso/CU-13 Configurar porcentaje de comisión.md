@@ -14,8 +14,6 @@ tags:: #tipo/caso-uso #estado/formalizado #pc/pc1
 ## Descripción
 Definir la **comisión por defecto de cada vendedor/freelancer**: el valor (**importe o %**) con el que el sistema pre-carga la `comision_vendedor` de cada [[Viaje]] que ese vendedor genere. Cada viaje admite **override** ([[CU-10 Registrar economía del viaje]]). No configura la rentabilidad de la agencia (ganancia/margen se calculan solos). Ver [[RN-01 Comisión automática]] y [[DEC-0007 Modelo económico — ganancia, margen y comisión de vendedor]].
 
-> ℹ️ El nombre histórico "porcentaje de comisión" se conserva por el número de CU, pero tras la sync 17/09 el alcance es la **comisión del vendedor** (puede ser importe o %).
-
 ## Actor principal
 [[Actores|admin]]
 
@@ -50,3 +48,5 @@ Definir la **comisión por defecto de cada vendedor/freelancer**: el valor (**im
 
 ## 🔎 Revisión
 > [!success] Sync 17/09 — **reencuadrado**: ya no es un `%` de comisión de empresa, sino la **comisión por defecto de cada vendedor/freelancer** (importe o %, el % sobre la ganancia), con override por viaje. La rentabilidad de la agencia (ganancia/margen) no usa este parámetro. Ver [[DEC-0007 Modelo económico — ganancia, margen y comisión de vendedor]] (supersede a [[DEC-0004 Comisión configurable por porcentaje]]). Se mantiene: cambiar el default **no recalcula** viajes ya registrados (Nahuel, 10/09).
+>
+> [!note] El nombre histórico "porcentaje de comisión" se conserva por el número de CU, pero desde la sync del 17/09 el alcance es la **comisión del vendedor** (importe o %). En el diagrama figura como *Configurar comisión*.

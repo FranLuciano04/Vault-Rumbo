@@ -26,8 +26,8 @@ El empleado **cierra la venta** creando el [[Viaje]] a partir de una [[Oportunid
 
 ## Flujo principal
 1. Desde la [[Oportunidad]] (con su [[Cotización]] aceptada), el empleado elige **Confirmar reserva**.
-2. Carga/confirma los datos del [[Viaje]]: **destino** (del catálogo, [[CU-26 Gestionar destinos]]), **fechas** (salida/regreso), **categoría** (ej. salida grupal, individual) y **responsable** ([[Usuario]]).
-3. El sistema crea el [[Viaje]] en estado `reservado`, asociado al [[Cliente]] y vinculado a la [[Oportunidad]] de origen, y **cierra la [[Oportunidad]] como `ganada`** si todavía no lo estaba ([[EST-Oportunidad]] T4).
+2. Carga/confirma los datos del [[Viaje]]: **destino** (del catálogo, [[CU-26 Gestionar destinos]]), **fechas** (salida/regreso), **categoría** (`grupal` o `individual`) y **responsable** ([[Usuario]]).
+3. El sistema crea el [[Viaje]] en estado `reservado`, asociado al [[Cliente]] y vinculado a la [[Oportunidad]] de origen, y **cierra la [[Oportunidad]] como `ganada`** si todavía no lo estaba.
 4. El sistema genera automáticamente las [[Alerta|Alertas]] de tipo `formulario` según los [[RequisitoDestino|requisitos del destino]] ([[CU-15 Configurar recordatorios por destino]]) y una [[Alerta]] de tipo `salida` con aviso previo a la fecha de salida del [[Viaje]] (anticipación **configurable, default 7 días**).
 5. El sistema encadena el **control económico** ([[CU-10 Registrar economía del viaje]] — `<<include>>`) y el **plan de cuotas**, con o sin seña ([[CU-11 Definir plan de cuotas]]); con el **primer cobro** ([[CU-12 Registrar cobro de un pago]] A0) el [[Viaje]] pasa a `vendido`. También ofrece armar el **itinerario de hoteles** ([[CU-09 Armar itinerario de hoteles]]).
 

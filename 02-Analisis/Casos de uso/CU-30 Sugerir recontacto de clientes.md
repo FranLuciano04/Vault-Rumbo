@@ -41,7 +41,7 @@ tags:: #tipo/caso-uso #estado/formalizado #pc/pc1
 - Los [[Cliente|Clientes]] fieles inactivos quedan visibles como oportunidades de recontacto; los marcados con opt-out no vuelven a sugerirse; las gestiones pueden derivar en nuevas [[Oportunidad|Oportunidades]].
 
 ## Reglas de negocio aplicadas
-- **Criterio de candidato (agencia, 17/09 — ver [[Relevamiento — respuestas de la agencia (17-09)]], bloque 4):** cliente sin una nueva compra/viaje hace **≈ 6 meses** (umbral **configurable**, default 6). Aplica a **todos** los clientes, pero **prioriza/identifica a los recurrentes** (**≥ 2 [[Viaje|Viajes]]** con la agencia). Se excluye a los `no_recontactar`.
+- **Criterio de candidato (definido por la agencia):** cliente sin una nueva compra/viaje hace **≈ 6 meses** (umbral **configurable**, default 6). Aplica a **todos** los clientes, pero **prioriza/identifica a los recurrentes** (**≥ 2 [[Viaje|Viajes]]** con la agencia). Se excluye a los `no_recontactar`.
 - **Segmentación comercial:** el sistema permite **generar segmentos** de [[Cliente|Clientes]] para acciones dirigidas — por destino/producto (Brasil, Caribe, Europa, cruceros, nacionales) o por tipo (familias, parejas, etc.). Ver [[Cliente]] (`segmento`/etiquetas).
 - **Sin envío automático:** el sistema sugiere; el contacto lo hace una persona (coherente con "no reemplaza el asesoramiento", [[Alcance y fuera de alcance]]).
 

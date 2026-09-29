@@ -12,7 +12,7 @@ fecha_aprobacion: 29/09/26
 tags:: #tipo/caso-uso #estado/formalizado #pc/pc1
 
 ## Descripción
-El empleado consulta el catálogo de [[Hotel|Hoteles]] filtrando por destino y categoría, y usa las [[Reseña|Reseñas]] para recomendar opciones al [[Cliente]] al cotizar o armar el itinerario. Es una consulta de **solo lectura** sobre el catálogo.
+El empleado consulta el catálogo de [[Hotel|Hoteles]] filtrando por destino, categoría, rango de precio y servicios, y usa las [[Reseña|Reseñas]] para recomendar opciones al [[Cliente]] al cotizar o armar el itinerario. Es una consulta de **solo lectura** sobre el catálogo.
 
 ## Actor principal
 [[Actores|empleado]]

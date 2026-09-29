@@ -20,7 +20,7 @@ Reserva concreta de un cliente: destino, fechas, categoría, estado y control ec
 | id | UUID | Identificador |
 | destino | FK → [[Destino]] | Destino del catálogo — ver [[DEC-0006 Destino como entidad de catálogo]] |
 | fechas | Rango | Salida / regreso |
-| categoria | Enum | ej. salida grupal, individual |
+| categoria | Enum | `grupal · individual` — `grupal` = salida grupal; `individual` = el resto. Enum cerrado el 29/09 con los dos valores del relevamiento: el tipo de producto (crucero, nacional…) se registra en [[Destino]] y el perfil del cliente en su segmento y etiquetas ([[Cliente]]) |
 | estado | Enum | `reservado` (aceptó cotización; economía y plan cargados, sin cobros) · `vendido` (primer cobro: la seña, o la primera cuota si no hay seña) · `confirmado` (pagó el total) · `en curso` (inició por fecha) · `finalizado` (terminó) · `cancelado` (baja, [[CU-27 Cancelar viaje]]). Transiciones: `reservado → vendido` la dispara el **cobro de la seña** y `vendido → confirmado` el **pago total** ([[CU-12 Registrar cobro de un pago]]); `en curso`/`finalizado` van por **fecha** (sugeridas, confirma el empleado — [[CU-08 Gestionar estado del viaje]]) |
 | moneda | Enum | **Moneda de la operación** (ARS / USD) — multimoneda ([[DEC-0007 Modelo económico — ganancia, margen y comisión de vendedor]]) |
 | precioVenta | Decimal | Precio al cliente (en `moneda`) |

@@ -35,7 +35,7 @@ El empleado genera una [[Cotización]] para una [[Oportunidad]] a partir de una 
 - **A1 — Nueva versión / reenviar:** el cliente pide cambios → el empleado genera **otra versión** de la [[Cotización]] (la anterior queda en el historial) y la reenvía.
 - **A2 — Aceptada:** el cliente acepta → la [[Cotización]] pasa a `aceptada` y habilita **confirmar la reserva** ([[CU-07 Confirmar reserva]]); la [[Oportunidad]] se cerrará `ganada` ([[CU-05 Seguir oportunidad]]).
 - **A3 — Rechazada:** el cliente no acepta → `rechazada`; el seguimiento continúa o la [[Oportunidad]] se cierra `perdida`.
-- **A5 — Vencida (21/09, a ratificar):** pasa la `validez_hasta` sin respuesta del cliente → un **proceso automático** deja la [[Cotización]] en `vencida`. Los precios ya no se sostienen: para retomar hay que emitir una **cotización nueva**. Solo vencen las `enviada` (un `borrador` no vence). La [[Oportunidad]] **no** cambia de estado.
+- **A5 — Vencida:** pasa la `validez_hasta` sin respuesta del cliente → un **proceso automático** deja la [[Cotización]] en `vencida`. Los precios ya no se sostienen: para retomar hay que emitir una **cotización nueva**. Solo vencen las `enviada` (un `borrador` no vence). La [[Oportunidad]] **no** cambia de estado.
 - **A4 — Recomendación de hoteles:** al armar los ítems, el empleado consulta el catálogo para sugerir alojamiento ([[CU-18 Buscar y recomendar hoteles]]).
 
 ## Postcondiciones
@@ -56,5 +56,5 @@ El empleado genera una [[Cotización]] para una [[Oportunidad]] a partir de una 
 
 ## 🔎 Revisión
 
-> [!note] Nahuel (21/09) — **las cotizaciones ahora vencen.** Se sumó el estado `vencida` al enum y el atributo `validez_hasta` a [[Cotización]] (default **1 mes** desde la emisión, configurable por `admin`), más el flujo alternativo **A5**. Motivo: en turismo los precios cambian y una cotización no puede quedar vigente para siempre. ⚠️ **El default de 1 mes es una propuesta sin validar con la agencia** — ratificado en la sync del 29/09 como default; falta validarlo con la agencia. Detectado al especificar [[EST-Cotización]]. #accion/decidir
+> [!note] Nahuel (21/09) — **las cotizaciones ahora vencen.** Se sumó el estado `vencida` al enum y el atributo `validez_hasta` a [[Cotización]] (default **1 mes** desde la emisión, configurable por `admin`), más el flujo alternativo **A5**. Motivo: en turismo los precios cambian y una cotización no puede quedar vigente para siempre. ⚠️ **El default de 1 mes es una propuesta sin validar con la agencia** — **validado con la agencia** (29/09). Detectado al especificar [[EST-Cotización]].
 > [!question] Francisco (11/09): especificado como cotizador asistido. A validar en la sync: (1) ¿los precios se cargan **100% manual** o hay un **catálogo de precios de referencia** (p. ej. `precio_referencia` de [[Hotel]])?; (2) formato del documento (PDF) y si el **envío** queda siempre por fuera (manual) en PC1; (3) el **versionado** — ¿cada versión es una `Cotización` nueva ligada a la misma [[Oportunidad]]?

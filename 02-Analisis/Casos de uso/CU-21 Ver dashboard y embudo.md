@@ -26,7 +26,7 @@ El dueño (o admin) visualiza en un **tablero en vivo** el embudo de ventas y lo
 ## Flujo principal
 1. El dueño abre el **dashboard**.
 2. El sistema muestra el **embudo de ventas**: [[Oportunidad|Oportunidades]] por estado (`nueva · en_gestión · cotizada · ganada · perdida`) y la **tasa de conversión**.
-3. Muestra los **indicadores del período** (KPIs definidos por la agencia, ver [[Relevamiento — respuestas de la agencia (17-09)]], bloque 2):
+3. Muestra los **indicadores del período** (KPIs definidos por la agencia):
    - **Ventas del mes** y comparación con meses anteriores.
    - **Ganancia estimada** del mes ([[DEC-0007 Modelo económico — ganancia, margen y comisión de vendedor]]).
    - **Cobrado** vs. **pendiente de cobrar** a pasajeros, y **pendiente de pagar** a operadores ([[Pago]]).

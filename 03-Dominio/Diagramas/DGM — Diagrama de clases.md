@@ -394,7 +394,7 @@ classDiagram
     ContenidoRed ..> EstadoKanban : estadoKanban
 ```
 
-> ⚠️ **Enumeración todavía en borrador:** `CategoriaViaje` (la nota de [[Viaje]] solo da los ejemplos *salida grupal* e *individual*; el enum no está cerrado). #accion/decidir `FormaPago` se cerró en la sync del 29/09.
+> ✅ **Todas las enumeraciones están cerradas** (sync 29/09): `FormaPago` con 6 valores y `CategoriaViaje` con `grupal · individual`.
 
 ## Refinamientos introducidos al pasar del borrador al diagrama
 
@@ -417,7 +417,7 @@ Se señalaron sin elegir una versión en silencio, según [[CLAUDE|CLAUDE.md#Ord
 ## Pendientes
 
 - ✅ Ratificado en la sync del 29/09 (Francisco, Nahuel y Paloma), con el batch del 18/09 y la PK de `viaje_hotel`. En la misma sync se sumaron el tipo de alerta `viaje` y el atributo `cerradaPorCancelacion`.
-- ✅ `FormaPago` cerrado en la sync del 29/09 (6 valores; las billeteras virtuales van como `transferencia`). Sigue abierto `CategoriaViaje`.
+- ✅ `FormaPago` (6 valores; las billeteras virtuales van como `transferencia`) y `CategoriaViaje` (`grupal · individual`) cerrados el 29/09.
 - ✅ Lo resuelto el 21/09 ya está propagado a [[DGM-ER]] (`VIAJE ||--|{ PAGO` y los 4 orígenes de `ALERTA`) y a la nota de [[Viaje]].
 - ✅ El [[DGM-ER]] quedó **completo y coherente** con este diagrama el 21/09: sumó los atributos de las 14 tablas y las 4 relaciones que le faltaban (`USUARIO`–`ALERTA`, `USUARIO`–`CLIENTE`, `USUARIO`–`OPORTUNIDAD`, `DESTINO`–`REQUISITO_DESTINO`).
 - ✅ Auditoría (sync 29/09): `created_by`/`updated_by`/`created_at`/`updated_at` en **todas** las tablas de entidad (operativas y catálogos); no se dibujan para no multiplicar las líneas hacia `Usuario`. Ver [[DGM-ER]].

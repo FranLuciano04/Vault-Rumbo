@@ -27,7 +27,7 @@ Dar de baja una [[Reseña]] inapropiada o errónea para que deje de incidir en e
 1. El admin ubica la [[Reseña]] (desde la ficha del [[Hotel]] o el listado de reseñas).
 2. Elige **eliminarla** e indica el motivo.
 3. El sistema aplica **baja lógica**: la [[Reseña]] pasa a `estado = oculta`, deja de mostrarse en el catálogo y de contar para la recomendación ([[CU-18 Buscar y recomendar hoteles]]).
-4. El registro se conserva para no romper la trazabilidad de [[DEC-0003 Relación Viaje–Hotel y Reseña]].
+4. El registro se conserva para no romper la trazabilidad entre el [[Hotel]], sus [[Reseña|Reseñas]] y los [[Viaje|Viajes]] de origen.
 
 ## Flujos alternativos
 - **A1 — Restaurar:** el admin revierte una baja y la [[Reseña]] vuelve a `publicada`.

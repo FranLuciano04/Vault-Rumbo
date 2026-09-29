@@ -42,7 +42,7 @@ El empleado asocia uno o varios [[Hotel|Hoteles]] del catálogo al [[Viaje]], de
 - El [[Viaje]] queda con su itinerario de [[Hotel|Hoteles]] (tramos y orden) y, si aplica, con las [[Alerta|Alertas]] de vencimiento de pago a proveedor agendadas.
 
 ## Reglas de negocio aplicadas
-- Relación [[Viaje]] ⇄ [[Hotel]] **N:M** vía `viaje_hotel` (con **`id` propio**, `check_in`, `check_out`, `orden`, `vencimiento_pago_proveedor`, `pago_proveedor_realizado`) — ver [[DEC-0003 Relación Viaje–Hotel y Reseña]]. `id` propio (no PK compuesta) porque un mismo hotel puede figurar en varios tramos del mismo viaje (A5).
+- Relación [[Viaje]] ⇄ [[Hotel]] **N:M** vía `viaje_hotel` (con **`id` propio**, `check_in`, `check_out`, `orden`, `vencimiento_pago_proveedor`, `pago_proveedor_realizado`). Lleva `id` propio (no PK compuesta) porque un mismo hotel puede figurar en varios tramos del mismo viaje (A5).
 - El aviso de vencimiento a proveedor se genera **un mes antes** (requisito del relevamiento: "cada hotel tiene una fecha de vencimiento").
 
 ## Entidades del dominio involucradas
