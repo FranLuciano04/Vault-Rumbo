@@ -30,6 +30,10 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
+## 29/09/26 — Nahuel, con Francisco y Paloma (Claude Opus 5.5) — día 0: entrevista de diseño
+- **Hecho:** Entrevista de diseño con el equipo completo para cerrar todo lo que bloqueaba el día 1. Nuevas [[DEC-0011 Infraestructura de despliegue on-premise]] (on-premise con Docker Compose, scheduler con cron, Cloudflare Tunnel y runner self-hosted; RNF-08 y RNF-13 sin cambios, con el respaldo diferido a PC2) y [[DEC-0012 Modelo de IA del producto]] (Claude Sonnet 5.5, mínima). SQLAlchemy 2.0 async + Alembic en [[ARQ — Vista general]]; Dependabot en [[DEC-0001 Stack tecnológico]]. Nueva nota [[IA — Agentes del proyecto]] con el diagrama del ciclo de trabajo (Mermaid validado). En [[Estado del proyecto]]: entrega y oral el 02/10 a las 20 hs, frentes asignados (Nahuel arquitectura y API, Paloma prototipo, Francisco IA y documento), 11 pantallas, alcance de F1, F2 y E3, y supuestos de H0.
+- **Pendiente:** formato del deck (viernes); actualizar [[Cronograma y PC]] y las portadas de los `.docx` con la nueva fecha.
+
 ## 29/09/26 — Nahuel (Claude Opus 5.5) — PC1 adelantado: plan comprimido a 3 días
 - **Hecho:** El PC1 se adelantó. En [[Estado del proyecto]] se agregó el *Plan comprimido a 3 días* (30/09 → 02/10): tres frentes en paralelo (arquitectura/datos/API, prototipo UI, IA/documento único), sync express el día 1 para decidir A1, A4, A5, B1 y E1 y repartir los frentes, ratificación de ARQ al cierre del día 2 e integración, documento único y ensayo el día 3. Los recomendados C1–C3 salen del PC1. El calendario por semanas quedó marcado como superado.
 - **Pendiente:** confirmar la fecha y hora exactas de entrega y actualizar [[Cronograma y PC]] y las portadas de los `.docx`; asignar los frentes en la sync del 30/09.

@@ -10,7 +10,7 @@ actualizado: 29/09/26
 > Memoria externa del equipo (y de Claude). Se actualiza en cada **sync semanal**. Es lo primero que se lee al retomar. Mantener **corto**.
 
 ## Fase actual
-**Análisis y diseño → rumbo a PC1, ⚠️ adelantado: hay 3 días (30/09 → 02/10/26; fecha exacta de entrega a confirmar).** El plan se comprimió en *Plan comprimido a 3 días*. ✅ **Sync del 29/09: todo el análisis quedó ratificado y formalizado** — 31 CU y su diagrama, 13 entidades, clases y ER, 6 diagramas de estado, 5 de actividad, 4 de secuencia y [[Requisitos funcionales]] (153 RF + 16 RNF con valores). Se cerraron los 18 huecos de los diagramas de actividad y las abiertas anteriores (ver *Definido y sellado en la sync 29/09*). **Próximo:** arquitectura y prototipo UI en Figma (ver *Pasos restantes hacia PC1*).
+**Análisis y diseño → rumbo a PC1, ⚠️ adelantado al vie 02/10/26 a las 20 hs (entrega y exposición oral).** El plan se comprimió en *Plan comprimido a 3 días*; las decisiones de diseño se tomaron el 29/09. ✅ **Sync del 29/09: todo el análisis quedó ratificado y formalizado** — 31 CU y su diagrama, 13 entidades, clases y ER, 6 diagramas de estado, 5 de actividad, 4 de secuencia y [[Requisitos funcionales]] (153 RF + 16 RNF con valores). Se cerraron los 18 huecos de los diagramas de actividad y las abiertas anteriores (ver *Definido y sellado en la sync 29/09*). **Próximo:** arquitectura y prototipo UI en Figma (ver *Pasos restantes hacia PC1*).
 
 ## Roles de esta quincena
 Los tres tomamos **los tres roles** (Coordinador de vault · Guardián del dominio · Escriba de decisiones): todos estamos en todo. **Francisco** es el referente/mantenedor del vault (lo creó y chequea el rumbo general). Definido en la sync 11/09.
@@ -44,37 +44,43 @@ Los tres tomamos **los tres roles** (Coordinador de vault · Guardián del domin
 > Cierre PC1: la consulta `#pc/pc1 AND #estado/borrador` debe dar **cero** en lo obligatorio de arriba.
 
 ## Agenda para la próxima sync — decisiones abiertas
-> Índice de **todo lo que espera decisión**. Desde el 29/09 no quedan huecos de análisis: lo abierto es de **diseño** (ver el plan de abajo).
-
-- **Infraestructura de despliegue** (paso A1 del plan) → [[ARQ — Vista general]], [[DEC-0001 Stack tecnológico]].
-- **Capa de persistencia y migraciones** (A4) y **Dependabot o Renovate** (A5) → [[ARQ — Vista general]].
-- **Pantallas del prototipo** (B1) y quién toma cada frente (A a H).
-- **Modelo de IA del producto** (E1, `DEC-0012`).
-- **Preguntas para la cátedra** (H0): qué significa «MVC» y a qué se refiere «Modelo de desarrollo».
+> Índice de **todo lo que espera decisión**. ✅ La entrevista de diseño del 29/09 (equipo completo) cerró toda la agenda: ver *Decidido en el día 0*. Solo queda abierto el **formato del deck** de la exposición oral (se decide el viernes 02/10).
 
 ## Plan comprimido a 3 días (PC1 adelantado)
-> 29/09/26 (Nahuel): **el PC1 se adelantó** y lo pendiente se hace en tres días. Este plan **reemplaza el calendario por semanas** de abajo; el detalle de cada paso (qué se entrega y dónde) sigue en *Pasos restantes hacia PC1*. Tres frentes en paralelo, uno por persona; **quién toma cada frente se decide en la sync express del día 1**. Fecha y hora exactas de entrega: **a confirmar** (hay que actualizar [[Cronograma y PC]] y las portadas de los `.docx`).
+> 29/09/26: **el PC1 se adelantó al viernes 02/10/26 a las 20 hs**, con **exposición oral** a la misma hora. Hay tiempo desde el martes 29/09 a las 19 hs. Este plan **reemplaza el calendario por semanas** de abajo; el detalle de cada paso (qué se entrega y dónde) sigue en *Pasos restantes hacia PC1*. Hay que actualizar [[Cronograma y PC]] y las portadas de los `.docx`, que todavía dicen 23/10/26.
 
-**Frentes:** **F-Arq** = arquitectura, datos y API (A, F1, F2, G1) · **F-UI** = prototipo y modelo de desarrollo (B, H2) · **F-IA/Doc** = IA, MVC, antecedentes y documento único (E, G2, G3, H0, H1, H3).
+**Frentes (decididos el 29/09):**
+- **Nahuel · Arquitectura y API:** A2, A3, F2 (SQL), F1 (OpenAPI) y G1 (C4).
+- **Paloma · Prototipo:** B2 a B4 (las 11 pantallas) y H2 (modelo de desarrollo).
+- **Francisco · IA y documento:** E3 (agentes), E4, G2 (MVC), G3, H1 (antecedentes) y H3 (documento único).
 
-**Recortes:** los recomendados **C1–C3 salen del PC1** (reglas, matriz completa y glosario quedan para después; C1 solo si sobra tiempo el día 2). Las pantallas **mobile** (RNF-14) entran solo si Figma avanza bien. Si la cátedra no contesta H0 a tiempo, se toma **MVC = Modelo-Vista-Controlador** y **modelo de desarrollo = metodología de trabajo**, y se deja escrito el supuesto.
+**Recortes:** los recomendados **C1–C3 salen del PC1**. **E2** (prompts) se absorbió en [[DEC-0012 Modelo de IA del producto]]: de la IA del producto va lo mínimo indispensable. **H0 no se consulta**: se toma **MVC = Modelo-Vista-Controlador** y **modelo de desarrollo = metodología de trabajo**, y el documento deja escrito el supuesto.
 
-### Día 1 — mié 30/09: decidir y construir las bases
-- **Sync express (30 min, los tres, a primera hora):** decidir A1 (infraestructura), A4 (ORM y migraciones), A5 (Dependabot o Renovate), B1 (pantallas) y E1 (modelo de IA); repartir los frentes. Lo que se apruebe ahí se escribe ya ratificado. Enviar las preguntas de **H0** a la cátedra.
-- **F-Arq:** `DEC-0011` (A1) → A2 (vista de despliegue) → A3 (vista lógica del backend) → registrar A4 y A5 → **F2** script SQL validado contra un PostgreSQL local.
-- **F-UI:** B2 wireframes rápidos de las pantallas de B1 recorriendo CU-01 → arrancar B3 en Figma.
-- **F-IA/Doc:** `DEC-0012` (E1) → E2 (cadena de LangChain y prompts) → H1 (antecedentes).
+### Decidido en el día 0 — mar 29/09 (entrevista de diseño, equipo completo)
+- ✅ **A1** → [[DEC-0011 Infraestructura de despliegue on-premise]]: servidor on-premise (mini PC con Ubuntu Server LTS y UPS), Docker Compose con `nginx`, `api`, `postgres` y `scheduler` (cron a las 00:00, hora argentina, idempotente), Cloudflare Tunnel para el acceso externo (no prioritario) y runner self-hosted (repositorio privado, solo `main`). RNF-08 y RNF-13 **no cambian**: el respaldo se implementa en PC2 y los cortes del local son riesgo aceptado.
+- ✅ **A4** → SQLAlchemy 2.0 async + Alembic, en [[ARQ — Vista general]]. ✅ **A5** → Dependabot, en [[DEC-0001 Stack tecnológico]].
+- ✅ **E1** → [[DEC-0012 Modelo de IA del producto]]: Claude Sonnet 5.5, un borrador por pedido, sin parámetros explícitos.
+- ✅ **B1** → las **11 pantallas** de la propuesta (9 de escritorio y 2 mobile).
+- ✅ **F2** → DDL escrito a mano desde el [[DGM-ER]], con enums nativos (`CREATE TYPE`), `gen_random_uuid()`, columnas de auditoría y los CHECK. En PC2, la primera migración de Alembic lo reproduce.
+- ✅ **F1** → contrato **preliminar**: todos los endpoints de todos los módulos (ruta, método, rol y códigos de error), con esquemas completos solo para el circuito de CU-01 (`Cliente`, `Oportunidad`, `Cotización`, `Viaje`, `Pago`, `Alerta`). En PC2, el contrato de referencia pasa a ser el que genera FastAPI a medida que se escriben los endpoints.
+- ✅ **E3** → foco en los **agentes usados para planificar y desarrollar** (Claude Code, subagentes, MCP de Figma), sin catálogo de skills. El diagrama del ciclo de trabajo ya quedó en [[IA — Agentes del proyecto]]. **H2** queda separado y enlaza a E3.
+- ✅ **Exposición oral:** cada uno expone su frente; no se prepara un guion por persona. Duración desconocida.
+
+### Día 1 — mié 30/09: construir las bases
+- **Nahuel:** A2 (vista de despliegue con DEC-0011) → A3 (vista lógica del backend) → **F2** script SQL validado contra un PostgreSQL local.
+- **Paloma:** B2 wireframes rápidos de las 11 pantallas recorriendo CU-01 → arrancar B3 en Figma.
+- **Francisco:** E3 (completar las fichas de [[IA — Agentes del proyecto]]) → E4 → H1 (antecedentes).
 - **Cierre del día:** commit, `pull --rebase` y push de cada frente.
 
 ### Día 2 — jue 01/10: producir los entregables de diseño
-- **F-Arq:** **F1** contrato OpenAPI en JSON → **G1** modelo C4 (el nivel 3 reusa A3) → dejar ARQ lista para ratificar.
-- **F-UI:** **B3** diseño en Figma de todas las pantallas acordadas → **H2** modelo de desarrollo.
-- **F-IA/Doc:** E3 (agentes) → E4 (justificación de la IA en el producto) → **G2** sección MVC (con el borrador de F1 y los diagramas de secuencia) → G3 (modelo conceptual por capa) → esqueleto de **H3** `build-pc1.sh` con lo que ya exista.
-- **Cierre del día (30 min, los tres):** **A6** ratificar ARQ y las DEC nuevas; revisar qué falta para el día 3.
+- **Nahuel:** **F1** contrato OpenAPI preliminar → **G1** modelo C4 (el nivel 3 reusa A3) → dejar ARQ lista para ratificar.
+- **Paloma:** **B3** diseño en Figma de las 11 pantallas → **H2** modelo de desarrollo.
+- **Francisco:** **G2** sección MVC (con el borrador de F1 y los diagramas de secuencia) → G3 (modelo conceptual por capa) → esqueleto de **H3** `build-pc1.sh` con lo que ya exista.
+- **Cierre del día (30 min, los tres):** **A6** ratificar ARQ; revisar qué falta para el día 3.
 
-### Día 3 — vie 02/10: integrar, revisar y presentar
+### Día 3 — vie 02/10: integrar, revisar y presentar (entrega y oral a las 20 hs)
 - **Mañana:** B4 (link de Figma + PNG en `07-Entregables/Prototipo/`) · F3 (diagramas de dominio al documento único) · **H3** generar el `.docx` único · **D1** la consulta `#pc/pc1 AND #estado/borrador` da cero · **D2** revisión completa y regenerar los tres `.docx` anexos.
-- **Tarde:** **H4** deck en el mismo orden del documento y **ensayo** · **D3** `git tag pc1` · último push.
+- **Tarde:** **H4** deck (formato a decidir) en el mismo orden del documento · **ensayo a las 17 hs a más tardar** · **D3** `git tag pc1` · último push.
 
 ## Pasos restantes hacia PC1 — plan detallado
 > ⚠️ Las semanas de este bloque quedaron **superadas** por el *Plan comprimido a 3 días*; el contenido de cada paso sigue vigente.
@@ -84,15 +90,15 @@ Los tres tomamos **los tres roles** (Coordinador de vault · Guardián del domin
 ~~**Calendario propuesto:**~~ (superado por el plan a 3 días) semana 6 (hasta el 02/10) → A1, A2, B1, E1 y H0 · semana 7 (hasta el 09/10) → A3–A5, B2, E2, E3, F1, F2, G1, G2, H1, H2 y C1 · semana 8 (hasta el 16/10) → B3, B4, E4, F3, G3, H3, C2, C3 y la sync de cierre · semana 9 → H4 (ensayo) y **PC1 el 23/10**.
 
 ### A · Arquitectura — obligatorio (`[[ARQ — Vista general]]`, hoy `en-revision`)
-- [ ] **A1. Decidir la infraestructura de despliegue** con una `DEC-0011`. Se comparan tres opciones: **PaaS** (servicio gestionado para la API y PostgreSQL), **VPS** propio y **servidor on-premise** en la agencia. Criterios, todos ya fijados en [[Requisitos funcionales]]: disponibilidad **24/7** (RNF-13), respaldo **diario con copia fuera del servidor** (RNF-08), que el proceso automático corra a las **00:00**, y el costo para una PyME. De esta decisión dependen Nginx y el runner self-hosted de CI.
+- [x] **A1. Decidir la infraestructura de despliegue** con una `DEC-0011`. Se comparan tres opciones: **PaaS** (servicio gestionado para la API y PostgreSQL), **VPS** propio y **servidor on-premise** en la agencia. Criterios, todos ya fijados en [[Requisitos funcionales]]: disponibilidad **24/7** (RNF-13), respaldo **diario con copia fuera del servidor** (RNF-08), que el proceso automático corra a las **00:00**, y el costo para una PyME. De esta decisión dependen Nginx y el runner self-hosted de CI.
 - [ ] **A2. Actualizar la vista de despliegue** (bloque Mermaid de [[ARQ — Vista general]]). Hay que sumar el **proceso automático diario** (scheduler que vence pagos y cotizaciones y genera las alertas `viaje` y `recontacto`, ver [[DGM-ACT — Proceso automático diario]]) y el **job de respaldo**, y reemplazar la caja «a definir» por la infraestructura de A1.
 - [ ] **A3. Vista lógica del backend**, con un diagrama Mermaid nuevo en ARQ: capas de FastAPI (routers → servicios → repositorios → modelos) y un paquete por módulo funcional (`04-Modulos/MOD-*`). Tiene que mostrar dónde viven la autorización por fila (DEC-0005/0008), la auditoría `created_by`/`updated_by` y la integración con Claude vía LangChain.
-- [ ] **A4. Persistencia y migraciones:** elegir ORM y herramienta de migraciones para PostgreSQL y registrarlo en ARQ (o en una DEC si no es obvio). El [[DGM-ER]] ya es la fuente del esquema inicial.
-- [ ] **A5. Dependabot o Renovate:** elegir uno para el monorepo y anotarlo en [[DEC-0001 Stack tecnológico]].
+- [x] **A4. Persistencia y migraciones:** elegir ORM y herramienta de migraciones para PostgreSQL y registrarlo en ARQ (o en una DEC si no es obvio). El [[DGM-ER]] ya es la fuente del esquema inicial.
+- [x] **A5. Dependabot o Renovate:** elegir uno para el monorepo y anotarlo en [[DEC-0001 Stack tecnológico]].
 - [ ] **A6. Ratificar** ARQ y la DEC-0011 en la sync y pasarlas a `formalizado`.
 
 ### B · Prototipo UI en Figma — obligatorio
-- [ ] **B1. Acordar las pantallas clave.** Propuesta, una por cada CU central: inicio de sesión ([[CU-24 Iniciar sesión|CU-24]]) · **agenda de alertas del día** ([[CU-14 Ver y atender alertas del día|CU-14]]) · ficha del cliente ([[CU-03 Gestionar ficha del cliente|CU-03]]) · embudo de oportunidades ([[CU-05 Seguir oportunidad|CU-05]]) · emitir cotización ([[CU-06 Emitir cotización|CU-06]]) · **ficha del viaje** con economía, plan de cuotas y checklist de pagos ([[CU-07 Confirmar reserva|CU-07]], [[CU-10 Registrar economía del viaje|CU-10]], [[CU-11 Definir plan de cuotas|CU-11]]) · registrar cobro ([[CU-12 Registrar cobro de un pago|CU-12]]) · dashboard ([[CU-21 Ver dashboard y embudo|CU-21]]) · catálogo de hoteles ([[CU-18 Buscar y recomendar hoteles|CU-18]]). **Mobile** (RNF-14): agenda y ficha del cliente.
+- [x] **B1. Acordar las pantallas clave.** Propuesta, una por cada CU central: inicio de sesión ([[CU-24 Iniciar sesión|CU-24]]) · **agenda de alertas del día** ([[CU-14 Ver y atender alertas del día|CU-14]]) · ficha del cliente ([[CU-03 Gestionar ficha del cliente|CU-03]]) · embudo de oportunidades ([[CU-05 Seguir oportunidad|CU-05]]) · emitir cotización ([[CU-06 Emitir cotización|CU-06]]) · **ficha del viaje** con economía, plan de cuotas y checklist de pagos ([[CU-07 Confirmar reserva|CU-07]], [[CU-10 Registrar economía del viaje|CU-10]], [[CU-11 Definir plan de cuotas|CU-11]]) · registrar cobro ([[CU-12 Registrar cobro de un pago|CU-12]]) · dashboard ([[CU-21 Ver dashboard y embudo|CU-21]]) · catálogo de hoteles ([[CU-18 Buscar y recomendar hoteles|CU-18]]). **Mobile** (RNF-14): agenda y ficha del cliente.
 - [ ] **B2. Wireframes** de baja fidelidad de esas pantallas, recorriendo el camino principal de [[CU-01 De la consulta a la venta|CU-01]] de punta a punta.
 - [ ] **B3. Diseño en Figma** (vía MCP) con el vocabulario del lenguaje ubicuo y los estados reales del modelo (`reservado → vendido → confirmado…`, alertas `pendiente/vista/resuelta`).
 - [ ] **B4. Publicar:** link de Figma + PNG de cada pantalla en `07-Entregables/Prototipo/`, y una fila nueva en [[Entregables — índice]].
@@ -103,8 +109,8 @@ Los tres tomamos **los tres roles** (Coordinador de vault · Guardián del domin
 - [ ] **C3. Glosario** del lenguaje ubicuo en `02-Analisis/Glosario.md`: las 13 entidades más los términos del negocio (seña, operador, salida grupal, recontacto…).
 
 ### E · IA del producto y agentes — obligatorio (lámina del PC1: «Modelos de IA utilizados y justificación» y «Agentes IA implementados»)
-- [ ] **E1. Elegir el modelo de IA del producto** con una `DEC-0012`. Hoy la única función con IA es [[CU-20 Generar propuesta de contenido con IA|CU-20]] (borradores de posteos a partir del tema, el canal y el tono). La DEC compara al menos un modelo rápido y barato (Haiku 4.5) con uno de más calidad (Sonnet 5.5), según costo por borrador, latencia y calidad del texto en español, y fija los parámetros (temperatura, largo máximo).
-- [ ] **E2. Diseñar la cadena de LangChain y los prompts** en una nota nueva de `05-Diseño/` (p. ej. `IA — Diseño de la generación de contenido`): prompt de sistema, plantilla con variables (tema, canal, tono), formato de salida, límites (no usa datos del negocio, no publica) y cómo se versionan los prompts en el repo.
+- [x] **E1. Elegir el modelo de IA del producto** con una `DEC-0012`. Hoy la única función con IA es [[CU-20 Generar propuesta de contenido con IA|CU-20]] (borradores de posteos a partir del tema, el canal y el tono). La DEC compara al menos un modelo rápido y barato (Haiku 4.5) con uno de más calidad (Sonnet 5.5), según costo por borrador, latencia y calidad del texto en español, y fija los parámetros (temperatura, largo máximo).
+- [x] **E2. Diseñar la cadena de LangChain y los prompts** en una nota nueva de `05-Diseño/` (p. ej. `IA — Diseño de la generación de contenido`): prompt de sistema, plantilla con variables (tema, canal, tono), formato de salida, límites (no usa datos del negocio, no publica) y cómo se versionan los prompts en el repo.
 - [ ] **E3. Documentar los agentes de IA del proyecto:** el **agente de desarrollo** (Claude Code con `CLAUDE.md`, las skills de `.claude/skills/` y el vault como memoria compartida, ver [[Trabajo en equipo — Git y memoria]]) y el **componente de IA del producto** (E2). Para cada uno: qué hace, con qué modelo, qué herramientas usa y qué límites tiene.
 - [ ] **E4. Ampliar la justificación** de [[Herramientas del proyecto]] para que distinga la IA **para desarrollar** (ya justificada) de la IA **dentro del producto** (E1).
 
@@ -119,7 +125,7 @@ Los tres tomamos **los tres roles** (Coordinador de vault · Guardián del domin
 - [ ] **G3. Modelo conceptual por capa** (frontend, backend de negocio y base de datos): una página por capa con sus responsabilidades, tecnologías y los módulos que atiende.
 
 ### H · Documento único del PC1 y presentación — obligatorio (láminas: «Entrega: Documento con el MVC» y «Presentación de la documentación»)
-- [ ] **H0. Confirmar con la cátedra** dos interpretaciones que cambian el alcance: si «MVC» es Modelo-Vista-Controlador (así se lee por «Comunicación V-C») y si «Modelo de desarrollo» se refiere a la metodología de trabajo o al modelo de ciclo de vida.
+- [x] **H0. Confirmar con la cátedra** dos interpretaciones que cambian el alcance: si «MVC» es Modelo-Vista-Controlador (así se lee por «Comunicación V-C») y si «Modelo de desarrollo» se refiere a la metodología de trabajo o al modelo de ciclo de vida.
 - [ ] **H1. Antecedentes:** nota nueva en `01-Relevamiento/` con cómo trabaja hoy la agencia (carpetas, planillas, WhatsApp) y qué ofrecen los CRM genéricos y los de turismo, y por qué no alcanzan. Completa la «Presentación general» junto con [[Objetivos del sistema]], [[Justificación del sistema]] y [[Alcance y fuera de alcance]].
 - [ ] **H2. Modelo de desarrollo:** nota con la metodología del equipo: iteraciones por punto de control, vault versionado como fuente de verdad, commits pequeños en `main` para documentación y ramas `feature/` con pull requests para código, sync semanal y pipeline de calidad de [[DEC-0001 Stack tecnológico]]. Se presenta **junto con las interfaces gráficas** del prototipo (B).
 - [ ] **H3. Script del documento único** (`07-Entregables/build/build-pc1.sh`, con el mismo `filtrar()` y la misma plantilla): un solo `.docx` en el orden de la lámina → presentación general (con antecedentes) · modelos de IA y justificación · agentes IA · modelo de datos y relaciones (clases, ER, SQL) · modelo de desarrollo con interfaces gráficas · arquitectura (C4, MVC, OpenAPI) · y como anexos los requisitos, los casos de uso y los diagramas UML. Se suma a [[Entregables — índice]].

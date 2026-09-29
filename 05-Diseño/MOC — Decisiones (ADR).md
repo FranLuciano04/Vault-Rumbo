@@ -21,6 +21,8 @@ tags:: #tipo/modulo #estado/formalizado
 - [[DEC-0008 Autenticación propia y rol de vendedor freelance]] (amplía a [[DEC-0005 Autenticación y modelo de roles]])
 - [[DEC-0009 Operador-Proveedor como entidad de catálogo]] (13ª entidad [[Operador]])
 - [[DEC-0010 Notación de los diagramas de actividad y de secuencia]] (formalizada 29/09)
+- [[DEC-0011 Infraestructura de despliegue on-premise]] (formalizada 29/09)
+- [[DEC-0012 Modelo de IA del producto]] (formalizada 29/09)
 
 ## Todas (Dataview)
 ```dataview

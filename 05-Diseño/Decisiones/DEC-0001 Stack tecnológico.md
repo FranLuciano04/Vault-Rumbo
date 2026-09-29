@@ -65,12 +65,12 @@ backend/             # FastAPI, con entorno propio de uv
 - **bandit:** análisis estático de Python.
 - **Semgrep:** análisis multi-lenguaje con reglas OWASP.
 - **gitleaks:** detección de secretos.
-- **Dependabot o Renovate:** alternativa pendiente para actualizaciones automáticas.
+- **Dependabot:** actualizaciones automáticas de dependencias (pnpm y uv). Elegido el 29/09/26 sobre Renovate porque viene integrado en GitHub y no requiere instalación; Renovate agrupa mejor en un monorepo, pero para esta etapa no justifica la configuración extra.
 
 ### CI/CD y distribución
 - **GitHub Actions:** pipeline por push: lint → type-check → tests → seguridad → deploy cuando la infraestructura esté definida.
 - **Mobile:** distribución interna directa de `.apk` / `.ipa`, sin tiendas públicas.
-- **Infraestructura:** a definir. El servidor físico on-premise es una opción, no una decisión aprobada. El runner self-hosted y Nginx quedan condicionados a elegir esa alternativa. `#accion/decidir`
+- **Infraestructura:** ✅ decidida el 29/09/26 en [[DEC-0011 Infraestructura de despliegue on-premise]]: servidor on-premise en la agencia, con Nginx y un runner self-hosted de GitHub Actions.
 
 ## Alternativas consideradas
 | Opción | Pros | Contras | ¿Elegida? |
@@ -86,7 +86,7 @@ React y React Native permiten compartir tipos, validaciones y acceso a datos. Fa
 ## Impacto
 - Afecta: [[ARQ — Vista general]], todas las entidades (persistencia en PostgreSQL).
 - Restricciones: alcance sin pagos online ni GDS ([[Alcance y fuera de alcance]]).
-- Pendiente: elegir infraestructura de despliegue, Dependabot o Renovate y completar autenticación/roles.
+- ✅ Pendientes cerrados: infraestructura en [[DEC-0011 Infraestructura de despliegue on-premise]], Dependabot (29/09/26) y autenticación y roles en [[DEC-0008 Autenticación propia y rol de vendedor freelance]].
 
 ## Decisores y fecha
 - Propuesta técnica: Nahuel.
