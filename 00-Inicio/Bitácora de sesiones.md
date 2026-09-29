@@ -30,6 +30,10 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
+## 29/09/26 — Nahuel (Claude Opus 5.5) — A2: vista de despliegue
+- **Hecho:** En [[ARQ — Vista general]] se rehízo la *Vista de despliegue* según [[DEC-0011 Infraestructura de despliegue on-premise]]: usuarios, servicios externos (Cloudflare Tunnel, API de Claude, GitHub, EAS Build) y el servidor de la agencia con los cuatro contenedores, el runner self-hosted y el respaldo marcado como pendiente de PC2. El diagrama viejo quedó como *Vista de componentes del monorepo*, con la caja «a definir» reemplazada. Mermaid validado.
+- **Pendiente:** A3 (vista lógica del backend) y F2 (script SQL).
+
 ## 29/09/26 — Nahuel, con Francisco y Paloma (Claude Opus 5.5) — día 0: entrevista de diseño
 - **Hecho:** Entrevista de diseño con el equipo completo para cerrar todo lo que bloqueaba el día 1. Nuevas [[DEC-0011 Infraestructura de despliegue on-premise]] (on-premise con Docker Compose, scheduler con cron, Cloudflare Tunnel y runner self-hosted; RNF-08 y RNF-13 sin cambios, con el respaldo diferido a PC2) y [[DEC-0012 Modelo de IA del producto]] (Claude Sonnet 5.5, mínima). SQLAlchemy 2.0 async + Alembic en [[ARQ — Vista general]]; Dependabot en [[DEC-0001 Stack tecnológico]]. Nueva nota [[IA — Agentes del proyecto]] con el diagrama del ciclo de trabajo (Mermaid validado). En [[Estado del proyecto]]: entrega y oral el 02/10 a las 20 hs, frentes asignados (Nahuel arquitectura y API, Paloma prototipo, Francisco IA y documento), 11 pantallas, alcance de F1, F2 y E3, y supuestos de H0.
 - **Pendiente:** formato del deck (viernes); actualizar [[Cronograma y PC]] y las portadas de los `.docx` con la nueva fecha.
