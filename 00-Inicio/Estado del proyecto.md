@@ -119,7 +119,7 @@ Los tres tomamos **los tres roles** (Coordinador de vault · Guardián del domin
 
 ### F · Contrato de la API y modelo de datos SQL — obligatorio (láminas: «Comunicación V-C: Open API (formato JSON)» y «Model de datos SQL»)
 - [ ] **F1. Contrato OpenAPI preliminar en JSON** (`05-Diseño/API/openapi.json` más una nota índice): endpoints REST por módulo, derivados de los 31 CU, con los esquemas JSON de request y response derivados del [[DGM-ER]], los códigos de error y el rol que exige cada uno (DEC-0005/0008). Es la «comunicación Vista–Controlador» que pide la cátedra y la base del `openapi-typescript` de [[DEC-0001 Stack tecnológico]].
-- [ ] **F2. Script SQL del modelo de datos** (`05-Diseño/Datos/rumbo.sql`): `CREATE TABLE` de las 14 tablas con claves, FK, enums, el CHECK de origen de `ALERTA`, la unicidad de `VIAJE_HOTEL` y las columnas de auditoría. Se deriva del [[DGM-ER]] y se valida corriéndolo contra un PostgreSQL local.
+- [x] **F2. Script SQL del modelo de datos** (`05-Diseño/Datos/rumbo.sql`): `CREATE TABLE` de las 14 tablas con claves, FK, enums, el CHECK de origen de `ALERTA`, la unicidad de `VIAJE_HOTEL` y las columnas de auditoría. Se deriva del [[DGM-ER]] y se valida corriéndolo contra un PostgreSQL local. ✅ 29/09 (Nahuel): validado en PostgreSQL 18.3; índice en [[Modelo de datos SQL]].
 - [ ] **F3. Llevar los diagramas de dominio a un entregable:** clases, ER y los de estado, actividad y secuencia hoy **no están en ningún `.docx`**; entran en el documento único (H).
 
 ### G · Arquitectura ampliada: C4 y MVC — obligatorio (láminas: «Modelo conceptual: Frontend, Backend, Base de datos», «C4 Model» y «Documento con el MVC»)

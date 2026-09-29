@@ -30,6 +30,12 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
+## 29/09/26 — Nahuel (Claude Opus 5.5) — F2: script SQL
+- **Hecho:** `05-Diseño/Datos/rumbo.sql` con las 14 tablas y los 18 enums del [[DGM-ER]], `gen_random_uuid()`, auditoría nullable, el CHECK de origen de `alerta`, la unicidad de `viaje_hotel` y `ganancia`/`margen` como columnas calculadas. Nota índice: [[Modelo de datos SQL]].
+- **Verificado:** en un clúster PostgreSQL 18.3 temporal (el servidor local de la PC pide contraseña, así que no se usó): el script corre sin errores y 11 casos de prueba dan lo esperado (3 permitidos y 8 rechazados).
+- **A mirar:** el ER escribe los enum sin tilde (`en_gestion`) pero con ñ (`seña`), y el diagrama de clases con tilde; el script sigue al ER.
+- **Pendiente:** F1 y G1.
+
 ## 29/09/26 — Nahuel (Claude Opus 5.5) — ajustes del túnel y auditoría nullable aplicados
 - **Hecho:** [[DEC-0011 Infraestructura de despliegue on-premise]] suma el quinto contenedor `cloudflared` (token en el `.env` del servidor, fuera de Git), el acceso de **todos** los usuarios por la URL del túnel (la entrada local directa queda como respaldo) y el riesgo aceptado de que Cloudflare vea el tráfico descifrado. La vista de despliegue de [[ARQ — Vista general]] (diagrama, viñetas, resumen y *Pendiente*) quedó igual y su PNG se regeneró. En [[DGM-ER]] se anotó que `created_by`/`updated_by` son nullable (vacío = proceso automático).
 - **Pendiente:** F2, F1 y G1.

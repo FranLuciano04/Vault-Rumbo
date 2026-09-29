@@ -280,7 +280,7 @@ Los once módulos (`clientes`, `oportunidades`, `viajes`, `economia`, `alertas`,
 - **Roles y visibilidad:** [[DEC-0005 Autenticación y modelo de roles]], ampliada por [[DEC-0008 Autenticación propia y rol de vendedor freelance]]: roles `admin`, `dueño`, `empleado` y `freelance`, con visibilidad por fila y catálogo compartido.
 - **Autenticación:** usuario y contraseña individual, con auditoría de autor en cada registro (DEC-0008). Google OAuth queda como opción futura.
 - **Infraestructura y despliegue:** [[DEC-0011 Infraestructura de despliegue on-premise]].
-- **Persistencia y migraciones** (29/09): SQLAlchemy 2.0 async y Alembic. El esquema inicial es el del [[DGM-ER]]; en PC2, la primera migración de Alembic reproduce el script SQL del PC1.
+- **Persistencia y migraciones** (29/09): SQLAlchemy 2.0 async y Alembic. El esquema inicial es el del [[DGM-ER]], escrito como script en [[Modelo de datos SQL]]; en PC2, la primera migración de Alembic lo reproduce.
 - **IA del producto:** [[DEC-0012 Modelo de IA del producto]].
 
 ## Pendiente
