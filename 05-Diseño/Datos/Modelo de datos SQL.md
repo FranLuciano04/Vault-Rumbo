@@ -24,6 +24,7 @@ tags:: #tipo/analisis #estado/borrador #pc/pc1
   - `viaje.ganancia` y `viaje.margen` son **columnas calculadas** (`precio_venta − costo` y `ganancia / precio_venta`, [[DEC-0007 Modelo económico — ganancia, margen y comisión de vendedor|DEC-0007]]).
   - Comisión ([[DEC-0013 Datos que faltaban en el ER|DEC-0013]]): si es `porcentaje`, no pasa de 100; en `usuario`, el tipo y el valor por defecto van juntos o no van.
   - `configuracion` admite una sola fila (`id = 1`).
+  - `viaje.estado_previo` solo tiene valor mientras el viaje está `cancelado` (para revertir la cancelación, CU-27 A3).
   - Chequeos de sentido común: fechas de regreso, salida y check-out que no quedan antes de las de inicio; puntaje de reseña de 1 a 5; montos no negativos; al menos un pasajero.
 - **Bajas lógicas:** ninguna FK borra en cascada, porque en Rumbo nada se elimina físicamente.
 
@@ -38,8 +39,8 @@ tags:: #tipo/analisis #estado/borrador #pc/pc1
 
 ## Validación
 Se validó el 29/09/26 en un **PostgreSQL 18.3** local, en un clúster temporal creado solo para la prueba y borrado al terminar. El script corre completo sin errores y deja 15 tablas y 19 enumeraciones, con la fila de `configuracion` cargada con los valores validados con la agencia (1 mes, 7 días y 6 meses). Además se probaron, dentro de una transacción que se deshizo:
-- **Casos permitidos:** un usuario con `created_by` vacío, el mismo hotel en dos tramos del mismo viaje, una alerta manual sin origen y el cálculo de `ganancia` (250.000) y `margen` (0,25) para una venta de $ 1.000.000 con costo de $ 750.000.
-- **Casos rechazados, como se esperaba:** una alerta con dos orígenes, un `orden` repetido en el mismo viaje, dos viajes desde la misma oportunidad, un puntaje de 6, un regreso anterior a la salida, un valor de enum inexistente, un email de usuario repetido una FK a un cliente inexistente, una segunda fila de `configuracion`, una comisión de viaje mayor al 100 % y una comisión por defecto con tipo pero sin valor.
+- **Casos permitidos:** un usuario con `created_by` vacío, el mismo hotel en dos tramos del mismo viaje, una alerta manual sin origen el cálculo de `ganancia` (250.000) y `margen` (0,25) para una venta de $ 1.000.000 con costo de $ 750.000, y la cancelación de un viaje guardando su `estado_previo`.
+- **Casos rechazados, como se esperaba:** una alerta con dos orígenes, un `orden` repetido en el mismo viaje, dos viajes desde la misma oportunidad, un puntaje de 6, un regreso anterior a la salida, un valor de enum inexistente, un email de usuario repetido una FK a un cliente inexistente, una segunda fila de `configuracion`, una comisión de viaje mayor al 100 % una comisión por defecto con tipo pero sin valor y un viaje `cancelado` sin `estado_previo`.
 
 Para repetir la prueba sobre una base vacía:
 ```bash

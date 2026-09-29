@@ -31,8 +31,8 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 ```
 
 ## 29/09/26 — Nahuel (Claude Opus 5.5) — DEC-0013: datos que faltaban en el ER
-- **Hecho:** Al preparar F1 aparecieron cuatro datos que los CU piden y el ER no guardaba. Nahuel aprobó las cuatro propuestas y quedaron en [[DEC-0013 Datos que faltaban en el ER]] (`en-revision`, a ratificar en A6): `PAGO.fecha_cobro`, tabla `CONFIGURACION` de una fila (1 mes, 7 días y 6 meses), comisión con `tipo_comision` en `VIAJE` y default por vendedor en `USUARIO`, y `USUARIO.acceso_redes`. Propagado a [[DGM-ER]], [[DGM — Diagrama de clases]] (19 enums), [[Pago]], [[Usuario]], [[Viaje]], ARQ y [[Modelo de datos SQL]].
-- **Verificado:** PNG de clases y ER regenerados; el script vuelve a correr en PostgreSQL 18.3 (15 tablas, 19 enums) y pasan 14 casos de prueba (3 permitidos y 11 rechazados).
+- **Hecho:** Al preparar F2 y F1 aparecieron seis datos que los CU piden y el ER no guardaba. Nahuel aprobó las seis propuestas y quedaron en [[DEC-0013 Datos que faltaban en el ER]] (`en-revision`, a ratificar en A6): `PAGO.fecha_cobro`, tabla `CONFIGURACION` de una fila (1 mes, 7 días y 6 meses), comisión con `tipo_comision` en `VIAJE` y default por vendedor en `USUARIO`, `USUARIO.acceso_redes`, `USUARIO.activo` y `VIAJE.estado_previo`. Propagado a [[DGM-ER]], [[DGM — Diagrama de clases]] (19 enums), [[Pago]], [[Usuario]], [[Viaje]], ARQ y [[Modelo de datos SQL]].
+- **Verificado:** PNG de clases y ER regenerados; el script vuelve a correr en PostgreSQL 18.3 (15 tablas, 19 enums) y pasan 16 casos de prueba (4 permitidos y 12 rechazados).
 
 ## 29/09/26 — Nahuel (Claude Opus 5.5) — F2: script SQL
 - **Hecho:** `05-Diseño/Datos/rumbo.sql` con las 14 tablas y los 18 enums del [[DGM-ER]], `gen_random_uuid()`, auditoría nullable, el CHECK de origen de `alerta`, la unicidad de `viaje_hotel` y `ganancia`/`margen` como columnas calculadas. Nota índice: [[Modelo de datos SQL]].

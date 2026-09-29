@@ -35,6 +35,7 @@ erDiagram
         varchar password_hash "login propio, DEC-0008"
         enum rol "admin, empleado, dueño, freelance"
         bool acceso_redes "capacidad de redes, DEC-0013"
+        bool activo "baja logica, DEC-0013"
         enum comision_default_tipo "nullable, importe o porcentaje"
         numeric comision_default_valor "nullable, default del vendedor"
     }
@@ -81,6 +82,7 @@ erDiagram
         date fecha_regreso
         enum categoria "grupal, individual"
         enum estado "reservado, vendido, confirmado, en_curso, finalizado, cancelado"
+        enum estado_previo "nullable, solo si cancelado"
         enum moneda "ARS, USD, moneda de referencia"
         numeric precio_venta
         numeric costo "del operador"
@@ -220,7 +222,7 @@ erDiagram
 - **Auditoría:** [[DEC-0008 Autenticación propia y rol de vendedor freelance]] exige registrar **autor y fecha** de las acciones. **Decidido en la sync del 29/09:** `created_by` / `updated_by` (FK a `USUARIO`) y `created_at` / `updated_at` van en **todas las tablas de entidad**, operativas y catálogos (las 13 entidades; la tabla asociativa `VIAJE_HOTEL` hereda la auditoría de `VIAJE`). No se dibujan en el diagrama para no multiplicar las líneas hacia `USUARIO`. **`created_by` y `updated_by` son nullable** (aprobado el 29/09): lo que hace el proceso automático diario los deja **vacíos**, y un autor vacío se lee como «lo hizo el sistema». `created_at` y `updated_at` siempre se cargan.
 - `VIAJE.destino_id` y `HOTEL.destino_id` son FK a `DESTINO` (antes texto libre): ver [[DEC-0006 Destino como entidad de catálogo]]. `OPORTUNIDAD.destino_consultado` sigue siendo **texto libre** y se normaliza recién al derivar en `VIAJE`.
 - `VIAJE` suma `operador_id`, `vendedor_id`, `moneda`, `costo`, `ganancia`, `margen` y `comision_vendedor` — ver [[DEC-0007 Modelo económico — ganancia, margen y comisión de vendedor]] y [[DEC-0009 Operador-Proveedor como entidad de catálogo]] (sync 17/09). `ganancia` y `margen` son **calculados**: se pueden materializar como columnas generadas o resolver en la vista.
-- **Datos sumados al escribir el SQL** ([[DEC-0013 Datos que faltaban en el ER]], 29/09, a ratificar): `PAGO.fecha_cobro`; `VIAJE.comision_tipo` (`importe` o `porcentaje`); en `USUARIO`, `acceso_redes` y la comisión por defecto del vendedor (`comision_default_tipo` y `comision_default_valor`); y la tabla **`CONFIGURACION`**, de una sola fila, con los parámetros que edita `admin` (vigencia de la cotización, anticipación de la alerta `salida` y plazo del recontacto). `CONFIGURACION` es una tabla de parámetros, no una entidad del dominio, y no se relaciona con las demás. Con ella el esquema tiene **15 tablas**.
+- **Datos sumados al escribir el SQL** ([[DEC-0013 Datos que faltaban en el ER]], 29/09, a ratificar): `PAGO.fecha_cobro`; `VIAJE.comision_tipo` (`importe` o `porcentaje`) y `VIAJE.estado_previo` (para revertir una cancelación); en `USUARIO`, `activo` (baja lógica), `acceso_redes` y la comisión por defecto del vendedor (`comision_default_tipo` y `comision_default_valor`); y la tabla **`CONFIGURACION`**, de una sola fila, con los parámetros que edita `admin` (vigencia de la cotización, anticipación de la alerta `salida` y plazo del recontacto). `CONFIGURACION` es una tabla de parámetros, no una entidad del dominio, y no se relaciona con las demás. Con ella el esquema tiene **15 tablas**.
 - `COTIZACION.items` se modela como **`jsonb`**, no como tabla propia: decidido el 21/09 no promoverlo a entidad ([[DGM — Diagrama de clases]], punto 4). Si más adelante hacen falta reportes por concepto, se reabre.
 - Relación N:M `VIAJE`–`HOTEL` y objeto de la `RESENA` (Hotel + Cliente, con Viaje opcional): ver [[DEC-0003 Relación Viaje–Hotel y Reseña]].
 

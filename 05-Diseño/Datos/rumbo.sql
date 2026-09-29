@@ -46,6 +46,7 @@ CREATE TABLE usuario (
     email         varchar(254) NOT NULL UNIQUE,
     password_hash varchar(255) NOT NULL,              -- login propio, DEC-0008
     rol           rol_usuario  NOT NULL,
+    activo        boolean      NOT NULL DEFAULT true,  -- baja lógica; inactivo no inicia sesión (DEC-0013)
     acceso_redes  boolean      NOT NULL DEFAULT false, -- capacidad; admin y dueño la tienen por rol (DEC-0013)
     comision_default_tipo  tipo_comision,              -- comisión por defecto del vendedor (CU-13)
     comision_default_valor numeric(14,2) CHECK (comision_default_valor >= 0),
@@ -187,6 +188,7 @@ CREATE TABLE viaje (
     fecha_regreso     date            NOT NULL,
     categoria         categoria_viaje NOT NULL,
     estado            estado_viaje    NOT NULL DEFAULT 'reservado',
+    estado_previo     estado_viaje,                   -- estado antes de cancelarse, para revertir (CU-27 A3, DEC-0013)
     moneda            moneda          NOT NULL,       -- moneda de referencia del viaje (DEC-0007)
     precio_venta      numeric(14,2)   NOT NULL CHECK (precio_venta >= 0),
     costo             numeric(14,2)   NOT NULL CHECK (costo >= 0),  -- del operador
@@ -201,7 +203,11 @@ CREATE TABLE viaje (
     created_at        timestamptz NOT NULL DEFAULT now(),
     updated_at        timestamptz NOT NULL DEFAULT now(),
     CHECK (fecha_regreso >= fecha_salida),
-    CONSTRAINT viaje_comision_porcentaje_ck CHECK (comision_tipo <> 'porcentaje' OR comision_vendedor <= 100)
+    CONSTRAINT viaje_comision_porcentaje_ck CHECK (comision_tipo <> 'porcentaje' OR comision_vendedor <= 100),
+    -- estado_previo solo tiene valor mientras el viaje está cancelado, y nunca es 'cancelado'
+    CONSTRAINT viaje_estado_previo_ck CHECK (
+        (estado = 'cancelado') = (estado_previo IS NOT NULL) AND estado_previo IS DISTINCT FROM 'cancelado'
+    )
 );
 
 -- Todo viaje tiene al menos un pago (VIAJE ||--|{ PAGO): lo garantiza la API en CU-07,
