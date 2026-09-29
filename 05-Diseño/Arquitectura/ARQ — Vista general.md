@@ -10,7 +10,24 @@ actualizado: 29/09/26
 
 tags:: #tipo/analisis #estado/en-revision #pc/pc1
 
-> Arquitectura de software de Rumbo. Basada en [[DEC-0001 Stack tecnológico]].
+> Arquitectura de software de Rumbo. El stack está en [[DEC-0001 Stack tecnológico]]; la infraestructura, en [[DEC-0011 Infraestructura de despliegue on-premise]].
+
+## Resumen
+Rumbo es una aplicación **cliente-servidor**: dos clientes (web y mobile) hablan en JSON con una única API, que es la dueña de todas las reglas del negocio y de la base de datos. Todo el backend corre en un servidor dentro de la agencia.
+
+| Pieza | Tecnología | Rol |
+|---|---|---|
+| **Web** | React + TypeScript + Vite | Gestión completa: el back-office de la agencia (RNF-14). |
+| **Mobile** | React Native + Expo | Acceso rápido a la agenda, las alertas y los clientes; se distribuye de forma interna con EAS Build, sin tiendas. |
+| **Paquete compartido** | TypeScript, zod, Axios, TanStack Query | Tipos generados del contrato OpenAPI, validaciones y acceso a la API, reutilizados por web y mobile. |
+| **API** | Python + FastAPI, en **tres capas** | Única puerta al dominio: presentación, lógica de negocio y acceso a datos (ver *Vista lógica del backend*). |
+| **Base de datos** | PostgreSQL, con SQLAlchemy 2.0 async y Alembic | Persistencia de las 13 entidades del [[DGM-ER]]. |
+| **Proceso automático** | Contenedor con cron | Todos los días a las 00:00 vence pagos y cotizaciones y genera alertas, usando los mismos servicios que la API. |
+| **IA del producto** | LangChain + Claude Sonnet 5.5 | Solo para los borradores de contenido de CU-20 ([[DEC-0012 Modelo de IA del producto]]). |
+| **Servidor** | Ubuntu Server LTS + Docker Compose + UPS | Aloja la API, la base, el proceso automático y nginx; se accede desde afuera por Cloudflare Tunnel. |
+| **Calidad y despliegue** | GitHub Actions + runner self-hosted + Dependabot | Lint, tipos, pruebas y seguridad en cada push; despliega solo si el pipeline pasa en `main`. |
+
+La arquitectura se describe en tres vistas: **despliegue** (dónde corre cada pieza), **componentes del monorepo** (cómo se organiza el código) y **vista lógica del backend** (las tres capas de la API y sus módulos).
 
 ## Vista de despliegue
 Dónde corre cada pieza en producción, según [[DEC-0011 Infraestructura de despliegue on-premise]]. Todo el backend vive en un servidor dentro de la agencia; desde afuera se entra solo por Cloudflare Tunnel, que abre la conexión desde el servidor hacia la nube, así que el router no expone ningún puerto. La caja punteada es lo que se difiere a PC2.
@@ -60,7 +77,7 @@ flowchart LR
 ```
 
 - **nginx** sirve la web de React ya compilada y deriva `/api` al backend. Es el único punto de entrada, tanto desde la red local como desde el túnel.
-- **scheduler** ejecuta a las 00:00 el mismo código del backend como comando (por ejemplo `python -m rumbo.jobs.diario`): vence pagos y cotizaciones y genera las alertas `viaje` y `recontacto` ([[DGM-ACT — Proceso automático diario]]). Es idempotente, así que correrlo dos veces no duplica nada.
+- **scheduler** ejecuta a las 00:00 el mismo código del backend como comando (`python -m rumbo.presentacion.jobs.diario`): vence pagos y cotizaciones y genera las alertas `viaje` y `recontacto` ([[DGM-ACT — Proceso automático diario]]). Es idempotente, así que correrlo dos veces no duplica nada.
 - **Runner self-hosted:** cuando el pipeline de calidad pasa en `main`, reconstruye y levanta los contenedores. Solo toma jobs de `main` del repositorio privado.
 - **App mobile:** EAS Build genera los binarios y se distribuyen de forma interna, sin tiendas; la app habla con la misma API por el túnel.
 - **Riesgos aceptados:** un corte de luz más largo que la autonomía de la UPS, o de internet en el local, deja el sistema inaccesible desde afuera (RNF-13).
@@ -69,30 +86,35 @@ flowchart LR
 Cómo se organiza el código y qué genera cada parte, según [[DEC-0001 Stack tecnológico]].
 
 ```mermaid
+%%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
 flowchart LR
-    subgraph Monorepo
-      Web["apps/web<br/>React + TypeScript + Vite"]
-      Mobile["apps/mobile<br/>React Native + Expo"]
-      Shared["packages/shared<br/>Tipos + zod + Axios + hooks"]
-      API["backend<br/>FastAPI + LangChain"]
+    subgraph Monorepo["Monorepo · un solo repositorio de GitHub"]
+      direction LR
+      subgraph Front["Frontend · TypeScript · pnpm"]
+        direction TB
+        Web["apps/web<br/>React + Vite"]
+        Mobile["apps/mobile<br/>React Native + Expo"]
+        Shared["packages/shared<br/>tipos · zod · Axios · hooks"]
+      end
+      API["backend/<br/>Python · uv<br/>FastAPI en tres capas"]
     end
+
+    OpenAPI["Contrato OpenAPI<br/>JSON generado por FastAPI"]
     DB[("PostgreSQL")]
-    Claude["Claude<br/>IA integrada"]
-    OpenAPI["Schema OpenAPI"]
+    Claude["API de Claude"]
     EAS["EAS Build<br/>APK / IPA"]
-    CI["GitHub Actions<br/>calidad + pruebas + seguridad"]
+    CI["GitHub Actions<br/>calidad · pruebas · seguridad"]
     Deploy["Servidor on-premise<br/>DEC-0011"]
 
     Web --> Shared
     Mobile --> Shared
-    Web --> API
-    Mobile --> API
+    Shared -->|"HTTP + JSON"| API
+    API -->|"publica"| OpenAPI
+    Shared -. "toma sus tipos con<br/>openapi-typescript" .-> OpenAPI
     API --> DB
     API --> Claude
-    API --> OpenAPI
-    OpenAPI -. openapi-typescript .-> Shared
-    Mobile --> EAS
-    CI -. deploy condicionado .-> Deploy
+    Mobile -->|"build"| EAS
+    CI -->|"si el pipeline pasa en main"| Deploy
 ```
 
 ## Vista lógica del backend
@@ -234,18 +256,15 @@ backend/rumbo/
 
 Los once módulos (`clientes`, `oportunidades`, `viajes`, `economia`, `alertas`, `configuracion`, `hoteles`, `redes`, `dashboard`, `calendario` y `seguridad`) aparecen con el mismo nombre de archivo en `routers/`, `esquemas/`, `servicios/` y `repositorios/`. Cotización y recontacto (CU-06 y CU-30) viven dentro de `oportunidades`.
 
-## Componentes
-- **Web (React + TypeScript + Vite):** back-office del agente/admin.
-- **Mobile (React Native + Expo):** acceso rápido a agenda, alertas y clientes; EAS Build genera los binarios.
-- **Paquete compartido:** tipos OpenAPI, validaciones zod, Axios y hooks de TanStack Query para ambas aplicaciones.
-- **FastAPI:** única puerta al dominio; sirve JSON a web y mobile e integra Claude mediante LangChain.
-- **PostgreSQL:** persistencia relacional de las 13 entidades → [[DGM-ER]].
-- **GitHub Actions:** ejecuta lint, type-checking, pruebas y controles de seguridad en cada push.
+## Decisiones que sostienen esta arquitectura
+- **Stack:** [[DEC-0001 Stack tecnológico]], con **Dependabot** para actualizar dependencias (29/09).
+- **Roles y visibilidad:** [[DEC-0005 Autenticación y modelo de roles]], ampliada por [[DEC-0008 Autenticación propia y rol de vendedor freelance]]: roles `admin`, `dueño`, `empleado` y `freelance`, con visibilidad por fila y catálogo compartido.
+- **Autenticación:** usuario y contraseña individual, con auditoría de autor en cada registro (DEC-0008). Google OAuth queda como opción futura.
+- **Infraestructura y despliegue:** [[DEC-0011 Infraestructura de despliegue on-premise]].
+- **Persistencia y migraciones** (29/09): SQLAlchemy 2.0 async y Alembic. El esquema inicial es el del [[DGM-ER]]; en PC2, la primera migración de Alembic reproduce el script SQL del PC1.
+- **IA del producto:** [[DEC-0012 Modelo de IA del producto]].
 
 ## Pendiente
-- ✅ **Roles y visibilidad** ([[Usuario]]): sellado en [[DEC-0005 Autenticación y modelo de roles]] y ampliado por [[DEC-0008 Autenticación propia y rol de vendedor freelance]] — roles `admin`/`dueño`/`empleado`/`freelance`, con autorización a nivel de fila y catálogo compartido.
-- ✅ **Mecanismo de autenticación:** resuelto en [[DEC-0008 Autenticación propia y rol de vendedor freelance]] (usuario/contraseña individual; Google OAuth opcional y futuro).
-- ✅ **Infraestructura y despliegue:** decididos en [[DEC-0011 Infraestructura de despliegue on-premise]] (29/09): servidor on-premise con Docker Compose (`nginx`, `api`, `postgres`, `scheduler`), Cloudflare Tunnel y runner self-hosted. Ya está en la *Vista de despliegue* (paso A2, 29/09).
-- ✅ **Persistencia y migraciones** (29/09): **SQLAlchemy 2.0 en modo async** para el acceso a PostgreSQL y **Alembic** para las migraciones. El esquema inicial es el del [[DGM-ER]]; en PC2, la primera migración de Alembic reproduce el script SQL del PC1.
-- ✅ **Actualización de dependencias** (29/09): **Dependabot**, anotado en [[DEC-0001 Stack tecnológico]].
-- ✅ **IA del producto:** Claude Sonnet 5.5 vía LangChain, en [[DEC-0012 Modelo de IA del producto]].
+- **G1 · Modelo C4** (contexto, contenedores y componentes), que reutiliza estas vistas.
+- **A6 · Ratificar esta nota** en el cierre del día 2 y pasarla a `formalizado`.
+- **Acceso por Cloudflare Tunnel:** falta confirmar tres ajustes en DEC-0011 y en la vista de despliegue: el contenedor `cloudflared`, el riesgo de que Cloudflare vea el tráfico descifrado y que el acceso desde la red local también pase por el túnel.

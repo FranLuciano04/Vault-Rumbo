@@ -30,6 +30,9 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
+## 29/09/26 — Nahuel (Claude Opus 5.5) — ARQ: resumen general al día
+- **Hecho:** En [[ARQ — Vista general]] se reemplazó la introducción y la vieja sección *Componentes* por un **Resumen** con la tabla de piezas (web, mobile, paquete compartido, API en tres capas, base, proceso automático, IA, servidor y calidad). Se rehízo el diagrama del **monorepo** para que se lea impreso (frontend y backend separados, contrato OpenAPI y despliegue «si el pipeline pasa en `main`» en lugar de «deploy condicionado») y se corrigió la ruta del job a `rumbo.presentacion.jobs.diario`. La sección *Pendiente* pasó a *Decisiones que sostienen esta arquitectura* más los pendientes reales (C4, ratificación y ajustes del túnel).
+
 ## 29/09/26 — Nahuel (Claude Opus 5.5) — A3: vista lógica del backend
 - **Hecho:** Nueva sección *Vista lógica del backend* en [[ARQ — Vista general]], organizada en el **modelo de tres capas** a pedido de Nahuel: **presentación** (routers, esquemas Pydantic, usuario actual y `jobs/diario.py`), **lógica de negocio** (servicios con una transacción por caso de uso, `estados/` con las reglas de los `EST-*` y `politicas.py` con DEC-0005/0008) y **acceso a datos** (modelos SQLAlchemy, repositorios, sesión con auditoría automática e `ia/` para Claude). Cada capa solo usa a la de abajo; el filtro de visibilidad lo decide negocio y el repositorio lo recibe como parámetro obligatorio. Once módulos, repetidos como archivos en cada capa, con dependencias sin ciclos (viajes ↔ economía se resuelve con `negocio/estados/viaje.py`). Diagramas de capas y de módulos exportados a PNG, y estructura de carpetas por capa.
 - **Decisión de diseño a validar:** lo que hace el proceso automático queda con `created_by`/`updated_by` vacíos (= «lo hizo el sistema»), así que esas columnas son nullable en el script SQL (F2).
