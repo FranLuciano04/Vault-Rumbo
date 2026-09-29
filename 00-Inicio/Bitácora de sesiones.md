@@ -30,6 +30,11 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
+## 29/09/26 — Nahuel (Claude Opus 5.5) — A3: vista lógica del backend
+- **Hecho:** Nueva sección *Vista lógica del backend* en [[ARQ — Vista general]], con dos diagramas (capas y módulos, exportados a PNG) y la estructura de carpetas. Capas: routers → servicios (una transacción por caso de uso) → repositorios (aplican siempre el filtro de visibilidad) → modelos (con las transiciones de los `EST-*` como métodos). Transversales en `core`: auth, políticas de DEC-0005/0008 en un solo lugar, auditoría automática en cada guardado y sesión de base. Once paquetes, uno por módulo del MOC de casos de uso, con dependencias sin ciclos (viajes ↔ economía se resuelve con la transición en el modelo). `jobs.diario` reusa los mismos servicios; `ia` solo lo usa redes.
+- **Decisión de diseño a validar:** lo que hace el proceso automático queda con `created_by`/`updated_by` vacíos (= «lo hizo el sistema»), así que esas columnas son nullable en el script SQL (F2).
+- **Pendiente:** F2 (script SQL); corregir DEC-0011 con lo del túnel (contenedor `cloudflared`, Cloudflare ve el tráfico descifrado, acceso local por el túnel).
+
 ## 29/09/26 — Nahuel (Claude Opus 5.5) — diagramas exportados a PNG
 - **Hecho:** Como la entrega y la exposición van en PDF y no muestran los `.md`, todos los diagramas quedan exportados a PNG. Nuevo script `render-diagramas-diseno.sh` para los de `05-Diseño` (despliegue, monorepo y ciclo de trabajo del agente). La vista de despliegue de [[ARQ — Vista general]] se reordenó de izquierda a derecha para que se lea en papel (EAS Build queda solo en la vista del monorepo). Al volver a exportar el dominio aparecieron **tres PNG desactualizados** desde la sync de hoy: clases, ER y actividad del proceso diario; ya están regenerados. El resto coincide con su Mermaid. En [[Entregables — índice]] se sumó la tabla de dónde está cada PNG y cómo regenerarlo.
 - **Pendiente:** A3 y F2.

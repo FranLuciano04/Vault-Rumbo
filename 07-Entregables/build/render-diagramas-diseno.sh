@@ -20,6 +20,8 @@ render() {
 
 render "Arquitectura/ARQ — Vista general.md" 1 "Arquitectura/img/ARQ-despliegue"
 render "Arquitectura/ARQ — Vista general.md" 2 "Arquitectura/img/ARQ-monorepo"
+render "Arquitectura/ARQ — Vista general.md" 3 "Arquitectura/img/ARQ-logica-capas"
+render "Arquitectura/ARQ — Vista general.md" 4 "Arquitectura/img/ARQ-logica-modulos"
 render "IA — Agentes del proyecto.md"        1 "img/IA-ciclo-de-trabajo"
 
 rm -rf "$TMP"

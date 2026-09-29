@@ -93,10 +93,10 @@ bash "07-Entregables/build/render-diagramas-diseno.sh"
 | Estados (6) | `03-Dominio/Diagramas/Estados/img/` |
 | Actividad (5) | `03-Dominio/Diagramas/Actividad/img/` |
 | Secuencia de análisis (3) | `03-Dominio/Diagramas/Secuencia/img/` |
-| Arquitectura: despliegue y monorepo | `05-Diseño/Arquitectura/img/` |
+| Arquitectura: despliegue, monorepo y vista lógica (capas y módulos) | `05-Diseño/Arquitectura/img/` |
 | IA: ciclo de trabajo con el agente | `05-Diseño/img/` |
 
-Los diagramas nuevos de `05-Diseño` (vista lógica, C4…) se suman como una línea en `render-diagramas-diseno.sh`.
+Los diagramas nuevos de `05-Diseño` (C4…) se suman como una línea en `render-diagramas-diseno.sh`.
 
 <details><summary>Comando pandoc manual (sin filtrado)</summary>
 

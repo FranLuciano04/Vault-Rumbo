@@ -95,6 +95,140 @@ flowchart LR
     CI -. deploy condicionado .-> Deploy
 ```
 
+## Vista lógica del backend
+Cómo se organiza por dentro la API de FastAPI. Hay dos cortes: **por capas**, que dice qué responsabilidad tiene cada pieza, y **por módulos**, con un paquete por cada módulo funcional del [[MOC — Casos de uso]].
+
+### Capas
+```mermaid
+%%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
+flowchart TB
+    Front["Web y mobile<br/>JSON según el contrato OpenAPI"]
+    Sched["scheduler<br/>jobs.diario a las 00:00"]
+
+    subgraph Backend["backend · FastAPI"]
+      direction TB
+      R["Routers<br/>endpoints REST por módulo<br/>esquemas Pydantic de entrada y salida"]
+      S["Servicios<br/>orquestan cada caso de uso<br/>una transacción por operación"]
+      Rep["Repositorios<br/>consultas SQLAlchemy<br/>con el filtro de visibilidad aplicado"]
+      M["Modelos<br/>una clase por entidad del DGM-ER<br/>con sus transiciones de estado"]
+      IA["ia<br/>cadena LangChain + Claude<br/>solo para CU-20"]
+
+      subgraph Core["core · transversal"]
+        direction LR
+        Auth["auth<br/>login y usuario actual<br/>DEC-0008"]
+        Pol["políticas<br/>quién ve y quién edita<br/>DEC-0005 y DEC-0008"]
+        Aud["auditoría<br/>created_by / updated_by<br/>en cada escritura"]
+        Ses["db<br/>sesión async de SQLAlchemy"]
+      end
+    end
+
+    DB[("PostgreSQL")]
+    Claude["API de Claude"]
+
+    Front --> R
+    R --> S
+    Sched --> S
+    S --> Rep
+    Rep --> M
+    M --> DB
+    S --> IA
+    IA --> Claude
+    R -. "identifica al usuario" .-> Auth
+    Rep -. "filtra filas" .-> Pol
+    S -. "valida permisos de escritura" .-> Pol
+    Ses -. "antes de guardar" .-> Aud
+```
+
+| Capa | Qué hace | Qué **no** hace |
+|---|---|---|
+| **Routers** | Reciben el pedido HTTP, validan el JSON con esquemas Pydantic, obtienen el usuario actual y llaman a un servicio. Los esquemas publican el contrato OpenAPI. | No tienen reglas de negocio ni consultas. |
+| **Servicios** | Orquestan un caso de uso completo en **una transacción**: por ejemplo, confirmar la reserva crea el `Viaje`, el plan de cuotas, las alertas y pasa la `Oportunidad` a `ganada` (CU-07). Validan los permisos de escritura. | No arman SQL ni conocen HTTP. |
+| **Repositorios** | Buscan y guardan entidades con SQLAlchemy. **Toda consulta de lectura aplica el filtro de visibilidad** del usuario, así ningún endpoint puede olvidarlo. | No deciden reglas de negocio. |
+| **Modelos** | Una clase por entidad del [[DGM-ER]]. Cada clase con máquina de estados tiene sus **transiciones como métodos** (`Viaje.registrar_cobro()`, `Pago.anular()`…), que aplican las reglas de los `EST-*` y rechazan las transiciones inválidas. | No acceden a la base ni a otros servicios. |
+
+**Transversales (`core`):**
+- **`auth`:** login con usuario y contraseña ([[DEC-0008 Autenticación propia y rol de vendedor freelance|DEC-0008]]); cada pedido llega con un token y la dependencia de FastAPI devuelve el `Usuario` actual con su rol.
+- **`políticas`:** un único lugar que traduce la matriz de visibilidad de [[DEC-0005 Autenticación y modelo de roles|DEC-0005]] y DEC-0008 a filtros y permisos. En **lectura**: `freelance` solo ve lo propio; las `Alerta` son propias salvo para `admin` y `dueño`; el resto de los roles lee toda la agencia. En **escritura**: el responsable del registro o `admin`/`dueño`; configuración y moderación, solo `admin`.
+- **`auditoría`:** un evento de la sesión de SQLAlchemy completa `created_by`, `updated_by`, `created_at` y `updated_at` **antes de cada guardado**, con el usuario del pedido. Así la auditoría de todas las tablas no depende de que cada servicio se acuerde. Lo que hace el proceso automático queda con `created_by`/`updated_by` **vacíos**, que se lee como «lo hizo el sistema».
+- **`db`:** abre una sesión async por pedido, que es la transacción del servicio.
+
+**Integración con Claude:** el paquete `ia` encapsula la cadena de LangChain de [[DEC-0012 Modelo de IA del producto|DEC-0012]]. Solo lo usa el servicio de `redes` (CU-20) y no recibe datos de clientes. Si la API de Claude falla, CU-20 informa el error y el resto del sistema sigue funcionando.
+
+**Proceso automático:** `jobs.diario` no es una capa aparte: es un punto de entrada más, como los routers, que llama a los **mismos servicios**. Así vencer un pago a medianoche aplica exactamente las mismas reglas que si lo hiciera una persona.
+
+### Módulos
+```mermaid
+%%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
+flowchart LR
+    Jobs["jobs.diario<br/>proceso automático"]
+
+    subgraph Consulta["Consulta · solo lectura"]
+      Dash["dashboard<br/>CU-21 · CU-22"]
+      Cal["calendario<br/>CU-23"]
+    end
+
+    subgraph Operacion["Operación"]
+      Opo["oportunidades<br/>CU-04 · 05 · 06 · 30"]
+      Via["viajes<br/>CU-07 · 08 · 09 · 27"]
+      Eco["economia<br/>CU-10 · 11 · 12"]
+      Cli["clientes<br/>CU-02 · 03"]
+      Ale["alertas<br/>CU-14 · 28"]
+    end
+
+    subgraph Catalogos["Catálogos y apoyo"]
+      Hot["hoteles<br/>CU-16 · 17 · 18 · 29"]
+      Red["redes<br/>CU-19 · 20"]
+      Conf["configuracion<br/>CU-13 · 15 · 26 · 31"]
+      Seg["seguridad<br/>CU-24 · 25"]
+    end
+
+    IA["ia<br/>LangChain + Claude"]
+
+    Opo --> Cli
+    Opo --> Ale
+    Via --> Opo
+    Via --> Eco
+    Via --> Hot
+    Via --> Ale
+    Via --> Conf
+    Eco --> Ale
+    Eco --> Conf
+    Ale --> Conf
+    Red --> IA
+    Jobs --> Eco
+    Jobs --> Opo
+    Jobs --> Ale
+    Dash -.-> Operacion
+    Cal -.-> Operacion
+```
+
+- **Un paquete por módulo funcional**, con los mismos nombres que el [[MOC — Casos de uso]]. Cada paquete tiene su `router`, sus `esquemas`, su `servicio` y su `repositorio`. Los **modelos son compartidos** (`rumbo/modelos/`), porque las entidades se relacionan entre módulos por clave foránea.
+- **Una flecha es «el servicio de A usa al servicio de B».** Las dependencias van **en un solo sentido, sin ciclos**. El caso delicado es viajes ↔ economía: confirmar la reserva (viajes) crea el plan de cuotas (economía), y el primer cobro (economía) cambia el estado del viaje. El ciclo se evita porque el cambio de estado lo aplica el **modelo** (`Viaje.registrar_cobro()`), no el servicio de viajes.
+- **`dashboard` y `calendario` solo leen:** hacen consultas agregadas sobre los módulos de operación y no escriben nada.
+- **`seguridad`** gestiona usuarios y roles (CU-24 y CU-25). Todos los módulos lo usan de forma indirecta a través de `core.auth`, por eso no se dibujan esas flechas.
+
+Estructura de carpetas del backend:
+```text
+backend/rumbo/
+├── main.py                 # arma la app FastAPI y registra los routers
+├── core/                   # auth, politicas, auditoria, db, config
+├── modelos/                # una clase SQLAlchemy por entidad, con sus transiciones
+├── modulos/
+│   ├── clientes/           # router.py · esquemas.py · servicio.py · repositorio.py
+│   ├── oportunidades/      # incluye Cotización y el recontacto (CU-30)
+│   ├── viajes/
+│   ├── economia/
+│   ├── alertas/
+│   ├── configuracion/
+│   ├── hoteles/
+│   ├── redes/
+│   ├── dashboard/
+│   ├── calendario/
+│   └── seguridad/
+├── ia/                     # cadena LangChain + Claude (DEC-0012)
+└── jobs/diario.py          # proceso automático de las 00:00
+```
+
 ## Componentes
 - **Web (React + TypeScript + Vite):** back-office del agente/admin.
 - **Mobile (React Native + Expo):** acceso rápido a agenda, alertas y clientes; EAS Build genera los binarios.
