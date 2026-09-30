@@ -27,7 +27,7 @@ Propietaria de la agencia: visión total, reportes y estadísticas. **Ve toda la
 Vendedor externo que carga sus **propias** ventas y clientes. A diferencia del `empleado`, **ve solo lo suyo** (bloqueo de lectura fuera de sus clientes/operaciones); sí ve el catálogo compartido (sin modificarlo: no da de alta ni edita hoteles ni registra reseñas) y sus propias comisiones. Se modela como [[Usuario]] con rol `freelance` ([[DEC-0008 Autenticación propia y rol de vendedor freelance]]).
 
 ## Encargado de redes — *función asignable, no un rol*
-Planifica el calendario de contenido y usa el tablero kanban ([[ContenidoRed]]). No es un rol propio: es una **capacidad de acceso al módulo de redes** que `admin` o `dueño` asignan a un `empleado` (o cubren ellos mismos). En una PyME suele concentrarse en una persona.
+Planifica el calendario de contenido y usa el tablero kanban ([[ContenidoRed]]). No es un rol propio: es una **capacidad de acceso al módulo de redes** que `admin` o `dueño` asignan a un `empleado` (o cubren ellos mismos). No se le asigna a un `freelance`. En una PyME suele concentrarse en una persona.
 
 ## Pasajero / Cliente — *actor externo*
 Recibe cotizaciones y recordatorios, y deja reseñas post-viaje ([[Reseña]]). **No opera el sistema.** Se modela como [[Cliente]] (dato), no como [[Usuario]] (operador).

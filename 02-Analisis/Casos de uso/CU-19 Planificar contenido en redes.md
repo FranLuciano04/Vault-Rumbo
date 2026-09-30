@@ -4,7 +4,7 @@ estado: formalizado
 modulo: [redes]
 responsable: Paloma
 pc: pc1
-actualizado: 29/09/26
+actualizado: 30/09/26
 fecha_aprobacion: 29/09/26
 ---
 # CU-19 Planificar contenido en redes
@@ -15,7 +15,7 @@ tags:: #tipo/caso-uso #estado/formalizado #pc/pc1
 El empleado planifica las piezas de [[ContenidoRed]] en un **tablero kanban** con calendario, moviéndolas por estados hasta su publicación. El sistema organiza; **no publica automáticamente** ([[Alcance y fuera de alcance]]).
 
 ## Actor principal
-[[Actores|empleado]]
+[[Actores|empleado]] con acceso al módulo de redes. No incluye al rol `freelance`: el vendedor externo no usa el módulo de redes.
 
 ## Actores secundarios
 -
@@ -51,4 +51,6 @@ El empleado planifica las piezas de [[ContenidoRed]] en un **tablero kanban** co
 - [[DGM — Casos de uso]] · (pendiente) diagrama de actividad del flujo kanban.
 
 ## 🔎 Revisión
+> [!note] Sync 30/09/26 (Francisco, Nahuel y Paloma): se decidió que el `freelance` **no** usa el módulo de redes, aunque en el diagrama sea una especialización del `empleado`. Ver [[DEC-0008 Autenticación propia y rol de vendedor freelance|DEC-0008]] y el [[Contrato de la API (OpenAPI)]].
+
 > [!note] Paloma (10/09): (1) **Confirmado:** canales = **Instagram · TikTok · canal de ventas de WhatsApp** (actualizado en la entidad [[ContenidoRed]]). (2) **Confirmado:** la gestión de contenido la puede hacer **cualquier empleado** (sin exclusividad de rol) → revisar en [[DEC-0005 Autenticación y modelo de roles]] la relación `ContenidoRed`–`Usuario`.

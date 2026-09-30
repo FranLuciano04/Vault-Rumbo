@@ -4,7 +4,7 @@ estado: formalizado
 modulo: [redes]
 responsable: Paloma
 pc: pc1
-actualizado: 29/09/26
+actualizado: 30/09/26
 fecha_aprobacion: 29/09/26
 ---
 # CU-20 Generar propuesta de contenido con IA
@@ -15,7 +15,7 @@ tags:: #tipo/caso-uso #estado/formalizado #pc/pc1
 El empleado genera **borradores** de [[ContenidoRed]] asistidos por IA para agilizar la creación de posteos. La persona revisa y edita el resultado; **no hay publicación automática** ([[Alcance y fuera de alcance]]). La IA es Claude (ver [[DEC-0001 Stack tecnológico]]).
 
 ## Actor principal
-[[Actores|empleado]]
+[[Actores|empleado]] con acceso al módulo de redes. No incluye al rol `freelance`: el vendedor externo no usa el módulo de redes.
 
 ## Actores secundarios
 - Servicio de IA (Claude) — genera los borradores a pedido.
@@ -53,4 +53,6 @@ El empleado genera **borradores** de [[ContenidoRed]] asistidos por IA para agil
 - [[DEC-0001 Stack tecnológico]] (la IA del producto es Claude).
 
 ## 🔎 Revisión
+> [!note] Sync 30/09/26 (Francisco, Nahuel y Paloma): se decidió que el `freelance` **no** usa el módulo de redes, aunque en el diagrama sea una especialización del `empleado`. Ver [[DEC-0008 Autenticación propia y rol de vendedor freelance|DEC-0008]] y el [[Contrato de la API (OpenAPI)]].
+
 > [!note] Paloma (10/09): **Confirmado:** la IA genera a partir de **solo el prompt** del empleado (tema, canal, tono); **no usa datos del negocio** como contexto. Esto mantiene acotada la integración para PC2.
