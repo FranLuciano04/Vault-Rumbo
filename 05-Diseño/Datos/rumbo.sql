@@ -10,7 +10,7 @@ BEGIN;
 -- -----------------------------------------------------------------------------
 -- Enumeraciones (20), con los valores del DGM-ER
 -- -----------------------------------------------------------------------------
-CREATE TYPE rol_usuario        AS ENUM ('admin', 'empleado', 'dueño', 'freelance');
+CREATE TYPE rol_usuario        AS ENUM ('admin', 'empleado', 'dueno', 'freelance');
 CREATE TYPE tipo_comision      AS ENUM ('importe', 'porcentaje');  -- el porcentaje es sobre la ganancia (DEC-0007, DEC-0013)
 CREATE TYPE segmento_cliente   AS ENUM ('familia', 'amigos', 'individual', 'pareja');
 CREATE TYPE canal_oportunidad  AS ENUM ('instagram', 'whatsapp', 'presencial');
@@ -20,13 +20,13 @@ CREATE TYPE moneda             AS ENUM ('ARS', 'USD');
 CREATE TYPE estado_cotizacion  AS ENUM ('borrador', 'enviada', 'aceptada', 'rechazada', 'vencida');
 CREATE TYPE categoria_viaje    AS ENUM ('grupal', 'individual');
 CREATE TYPE estado_viaje       AS ENUM ('reservado', 'vendido', 'confirmado', 'en_curso', 'finalizado', 'cancelado');
-CREATE TYPE tipo_pago          AS ENUM ('seña', 'cuota', 'saldo');
+CREATE TYPE tipo_pago          AS ENUM ('sena', 'cuota', 'saldo');
 CREATE TYPE estado_pago        AS ENUM ('pendiente', 'pagado', 'vencido', 'anulado');
 CREATE TYPE forma_pago         AS ENUM ('efectivo', 'transferencia', 'tarjeta_credito', 'tarjeta_debito', 'cheque', 'deposito');
 CREATE TYPE tipo_requisito     AS ENUM ('visa', 'vacunacion', 'documentacion', 'seguro', 'formulario', 'otro');
 CREATE TYPE estado_hotel       AS ENUM ('activo', 'cerrado');
 CREATE TYPE estado_resena      AS ENUM ('publicada', 'oculta');
-CREATE TYPE tipo_alerta        AS ENUM ('pago', 'formulario', 'salida', 'insistencia', 'reseña', 'manual', 'recontacto', 'viaje');
+CREATE TYPE tipo_alerta        AS ENUM ('pago', 'formulario', 'salida', 'insistencia', 'resena', 'manual', 'recontacto', 'viaje');
 CREATE TYPE estado_alerta      AS ENUM ('pendiente', 'vista', 'resuelta');
 CREATE TYPE canal_contenido    AS ENUM ('instagram', 'tiktok', 'whatsapp_ventas');
 CREATE TYPE estado_kanban      AS ENUM ('idea', 'en_produccion', 'listo', 'publicado', 'descartado');

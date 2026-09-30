@@ -21,7 +21,7 @@ tags:: #tipo/diagrama #estado/formalizado #pc/pc1
 |---|---|
 | **Nomenclatura** | `SNAKE_CASE` para tablas y `snake_case` para columnas (modelo relacional). [[DGM — Diagrama de clases]] usa `PascalCase`/`camelCase` (modelo de objetos). |
 | **Claves** | `PK` = clave primaria (siempre `uuid`), `FK` = clave foránea, `UK` = único. Los FK **sí** se listan acá; en el diagrama de clases no, porque allá los expresan las asociaciones. |
-| **Enums** | Se declaran como `enum` con sus valores en el comentario. El catálogo completo está en las bandas de enumeraciones de [[DGM — Diagrama de clases]]. |
+| **Enums** | Se declaran como `enum` con sus valores en el comentario. El catálogo completo está en las bandas de enumeraciones de [[DGM — Diagrama de clases]]. Los **valores van en ASCII, sin tildes ni ñ** (`en_gestion`, `dueno`, `sena`, `resena`), igual que en el script SQL y en el contrato OpenAPI; el diagrama de clases, los CU y las pantallas los escriben en castellano (`en_gestión`, `dueño`, `seña`, `reseña`). Acordado el 30/09/26 (Francisco y Nahuel). |
 | **Nullable** | Se aclara en el comentario de la columna. Sin aclaración, `NOT NULL`. |
 | **Layout** | Motor **ELK** (líneas ortogonales) y fuente **12px** — un punto menos que el diagrama de clases, para compensar que acá hay 14 tablas y ~110 columnas. Ver "Sobre el tamaño" al final. |
 
@@ -33,7 +33,7 @@ erDiagram
         varchar nombre
         varchar email UK
         varchar password_hash "login propio, DEC-0008"
-        enum rol "admin, empleado, dueño, freelance"
+        enum rol "admin, empleado, dueno, freelance"
         bool acceso_redes "capacidad de redes, DEC-0013"
         bool activo "baja logica, DEC-0013"
         enum comision_default_tipo "nullable, importe o porcentaje"
@@ -100,7 +100,7 @@ erDiagram
         uuid id PK
         uuid viaje_id FK
         numeric monto "planificado, en VIAJE.moneda"
-        enum tipo "seña, cuota, saldo"
+        enum tipo "sena, cuota, saldo"
         date vencimiento
         enum estado "pendiente, pagado, vencido, anulado"
         enum forma_pago "nullable, se carga al cobrar"
@@ -171,7 +171,7 @@ erDiagram
         uuid oportunidad_id FK "nullable, origen"
         uuid cliente_id FK "nullable, origen"
         uuid viaje_hotel_id FK "nullable, origen"
-        enum tipo "pago, formulario, salida, insistencia, reseña, manual, recontacto, viaje"
+        enum tipo "pago, formulario, salida, insistencia, resena, manual, recontacto, viaje"
         text descripcion "texto de la tarea, DEC-0013"
         date fecha
         enum estado "pendiente, vista, resuelta"

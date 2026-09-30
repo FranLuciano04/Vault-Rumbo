@@ -121,13 +121,13 @@
         ],
         "operationId": "cerrarSesion",
         "summary": "Cerrar sesión",
-        "description": "**Roles:** admin, dueño, empleado, freelance.\n\n**Casos de uso:** CU-24.",
+        "description": "**Roles:** admin, dueno, empleado, freelance.\n\n**Casos de uso:** CU-24.",
         "x-casos-de-uso": [
           "CU-24"
         ],
         "x-roles": [
           "admin",
-          "dueño",
+          "dueno",
           "empleado",
           "freelance"
         ],
@@ -148,13 +148,13 @@
         ],
         "operationId": "obtenerUsuarioActual",
         "summary": "Usuario de la sesión, con su rol y accesos",
-        "description": "**Roles:** admin, dueño, empleado, freelance.\n\n**Casos de uso:** CU-24.",
+        "description": "**Roles:** admin, dueno, empleado, freelance.\n\n**Casos de uso:** CU-24.",
         "x-casos-de-uso": [
           "CU-24"
         ],
         "x-roles": [
           "admin",
-          "dueño",
+          "dueno",
           "empleado",
           "freelance"
         ],
@@ -182,13 +182,13 @@
         ],
         "operationId": "listarUsuarios",
         "summary": "Listar usuarios",
-        "description": "**Roles:** admin, dueño.\n\n**Casos de uso:** CU-25.",
+        "description": "**Roles:** admin, dueno.\n\n**Casos de uso:** CU-25.",
         "x-casos-de-uso": [
           "CU-25"
         ],
         "x-roles": [
           "admin",
-          "dueño"
+          "dueno"
         ],
         "parameters": [
           {
@@ -260,13 +260,13 @@
         ],
         "operationId": "crearUsuario",
         "summary": "Dar de alta un usuario",
-        "description": "**Roles:** admin, dueño.\n\n**Casos de uso:** CU-25.",
+        "description": "**Roles:** admin, dueno.\n\n**Casos de uso:** CU-25.",
         "x-casos-de-uso": [
           "CU-25"
         ],
         "x-roles": [
           "admin",
-          "dueño"
+          "dueno"
         ],
         "requestBody": {
           "required": true,
@@ -318,13 +318,13 @@
         ],
         "operationId": "obtenerUsuario",
         "summary": "Ver un usuario",
-        "description": "**Roles:** admin, dueño.\n\n**Casos de uso:** CU-25.",
+        "description": "**Roles:** admin, dueno.\n\n**Casos de uso:** CU-25.",
         "x-casos-de-uso": [
           "CU-25"
         ],
         "x-roles": [
           "admin",
-          "dueño"
+          "dueno"
         ],
         "parameters": [
           {
@@ -365,13 +365,13 @@
         ],
         "operationId": "editarUsuario",
         "summary": "Editar rol o accesos de un usuario",
-        "description": "**Roles:** admin, dueño.\n\n**Casos de uso:** CU-25.",
+        "description": "**Roles:** admin, dueno.\n\n**Casos de uso:** CU-25.",
         "x-casos-de-uso": [
           "CU-25"
         ],
         "x-roles": [
           "admin",
-          "dueño"
+          "dueno"
         ],
         "parameters": [
           {
@@ -437,13 +437,13 @@
         ],
         "operationId": "darDeBajaUsuario",
         "summary": "Dar de baja un usuario (baja lógica)",
-        "description": "**Roles:** admin, dueño.\n\n**Casos de uso:** CU-25.",
+        "description": "**Roles:** admin, dueno.\n\n**Casos de uso:** CU-25.",
         "x-casos-de-uso": [
           "CU-25"
         ],
         "x-roles": [
           "admin",
-          "dueño"
+          "dueno"
         ],
         "parameters": [
           {
@@ -496,7 +496,7 @@
         ],
         "operationId": "obtenerConfiguracion",
         "summary": "Ver los parámetros del negocio",
-        "description": "**Roles:** admin, dueño.\n\n**Casos de uso:** CU-06, CU-07, CU-30.",
+        "description": "**Roles:** admin, dueno.\n\n**Casos de uso:** CU-06, CU-07, CU-30.",
         "x-casos-de-uso": [
           "CU-06",
           "CU-07",
@@ -504,7 +504,7 @@
         ],
         "x-roles": [
           "admin",
-          "dueño"
+          "dueno"
         ],
         "responses": {
           "200": {
@@ -531,7 +531,7 @@
         ],
         "operationId": "editarConfiguracion",
         "summary": "Editar los parámetros del negocio",
-        "description": "**Roles:** admin, dueño.\n\n**Casos de uso:** CU-06, CU-07, CU-30.",
+        "description": "**Roles:** admin, dueno.\n\n**Casos de uso:** CU-06, CU-07, CU-30.",
         "x-casos-de-uso": [
           "CU-06",
           "CU-07",
@@ -539,7 +539,7 @@
         ],
         "x-roles": [
           "admin",
-          "dueño"
+          "dueno"
         ],
         "requestBody": {
           "required": true,
@@ -581,13 +581,13 @@
         ],
         "operationId": "configurarComisionPorDefecto",
         "summary": "Configurar la comisión por defecto de un vendedor",
-        "description": "**Roles:** admin, dueño.\n\n**Casos de uso:** CU-13.",
+        "description": "**Roles:** admin, dueno.\n\n**Casos de uso:** CU-13.",
         "x-casos-de-uso": [
           "CU-13"
         ],
         "x-roles": [
           "admin",
-          "dueño"
+          "dueno"
         ],
         "parameters": [
           {
@@ -643,13 +643,13 @@
         ],
         "operationId": "listarDestinos",
         "summary": "Listar destinos",
-        "description": "**Roles:** admin, dueño, empleado, freelance.\n\n**Casos de uso:** CU-26.",
+        "description": "**Roles:** admin, dueno, empleado, freelance.\n\n**Casos de uso:** CU-26.",
         "x-casos-de-uso": [
           "CU-26"
         ],
         "x-roles": [
           "admin",
-          "dueño",
+          "dueno",
           "empleado",
           "freelance"
         ],
@@ -727,13 +727,13 @@
         ],
         "operationId": "crearDestino",
         "summary": "Dar de alta un destino",
-        "description": "**Roles:** admin, dueño.\n\n**Casos de uso:** CU-26.",
+        "description": "**Roles:** admin, dueno.\n\n**Casos de uso:** CU-26.",
         "x-casos-de-uso": [
           "CU-26"
         ],
         "x-roles": [
           "admin",
-          "dueño"
+          "dueno"
         ],
         "requestBody": {
           "required": true,
@@ -785,13 +785,13 @@
         ],
         "operationId": "obtenerDestino",
         "summary": "Ver un destino",
-        "description": "**Roles:** admin, dueño, empleado, freelance.\n\n**Casos de uso:** CU-26.",
+        "description": "**Roles:** admin, dueno, empleado, freelance.\n\n**Casos de uso:** CU-26.",
         "x-casos-de-uso": [
           "CU-26"
         ],
         "x-roles": [
           "admin",
-          "dueño",
+          "dueno",
           "empleado",
           "freelance"
         ],
@@ -831,13 +831,13 @@
         ],
         "operationId": "editarDestino",
         "summary": "Editar un destino",
-        "description": "**Roles:** admin, dueño.\n\n**Casos de uso:** CU-26.",
+        "description": "**Roles:** admin, dueno.\n\n**Casos de uso:** CU-26.",
         "x-casos-de-uso": [
           "CU-26"
         ],
         "x-roles": [
           "admin",
-          "dueño"
+          "dueno"
         ],
         "parameters": [
           {
@@ -903,13 +903,13 @@
         ],
         "operationId": "darDeBajaDestino",
         "summary": "Dar de baja un destino (baja lógica)",
-        "description": "**Roles:** admin, dueño.\n\n**Casos de uso:** CU-26.",
+        "description": "**Roles:** admin, dueno.\n\n**Casos de uso:** CU-26.",
         "x-casos-de-uso": [
           "CU-26"
         ],
         "x-roles": [
           "admin",
-          "dueño"
+          "dueno"
         ],
         "parameters": [
           {
@@ -952,13 +952,13 @@
         ],
         "operationId": "reactivarDestino",
         "summary": "Reactivar un destino",
-        "description": "**Roles:** admin, dueño.\n\n**Casos de uso:** CU-26.",
+        "description": "**Roles:** admin, dueno.\n\n**Casos de uso:** CU-26.",
         "x-casos-de-uso": [
           "CU-26"
         ],
         "x-roles": [
           "admin",
-          "dueño"
+          "dueno"
         ],
         "parameters": [
           {
@@ -1001,13 +1001,13 @@
         ],
         "operationId": "listarRequisitosDestino",
         "summary": "Listar los requisitos de un destino",
-        "description": "**Roles:** admin, dueño, empleado, freelance.\n\n**Casos de uso:** CU-15.",
+        "description": "**Roles:** admin, dueno, empleado, freelance.\n\n**Casos de uso:** CU-15.",
         "x-casos-de-uso": [
           "CU-15"
         ],
         "x-roles": [
           "admin",
-          "dueño",
+          "dueno",
           "empleado",
           "freelance"
         ],
@@ -1083,13 +1083,13 @@
         ],
         "operationId": "crearRequisitoDestino",
         "summary": "Agregar un requisito a un destino",
-        "description": "**Roles:** admin, dueño.\n\n**Casos de uso:** CU-15.",
+        "description": "**Roles:** admin, dueno.\n\n**Casos de uso:** CU-15.",
         "x-casos-de-uso": [
           "CU-15"
         ],
         "x-roles": [
           "admin",
-          "dueño"
+          "dueno"
         ],
         "parameters": [
           {
@@ -1145,13 +1145,13 @@
         ],
         "operationId": "editarRequisitoDestino",
         "summary": "Editar un requisito",
-        "description": "**Roles:** admin, dueño.\n\n**Casos de uso:** CU-15.",
+        "description": "**Roles:** admin, dueno.\n\n**Casos de uso:** CU-15.",
         "x-casos-de-uso": [
           "CU-15"
         ],
         "x-roles": [
           "admin",
-          "dueño"
+          "dueno"
         ],
         "parameters": [
           {
@@ -1207,13 +1207,13 @@
         ],
         "operationId": "darDeBajaRequisitoDestino",
         "summary": "Quitar un requisito (baja lógica)",
-        "description": "**Roles:** admin, dueño.\n\n**Casos de uso:** CU-15.",
+        "description": "**Roles:** admin, dueno.\n\n**Casos de uso:** CU-15.",
         "x-casos-de-uso": [
           "CU-15"
         ],
         "x-roles": [
           "admin",
-          "dueño"
+          "dueno"
         ],
         "parameters": [
           {
@@ -1256,13 +1256,13 @@
         ],
         "operationId": "listarOperadores",
         "summary": "Listar operadores",
-        "description": "**Roles:** admin, dueño, empleado, freelance.\n\n**Casos de uso:** CU-31.",
+        "description": "**Roles:** admin, dueno, empleado, freelance.\n\n**Casos de uso:** CU-31.",
         "x-casos-de-uso": [
           "CU-31"
         ],
         "x-roles": [
           "admin",
-          "dueño",
+          "dueno",
           "empleado",
           "freelance"
         ],
@@ -1340,13 +1340,13 @@
         ],
         "operationId": "crearOperador",
         "summary": "Dar de alta un operador",
-        "description": "**Roles:** admin, dueño.\n\n**Casos de uso:** CU-31.",
+        "description": "**Roles:** admin, dueno.\n\n**Casos de uso:** CU-31.",
         "x-casos-de-uso": [
           "CU-31"
         ],
         "x-roles": [
           "admin",
-          "dueño"
+          "dueno"
         ],
         "requestBody": {
           "required": true,
@@ -1398,13 +1398,13 @@
         ],
         "operationId": "obtenerOperador",
         "summary": "Ver un operador",
-        "description": "**Roles:** admin, dueño, empleado, freelance.\n\n**Casos de uso:** CU-31.",
+        "description": "**Roles:** admin, dueno, empleado, freelance.\n\n**Casos de uso:** CU-31.",
         "x-casos-de-uso": [
           "CU-31"
         ],
         "x-roles": [
           "admin",
-          "dueño",
+          "dueno",
           "empleado",
           "freelance"
         ],
@@ -1444,13 +1444,13 @@
         ],
         "operationId": "editarOperador",
         "summary": "Editar un operador",
-        "description": "**Roles:** admin, dueño.\n\n**Casos de uso:** CU-31.",
+        "description": "**Roles:** admin, dueno.\n\n**Casos de uso:** CU-31.",
         "x-casos-de-uso": [
           "CU-31"
         ],
         "x-roles": [
           "admin",
-          "dueño"
+          "dueno"
         ],
         "parameters": [
           {
@@ -1516,13 +1516,13 @@
         ],
         "operationId": "darDeBajaOperador",
         "summary": "Dar de baja un operador (baja lógica)",
-        "description": "**Roles:** admin, dueño.\n\n**Casos de uso:** CU-31.",
+        "description": "**Roles:** admin, dueno.\n\n**Casos de uso:** CU-31.",
         "x-casos-de-uso": [
           "CU-31"
         ],
         "x-roles": [
           "admin",
-          "dueño"
+          "dueno"
         ],
         "parameters": [
           {
@@ -1565,13 +1565,13 @@
         ],
         "operationId": "reactivarOperador",
         "summary": "Reactivar un operador",
-        "description": "**Roles:** admin, dueño.\n\n**Casos de uso:** CU-31.",
+        "description": "**Roles:** admin, dueno.\n\n**Casos de uso:** CU-31.",
         "x-casos-de-uso": [
           "CU-31"
         ],
         "x-roles": [
           "admin",
-          "dueño"
+          "dueno"
         ],
         "parameters": [
           {
@@ -1614,13 +1614,13 @@
         ],
         "operationId": "listarClientes",
         "summary": "Buscar clientes",
-        "description": "**Roles:** admin, dueño, empleado, freelance.\n\n**Visibilidad:** freelance, solo lo propio (DEC-0008).\n\n**Casos de uso:** CU-03.",
+        "description": "**Roles:** admin, dueno, empleado, freelance.\n\n**Visibilidad:** freelance, solo lo propio (DEC-0008).\n\n**Casos de uso:** CU-03.",
         "x-casos-de-uso": [
           "CU-03"
         ],
         "x-roles": [
           "admin",
-          "dueño",
+          "dueno",
           "empleado",
           "freelance"
         ],
@@ -1709,13 +1709,13 @@
         ],
         "operationId": "crearCliente",
         "summary": "Registrar un cliente",
-        "description": "**Roles:** admin, dueño, empleado, freelance.\n\n**Visibilidad:** freelance, solo lo propio (DEC-0008).\n\n**Casos de uso:** CU-02.",
+        "description": "**Roles:** admin, dueno, empleado, freelance.\n\n**Visibilidad:** freelance, solo lo propio (DEC-0008).\n\n**Casos de uso:** CU-02.",
         "x-casos-de-uso": [
           "CU-02"
         ],
         "x-roles": [
           "admin",
-          "dueño",
+          "dueno",
           "empleado",
           "freelance"
         ],
@@ -1766,13 +1766,13 @@
         ],
         "operationId": "obtenerCliente",
         "summary": "Ver la ficha de un cliente",
-        "description": "**Roles:** admin, dueño, empleado, freelance.\n\n**Visibilidad:** freelance, solo lo propio (DEC-0008).\n\n**Casos de uso:** CU-03.",
+        "description": "**Roles:** admin, dueno, empleado, freelance.\n\n**Visibilidad:** freelance, solo lo propio (DEC-0008).\n\n**Casos de uso:** CU-03.",
         "x-casos-de-uso": [
           "CU-03"
         ],
         "x-roles": [
           "admin",
-          "dueño",
+          "dueno",
           "empleado",
           "freelance"
         ],
@@ -1812,14 +1812,14 @@
         ],
         "operationId": "editarCliente",
         "summary": "Editar la ficha de un cliente",
-        "description": "**Roles:** admin, dueño, empleado, freelance.\n\n**Visibilidad:** freelance, solo lo propio (DEC-0008).\n\n**Casos de uso:** CU-03, CU-30.",
+        "description": "**Roles:** admin, dueno, empleado, freelance.\n\n**Visibilidad:** freelance, solo lo propio (DEC-0008).\n\n**Casos de uso:** CU-03, CU-30.",
         "x-casos-de-uso": [
           "CU-03",
           "CU-30"
         ],
         "x-roles": [
           "admin",
-          "dueño",
+          "dueno",
           "empleado",
           "freelance"
         ],
@@ -1874,13 +1874,13 @@
         ],
         "operationId": "obtenerHistorialCliente",
         "summary": "Historial del cliente: oportunidades, viajes y reseñas",
-        "description": "**Roles:** admin, dueño, empleado, freelance.\n\n**Visibilidad:** freelance, solo lo propio (DEC-0008).\n\n**Casos de uso:** CU-03.",
+        "description": "**Roles:** admin, dueno, empleado, freelance.\n\n**Visibilidad:** freelance, solo lo propio (DEC-0008).\n\n**Casos de uso:** CU-03.",
         "x-casos-de-uso": [
           "CU-03"
         ],
         "x-roles": [
           "admin",
-          "dueño",
+          "dueno",
           "empleado",
           "freelance"
         ],
@@ -1922,13 +1922,13 @@
         ],
         "operationId": "listarOportunidades",
         "summary": "Listar oportunidades (embudo)",
-        "description": "**Roles:** admin, dueño, empleado, freelance.\n\n**Visibilidad:** freelance, solo lo propio (DEC-0008).\n\n**Casos de uso:** CU-05.",
+        "description": "**Roles:** admin, dueno, empleado, freelance.\n\n**Visibilidad:** freelance, solo lo propio (DEC-0008).\n\n**Casos de uso:** CU-05.",
         "x-casos-de-uso": [
           "CU-05"
         ],
         "x-roles": [
           "admin",
-          "dueño",
+          "dueno",
           "empleado",
           "freelance"
         ],
@@ -2010,14 +2010,14 @@
         ],
         "operationId": "registrarConsulta",
         "summary": "Registrar una consulta",
-        "description": "**Roles:** admin, dueño, empleado, freelance.\n\n**Visibilidad:** freelance, solo lo propio (DEC-0008).\n\n**Casos de uso:** CU-04, CU-30.",
+        "description": "**Roles:** admin, dueno, empleado, freelance.\n\n**Visibilidad:** freelance, solo lo propio (DEC-0008).\n\n**Casos de uso:** CU-04, CU-30.",
         "x-casos-de-uso": [
           "CU-04",
           "CU-30"
         ],
         "x-roles": [
           "admin",
-          "dueño",
+          "dueno",
           "empleado",
           "freelance"
         ],
@@ -2058,13 +2058,13 @@
         ],
         "operationId": "obtenerOportunidad",
         "summary": "Ver una oportunidad",
-        "description": "**Roles:** admin, dueño, empleado, freelance.\n\n**Visibilidad:** freelance, solo lo propio (DEC-0008).\n\n**Casos de uso:** CU-05.",
+        "description": "**Roles:** admin, dueno, empleado, freelance.\n\n**Visibilidad:** freelance, solo lo propio (DEC-0008).\n\n**Casos de uso:** CU-05.",
         "x-casos-de-uso": [
           "CU-05"
         ],
         "x-roles": [
           "admin",
-          "dueño",
+          "dueno",
           "empleado",
           "freelance"
         ],
@@ -2104,13 +2104,13 @@
         ],
         "operationId": "editarOportunidad",
         "summary": "Editar una oportunidad o sus notas de seguimiento",
-        "description": "**Roles:** admin, dueño, empleado, freelance.\n\n**Visibilidad:** freelance, solo lo propio (DEC-0008).\n\n**Escritura:** el responsable del registro, o admin o dueño (DEC-0005).\n\n**Casos de uso:** CU-05.",
+        "description": "**Roles:** admin, dueno, empleado, freelance.\n\n**Visibilidad:** freelance, solo lo propio (DEC-0008).\n\n**Escritura:** el responsable del registro, o admin o dueño (DEC-0005).\n\n**Casos de uso:** CU-05.",
         "x-casos-de-uso": [
           "CU-05"
         ],
         "x-roles": [
           "admin",
-          "dueño",
+          "dueno",
           "empleado",
           "freelance"
         ],
@@ -2168,13 +2168,13 @@
         ],
         "operationId": "tomarOportunidad",
         "summary": "Pasar la oportunidad a en gestión",
-        "description": "**Roles:** admin, dueño, empleado, freelance.\n\n**Visibilidad:** freelance, solo lo propio (DEC-0008).\n\n**Escritura:** el responsable del registro, o admin o dueño (DEC-0005).\n\n**Casos de uso:** CU-05.",
+        "description": "**Roles:** admin, dueno, empleado, freelance.\n\n**Visibilidad:** freelance, solo lo propio (DEC-0008).\n\n**Escritura:** el responsable del registro, o admin o dueño (DEC-0005).\n\n**Casos de uso:** CU-05.",
         "x-casos-de-uso": [
           "CU-05"
         ],
         "x-roles": [
           "admin",
-          "dueño",
+          "dueno",
           "empleado",
           "freelance"
         ],
@@ -2229,13 +2229,13 @@
         ],
         "operationId": "agendarInsistencia",
         "summary": "Agendar una insistencia",
-        "description": "**Roles:** admin, dueño, empleado, freelance.\n\n**Visibilidad:** freelance, solo lo propio (DEC-0008).\n\n**Escritura:** el responsable del registro, o admin o dueño (DEC-0005).\n\n**Casos de uso:** CU-05.",
+        "description": "**Roles:** admin, dueno, empleado, freelance.\n\n**Visibilidad:** freelance, solo lo propio (DEC-0008).\n\n**Escritura:** el responsable del registro, o admin o dueño (DEC-0005).\n\n**Casos de uso:** CU-05.",
         "x-casos-de-uso": [
           "CU-05"
         ],
         "x-roles": [
           "admin",
-          "dueño",
+          "dueno",
           "empleado",
           "freelance"
         ],
@@ -2293,13 +2293,13 @@
         ],
         "operationId": "perderOportunidad",
         "summary": "Cerrar la oportunidad como perdida",
-        "description": "**Roles:** admin, dueño, empleado, freelance.\n\n**Visibilidad:** freelance, solo lo propio (DEC-0008).\n\n**Escritura:** el responsable del registro, o admin o dueño (DEC-0005).\n\n**Casos de uso:** CU-05.",
+        "description": "**Roles:** admin, dueno, empleado, freelance.\n\n**Visibilidad:** freelance, solo lo propio (DEC-0008).\n\n**Escritura:** el responsable del registro, o admin o dueño (DEC-0005).\n\n**Casos de uso:** CU-05.",
         "x-casos-de-uso": [
           "CU-05"
         ],
         "x-roles": [
           "admin",
-          "dueño",
+          "dueno",
           "empleado",
           "freelance"
         ],
@@ -2367,13 +2367,13 @@
         ],
         "operationId": "reactivarOportunidad",
         "summary": "Reactivar una oportunidad perdida",
-        "description": "**Roles:** admin, dueño, empleado, freelance.\n\n**Visibilidad:** freelance, solo lo propio (DEC-0008).\n\n**Escritura:** el responsable del registro, o admin o dueño (DEC-0005).\n\n**Casos de uso:** CU-05.",
+        "description": "**Roles:** admin, dueno, empleado, freelance.\n\n**Visibilidad:** freelance, solo lo propio (DEC-0008).\n\n**Escritura:** el responsable del registro, o admin o dueño (DEC-0005).\n\n**Casos de uso:** CU-05.",
         "x-casos-de-uso": [
           "CU-05"
         ],
         "x-roles": [
           "admin",
-          "dueño",
+          "dueno",
           "empleado",
           "freelance"
         ],
@@ -2428,13 +2428,13 @@
         ],
         "operationId": "ganarOportunidadSinCotizacion",
         "summary": "Cerrar como ganada sin cotización formal (venta directa)",
-        "description": "**Roles:** admin, dueño, empleado, freelance.\n\n**Visibilidad:** freelance, solo lo propio (DEC-0008).\n\n**Escritura:** el responsable del registro, o admin o dueño (DEC-0005).\n\n**Casos de uso:** CU-05.",
+        "description": "**Roles:** admin, dueno, empleado, freelance.\n\n**Visibilidad:** freelance, solo lo propio (DEC-0008).\n\n**Escritura:** el responsable del registro, o admin o dueño (DEC-0005).\n\n**Casos de uso:** CU-05.",
         "x-casos-de-uso": [
           "CU-05"
         ],
         "x-roles": [
           "admin",
-          "dueño",
+          "dueno",
           "empleado",
           "freelance"
         ],
@@ -2489,13 +2489,13 @@
         ],
         "operationId": "listarCotizaciones",
         "summary": "Listar las cotizaciones (versiones) de una oportunidad",
-        "description": "**Roles:** admin, dueño, empleado, freelance.\n\n**Visibilidad:** freelance, solo lo propio (DEC-0008).\n\n**Casos de uso:** CU-06.",
+        "description": "**Roles:** admin, dueno, empleado, freelance.\n\n**Visibilidad:** freelance, solo lo propio (DEC-0008).\n\n**Casos de uso:** CU-06.",
         "x-casos-de-uso": [
           "CU-06"
         ],
         "x-roles": [
           "admin",
-          "dueño",
+          "dueno",
           "empleado",
           "freelance"
         ],
@@ -2571,13 +2571,13 @@
         ],
         "operationId": "emitirCotizacion",
         "summary": "Emitir una cotización o una nueva versión",
-        "description": "**Roles:** admin, dueño, empleado, freelance.\n\n**Visibilidad:** freelance, solo lo propio (DEC-0008).\n\n**Escritura:** el responsable del registro, o admin o dueño (DEC-0005).\n\n**Casos de uso:** CU-06.",
+        "description": "**Roles:** admin, dueno, empleado, freelance.\n\n**Visibilidad:** freelance, solo lo propio (DEC-0008).\n\n**Escritura:** el responsable del registro, o admin o dueño (DEC-0005).\n\n**Casos de uso:** CU-06.",
         "x-casos-de-uso": [
           "CU-06"
         ],
         "x-roles": [
           "admin",
-          "dueño",
+          "dueno",
           "empleado",
           "freelance"
         ],
@@ -2645,13 +2645,13 @@
         ],
         "operationId": "obtenerCotizacion",
         "summary": "Ver una cotización",
-        "description": "**Roles:** admin, dueño, empleado, freelance.\n\n**Visibilidad:** freelance, solo lo propio (DEC-0008).\n\n**Casos de uso:** CU-06.",
+        "description": "**Roles:** admin, dueno, empleado, freelance.\n\n**Visibilidad:** freelance, solo lo propio (DEC-0008).\n\n**Casos de uso:** CU-06.",
         "x-casos-de-uso": [
           "CU-06"
         ],
         "x-roles": [
           "admin",
-          "dueño",
+          "dueno",
           "empleado",
           "freelance"
         ],
@@ -2693,13 +2693,13 @@
         ],
         "operationId": "descargarCotizacion",
         "summary": "Descargar el documento de la cotización",
-        "description": "**Roles:** admin, dueño, empleado, freelance.\n\n**Visibilidad:** freelance, solo lo propio (DEC-0008).\n\n**Casos de uso:** CU-06.",
+        "description": "**Roles:** admin, dueno, empleado, freelance.\n\n**Visibilidad:** freelance, solo lo propio (DEC-0008).\n\n**Casos de uso:** CU-06.",
         "x-casos-de-uso": [
           "CU-06"
         ],
         "x-roles": [
           "admin",
-          "dueño",
+          "dueno",
           "empleado",
           "freelance"
         ],
@@ -2742,13 +2742,13 @@
         ],
         "operationId": "marcarCotizacionEnviada",
         "summary": "Marcar la cotización como enviada",
-        "description": "**Roles:** admin, dueño, empleado, freelance.\n\n**Visibilidad:** freelance, solo lo propio (DEC-0008).\n\n**Escritura:** el responsable del registro, o admin o dueño (DEC-0005).\n\n**Casos de uso:** CU-06.",
+        "description": "**Roles:** admin, dueno, empleado, freelance.\n\n**Visibilidad:** freelance, solo lo propio (DEC-0008).\n\n**Escritura:** el responsable del registro, o admin o dueño (DEC-0005).\n\n**Casos de uso:** CU-06.",
         "x-casos-de-uso": [
           "CU-06"
         ],
         "x-roles": [
           "admin",
-          "dueño",
+          "dueno",
           "empleado",
           "freelance"
         ],
@@ -2803,13 +2803,13 @@
         ],
         "operationId": "aceptarCotizacion",
         "summary": "Registrar que el cliente aceptó la cotización",
-        "description": "**Roles:** admin, dueño, empleado, freelance.\n\n**Visibilidad:** freelance, solo lo propio (DEC-0008).\n\n**Escritura:** el responsable del registro, o admin o dueño (DEC-0005).\n\n**Casos de uso:** CU-06.",
+        "description": "**Roles:** admin, dueno, empleado, freelance.\n\n**Visibilidad:** freelance, solo lo propio (DEC-0008).\n\n**Escritura:** el responsable del registro, o admin o dueño (DEC-0005).\n\n**Casos de uso:** CU-06.",
         "x-casos-de-uso": [
           "CU-06"
         ],
         "x-roles": [
           "admin",
-          "dueño",
+          "dueno",
           "empleado",
           "freelance"
         ],
@@ -2864,13 +2864,13 @@
         ],
         "operationId": "rechazarCotizacion",
         "summary": "Registrar que el cliente rechazó la cotización",
-        "description": "**Roles:** admin, dueño, empleado, freelance.\n\n**Visibilidad:** freelance, solo lo propio (DEC-0008).\n\n**Escritura:** el responsable del registro, o admin o dueño (DEC-0005).\n\n**Casos de uso:** CU-06.",
+        "description": "**Roles:** admin, dueno, empleado, freelance.\n\n**Visibilidad:** freelance, solo lo propio (DEC-0008).\n\n**Escritura:** el responsable del registro, o admin o dueño (DEC-0005).\n\n**Casos de uso:** CU-06.",
         "x-casos-de-uso": [
           "CU-06"
         ],
         "x-roles": [
           "admin",
-          "dueño",
+          "dueno",
           "empleado",
           "freelance"
         ],
@@ -2925,7 +2925,7 @@
         ],
         "operationId": "confirmarReserva",
         "summary": "Confirmar la reserva y crear el viaje",
-        "description": "**Roles:** admin, dueño, empleado, freelance.\n\n**Visibilidad:** freelance, solo lo propio (DEC-0008).\n\n**Escritura:** el responsable del registro, o admin o dueño (DEC-0005).\n\n**Casos de uso:** CU-07, CU-10, CU-11.",
+        "description": "**Roles:** admin, dueno, empleado, freelance.\n\n**Visibilidad:** freelance, solo lo propio (DEC-0008).\n\n**Escritura:** el responsable del registro, o admin o dueño (DEC-0005).\n\n**Casos de uso:** CU-07, CU-10, CU-11.",
         "x-casos-de-uso": [
           "CU-07",
           "CU-10",
@@ -2933,7 +2933,7 @@
         ],
         "x-roles": [
           "admin",
-          "dueño",
+          "dueno",
           "empleado",
           "freelance"
         ],
@@ -3008,13 +3008,13 @@
         ],
         "operationId": "listarViajes",
         "summary": "Listar viajes",
-        "description": "**Roles:** admin, dueño, empleado, freelance.\n\n**Visibilidad:** freelance, solo lo propio (DEC-0008).\n\n**Casos de uso:** CU-08.",
+        "description": "**Roles:** admin, dueno, empleado, freelance.\n\n**Visibilidad:** freelance, solo lo propio (DEC-0008).\n\n**Casos de uso:** CU-08.",
         "x-casos-de-uso": [
           "CU-08"
         ],
         "x-roles": [
           "admin",
-          "dueño",
+          "dueno",
           "empleado",
           "freelance"
         ],
@@ -3104,7 +3104,7 @@
         ],
         "operationId": "obtenerViaje",
         "summary": "Ver la ficha del viaje, con economía y saldo",
-        "description": "**Roles:** admin, dueño, empleado, freelance.\n\n**Visibilidad:** freelance, solo lo propio (DEC-0008).\n\n**Casos de uso:** CU-08, CU-10, CU-12.",
+        "description": "**Roles:** admin, dueno, empleado, freelance.\n\n**Visibilidad:** freelance, solo lo propio (DEC-0008).\n\n**Casos de uso:** CU-08, CU-10, CU-12.",
         "x-casos-de-uso": [
           "CU-08",
           "CU-10",
@@ -3112,7 +3112,7 @@
         ],
         "x-roles": [
           "admin",
-          "dueño",
+          "dueno",
           "empleado",
           "freelance"
         ],
@@ -3154,13 +3154,13 @@
         ],
         "operationId": "iniciarViaje",
         "summary": "Pasar el viaje a en curso",
-        "description": "**Roles:** admin, dueño, empleado, freelance.\n\n**Visibilidad:** freelance, solo lo propio (DEC-0008).\n\n**Escritura:** el responsable del registro, o admin o dueño (DEC-0005).\n\n**Casos de uso:** CU-08.",
+        "description": "**Roles:** admin, dueno, empleado, freelance.\n\n**Visibilidad:** freelance, solo lo propio (DEC-0008).\n\n**Escritura:** el responsable del registro, o admin o dueño (DEC-0005).\n\n**Casos de uso:** CU-08.",
         "x-casos-de-uso": [
           "CU-08"
         ],
         "x-roles": [
           "admin",
-          "dueño",
+          "dueno",
           "empleado",
           "freelance"
         ],
@@ -3215,13 +3215,13 @@
         ],
         "operationId": "finalizarViaje",
         "summary": "Pasar el viaje a finalizado",
-        "description": "**Roles:** admin, dueño, empleado, freelance.\n\n**Visibilidad:** freelance, solo lo propio (DEC-0008).\n\n**Escritura:** el responsable del registro, o admin o dueño (DEC-0005).\n\n**Casos de uso:** CU-08.",
+        "description": "**Roles:** admin, dueno, empleado, freelance.\n\n**Visibilidad:** freelance, solo lo propio (DEC-0008).\n\n**Escritura:** el responsable del registro, o admin o dueño (DEC-0005).\n\n**Casos de uso:** CU-08.",
         "x-casos-de-uso": [
           "CU-08"
         ],
         "x-roles": [
           "admin",
-          "dueño",
+          "dueno",
           "empleado",
           "freelance"
         ],
@@ -3276,13 +3276,13 @@
         ],
         "operationId": "corregirEstadoViaje",
         "summary": "Volver al estado anterior por un error de carga",
-        "description": "**Roles:** admin, dueño, empleado, freelance.\n\n**Visibilidad:** freelance, solo lo propio (DEC-0008).\n\n**Escritura:** el responsable del registro, o admin o dueño (DEC-0005).\n\n**Casos de uso:** CU-08.",
+        "description": "**Roles:** admin, dueno, empleado, freelance.\n\n**Visibilidad:** freelance, solo lo propio (DEC-0008).\n\n**Escritura:** el responsable del registro, o admin o dueño (DEC-0005).\n\n**Casos de uso:** CU-08.",
         "x-casos-de-uso": [
           "CU-08"
         ],
         "x-roles": [
           "admin",
-          "dueño",
+          "dueno",
           "empleado",
           "freelance"
         ],
@@ -3337,13 +3337,13 @@
         ],
         "operationId": "cancelarViaje",
         "summary": "Cancelar el viaje",
-        "description": "**Roles:** admin, dueño, empleado, freelance.\n\n**Visibilidad:** freelance, solo lo propio (DEC-0008).\n\n**Escritura:** el responsable del registro, o admin o dueño (DEC-0005).\n\n**Casos de uso:** CU-27.",
+        "description": "**Roles:** admin, dueno, empleado, freelance.\n\n**Visibilidad:** freelance, solo lo propio (DEC-0008).\n\n**Escritura:** el responsable del registro, o admin o dueño (DEC-0005).\n\n**Casos de uso:** CU-27.",
         "x-casos-de-uso": [
           "CU-27"
         ],
         "x-roles": [
           "admin",
-          "dueño",
+          "dueno",
           "empleado",
           "freelance"
         ],
@@ -3411,13 +3411,13 @@
         ],
         "operationId": "revertirCancelacion",
         "summary": "Revertir la cancelación",
-        "description": "**Roles:** admin, dueño, empleado, freelance.\n\n**Visibilidad:** freelance, solo lo propio (DEC-0008).\n\n**Escritura:** el responsable del registro, o admin o dueño (DEC-0005).\n\n**Casos de uso:** CU-27.",
+        "description": "**Roles:** admin, dueno, empleado, freelance.\n\n**Visibilidad:** freelance, solo lo propio (DEC-0008).\n\n**Escritura:** el responsable del registro, o admin o dueño (DEC-0005).\n\n**Casos de uso:** CU-27.",
         "x-casos-de-uso": [
           "CU-27"
         ],
         "x-roles": [
           "admin",
-          "dueño",
+          "dueno",
           "empleado",
           "freelance"
         ],
@@ -3472,13 +3472,13 @@
         ],
         "operationId": "obtenerItinerario",
         "summary": "Ver el itinerario de hoteles",
-        "description": "**Roles:** admin, dueño, empleado, freelance.\n\n**Visibilidad:** freelance, solo lo propio (DEC-0008).\n\n**Casos de uso:** CU-09.",
+        "description": "**Roles:** admin, dueno, empleado, freelance.\n\n**Visibilidad:** freelance, solo lo propio (DEC-0008).\n\n**Casos de uso:** CU-09.",
         "x-casos-de-uso": [
           "CU-09"
         ],
         "x-roles": [
           "admin",
-          "dueño",
+          "dueno",
           "empleado",
           "freelance"
         ],
@@ -3518,13 +3518,13 @@
         ],
         "operationId": "agregarTramo",
         "summary": "Agregar un hotel al itinerario",
-        "description": "**Roles:** admin, dueño, empleado, freelance.\n\n**Visibilidad:** freelance, solo lo propio (DEC-0008).\n\n**Escritura:** el responsable del registro, o admin o dueño (DEC-0005).\n\n**Casos de uso:** CU-09.",
+        "description": "**Roles:** admin, dueno, empleado, freelance.\n\n**Visibilidad:** freelance, solo lo propio (DEC-0008).\n\n**Escritura:** el responsable del registro, o admin o dueño (DEC-0005).\n\n**Casos de uso:** CU-09.",
         "x-casos-de-uso": [
           "CU-09"
         ],
         "x-roles": [
           "admin",
-          "dueño",
+          "dueno",
           "empleado",
           "freelance"
         ],
@@ -3592,13 +3592,13 @@
         ],
         "operationId": "editarTramo",
         "summary": "Editar un tramo o marcar pagado al proveedor",
-        "description": "**Roles:** admin, dueño, empleado, freelance.\n\n**Visibilidad:** freelance, solo lo propio (DEC-0008).\n\n**Escritura:** el responsable del registro, o admin o dueño (DEC-0005).\n\n**Casos de uso:** CU-09.",
+        "description": "**Roles:** admin, dueno, empleado, freelance.\n\n**Visibilidad:** freelance, solo lo propio (DEC-0008).\n\n**Escritura:** el responsable del registro, o admin o dueño (DEC-0005).\n\n**Casos de uso:** CU-09.",
         "x-casos-de-uso": [
           "CU-09"
         ],
         "x-roles": [
           "admin",
-          "dueño",
+          "dueno",
           "empleado",
           "freelance"
         ],
@@ -3664,13 +3664,13 @@
         ],
         "operationId": "quitarTramo",
         "summary": "Quitar un hotel del itinerario",
-        "description": "**Roles:** admin, dueño, empleado, freelance.\n\n**Visibilidad:** freelance, solo lo propio (DEC-0008).\n\n**Escritura:** el responsable del registro, o admin o dueño (DEC-0005).\n\n**Casos de uso:** CU-09.",
+        "description": "**Roles:** admin, dueno, empleado, freelance.\n\n**Visibilidad:** freelance, solo lo propio (DEC-0008).\n\n**Escritura:** el responsable del registro, o admin o dueño (DEC-0005).\n\n**Casos de uso:** CU-09.",
         "x-casos-de-uso": [
           "CU-09"
         ],
         "x-roles": [
           "admin",
-          "dueño",
+          "dueno",
           "empleado",
           "freelance"
         ],
@@ -3708,13 +3708,13 @@
         ],
         "operationId": "registrarEconomia",
         "summary": "Registrar la economía del viaje",
-        "description": "**Roles:** admin, dueño, empleado, freelance.\n\n**Visibilidad:** freelance, solo lo propio (DEC-0008).\n\n**Escritura:** el responsable del registro, o admin o dueño (DEC-0005).\n\n**Casos de uso:** CU-10.",
+        "description": "**Roles:** admin, dueno, empleado, freelance.\n\n**Visibilidad:** freelance, solo lo propio (DEC-0008).\n\n**Escritura:** el responsable del registro, o admin o dueño (DEC-0005).\n\n**Casos de uso:** CU-10.",
         "x-casos-de-uso": [
           "CU-10"
         ],
         "x-roles": [
           "admin",
-          "dueño",
+          "dueno",
           "empleado",
           "freelance"
         ],
@@ -3782,14 +3782,14 @@
         ],
         "operationId": "listarPagos",
         "summary": "Ver el plan de pagos y su checklist",
-        "description": "**Roles:** admin, dueño, empleado, freelance.\n\n**Visibilidad:** freelance, solo lo propio (DEC-0008).\n\n**Casos de uso:** CU-11, CU-12.",
+        "description": "**Roles:** admin, dueno, empleado, freelance.\n\n**Visibilidad:** freelance, solo lo propio (DEC-0008).\n\n**Casos de uso:** CU-11, CU-12.",
         "x-casos-de-uso": [
           "CU-11",
           "CU-12"
         ],
         "x-roles": [
           "admin",
-          "dueño",
+          "dueno",
           "empleado",
           "freelance"
         ],
@@ -3832,13 +3832,13 @@
         ],
         "operationId": "definirPlanDePagos",
         "summary": "Definir o rebalancear el plan de pagos",
-        "description": "**Roles:** admin, dueño, empleado, freelance.\n\n**Visibilidad:** freelance, solo lo propio (DEC-0008).\n\n**Escritura:** el responsable del registro, o admin o dueño (DEC-0005).\n\n**Casos de uso:** CU-11.",
+        "description": "**Roles:** admin, dueno, empleado, freelance.\n\n**Visibilidad:** freelance, solo lo propio (DEC-0008).\n\n**Escritura:** el responsable del registro, o admin o dueño (DEC-0005).\n\n**Casos de uso:** CU-11.",
         "x-casos-de-uso": [
           "CU-11"
         ],
         "x-roles": [
           "admin",
-          "dueño",
+          "dueno",
           "empleado",
           "freelance"
         ],
@@ -3906,13 +3906,13 @@
         ],
         "operationId": "reprogramarPago",
         "summary": "Reprogramar el vencimiento de un pago",
-        "description": "**Roles:** admin, dueño, empleado, freelance.\n\n**Visibilidad:** freelance, solo lo propio (DEC-0008).\n\n**Escritura:** el responsable del registro, o admin o dueño (DEC-0005).\n\n**Casos de uso:** CU-11.",
+        "description": "**Roles:** admin, dueno, empleado, freelance.\n\n**Visibilidad:** freelance, solo lo propio (DEC-0008).\n\n**Escritura:** el responsable del registro, o admin o dueño (DEC-0005).\n\n**Casos de uso:** CU-11.",
         "x-casos-de-uso": [
           "CU-11"
         ],
         "x-roles": [
           "admin",
-          "dueño",
+          "dueno",
           "empleado",
           "freelance"
         ],
@@ -3980,13 +3980,13 @@
         ],
         "operationId": "anularPago",
         "summary": "Anular un pago (baja lógica)",
-        "description": "**Roles:** admin, dueño, empleado, freelance.\n\n**Visibilidad:** freelance, solo lo propio (DEC-0008).\n\n**Escritura:** el responsable del registro, o admin o dueño (DEC-0005).\n\n**Casos de uso:** CU-11.",
+        "description": "**Roles:** admin, dueno, empleado, freelance.\n\n**Visibilidad:** freelance, solo lo propio (DEC-0008).\n\n**Escritura:** el responsable del registro, o admin o dueño (DEC-0005).\n\n**Casos de uso:** CU-11.",
         "x-casos-de-uso": [
           "CU-11"
         ],
         "x-roles": [
           "admin",
-          "dueño",
+          "dueno",
           "empleado",
           "freelance"
         ],
@@ -4041,13 +4041,13 @@
         ],
         "operationId": "dividirPago",
         "summary": "Dividir un pago para cobrar una parte",
-        "description": "**Roles:** admin, dueño, empleado, freelance.\n\n**Visibilidad:** freelance, solo lo propio (DEC-0008).\n\n**Escritura:** el responsable del registro, o admin o dueño (DEC-0005).\n\n**Casos de uso:** CU-11.",
+        "description": "**Roles:** admin, dueno, empleado, freelance.\n\n**Visibilidad:** freelance, solo lo propio (DEC-0008).\n\n**Escritura:** el responsable del registro, o admin o dueño (DEC-0005).\n\n**Casos de uso:** CU-11.",
         "x-casos-de-uso": [
           "CU-11"
         ],
         "x-roles": [
           "admin",
-          "dueño",
+          "dueno",
           "empleado",
           "freelance"
         ],
@@ -4127,13 +4127,13 @@
         ],
         "operationId": "registrarCobro",
         "summary": "Registrar el cobro de un pago",
-        "description": "**Roles:** admin, dueño, empleado, freelance.\n\n**Visibilidad:** freelance, solo lo propio (DEC-0008).\n\n**Escritura:** el responsable del registro, o admin o dueño (DEC-0005).\n\n**Casos de uso:** CU-12.",
+        "description": "**Roles:** admin, dueno, empleado, freelance.\n\n**Visibilidad:** freelance, solo lo propio (DEC-0008).\n\n**Escritura:** el responsable del registro, o admin o dueño (DEC-0005).\n\n**Casos de uso:** CU-12.",
         "x-casos-de-uso": [
           "CU-12"
         ],
         "x-roles": [
           "admin",
-          "dueño",
+          "dueno",
           "empleado",
           "freelance"
         ],
@@ -4208,13 +4208,13 @@
         ],
         "operationId": "revertirCobro",
         "summary": "Revertir un cobro cargado por error",
-        "description": "**Roles:** admin, dueño, empleado, freelance.\n\n**Visibilidad:** freelance, solo lo propio (DEC-0008).\n\n**Escritura:** el responsable del registro, o admin o dueño (DEC-0005).\n\n**Casos de uso:** CU-12.",
+        "description": "**Roles:** admin, dueno, empleado, freelance.\n\n**Visibilidad:** freelance, solo lo propio (DEC-0008).\n\n**Escritura:** el responsable del registro, o admin o dueño (DEC-0005).\n\n**Casos de uso:** CU-12.",
         "x-casos-de-uso": [
           "CU-12"
         ],
         "x-roles": [
           "admin",
-          "dueño",
+          "dueno",
           "empleado",
           "freelance"
         ],
@@ -4269,14 +4269,14 @@
         ],
         "operationId": "listarAlertas",
         "summary": "Ver la agenda de alertas",
-        "description": "**Roles:** admin, dueño, empleado, freelance.\n\n**Casos de uso:** CU-14, CU-30.",
+        "description": "**Roles:** admin, dueno, empleado, freelance.\n\n**Casos de uso:** CU-14, CU-30.",
         "x-casos-de-uso": [
           "CU-14",
           "CU-30"
         ],
         "x-roles": [
           "admin",
-          "dueño",
+          "dueno",
           "empleado",
           "freelance"
         ],
@@ -4375,13 +4375,13 @@
         ],
         "operationId": "crearRecordatorio",
         "summary": "Crear un recordatorio manual",
-        "description": "**Roles:** admin, dueño, empleado, freelance.\n\n**Casos de uso:** CU-28.",
+        "description": "**Roles:** admin, dueno, empleado, freelance.\n\n**Casos de uso:** CU-28.",
         "x-casos-de-uso": [
           "CU-28"
         ],
         "x-roles": [
           "admin",
-          "dueño",
+          "dueno",
           "empleado",
           "freelance"
         ],
@@ -4429,13 +4429,13 @@
         ],
         "operationId": "verProgresoDelDia",
         "summary": "Ver el progreso del día de la agenda",
-        "description": "**Roles:** admin, dueño, empleado, freelance.\n\n**Casos de uso:** CU-14.",
+        "description": "**Roles:** admin, dueno, empleado, freelance.\n\n**Casos de uso:** CU-14.",
         "x-casos-de-uso": [
           "CU-14"
         ],
         "x-roles": [
           "admin",
-          "dueño",
+          "dueno",
           "empleado",
           "freelance"
         ],
@@ -4463,13 +4463,13 @@
         ],
         "operationId": "obtenerAlerta",
         "summary": "Ver una alerta",
-        "description": "**Roles:** admin, dueño, empleado, freelance.\n\n**Casos de uso:** CU-14.",
+        "description": "**Roles:** admin, dueno, empleado, freelance.\n\n**Casos de uso:** CU-14.",
         "x-casos-de-uso": [
           "CU-14"
         ],
         "x-roles": [
           "admin",
-          "dueño",
+          "dueno",
           "empleado",
           "freelance"
         ],
@@ -4509,13 +4509,13 @@
         ],
         "operationId": "editarRecordatorio",
         "summary": "Editar fecha o descripción de un recordatorio",
-        "description": "**Roles:** admin, dueño, empleado, freelance.\n\n**Escritura:** el responsable del registro, o admin o dueño (DEC-0005).\n\n**Casos de uso:** CU-28.",
+        "description": "**Roles:** admin, dueno, empleado, freelance.\n\n**Escritura:** el responsable del registro, o admin o dueño (DEC-0005).\n\n**Casos de uso:** CU-28.",
         "x-casos-de-uso": [
           "CU-28"
         ],
         "x-roles": [
           "admin",
-          "dueño",
+          "dueno",
           "empleado",
           "freelance"
         ],
@@ -4583,13 +4583,13 @@
         ],
         "operationId": "marcarAlertaVista",
         "summary": "Marcar una alerta como vista",
-        "description": "**Roles:** admin, dueño, empleado, freelance.\n\n**Escritura:** el responsable del registro, o admin o dueño (DEC-0005).\n\n**Casos de uso:** CU-14.",
+        "description": "**Roles:** admin, dueno, empleado, freelance.\n\n**Escritura:** el responsable del registro, o admin o dueño (DEC-0005).\n\n**Casos de uso:** CU-14.",
         "x-casos-de-uso": [
           "CU-14"
         ],
         "x-roles": [
           "admin",
-          "dueño",
+          "dueno",
           "empleado",
           "freelance"
         ],
@@ -4644,13 +4644,13 @@
         ],
         "operationId": "resolverAlerta",
         "summary": "Resolver una alerta",
-        "description": "**Roles:** admin, dueño, empleado, freelance.\n\n**Escritura:** el responsable del registro, o admin o dueño (DEC-0005).\n\n**Casos de uso:** CU-14.",
+        "description": "**Roles:** admin, dueno, empleado, freelance.\n\n**Escritura:** el responsable del registro, o admin o dueño (DEC-0005).\n\n**Casos de uso:** CU-14.",
         "x-casos-de-uso": [
           "CU-14"
         ],
         "x-roles": [
           "admin",
-          "dueño",
+          "dueno",
           "empleado",
           "freelance"
         ],
@@ -4705,14 +4705,14 @@
         ],
         "operationId": "posponerAlerta",
         "summary": "Posponer una alerta",
-        "description": "**Roles:** admin, dueño, empleado, freelance.\n\n**Escritura:** el responsable del registro, o admin o dueño (DEC-0005).\n\n**Casos de uso:** CU-14, CU-30.",
+        "description": "**Roles:** admin, dueno, empleado, freelance.\n\n**Escritura:** el responsable del registro, o admin o dueño (DEC-0005).\n\n**Casos de uso:** CU-14, CU-30.",
         "x-casos-de-uso": [
           "CU-14",
           "CU-30"
         ],
         "x-roles": [
           "admin",
-          "dueño",
+          "dueno",
           "empleado",
           "freelance"
         ],
@@ -4787,13 +4787,13 @@
         ],
         "operationId": "buscarHoteles",
         "summary": "Buscar y recomendar hoteles",
-        "description": "**Roles:** admin, dueño, empleado, freelance.\n\n**Casos de uso:** CU-18.",
+        "description": "**Roles:** admin, dueno, empleado, freelance.\n\n**Casos de uso:** CU-18.",
         "x-casos-de-uso": [
           "CU-18"
         ],
         "x-roles": [
           "admin",
-          "dueño",
+          "dueno",
           "empleado",
           "freelance"
         ],
@@ -4910,13 +4910,13 @@
         ],
         "operationId": "crearHotel",
         "summary": "Dar de alta un hotel",
-        "description": "**Roles:** admin, dueño, empleado.\n\n**Casos de uso:** CU-16.",
+        "description": "**Roles:** admin, dueno, empleado.\n\n**Casos de uso:** CU-16.",
         "x-casos-de-uso": [
           "CU-16"
         ],
         "x-roles": [
           "admin",
-          "dueño",
+          "dueno",
           "empleado"
         ],
         "requestBody": {
@@ -4969,13 +4969,13 @@
         ],
         "operationId": "obtenerHotel",
         "summary": "Ver un hotel",
-        "description": "**Roles:** admin, dueño, empleado, freelance.\n\n**Casos de uso:** CU-18.",
+        "description": "**Roles:** admin, dueno, empleado, freelance.\n\n**Casos de uso:** CU-18.",
         "x-casos-de-uso": [
           "CU-18"
         ],
         "x-roles": [
           "admin",
-          "dueño",
+          "dueno",
           "empleado",
           "freelance"
         ],
@@ -5015,13 +5015,13 @@
         ],
         "operationId": "editarHotel",
         "summary": "Editar un hotel",
-        "description": "**Roles:** admin, dueño, empleado.\n\n**Casos de uso:** CU-16.",
+        "description": "**Roles:** admin, dueno, empleado.\n\n**Casos de uso:** CU-16.",
         "x-casos-de-uso": [
           "CU-16"
         ],
         "x-roles": [
           "admin",
-          "dueño",
+          "dueno",
           "empleado"
         ],
         "parameters": [
@@ -5078,13 +5078,13 @@
         ],
         "operationId": "cerrarHotel",
         "summary": "Dar de baja un hotel que cerró",
-        "description": "**Roles:** admin, dueño, empleado.\n\n**Casos de uso:** CU-16.",
+        "description": "**Roles:** admin, dueno, empleado.\n\n**Casos de uso:** CU-16.",
         "x-casos-de-uso": [
           "CU-16"
         ],
         "x-roles": [
           "admin",
-          "dueño",
+          "dueno",
           "empleado"
         ],
         "parameters": [
@@ -5128,13 +5128,13 @@
         ],
         "operationId": "listarResenas",
         "summary": "Ver las reseñas de un hotel",
-        "description": "**Roles:** admin, dueño, empleado, freelance.\n\n**Casos de uso:** CU-18.",
+        "description": "**Roles:** admin, dueno, empleado, freelance.\n\n**Casos de uso:** CU-18.",
         "x-casos-de-uso": [
           "CU-18"
         ],
         "x-roles": [
           "admin",
-          "dueño",
+          "dueno",
           "empleado",
           "freelance"
         ],
@@ -5210,13 +5210,13 @@
         ],
         "operationId": "registrarResena",
         "summary": "Registrar la reseña de un cliente",
-        "description": "**Roles:** admin, dueño, empleado.\n\n**Casos de uso:** CU-17.",
+        "description": "**Roles:** admin, dueno, empleado.\n\n**Casos de uso:** CU-17.",
         "x-casos-de-uso": [
           "CU-17"
         ],
         "x-roles": [
           "admin",
-          "dueño",
+          "dueno",
           "empleado"
         ],
         "parameters": [
@@ -5273,13 +5273,13 @@
         ],
         "operationId": "ocultarResena",
         "summary": "Eliminar una reseña (baja lógica)",
-        "description": "**Roles:** admin, dueño.\n\n**Casos de uso:** CU-29.",
+        "description": "**Roles:** admin, dueno.\n\n**Casos de uso:** CU-29.",
         "x-casos-de-uso": [
           "CU-29"
         ],
         "x-roles": [
           "admin",
-          "dueño"
+          "dueno"
         ],
         "parameters": [
           {
@@ -5335,13 +5335,13 @@
         ],
         "operationId": "restaurarResena",
         "summary": "Restaurar una reseña oculta",
-        "description": "**Roles:** admin, dueño.\n\n**Casos de uso:** CU-29.",
+        "description": "**Roles:** admin, dueno.\n\n**Casos de uso:** CU-29.",
         "x-casos-de-uso": [
           "CU-29"
         ],
         "x-roles": [
           "admin",
-          "dueño"
+          "dueno"
         ],
         "parameters": [
           {
@@ -5384,13 +5384,13 @@
         ],
         "operationId": "eliminarResenaFisicamente",
         "summary": "Eliminar una reseña físicamente (excepcional)",
-        "description": "**Roles:** admin, dueño.\n\n**Casos de uso:** CU-29.",
+        "description": "**Roles:** admin, dueno.\n\n**Casos de uso:** CU-29.",
         "x-casos-de-uso": [
           "CU-29"
         ],
         "x-roles": [
           "admin",
-          "dueño"
+          "dueno"
         ],
         "parameters": [
           {
@@ -5436,13 +5436,13 @@
         ],
         "operationId": "listarContenidos",
         "summary": "Ver el tablero y el calendario de contenido",
-        "description": "**Roles:** admin, dueño, empleado.\n\n**Capacidad:** acceso al módulo de redes (admin y dueño lo tienen por rol).\n\n**Casos de uso:** CU-19.",
+        "description": "**Roles:** admin, dueno, empleado.\n\n**Capacidad:** acceso al módulo de redes (admin y dueño lo tienen por rol).\n\n**Casos de uso:** CU-19.",
         "x-casos-de-uso": [
           "CU-19"
         ],
         "x-roles": [
           "admin",
-          "dueño",
+          "dueno",
           "empleado"
         ],
         "parameters": [
@@ -5540,14 +5540,14 @@
         ],
         "operationId": "crearContenido",
         "summary": "Crear una pieza de contenido",
-        "description": "**Roles:** admin, dueño, empleado.\n\n**Capacidad:** acceso al módulo de redes (admin y dueño lo tienen por rol).\n\n**Casos de uso:** CU-19, CU-20.",
+        "description": "**Roles:** admin, dueno, empleado.\n\n**Capacidad:** acceso al módulo de redes (admin y dueño lo tienen por rol).\n\n**Casos de uso:** CU-19, CU-20.",
         "x-casos-de-uso": [
           "CU-19",
           "CU-20"
         ],
         "x-roles": [
           "admin",
-          "dueño",
+          "dueno",
           "empleado"
         ],
         "requestBody": {
@@ -5590,13 +5590,13 @@
         ],
         "operationId": "obtenerContenido",
         "summary": "Ver una pieza de contenido",
-        "description": "**Roles:** admin, dueño, empleado.\n\n**Capacidad:** acceso al módulo de redes (admin y dueño lo tienen por rol).\n\n**Casos de uso:** CU-19.",
+        "description": "**Roles:** admin, dueno, empleado.\n\n**Capacidad:** acceso al módulo de redes (admin y dueño lo tienen por rol).\n\n**Casos de uso:** CU-19.",
         "x-casos-de-uso": [
           "CU-19"
         ],
         "x-roles": [
           "admin",
-          "dueño",
+          "dueno",
           "empleado"
         ],
         "parameters": [
@@ -5638,14 +5638,14 @@
         ],
         "operationId": "editarContenido",
         "summary": "Editar, reprogramar o mover una pieza en el tablero",
-        "description": "**Roles:** admin, dueño, empleado.\n\n**Capacidad:** acceso al módulo de redes (admin y dueño lo tienen por rol).\n\n**Casos de uso:** CU-19, CU-20.",
+        "description": "**Roles:** admin, dueno, empleado.\n\n**Capacidad:** acceso al módulo de redes (admin y dueño lo tienen por rol).\n\n**Casos de uso:** CU-19, CU-20.",
         "x-casos-de-uso": [
           "CU-19",
           "CU-20"
         ],
         "x-roles": [
           "admin",
-          "dueño",
+          "dueno",
           "empleado"
         ],
         "parameters": [
@@ -5712,13 +5712,13 @@
         ],
         "operationId": "descartarContenido",
         "summary": "Descartar una pieza (baja lógica)",
-        "description": "**Roles:** admin, dueño, empleado.\n\n**Capacidad:** acceso al módulo de redes (admin y dueño lo tienen por rol).\n\n**Casos de uso:** CU-19.",
+        "description": "**Roles:** admin, dueno, empleado.\n\n**Capacidad:** acceso al módulo de redes (admin y dueño lo tienen por rol).\n\n**Casos de uso:** CU-19.",
         "x-casos-de-uso": [
           "CU-19"
         ],
         "x-roles": [
           "admin",
-          "dueño",
+          "dueno",
           "empleado"
         ],
         "parameters": [
@@ -5772,13 +5772,13 @@
         ],
         "operationId": "generarPropuestaIA",
         "summary": "Generar borradores de contenido con IA",
-        "description": "Una sola llamada a Claude Sonnet 5.5 con el tema, el canal y el tono indicados; no envía datos del negocio (clientes, catálogo ni ventas).\n\n**Roles:** admin, dueño, empleado.\n\n**Capacidad:** acceso al módulo de redes (admin y dueño lo tienen por rol).\n\n**Casos de uso:** CU-20.",
+        "description": "Una sola llamada a Claude Sonnet 5.5 con el tema, el canal y el tono indicados; no envía datos del negocio (clientes, catálogo ni ventas).\n\n**Roles:** admin, dueno, empleado.\n\n**Capacidad:** acceso al módulo de redes (admin y dueño lo tienen por rol).\n\n**Casos de uso:** CU-20.",
         "x-casos-de-uso": [
           "CU-20"
         ],
         "x-roles": [
           "admin",
-          "dueño",
+          "dueno",
           "empleado"
         ],
         "requestBody": {
@@ -5831,13 +5831,13 @@
         ],
         "operationId": "verDashboard",
         "summary": "Ver indicadores y embudo de ventas",
-        "description": "admin y dueño ven toda la agencia; empleado y freelance ven lo suyo (CU-21 A1, DEC-0008).\n\n**Roles:** admin, dueño, empleado, freelance.\n\n**Casos de uso:** CU-21.",
+        "description": "admin y dueño ven toda la agencia; empleado y freelance ven lo suyo (CU-21 A1, DEC-0008).\n\n**Roles:** admin, dueno, empleado, freelance.\n\n**Casos de uso:** CU-21.",
         "x-casos-de-uso": [
           "CU-21"
         ],
         "x-roles": [
           "admin",
-          "dueño",
+          "dueno",
           "empleado",
           "freelance"
         ],
@@ -5876,13 +5876,13 @@
         ],
         "operationId": "listarReportes",
         "summary": "Ver el catálogo de reportes",
-        "description": "**Roles:** admin, dueño.\n\n**Casos de uso:** CU-22.",
+        "description": "**Roles:** admin, dueno.\n\n**Casos de uso:** CU-22.",
         "x-casos-de-uso": [
           "CU-22"
         ],
         "x-roles": [
           "admin",
-          "dueño"
+          "dueno"
         ],
         "responses": {
           "200": {
@@ -5911,13 +5911,13 @@
         ],
         "operationId": "generarReporte",
         "summary": "Generar un reporte del período",
-        "description": "**Roles:** admin, dueño.\n\n**Casos de uso:** CU-22.",
+        "description": "**Roles:** admin, dueno.\n\n**Casos de uso:** CU-22.",
         "x-casos-de-uso": [
           "CU-22"
         ],
         "x-roles": [
           "admin",
-          "dueño"
+          "dueno"
         ],
         "parameters": [
           {
@@ -6010,13 +6010,13 @@
         ],
         "operationId": "verCalendario",
         "summary": "Ver viajes y vencimientos en el calendario",
-        "description": "**Roles:** admin, dueño, empleado, freelance.\n\n**Visibilidad:** freelance, solo lo propio (DEC-0008).\n\n**Casos de uso:** CU-23.",
+        "description": "**Roles:** admin, dueno, empleado, freelance.\n\n**Visibilidad:** freelance, solo lo propio (DEC-0008).\n\n**Casos de uso:** CU-23.",
         "x-casos-de-uso": [
           "CU-23"
         ],
         "x-roles": [
           "admin",
-          "dueño",
+          "dueno",
           "empleado",
           "freelance"
         ],
@@ -6255,7 +6255,7 @@
       "TipoPago": {
         "type": "string",
         "enum": [
-          "seña",
+          "sena",
           "cuota",
           "saldo"
         ]
@@ -6288,7 +6288,7 @@
           "formulario",
           "salida",
           "insistencia",
-          "reseña",
+          "resena",
           "manual",
           "recontacto",
           "viaje"
@@ -6307,7 +6307,7 @@
         "enum": [
           "admin",
           "empleado",
-          "dueño",
+          "dueno",
           "freelance"
         ]
       },

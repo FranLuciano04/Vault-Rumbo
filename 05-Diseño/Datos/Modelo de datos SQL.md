@@ -34,7 +34,7 @@ tags:: #tipo/analisis #estado/borrador #pc/pc1
 - Las **transiciones de estado** de los `EST-*` viven en `negocio/estados/`.
 
 ## Criterios de escritura
-- Los **valores de los enum** se copian del [[DGM-ER]], que escribe `en_gestion`, `vacunacion` y `en_produccion` sin tilde, pero conserva la ñ en `dueño`, `seña` y `reseña`. El [[DGM — Diagrama de clases]] sí lleva tildes (`en_gestión`, `vacunación`, `en_producción`). PostgreSQL acepta ambas formas; el script sigue al ER por ser la fuente del esquema.
+- Los **valores de los enum** se copian del [[DGM-ER]] y van en **ASCII, sin tildes ni ñ** (`en_gestion`, `vacunacion`, `en_produccion`, `dueno`, `sena`, `resena`), igual que en el contrato OpenAPI. El [[DGM — Diagrama de clases]] y los CU los escriben en castellano (`en_gestión`, `dueño`, `seña`, `reseña`). Criterio acordado el 30/09/26 (Francisco y Nahuel): hasta ese día el ER y el script conservaban la ñ en `dueño`, `seña` y `reseña`.
 - Largos de `varchar` y precisión de `numeric` (`numeric(14,2)` para importes y `numeric(14,4)` para el tipo de cambio) son decisiones de implementación, no datos del negocio.
 
 ## Validación

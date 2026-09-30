@@ -3,9 +3,9 @@
 // El JSON no se edita a mano: se cambia este archivo y se vuelve a generar. Ver la nota «Contrato de la API (OpenAPI)».
 const fs = require('fs');
 
-const TODOS = ['admin', 'dueño', 'empleado', 'freelance'];
-const INTERNOS = ['admin', 'dueño', 'empleado'];
-const GESTION = ['admin', 'dueño'];
+const TODOS = ['admin', 'dueno', 'empleado', 'freelance'];
+const INTERNOS = ['admin', 'dueno', 'empleado'];
+const GESTION = ['admin', 'dueno'];
 
 // ---------------------------------------------------------------------------
 // Esquemas
@@ -38,13 +38,13 @@ const enums = {
   CategoriaViaje: en(['grupal', 'individual']),
   EstadoViaje: en(['reservado', 'vendido', 'confirmado', 'en_curso', 'finalizado', 'cancelado']),
   TipoComision: en(['importe', 'porcentaje'], 'El porcentaje se aplica sobre la ganancia (DEC-0007).'),
-  TipoPago: en(['seña', 'cuota', 'saldo']),
+  TipoPago: en(['sena', 'cuota', 'saldo']),
   EstadoPago: en(['pendiente', 'pagado', 'vencido', 'anulado']),
   FormaPago: en(['efectivo', 'transferencia', 'tarjeta_credito', 'tarjeta_debito', 'cheque', 'deposito'],
     'Las billeteras virtuales se registran como transferencia.'),
-  TipoAlerta: en(['pago', 'formulario', 'salida', 'insistencia', 'reseña', 'manual', 'recontacto', 'viaje']),
+  TipoAlerta: en(['pago', 'formulario', 'salida', 'insistencia', 'resena', 'manual', 'recontacto', 'viaje']),
   EstadoAlerta: en(['pendiente', 'vista', 'resuelta']),
-  RolUsuario: en(['admin', 'empleado', 'dueño', 'freelance']),
+  RolUsuario: en(['admin', 'empleado', 'dueno', 'freelance']),
 };
 
 const auditoria = obj({

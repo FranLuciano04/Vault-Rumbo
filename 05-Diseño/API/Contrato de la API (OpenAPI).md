@@ -39,11 +39,11 @@ node "05-Diseño/API/generar-openapi.js" "05-Diseño/API/openapi.json"
 ## Autenticación y roles
 - `POST /auth/login` es la única operación pública: recibe email y contraseña y devuelve un **token Bearer** que firma `core.seguridad` ([[DEC-0008 Autenticación propia y rol de vendedor freelance|DEC-0008]]). El resto exige el token.
 - **Roles por operación**, derivados de los actores de cada CU y de DEC-0005/0008:
-  - **todos** (`admin`, `dueño`, `empleado`, `freelance`): la operación diaria (clientes, oportunidades, cotizaciones, viajes, pagos, alertas, calendario y dashboard propio) y la **lectura** de los catálogos.
-  - **todos menos freelance:** el alta y la edición de hoteles, las reseñas y el módulo de redes. Redes exige además la **capacidad** `acceso_redes`, salvo para `admin` y `dueño`.
+  - **todos** (`admin`, `dueno`, `empleado`, `freelance`; los valores de los enum van en ASCII, como en el [[DGM-ER]]): la operación diaria (clientes, oportunidades, cotizaciones, viajes, pagos, alertas, calendario y dashboard propio) y la **lectura** de los catálogos.
+  - **todos menos freelance:** el alta y la edición de hoteles, las reseñas y el módulo de redes. Redes exige además la **capacidad** `acceso_redes`, salvo para `admin` y `dueno`.
   - **admin y dueño:** usuarios, parámetros, comisiones por defecto, ABM de destinos, requisitos y operadores, moderación de reseñas y reportes.
 - **Visibilidad por fila:** el `freelance` solo ve lo propio. Si pide un registro ajeno, la API responde **`404`** y no `403`, para no revelar que existe.
-- **Escritura:** en oportunidades, viajes, pagos y alertas modifica el responsable del registro, o `admin` y `dueño` ([[DEC-0005 Autenticación y modelo de roles|DEC-0005]]); si no, **`403`**.
+- **Escritura:** en oportunidades, viajes, pagos y alertas modifica el responsable del registro, o `admin` y `dueno` ([[DEC-0005 Autenticación y modelo de roles|DEC-0005]]); si no, **`403`**.
 
 ## Errores
 Todos los errores usan `application/problem+json` (RFC 9457) con `title`, `status` y `detail`, y la lista `errores` por campo en las validaciones.
