@@ -60,6 +60,7 @@ printf 'Prototipo navegable en Figma:\r\nhttps://www.figma.com/design/5rq8HOlZQ3
 cp "$ROOT/05-Diseño/API/openapi.json" "$OUT/06 - API/"
 cp "$ROOT/05-Diseño/Datos/rumbo.sql"  "$OUT/07 - Base de datos/"
 cp "$ROOT/CLAUDE.md"                   "$OUT/08 - Agentes/"
+cp "$ROOT/.claude/skills/gestionar-skills/SKILL.md" "$OUT/08 - Agentes/gestionar-skills — SKILL.md"
 
 # --- PDF del documento principal (Word) ---------------------------------------------------------------
 if command -v powershell.exe >/dev/null 2>&1; then

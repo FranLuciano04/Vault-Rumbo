@@ -246,8 +246,6 @@ MVC="$ROOT/05-Diseño/Arquitectura/ARQ — MVC y modelo conceptual por capa.md"
     | omitir "Impacto|Decisores|Vínculo" | sed -E 's/\| ✅ \|/| Sí |/g; s/\| ❌ \|/| No |/g' | figuras | bajar 1
   nota "$ROOT/05-Diseño/IA — Agentes del proyecto.md" | titulo "Agentes de IA del proyecto" | omitir "IA dentro del producto" \
     | figuras "Ciclo de trabajo de una sesión con el agente.|IA-ciclo-de-trabajo.png|55%" | bajar 1
-  nota "$ROOT/05-Diseño/IA — Prompt de CU-20.md" | titulo "Prompt de la IA del producto (CU-20)" \
-    | sed 's/ En PC2 el prompt vive, versionado, en `negocio\/prompts\/contenido_red.py` (ARQ — Vista general)\.//' | figuras | bajar 1
   cat "$T/75 - Prompts de los agentes.md"
 } > "$BUILD/70.md"
 

@@ -417,35 +417,33 @@ function stat(s, x, y, w, value, label, color = C.primary, lcolor = C.muted) {
 
 // N2 · Prompts
 {
-  const s = base('Los prompts', { section: '7 · Modelos y agentes de IA', presenter: 'Francisco' });
-  card(s, M, 1.6, 6.3, 5.1, C.navy);
-  s.addText('Prompt de CU-20 · IA del producto', { x: M + 0.3, y: 1.8, w: 5.7, h: 0.4, fontFace: F, fontSize: 16, bold: true, color: C.light, margin: 0, isTextBox: true });
-  s.addText([
-    'Sos redactor de contenido para redes sociales de una',
-    'agencia de turismo argentina. [...]',
-    'Proponé UN borrador a partir del tema, el canal y el tono.',
-    '- Usá solo la información del pedido: no inventes',
-    '  precios, fechas ni cupos. Si falta un dato, dejá',
-    '  un marcador: [precio], [fecha de salida].',
-    '- No incluyas datos personales de clientes.',
-    '- Adaptá el formato al canal:',
-    '  instagram: hasta 120 palabras, llamada a la',
-    '    acción y entre 3 y 6 hashtags.',
-    '  tiktok: guion de 15 a 30 segundos en escenas.',
-    '  whatsapp_ventas: hasta 60 palabras, sin',
-    '    hashtags, con una pregunta final.',
-    '- No publicás nada: una persona revisa y publica.',
-  ].join('\n'), { x: M + 0.3, y: 2.3, w: 5.8, h: 3.4, fontFace: 'Courier New', fontSize: 11.5, color: C.white, margin: 0, valign: 'top', isTextBox: true });
-  s.addText('Tema: {tema} · Canal: {canal} · Tono: {tono}', { x: M + 0.3, y: 5.8, w: 5.8, h: 0.5, fontFace: 'Courier New', fontSize: 11.5, bold: true, color: C.amber, margin: 0, isTextBox: true });
-  card(s, 7.2, 1.6, 5.53, 5.1);
-  s.addText('CLAUDE.md · prompt del agente de desarrollo', { x: 7.5, y: 1.8, w: 5.0, h: 0.4, fontFace: F, fontSize: 16, bold: true, color: C.navy, margin: 0, isTextBox: true });
-  bullets(s, [
-    'Claude Code lo lee al empezar cada sesión: es su prompt de sistema para este proyecto.',
-    'Cómo entrar en contexto: identificar a la persona, traer el trabajo del equipo y leer el estado.',
-    'Reglas: respetar el alcance, no inventar datos del negocio y no aprobar nada sin el equipo.',
-    'Cómo cerrar: registrar en la bitácora, hacer commit con la identidad de la persona y subir.',
-  ], 7.5, 2.35, 5.0, 4.1, 14);
-  s.addNotes('El prompt de CU-20 es una propuesta del equipo (el documento lo tiene completo, con un ejemplo). CLAUDE.md completo va en la carpeta de entrega.');
+  const s = base('Los prompts con que construimos Rumbo', { section: '7 · Modelos y agentes de IA', presenter: 'Francisco' });
+  const cols = [
+    ['1 · Prompt de sistema', 'CLAUDE.md', [
+      'El agente lo lee al empezar cada sesión.',
+      'Cómo entrar en contexto: identificar a la persona, traer el trabajo del equipo y leer el estado.',
+      'Reglas: respetar el alcance, no inventar datos del negocio y no aprobar nada sin el equipo.',
+      'Cómo cerrar: bitácora, commit con la identidad de la persona y subir.',
+    ]],
+    ['2 · Prompt de cada sesión', '«Hola, entrá en contexto.»', [
+      'Con CLAUDE.md alcanza un pedido corto: el agente aplica el protocolo solo.',
+      'Después, cada pedido describe la tarea: «revisemos y decime qué falta».',
+      'Fuera de Claude Code, un prompt inicial le indica qué leer y qué no formalizar.',
+    ]],
+    ['3 · Prompts reutilizables', 'Skills del proyecto', [
+      'Un procedimiento que se repite se escribe una vez como skill, versionada en el repositorio.',
+      'Ejemplo: gestionar-skills, para incorporar una skill nueva con su origen, versión y licencia.',
+      'Mismo pedido, mismo resultado, para cualquier integrante.',
+    ]],
+  ];
+  cols.forEach(([t, sub, items], i) => {
+    const x = M + i * 4.11;
+    card(s, x, 1.6, 3.9, 4.3, i === 0 ? C.navy : C.white);
+    s.addText(t, { x: x + 0.25, y: 1.8, w: 3.4, h: 0.35, fontFace: F, fontSize: 13, bold: true, color: i === 0 ? C.light : C.mid, margin: 0, isTextBox: true });
+    s.addText(sub, { x: x + 0.25, y: 2.15, w: 3.4, h: 0.5, fontFace: i === 1 ? F : 'Courier New', fontSize: i === 1 ? 17 : 18, bold: true, italic: i === 1, color: i === 0 ? C.white : C.navy, margin: 0, isTextBox: true });
+    bullets(s, items, x + 0.25, 2.85, 3.4, 3.6, 13.5, i === 0 ? C.white : C.text);
+  });
+  s.addNotes('El punto de control pide los prompts usados para construir el producto, que se desarrolla guiado con IA. CLAUDE.md completo y la skill van en la carpeta de entrega (08 · Agentes).');
 }
 
 // N3 · Mermaid

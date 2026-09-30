@@ -12,4 +12,4 @@ Junto con este documento se entrega una carpeta con todo el material del Punto d
 | **05 · Prototipo** | Las pantallas del prototipo navegable y el enlace al archivo de Figma. |
 | **06 · API** | El contrato OpenAPI completo, `openapi.json`. |
 | **07 · Base de datos** | El script SQL completo, `rumbo.sql`. |
-| **08 · Agentes** | `CLAUDE.md`, las instrucciones del agente de desarrollo. |
+| **08 · Agentes** | Los prompts con los que se construyó el producto: `CLAUDE.md`, el prompt de sistema del agente de desarrollo, y la skill del proyecto `gestionar-skills`. |

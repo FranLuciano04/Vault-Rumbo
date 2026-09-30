@@ -1,15 +1,17 @@
 ---
 tipo: analisis
-estado: en-revision
+estado: borrador
 modulo: [redes]
 responsable: Francisco
-pc: pc1
+pc: pc2
 actualizado: 30/09/26
 ---
 # IA — Prompt de CU-20
 
-tags:: #tipo/analisis #estado/en-revision #pc/pc1
+tags:: #tipo/analisis #estado/borrador #pc/pc2
 
+> ⏭️ **Fuera del PC1 (sync del 30/09/26):** el equipo decidió no incluirlo en la entrega, porque lo que pide el punto de control son los prompts usados para **construir** el producto guiado con IA (ver [[IA — Agentes del proyecto]] y `CLAUDE.md`). Queda como borrador para programar CU-20 en PC2.
+>
 > Prompt de ejemplo de la única función con IA del producto ([[CU-20 Generar propuesta de contenido con IA|CU-20]]), pedido en la sync del 30/09 para la sección «Selección de modelos y agentes de IA, con sus prompts» del documento del PC1. Es una **propuesta**: la redactó Francisco y la tiene que aprobar el equipo. El modelo y sus límites están decididos en [[DEC-0012 Modelo de IA del producto]]. En PC2 el prompt vive, versionado, en `negocio/prompts/contenido_red.py` ([[ARQ — Vista general]]).
 
 ## Cómo se arma el pedido
