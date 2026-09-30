@@ -1,24 +1,25 @@
 ---
 tipo: diagrama
-estado: en-revision
+estado: formalizado
 modulo: []
 responsable: Guardián del dominio
 pc: pc1
-actualizado: 21/09/26
+actualizado: 30/09/26
+fecha_aprobacion: 30/09/26
 ---
 # MOC — Modelo de dominio
 
-tags:: #tipo/diagrama #tipo/modulo #estado/en-revision #pc/pc1
+tags:: #tipo/diagrama #tipo/modulo #estado/formalizado #pc/pc1
 
 > Mapa de las **13 entidades** y su diagrama de clases. Es la *salida*; la verdad de cada entidad vive en su nota (source). Al cambiar una entidad, actualizar este bloque. Un solo editor por vez (ver [[Guía del Vault#3 · Workflow colaborativo]]).
 
 ## Entidades
-[[Usuario]] · [[Cliente]] · [[Oportunidad]] · [[Viaje]] · [[Pago]] · [[Hotel]] · [[Reseña]] · [[Alerta]] · [[Cotización]] · [[ContenidoRed]] · [[Destino]] · [[RequisitoDestino]] · [[Operador]] ⚠️(nueva 17/09, [[DEC-0009 Operador-Proveedor como entidad de catálogo]])
+[[Usuario]] · [[Cliente]] · [[Oportunidad]] · [[Viaje]] · [[Pago]] · [[Hotel]] · [[Reseña]] · [[Alerta]] · [[Cotización]] · [[ContenidoRed]] · [[Destino]] · [[RequisitoDestino]] · [[Operador]] ([[DEC-0009 Operador-Proveedor como entidad de catálogo]])
 
 ## Diagrama de clases
 - Ver [[DGM — Diagrama de clases]] (vista principal + las 20 enumeraciones). **El borrador que vivía acá se movió a esa nota el 21/09**, para que este MOC quede corto y haya una sola fuente del diagrama.
 - Cambios respecto del borrador: los FK dejan de listarse como atributos (los expresan las asociaciones), las enumeraciones pasan a clases `<<enumeration>>` y `viaje_hotel` se promueve a la clase asociativa `ViajeHotel`. Detalle y motivo en la sección *Convenciones de lectura* de esa nota.
-- Las **4 incoherencias detectadas las resolvió Nahuel el 21/09** (ratificadas en la sync del 29/09) y ya están propagadas a [[DGM-ER]] y a la nota de [[Viaje]]: `Viaje`–`Pago` es **`1..*`** (todo viaje tiene al menos un pago: [[CU-07 Confirmar reserva]] incluye [[CU-11 Definir plan de cuotas|CU-11]]), `Viaje`–`Alerta` es **`0..1` → `0..*`**, el **origen de la `Alerta`** en el ER se modela con **cuatro FK nullable + CHECK** (no polimórfico), y `Cotización.items` **queda como atributo**, sin entidad propia.
+- Las **4 incoherencias detectadas las resolvió Nahuel el 21/09** (ratificadas en la sync del 29/09) y ya están propagadas a [[DGM-ER]] y a la nota de [[Viaje]]: `Viaje`–`Pago` es **`1..*`** (todo viaje tiene al menos un pago: [[CU-07 Confirmar reserva]] incluye [[CU-11 Definir plan de cuotas|CU-11]]), `Viaje`–`Alerta` es **`0..1` → `0..*`**, el **origen de la `Alerta`** en el ER se modela con **FK nullable + CHECK** (no polimórfico; eran cuatro y hoy son cinco, con el tramo del itinerario de [[DEC-0013 Datos que faltaban en el ER|DEC-0013]]), y `Cotización.items` **queda como atributo**, sin entidad propia.
 - ✅ El [[DGM-ER]] quedó **completo** el 21/09: atributos de las 14 tablas y las 4 relaciones que le faltaban (`USUARIO`–`ALERTA`, `USUARIO`–`CLIENTE`, `USUARIO`–`OPORTUNIDAD`, `DESTINO`–`REQUISITO_DESTINO`). Los dos diagramas usan el motor **ELK** (líneas rectas ortogonales).
 
 > Relación Viaje–Hotel (N:M) y objeto de la Reseña resueltos en [[DEC-0003 Relación Viaje–Hotel y Reseña]].
@@ -26,8 +27,9 @@ tags:: #tipo/diagrama #tipo/modulo #estado/en-revision #pc/pc1
 > [[Viaje]] gana el bloque económico (`moneda`, `costo`, `ganancia`, `margen`, `vendedor`, `comision_vendedor`) y FK `operador` — ver [[DEC-0007 Modelo económico — ganancia, margen y comisión de vendedor]] y [[DEC-0009 Operador-Proveedor como entidad de catálogo]] (sync 17/09).
 > **18/09 (entrevista grill):** se completaron los atributos del diagrama de clases para que quede coherente con las notas fuente ([[Pago]] con `forma_pago`/`moneda_pago`/`tipo_cambio`/`monto_cobrado`/estado `anulado`; [[Cliente]] con `contacto`/`preferencias`/`no_recontactar`; [[Reseña]], [[Cotización]], [[Alerta]] con sus atributos y FKs). `canal` de [[Oportunidad]] suma `presencial` y `segmento` de [[Cliente]] suma `pareja`.
 
-## Diagrama ER
-- Ver [[DGM-ER]] (modelo relacional para PostgreSQL).
+## Diagrama ER y modelo de datos SQL
+- Ver [[DGM-ER]] (modelo relacional para PostgreSQL). Desde [[DEC-0013 Datos que faltaban en el ER|DEC-0013]] (formalizada el 30/09) tiene 15 tablas: las 13 entidades, `viaje_hotel` y la tabla de parámetros `configuracion`. Los valores de los enum van en ASCII.
+- El script que lo implementa, validado en PostgreSQL 18, está en [[Modelo de datos SQL]].
 
 ## Imágenes exportadas
 Los 11 diagramas de dominio están exportados a PNG dentro de `03-Dominio/Diagramas/`: en `Clases/`, `DGM-clases.png` (vista principal) y `DGM-clases-enums-1..3.png` (las tres bandas de enumeraciones); en `DER/`, `DGM-ER.png`; y en `Estados/img/`, `EST-<Clase>.png` para los seis de estado. **La fuente sigue siendo el bloque Mermaid de cada nota**: si se cambia un diagrama, se regeneran todos con `bash "07-Entregables/build/render-diagramas-dominio.sh"`.
@@ -40,9 +42,9 @@ Especificaciones en `03-Dominio/Diagramas/Estados/` — **una nota por clase, au
 | [[Viaje]] | [[EST-Viaje]] | `reservado · vendido · confirmado · en curso · finalizado · cancelado` | ✅ 21/09 |
 | [[Oportunidad]] | [[EST-Oportunidad]] | `nueva · en_gestión · cotizada · ganada · perdida` | ✅ 21/09 |
 | [[Pago]] | [[EST-Pago]] | `pendiente · pagado · vencido · anulado` | ✅ 21/09 |
-| [[Cotización]] | [[EST-Cotización]] | `borrador · enviada · aceptada · rechazada · vencida` ⚠️nuevo | ✅ 21/09 |
+| [[Cotización]] | [[EST-Cotización]] | `borrador · enviada · aceptada · rechazada · vencida` | ✅ 21/09 |
 | [[Alerta]] | [[EST-Alerta]] | `pendiente · vista · resuelta` | ✅ 21/09 |
-| [[ContenidoRed]] | [[EST-ContenidoRed]] | `idea · en producción · listo · publicado · descartado` ⚠️nuevo | ✅ 21/09 |
+| [[ContenidoRed]] | [[EST-ContenidoRed]] | `idea · en producción · listo · publicado · descartado` | ✅ 21/09 |
 
 ✅ **Los 6 están especificados y dibujados** (21/09). Convención común (motor ELK, etiqueta `Tn · evento`, `⚙` automática, `↺` corrección, color por tipo de estado): ver la sección *Convenciones del diagrama* de cualquiera de las notas. ✅ Los **25 huecos** detectados al especificarlos **se resolvieron el 21/09** (ratificados en la sync del 29/09, junto con los diagramas): ver la sección *"Huecos — resueltos"* de cada nota.
 
@@ -56,6 +58,7 @@ En `03-Dominio/Diagramas/Actividad/` (PNG en `img/`, se regeneran con `render-di
 En `03-Dominio/Diagramas/Secuencia/` (PNG en `img/`, se regeneran con `render-diagramas-secuencia.sh`; el de consulta a venta, desde `build-relevamiento.sh`).
 - Vista de negocio: [[DGM-SEC — De la consulta a la venta]] (Figura 1 del relevamiento).
 - De análisis, con las clases como participantes: [[DGM-SEC — Confirmar reserva]] · [[DGM-SEC — Registrar cobro de un pago]] · [[DGM-SEC — Cancelar viaje]]
+- De diseño, con Vista, Controlador y Modelo: el cobro de un pago (CU-12) en [[ARQ — MVC y modelo conceptual por capa]].
 
-## Pendientes de este diagrama
-- Cardinalidad Viaje–Hotel (N:M) y objeto de la `Reseña` (Hotel) → decidido en [[DEC-0003 Relación Viaje–Hotel y Reseña]] (formalizada).
+## Pendientes
+Ninguno abierto al 30/09/26. La cardinalidad Viaje–Hotel (N:M) y el objeto de la `Reseña` (Hotel) se decidieron en [[DEC-0003 Relación Viaje–Hotel y Reseña]] (formalizada).
