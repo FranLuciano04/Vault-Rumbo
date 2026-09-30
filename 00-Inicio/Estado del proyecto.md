@@ -44,7 +44,7 @@ Los tres tomamos **los tres roles** (Coordinador de vault · Guardián del domin
 > Cierre PC1: la consulta `#pc/pc1 AND #estado/borrador` debe dar **cero** en lo obligatorio de arriba.
 
 ## Agenda para la próxima sync — decisiones abiertas
-> Índice de **todo lo que espera decisión**. ✅ La entrevista de diseño del 29/09 (equipo completo) cerró toda la agenda: ver *Decidido en el día 0*. Solo queda abierto el **formato del deck** de la exposición oral (se decide el viernes 02/10).
+> Índice de **todo lo que espera decisión**. ✅ La entrevista de diseño del 29/09 (equipo completo) cerró toda la agenda: ver *Decidido en el día 0*. El **formato del deck** se decidió en la sync del 30/09 (PowerPoint, ver H4). Quedan abiertos la **duración** de la exposición y si el prototipo se muestra **en vivo o con capturas**.
 
 ## Plan comprimido a 3 días (PC1 adelantado)
 > 29/09/26: **el PC1 se adelantó al viernes 02/10/26 a las 20 hs**, con **exposición oral** a la misma hora. Hay tiempo desde el martes 29/09 a las 19 hs. Este plan **reemplaza el calendario por semanas** de abajo; el detalle de cada paso (qué se entrega y dónde) sigue en *Pasos restantes hacia PC1*. ✅ 30/09: [[Cronograma y PC]] y las portadas de los tres `.docx` ya dicen 02/10/26.
@@ -84,7 +84,7 @@ Los tres tomamos **los tres roles** (Coordinador de vault · Guardián del domin
 
 ### Día 3 — vie 02/10: integrar, revisar y presentar (entrega y oral a las 20 hs)
 - **Mañana:** B4 (link de Figma + PNG en `07-Entregables/Prototipo/`) · F3 (diagramas de dominio al documento único) · **H3** generar el `.docx` único · **D1** la consulta `#pc/pc1 AND #estado/borrador` da cero · **D2** revisión completa y regenerar los tres `.docx` anexos.
-- **Tarde:** **H4** deck (formato a decidir) en el mismo orden del documento · **ensayo a las 17 hs a más tardar** · **D3** `git tag pc1` · último push.
+- **Tarde:** **H4** deck en PowerPoint (decidido en la sync del 30/09), **lo último que se hace**, después de generar el documento único · **ensayo a las 17 hs a más tardar** · **D3** `git tag pc1` · último push.
 
 ## Pasos restantes hacia PC1 — plan detallado
 > ⚠️ Las semanas de este bloque quedaron **superadas** por el *Plan comprimido a 3 días*; el contenido de cada paso sigue vigente.
@@ -134,7 +134,7 @@ Los tres tomamos **los tres roles** (Coordinador de vault · Guardián del domin
 - [x] **H1. Antecedentes:** nota nueva en `01-Relevamiento/` con cómo trabaja hoy la agencia (carpetas, planillas, WhatsApp) y qué ofrecen los CRM genéricos y los de turismo, y por qué no alcanzan. Completa la «Presentación general» junto con [[Objetivos del sistema]], [[Justificación del sistema]] y [[Alcance y fuera de alcance]]. — ✅ 30/09 (Francisco): [[Antecedentes]] (`en-revision`): situación actual desde el relevamiento y comparación con Excel, CRM genéricos, CRM de turismo de EE. UU. y back office argentinos, con fuentes públicas.
 - [ ] **H2. Modelo de desarrollo:** nota con la metodología del equipo: iteraciones por punto de control, vault versionado como fuente de verdad, commits pequeños en `main` para documentación y ramas `feature/` con pull requests para código, sync semanal y pipeline de calidad de [[DEC-0001 Stack tecnológico]]. Se presenta **junto con las interfaces gráficas** del prototipo (B).
 - [ ] **H3. Script del documento único** (`07-Entregables/build/build-pc1.sh`, con el mismo `filtrar()` y la misma plantilla): un solo `.docx` en el orden de la lámina → presentación general (con antecedentes) · modelos de IA y justificación · agentes IA · modelo de datos y relaciones (clases, ER, SQL) · modelo de desarrollo con interfaces gráficas · arquitectura (C4, MVC, OpenAPI) · y como anexos los requisitos, los casos de uso y los diagramas UML. Se suma a [[Entregables — índice]].
-- [ ] **H4. Presentación oral:** deck que siga el mismo orden, con los diagramas y el prototipo; ensayo en la semana 9.
+- [ ] **H4. Presentación oral:** deck que siga el mismo orden, con los diagramas y el prototipo. ✅ **Formato decidido en la sync del 30/09:** **PowerPoint (`.pptx`)**, a nombre de Francisco Luciano, Nahuel Viniegra y Paloma Patiño. Es **lo último que se hace**: se arma cuando el documento único (H3) esté completo, porque tiene que cubrir **todo** el contenido del PC1. Se exporta también a PDF como respaldo. Quedan por definir la duración y si el prototipo se muestra en vivo o con capturas.
 
 ### D · Cierre de PC1 (sync de la semana 8)
 - [ ] **D1.** La consulta `#pc/pc1 AND #estado/borrador` da **cero** en lo obligatorio.
