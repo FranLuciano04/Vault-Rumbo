@@ -1,14 +1,15 @@
 ---
 tipo: analisis
-estado: en-revision
+estado: formalizado
 modulo: []
 responsable: Nahuel
 pc: pc1
-actualizado: 29/09/26
+actualizado: 30/09/26
+fecha_aprobacion: 30/09/26
 ---
 # ARQ — Vista general
 
-tags:: #tipo/analisis #estado/en-revision #pc/pc1
+tags:: #tipo/analisis #estado/formalizado #pc/pc1
 
 > Arquitectura de software de Rumbo. El stack está en [[DEC-0001 Stack tecnológico]]; la infraestructura, en [[DEC-0011 Infraestructura de despliegue on-premise]].
 
@@ -311,7 +312,7 @@ flowchart LR
 flowchart LR
     Agencia["Usuarios de la agencia<br/>[Personas]"]
 
-    subgraph Rumbo["Rumbo · servidor de la agencia (DEC-0011)"]
+    subgraph Rumbo["Rumbo [Sistema]"]
       Web["Aplicación web<br/>[React + TypeScript + Vite]<br/>back-office completo; nginx la sirve compilada"]
       Mobile["Aplicación mobile<br/>[React Native + Expo]<br/>agenda, alertas y clientes"]
       API["API<br/>[Python + FastAPI]<br/>reglas del negocio, permisos y auditoría"]
@@ -339,7 +340,7 @@ flowchart LR
 
 - **Web y mobile** no guardan datos del negocio ni tienen reglas propias: todo pasa por la API según el [[Contrato de la API (OpenAPI)]].
 - El **proceso automático** no es otro programa: es el mismo código de la API ejecutado como comando (`python -m rumbo.presentacion.jobs.diario`), por eso usa las mismas reglas.
-- Cómo se despliegan estos contenedores (Docker Compose, `nginx`, `cloudflared`) está en la *Vista de despliegue*; aquí `nginx` y el túnel quedan como parte del camino entre los clientes y la API.
+- El recuadro es el **límite del sistema**, no un equipo: la web corre en el navegador, el mobile en el teléfono y el resto en el servidor de la agencia ([[DEC-0011 Infraestructura de despliegue on-premise|DEC-0011]]). Cómo se despliegan estos contenedores (Docker Compose, `nginx`, `cloudflared`) está en la *Vista de despliegue*; aquí `nginx` y el túnel quedan como parte del camino entre los clientes y la API.
 
 ### Nivel 3 · Componentes de la API
 Reúne la *Vista lógica del backend* en formato C4: cada caja es un componente de una capa, y las flechas son las llamadas de un caso de uso típico.
@@ -413,4 +414,4 @@ flowchart LR
 - **Contrato entre vista y controlador:** [[Contrato de la API (OpenAPI)]], preliminar para el PC1; en PC2 lo genera FastAPI.
 
 ## Pendiente
-- **A6 · Ratificar esta nota** en el cierre del día 2 y pasarla a `formalizado`.
+- ✅ **Ratificada el 30/09/26** (Francisco, Nahuel y Paloma), con un ajuste: en el nivel 2 del C4, el recuadro pasó a ser el límite del sistema («Rumbo [Sistema]»). Se decidió mantener el C4 dibujado con diagramas de flujo y la notación estándar, en lugar del tipo C4 de Mermaid, que es experimental.

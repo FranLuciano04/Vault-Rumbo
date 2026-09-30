@@ -1,18 +1,19 @@
 ---
 tipo: analisis
-estado: en-revision
+estado: formalizado
 modulo: []
 responsable: Francisco
 pc: pc1
 actualizado: 30/09/26
+fecha_aprobacion: 30/09/26
 ---
 # IA — Agentes del proyecto
 
-tags:: #tipo/analisis #estado/en-revision #pc/pc1
+tags:: #tipo/analisis #estado/formalizado #pc/pc1
 
 > Responde a la lámina del PC1 «Agentes IA implementados». El foco son los **agentes que el equipo usa para planificar y desarrollar** Rumbo. La IA **dentro del producto** se documenta en lo mínimo indispensable en [[DEC-0012 Modelo de IA del producto]].
 >
-> Paso **E3** del plan a 3 días (frente de Francisco). Fichas completadas el 30/09; a ratificar en A6.
+> Paso **E3** del plan a 3 días (frente de Francisco). Fichas completadas y ratificadas por el equipo el 30/09/26.
 
 ## Ciclo de trabajo con el agente
 Cada sesión de trabajo con Claude Code sigue el mismo ciclo, definido en [[CLAUDE|CLAUDE.md]]. El vault versionado con Git funciona como **memoria compartida**: lo que no queda escrito en el vault no sobrevive al chat, y cada integrante retoma desde lo que dejó el otro.

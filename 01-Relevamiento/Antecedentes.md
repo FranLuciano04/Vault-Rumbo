@@ -1,13 +1,14 @@
 ---
 tipo: referencia
-estado: en-revision
+estado: formalizado
 responsable: Francisco
 pc: pc1
 actualizado: 30/09/26
+fecha_aprobacion: 30/09/26
 ---
 # Antecedentes
 
-tags:: #tipo/referencia #estado/en-revision #pc/pc1
+tags:: #tipo/referencia #estado/formalizado #pc/pc1
 
 Cómo resuelve hoy la agencia la gestión que Rumbo viene a ordenar, y qué ofrecen las herramientas que ya existen en el mercado. Junto con [[Objetivos del sistema]], [[Justificación del sistema]] y [[Alcance y fuera de alcance]] completa la presentación general del proyecto.
 
@@ -62,4 +63,4 @@ Los casilleros «no se encontró» indican que la documentación pública consul
 Rumbo toma de cada grupo lo que la agencia necesita (el embudo de un CRM y el modelo del viaje y sus cobros de un sistema de turismo) y le suma lo propio de este caso: alertas por destino, recontacto de clientes fieles, vendedores freelance y multimoneda, a la medida de una PyME argentina.
 
 ## 🔎 Revisión
-> [!note] Francisco (30/09) — nota creada para el paso **H1** del plan a 3 días. La situación actual sale únicamente de [[Relevamiento — Fuente de verdad]] y de [[Relevamiento — respuestas de la agencia (17-09)]]. La comparación con el mercado se armó con la documentación pública de cada producto, consultada el 30/09/26, sin pruebas propias; conviene que el equipo la revise antes de ratificarla en A6. Entra en la «Presentación general» del documento único (H3).
+> [!note] Francisco (30/09) — nota creada para el paso **H1** del plan a 3 días. La situación actual sale únicamente de [[Relevamiento — Fuente de verdad]] y de [[Relevamiento — respuestas de la agencia (17-09)]]. La comparación con el mercado se armó con la documentación pública de cada producto, consultada el 30/09/26, sin pruebas propias. ✅ Ratificada por el equipo el 30/09/26. Entra en la «Presentación general» del documento único (H3).
