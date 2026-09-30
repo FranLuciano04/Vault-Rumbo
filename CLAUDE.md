@@ -113,4 +113,4 @@ Para documentación de PC1 se trabaja con commits pequeños sobre `main`. Desde 
 
 ## Contexto que puede cambiar
 
-No inferir la fase ni la prioridad actual desde este archivo: leer siempre `00-Inicio/Estado del proyecto.md`. El stack detallado vive en `DEC-0001` y la infraestructura de despliegue sigue a definir; el servidor on-premise es solo una alternativa.
+No inferir la fase ni la prioridad actual desde este archivo: leer siempre `00-Inicio/Estado del proyecto.md`. El stack detallado vive en `DEC-0001` y la infraestructura de despliegue en `DEC-0011` (servidor on-premise).

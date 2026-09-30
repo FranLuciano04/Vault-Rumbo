@@ -134,4 +134,4 @@ pandoc "07-Entregables/Casos de uso/00 - Portada e introducción.md" \
 - El `.docx` se versiona en Git (en `07-Entregables/`) además de poder regenerarlo por script.
 
 ## Pendiente
-- Confirmar con la cátedra la **fecha de entrega definitiva** y la **comisión** (hoy en la carátula: 23/10/26).
+- Confirmar con la cátedra la **comisión**. La fecha de entrega ya está en las carátulas: **02/10/26** (PC1 adelantado).

@@ -2,7 +2,7 @@
 tipo: referencia
 estado: formalizado
 responsable: equipo
-actualizado: 09/09/26
+actualizado: 30/09/26
 ---
 # Claude Code — memoria del proyecto
 
@@ -18,12 +18,12 @@ CRM para agencias de turismo PyME. Digitaliza el circuito consulta → cotizaci�
 - Comisión automática = [[RN-01 Comisión automática]].
 
 ## Stack
-- Backend: FastAPI + PostgreSQL + LangChain; dependencias con uv.
+- Backend: FastAPI + PostgreSQL + LangChain; SQLAlchemy 2.0 async + Alembic; dependencias con uv. Arquitectura en tres capas + `core`: [[ARQ — Vista general]].
 - Web: React + TypeScript + Vite; TanStack Query + Axios.
 - Mobile: React Native + Expo + EAS Build; comparte Query/Axios.
 - Monorepo: pnpm workspaces (`apps/web`, `apps/mobile`, `packages/shared`) y `backend/` con uv.
 - Contrato compartido: OpenAPI → openapi-typescript; validaciones con zod.
-- Infraestructura de despliegue a definir; on-premise no está aprobado. Detalle y herramientas de calidad/pruebas: [[DEC-0001 Stack tecnológico]].
+- Infraestructura: servidor **on-premise** con Docker Compose y Cloudflare Tunnel, ver [[DEC-0011 Infraestructura de despliegue on-premise]]. IA del producto: Claude Sonnet 5.5, ver [[DEC-0012 Modelo de IA del producto]]. Calidad y pruebas: [[DEC-0001 Stack tecnológico]].
 
 ## Dominio (punteros, no copiar)
 13 entidades en `03-Dominio/Entidades/`. Empezar por [[MOC — Modelo de dominio]] y bajar a la entidad puntual que se necesite.

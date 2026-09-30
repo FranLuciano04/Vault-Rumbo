@@ -5,7 +5,7 @@ author:
   - "Francisco Luciano"
   - "Nahuel Viniegra"
   - "Paloma Patiño"
-date: "2.º cuatrimestre 2026 · Entrega: 23/10/26"
+date: "2.º cuatrimestre 2026 · Entrega: 02/10/26"
 ---
 
 # Presentación

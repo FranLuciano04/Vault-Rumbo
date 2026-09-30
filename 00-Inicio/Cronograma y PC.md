@@ -2,7 +2,7 @@
 tipo: referencia
 estado: formalizado
 responsable: equipo
-actualizado: 29/09/26
+actualizado: 30/09/26
 ---
 # 🗓️ Cronograma y Puntos de Control
 
@@ -16,10 +16,10 @@ Fuentes: [[Rumbo — cronograma.docx|cronograma completado]] · [[Modelo institu
 |---|---|---|
 | 4 | 18/09/26 | — |
 | 5 | 25/09/26 | — |
-| 6 | 02/10/26 | — |
+| **6** | **02/10/26** | **🎯 PC1 — modelo UML completo** `#pc/pc1` · entrega y exposición oral a las 20 hs (adelantado desde el 23/10/26) |
 | 7 | 09/10/26 | — |
 | 8 | 16/10/26 | — |
-| **9** | **23/10/26** | **🎯 PC1 — modelo UML completo** `#pc/pc1` |
+| 9 | 23/10/26 | — (fecha original del PC1) |
 | 10 | 30/10/26 | Inicio desarrollo |
 | 11 | 06/11/26 | — |
 | 12 | 13/11/26 | — |
@@ -29,7 +29,7 @@ Fuentes: [[Rumbo — cronograma.docx|cronograma completado]] · [[Modelo institu
 | **16** | **11/12/26** | **🏁 Cierre / Defensa** |
 
 ## Qué se exige en cada PC
-- **PC1 — Análisis, diseño y planificación** (9 semanas). **Entrega: un documento con el MVC.** Según las láminas de la cátedra (29/09):
+- **PC1 — Análisis, diseño y planificación** (adelantado a la semana 6: vie 02/10/26, 20 hs, con exposición oral). **Entrega: un documento con el MVC.** Según las láminas de la cátedra (29/09):
   - **Contenido:** definición del problema; alcances y límites; modelo conceptual de frontend, backend (negocio) y base de datos; modelo de flujo con gráficos UML y **C4 Model**; **modelo de datos SQL**; comunicación Vista–Controlador con **OpenAPI (formato JSON)**; selección de modelos de IA (chat) y agentes, con sus **prompts**. Modelado en Mermaid.
   - **Documentación obligatoria:** presentación general (objetivos, **antecedentes**, justificación, alcances y límites) · modelos de IA utilizados y justificación · agentes IA implementados · modelo de datos y relaciones · modelo de desarrollo utilizado con interfaces gráficas · arquitectura de la solución · presentación de la documentación.
   - Checklist y plan (frentes A a H) en [[Estado del proyecto]].

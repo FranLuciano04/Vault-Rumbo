@@ -2,7 +2,7 @@
 tipo: referencia
 estado: formalizado
 responsable: equipo
-actualizado: 29/09/26
+actualizado: 30/09/26
 ---
 
 # 📊 Estado del proyecto
@@ -47,7 +47,7 @@ Los tres tomamos **los tres roles** (Coordinador de vault · Guardián del domin
 > Índice de **todo lo que espera decisión**. ✅ La entrevista de diseño del 29/09 (equipo completo) cerró toda la agenda: ver *Decidido en el día 0*. Solo queda abierto el **formato del deck** de la exposición oral (se decide el viernes 02/10).
 
 ## Plan comprimido a 3 días (PC1 adelantado)
-> 29/09/26: **el PC1 se adelantó al viernes 02/10/26 a las 20 hs**, con **exposición oral** a la misma hora. Hay tiempo desde el martes 29/09 a las 19 hs. Este plan **reemplaza el calendario por semanas** de abajo; el detalle de cada paso (qué se entrega y dónde) sigue en *Pasos restantes hacia PC1*. Hay que actualizar [[Cronograma y PC]] y las portadas de los `.docx`, que todavía dicen 23/10/26.
+> 29/09/26: **el PC1 se adelantó al viernes 02/10/26 a las 20 hs**, con **exposición oral** a la misma hora. Hay tiempo desde el martes 29/09 a las 19 hs. Este plan **reemplaza el calendario por semanas** de abajo; el detalle de cada paso (qué se entrega y dónde) sigue en *Pasos restantes hacia PC1*. ✅ 30/09: [[Cronograma y PC]] y las portadas de los tres `.docx` ya dicen 02/10/26.
 
 **Frentes (decididos el 29/09):**
 - **Nahuel · Arquitectura y API:** A2, A3, F2 (SQL), F1 (OpenAPI) y G1 (C4).
@@ -99,7 +99,7 @@ Los tres tomamos **los tres roles** (Coordinador de vault · Guardián del domin
 - [x] **A3. Vista lógica del backend**, con un diagrama Mermaid nuevo en ARQ: capas de FastAPI (routers → servicios → repositorios → modelos) y un paquete por módulo funcional (`04-Modulos/MOD-*`). Tiene que mostrar dónde viven la autorización por fila (DEC-0005/0008), la auditoría `created_by`/`updated_by` y la integración con Claude vía LangChain.
 - [x] **A4. Persistencia y migraciones:** elegir ORM y herramienta de migraciones para PostgreSQL y registrarlo en ARQ (o en una DEC si no es obvio). El [[DGM-ER]] ya es la fuente del esquema inicial.
 - [x] **A5. Dependabot o Renovate:** elegir uno para el monorepo y anotarlo en [[DEC-0001 Stack tecnológico]].
-- [ ] **A6. Ratificar** ARQ y la DEC-0011 en la sync y pasarlas a `formalizado`.
+- [ ] **A6. Ratificar** ARQ y la DEC-0011 en la sync y pasarlas a `formalizado`. En la misma ronda: [[DEC-0013 Datos que faltaban en el ER|DEC-0013]], los cuatro supuestos de [[Contrato de la API (OpenAPI)]], [[Modelo de datos SQL]] y [[Prototipo UI]]. `#accion/decidir` **Tildes en los enums:** el ER y el SQL escriben `en_gestion` (sin tilde) pero `seña` (con ñ), y el diagrama de clases usa tildes; hay que unificar el criterio.
 
 ### B · Prototipo UI en Figma — obligatorio
 - [x] **B1. Acordar las pantallas clave.** Propuesta, una por cada CU central: inicio de sesión ([[CU-24 Iniciar sesión|CU-24]]) · **agenda de alertas del día** ([[CU-14 Ver y atender alertas del día|CU-14]]) · ficha del cliente ([[CU-03 Gestionar ficha del cliente|CU-03]]) · embudo de oportunidades ([[CU-05 Seguir oportunidad|CU-05]]) · emitir cotización ([[CU-06 Emitir cotización|CU-06]]) · **ficha del viaje** con economía, plan de cuotas y checklist de pagos ([[CU-07 Confirmar reserva|CU-07]], [[CU-10 Registrar economía del viaje|CU-10]], [[CU-11 Definir plan de cuotas|CU-11]]) · registrar cobro ([[CU-12 Registrar cobro de un pago|CU-12]]) · dashboard ([[CU-21 Ver dashboard y embudo|CU-21]]) · catálogo de hoteles ([[CU-18 Buscar y recomendar hoteles|CU-18]]). **Mobile** (RNF-14): agenda y ficha del cliente.
