@@ -13,3 +13,5 @@ Thumbs.db
 
 # Referencia local de la paleta (ya cargada como variables en Figma)
 paletaColores/
+node_modules/
+package-lock.json

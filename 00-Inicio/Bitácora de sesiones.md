@@ -30,6 +30,10 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
+## 30/09/26 — Paloma (Claude Opus 5.5) — H4: primera versión del deck
+- **Hecho:** `Rumbo — PC1 (presentación).pptx` y su PDF en `07-Entregables/PC1/`: 24 diapositivas que siguen el orden del documento único (presentación general, IA, agentes, datos, desarrollo e interfaces, arquitectura y cierre), con la paleta del prototipo, la persona que expone cada parte según los frentes, diagramas, capturas del prototipo y notas del orador. Script reproducible `07-Entregables/build/build-deck.js` (pptxgenjs, sin instalar en el repo). Verificado: pasa el validador de PowerPoint y se revisó el render de todas las diapositivas.
+- **Pendiente:** revisión del equipo; definir la duración y si hay demo en vivo; si cambian los números del PC1, actualizar el script y regenerar.
+
 ## 30/09/26 — Paloma (Claude Opus 5.5) — revisión de H2 y documentos regenerados
 - **Hecho:** Revisión de [[Modelo de desarrollo]] (H2): en *Interfaces gráficas* se sumaron cómo se diseñó, el sistema de diseño, los criterios de usabilidad, la vista por perfil y el alcance web/mobile; sigue `en-revision` para que lo apruebe el equipo. Se instaló pandoc 3.12 en esta PC (winget) y se regeneraron `Rumbo — Modelo de desarrollo.docx` (59 pantallas) y `Rumbo — PC1.docx`, junto con los anexos que genera `build-pc1.sh`. `paletaColores/` quedó en `.gitignore` (la paleta ya está como variables en Figma).
 - **Verificado:** el `.docx` de desarrollo tiene las 59 pantallas y la sección nueva, sin notas internas. En el documento único aparecen referencias a DEC dentro de bloques de código (árbol de carpetas y SQL), que vienen de las notas de Francisco y Nahuel.
