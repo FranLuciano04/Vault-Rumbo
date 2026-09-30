@@ -80,7 +80,7 @@ Los tres tomamos **los tres roles** (Coordinador de vault · Guardián del domin
 - **Nahuel:** **F1** contrato OpenAPI preliminar → **G1** modelo C4 (el nivel 3 reusa A3) → dejar ARQ lista para ratificar.
 - **Paloma:** **B3** diseño en Figma de las 11 pantallas → **H2** modelo de desarrollo → **B5** prototipado completo por rol y mobile (pedido en la sync del 30/09).
 - **Francisco:** **G2** sección MVC (con el borrador de F1 y los diagramas de secuencia) → G3 (modelo conceptual por capa) → esqueleto de **H3** `build-pc1.sh` con lo que ya exista.
-- **Cierre del día (30 min, los tres):** **A6** ratificar ARQ; revisar qué falta para el día 3.
+- **Cierre del día (30 min, los tres):** ~~**A6** ratificar ARQ~~ (✅ A6 se cerró en la sync del 30/09) · **Nahuel revisa G2 y G3** · aprobar [[Modelo de desarrollo]] (H2, después de que lo revise Paloma) · revisar qué falta para el día 3.
 
 ### Día 3 — vie 02/10: integrar, revisar y presentar (entrega y oral a las 20 hs)
 - **Mañana:** B4 (link de Figma + PNG en `07-Entregables/Prototipo/`) · F3 (diagramas de dominio al documento único) · **H3** generar el `.docx` único · **D1** la consulta `#pc/pc1 AND #estado/borrador` da cero · **D2** revisión completa y regenerar los tres `.docx` anexos.
@@ -126,7 +126,7 @@ Los tres tomamos **los tres roles** (Coordinador de vault · Guardián del domin
 
 ### G · Arquitectura ampliada: C4 y MVC — obligatorio (láminas: «Modelo conceptual: Frontend, Backend, Base de datos», «C4 Model» y «Documento con el MVC»)
 - [x] **G1. Modelo C4 en Mermaid** dentro de [[ARQ — Vista general]]: **nivel 1, contexto** (Rumbo, los usuarios de la agencia, el pasajero, Claude y WhatsApp/Instagram como canales manuales), **nivel 2, contenedores** (web, mobile, API, PostgreSQL, scheduler, IA) y **nivel 3, componentes** de la API (reusa A3). ✅ 29/09 (Nahuel): los tres niveles en ARQ, exportados a PNG.
-- [ ] **G2. Sección MVC:** qué es **Modelo** (entidades y reglas en el backend + PostgreSQL), **Vista** (React y React Native) y **Controlador** (routers y servicios de FastAPI) en Rumbo, y cómo se comunican Vista y Controlador por el contrato OpenAPI en JSON (F1). Los diagramas de secuencia ya separan interfaz, control y entidades, así que se usan como ejemplo.
+- [ ] **G2. Sección MVC:** qué es **Modelo** (entidades y reglas en el backend + PostgreSQL), **Vista** (React y React Native) y **Controlador** (routers y servicios de FastAPI) en Rumbo, y cómo se comunican Vista y Controlador por el contrato OpenAPI en JSON (F1). Los diagramas de secuencia ya separan interfaz, control y entidades, así que se usan como ejemplo. — Decidido en la sync del 30/09: lo arman Francisco (con Claude) y **Nahuel lo revisa** antes del cierre del día 2; lo mismo para G3.
 - [ ] **G3. Modelo conceptual por capa** (frontend, backend de negocio y base de datos): una página por capa con sus responsabilidades, tecnologías y los módulos que atiende.
 
 ### H · Documento único del PC1 y presentación — obligatorio (láminas: «Entrega: Documento con el MVC» y «Presentación de la documentación»)
