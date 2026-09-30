@@ -28,5 +28,8 @@ render "Arquitectura/ARQ — Vista general.md" 7 "Arquitectura/img/ARQ-C4-3-comp
 render "IA — Agentes del proyecto.md"        1 "img/IA-ciclo-de-trabajo"
 render "Modelo de desarrollo.md"             1 "img/DES-iteraciones"
 render "Modelo de desarrollo.md"             2 "img/DES-pipeline-calidad"
+render "Arquitectura/ARQ — MVC y modelo conceptual por capa.md" 1 "Arquitectura/img/ARQ-MVC"
+render "Arquitectura/ARQ — MVC y modelo conceptual por capa.md" 2 "Arquitectura/img/ARQ-MVC-secuencia-cobro"
+render "Arquitectura/ARQ — MVC y modelo conceptual por capa.md" 3 "Arquitectura/img/ARQ-capas-conceptual"
 
 rm -rf "$TMP"
