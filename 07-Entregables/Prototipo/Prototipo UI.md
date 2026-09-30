@@ -55,16 +55,34 @@ Tokens en variables (paleta del equipo: azules `#22506F` → `#73A5C4` y gris `#
 | 31 | Usuarios y roles (admin) | [[CU-25 Gestionar usuarios y roles\|CU-25]] | `img/31-cu25-usuarios-roles.png` |
 | 32 | Destinos y requisitos (admin) | [[CU-26 Gestionar destinos\|CU-26]] · [[CU-15 Configurar recordatorios por destino\|CU-15]] | `img/32-cu26-cu15-destinos.png` |
 | 33 | Operadores (admin) | [[CU-31 Gestionar operadores\|CU-31]] | `img/33-cu31-operadores.png` |
-| 34 | Embudo visto por un freelance | CU-05 · [[DEC-0008 Autenticación propia y rol de vendedor freelance\|DEC-0008]] | `img/34-freelance-embudo.png` |
+| 34 | Freelance · embudo (solo lo suyo) | CU-05 · [[DEC-0008 Autenticación propia y rol de vendedor freelance\|DEC-0008]] | `img/34-freelance-embudo.png` |
 | 35 | Mobile · agenda | CU-14 | `img/35-mobile-agenda.png` |
 | 36 | Mobile · ficha del cliente | CU-03 | `img/36-mobile-ficha-cliente.png` |
+| 37 | Freelance · agenda del día | CU-14 | `img/37-freelance-agenda.png` |
+| 38 | Freelance · calendario | CU-23 | `img/38-freelance-calendario.png` |
+| 39 | Freelance · clientes | CU-03 paso 1 | `img/39-freelance-clientes.png` |
+| 40 | Freelance · ficha del cliente | CU-03 | `img/40-freelance-ficha-cliente.png` |
+| 41 | Freelance · emitir cotización | CU-06 | `img/41-freelance-cotizacion.png` |
+| 42 | Freelance · viajes | CU-08 | `img/42-freelance-viajes.png` |
+| 43 | Freelance · ficha del viaje (ve su comisión) | CU-07 · CU-10 · CU-11 | `img/43-freelance-ficha-viaje.png` |
+| 44 | Freelance · catálogo de hoteles (solo consulta) | CU-18 | `img/44-freelance-catalogo-hoteles.png` |
+| 45 | Freelance · detalle de hotel (solo lectura) | CU-18 paso 3 | `img/45-freelance-detalle-hotel.png` |
+| 46 | Freelance · dashboard (sus ventas y comisiones) | CU-21 A1 | `img/46-freelance-dashboard.png` |
 
 [[CU-01 De la consulta a la venta|CU-01]] no tiene pantalla propia: es el circuito completo y se recorre navegando las pantallas 11 → 12 → 13 → 15 → 18.
+
+## Vista del `freelance` (B5, 30/09/26)
+El punto de inicio *Freelance · embudo* recorre todas las secciones del menú del `freelance` (pantallas 34 y 37 a 46, fila «Rol freelance · recorrido completo» en Figma), sin salir a las pantallas del `empleado`. Criterios, según [[DEC-0005 Autenticación y modelo de roles|DEC-0005]] y [[DEC-0008 Autenticación propia y rol de vendedor freelance|DEC-0008]]:
+- **Solo lo suyo:** agenda, calendario, clientes, oportunidades, viajes y dashboard muestran solo la cartera de Diego Paz (datos ficticios propios: Familia Acosta, Valeria Ortiz, Lucía Paz, etc.). No existe el filtro «Toda la agencia» y un aviso lo aclara en cada listado.
+- **Menú sin** Redes, Reportes ni Configuración.
+- **Hoteles, solo consulta:** sin «Nuevo hotel», «Editar», «Dar de baja» ni «Nueva reseña» (CU-16 y CU-17), y sin la moderación de reseñas (CU-29).
+- **Economía:** en la ficha de su viaje ve precio, costo, ganancia y **su** comisión; en el dashboard, sus ventas y comisiones, sin el ranking de vendedores ni lo que se paga a los operadores.
+- Desde estas pantallas no se navega a los formularios de acción (registrar cobro, nueva consulta, etc.), que ya están en el recorrido del `empleado` y son iguales para el `freelance`.
 
 ## Pendiente: prototipado completo (B5)
 Pedido en la sync del 30/09/26, al aprobar el prototipo. Detalle en el paso **B5** de [[Estado del proyecto]]:
 - **Cada sección vista por cada rol** (`empleado`, `admin`, `dueño` y `freelance`).
-- **El `freelance` completo:** todas sus secciones, solo con lo suyo, sin cargar ni editar hoteles, sin registrar reseñas y sin el módulo de redes. `empleado`, `admin` y `dueño` sí cargan hoteles y reseñas; moderar reseñas es solo de `admin` y `dueño`.
+- ✅ **El `freelance` completo** (30/09/26, ver arriba): todas sus secciones, solo con lo suyo, sin cargar ni editar hoteles, sin registrar reseñas y sin el módulo de redes. `empleado`, `admin` y `dueño` sí cargan hoteles y reseñas; moderar reseñas es solo de `admin` y `dueño`.
 - **El mobile completo:** agenda, alertas y clientes, según el alcance mobile de [[ARQ — Vista general]].
 
 ## Cómo regenerar los PNG
