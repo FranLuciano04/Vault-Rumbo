@@ -125,7 +125,7 @@ flowchart LR
 
 > **Notas de lectura:**
 > - **Generalización de roles:** `Admin`, `Dueño` y `Freelance` son *especializaciones* del `Empleado` (flechas `es-un`): heredan sus casos operativos y solo se dibujan aparte los casos exclusivos (`Admin`: el módulo **Configuración/Catálogos** —configurar comisión, recordatorios por destino, destinos y operadores— más gestionar usuarios y moderar reseñas; `Dueño`: dashboard y reportes). Esto refleja el modelo de visibilidad de [[DEC-0005 Autenticación y modelo de roles]].
-> - **`Freelance` (vendedor externo):** hace los **mismos casos operativos** que el `Empleado`, pero con **visibilidad restringida a lo suyo** (excepción al *lectura global*, [[DEC-0008 Autenticación propia y rol de vendedor freelance]]). Esa restricción es de **alcance de datos**, no de casos de uso, por eso el diagrama lo modela como especialización del `Empleado`; el detalle de visibilidad va en las DEC.
+> - **`Freelance` (vendedor externo):** hace los **mismos casos operativos** que el `Empleado`, **salvo gestionar hoteles (CU-16) y registrar reseñas (CU-17)** (decidido en la sync del 30/09/26), y con **visibilidad restringida a lo suyo** (excepción al *lectura global*, [[DEC-0008 Autenticación propia y rol de vendedor freelance]]). Esa restricción es de **alcance de datos**, no de casos de uso, por eso el diagrama lo modela como especialización del `Empleado`; el detalle de visibilidad va en las DEC.
 > - **Actor externo `Pasajero / Cliente`:** no opera el sistema; solo interactúa con dos casos: **recibe** la cotización (CU-06) y **aporta** la reseña que el empleado registra (CU-17). Por eso va a la derecha, con asociaciones etiquetadas.
 
 ## Pendiente

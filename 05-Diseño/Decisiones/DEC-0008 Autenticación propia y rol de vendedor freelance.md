@@ -52,6 +52,9 @@ Se agrega la dimensión `freelance` (scope = **propio**) a la tabla de [[DEC-000
 - **Nivel de auditoría PC1:** `created_by` / `updated_by`; log completo = fase 2.
 - **Dashboard:** `admin`/`dueño` = empresa; `empleado` y `freelance` = lo suyo.
 
+## Aclaración de la sync 30/09/26
+- **El `freelance` no modifica el catálogo:** consulta los hoteles y sus reseñas, pero **no** da de alta ni edita hoteles ([[CU-16 Gestionar hotel en catálogo|CU-16]]) ni registra reseñas ([[CU-17 Registrar reseña de hotel|CU-17]]). Surgió al ratificar el [[Contrato de la API (OpenAPI)]], que ya lo asumía. No cambia la decisión: precisa qué significa «ve el catálogo compartido».
+
 ## Impacto
 - Afecta: [[Usuario]] (enum `rol` +`freelance`; login usuario/contraseña; auditoría `created_by`/`updated_by`), [[DEC-0005 Autenticación y modelo de roles]] (amplía: mecanismo resuelto + rol nuevo), [[CU-24 Iniciar sesión]] (login propio), [[CU-25 Gestionar usuarios y roles]] (gestiona freelance y credenciales), [[CU-21 Ver dashboard y embudo]] (A1: el freelance ve solo lo suyo) y, transversalmente, los filtros de visibilidad. La **comisión** del freelance se liquida vía [[DEC-0007 Modelo económico — ganancia, margen y comisión de vendedor]].
 

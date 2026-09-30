@@ -24,7 +24,7 @@ Gestiona usuarios y configura parámetros del negocio (p. ej. la **comisión por
 Propietaria de la agencia: visión total, reportes y estadísticas. **Ve toda la empresa.** [[Usuario]] con rol `dueño`.
 
 ## Vendedor freelance — *operador externo con acceso acotado*
-Vendedor externo que carga sus **propias** ventas y clientes. A diferencia del `empleado`, **ve solo lo suyo** (bloqueo de lectura fuera de sus clientes/operaciones); sí ve el catálogo compartido y sus propias comisiones. Se modela como [[Usuario]] con rol `freelance` ([[DEC-0008 Autenticación propia y rol de vendedor freelance]]).
+Vendedor externo que carga sus **propias** ventas y clientes. A diferencia del `empleado`, **ve solo lo suyo** (bloqueo de lectura fuera de sus clientes/operaciones); sí ve el catálogo compartido (sin modificarlo: no da de alta ni edita hoteles ni registra reseñas) y sus propias comisiones. Se modela como [[Usuario]] con rol `freelance` ([[DEC-0008 Autenticación propia y rol de vendedor freelance]]).
 
 ## Encargado de redes — *función asignable, no un rol*
 Planifica el calendario de contenido y usa el tablero kanban ([[ContenidoRed]]). No es un rol propio: es una **capacidad de acceso al módulo de redes** que `admin` o `dueño` asignan a un `empleado` (o cubren ellos mismos). En una PyME suele concentrarse en una persona.

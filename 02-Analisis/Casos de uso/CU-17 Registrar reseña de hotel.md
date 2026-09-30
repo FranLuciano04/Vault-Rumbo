@@ -4,7 +4,7 @@ estado: formalizado
 modulo: [hoteles, clientes]
 responsable: Paloma
 pc: pc1
-actualizado: 29/09/26
+actualizado: 30/09/26
 fecha_aprobacion: 29/09/26
 ---
 # CU-17 Registrar reseña de hotel
@@ -15,7 +15,7 @@ tags:: #tipo/caso-uso #estado/formalizado #pc/pc1
 Tras el viaje, el empleado carga la [[Reseña]] de un [[Cliente]] sobre un [[Hotel]] en el que se alojó. La reseña alimenta el catálogo y la recomendación de hoteles. Ver [[DEC-0003 Relación Viaje–Hotel y Reseña]].
 
 ## Actor principal
-[[Actores|empleado]]
+[[Actores|empleado]]. No incluye al rol `freelance`: el vendedor externo consulta el catálogo de hoteles, pero no lo modifica ni registra reseñas.
 
 ## Actores secundarios
 - [[Actores|Pasajero / Cliente]] (externo: autor de la opinión; no opera el sistema).
@@ -56,6 +56,8 @@ Tras el viaje, el empleado carga la [[Reseña]] de un [[Cliente]] sobre un [[Hot
 - [[DEC-0003 Relación Viaje–Hotel y Reseña]]
 
 ## 🔎 Revisión
+> [!note] Sync 30/09/26 (Francisco, Nahuel y Paloma): se decidió que el `freelance` **no** participa de este caso de uso, aunque en el diagrama sea una especialización del `empleado`. Ver [[DEC-0008 Autenticación propia y rol de vendedor freelance|DEC-0008]] y el [[Contrato de la API (OpenAPI)]].
+
 > [!note] Paloma (10/09): (3) **Confirmado:** un cliente puede dejar varias reseñas del mismo hotel. (4) **Confirmado:** la reseña se puede **editar** pero **no borrar**.
 >
 > [!note] Francisco (11/09) — revisión de inconsistencias: **definido.** Coherencia con el nuevo [[CU-29 Eliminar reseña]] — la `Reseña` nace `publicada` y su baja es lógica (`oculta`, moderación por `admin`), no física. El "no borrar" de Paloma se mantiene: no hay eliminación física. Paloma: para tu conocimiento; ajustable en la sync.

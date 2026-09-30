@@ -1,14 +1,15 @@
 ---
 tipo: analisis
-estado: borrador
+estado: formalizado
 modulo: []
 responsable: Nahuel
 pc: pc1
-actualizado: 29/09/26
+actualizado: 30/09/26
+fecha_aprobacion: 30/09/26
 ---
 # Contrato de la API (OpenAPI)
 
-tags:: #tipo/analisis #estado/borrador #pc/pc1
+tags:: #tipo/analisis #estado/formalizado #pc/pc1
 
 > Responde a la lámina del PC1 «Comunicación V-C: Open API (formato JSON)» (paso **F1** del plan). Es el contrato entre la **vista** (web y mobile) y el **controlador** (la API de FastAPI) de [[ARQ — Vista general]]. El archivo es [`openapi.json`](openapi.json), en esta carpeta.
 
@@ -57,11 +58,12 @@ Todos los errores usan `application/problem+json` (RFC 9457) con `title`, `statu
 | `422` | Datos inválidos, incluida la regla `Σ montos = precio de venta` del plan de pagos. |
 | `502` | Solo en CU-20: la API de Claude no respondió; el resto del sistema sigue funcionando ([[DEC-0012 Modelo de IA del producto|DEC-0012]]). |
 
-## Supuestos a revisar en la ratificación
-- **Qué puede hacer el `freelance` fuera de lo operativo.** DEC-0008 dice que ve el catálogo compartido y opera solo lo suyo, pero no dice si registra reseñas o edita hoteles. El contrato asume que **no**.
-- El **documento de la cotización** se descarga en **PDF** (`/cotizaciones/{id}/documento`). CU-06 dice que el sistema «genera el documento» sin fijar el formato.
-- El **catálogo de reportes** de [[CU-22 Generar reportes y estadísticas|CU-22]] se expone como `/reportes` y `/reportes/{reporte_id}`, con salida en JSON, Excel o PDF; cada reporte se detalla en PC2.
-- Los **recontactos** de [[CU-30 Sugerir recontacto de clientes|CU-30]] no tienen rutas propias: son alertas de tipo `recontacto` (`/alertas?tipo=recontacto`), el opt-out es `no_recontactar` en el cliente y el recontacto que prospera es una oportunidad nueva.
+## Supuestos ratificados (sync 30/09/26)
+Los cuatro supuestos se confirmaron tal como estaban, así que el contrato no cambia.
+- **Qué puede hacer el `freelance` fuera de lo operativo.** DEC-0008 dice que ve el catálogo compartido y opera solo lo suyo, pero no decía si registra reseñas o edita hoteles. ✅ **No**: quedó aclarado en DEC-0008 y en [[CU-16 Gestionar hotel en catálogo|CU-16]] y [[CU-17 Registrar reseña de hotel|CU-17]].
+- El **documento de la cotización** se descarga en **PDF** (`/cotizaciones/{id}/documento`). CU-06 dice que el sistema «genera el documento» sin fijar el formato. ✅ Confirmado: PDF.
+- El **catálogo de reportes** de [[CU-22 Generar reportes y estadísticas|CU-22]] se expone como `/reportes` y `/reportes/{reporte_id}`, con salida en JSON, Excel o PDF; cada reporte se detalla en PC2. ✅ Confirmado.
+- Los **recontactos** de [[CU-30 Sugerir recontacto de clientes|CU-30]] no tienen rutas propias: son alertas de tipo `recontacto` (`/alertas?tipo=recontacto`), el opt-out es `no_recontactar` en el cliente y el recontacto que prospera es una oportunidad nueva. ✅ Confirmado: se mantiene así.
 
 ## Relación con otras notas
 - Los datos que faltaban en el ER y que este contrato necesitaba (fecha de cobro, motivos, notas, estado previo, descripción de la alerta, entre otros) quedaron en [[DEC-0013 Datos que faltaban en el ER|DEC-0013]].

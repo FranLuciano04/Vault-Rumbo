@@ -4,7 +4,7 @@ estado: formalizado
 modulo: [hoteles]
 responsable: Paloma
 pc: pc1
-actualizado: 29/09/26
+actualizado: 30/09/26
 fecha_aprobacion: 29/09/26
 ---
 # CU-16 Gestionar hotel en catálogo
@@ -15,7 +15,7 @@ tags:: #tipo/caso-uso #estado/formalizado #pc/pc1
 El empleado da de alta o edita un [[Hotel]] en el **catálogo compartido** de la agencia, para poder recomendarlo, asociarlo a itinerarios y recibir reseñas.
 
 ## Actor principal
-[[Actores|empleado]]
+[[Actores|empleado]]. No incluye al rol `freelance`: el vendedor externo consulta el catálogo de hoteles, pero no lo modifica ni registra reseñas.
 
 ## Actores secundarios
 -
@@ -52,6 +52,8 @@ El empleado da de alta o edita un [[Hotel]] en el **catálogo compartido** de la
 - [[DEC-0003 Relación Viaje–Hotel y Reseña]] (relación `Hotel` ⇄ `Viaje` y `Reseña`).
 
 ## 🔎 Revisión
+> [!note] Sync 30/09/26 (Francisco, Nahuel y Paloma): se decidió que el `freelance` **no** participa de este caso de uso, aunque en el diagrama sea una especialización del `empleado`. Ver [[DEC-0008 Autenticación propia y rol de vendedor freelance|DEC-0008]] y el [[Contrato de la API (OpenAPI)]].
+
 > [!note] Paloma (10/09): (2) **Confirmado:** el catálogo lo gestiona cualquier empleado (sin restricción por rol). (1) **Confirmado:** se permite dar de baja un `Hotel` que cerró (A4). **A resolver en la sync (toca dominio):** borrar un `Hotel` con reseñas/viajes rompería la trazabilidad de [[DEC-0003 Relación Viaje–Hotel y Reseña]]; propuesta = eliminar solo si no tiene historial y marcarlo **cerrado** si lo tiene. Si se adopta el estado, agregar el atributo a [[Hotel]] y actualizar [[DGM-ER]].
 >
 > [!note] Francisco + Nahuel (11/09, sync) — **definido:** la baja de `Hotel` es **siempre lógica** (`estado = cerrado`); **nunca** se elimina físicamente, para no perder historial ni trazabilidad ([[DEC-0003 Relación Viaje–Hotel y Reseña]]). Paloma: notificada por Git como dueña del módulo.
