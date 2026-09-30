@@ -3,7 +3,7 @@ tipo: referencia
 estado: formalizado
 responsable: equipo
 pc: pc1
-actualizado: 22/09/26
+actualizado: 30/09/26
 ---
 # Herramientas del proyecto
 
@@ -37,6 +37,22 @@ Antes de decidir se compararon los principales asistentes de IA para desarrollo,
 **Dónde se ubica Claude:** a septiembre de 2026 los modelos de Claude encabezan SWE-bench Verified (Claude Opus 5 ≈ 96–97 %), a la par de GPT-5.6 (≈ 96 %) y por delante de la mayoría de las alternativas. Como cada benchmark puede coronar a un modelo distinto y los puestos cambian seguido, se toma como referencia y no como dato absoluto.
 
 **Factor decisivo:** el equipo ya está acostumbrado a usar Claude por haberla utilizado en otros proyectos, lo que reduce la curva de aprendizaje, y los tres cuentan con la versión paga; eso los deja productivos desde el primer día sin costos ni gestiones adicionales.
+
+### Dos usos de la IA: para desarrollar y dentro del producto
+En Rumbo la IA aparece en dos lugares distintos, con decisiones y justificaciones separadas:
+
+| | IA para desarrollar | IA dentro del producto |
+|---|---|---|
+| **Qué es** | El agente con el que el equipo analiza, diseña y programa Rumbo | Una función que usan los empleados de la agencia |
+| **Quién la usa** | Los tres integrantes del equipo | El empleado con acceso al módulo de redes |
+| **Herramienta y modelo** | Claude Code, con Claude Opus o Sonnet según la tarea | Claude Sonnet 5.5, llamado desde el backend con LangChain |
+| **Para qué** | Especificar casos de uso, modelar el dominio, dibujar diagramas, generar entregables y escribir código | Generar un borrador de posteo a partir del tema, el canal y el tono ([[CU-20 Generar propuesta de contenido con IA\|CU-20]]) |
+| **Qué datos ve** | El vault y el código del proyecto | Solo el tema, el canal y el tono: ningún dato de clientes |
+| **Costo** | Incluido en la suscripción paga de cada integrante | Por uso de la API; con unas decenas de borradores por mes, centavos de dólar |
+
+La IA **para desarrollar** se eligió por las razones de arriba: experiencia del equipo, suscripción disponible y desempeño en código. La IA **del producto** se eligió con otro criterio: como la agencia solo percibe la calidad del texto en español y el volumen es bajo, se prefirió Sonnet 5.5 frente a Haiku 4.5, aunque cueste el doble. En los dos casos una persona revisa el resultado: el equipo revisa lo que produce el agente y el empleado revisa el borrador antes de publicarlo a mano, porque la publicación automática en redes está fuera del alcance ([[Alcance y fuera de alcance]]).
+
+Los agentes que usa el equipo, y el enlace a la decisión sobre el modelo del producto, están en [[IA — Agentes del proyecto]].
 
 ## Herramienta de modelado: Mermaid
 
