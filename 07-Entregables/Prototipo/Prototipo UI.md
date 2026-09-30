@@ -72,7 +72,7 @@ Tokens en variables (paleta del equipo: azules `#22506F` → `#73A5C4` y gris `#
 | 48 | Empleado · detalle de hotel (sin moderar) | CU-18 paso 3 · CU-16 · CU-17 | `img/48-empleado-detalle-hotel.png` |
 | 49 | Admin · agenda de toda la agencia | CU-14 | `img/49-admin-agenda-agencia.png` |
 | 50 | Dueña · agenda de toda la agencia | CU-14 | `img/50-duena-agenda-agencia.png` |
-| 51 | Dueña · configuración (destinos y operadores) | [[CU-26 Gestionar destinos\|CU-26]] · CU-15 · [[CU-31 Gestionar operadores\|CU-31]] | `img/51-duena-configuracion.png` |
+| 51 | Dueña · configuración (con las cuatro pestañas del admin) | [[CU-26 Gestionar destinos\|CU-26]] · CU-15 · [[CU-31 Gestionar operadores\|CU-31]] · CU-13 · CU-25 | `img/51-duena-configuracion.png` |
 | 52 | Mobile · inicio de sesión | [[CU-24 Iniciar sesión\|CU-24]] | `img/52-mobile-inicio-sesion.png` |
 | 53 | Mobile · detalle de alerta | CU-14 | `img/53-mobile-detalle-alerta.png` |
 | 54 | Mobile · posponer alerta | CU-14 | `img/54-mobile-posponer-alerta.png` |
@@ -103,11 +103,11 @@ Se dibujan aparte solo las pantallas que **cambian según el rol** (fila «Vista
 | Redes | con acceso a redes (26, 27) | ídem | ídem | no |
 | Dashboard | lo suyo (47) | toda la agencia (28) | toda la agencia (28) | lo suyo (46) |
 | Reportes | no | sí (29) | sí (29) | no |
-| Configuración | no | completa (30–33) | solo Destinos y Operadores (51) | no |
+| Configuración | no | completa (30–33) | completa (51 → 30, 31 y 33) | no |
 
 - El menú del `empleado` ya no muestra Reportes ni Configuración (se reexportaron sus PNG).
 - Para que la agenda del `empleado` muestre solo lo suyo, el viaje a Mendoza y el Centro de Jubilados Quilmes pasaron a tener como responsable a Sofía, y se quitaron de su agenda las alertas de Diego (Salta) y de Laura (Mar del Plata), que ahora se ven en la agenda de toda la agencia.
-- ✅ **Configuración del `dueño` (resuelto en la sync del 30/09/26):** la dueña también gestiona usuarios (CU-25), comisiones (CU-13) y la moderación de reseñas (CU-29), como el `admin` (DEC-0005: el dueño tiene todo). ⏳ Falta actualizar su configuración en el prototipo (hoy la pantalla 51 muestra solo Destinos y Operadores) y reexportar ese PNG.
+- ✅ **Configuración del `dueño` (resuelto en la sync del 30/09/26):** la dueña también gestiona usuarios (CU-25), comisiones (CU-13) y la moderación de reseñas (CU-29), como el `admin` (DEC-0005: el dueño tiene todo). ✅ **Prototipo actualizado (30/09/26, Paloma):** la configuración de la dueña (51) muestra las cuatro pestañas del `admin` (Parámetros y comisiones, Usuarios y roles, Destinos y requisitos, Operadores). Las pestañas llevan a las pantallas del `admin` (30, 31 y 33), que son iguales para los dos roles, y se reexportó el PNG. La moderación de reseñas (CU-29) no está en Configuración sino en el detalle de hotel (24), como para el `admin`.
 - Límite del prototipo: las pantallas compartidas llevan la barra lateral de Sofía, así que al navegar desde la vista del `admin` o del `dueño` a una sección común se ve el menú del `empleado`. La moderación (24) no tiene enlace desde el catálogo, que ahora abre la vista del `empleado` (48).
 
 ## Mobile completo (B5, 30/09/26)

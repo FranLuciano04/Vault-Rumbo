@@ -30,6 +30,11 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
+## 30/09/26 — Paloma (Claude Opus 5.5) — configuración de la dueña en el prototipo
+- **Hecho:** En la pantalla 51 de Figma, «Dueña · Configuración», se hicieron visibles las pestañas *Parámetros y comisiones* (CU-13) y *Usuarios y roles* (CU-25), que estaban ocultas. Ahora se ven las cuatro pestañas del `admin`, y cada una lleva a su pantalla (30, 31 y 33; se sumó el enlace de *Operadores*). La moderación de reseñas (CU-29) sigue en el detalle de hotel (24), igual que para el `admin`. Se reexportó `img/51-duena-configuracion.png` con el mismo nombre y se cerró la tarea en [[Prototipo UI]], en el paso B5 de [[Estado del proyecto]] y en [[Cierre del PC1 — tareas pendientes]].
+- **Commits:** ver el commit de esta entrada.
+- **Pendiente:** regenerar los `.docx` con la nueva captura (se hace en D2 con `armar-entrega.sh`). Queda del prototipo: al pasar a las pestañas 30, 31 y 33 se ve el menú de Marina (`admin`), la misma limitación de las pantallas compartidas. En la 51, el botón «Agregar requisito» tapa el final del subtítulo.
+
 ## 30/09/26 — Paloma (Claude Opus 5.5) — H4: primera versión del deck
 - **Hecho:** `Rumbo — PC1 (presentación).pptx` y su PDF en `07-Entregables/PC1/`: 24 diapositivas que siguen el orden del documento único (presentación general, IA, agentes, datos, desarrollo e interfaces, arquitectura y cierre), con la paleta del prototipo, la persona que expone cada parte según los frentes, diagramas, capturas del prototipo y notas del orador. Script reproducible `07-Entregables/build/build-deck.js` (pptxgenjs, sin instalar en el repo). Verificado: pasa el validador de PowerPoint y se revisó el render de todas las diapositivas.
 - **Pendiente:** revisión del equipo; definir la duración y si hay demo en vivo; si cambian los números del PC1, actualizar el script y regenerar.
