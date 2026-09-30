@@ -22,7 +22,7 @@ tags:: #tipo/referencia #estado/formalizado
 | Casos de uso | `02-Analisis/Casos de uso/CU-*.md` | `07-Entregables/Casos de uso/Rumbo — Casos de uso.docx` | PC1 |
 | Inteligencia artificial | [[DEC-0012 Modelo de IA del producto]] + [[IA — Agentes del proyecto]] | `07-Entregables/IA/Rumbo — Inteligencia artificial.docx` | PC1 |
 | Modelo de desarrollo e interfaces gráficas | [[Modelo de desarrollo]] + la tabla de pantallas de [[Prototipo UI]] | `07-Entregables/Desarrollo/Rumbo — Modelo de desarrollo.docx` | PC1 |
-| Prototipo UI | [Figma — Rumbo · Prototipo PC1](https://www.figma.com/design/5rq8HOlZQ3uu4IUpBuhuZp) (la fuente es Figma, no un `.md`) | `07-Entregables/Prototipo/img/` (46 PNG) · detalle en [[Prototipo UI]] | PC1 |
+| Prototipo UI | [Figma — Rumbo · Prototipo PC1](https://www.figma.com/design/5rq8HOlZQ3uu4IUpBuhuZp) (la fuente es Figma, no un `.md`) | `07-Entregables/Prototipo/img/` (51 PNG) · detalle en [[Prototipo UI]] | PC1 |
 
 > **Los tres se entregan juntos y se leen en ese orden:** el relevamiento define el problema y el alcance, los requisitos especifican qué debe hacer el sistema dentro de ese alcance, y los casos de uso describen cómo se realiza cada requisito. Para que no se contradigan, **cada contenido vive en un solo documento** y los otros lo referencian: el **alcance** está únicamente en el relevamiento, y la **especificación formal del circuito** (precondiciones, flujos alternativos) únicamente en casos de uso.
 
@@ -113,7 +113,7 @@ bash "07-Entregables/build/render-diagramas-diseno.sh"
 | Secuencia de análisis (3) | `03-Dominio/Diagramas/Secuencia/img/` |
 | Arquitectura: despliegue, monorepo, vista lógica (capas y módulos) y C4 (contexto, contenedores y componentes) | `05-Diseño/Arquitectura/img/` |
 | IA: ciclo de trabajo con el agente · Modelo de desarrollo: iteraciones y pipeline de calidad | `05-Diseño/img/` |
-| Prototipo UI: las 46 pantallas (se exportan desde Figma, ver [[Prototipo UI]]) | `07-Entregables/Prototipo/img/` |
+| Prototipo UI: las 51 pantallas (se exportan desde Figma, ver [[Prototipo UI]]) | `07-Entregables/Prototipo/img/` |
 
 Los diagramas nuevos de `05-Diseño` se suman como una línea en `render-diagramas-diseno.sh`.
 

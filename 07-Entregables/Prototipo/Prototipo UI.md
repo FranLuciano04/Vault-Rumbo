@@ -68,6 +68,11 @@ Tokens en variables (paleta del equipo: azules `#22506F` → `#73A5C4` y gris `#
 | 44 | Freelance · catálogo de hoteles (solo consulta) | CU-18 | `img/44-freelance-catalogo-hoteles.png` |
 | 45 | Freelance · detalle de hotel (solo lectura) | CU-18 paso 3 | `img/45-freelance-detalle-hotel.png` |
 | 46 | Freelance · dashboard (sus ventas y comisiones) | CU-21 A1 | `img/46-freelance-dashboard.png` |
+| 47 | Empleado · dashboard (lo suyo) | [[CU-21 Ver dashboard y embudo|CU-21]] A1 | `img/47-empleado-dashboard.png` |
+| 48 | Empleado · detalle de hotel (sin moderar) | CU-18 paso 3 · CU-16 · CU-17 | `img/48-empleado-detalle-hotel.png` |
+| 49 | Admin · agenda de toda la agencia | CU-14 | `img/49-admin-agenda-agencia.png` |
+| 50 | Dueña · agenda de toda la agencia | CU-14 | `img/50-duena-agenda-agencia.png` |
+| 51 | Dueña · configuración (destinos y operadores) | [[CU-26 Gestionar destinos|CU-26]] · CU-15 · [[CU-31 Gestionar operadores|CU-31]] | `img/51-duena-configuracion.png` |
 
 [[CU-01 De la consulta a la venta|CU-01]] no tiene pantalla propia: es el circuito completo y se recorre navegando las pantallas 11 → 12 → 13 → 15 → 18.
 
@@ -79,9 +84,27 @@ El punto de inicio *Freelance · embudo* recorre todas las secciones del menú d
 - **Economía:** en la ficha de su viaje ve precio, costo, ganancia y **su** comisión; en el dashboard, sus ventas y comisiones, sin el ranking de vendedores ni lo que se paga a los operadores.
 - Desde estas pantallas no se navega a los formularios de acción (registrar cobro, nueva consulta, etc.), que ya están en el recorrido del `empleado` y son iguales para el `freelance`.
 
+## Vistas por rol (B5, 30/09/26)
+Se dibujan aparte solo las pantallas que **cambian según el rol** (fila «Vistas por rol» en Figma); las secciones de lectura global ([[DEC-0005 Autenticación y modelo de roles|DEC-0005]]) son iguales para `empleado`, `admin` y `dueño` y se muestran una sola vez. Criterio: actores de cada CU.
+
+| Sección | `empleado` (Sofía) | `admin` (Marina) | `dueño` (Laura) | `freelance` (Diego) |
+|---|---|---|---|---|
+| Agenda del día | sus alertas (3) | toda la agencia, con responsable (49) | toda la agencia (50) | sus alertas (37) |
+| Calendario · Clientes · Oportunidades · Cotizaciones · Viajes | toda la agencia, con filtro «lo mío» (8, 12–15, 20) | ídem | ídem | solo lo suyo (34, 38–43) |
+| Hoteles | consulta, alta y reseñas; no modera (21–23, 25, 48) | además modera reseñas (24) | además modera reseñas (24) | solo consulta (44, 45) |
+| Redes | con acceso a redes (26, 27) | ídem | ídem | no |
+| Dashboard | lo suyo (47) | toda la agencia (28) | toda la agencia (28) | lo suyo (46) |
+| Reportes | no | sí (29) | sí (29) | no |
+| Configuración | no | completa (30–33) | solo Destinos y Operadores (51) | no |
+
+- El menú del `empleado` ya no muestra Reportes ni Configuración (se reexportaron sus PNG).
+- Para que la agenda del `empleado` muestre solo lo suyo, el viaje a Mendoza y el Centro de Jubilados Quilmes pasaron a tener como responsable a Sofía, y se quitaron de su agenda las alertas de Diego (Salta) y de Laura (Mar del Plata), que ahora se ven en la agenda de toda la agencia.
+- ⚠️ `#accion/decidir` **Configuración del `dueño`:** se siguieron los CU (CU-15, CU-26 y CU-31 incluyen al `dueño`; CU-13 y CU-25 son solo del `admin`). Que la dueña no pueda gestionar usuarios ni comisiones es llamativo: ratificar con el equipo o ampliar CU-13 y CU-25.
+- Límite del prototipo: las pantallas compartidas llevan la barra lateral de Sofía, así que al navegar desde la vista del `admin` o del `dueño` a una sección común se ve el menú del `empleado`. La moderación (24) no tiene enlace desde el catálogo, que ahora abre la vista del `empleado` (48).
+
 ## Pendiente: prototipado completo (B5)
 Pedido en la sync del 30/09/26, al aprobar el prototipo. Detalle en el paso **B5** de [[Estado del proyecto]]:
-- **Cada sección vista por cada rol** (`empleado`, `admin`, `dueño` y `freelance`).
+- ✅ **Cada sección vista por cada rol** (30/09/26, ver *Vistas por rol*).
 - ✅ **El `freelance` completo** (30/09/26, ver arriba): todas sus secciones, solo con lo suyo, sin cargar ni editar hoteles, sin registrar reseñas y sin el módulo de redes. `empleado`, `admin` y `dueño` sí cargan hoteles y reseñas; moderar reseñas es solo de `admin` y `dueño`.
 - **El mobile completo:** agenda, alertas y clientes, según el alcance mobile de [[ARQ — Vista general]].
 
