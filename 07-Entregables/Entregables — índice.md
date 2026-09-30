@@ -21,6 +21,7 @@ tags:: #tipo/referencia #estado/formalizado
 | Requisitos | `02-Analisis/Requisitos funcionales.md` | `07-Entregables/Requisitos/Rumbo — Requisitos.docx` | PC1 |
 | Casos de uso | `02-Analisis/Casos de uso/CU-*.md` | `07-Entregables/Casos de uso/Rumbo — Casos de uso.docx` | PC1 |
 | Inteligencia artificial | [[DEC-0012 Modelo de IA del producto]] + [[IA — Agentes del proyecto]] | `07-Entregables/IA/Rumbo — Inteligencia artificial.docx` | PC1 |
+| Modelo de desarrollo e interfaces gráficas | [[Modelo de desarrollo]] + la tabla de pantallas de [[Prototipo UI]] | `07-Entregables/Desarrollo/Rumbo — Modelo de desarrollo.docx` | PC1 |
 | Prototipo UI | [Figma — Rumbo · Prototipo PC1](https://www.figma.com/design/5rq8HOlZQ3uu4IUpBuhuZp) (la fuente es Figma, no un `.md`) | `07-Entregables/Prototipo/img/` (36 PNG) · detalle en [[Prototipo UI]] | PC1 |
 
 > **Los tres se entregan juntos y se leen en ese orden:** el relevamiento define el problema y el alcance, los requisitos especifican qué debe hacer el sistema dentro de ese alcance, y los casos de uso describen cómo se realiza cada requisito. Para que no se contradigan, **cada contenido vive en un solo documento** y los otros lo referencian: el **alcance** está únicamente en el relevamiento, y la **especificación formal del circuito** (precondiciones, flujos alternativos) únicamente en casos de uso.
@@ -66,6 +67,13 @@ Genera `07-Entregables/Casos de uso/Rumbo — Casos de uso.docx`. Usa por defect
 - **Estética:** la misma plantilla `reference.docx`.
 - **Cómo generarlo:** `bash "07-Entregables/build/build-ia.sh"` desde la raíz del repo.
 
+## Parámetros del entregable de Modelo de desarrollo (30/09)
+- **Contenido:** portada + [[Modelo de desarrollo]] (ciclo de vida iterativo por PC, prácticas del equipo, control de calidad e interfaces gráficas, con dos figuras) + la **galería de pantallas** del prototipo. Responde a la lámina «Modelo de desarrollo utilizado con interfaces gráficas».
+- **Galería automática:** `galeria()` en `build-desarrollo.sh` arma una figura por fila de la tabla de pantallas de [[Prototipo UI]] («Figura N. Pantalla — casos de uso»), con los PNG de `07-Entregables/Prototipo/img/`; las pantallas mobile van al 35 % del ancho. Cuando B5 sume filas y PNG, alcanza con volver a correr el script.
+- **Ajustes propios:** quita los blockquotes, reemplaza los dos bloques Mermaid por sus PNG de `05-Diseño/img/` (que genera `render-diagramas-diseno.sh`) y saca la mención a la nota del prototipo.
+- **Estética y filtro:** los mismos que el resto.
+- **Cómo generarlo:** `bash "07-Entregables/build/build-desarrollo.sh"` desde la raíz del repo.
+
 ## Cómo generar el DOCX de relevamiento
 Desde la raíz del repo:
 ```bash
@@ -104,7 +112,7 @@ bash "07-Entregables/build/render-diagramas-diseno.sh"
 | Actividad (5) | `03-Dominio/Diagramas/Actividad/img/` |
 | Secuencia de análisis (3) | `03-Dominio/Diagramas/Secuencia/img/` |
 | Arquitectura: despliegue, monorepo, vista lógica (capas y módulos) y C4 (contexto, contenedores y componentes) | `05-Diseño/Arquitectura/img/` |
-| IA: ciclo de trabajo con el agente | `05-Diseño/img/` |
+| IA: ciclo de trabajo con el agente · Modelo de desarrollo: iteraciones y pipeline de calidad | `05-Diseño/img/` |
 | Prototipo UI: las 36 pantallas (se exportan desde Figma, ver [[Prototipo UI]]) | `07-Entregables/Prototipo/img/` |
 
 Los diagramas nuevos de `05-Diseño` se suman como una línea en `render-diagramas-diseno.sh`.

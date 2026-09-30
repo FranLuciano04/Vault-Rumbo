@@ -26,5 +26,7 @@ render "Arquitectura/ARQ — Vista general.md" 5 "Arquitectura/img/ARQ-C4-1-cont
 render "Arquitectura/ARQ — Vista general.md" 6 "Arquitectura/img/ARQ-C4-2-contenedores"
 render "Arquitectura/ARQ — Vista general.md" 7 "Arquitectura/img/ARQ-C4-3-componentes"
 render "IA — Agentes del proyecto.md"        1 "img/IA-ciclo-de-trabajo"
+render "Modelo de desarrollo.md"             1 "img/DES-iteraciones"
+render "Modelo de desarrollo.md"             2 "img/DES-pipeline-calidad"
 
 rm -rf "$TMP"
