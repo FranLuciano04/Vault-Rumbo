@@ -30,6 +30,7 @@ Los plugins, las skills sincronizadas desde una cuenta y otras dependencias exte
 |---|---|---|---|
 | pandoc | requerida al compilar entregables | `winget install --id JohnMacFarlane.Pandoc` (Windows) · https://pandoc.org/installing.html | Generar los `.docx` entregables desde los `.md`. Ver [[Entregables — índice]] y [[Especificación de casos de uso — flujo]]. Solo la necesita quien compila el entregable. |
 | Node.js (npx) | requerida al renderizar diagramas | https://nodejs.org (LTS) · trae `npx` | Renderizar los diagramas Mermaid a imagen con `npx @mermaid-js/mermaid-cli` (motor ELK). Solo la necesita quien regenera un diagrama del entregable. |
+| pptxgenjs | requerida al regenerar el deck | `npm install pptxgenjs` (en cualquier carpeta; al correr, `NODE_PATH` apunta a su `node_modules`) | Generar el deck del PC1 con `07-Entregables/build/deck-pc1.js`. Solo lo necesita quien regenera la presentación. |
 
 > **Sin Python:** la plantilla estética del `.docx` se genera con `07-Entregables/build/make-reference.ps1` (**PowerShell**, incluido en Windows, sin dependencias). No hace falta instalar Python.
 
