@@ -21,7 +21,7 @@ Casos de uso: [[CU-01 De la consulta a la venta]].
 Gestiona usuarios y configura parámetros del negocio (p. ej. la **comisión por defecto de cada vendedor**, ver [[DEC-0007 Modelo económico — ganancia, margen y comisión de vendedor]]). **Ve toda la empresa.** [[Usuario]] con rol `admin`.
 
 ## Dueño/a — *visión del negocio*
-Propietaria de la agencia: visión total, reportes y estadísticas. **Ve toda la empresa.** [[Usuario]] con rol `dueño`.
+Propietaria de la agencia: visión total, reportes y estadísticas. **Ve toda la empresa.** Además puede hacer todo lo del administrador: configuración, usuarios, comisiones y moderación de reseñas. [[Usuario]] con rol `dueño`.
 
 ## Vendedor freelance — *operador externo con acceso acotado*
 Vendedor externo que carga sus **propias** ventas y clientes. A diferencia del `empleado`, **ve solo lo suyo** (bloqueo de lectura fuera de sus clientes/operaciones); sí ve el catálogo compartido (sin modificarlo: no da de alta ni edita hoteles ni registra reseñas) y sus propias comisiones. Se modela como [[Usuario]] con rol `freelance` ([[DEC-0008 Autenticación propia y rol de vendedor freelance]]).

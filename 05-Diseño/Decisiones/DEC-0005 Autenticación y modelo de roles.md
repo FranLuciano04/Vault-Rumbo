@@ -55,7 +55,7 @@ El relevamiento de la agencia ([[Relevamiento — respuestas de la agencia (17-0
 
 ## Pendiente `#accion/decidir`
 - **Mecanismo de autenticación:** ✅ **resuelto** en [[DEC-0008 Autenticación propia y rol de vendedor freelance]] (usuario/contraseña individual, sellado 17/09).
-- **Infraestructura de despliegue:** sigue pendiente, ver [[DEC-0001 Stack tecnológico]] y [[ARQ — Vista general]].
+- **Infraestructura de despliegue:** ✅ **resuelta** en [[DEC-0011 Infraestructura de despliegue on-premise]] (29/09/26).
 
 ## Impacto
 - Afecta: [[Usuario]] (enum `rol`), [[Cliente]] (`asesor_asignado`), [[Oportunidad]] (`responsable`), [[Viaje]] (`responsable`), [[Alerta]] (`propietario`), [[Actores]], [[ARQ — Vista general]] y, transversalmente, casi todos los casos de uso (filtros por propiedad, no por bloqueo).

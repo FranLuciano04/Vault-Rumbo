@@ -4,7 +4,7 @@ estado: formalizado
 modulo: [hoteles]
 responsable: Paloma
 pc: pc1
-actualizado: 29/09/26
+actualizado: 30/09/26
 fecha_aprobacion: 29/09/26
 ---
 # CU-29 Eliminar reseña
@@ -15,12 +15,13 @@ tags:: #tipo/caso-uso #estado/formalizado #pc/pc1
 Dar de baja una [[Reseña]] inapropiada o errónea para que deje de incidir en el catálogo y la recomendación, preservando la trazabilidad ([[DEC-0003 Relación Viaje–Hotel y Reseña]]).
 
 ## Actor principal
-[[Actores|admin]]
+[[Actores|admin]] (también `dueño`)
 
 ## Actores secundarios
 - [[Actores|empleado]] (puede reportar/solicitar la baja — ver Revisión).
 
 ## Precondiciones
+- El [[Usuario]] inició sesión con rol `admin` o `dueño` ([[CU-24 Iniciar sesión]], [[DEC-0005 Autenticación y modelo de roles]]).
 - Existe una [[Reseña]] `publicada` en el catálogo.
 
 ## Flujo principal
@@ -46,6 +47,8 @@ Dar de baja una [[Reseña]] inapropiada o errónea para que deje de incidir en e
 - [[DGM — Casos de uso]] · [[MOC — Modelo de dominio]]
 
 ## 🔎 Revisión
+> [!note] Sync 30/09/26 (Francisco, Nahuel y Paloma): la `dueño` también realiza este caso de uso. Se alinea con DEC-0005 («el dueño tiene todo, más la visión del negocio»), con el relevamiento («Administrador / Dueña: configura comisiones, gestiona usuarios») y con el [[Contrato de la API (OpenAPI)]], que ya lo permitía.
+
 > [!question] Nahuel (10/09): **borrador propuesto** para cubrir el gap de eliminación de [[Reseña]] (pedido en la revisión de cobertura ABM). A validar por **Paloma** (dueña del módulo): (1) agrego `estado` (`publicada · oculta`) a [[Reseña]]; (2) actor — ¿solo `admin` (moderación) o también `empleado`?; (3) ¿baja lógica (recomendada) o física?
 >
 > [!note] Francisco (11/09) — **definido** (resuelvo las 3 dudas de Nahuel): (1) `estado` `publicada · oculta` **confirmado** en [[Reseña]]; (2) actor = **`admin`** (moderar es acción sensible; el empleado puede reportar/solicitar); (3) **baja lógica** siempre por defecto (preserva la trazabilidad de [[DEC-0003 Relación Viaje–Hotel y Reseña]]); la física es excepcional. Pasa a `en-revision`. Paloma: para tu conocimiento como dueña del módulo, ajustable en la sync.

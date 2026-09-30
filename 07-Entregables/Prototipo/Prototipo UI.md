@@ -107,7 +107,7 @@ Se dibujan aparte solo las pantallas que **cambian según el rol** (fila «Vista
 
 - El menú del `empleado` ya no muestra Reportes ni Configuración (se reexportaron sus PNG).
 - Para que la agenda del `empleado` muestre solo lo suyo, el viaje a Mendoza y el Centro de Jubilados Quilmes pasaron a tener como responsable a Sofía, y se quitaron de su agenda las alertas de Diego (Salta) y de Laura (Mar del Plata), que ahora se ven en la agenda de toda la agencia.
-- ⚠️ `#accion/decidir` **Configuración del `dueño`:** se siguieron los CU (CU-15, CU-26 y CU-31 incluyen al `dueño`; CU-13 y CU-25 son solo del `admin`). Que la dueña no pueda gestionar usuarios ni comisiones es llamativo: ratificar con el equipo o ampliar CU-13 y CU-25.
+- ✅ **Configuración del `dueño` (resuelto en la sync del 30/09/26):** la dueña también gestiona usuarios (CU-25), comisiones (CU-13) y la moderación de reseñas (CU-29), como el `admin` (DEC-0005: el dueño tiene todo). ⏳ Falta actualizar su configuración en el prototipo (hoy la pantalla 51 muestra solo Destinos y Operadores) y reexportar ese PNG.
 - Límite del prototipo: las pantallas compartidas llevan la barra lateral de Sofía, así que al navegar desde la vista del `admin` o del `dueño` a una sección común se ve el menú del `empleado`. La moderación (24) no tiene enlace desde el catálogo, que ahora abre la vista del `empleado` (48).
 
 ## Mobile completo (B5, 30/09/26)

@@ -98,10 +98,10 @@ flowchart LR
   EMP --- CU24
 
   %% Admin: casos exclusivos (configuración, catálogos y moderación)
-  ADM --- CU13 & CU15 & CU25 & CU26 & CU29 & CU31
+  ADM --- CU13 & CU15 & CU21 & CU22 & CU25 & CU26 & CU29 & CU31
 
   %% Dueño: dashboard y reportes
-  DUE --- CU21 & CU22
+  DUE --- CU13 & CU15 & CU21 & CU22 & CU25 & CU26 & CU29 & CU31
 
   %% Cliente externo (a la derecha): su rol queda explícito
   CU06 -. "recibe cotización" .-> CLI
@@ -124,7 +124,7 @@ flowchart LR
 ```
 
 > **Notas de lectura:**
-> - **Generalización de roles:** `Admin`, `Dueño` y `Freelance` son *especializaciones* del `Empleado` (flechas `es-un`): heredan sus casos operativos y solo se dibujan aparte los casos exclusivos (`Admin`: el módulo **Configuración/Catálogos** —configurar comisión, recordatorios por destino, destinos y operadores— más gestionar usuarios y moderar reseñas; `Dueño`: dashboard y reportes). Esto refleja el modelo de visibilidad de [[DEC-0005 Autenticación y modelo de roles]].
+> - **Generalización de roles:** `Admin`, `Dueño` y `Freelance` son *especializaciones* del `Empleado` (flechas `es-un`): heredan sus casos operativos y solo se dibujan aparte los casos de gestión, que comparten `Admin` y `Dueño`: el módulo **Configuración/Catálogos** —configurar comisión, recordatorios por destino, destinos y operadores—, gestionar usuarios, moderar reseñas, y el dashboard y los reportes de toda la agencia (sync del 30/09/26: el dueño tiene todo, según DEC-0005). Esto refleja el modelo de visibilidad de [[DEC-0005 Autenticación y modelo de roles]].
 > - **`Freelance` (vendedor externo):** hace los **mismos casos operativos** que el `Empleado`, **salvo gestionar hoteles (CU-16), registrar reseñas (CU-17) y el módulo de redes (CU-19 y CU-20)** (decidido en la sync del 30/09/26), y con **visibilidad restringida a lo suyo** (excepción al *lectura global*, [[DEC-0008 Autenticación propia y rol de vendedor freelance]]). Esa restricción es de **alcance de datos**, no de casos de uso, por eso el diagrama lo modela como especialización del `Empleado`; el detalle de visibilidad va en las DEC.
 > - **Actor externo `Pasajero / Cliente`:** no opera el sistema; solo interactúa con dos casos: **recibe** la cotización (CU-06) y **aporta** la reseña que el empleado registra (CU-17). Por eso va a la derecha, con asociaciones etiquetadas.
 

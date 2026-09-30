@@ -4,7 +4,7 @@ estado: formalizado
 modulo: [seguridad]
 responsable: Nahuel
 pc: pc1
-actualizado: 29/09/26
+actualizado: 30/09/26
 fecha_aprobacion: 29/09/26
 ---
 # CU-25 Gestionar usuarios y roles
@@ -15,13 +15,13 @@ tags:: #tipo/caso-uso #estado/formalizado #pc/pc1
 Alta, baja y edición de [[Usuario|Usuarios]], asignación de su `rol` y de la capacidad de acceso al módulo de redes ([[Actores]], [[DEC-0005 Autenticación y modelo de roles]]).
 
 ## Actor principal
-[[Actores|admin]]
+[[Actores|admin]] (también `dueño`)
 
 ## Actores secundarios
 -
 
 ## Precondiciones
-- El [[Usuario]] tiene rol `admin` ([[DEC-0005 Autenticación y modelo de roles]]).
+- El [[Usuario]] inició sesión con rol `admin` o `dueño` ([[CU-24 Iniciar sesión]], [[DEC-0005 Autenticación y modelo de roles]]).
 
 ## Flujo principal
 1. El admin abre la gestión de [[Usuario|Usuarios]].
@@ -49,6 +49,8 @@ Alta, baja y edición de [[Usuario|Usuarios]], asignación de su `rol` y de la c
 - [[DGM — Casos de uso]] · [[MOC — Modelo de dominio]]
 
 ## 🔎 Revisión
+> [!note] Sync 30/09/26 (Francisco, Nahuel y Paloma): la `dueño` también realiza este caso de uso. Se alinea con DEC-0005 («el dueño tiene todo, más la visión del negocio»), con el relevamiento («Administrador / Dueña: configura comisiones, gestiona usuarios») y con el [[Contrato de la API (OpenAPI)]], que ya lo permitía.
+
 > [!question] Nahuel (10/09): asumo **baja lógica** (A3) y la salvaguarda del **último admin** (A4). Confirmar en la sync. La creación de la propia contraseña/credencial depende del mecanismo pendiente en [[DEC-0005 Autenticación y modelo de roles]].
 >
 > [!success] Nahuel (18/09, entrevista grill) — **rol `freelance` y credenciales incorporados (Q5):** el alta ahora contempla el rol `freelance` (visibilidad restringida) y las **credenciales usuario/contraseña individual** ([[DEC-0008 Autenticación propia y rol de vendedor freelance]], que resolvió el mecanismo pendiente). A ratificar en sync.
