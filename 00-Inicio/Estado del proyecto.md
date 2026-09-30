@@ -10,6 +10,8 @@ actualizado: 30/09/26
 > Memoria externa del equipo (y de Claude). Se actualiza en cada **sync semanal**. Es lo primero que se lee al retomar. Mantener **corto**.
 
 ## Fase actual
+> 👉 **Cierre del PC1 (30/09 a la noche):** casi todo está hecho y formalizado. Las tareas que faltan, **por persona**, están en [[Cierre del PC1 — tareas pendientes]]. Leerla antes de empezar.
+
 **Análisis y diseño → rumbo a PC1, ⚠️ adelantado al vie 02/10/26 a las 20 hs (entrega y exposición oral).** El plan se comprimió en *Plan comprimido a 3 días*; las decisiones de diseño se tomaron el 29/09. ✅ **Sync del 29/09: todo el análisis quedó ratificado y formalizado** — 31 CU y su diagrama, 13 entidades, clases y ER, 6 diagramas de estado, 5 de actividad, 4 de secuencia y [[Requisitos funcionales]] (155 RF + 16 RNF con valores). Se cerraron los 18 huecos de los diagramas de actividad y las abiertas anteriores (ver *Definido y sellado en la sync 29/09*). **Próximo:** arquitectura y prototipo UI en Figma (ver *Pasos restantes hacia PC1*).
 
 ## Roles de esta quincena
