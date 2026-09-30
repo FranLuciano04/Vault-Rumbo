@@ -282,6 +282,7 @@ Los once módulos (`clientes`, `oportunidades`, `viajes`, `economia`, `alertas`,
 - **Infraestructura y despliegue:** [[DEC-0011 Infraestructura de despliegue on-premise]].
 - **Persistencia y migraciones** (29/09): SQLAlchemy 2.0 async y Alembic. El esquema inicial es el del [[DGM-ER]], escrito como script en [[Modelo de datos SQL]]; en PC2, la primera migración de Alembic lo reproduce.
 - **IA del producto:** [[DEC-0012 Modelo de IA del producto]].
+- **Contrato entre vista y controlador:** [[Contrato de la API (OpenAPI)]], preliminar para el PC1; en PC2 lo genera FastAPI.
 
 ## Pendiente
 - **G1 · Modelo C4** (contexto, contenedores y componentes), que reutiliza estas vistas.

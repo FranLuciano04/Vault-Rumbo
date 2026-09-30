@@ -30,6 +30,12 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
+## 29/09/26 — Nahuel (Claude Opus 5.5) — F1: contrato OpenAPI
+- **Hecho:** `05-Diseño/API/openapi.json` (OpenAPI 3.1): 95 operaciones en 72 rutas para los 11 módulos, cada una con rol (`x-roles`), casos de uso (`x-casos-de-uso`) y errores en `application/problem+json`. Esquemas completos para Cliente, Oportunidad, Cotización, Viaje, Pago y Alerta, más el login. Lo genera `generar-openapi.js` (no se edita el JSON a mano). Nota índice con convenciones, roles, errores y tabla de endpoints: [[Contrato de la API (OpenAPI)]]; enlazada desde ARQ.
+- **Verificado:** Redocly CLI lo da por válido (solo avisa que no declara licencia); cubre los 30 CU atómicos.
+- **A revisar en A6:** cuatro supuestos anotados en la nota (alcance del freelance fuera de lo operativo, PDF de la cotización, rutas de reportes y recontactos como alertas).
+- **Pendiente:** G1 (C4).
+
 ## 29/09/26 — Paloma (Claude Opus 5.5) — B2/B3: prototipo UI en Figma
 - **Hecho:** Se armó el prototipo en Figma vía MCP (cuenta de estudiante de Paloma): [Rumbo — Prototipo PC1](https://www.figma.com/design/5rq8HOlZQ3uu4IUpBuhuZp). Primero se validó el estilo con una sola pantalla (agenda, CU-14), que se rehízo aplicando buenas prácticas de UX/UI actuales: contraste AA, jerarquía, control segmentado en vez de 9 filtros, acción principal según el `tipo` de alerta, acciones rápidas en hover, estado vacío y «Deshacer». Después se hizo un **sistema de diseño liviano** (tokens desde la paleta del equipo, tipografía Plus Jakarta Sans, 7 componentes y 28 íconos) y, con él, las otras 10 pantallas: CU-24 (y error A1), CU-03, CU-05, CU-06, ficha del viaje (CU-07/10/11), CU-12 como panel lateral, CU-21, CU-18 y las dos mobile (agenda y ficha del cliente). Datos de ejemplo ficticios y coherentes entre pantallas.
 - **Propuestas para Nahuel** `#accion/decidir`: en la Revisión de [[CU-14 Ver y atender alertas del día]], **A5 — Ver próximas** y un **indicador de progreso del día** (requiere el atributo nuevo `Alerta.resuelta_en`); en la Revisión de [[Requisitos funcionales]], los **RF-154** y **RF-155** correspondientes. El cuerpo de las notas no se tocó.
