@@ -280,8 +280,9 @@ CREATE TABLE alerta (
     pago_id                 uuid          REFERENCES pago (id),              -- origen
     oportunidad_id          uuid          REFERENCES oportunidad (id),       -- origen
     cliente_id              uuid          REFERENCES cliente (id),           -- origen
-    viaje_hotel_id          uuid          REFERENCES viaje_hotel (id),       -- origen: pago al proveedor del tramo (DEC-0013)
+    viaje_hotel_id          uuid          REFERENCES viaje_hotel (id) ON DELETE SET NULL,  -- origen: pago al proveedor del tramo (DEC-0013); quitar el tramo (CU-09 A3) no borra la alerta
     tipo                    tipo_alerta   NOT NULL,
+    descripcion             text          NOT NULL,                          -- qué hay que hacer (CU-28, DEC-0013)
     fecha                   date          NOT NULL,
     estado                  estado_alerta NOT NULL DEFAULT 'pendiente',
     cerrada_por_cancelacion boolean       NOT NULL DEFAULT false,
@@ -298,6 +299,7 @@ CREATE TABLE contenido_red (
     id                uuid PRIMARY KEY DEFAULT gen_random_uuid(),
     usuario_id        uuid            NOT NULL REFERENCES usuario (id),
     titulo            varchar(200)    NOT NULL,
+    texto             text,                           -- cuerpo del posteo; puede venir del borrador de CU-20 (DEC-0013)
     canal             canal_contenido NOT NULL,
     estado_kanban     estado_kanban   NOT NULL DEFAULT 'idea',
     fecha_publicacion date            NOT NULL,       -- programada

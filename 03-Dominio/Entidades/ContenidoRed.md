@@ -19,6 +19,7 @@ Pieza de contenido para redes sociales, gestionada en un **tablero kanban** con 
 |---|---|---|
 | id | UUID | Identificador |
 | titulo | String | Título / idea |
+| texto | Texto (opcional) | Cuerpo del posteo: se escribe a mano o se completa con el borrador elegido en [[CU-20 Generar propuesta de contenido con IA|CU-20]] — [[DEC-0013 Datos que faltaban en el ER|DEC-0013]] |
 | canal | Enum | instagram · tiktok · whatsapp_ventas |
 | estadoKanban | Enum | idea · en producción · listo · publicado · **descartado** — `descartado` es la **baja lógica** de una pieza que no va más (se conserva, no se borra); no sale desde `publicado`. Sumado 21/09, ver [[EST-ContenidoRed]] |
 | fechaPublicacion | Date (dd/mm/aa) | Programada |

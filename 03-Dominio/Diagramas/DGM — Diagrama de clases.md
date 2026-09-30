@@ -163,6 +163,7 @@ classDiagram
     class Alerta {
         +UUID id
         +TipoAlerta tipo
+        +String descripcion
         +Date fecha
         +EstadoAlerta estado
         +Bool cerradaPorCancelacion
@@ -170,6 +171,7 @@ classDiagram
     class ContenidoRed {
         +UUID id
         +String titulo
+        +String texto
         +CanalContenido canal
         +EstadoKanban estadoKanban
         +Date fechaPublicacion
@@ -452,7 +454,7 @@ Se señalaron sin elegir una versión en silencio, según [[CLAUDE|CLAUDE.md#Ord
 - ✅ Lo resuelto el 21/09 ya está propagado a [[DGM-ER]] (`VIAJE ||--|{ PAGO` y los 4 orígenes de `ALERTA`) y a la nota de [[Viaje]].
 - ✅ El [[DGM-ER]] quedó **completo y coherente** con este diagrama el 21/09: sumó los atributos de las 14 tablas y las 4 relaciones que le faltaban (`USUARIO`–`ALERTA`, `USUARIO`–`CLIENTE`, `USUARIO`–`OPORTUNIDAD`, `DESTINO`–`REQUISITO_DESTINO`).
 - ✅ Auditoría (sync 29/09): `created_by`/`updated_by`/`created_at`/`updated_at` en **todas** las tablas de entidad (operativas y catálogos); no se dibujan para no multiplicar las líneas hacia `Usuario`. Ver [[DGM-ER]].
-- ⏳ [[DEC-0013 Datos que faltaban en el ER]] (29/09, a ratificar): `Pago.fechaCobro`, `Viaje.comisionTipo`, `Viaje.estadoPrevio`, `Usuario.activo`, `Usuario.accesoRedes`, la comisión por defecto del vendedor (enum `TipoComision`), `Oportunidad.notas` y `motivoPerdida` (enum `MotivoPerdida`), `Viaje.motivoCancelacion` y `fechaCancelacion`, `Reseña.motivoBaja` y el tramo (`ViajeHotel`) como quinto origen de la `Alerta`.
+- ⏳ [[DEC-0013 Datos que faltaban en el ER]] (29/09, a ratificar): `Pago.fechaCobro`, `Viaje.comisionTipo`, `Viaje.estadoPrevio`, `Usuario.activo`, `Usuario.accesoRedes`, la comisión por defecto del vendedor (enum `TipoComision`), `Oportunidad.notas` y `motivoPerdida` (enum `MotivoPerdida`), `Viaje.motivoCancelacion` y `fechaCancelacion`, `Reseña.motivoBaja`, el tramo (`ViajeHotel`) como quinto origen de la `Alerta`, `Alerta.descripcion` y `ContenidoRed.texto`.
 - Renderizar el PNG (mermaid-cli, motor ELK) cuando el diagrama se incorpore a un entregable — ver [[Entregables — índice]].
 
 ## Relacionado

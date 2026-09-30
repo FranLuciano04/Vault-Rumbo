@@ -26,7 +26,7 @@ tags:: #tipo/analisis #estado/borrador #pc/pc1
   - Estados con datos propios: una `oportunidad` `perdida` exige su motivo; un `viaje` `cancelado` exige estado previo, motivo y fecha de cancelación (y fuera de ese estado los tres quedan vacíos); una `resena` `oculta` exige el motivo de la baja.
   - `configuracion` admite una sola fila (`id = 1`).
   - Chequeos de sentido común: fechas de regreso y de check-out que no quedan antes de las de inicio, puntaje de reseña de 1 a 5, montos no negativos y al menos un pasajero.
-- **Bajas lógicas:** ninguna FK borra en cascada, porque en Rumbo nada se elimina físicamente.
+- **Bajas lógicas:** ninguna FK borra en cascada, porque en Rumbo nada se elimina físicamente (RF-153). La única eliminación física prevista es **quitar un tramo** del itinerario (CU-09 A3), que es una fila de asociación: por eso `alerta.viaje_hotel_id` usa `ON DELETE SET NULL` y la alerta ya cerrada del tramo se conserva sin origen.
 
 ## Lo que queda en la API y no en la base
 - **Todo viaje tiene al menos un pago** (`VIAJE ||--|{ PAGO`): una FK no puede exigir filas hijas, así que lo garantiza el servicio de CU-07.
@@ -38,8 +38,8 @@ tags:: #tipo/analisis #estado/borrador #pc/pc1
 - Largos de `varchar` y precisión de `numeric` (`numeric(14,2)` para importes y `numeric(14,4)` para el tipo de cambio) son decisiones de implementación, no datos del negocio.
 
 ## Validación
-Se validó el 29/09/26 en un **PostgreSQL 18.3** local, en un clúster temporal creado solo para la prueba y borrado al terminar. El script corre completo sin errores y deja 15 tablas y 20 enumeraciones, con la fila de `configuracion` cargada con los valores validados con la agencia (1 mes, 7 días y 6 meses). Además se probaron 20 casos dentro de una transacción que se deshizo al final:
-- **6 permitidos:** un usuario con `created_by` vacío; el mismo hotel en dos tramos del mismo viaje; una alerta manual sin origen; una alerta de pago al proveedor colgada del tramo; el cálculo de `ganancia` (250.000) y `margen` (0,25) para una venta de $ 1.000.000 con costo de $ 750.000; y la cancelación de un viaje con estado previo, motivo y fecha.
+Se validó el 29/09/26 en un **PostgreSQL 18.3** local, en un clúster temporal creado solo para la prueba y borrado al terminar. El script corre completo sin errores y deja 15 tablas y 20 enumeraciones, con la fila de `configuracion` cargada con los valores validados con la agencia (1 mes, 7 días y 6 meses). Además se probaron 21 casos dentro de una transacción que se deshizo al final:
+- **7 permitidos:** un usuario con `created_by` vacío; el mismo hotel en dos tramos del mismo viaje; una alerta manual sin origen; una alerta de pago al proveedor colgada del tramo; el cálculo de `ganancia` (250.000) y `margen` (0,25) para una venta de $ 1.000.000 con costo de $ 750.000; la cancelación de un viaje con estado previo, motivo y fecha; y quitar un tramo que tenía alerta, que deja la alerta sin origen en lugar de fallar.
 - **14 rechazados, como se esperaba:** una alerta con dos orígenes; otra con viaje y tramo a la vez; un `orden` repetido en el mismo viaje; dos viajes desde la misma oportunidad; un puntaje de 6; un regreso anterior a la salida; un valor de enum inexistente; un email de usuario repetido; una FK a un cliente inexistente; una segunda fila de `configuracion`; una comisión de viaje mayor al 100 %; una comisión por defecto con tipo pero sin valor; un viaje `cancelado` sin estado previo; y una oportunidad `perdida` sin motivo.
 
 Para repetir la prueba sobre una base vacía:

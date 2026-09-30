@@ -172,6 +172,7 @@ erDiagram
         uuid cliente_id FK "nullable, origen"
         uuid viaje_hotel_id FK "nullable, origen"
         enum tipo "pago, formulario, salida, insistencia, reseña, manual, recontacto, viaje"
+        text descripcion "texto de la tarea, DEC-0013"
         date fecha
         enum estado "pendiente, vista, resuelta"
         boolean cerrada_por_cancelacion "default false"
@@ -180,6 +181,7 @@ erDiagram
         uuid id PK
         uuid usuario_id FK
         varchar titulo
+        text texto "nullable, cuerpo del posteo, DEC-0013"
         enum canal "instagram, tiktok, whatsapp_ventas"
         enum estado_kanban "idea, en_produccion, listo, publicado, descartado"
         date fecha_publicacion "programada"
@@ -230,7 +232,7 @@ erDiagram
 - **Auditoría:** [[DEC-0008 Autenticación propia y rol de vendedor freelance]] exige registrar **autor y fecha** de las acciones. **Decidido en la sync del 29/09:** `created_by` / `updated_by` (FK a `USUARIO`) y `created_at` / `updated_at` van en **todas las tablas de entidad**, operativas y catálogos (las 13 entidades; la tabla asociativa `VIAJE_HOTEL` hereda la auditoría de `VIAJE`). No se dibujan en el diagrama para no multiplicar las líneas hacia `USUARIO`. **`created_by` y `updated_by` son nullable** (aprobado el 29/09): lo que hace el proceso automático diario los deja **vacíos**, y un autor vacío se lee como «lo hizo el sistema». `created_at` y `updated_at` siempre se cargan.
 - `VIAJE.destino_id` y `HOTEL.destino_id` son FK a `DESTINO` (antes texto libre): ver [[DEC-0006 Destino como entidad de catálogo]]. `OPORTUNIDAD.destino_consultado` sigue siendo **texto libre** y se normaliza recién al derivar en `VIAJE`.
 - `VIAJE` suma `operador_id`, `vendedor_id`, `moneda`, `costo`, `ganancia`, `margen` y `comision_vendedor` — ver [[DEC-0007 Modelo económico — ganancia, margen y comisión de vendedor]] y [[DEC-0009 Operador-Proveedor como entidad de catálogo]] (sync 17/09). `ganancia` y `margen` son **calculados**: se pueden materializar como columnas generadas o resolver en la vista.
-- **Datos sumados al escribir el SQL** ([[DEC-0013 Datos que faltaban en el ER]], 29/09, a ratificar): `PAGO.fecha_cobro`; `VIAJE.comision_tipo` (`importe` o `porcentaje`), `VIAJE.estado_previo` (para revertir una cancelación), `VIAJE.motivo_cancelacion` y `fecha_cancelacion`; en `OPORTUNIDAD`, `notas` y el motivo de pérdida (lista fija más detalle si es `otro`); `RESENA.motivo_baja`; `ALERTA.viaje_hotel_id` como quinto origen; en `USUARIO`, `activo` (baja lógica), `acceso_redes` y la comisión por defecto del vendedor (`comision_default_tipo` y `comision_default_valor`); y la tabla **`CONFIGURACION`**, de una sola fila, con los parámetros que edita `admin` (vigencia de la cotización, anticipación de la alerta `salida` y plazo del recontacto). `CONFIGURACION` es una tabla de parámetros, no una entidad del dominio, y no se relaciona con las demás. Con ella el esquema tiene **15 tablas**.
+- **Datos sumados al escribir el SQL** ([[DEC-0013 Datos que faltaban en el ER]], 29/09, a ratificar): `PAGO.fecha_cobro`; `VIAJE.comision_tipo` (`importe` o `porcentaje`), `VIAJE.estado_previo` (para revertir una cancelación), `VIAJE.motivo_cancelacion` y `fecha_cancelacion`; en `OPORTUNIDAD`, `notas` y el motivo de pérdida (lista fija más detalle si es `otro`); `RESENA.motivo_baja`; `ALERTA.viaje_hotel_id` como quinto origen y `ALERTA.descripcion`; `CONTENIDO_RED.texto`; en `USUARIO`, `activo` (baja lógica), `acceso_redes` y la comisión por defecto del vendedor (`comision_default_tipo` y `comision_default_valor`); y la tabla **`CONFIGURACION`**, de una sola fila, con los parámetros que edita `admin` (vigencia de la cotización, anticipación de la alerta `salida` y plazo del recontacto). `CONFIGURACION` es una tabla de parámetros, no una entidad del dominio, y no se relaciona con las demás. Con ella el esquema tiene **15 tablas**.
 - `COTIZACION.items` se modela como **`jsonb`**, no como tabla propia: decidido el 21/09 no promoverlo a entidad ([[DGM — Diagrama de clases]], punto 4). Si más adelante hacen falta reportes por concepto, se reabre.
 - Relación N:M `VIAJE`–`HOTEL` y objeto de la `RESENA` (Hotel + Cliente, con Viaje opcional): ver [[DEC-0003 Relación Viaje–Hotel y Reseña]].
 

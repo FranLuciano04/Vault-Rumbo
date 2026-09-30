@@ -19,6 +19,7 @@ Recordatorio automático para no perder vencimientos ni tareas: pagos, formulari
 |---|---|---|
 | id | UUID | Identificador |
 | tipo | Enum | `pago · formulario · salida · insistencia · reseña · manual · recontacto · viaje` — `pago` (vencimiento de cuota/proveedor, [[CU-12 Registrar cobro de un pago]]/[[CU-09 Armar itinerario de hoteles]]), `formulario` (requisito de destino: visa, vacunación, documentación, seguro, voucher… la categoría fina la da [[RequisitoDestino]]`.tipo`, no se duplica acá — [[CU-07 Confirmar reserva]]/[[CU-15 Configurar recordatorios por destino]]), `salida` (aviso de próxima salida del viaje — [[CU-07 Confirmar reserva]]), `insistencia` ([[CU-05 Seguir oportunidad]]), `reseña` ([[CU-08 Gestionar estado del viaje]]), `manual` ([[CU-28 Crear recordatorio manual]]), `recontacto` ([[CU-30 Sugerir recontacto de clientes]]), `viaje` (sugerencia de pasar el [[Viaje]] a `en curso` o `finalizado`, generada por el proceso automático diario el día de salida y el de regreso — [[CU-08 Gestionar estado del viaje]]) |
+| descripcion | Texto | Qué hay que hacer: la escribe el empleado en un recordatorio manual ([[CU-28 Crear recordatorio manual|CU-28]]) y la arma el sistema en las automáticas — [[DEC-0013 Datos que faltaban en el ER|DEC-0013]] |
 | fecha | Date (dd/mm/aa) | Cuándo dispara |
 | estado | Enum | pendiente · vista · resuelta |
 | propietario | FK → [[Usuario]] | Quien la recibe/creó; define la agenda personal. Ver [[DEC-0005 Autenticación y modelo de roles]] |
