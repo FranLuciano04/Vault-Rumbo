@@ -1,17 +1,17 @@
 ---
 tipo: decision
-estado: en-revision
+estado: formalizado
 modulo: [economia, configuracion, seguridad]
-decisores: [Nahuel]
-fecha_aprobacion:
+decisores: [Francisco, Nahuel, Paloma]
+fecha_aprobacion: 30/09/26
 supersede:
-actualizado: 29/09/26
+actualizado: 30/09/26
 ---
 # DEC-0013 Datos que faltaban en el ER
 
-tags:: #tipo/decision #estado/en-revision #pc/pc1
+tags:: #tipo/decision #estado/formalizado #pc/pc1
 
-> ⏳ **Aprobada por Nahuel el 29/09/26**, al escribir el script SQL (F2) y el contrato OpenAPI (F1). Se ratifica con el equipo en el cierre del día 2 (A6), junto con ARQ.
+> ✅ **Ratificada por el equipo completo el 30/09/26** (Francisco, Nahuel y Paloma). Nahuel la había aprobado el 29/09, al escribir el script SQL (F2) y el contrato OpenAPI (F1).
 
 ## Contexto
 Al pasar el [[DGM-ER]] a SQL y al derivar los endpoints aparecieron once datos (y un duodécimo al aceptar las propuestas de Paloma para CU-14) que los casos de uso y las decisiones ya piden, pero que el ER no tenía dónde guardar:
@@ -56,7 +56,7 @@ Al pasar el [[DGM-ER]] a SQL y al derivar los endpoints aparecieron once datos (
 - [[Contrato de la API (OpenAPI)]]: los esquemas del circuito de CU-01 y los endpoints de configuración, baja de usuarios, pérdida de oportunidades y cancelación de viajes.
 
 ## Decisores y fecha
-- Nahuel — aprobada el 29/09/26; a ratificar con el equipo.
+- Nahuel — aprobada el 29/09/26. Francisco, Nahuel y Paloma — **ratificada el 30/09/26**, completa y sin cambios. La lista de motivos de pérdida del punto 8 es una propuesta del equipo (no sale del relevamiento) y el equipo la adopta como válida.
 
 ## Vínculo con el código (a partir de PC2)
 - Rama: `-` · Commits: `-`
