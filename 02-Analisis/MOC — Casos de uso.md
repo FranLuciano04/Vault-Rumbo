@@ -72,7 +72,7 @@ tags:: #tipo/modulo #estado/en-revision #pc/pc1
 - [[CU-25 Gestionar usuarios y roles]] — alta/baja y asignación de roles (admin).
 
 ## Requisitos
-Los **153 requisitos funcionales** y los **16 no funcionales** del sistema están en [[Requisitos funcionales]], con la **matriz de trazabilidad** al final: qué requisitos realiza cada uno de estos 31 CU. Si se modifica un CU, hay que revisar sus requisitos en esa matriz, y al revés.
+Los **155 requisitos funcionales** y los **16 no funcionales** del sistema están en [[Requisitos funcionales]], con la **matriz de trazabilidad** al final: qué requisitos realiza cada uno de estos 31 CU. Si se modifica un CU, hay que revisar sus requisitos en esa matriz, y al revés.
 
 > Para el equipo: el catálogo se **presenta** en el sentido *requisitos → casos de uso* (los CU son la realización de los requisitos), que es como corresponde leerlo en el entregable y como queda ordenado el análisis de acá en adelante. El detalle de cómo se armó está en la sección de Revisión de esa nota.
 

@@ -14,7 +14,7 @@ tags:: #tipo/analisis #estado/borrador #pc/pc1
 
 ## Qué es y qué no es
 - Es un contrato **preliminar**, en **OpenAPI 3.1**, escrito para el PC1 a partir de los casos de uso ([[MOC — Casos de uso]]), el [[DGM-ER]] y los roles de [[DEC-0005 Autenticación y modelo de roles|DEC-0005]] y [[DEC-0008 Autenticación propia y rol de vendedor freelance|DEC-0008]].
-- Lista **todos los endpoints de los once módulos** (95 operaciones en 72 rutas), cada uno con su ruta, su método, el rol que exige, los casos de uso que realiza y sus códigos de error.
+- Lista **todos los endpoints de los once módulos** (96 operaciones en 73 rutas), cada uno con su ruta, su método, el rol que exige, los casos de uso que realiza y sus códigos de error.
 - Los **esquemas están completos solo para el circuito de [[CU-01 De la consulta a la venta|CU-01]]**: `Cliente`, `Oportunidad`, `Cotización`, `Viaje`, `Pago` y `Alerta`, más el inicio de sesión. El resto de los cuerpos usa el esquema `SinDetallar`.
 - **En PC2 el contrato de referencia lo genera FastAPI** a partir de los esquemas Pydantic de `presentacion/esquemas/`, a medida que se escriben los endpoints. Este archivo queda como la foto del diseño del PC1, y el frontend toma sus tipos del contrato generado con `openapi-typescript` ([[DEC-0001 Stack tecnológico|DEC-0001]]).
 - Se validó con **Redocly CLI** (reglas recomendadas): el documento es válido, con una sola advertencia porque no declara licencia (el repositorio es privado).
@@ -174,6 +174,7 @@ Tabla generada desde `openapi.json`. «CU» son los casos de uso que realiza cad
 |---|---|---|---|---|
 | `GET` | `/alertas` | Ver la agenda de alertas | todos | CU-14, CU-30 |
 | `POST` | `/alertas` | Crear un recordatorio manual | todos | CU-28 |
+| `GET` | `/alertas/progreso-del-dia` | Ver el progreso del día de la agenda | todos | CU-14 |
 | `GET` | `/alertas/{alerta_id}` | Ver una alerta | todos | CU-14 |
 | `PATCH` | `/alertas/{alerta_id}` | Editar fecha o descripción de un recordatorio | todos | CU-28 |
 | `POST` | `/alertas/{alerta_id}/vista` | Marcar una alerta como vista | todos | CU-14 |

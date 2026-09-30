@@ -42,7 +42,7 @@ Cada requisito funcional está identificado, es verificable y se realiza en uno 
 | 2 | Oportunidades y cotización | RF-010 → RF-031 | CU-04, CU-05, CU-06, CU-30 |
 | 3 | Viajes | RF-032 → RF-053 | CU-07, CU-08, CU-09, CU-27 |
 | 4 | Economía y pagos | RF-054 → RF-072 | CU-10, CU-11, CU-12 |
-| 5 | Alertas | RF-073 → RF-082 | CU-14, CU-28 |
+| 5 | Alertas | RF-073 → RF-082, RF-154 y RF-155 | CU-14, CU-28 |
 | 6 | Configuración y catálogos | RF-083 → RF-096 | CU-13, CU-15, CU-26, CU-31 |
 | 7 | Catálogo de hoteles | RF-097 → RF-112 | CU-16, CU-17, CU-18, CU-29 |
 | 8 | Redes | RF-113 → RF-122 | CU-19, CU-20 |
@@ -50,7 +50,7 @@ Cada requisito funcional está identificado, es verificable y se realiza en uno 
 | 10 | Calendario | RF-136 → RF-139 | CU-23 |
 | 11 | Usuarios, seguridad y transversales | RF-140 → RF-153 | CU-24, CU-25 |
 
-**Total: 153 requisitos funcionales y 16 requisitos no funcionales.**
+**Total: 155 requisitos funcionales y 16 requisitos no funcionales.**
 
 # 1. Clientes
 
@@ -546,6 +546,18 @@ Cada requisito funcional está identificado, es verificable y se realiza en uno 
 - **Actor:** sistema · **Tipo:** automático · **Prioridad:** alta
 - **Casos de uso:** [[CU-14 Ver y atender alertas del día]]
 - **Entidades:** [[Alerta]] · [[Pago]]
+
+#### RF-154 — Listar las próximas alertas
+- **Descripción:** el sistema permite ver las [[Alerta|Alertas]] en estado `pendiente` con fecha posterior a hoy, ordenadas por fecha y filtradas por propietario, para que el empleado adelante trabajo y las atienda antes de su fecha.
+- **Actor:** empleado · **Tipo:** consulta · **Prioridad:** media
+- **Casos de uso:** [[CU-14 Ver y atender alertas del día]]
+- **Entidades:** [[Alerta]]
+
+#### RF-155 — Mostrar el progreso del día
+- **Descripción:** el sistema muestra, junto a la agenda, cuántas [[Alerta|Alertas]] del propietario se resolvieron en el día sobre el total del día (las resueltas hoy más las vigentes), y lo actualiza con cada resolución, incluidas las automáticas. Las alertas pospuestas salen del total y marcar una alerta como `vista` no cuenta como avance.
+- **Actor:** empleado · **Tipo:** consulta · **Prioridad:** baja
+- **Casos de uso:** [[CU-14 Ver y atender alertas del día]]
+- **Entidades:** [[Alerta]]
 
 #### RF-080 — Crear un recordatorio manual
 - **Descripción:** el sistema permite crear una [[Alerta]] de tipo `manual` con fecha y descripción de la tarea, en estado `pendiente`, que aparece en la agenda del día. El recordatorio pertenece al empleado que lo creó.
@@ -1134,7 +1146,7 @@ Cada requisito funcional se realiza en al menos un caso de uso, y cada caso de u
 | [[CU-11 Definir plan de cuotas]] | RF-059, RF-060, RF-061, RF-062, RF-063, RF-064, RF-065, RF-066, RF-153 |
 | [[CU-12 Registrar cobro de un pago]] | RF-038, RF-067, RF-068, RF-069, RF-070, RF-071, RF-072 |
 | [[CU-13 Configurar porcentaje de comisión]] | RF-056, RF-083, RF-084, RF-085 |
-| [[CU-14 Ver y atender alertas del día]] | RF-073, RF-074, RF-075, RF-076, RF-077, RF-078, RF-079 |
+| [[CU-14 Ver y atender alertas del día]] | RF-073, RF-074, RF-075, RF-076, RF-077, RF-078, RF-079, RF-154, RF-155 |
 | [[CU-15 Configurar recordatorios por destino]] | RF-034, RF-086, RF-087, RF-088 |
 | [[CU-16 Gestionar hotel en catálogo]] | RF-097, RF-098, RF-099, RF-100, RF-153 |
 | [[CU-17 Registrar reseña de hotel]] | RF-101, RF-102, RF-103, RF-104, RF-105 |
@@ -1159,9 +1171,9 @@ Los requisitos **RF-151** (control de acceso por rol y propiedad) y **RF-152** (
 
 > [!important] **Esta sección es interna y no sale en el entregable** (el `filtrar()` de `build-requisitos.sh` la recorta). Acá vive lo que el equipo necesita saber y los profesores no: cómo se armó realmente el catálogo, qué está sin cerrar y qué hay que confirmar con la agencia. **No mover nada de esto al cuerpo de la nota.**
 
-> [!question] Paloma (29/09) — **propuesta de RF-154, a aceptar por Nahuel** #accion/decidir. Si se acepta el flujo A5 propuesto en [[CU-14 Ver y atender alertas del día]], sumar: **RF-154 — Listar las próximas alertas.** *Descripción:* el sistema permite ver las [[Alerta|Alertas]] en estado `pendiente` con fecha posterior a hoy, ordenadas por fecha y filtradas por propietario, para que el empleado adelante trabajo y las atienda antes de su fecha. *Actor:* empleado · *Tipo:* consulta · *Prioridad:* media · *Entidades:* [[Alerta]]. Al aceptarlo: agregarlo en el módulo 5 (después de RF-079), sumar RF-154 al índice por módulo y a la fila de CU-14 en la matriz, pasar el total a 154 y regenerar el `.docx`.
+> [!success] Paloma (29/09) — **propuesta de RF-154: ✅ aceptada por Nahuel el 29/09** e integrada al módulo 5, al índice y a la matriz. Si se acepta el flujo A5 propuesto en [[CU-14 Ver y atender alertas del día]], sumar: **RF-154 — Listar las próximas alertas.** *Descripción:* el sistema permite ver las [[Alerta|Alertas]] en estado `pendiente` con fecha posterior a hoy, ordenadas por fecha y filtradas por propietario, para que el empleado adelante trabajo y las atienda antes de su fecha. *Actor:* empleado · *Tipo:* consulta · *Prioridad:* media · *Entidades:* [[Alerta]]. Al aceptarlo: agregarlo en el módulo 5 (después de RF-079), sumar RF-154 al índice por módulo y a la fila de CU-14 en la matriz, pasar el total a 154 y regenerar el `.docx`.
 >
-> [!question] Paloma (29/09) — **propuesta de RF-155, a aceptar por Nahuel** #accion/decidir. Si se acepta el indicador de progreso propuesto en [[CU-14 Ver y atender alertas del día]], sumar: **RF-155 — Mostrar el progreso del día.** *Descripción:* el sistema muestra, junto a la agenda, cuántas [[Alerta|Alertas]] del propietario se resolvieron en el día sobre el total del día (resueltas hoy más vigentes), y lo actualiza con cada resolución, incluidas las automáticas. *Actor:* empleado · *Tipo:* consulta · *Prioridad:* baja · *Entidades:* [[Alerta]]. Depende del atributo nuevo `Alerta.resuelta_en`. Mismos pasos de integración que RF-154 (total a 155 si se aceptan ambos).
+> [!success] Paloma (29/09) — **propuesta de RF-155: ✅ aceptada por Nahuel el 29/09** e integrada al módulo 5, al índice y a la matriz. Si se acepta el indicador de progreso propuesto en [[CU-14 Ver y atender alertas del día]], sumar: **RF-155 — Mostrar el progreso del día.** *Descripción:* el sistema muestra, junto a la agenda, cuántas [[Alerta|Alertas]] del propietario se resolvieron en el día sobre el total del día (resueltas hoy más vigentes), y lo actualiza con cada resolución, incluidas las automáticas. *Actor:* empleado · *Tipo:* consulta · *Prioridad:* baja · *Entidades:* [[Alerta]]. Depende del atributo nuevo `Alerta.resuelta_en`. Mismos pasos de integración que RF-154 (total a 155 si se aceptan ambos).
 
 ### Ratificación en la sync del 29/09
 > [!success] **Ratificado por Francisco, Nahuel y Paloma el 29/09/26.** Se aprobaron el catálogo completo, el criterio de prioridad derivado de la estructura del CU y los tres RF compartidos (RF-034, RF-038 y RF-059). Lo que se cerró en esa sync y ya está en el cuerpo:

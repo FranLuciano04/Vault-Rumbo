@@ -25,7 +25,7 @@ Consultar la agenda de [[Alerta|Alertas]] vigentes (pagos, formularios por desti
 
 ## Flujo principal
 1. El empleado abre la agenda de [[Alerta|Alertas]] del día.
-2. El sistema lista las [[Alerta|Alertas]] vigentes (estado `pendiente`, **incluidas las que ya pasaron su `fecha`**), ordenadas por `fecha`, filtradas por propietario ([[DEC-0005 Autenticación y modelo de roles]]).
+2. El sistema lista las [[Alerta|Alertas]] vigentes (estado `pendiente`, **incluidas las que ya pasaron su `fecha`**), ordenadas por `fecha`, filtradas por propietario ([[DEC-0005 Autenticación y modelo de roles]]). Junto con la lista, muestra el **progreso del día**: cuántas [[Alerta|Alertas]] del propietario se resolvieron hoy sobre el total del día (las resueltas hoy más las vigentes).
 3. El empleado abre una [[Alerta]] y ve su contexto ([[Viaje]], [[Pago]] u [[Oportunidad]] asociada).
 4. Realiza la acción correspondiente según el `tipo` (pago · formulario · salida · insistencia · reseña · manual · recontacto · viaje).
 5. Marca la [[Alerta]] como `vista` o `resuelta`.
@@ -35,8 +35,11 @@ Consultar la agenda de [[Alerta|Alertas]] vigentes (pagos, formularios por desti
 - **A2 — Alerta de pago:** deriva a [[CU-12 Registrar cobro de un pago]]; al cobrar, la [[Alerta]] se resuelve sola.
 - **A3 — Agenda vacía:** no hay [[Alerta|Alertas]] vigentes → el sistema muestra el día sin pendientes.
 - **A4 — Posponer:** el empleado reprograma la `fecha` de la [[Alerta]] a un día posterior.
+- **A5 — Ver próximas:** el empleado elige ver las [[Alerta|Alertas]] `pendientes` con `fecha` posterior a hoy, para adelantar trabajo. El sistema las lista ordenadas por `fecha`, con el mismo filtro por propietario, y el empleado puede atenderlas como en los pasos 3 a 5.
+
 ## Postcondiciones
 - Las [[Alerta|Alertas]] atendidas quedan `vistas`/`resueltas`; las pospuestas, reagendadas.
+- El progreso del día se actualiza con cada [[Alerta]] resuelta, también cuando se resuelve sola (A2). Las pospuestas (A4) salen del total del día, y marcar una alerta como `vista` no cuenta como avance.
 
 ## Reglas de negocio aplicadas
 - Visibilidad por propietario ([[DEC-0005 Autenticación y modelo de roles]]).
@@ -49,9 +52,9 @@ Consultar la agenda de [[Alerta|Alertas]] vigentes (pagos, formularios por desti
 
 ## 🔎 Revisión
 
-> [!question] Paloma (29/09) — **propuesta de A5, a aceptar por Nahuel** (responsable del CU) #accion/decidir. Surgió al diseñar el prototipo de la agenda: el empleado que termina lo del día puede querer adelantar trabajo. Texto propuesto para *Flujos alternativos*: **A5 — Ver próximas:** el empleado elige ver las [[Alerta|Alertas]] `pendientes` con `fecha` posterior a hoy, para adelantar trabajo. El sistema las lista ordenadas por `fecha`, con el mismo filtro por propietario, y el empleado puede atenderlas como en los pasos 3 a 5. Implica sumar **RF-154** (propuesto en la Revisión de [[Requisitos funcionales]]). El prototipo en Figma ya lo muestra (segmento «Próximas»).
+> [!success] Paloma (29/09) — **propuesta de A5: ✅ aceptada por Nahuel el 29/09** e incorporada a *Flujos alternativos* (RF-154). Surgió al diseñar el prototipo de la agenda: el empleado que termina lo del día puede querer adelantar trabajo. Texto propuesto para *Flujos alternativos*: **A5 — Ver próximas:** el empleado elige ver las [[Alerta|Alertas]] `pendientes` con `fecha` posterior a hoy, para adelantar trabajo. El sistema las lista ordenadas por `fecha`, con el mismo filtro por propietario, y el empleado puede atenderlas como en los pasos 3 a 5. Implica sumar **RF-154** (propuesto en la Revisión de [[Requisitos funcionales]]). El prototipo en Figma ya lo muestra (segmento «Próximas»).
 >
-> [!question] Paloma (29/09) — **propuesta de indicador de progreso del día, a aceptar por Nahuel** #accion/decidir. El prototipo de la agenda muestra «Llevás X de Y alertas resueltas» con una barra de avance, para que el empleado vea cuánto le falta del día. Para que el CU lo contemple:
+> [!success] Paloma (29/09) — **propuesta de indicador de progreso del día: ✅ aceptada por Nahuel el 29/09** e incorporada al paso 2 y a las postcondiciones (RF-155, `Alerta.resuelta_en` en [[DEC-0013 Datos que faltaban en el ER|DEC-0013]]). El prototipo de la agenda muestra «Llevás X de Y alertas resueltas» con una barra de avance, para que el empleado vea cuánto le falta del día. Para que el CU lo contemple:
 > - **Paso 2**, agregar al final: *«Junto con la lista, muestra el progreso del día: cuántas [[Alerta|Alertas]] del propietario se resolvieron hoy sobre el total del día (las resueltas hoy más las vigentes).»*
 > - **Postcondiciones**, agregar: *«El progreso del día se actualiza con cada [[Alerta]] resuelta, también cuando se resuelve sola (A2).»* Las pospuestas (A4) salen del total del día; marcar como `vista` no cuenta como avance.
 > - **Modelo:** la [[Alerta]] necesita el atributo **`resuelta_en`** (fecha y hora; vacío mientras no está `resuelta`, se limpia si se reabre) para saber cuáles se resolvieron **hoy**. No alcanza con `updated_at`, que cambia por cualquier edición. Impacta en [[Alerta]], [[DGM — Diagrama de clases]] y [[DGM-ER]].

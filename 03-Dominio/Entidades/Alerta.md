@@ -22,6 +22,7 @@ Recordatorio automático para no perder vencimientos ni tareas: pagos, formulari
 | descripcion | Texto | Qué hay que hacer: la escribe el empleado en un recordatorio manual ([[CU-28 Crear recordatorio manual|CU-28]]) y la arma el sistema en las automáticas — [[DEC-0013 Datos que faltaban en el ER|DEC-0013]] |
 | fecha | Date (dd/mm/aa) | Cuándo dispara |
 | estado | Enum | pendiente · vista · resuelta |
+| resuelta_en | DateTime (opcional) | Cuándo se resolvió; vacío mientras no está `resuelta` y se limpia si se reabre. Sirve para el **progreso del día** de [[CU-14 Ver y atender alertas del día|CU-14]] (no alcanza con `updated_at`, que cambia con cualquier edición) — [[DEC-0013 Datos que faltaban en el ER|DEC-0013]] |
 | propietario | FK → [[Usuario]] | Quien la recibe/creó; define la agenda personal. Ver [[DEC-0005 Autenticación y modelo de roles]] |
 | cerrada_por_cancelacion | Boolean | `true` si la resolvió la cancelación del [[Viaje]] ([[CU-27 Cancelar viaje]] paso 4). Al revertir la cancelación (A3) se reabren **solo** las alertas con esta marca, y la marca se limpia. Default `false` |
 | origen | FK opcional, a lo sumo una | [[Viaje]], [[Pago]], [[Oportunidad]], [[Cliente]] o **tramo del itinerario** (`viaje_hotel`, para la alerta de pago al proveedor de [[CU-09 Armar itinerario de hoteles|CU-09]]); ninguna en una `manual` suelta — [[DEC-0013 Datos que faltaban en el ER|DEC-0013]] |

@@ -4305,6 +4305,15 @@
             }
           },
           {
+            "name": "proximas",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            },
+            "description": "Solo las pendientes con fecha posterior a hoy, para adelantar trabajo (CU-14 A5)."
+          },
+          {
             "name": "todas",
             "in": "query",
             "schema": {
@@ -4316,7 +4325,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Alertas. Por defecto, las propias pendientes o vistas hasta hoy; los recontactos de CU-30 son las de tipo recontacto.",
+            "description": "Alertas. Por defecto, las propias pendientes hasta hoy; con proximas=true, las pendientes con fecha posterior a hoy (CU-14 A5). Los recontactos de CU-30 son las de tipo recontacto.",
             "content": {
               "application/json": {
                 "schema": {
@@ -4409,6 +4418,40 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "/alertas/progreso-del-dia": {
+      "get": {
+        "tags": [
+          "alertas"
+        ],
+        "operationId": "verProgresoDelDia",
+        "summary": "Ver el progreso del día de la agenda",
+        "description": "**Roles:** admin, dueño, empleado, freelance.\n\n**Casos de uso:** CU-14.",
+        "x-casos-de-uso": [
+          "CU-14"
+        ],
+        "x-roles": [
+          "admin",
+          "dueño",
+          "empleado",
+          "freelance"
+        ],
+        "responses": {
+          "200": {
+            "description": "Resueltas hoy sobre el total del día, del usuario actual.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProgresoDelDia"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/NoAutenticado"
           }
         }
       }
@@ -7470,6 +7513,15 @@
                 "$ref": "#/components/schemas/EstadoAlerta",
                 "readOnly": true
               },
+              "resuelta_en": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "format": "date-time",
+                "description": "Cuándo se resolvió; vacío si no está resuelta.",
+                "readOnly": true
+              },
               "cerrada_por_cancelacion": {
                 "type": "boolean",
                 "readOnly": true
@@ -7540,6 +7592,26 @@
             "type": "string"
           }
         }
+      },
+      "ProgresoDelDia": {
+        "type": "object",
+        "description": "Progreso del día de la agenda (CU-14, RF-155).",
+        "properties": {
+          "resueltas_hoy": {
+            "type": "integer",
+            "description": "Alertas del propietario resueltas hoy, a mano o solas.",
+            "minimum": 0
+          },
+          "total_del_dia": {
+            "type": "integer",
+            "description": "Resueltas hoy más las vigentes (pendientes hasta hoy). Las pospuestas no cuentan.",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "resueltas_hoy",
+          "total_del_dia"
+        ]
       },
       "AlertaPosponer": {
         "type": "object",

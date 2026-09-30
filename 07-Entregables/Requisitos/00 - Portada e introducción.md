@@ -16,7 +16,7 @@ Este documento presenta la **especificación de requisitos** del sistema. Es la 
 
 Se compone de:
 
-- **153 requisitos funcionales**, agrupados en los once módulos del sistema.
+- **155 requisitos funcionales**, agrupados en los once módulos del sistema.
 - **16 requisitos no funcionales**, organizados por atributo de calidad y justificados en las necesidades del negocio.
 - La **matriz de trazabilidad** entre requisitos y casos de uso.
 

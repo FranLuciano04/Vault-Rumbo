@@ -238,6 +238,7 @@ const schemas = {
     descripcion: str(),
     fecha: fecha('Cuándo dispara.'),
     estado: ro(ref('EstadoAlerta')),
+    resuelta_en: ro({ type: ['string', 'null'], format: 'date-time', description: 'Cuándo se resolvió; vacío si no está resuelta.' }),
     cerrada_por_cancelacion: ro(bool()),
   }, ['id', 'propietario_id', 'tipo', 'descripcion', 'fecha', 'estado', 'cerrada_por_cancelacion'],
   'A lo sumo uno de los cinco orígenes tiene valor; ninguno en un recordatorio manual suelto.')),
@@ -246,6 +247,10 @@ const schemas = {
     viaje_id: uuid(null, true), cliente_id: uuid(null, true), oportunidad_id: uuid(null, true),
   }, ['fecha', 'descripcion'], 'Recordatorio manual (CU-28). Como máximo se asocia a una entidad.'),
   AlertaEditar: obj({ fecha: fecha(), descripcion: str() }, [], 'Solo mientras está pendiente (CU-28 A2).'),
+  ProgresoDelDia: obj({
+    resueltas_hoy: int('Alertas del propietario resueltas hoy, a mano o solas.', { minimum: 0 }),
+    total_del_dia: int('Resueltas hoy más las vigentes (pendientes hasta hoy). Las pospuestas no cuentan.', { minimum: 0 }),
+  }, ['resueltas_hoy', 'total_del_dia'], 'Progreso del día de la agenda (CU-14, RF-155).'),
   AlertaPosponer: obj({ fecha: fecha('Nueva fecha, posterior a la actual.') }, ['fecha']),
 };
 
@@ -381,8 +386,9 @@ const ops = [
   ['post', '/pagos/{pago_id}/revertir-cobro', 'economia', 'revertirCobro', 'Revertir un cobro cargado por error', ['CU-12'], TODOS, [200, ref('Pago'), 'Pago otra vez pendiente o vencido; el viaje vuelve atrás si corresponde (CU-12 A3).'], null, { propiedad: true, freelance: true, c409: 'El pago no está cobrado.' }],
 
   // ------------------------------------------------------------ alertas
-  ['get', '/alertas', 'alertas', 'listarAlertas', 'Ver la agenda de alertas', ['CU-14', 'CU-30'], TODOS, [200, L('Alerta'), 'Alertas. Por defecto, las propias pendientes o vistas hasta hoy; los recontactos de CU-30 son las de tipo recontacto.'], null,
-    { q: [...PAG, ...P('hasta'), q('estado', ref('EstadoAlerta')), q('tipo', ref('TipoAlerta')), q('todas', { type: 'boolean', default: false }, 'Las de toda la agencia: solo admin y dueño (CU-14 A1).')] }],
+  ['get', '/alertas', 'alertas', 'listarAlertas', 'Ver la agenda de alertas', ['CU-14', 'CU-30'], TODOS, [200, L('Alerta'), 'Alertas. Por defecto, las propias pendientes hasta hoy; con proximas=true, las pendientes con fecha posterior a hoy (CU-14 A5). Los recontactos de CU-30 son las de tipo recontacto.'], null,
+    { q: [...PAG, ...P('hasta'), q('estado', ref('EstadoAlerta')), q('tipo', ref('TipoAlerta')), q('proximas', { type: 'boolean', default: false }, 'Solo las pendientes con fecha posterior a hoy, para adelantar trabajo (CU-14 A5).'), q('todas', { type: 'boolean', default: false }, 'Las de toda la agencia: solo admin y dueño (CU-14 A1).')] }],
+  ['get', '/alertas/progreso-del-dia', 'alertas', 'verProgresoDelDia', 'Ver el progreso del día de la agenda', ['CU-14'], TODOS, [200, ref('ProgresoDelDia'), 'Resueltas hoy sobre el total del día, del usuario actual.'], null, {}],
   ['post', '/alertas', 'alertas', 'crearRecordatorio', 'Crear un recordatorio manual', ['CU-28'], TODOS, [201, ref('Alerta'), 'Alerta manual pendiente en la agenda propia.'], ref('AlertaCrear'), { c422: 'Se asoció a más de una entidad.' }],
   ['get', '/alertas/{alerta_id}', 'alertas', 'obtenerAlerta', 'Ver una alerta', ['CU-14'], TODOS, [200, ref('Alerta'), 'Alerta.'], null, {}],
   ['patch', '/alertas/{alerta_id}', 'alertas', 'editarRecordatorio', 'Editar fecha o descripción de un recordatorio', ['CU-28'], TODOS, [200, ref('Alerta'), 'Alerta actualizada.'], ref('AlertaEditar'), { propiedad: true, c409: 'Solo se edita una alerta pendiente.' }],

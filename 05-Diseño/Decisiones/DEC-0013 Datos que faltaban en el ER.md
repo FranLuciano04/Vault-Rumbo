@@ -14,7 +14,7 @@ tags:: #tipo/decision #estado/en-revision #pc/pc1
 > ⏳ **Aprobada por Nahuel el 29/09/26**, al escribir el script SQL (F2) y el contrato OpenAPI (F1). Se ratifica con el equipo en el cierre del día 2 (A6), junto con ARQ.
 
 ## Contexto
-Al pasar el [[DGM-ER]] a SQL y al derivar los endpoints aparecieron once datos que los casos de uso y las decisiones ya piden, pero que el ER no tenía dónde guardar:
+Al pasar el [[DGM-ER]] a SQL y al derivar los endpoints aparecieron once datos (y un duodécimo al aceptar las propuestas de Paloma para CU-14) que los casos de uso y las decisiones ya piden, pero que el ER no tenía dónde guardar:
 1. [[CU-12 Registrar cobro de un pago|CU-12]] pide la **fecha efectiva del cobro**, y `PAGO` no tenía esa columna.
 2. La **vigencia de la cotización** (1 mes), la **anticipación de la alerta `salida`** (7 días) y el **plazo del recontacto** (6 meses) son configurables por `admin` ([[CU-06 Emitir cotización|CU-06]], [[CU-07 Confirmar reserva|CU-07]], [[CU-30 Sugerir recontacto de clientes|CU-30]]), pero no había tabla de parámetros.
 3. La comisión del vendedor es **importe o porcentaje**, con **default por vendedor** y override por viaje ([[DEC-0007 Modelo económico — ganancia, margen y comisión de vendedor|DEC-0007]], [[CU-13 Configurar porcentaje de comisión|CU-13]]), pero el ER solo tenía `VIAJE.comision_vendedor` como número, sin tipo y sin default en `USUARIO`.
@@ -26,6 +26,7 @@ Al pasar el [[DGM-ER]] a SQL y al derivar los endpoints aparecieron once datos q
 9. En [[CU-09 Armar itinerario de hoteles|CU-09]], cada tramo puede tener su alerta de pago al proveedor, y al editar o pagar el tramo se cierra «su» alerta. Como `ALERTA` solo podía colgar del viaje, con dos tramos no se sabía cuál era cuál.
 10. [[CU-28 Crear recordatorio manual|CU-28]] pide cargar una **descripción** de la tarea, y las alertas automáticas también necesitan un texto; `ALERTA` no tenía ninguno.
 11. [[CU-20 Generar propuesta de contenido con IA|CU-20]] guarda el borrador elegido en una pieza de `ContenidoRed`, pero `CONTENIDO_RED` solo tenía título.
+12. El **progreso del día** que se sumó a [[CU-14 Ver y atender alertas del día|CU-14]] (RF-155, propuesta de Paloma) necesita saber qué alertas se resolvieron **hoy**, y `updated_at` no sirve porque cambia con cualquier edición.
 
 ## Decisión
 1. **`PAGO.fecha_cobro`** (`date`, nullable): se carga al cobrar, junto con `forma_pago` y `moneda_pago`, y se borra si se revierte el cobro.
@@ -39,6 +40,7 @@ Al pasar el [[DGM-ER]] a SQL y al derivar los endpoints aparecieron once datos q
 9. **`ALERTA.viaje_hotel_id`** (nullable) como **quinto origen**; el CHECK pasa a «a lo sumo uno de cinco».
 10. **`ALERTA.descripcion`** (`text`, obligatoria): la escribe el empleado en CU-28 y la arma el sistema en las alertas automáticas.
 11. **`CONTENIDO_RED.texto`** (`text`, nullable): el cuerpo del posteo, escrito a mano o completado con el borrador de la IA.
+12. **`ALERTA.resuelta_en`** (`timestamptz`, nullable): se carga al pasar a `resuelta` (a mano o sola) y se limpia si la alerta se reabre. Solo tiene valor en las alertas resueltas.
 
 ## Alternativas consideradas
 | Opción | Pros | Contras | ¿Elegida? |

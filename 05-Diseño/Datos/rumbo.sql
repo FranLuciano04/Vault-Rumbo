@@ -285,12 +285,14 @@ CREATE TABLE alerta (
     descripcion             text          NOT NULL,                          -- qué hay que hacer (CU-28, DEC-0013)
     fecha                   date          NOT NULL,
     estado                  estado_alerta NOT NULL DEFAULT 'pendiente',
+    resuelta_en             timestamptz,                                     -- cuándo se resolvió; progreso del día (CU-14, DEC-0013)
     cerrada_por_cancelacion boolean       NOT NULL DEFAULT false,
     created_by              uuid REFERENCES usuario (id),
     updated_by              uuid REFERENCES usuario (id),
     created_at              timestamptz NOT NULL DEFAULT now(),
     updated_at              timestamptz NOT NULL DEFAULT now(),
     -- a lo sumo uno de los cinco orígenes; ninguno en una alerta manual suelta (CU-28)
+    CONSTRAINT alerta_resuelta_en_ck CHECK ((estado = 'resuelta') = (resuelta_en IS NOT NULL)),
     CONSTRAINT alerta_un_origen_ck
         CHECK (num_nonnulls(viaje_id, pago_id, oportunidad_id, cliente_id, viaje_hotel_id) <= 1)
 );

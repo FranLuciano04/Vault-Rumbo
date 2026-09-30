@@ -10,7 +10,7 @@ actualizado: 29/09/26
 > Memoria externa del equipo (y de Claude). Se actualiza en cada **sync semanal**. Es lo primero que se lee al retomar. Mantener **corto**.
 
 ## Fase actual
-**Análisis y diseño → rumbo a PC1, ⚠️ adelantado al vie 02/10/26 a las 20 hs (entrega y exposición oral).** El plan se comprimió en *Plan comprimido a 3 días*; las decisiones de diseño se tomaron el 29/09. ✅ **Sync del 29/09: todo el análisis quedó ratificado y formalizado** — 31 CU y su diagrama, 13 entidades, clases y ER, 6 diagramas de estado, 5 de actividad, 4 de secuencia y [[Requisitos funcionales]] (153 RF + 16 RNF con valores). Se cerraron los 18 huecos de los diagramas de actividad y las abiertas anteriores (ver *Definido y sellado en la sync 29/09*). **Próximo:** arquitectura y prototipo UI en Figma (ver *Pasos restantes hacia PC1*).
+**Análisis y diseño → rumbo a PC1, ⚠️ adelantado al vie 02/10/26 a las 20 hs (entrega y exposición oral).** El plan se comprimió en *Plan comprimido a 3 días*; las decisiones de diseño se tomaron el 29/09. ✅ **Sync del 29/09: todo el análisis quedó ratificado y formalizado** — 31 CU y su diagrama, 13 entidades, clases y ER, 6 diagramas de estado, 5 de actividad, 4 de secuencia y [[Requisitos funcionales]] (155 RF + 16 RNF con valores). Se cerraron los 18 huecos de los diagramas de actividad y las abiertas anteriores (ver *Definido y sellado en la sync 29/09*). **Próximo:** arquitectura y prototipo UI en Figma (ver *Pasos restantes hacia PC1*).
 
 ## Roles de esta quincena
 Los tres tomamos **los tres roles** (Coordinador de vault · Guardián del dominio · Escriba de decisiones): todos estamos en todo. **Francisco** es el referente/mantenedor del vault (lo creó y chequea el rumbo general). Definido en la sync 11/09.
@@ -39,7 +39,7 @@ Los tres tomamos **los tres roles** (Coordinador de vault · Guardián del domin
 - [ ] **Matriz de trazabilidad** (objetivo → CU → entidad → regla) — ⏳ **medio hecha**: la matriz **CU → RF** (los 31 CU) ya está en [[Requisitos funcionales]]; falta el tramo **objetivo → CU** y **CU → entidad/regla**
 - [ ] Catálogo de **reglas de negocio** ampliado (hoy solo [[RN-01 Comisión automática]])
 - [ ] **Glosario** del lenguaje ubicuo (entidades + términos del negocio) → nueva nota, p. ej. `02-Analisis/Glosario.md`
-- [x] **Requisitos funcionales y no funcionales** documentados — ✅ **[[Requisitos funcionales]]**: **153 RF** + **16 RNF**, con justificación, alcance, matriz de trazabilidad y entregable DOCX (regenerado 29/09). **Formalizado el 29/09**: el equipo fijó los valores de los RNF (respaldo, rendimiento, disponibilidad 24/7 y compatibilidad).
+- [x] **Requisitos funcionales y no funcionales** documentados — ✅ **[[Requisitos funcionales]]**: **155 RF** (RF-154 y RF-155 sumados el 29/09 con las propuestas de CU-14) + **16 RNF**, con justificación, alcance, matriz de trazabilidad y entregable DOCX (regenerado 29/09). **Formalizado el 29/09**: el equipo fijó los valores de los RNF (respaldo, rendimiento, disponibilidad 24/7 y compatibilidad).
 
 > Cierre PC1: la consulta `#pc/pc1 AND #estado/borrador` debe dar **cero** en lo obligatorio de arriba.
 
@@ -119,7 +119,7 @@ Los tres tomamos **los tres roles** (Coordinador de vault · Guardián del domin
 - [ ] **E4. Ampliar la justificación** de [[Herramientas del proyecto]] para que distinga la IA **para desarrollar** (ya justificada) de la IA **dentro del producto** (E1).
 
 ### F · Contrato de la API y modelo de datos SQL — obligatorio (láminas: «Comunicación V-C: Open API (formato JSON)» y «Model de datos SQL»)
-- [x] **F1. Contrato OpenAPI preliminar en JSON** (`05-Diseño/API/openapi.json` más una nota índice): endpoints REST por módulo, derivados de los 31 CU, con los esquemas JSON de request y response derivados del [[DGM-ER]], los códigos de error y el rol que exige cada uno (DEC-0005/0008). Es la «comunicación Vista–Controlador» que pide la cátedra y la base del `openapi-typescript` de [[DEC-0001 Stack tecnológico]]. ✅ 29/09 (Nahuel): 95 operaciones en los 11 módulos, esquemas completos del circuito de CU-01, validado con Redocly; índice en [[Contrato de la API (OpenAPI)]], con cuatro supuestos a revisar en A6.
+- [x] **F1. Contrato OpenAPI preliminar en JSON** (`05-Diseño/API/openapi.json` más una nota índice): endpoints REST por módulo, derivados de los 31 CU, con los esquemas JSON de request y response derivados del [[DGM-ER]], los códigos de error y el rol que exige cada uno (DEC-0005/0008). Es la «comunicación Vista–Controlador» que pide la cátedra y la base del `openapi-typescript` de [[DEC-0001 Stack tecnológico]]. ✅ 29/09 (Nahuel): 96 operaciones en los 11 módulos, esquemas completos del circuito de CU-01, validado con Redocly; índice en [[Contrato de la API (OpenAPI)]], con cuatro supuestos a revisar en A6.
 - [x] **F2. Script SQL del modelo de datos** (`05-Diseño/Datos/rumbo.sql`): `CREATE TABLE` de las 14 tablas con claves, FK, enums, el CHECK de origen de `ALERTA`, la unicidad de `VIAJE_HOTEL` y las columnas de auditoría. Se deriva del [[DGM-ER]] y se valida corriéndolo contra un PostgreSQL local. ✅ 29/09 (Nahuel): validado en PostgreSQL 18.3; índice en [[Modelo de datos SQL]].
 - [ ] **F3. Llevar los diagramas de dominio a un entregable:** clases, ER y los de estado, actividad y secuencia hoy **no están en ningún `.docx`**; entran en el documento único (H).
 

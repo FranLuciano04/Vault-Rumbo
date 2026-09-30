@@ -30,10 +30,14 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
+## 29/09/26 — Nahuel (Claude Opus 5.5) — propuestas de Paloma para CU-14 aceptadas
+- **Hecho:** Nahuel aceptó las dos propuestas que Paloma dejó al diseñar la agenda. [[CU-14 Ver y atender alertas del día]] suma **A5 — Ver próximas** y el **progreso del día** (paso 2 y postcondiciones). [[Requisitos funcionales]] suma **RF-154** y **RF-155** en el módulo 5 (total: 155 RF), con índice, matriz y totales actualizados en MOC, Estado, portada e índice de entregables. El progreso necesita `Alerta.resuelta_en`: quedó como punto 12 de [[DEC-0013 Datos que faltaban en el ER|DEC-0013]] y se propagó a ER, clases, [[Alerta]] y SQL. El contrato OpenAPI suma el filtro `proximas` en `GET /alertas` y `GET /alertas/progreso-del-dia` (96 operaciones).
+- **Verificado:** SQL revalidado en PostgreSQL 18.3 (23 casos: 8 permitidos y 15 rechazados); contrato válido en Redocly; PNG de clases y ER regenerados; `.docx` de requisitos y de casos de uso regenerados con RF-154, RF-155 y A5, sin fugas de notas internas.
+
 ## 29/09/26 — Nahuel (Claude Opus 5.5) — G1: modelo C4
 - **Hecho:** Nueva sección *Modelo C4* en [[ARQ — Vista general]] con los tres niveles: contexto (usuarios de la agencia, pasajero, API de Claude y WhatsApp/Instagram/TikTok como canales manuales), contenedores (web, mobile, API, proceso automático y PostgreSQL) y componentes de la API (reúne la vista lógica en formato C4). Se dibujó con flowchart y ELK en lugar del tipo C4 de Mermaid, que es experimental. Los tres bloques se sumaron a `render-diagramas-diseno.sh` y a la tabla de PNG de [[Entregables — índice]]. ARQ queda lista para ratificar (A6).
 - **Verificado:** los tres PNG se exportaron y se revisaron.
-- **Pendiente:** A6 (ratificar ARQ, DEC-0013 y los supuestos del contrato OpenAPI) en el cierre del día 2; responder las dos propuestas de Paloma sobre [[CU-14 Ver y atender alertas del día]].
+- **Pendiente:** A6 (ratificar ARQ, DEC-0013 y los supuestos del contrato OpenAPI) en el cierre del día 2.
 
 ## 29/09/26 — Nahuel (Claude Opus 5.5) — F1: contrato OpenAPI
 - **Hecho:** `05-Diseño/API/openapi.json` (OpenAPI 3.1): 95 operaciones en 72 rutas para los 11 módulos, cada una con rol (`x-roles`), casos de uso (`x-casos-de-uso`) y errores en `application/problem+json`. Esquemas completos para Cliente, Oportunidad, Cotización, Viaje, Pago y Alerta, más el login. Lo genera `generar-openapi.js` (no se edita el JSON a mano). Nota índice con convenciones, roles, errores y tabla de endpoints: [[Contrato de la API (OpenAPI)]]; enlazada desde ARQ.
