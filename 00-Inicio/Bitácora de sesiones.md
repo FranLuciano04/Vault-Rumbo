@@ -37,7 +37,8 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **E3:** [[IA — Agentes del proyecto]] completa, con fichas de Claude Code, subagentes y MCP de Figma (rol, modelos por fecha, herramientas, contexto, límites y ejemplos reales tomados de esta bitácora); pasa a `en-revision`.
 - **E4:** [[Herramientas del proyecto]] suma una tabla que separa la IA para desarrollar de la IA dentro del producto (DEC-0012). Se regeneró el `.docx` de Relevamiento y se verificó que la tabla no deje celdas vacías por el filtro de DEC.
 - **H1:** nueva nota [[Antecedentes]] (`en-revision`), enlazada desde [[Relevamiento — Fuente de verdad]]. La situación actual sale solo del relevamiento; la comparación con el mercado (Excel, HubSpot y Pipedrive, Tern/TravelJoy/Travefy y back office argentinos como SAVIA) usa documentación pública consultada el 30/09, con enlaces.
-- **Commits:** 47dfff4, 553811a, b95afc9 y el de H1.
+- **Entregables:** [[Antecedentes]] se sumó al `.docx` de Relevamiento, como primera sección después de la portada. Nuevo entregable **`Rumbo — Inteligencia artificial.docx`** (`07-Entregables/IA/`, script `build-ia.sh`): el modelo de IA del producto (DEC-0012) y los agentes (E3), con la misma plantilla y el mismo filtro. Para que se lea bien en el `.docx`, la nota de agentes dejó de usar sublistas y el ejemplo real ya no queda cortado al quitar la referencia a DEC-0013. Verificado: 0 fugas de notas internas, figura incrustada, y Word lo abre y exporta a PDF sin errores.
+- **Commits:** 47dfff4, 553811a, b95afc9, 74430d3 y el de los entregables.
 - **Pendiente:** G2, G3 y el esqueleto de H3 (día 2). Ratificar en A6 las dos notas nuevas. De otros: H2 y `paletaColores/` (Paloma).
 
 ## 29/09/26 — Paloma (Claude Opus 5.5) — prototipo ampliado al sistema completo

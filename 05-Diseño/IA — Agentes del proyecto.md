@@ -48,20 +48,11 @@ El equipo trabaja con **un agente principal**, Claude Code, que según la tarea 
 ### Claude Code — agente principal
 - **Qué hace:** es el agente con el que cada integrante trabaja en su sesión. Lee y edita los archivos del vault, ejecuta comandos, genera los entregables y registra lo hecho. Lo usaron los tres integrantes para el relevamiento, los casos de uso, el modelo de dominio, los diagramas UML, la arquitectura, el contrato de la API y el script SQL.
 - **Modelos:** Claude Opus para el análisis y las decisiones de diseño, y Claude Sonnet para tareas más acotadas. Según la [[Bitácora de sesiones]]: Claude Opus 4.8 del 09/09 al 18/09, Claude Sonnet 5 del 18/09 al 25/09 (diagramas de estado, clases y secuencia) y Claude Opus 5.5 desde el 29/09.
-- **Herramientas:**
-  - Lectura, búsqueda y edición de archivos del repositorio.
-  - Línea de comandos: Git, `pandoc` (entregables `.docx`), `mermaid-cli` (PNG de los diagramas), Node.js (generador del contrato OpenAPI), Redocly (validación del contrato) y PostgreSQL (validación del script SQL).
-  - **Skills** del proyecto en `.claude/skills/`, compartidas por Git ([[Skills compartidas]]), y la **entrevista de diseño**: Claude pregunta con una recomendación y la persona decide. Con ella se hicieron la entrevista de consistencia del 18/09 y la de diseño del 29/09.
-  - Servidores MCP: Figma para el prototipo y Mermaid Chart para validar diagramas.
+- **Herramientas:** lectura, búsqueda y edición de archivos del repositorio; la línea de comandos, con Git, `pandoc` (entregables `.docx`), `mermaid-cli` (PNG de los diagramas), Node.js (generador del contrato OpenAPI), Redocly (validación del contrato) y PostgreSQL (validación del script SQL); las **skills** del proyecto en `.claude/skills/`, compartidas por Git ([[Skills compartidas]]); y los servidores MCP de Figma, para el prototipo, y de Mermaid Chart, para validar diagramas.
+- **Entrevista de diseño:** para decidir, Claude pregunta de a una cuestión, con su recomendación, y la persona decide. Así se hicieron la entrevista de consistencia del 18/09 y la de diseño del 29/09.
 - **De dónde toma el contexto:** no recuerda las sesiones anteriores. Cada sesión arranca leyendo [[CLAUDE|CLAUDE.md]], [[Estado del proyecto]], la [[Bitácora de sesiones]] y [[Claude Code — memoria del proyecto]], y después abre solo las notas de la tarea, entrando por su MOC (ver [[Contexto eficiente con Claude (ahorro de tokens)]]). Reconoce a la persona por su usuario de Git y hace cada commit con la identidad de esa persona.
-- **Límites:**
-  - No formaliza una nota ni aprueba una decisión: las decisiones son del equipo y quedan en una `DEC-`.
-  - No inventa datos del negocio. Si falta información, avanza con una propuesta marcada como borrador.
-  - Respeta el orden de autoridad del vault: el relevamiento, después las `DEC-` y después el resto.
-  - No guarda credenciales en Git ni cambia la identidad de Git de nadie.
-  - Respeta el alcance: no propone pagos online, publicación automática en redes ni integración con mayoristas.
-  - Cada acción sobre archivos y comandos queda sujeta a los permisos que la persona le da en la sesión.
-- **Ejemplo real:** el 29/09, al escribir el script SQL, Claude Code detectó once datos que los casos de uso pedían y el ER no guardaba. Los propuso, Nahuel los aprobó y quedaron en [[DEC-0013 Datos que faltaban en el ER]], propagados al ER, al diagrama de clases, a las entidades y al script. Después validó el script contra un PostgreSQL local.
+- **Límites:** no aprueba decisiones ni da por cerrado un documento: eso lo hace el equipo, y cada decisión queda registrada con su justificación. No inventa datos del negocio: si falta información, avanza con una propuesta marcada como borrador. Cuando dos documentos se contradicen, manda el relevamiento, después las decisiones aprobadas y después el resto. No guarda credenciales en Git ni cambia la identidad de Git de nadie. Respeta el alcance: no propone pagos online, publicación automática en redes ni integración con mayoristas. Y cada acción sobre archivos y comandos queda sujeta a los permisos que la persona le da en la sesión.
+- **Ejemplo real:** el 29/09, al escribir el script SQL, Claude Code detectó once datos que los casos de uso pedían y el ER no guardaba. Los propuso, Nahuel los aprobó, quedaron registrados como decisión del equipo ([[DEC-0013 Datos que faltaban en el ER]]) y se propagaron al ER, al diagrama de clases, a las entidades y al script. Después validó el script contra un PostgreSQL local.
 
 ### Subagentes — exploración en paralelo
 - **Qué hacen:** son instancias de Claude que el agente principal lanza para una tarea acotada, sobre todo **búsquedas amplias en el vault** (por ejemplo, cruzar los 31 CU con las 13 entidades para encontrar incoherencias). Cada subagente trabaja con su propio contexto y le devuelve al agente principal solo la conclusión, no los archivos que leyó.

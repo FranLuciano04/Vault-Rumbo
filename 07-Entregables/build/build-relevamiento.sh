@@ -58,8 +58,9 @@ filtrar() {
     s/[[:space:]]+,/,/g'
 }
 
-# Orden del documento: justificación → herramientas → objetivos → alcance →
-# actores → circuito de la consulta a la venta → figura del diagrama de secuencia.
+# Orden del documento: antecedentes → justificación → herramientas → objetivos →
+# alcance → actores → circuito de la consulta a la venta → figura del diagrama de secuencia.
+filtrar "$ROOT/01-Relevamiento/Antecedentes.md"                       > "$BUILD/05-antecedentes.md"
 filtrar "$ROOT/01-Relevamiento/Justificación del sistema.md"          > "$BUILD/10-justificacion.md"
 filtrar "$ROOT/01-Relevamiento/Herramientas del proyecto.md"          > "$BUILD/20-herramientas.md"
 filtrar "$ROOT/01-Relevamiento/Objetivos del sistema.md"              > "$BUILD/30-objetivos.md"
@@ -83,6 +84,7 @@ REFARG=(); [ -f "$REF" ] && REFARG=(--reference-doc="$REF")
 
 "$PANDOC" \
   "$ROOT/07-Entregables/Relevamiento/00 - Portada.md" \
+  "$BUILD/05-antecedentes.md" \
   "$BUILD/10-justificacion.md" \
   "$BUILD/20-herramientas.md" \
   "$BUILD/30-objetivos.md" \

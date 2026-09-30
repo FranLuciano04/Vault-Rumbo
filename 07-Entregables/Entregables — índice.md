@@ -17,9 +17,10 @@ tags:: #tipo/referencia #estado/formalizado
 ## Entregables
 | Entregable | Fuente (.md) | Salida | PC |
 |---|---|---|---|
-| Relevamiento | `01-Relevamiento/*.md` (6 notas) | `07-Entregables/Relevamiento/Rumbo — Relevamiento.docx` | PC1 |
+| Relevamiento | `01-Relevamiento/*.md` (7 notas) | `07-Entregables/Relevamiento/Rumbo — Relevamiento.docx` | PC1 |
 | Requisitos | `02-Analisis/Requisitos funcionales.md` | `07-Entregables/Requisitos/Rumbo — Requisitos.docx` | PC1 |
 | Casos de uso | `02-Analisis/Casos de uso/CU-*.md` | `07-Entregables/Casos de uso/Rumbo — Casos de uso.docx` | PC1 |
+| Inteligencia artificial | [[DEC-0012 Modelo de IA del producto]] + [[IA — Agentes del proyecto]] | `07-Entregables/IA/Rumbo — Inteligencia artificial.docx` | PC1 |
 | Prototipo UI | [Figma — Rumbo · Prototipo PC1](https://www.figma.com/design/5rq8HOlZQ3uu4IUpBuhuZp) (la fuente es Figma, no un `.md`) | `07-Entregables/Prototipo/img/` (36 PNG) · detalle en [[Prototipo UI]] | PC1 |
 
 > **Los tres se entregan juntos y se leen en ese orden:** el relevamiento define el problema y el alcance, los requisitos especifican qué debe hacer el sistema dentro de ese alcance, y los casos de uso describen cómo se realiza cada requisito. Para que no se contradigan, **cada contenido vive en un solo documento** y los otros lo referencian: el **alcance** está únicamente en el relevamiento, y la **especificación formal del circuito** (precondiciones, flujos alternativos) únicamente en casos de uso.
@@ -50,12 +51,20 @@ bash "07-Entregables/build/build-casos-de-uso.sh"
 Genera `07-Entregables/Casos de uso/Rumbo — Casos de uso.docx`. Usa por defecto la plantilla `07-Entregables/build/reference.docx` (o pasar otra como 1.er argumento). Requiere **pandoc** (ver [[Skills compartidas]]). Para una compilación de prueba sin tocar el docx del vault: `OUT_OVERRIDE=/ruta/prueba.docx bash "07-Entregables/build/build-casos-de-uso.sh"`.
 
 ## Parámetros del entregable de Relevamiento (22/09)
-- **Contenido:** portada + **justificación del sistema** + **herramientas del proyecto** (agente de IA y modelado) + **objetivos** + **alcance y fuera de alcance** + **actores** + **circuito de la consulta a la venta** + la **Figura 1** con el diagrama de secuencia.
-- **Fuente:** seis notas de `01-Relevamiento/` — [[Justificación del sistema]], [[Herramientas del proyecto]], [[Objetivos del sistema]], [[Alcance y fuera de alcance]], [[Actores]] y [[Circuito de la consulta a la venta]]. El `.docx` ya no se edita a mano: el original que circulaba suelto se incorporó al vault el 22/09.
+- **Contenido:** portada + **antecedentes** + **justificación del sistema** + **herramientas del proyecto** (agente de IA y modelado) + **objetivos** + **alcance y fuera de alcance** + **actores** + **circuito de la consulta a la venta** + la **Figura 1** con el diagrama de secuencia.
+- **Fuente:** siete notas de `01-Relevamiento/` — [[Antecedentes]] (sumada el 30/09), [[Justificación del sistema]], [[Herramientas del proyecto]], [[Objetivos del sistema]], [[Alcance y fuera de alcance]], [[Actores]] y [[Circuito de la consulta a la venta]]. El `.docx` ya no se edita a mano: el original que circulaba suelto se incorporó al vault el 22/09.
 - **El alcance vive acá y solo acá.** El documento de requisitos lo referencia en vez de repetirlo. Si cambia el alcance, se toca [[Alcance y fuera de alcance]] y nada más.
 - **Figura 1:** se renderiza desde el Mermaid de [[DGM-SEC — De la consulta a la venta]] a `07-Entregables/Relevamiento/img/`. El comando está al pie de `build-relevamiento.sh`. Se inserta al 95 % del ancho de página.
 - **Marcas ❌/✅ del alcance:** quedan en la nota (sirven en Obsidian) y el script las quita al generar el entregable.
 - **Filtrado y estética:** el mismo `filtrar()` y la misma plantilla `reference.docx` que los otros dos entregables.
+
+## Parámetros del entregable de Inteligencia artificial (30/09)
+- **Contenido:** portada + **modelo de IA del producto y su justificación** (de [[DEC-0012 Modelo de IA del producto]]: contexto, decisión, alternativas y justificación) + **agentes de IA del proyecto** ([[IA — Agentes del proyecto]], con la Figura 1 del ciclo de trabajo). Responde a las láminas del PC1 «Modelos de IA utilizados y justificación» y «Agentes IA implementados».
+- **La elección de Claude como herramienta del equipo no se repite acá:** vive en [[Herramientas del proyecto]], dentro del relevamiento.
+- **Ajustes propios del script** (`ajustar()` en `build-ia.sh`, después del mismo `filtrar()`): cambia el título de cada nota por el de la sección, omite de DEC-0012 las secciones *Impacto*, *Decisores* y *Vínculo con el código*, quita todos los blockquotes, cambia ✅/❌ por «Sí»/«No» y reemplaza el bloque Mermaid por el PNG de `05-Diseño/img/`, que regenera `render-diagramas-diseno.sh`.
+- ⚠️ En [[IA — Agentes del proyecto]] **no usar sublistas**: el filtro compacta los espacios y las aplana.
+- **Estética:** la misma plantilla `reference.docx`.
+- **Cómo generarlo:** `bash "07-Entregables/build/build-ia.sh"` desde la raíz del repo.
 
 ## Cómo generar el DOCX de relevamiento
 Desde la raíz del repo:

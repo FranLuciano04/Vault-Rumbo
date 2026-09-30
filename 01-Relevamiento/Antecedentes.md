@@ -12,12 +12,12 @@ tags:: #tipo/referencia #estado/en-revision #pc/pc1
 Cómo resuelve hoy la agencia la gestión que Rumbo viene a ordenar, y qué ofrecen las herramientas que ya existen en el mercado. Junto con [[Objetivos del sistema]], [[Justificación del sistema]] y [[Alcance y fuera de alcance]] completa la presentación general del proyecto.
 
 ## Cómo trabaja hoy la agencia
-La agencia es una PyME de turismo que gestiona clientes, reservas, cobros y redes **a mano**, con información repartida entre papel, planillas de Excel, cuadernos y chats ([[Relevamiento — Fuente de verdad]]):
+La agencia es una PyME de turismo que gestiona clientes, reservas, cobros y redes **a mano**, con información repartida entre papel, planillas de Excel, cuadernos y chats:
 
 - **Carpetas físicas por viaje.** Cada viaje tiene su carpeta en papel; no hay un lugar único donde ver los clientes y los viajes juntos.
-- **Consultas por Instagram, WhatsApp o en persona.** La consulta llega por un canal y el seguimiento hasta la cotización y el cierre depende de la memoria de quien la atendió ([[Circuito de la consulta a la venta]]).
+- **Consultas por Instagram, WhatsApp o en persona.** La consulta llega por un canal y el seguimiento hasta la cotización y el cierre depende de la memoria de quien la atendió (ver [[Circuito de la consulta a la venta]]).
 - **Cobros y vencimientos anotados a mano.** Las señas, las cuotas de los pasajeros y los pagos a los operadores se controlan en planillas, sin avisos automáticos.
-- **Avisos a los pasajeros por WhatsApp.** Recordar un pago, un formulario migratorio (por ejemplo, el eTicket de República Dominicana), el seguro o los vouchers es una tarea manual que depende de acordarse ([[Relevamiento — respuestas de la agencia (17-09)]]).
+- **Avisos a los pasajeros por WhatsApp.** Recordar un pago, un formulario migratorio (por ejemplo, el eTicket de República Dominicana), el seguro o los vouchers es una tarea manual que depende de acordarse.
 - **Vendedores externos.** Además de los empleados, trabajan vendedores freelance, y hay que saber qué vendió cada uno y cuánto corresponde pagarle.
 - **Operaciones en pesos y en dólares.** La ganancia no es un porcentaje fijo: cambia según el viaje, el operador y la negociación.
 - **Clientes fieles como activo principal.** Llegan pocos clientes nuevos, así que el negocio se sostiene volviendo a venderles a los de siempre.
@@ -62,4 +62,4 @@ Los casilleros «no se encontró» indican que la documentación pública consul
 Rumbo toma de cada grupo lo que la agencia necesita (el embudo de un CRM y el modelo del viaje y sus cobros de un sistema de turismo) y le suma lo propio de este caso: alertas por destino, recontacto de clientes fieles, vendedores freelance y multimoneda, a la medida de una PyME argentina.
 
 ## 🔎 Revisión
-> [!note] Francisco (30/09) — nota creada para el paso **H1** del plan a 3 días. La situación actual sale únicamente del relevamiento y de las respuestas de la agencia del 17/09. La comparación con el mercado se armó con la documentación pública de cada producto, consultada el 30/09/26, sin pruebas propias; conviene que el equipo la revise antes de ratificarla en A6. Entra en la «Presentación general» del documento único (H3).
+> [!note] Francisco (30/09) — nota creada para el paso **H1** del plan a 3 días. La situación actual sale únicamente de [[Relevamiento — Fuente de verdad]] y de [[Relevamiento — respuestas de la agencia (17-09)]]. La comparación con el mercado se armó con la documentación pública de cada producto, consultada el 30/09/26, sin pruebas propias; conviene que el equipo la revise antes de ratificarla en A6. Entra en la «Presentación general» del documento único (H3).
