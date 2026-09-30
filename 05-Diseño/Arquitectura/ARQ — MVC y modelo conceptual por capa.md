@@ -1,14 +1,15 @@
 ---
 tipo: analisis
-estado: en-revision
+estado: formalizado
 modulo: []
 responsable: Francisco
 pc: pc1
 actualizado: 30/09/26
+fecha_aprobacion: 30/09/26
 ---
 # ARQ — MVC y modelo conceptual por capa
 
-tags:: #tipo/analisis #estado/en-revision #pc/pc1
+tags:: #tipo/analisis #estado/formalizado #pc/pc1
 
 > Pasos **G2** (sección MVC) y **G3** (modelo conceptual por capa) del plan a 3 días. Responde a las láminas del PC1 «Documento con el MVC» y «Modelo conceptual: Frontend, Backend, Base de datos». Complementa a [[ARQ — Vista general]], que sigue siendo la fuente de las vistas y del C4; esta nota no las repite. Supuesto del plan (H0): «MVC» es **Modelo-Vista-Controlador**. Armada por Francisco el 30/09; la revisa Nahuel antes del cierre del día 2.
 
@@ -173,8 +174,8 @@ flowchart LR
 - **Responsabilidades:** mostrar la información de cada módulo según el rol del usuario, capturar los datos de los formularios, validarlos antes de enviarlos, llamar a la API y mostrar sus respuestas y errores. Las fechas se muestran como `dd/mm/aa` y los importes en ARS o USD, según la operación.
 - **Tecnologías:** React + TypeScript + Vite (web), React Native + Expo (mobile, distribuida de forma interna con EAS Build) y un paquete compartido con TanStack Query, Axios, `zod` y los tipos generados del contrato.
 - **Qué atiende:**
-  - **Web:** los once módulos (clientes, oportunidades y cotizaciones, viajes, economía y pagos, alertas, configuración, hoteles, redes, dashboard, calendario y usuarios), mostrando a cada rol solo lo que le corresponde: el `freelance`, por ejemplo, no ve el módulo de redes ni puede cargar hoteles.
-  - **Mobile:** la agenda y las alertas del día y la consulta de clientes, para el uso fuera de la oficina.
+  - **Web:** los once módulos (clientes, oportunidades y cotizaciones, viajes, economía y pagos, alertas, configuración, hoteles, redes, dashboard, calendario y seguridad), mostrando a cada rol solo lo que le corresponde: el `freelance`, por ejemplo, no ve el módulo de redes ni puede cargar hoteles.
+  - **Mobile:** la agenda, las alertas del día y los clientes, para el uso fuera de la oficina.
 - **Qué no hace:** no decide reglas del negocio ni permisos (el backend los vuelve a verificar siempre) y no guarda datos del negocio en el equipo.
 
 ### Backend de negocio
@@ -219,4 +220,4 @@ flowchart LR
 - **Qué no hace:** no contiene lógica de negocio en procedimientos almacenados: las reglas viven en el backend, y la base solo asegura la integridad.
 
 ## 🔎 Revisión
-> [!question] Francisco (30/09) — para Nahuel: (1) ¿estás de acuerdo con ubicar los **servicios** de negocio en el **Modelo** y no en el Controlador? El plan original decía «routers y servicios de FastAPI» para el Controlador; se eligió la lectura clásica de MVC (controlador delgado) porque en Rumbo las reglas viven en los servicios. (2) Revisar que la tabla de módulos y la de tablas por módulo coincidan con ARQ y el ER (`operador` y `destino` quedaron en configuración y catálogos). (3) Revisar el diagrama de secuencia de CU-12 contra la vista lógica.
+> [!success] Aprobada por Nahuel el 30/09/26. Confirmó que los **servicios** de negocio van en el **Modelo** (lectura clásica de MVC, con controlador delgado), que las tablas de módulos y de tablas por módulo coinciden con [[ARQ — Vista general]] y el [[DGM-ER]], y que el diagrama de secuencia de CU-12 respeta la vista lógica. Ajustes al revisar: el módulo de usuarios del frontend pasó a llamarse `seguridad` y el mobile incluye los clientes completos.

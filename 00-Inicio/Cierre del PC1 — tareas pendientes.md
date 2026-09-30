@@ -16,7 +16,7 @@ Al 30/09/26 a la noche el PC1 está **prácticamente completo**:
 - **Documento principal** (`07-Entregables/PC1/Rumbo — PC1.docx`, 57 páginas): sigue el contenido del «Documento con el MVC» de la lámina. Lo arma `build-pc1.sh` desde las notas y los textos de `07-Entregables/PC1/*.md`.
 - **Deck** (`07-Entregables/PC1/Rumbo — PC1 (presentación).pptx` y `.pdf`, 27 slides): el de Paloma, reordenado con la misma estructura. Lo arma `build-deck.js`.
 - **Carpeta de entrega para el Drive** (`07-Entregables/PC1/Rumbo — Entrega PC1/`, fuera de Git): documento, presentación, 5 anexos, 34 diagramas, 59 pantallas, `openapi.json`, `rumbo.sql`, `CLAUDE.md` y la skill. La arma `armar-entrega.sh`.
-- Todo lo del PC1 está **formalizado salvo una nota**: [[ARQ — MVC y modelo conceptual por capa]] (G2 y G3), que revisa Nahuel.
+- Todo lo del PC1 está **formalizado**: [[ARQ — MVC y modelo conceptual por capa]] (G2 y G3) la revisó y aprobó Nahuel el 30/09.
 - Decisiones del 30/09 que hay que tener presentes: el `freelance` no gestiona hoteles, no registra reseñas y no usa redes; la `dueño` tiene todo lo del `admin`; los enums de la capa técnica van en ASCII; los prompts de la entrega son los usados para **construir** el producto (el de CU-20 quedó para PC2). Detalle en la [[Bitácora de sesiones]] del 30/09.
 
 ## Plan del jueves 01/10 (los tres)
@@ -29,12 +29,7 @@ Acordado por Francisco al cerrar el 30/09:
 El viernes queda para el cierre (D1–D3) y la entrega a las 20 hs.
 
 ## Nahuel
-- [ ] **Revisar [[ARQ — MVC y modelo conceptual por capa]] (G2 y G3).** Lo más importante:
-  1. Que los **servicios de negocio** estén en el **Modelo** y no en el Controlador (se eligió la lectura clásica de MVC, con controlador delgado; ver la Revisión de la nota).
-  2. Que la tabla de **módulos por capa** y la de **tablas por módulo** coincidan con [[ARQ — Vista general]] y el [[DGM-ER]] (`destino` y `operador` quedaron en «Configuración y catálogos»).
-  3. Que el **diagrama de secuencia de CU-12** (Vista → Controlador → Modelo) respete la vista lógica.
-  - **Si está bien:** pasar la nota a `formalizado` (`estado`, `fecha_aprobacion` y la etiqueta `#estado/`), tildar **G2** y **G3** y la línea «Modelo C4 y sección MVC» del checklist de [[Estado del proyecto]], y regenerar todo (ver *Cómo regenerar*).
-  - **Si hay que cambiar algo:** editar la nota (no el `.docx`), volver a renderizar sus diagramas con `bash "07-Entregables/build/render-diagramas-diseno.sh"` y regenerar.
+- [x] **Revisar [[ARQ — MVC y modelo conceptual por capa]] (G2 y G3).** ✅ 30/09 (Nahuel): aprobada y formalizada; se unificó `seguridad` en G3, el mobile incluye los clientes y se corrigió en [[ARQ — Vista general]] que configuración y moderación son de `admin` y `dueño`.
 - [ ] **Revisar tus partes del documento y del deck:** secciones **4** (flujo UML y C4), **5** (modelo de datos SQL) y **6** (comunicación Vista–Controlador), y sus slides.
 
 ## Paloma
