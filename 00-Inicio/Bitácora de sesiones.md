@@ -30,6 +30,10 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
+## 29/09/26 — Nahuel (Claude Opus 5.5) — PNG del ER en alta resolución
+- **Hecho:** El PNG del [[DGM-ER]] se pixelaba al hacer zoom: con escala 2, mermaid-cli limita el ancho a unos 1568 px y achicaba el ER (el diagrama más grande) a la mitad de su tamaño natural. `render-diagramas-dominio.sh` acepta ahora un quinto parámetro opcional con el lado mayor del PNG, y el ER se exporta a **5535 × 6000 px** (antes 1568 × 1700). No se aplica a todos porque `--size` limita el lado mayor y achicaría los diagramas de actividad, que son muy altos.
+- **Pendiente:** si otro diagrama ancho se ve mal impreso (por ejemplo, la vista principal de clases), se le pasa el mismo parámetro.
+
 ## 29/09/26 — Nahuel (Claude Opus 5.5) — propuestas de Paloma para CU-14 aceptadas
 - **Hecho:** Nahuel aceptó las dos propuestas que Paloma dejó al diseñar la agenda. [[CU-14 Ver y atender alertas del día]] suma **A5 — Ver próximas** y el **progreso del día** (paso 2 y postcondiciones). [[Requisitos funcionales]] suma **RF-154** y **RF-155** en el módulo 5 (total: 155 RF), con índice, matriz y totales actualizados en MOC, Estado, portada e índice de entregables. El progreso necesita `Alerta.resuelta_en`: quedó como punto 12 de [[DEC-0013 Datos que faltaban en el ER|DEC-0013]] y se propagó a ER, clases, [[Alerta]] y SQL. El contrato OpenAPI suma el filtro `proximas` en `GET /alertas` y `GET /alertas/progreso-del-dia` (96 operaciones).
 - **Verificado:** SQL revalidado en PostgreSQL 18.3 (23 casos: 8 permitidos y 15 rechazados); contrato válido en Redocly; PNG de clases y ER regenerados; `.docx` de requisitos y de casos de uso regenerados con RF-154, RF-155 y A5, sin fugas de notas internas.
