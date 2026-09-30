@@ -90,28 +90,30 @@ function stat(s, x, y, w, value, label, color = C.primary, lcolor = C.muted) {
 {
   const s = base('Qué vamos a mostrar', { section: 'Agenda' });
   const items = [
-    ['Presentación general', 'Antecedentes, justificación, objetivos, alcance, actores y circuito', 'Francisco'],
-    ['Modelos de IA', 'La IA dentro del producto y su justificación', 'Francisco'],
-    ['Agentes de IA', 'Cómo trabajamos con Claude Code y el vault compartido', 'Francisco'],
-    ['Modelo de datos', 'Clases, entidad-relación y script SQL', 'Nahuel'],
-    ['Modelo de desarrollo', 'Metodología, calidad e interfaces gráficas', 'Paloma'],
-    ['Arquitectura', 'Despliegue, C4, MVC y contrato OpenAPI', 'Nahuel y Francisco'],
+    ['Definición del problema', 'Cómo trabaja hoy la agencia y qué ofrece el mercado', 'Francisco'],
+    ['Alcance y límites', 'Objetivos, alcance, actores y casos de uso', 'Francisco'],
+    ['Modelo conceptual', 'Frontend, backend y base de datos; interfaces', 'Francisco y Paloma'],
+    ['Modelo de flujo', 'Diagramas UML y modelo C4', 'Francisco y Nahuel'],
+    ['Modelo de datos SQL', 'Entidad-relación y script', 'Nahuel'],
+    ['Comunicación V–C', 'MVC y contrato OpenAPI en JSON', 'Francisco y Nahuel'],
+    ['Modelos y agentes de IA', 'El modelo del producto, los agentes y sus prompts', 'Francisco'],
+    ['Modelado con Mermaid.js', 'Diagramas como código', 'Francisco'],
   ];
   items.forEach(([t, d, p], i) => {
     const col = i % 2, row = Math.floor(i / 2);
-    const x = M + col * 6.1, y = 1.75 + row * 1.65;
-    card(s, x, y, 5.9, 1.4);
-    numCircle(s, x + 0.3, y + 0.42, i + 1);
-    s.addText(t, { x: x + 1.1, y: y + 0.22, w: 4.6, h: 0.45, fontFace: F, fontSize: 19, bold: true, color: C.navy, margin: 0, isTextBox: true });
-    s.addText(d, { x: x + 1.1, y: y + 0.66, w: 4.6, h: 0.4, fontFace: F, fontSize: 13, color: C.muted, margin: 0, isTextBox: true });
-    s.addText(p, { x: x + 1.1, y: y + 0.98, w: 4.6, h: 0.3, fontFace: F, fontSize: 11, bold: true, color: C.mid, margin: 0, isTextBox: true });
+    const x = M + col * 6.1, y = 1.6 + row * 1.3;
+    card(s, x, y, 5.9, 1.12);
+    numCircle(s, x + 0.28, y + 0.29, i + 1);
+    s.addText(t, { x: x + 1.05, y: y + 0.14, w: 4.7, h: 0.4, fontFace: F, fontSize: 17, bold: true, color: C.navy, margin: 0, isTextBox: true });
+    s.addText(d, { x: x + 1.05, y: y + 0.5, w: 4.7, h: 0.3, fontFace: F, fontSize: 12, color: C.muted, margin: 0, isTextBox: true });
+    s.addText(p, { x: x + 1.05, y: y + 0.78, w: 4.7, h: 0.28, fontFace: F, fontSize: 11, bold: true, color: C.mid, margin: 0, isTextBox: true });
   });
-  s.addNotes('El orden sigue la documentación obligatoria de la cátedra y el documento único que entregamos. Cada uno expone su frente.');
+  s.addNotes('El orden sigue el contenido del «Documento con el MVC» que pide la cátedra, igual que el documento entregado. El material completo (anexos, todos los diagramas y pantallas) está en la carpeta de entrega.');
 }
 
 // 3 · Antecedentes
 {
-  const s = base('Cómo trabaja hoy la agencia', { section: '1 · Presentación general', presenter: 'Francisco' });
+  const s = base('Cómo trabaja hoy la agencia', { section: '1 · Definición del problema', presenter: 'Francisco' });
   const rows = [
     ['Carpetas físicas por viaje', 'No hay un lugar único para ver clientes y viajes juntos.'],
     ['Consultas por Instagram, WhatsApp o en persona', 'El seguimiento depende de la memoria de quien atendió.'],
@@ -137,7 +139,7 @@ function stat(s, x, y, w, value, label, color = C.primary, lcolor = C.muted) {
 
 // 4 · Mercado
 {
-  const s = base('Por qué no alcanzan las herramientas que existen', { section: '1 · Presentación general', presenter: 'Francisco' });
+  const s = base('Por qué no alcanzan las herramientas que existen', { section: '1 · Definición del problema', presenter: 'Francisco' });
   const hdr = ['Necesidad de la agencia', 'Excel y mensajería', 'CRM genérico', 'CRM turismo EE. UU.', 'Rumbo'];
   const data = [
     ['Seguir la consulta hasta la venta', 'A mano', 'Sí', 'Sí', 'Sí'],
@@ -157,7 +159,7 @@ function stat(s, x, y, w, value, label, color = C.primary, lcolor = C.muted) {
 
 // 5 · Objetivos
 {
-  const s = base('Qué busca resolver Rumbo', { section: '1 · Presentación general', presenter: 'Francisco' });
+  const s = base('Qué busca resolver Rumbo', { section: '2 · Alcance y límites', presenter: 'Francisco' });
   const obj = [
     ['Digitalizar y centralizar', 'De las carpetas a un único sistema de clientes y viajes.'],
     ['Fidelizar clientes', 'Ficha con preferencias, historial y recontacto.'],
@@ -179,7 +181,7 @@ function stat(s, x, y, w, value, label, color = C.primary, lcolor = C.muted) {
 
 // 6 · Alcance
 {
-  const s = base('Alcance y límites', { section: '1 · Presentación general', presenter: 'Francisco' });
+  const s = base('Alcance y límites', { section: '2 · Alcance y límites', presenter: 'Francisco' });
   const mods = ['Clientes', 'Oportunidades y cotización', 'Viajes', 'Economía y pagos', 'Alertas y recordatorios', 'Catálogo de hoteles', 'Redes sociales', 'Dashboard y reportes', 'Calendario de viajes', 'Configuración y catálogos', 'Usuarios y seguridad'];
   s.addText('11 módulos · web y mobile', { x: M, y: 1.65, w: 7, h: 0.4, fontFace: F, fontSize: 16, bold: true, color: C.primary, margin: 0, isTextBox: true });
   mods.forEach((m, i) => {
@@ -196,7 +198,7 @@ function stat(s, x, y, w, value, label, color = C.primary, lcolor = C.muted) {
 
 // 7 · Actores y casos de uso
 {
-  const s = base('Actores y casos de uso', { section: '1 · Presentación general', presenter: 'Francisco' });
+  const s = base('Actores y casos de uso', { section: '2 · Alcance y límites', presenter: 'Francisco' });
   const act = [['Empleado', 'Usuario principal', 'Opera todo el circuito: clientes, consultas, cotizaciones, viajes, cobros y alertas.'], ['Admin', 'Hereda del empleado', 'Configura comisiones, destinos, operadores y usuarios, y modera reseñas.'], ['Dueña', 'Hereda del empleado', 'Mira el negocio: dashboard, reportes y alertas de toda la empresa.'], ['Freelance', 'Hereda del empleado', 'Vendedor externo: ve y opera solo lo suyo; no toca el catálogo ni las redes.'], ['Pasajero', 'Actor externo', 'Consulta, recibe cotizaciones y paga. No opera el sistema.']];
   act.forEach(([a, t, d], i) => {
     const x = M + i * 2.46;
@@ -211,9 +213,83 @@ function stat(s, x, y, w, value, label, color = C.primary, lcolor = C.muted) {
   s.addNotes('Admin, dueña y freelance son especializaciones del empleado: heredan los casos operativos. El freelance no gestiona hoteles, no registra reseñas y no usa redes.');
 }
 
+// N1 · Modelo conceptual
+{
+  const s = base('Tres capas: frontend, backend y base de datos', { section: '3 · Modelo conceptual', presenter: 'Francisco' });
+  fitImage(s, IMG('05-Diseño/Arquitectura/img/ARQ-capas-conceptual.png'), M, 1.55, W - 2 * M, 3.1);
+  const capas = [
+    ['Frontend', 'Web con los once módulos según el rol, y mobile con agenda, alertas y clientes. Muestra y valida; no decide reglas.'],
+    ['Backend de negocio', 'La única puerta al dominio: permisos por rol, un caso de uso por transacción, estados y el proceso diario.'],
+    ['Base de datos', 'PostgreSQL con 15 tablas: protege la integridad con claves y restricciones; todo es baja lógica.'],
+  ];
+  capas.forEach(([t, d], i) => {
+    const x = M + i * 4.11;
+    card(s, x, 4.9, 3.9, 1.75);
+    s.addText(t, { x: x + 0.25, y: 5.05, w: 3.4, h: 0.4, fontFace: F, fontSize: 17, bold: true, color: C.navy, margin: 0, isTextBox: true });
+    s.addText(d, { x: x + 0.25, y: 5.47, w: 3.4, h: 1.1, fontFace: F, fontSize: 12.5, color: C.text, margin: 0, valign: 'top', isTextBox: true });
+  });
+  s.addNotes('Cada capa se puede cambiar sin tocar las otras mientras se respete el contrato entre ellas: OpenAPI entre frontend y backend, y el esquema SQL entre backend y base de datos.');
+}
+
+// 15 · Interfaces: cómo se diseñó
+{
+  const s = base('Interfaces gráficas: prototipo en Figma', { section: '3 · Modelo conceptual', presenter: 'Paloma' });
+  const img = PROT('03-cu14-agenda.png');
+  const r = fitImage(s, img, 6.2, 1.5, 6.53, 5.4);
+  s.addShape(pres.shapes.RECTANGLE, { x: r.x, y: r.y, w: r.w, h: r.h, fill: { type: 'none' }, line: { color: 'D5DDE4', width: 1 } });
+  const st = ['Validar el estilo con una pantalla: la agenda del día', 'Sistema de diseño liviano: paleta del equipo, Plus Jakarta Sans, 7 componentes y 28 íconos', 'Pantallas clave del circuito y después el resto de los casos de uso', 'Vistas por perfil y mobile', 'Navegable: cada pantalla se alcanza desde un punto de inicio'];
+  st.forEach((t, i) => {
+    const y = 1.65 + i * 0.95;
+    numCircle(s, M, y, i + 1, 0.48, C.mid);
+    s.addText(t, { x: M + 0.7, y: y - 0.02, w: 4.6, h: 0.8, fontFace: F, fontSize: 14, color: C.text, margin: 0, valign: 'top', isTextBox: true });
+  });
+  s.addText('Contraste AA · el color nunca es la única señal · «Deshacer» en lugar de confirmar', { x: M, y: 6.45, w: 5.3, h: 0.6, fontFace: F, fontSize: 12, italic: true, color: C.primary, margin: 0, isTextBox: true });
+}
+
+// 16 · Vista por perfil
+{
+  const s = base('Una vista por perfil', { section: '3 · Modelo conceptual', presenter: 'Paloma' });
+  const shots = [['03-cu14-agenda.png', 'Empleado', 'Todo el circuito; su agenda y su dashboard'], ['49-admin-agenda-agencia.png', 'Admin', 'Alertas de toda la agencia y configuración'], ['28-cu21-dashboard.png', 'Dueña', 'Dashboard y reportes de la empresa'], ['34-freelance-embudo.png', 'Freelance', 'Solo sus clientes, oportunidades y viajes']];
+  shots.forEach(([f, t, d], i) => {
+    const col = i % 2, row = Math.floor(i / 2);
+    const x = M + col * 6.15, y = 1.5 + row * 2.8;
+    const r = fitImage(s, PROT(f), x, y, 3.3, 2.55);
+    s.addShape(pres.shapes.RECTANGLE, { x: r.x, y: r.y, w: r.w, h: r.h, fill: { type: 'none' }, line: { color: 'D5DDE4', width: 1 } });
+    s.addText(t, { x: x + 3.5, y: y + 0.5, w: 2.4, h: 0.45, fontFace: F, fontSize: 20, bold: true, color: C.navy, margin: 0, isTextBox: true });
+    s.addText(d, { x: x + 3.5, y: y + 1.0, w: 2.4, h: 1.0, fontFace: F, fontSize: 13, color: C.muted, margin: 0, isTextBox: true });
+  });
+}
+
+// 17 · Mobile
+{
+  const s = base('Mobile: agenda, alertas y clientes', { section: '3 · Modelo conceptual', presenter: 'Paloma' });
+  const ph = ['35-mobile-agenda.png', '53-mobile-detalle-alerta.png', '57-mobile-clientes.png', '36-mobile-ficha-cliente.png'];
+  ph.forEach((f, i) => {
+    const r = fitImage(s, PROT(f), 4.9 + i * 2.0, 1.55, 1.85, 4.0);
+    s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: r.x, y: r.y, w: r.w, h: r.h, fill: { type: 'none' }, line: { color: 'C9D3DC', width: 1 }, rectRadius: 0.1 });
+  });
+  bullets(s, ['Ver la agenda y atender alertas: resolver, posponer, marcar como vista', 'Crear recordatorios', 'Buscar clientes, ver su ficha y dar de alta uno nuevo', 'Cotizar, gestionar viajes y cobrar: desde la web'], M, 1.7, 3.9, 4, 15);
+  s.addText('React Native + Expo · la misma API y el mismo contrato que la web', { x: M, y: 5.9, w: 12, h: 0.5, fontFace: F, fontSize: 13, italic: true, color: C.primary, margin: 0, isTextBox: true });
+}
+
+// 18 · Demo
+{
+  const s = base('Recorrido del prototipo', { section: '3 · Modelo conceptual', presenter: 'Paloma', dark: true });
+  stat(s, M, 1.9, 3.5, '59', 'pantallas', C.white, C.light);
+  stat(s, M, 3.4, 3.5, '5', 'puntos de inicio', C.white, C.light);
+  const st = ['Rumbo · escritorio (empleado): inicio de sesión → agenda → cliente → consulta → cotización → viaje → cobro', 'Rumbo · mobile', 'Dueña · dashboard', 'Admin · configuración', 'Freelance · embudo'];
+  st.forEach((t, i) => {
+    const y = 1.9 + i * 0.8;
+    numCircle(s, 4.6, y, i + 1, 0.5, C.primary);
+    s.addText(t, { x: 5.3, y: y - 0.02, w: 7.4, h: 0.7, fontFace: F, fontSize: 16, color: C.white, margin: 0, valign: 'middle', isTextBox: true });
+  });
+  s.addText('figma.com/design/5rq8HOlZQ3uu4IUpBuhuZp · Present → Opciones → «Ajustar»', { x: M, y: 6.25, w: 12, h: 0.4, fontFace: F, fontSize: 13, color: C.light, margin: 0, hyperlink: { url: 'https://www.figma.com/design/5rq8HOlZQ3uu4IUpBuhuZp' }, isTextBox: true });
+  s.addNotes('Si hay tiempo, demo en vivo desde Figma. Si no, las capturas de las diapositivas anteriores alcanzan.');
+}
+
 // 8 · Circuito
 {
-  const s = base('El circuito que Rumbo digitaliza', { section: '1 · Presentación general', presenter: 'Francisco' });
+  const s = base('El circuito que Rumbo digitaliza', { section: '4 · Modelo de flujo: UML y C4', presenter: 'Francisco' });
   const steps = [['Cliente', 'Se registra o se busca'], ['Consulta', 'Nace la oportunidad'], ['Cotización', 'Versionable, con vigencia'], ['Reserva y seguimiento', 'Se crea el viaje'], ['Cobros y alertas', 'Cuotas, vencimientos y post-viaje']];
   steps.forEach(([t, d], i) => {
     const x = M + i * 2.46;
@@ -234,9 +310,79 @@ function stat(s, x, y, w, value, label, color = C.primary, lcolor = C.muted) {
   s.addNotes('CU-01 De la consulta a la venta: 5 pasos. Diagramas de secuencia, actividad y estados en los anexos del documento.');
 }
 
+// 11 · Clases
+{
+  const s = base('Modelo de dominio: diagrama de clases', { section: '4 · Modelo de flujo: UML y C4', presenter: 'Nahuel' });
+  fitImage(s, IMG('03-Dominio/Diagramas/Clases/DGM-clases.png'), 3.6, 1.45, 9.13, 5.55);
+  stat(s, M, 1.8, 2.8, '13', 'entidades del dominio');
+  stat(s, M, 3.3, 2.8, '20', 'enumeraciones');
+  stat(s, M, 4.8, 2.8, '6', 'máquinas de estado');
+  s.addNotes('Cliente, Oportunidad, Cotización, Viaje, Pago, Alerta, Hotel, Reseña, Usuario, ContenidoRed, Destino, RequisitoDestino y Operador, más la clase asociativa ViajeHotel.');
+}
+
+// 19 · Despliegue
+{
+  const s = base('Arquitectura: vista general y despliegue', { section: '4 · Modelo de flujo: UML y C4', presenter: 'Nahuel' });
+  fitImage(s, IMG('05-Diseño/Arquitectura/img/ARQ-despliegue.png'), M, 1.45, 12.13, 3.75);
+  bullets(s, ['Cliente-servidor: web y mobile hablan en JSON con una única API', 'FastAPI + PostgreSQL + LangChain', 'Servidor on-premise en la agencia con Docker Compose'], M, 5.45, 5.9, 1.6, 14);
+  bullets(s, ['Proceso automático diario a las 00:00', 'Acceso externo por Cloudflare Tunnel', 'Respaldo diario con copia fuera del servidor'], 6.83, 5.45, 5.9, 1.6, 14);
+}
+
+// 20 · C4
+{
+  const s = base('Modelo C4: contexto y contenedores', { section: '4 · Modelo de flujo: UML y C4', presenter: 'Nahuel' });
+  const a = fitImage(s, IMG('05-Diseño/Arquitectura/img/ARQ-C4-1-contexto.png'), M, 1.5, 5.9, 5.0);
+  const b = fitImage(s, IMG('05-Diseño/Arquitectura/img/ARQ-C4-2-contenedores.png'), 6.83, 1.5, 5.9, 5.0);
+  s.addText('Nivel 1 · Contexto', { x: M, y: 6.6, w: 5.9, h: 0.35, fontFace: F, fontSize: 13, bold: true, color: C.primary, align: 'center', margin: 0, isTextBox: true });
+  s.addText('Nivel 2 · Contenedores', { x: 6.83, y: 6.6, w: 5.9, h: 0.35, fontFace: F, fontSize: 13, bold: true, color: C.primary, align: 'center', margin: 0, isTextBox: true });
+}
+
+// 21 · Componentes
+{
+  const s = base('Modelo C4: componentes de la API', { section: '4 · Modelo de flujo: UML y C4', presenter: 'Nahuel' });
+  fitImage(s, IMG('05-Diseño/Arquitectura/img/ARQ-C4-3-componentes.png'), M, 1.45, 12.13, 4.0);
+  bullets(s, ['Tres capas: presentación, negocio y datos, más core', 'Un paquete por módulo funcional'], M, 5.7, 5.9, 1.3, 14);
+  bullets(s, ['Visibilidad por fila: el filtro por rol es obligatorio en toda lectura', 'Auditoría de autor y fecha en cada cambio'], 6.83, 5.7, 5.9, 1.3, 14);
+}
+
+// 12 · ER y SQL
+{
+  const s = base('Modelo entidad-relación y SQL', { section: '5 · Modelo de datos SQL', presenter: 'Nahuel' });
+  fitImage(s, IMG('03-Dominio/Diagramas/DER/DGM-ER.png'), M, 1.45, 6.3, 5.6);
+  card(s, 7.2, 1.6, 5.53, 5.2);
+  s.addText('Script SQL · PostgreSQL', { x: 7.5, y: 1.85, w: 5, h: 0.4, fontFace: F, fontSize: 18, bold: true, color: C.navy, margin: 0, isTextBox: true });
+  bullets(s, ['15 tablas y 20 tipos enumerados nativos', 'Claves UUID con gen_random_uuid()', 'Auditoría en todas las tablas: quién creó y modificó cada registro', 'Ganancia y margen como columnas calculadas', 'CHECK: cada alerta tiene a lo sumo un origen', 'Validado corriéndolo en PostgreSQL 18 con casos de prueba permitidos y rechazados'], 7.5, 2.4, 5, 3.6, 14);
+  s.addText('En PC2, la primera migración de Alembic lo reproduce.', { x: 7.5, y: 6.1, w: 5, h: 0.5, fontFace: F, fontSize: 12, italic: true, color: C.primary, margin: 0, isTextBox: true });
+}
+
+// 22 · MVC
+{
+  const s = base('MVC en Rumbo', { section: '6 · Comunicación Vista–Controlador', presenter: 'Francisco' });
+  fitImage(s, IMG('05-Diseño/Arquitectura/img/ARQ-MVC.png'), M, 1.45, 12.13, 3.6);
+  const mvc = [['Vista', 'Web (React) y mobile (React Native)'], ['Controlador', 'Routers y esquemas de la API FastAPI'], ['Modelo', 'Servicios, estados, políticas y PostgreSQL']];
+  mvc.forEach(([t, d], i) => {
+    const x = M + i * 4.1;
+    card(s, x, 5.25, 3.9, 1.3, i === 1 ? C.pale : C.white);
+    s.addText(t, { x: x + 0.25, y: 5.37, w: 3.4, h: 0.45, fontFace: F, fontSize: 19, bold: true, color: C.navy, margin: 0, isTextBox: true });
+    s.addText(d, { x: x + 0.25, y: 5.85, w: 3.4, h: 0.5, fontFace: F, fontSize: 13, color: C.muted, margin: 0, isTextBox: true });
+  });
+  s.addText('Vista y Controlador se comunican en JSON según el contrato OpenAPI.', { x: M, y: 6.7, w: 12, h: 0.35, fontFace: F, fontSize: 12, italic: true, color: C.primary, margin: 0, isTextBox: true });
+}
+
+// 23 · OpenAPI
+{
+  const s = base('Comunicación Vista–Controlador: OpenAPI', { section: '6 · Comunicación Vista–Controlador', presenter: 'Nahuel' });
+  stat(s, M, 1.8, 3.3, '96', 'operaciones REST');
+  stat(s, M + 3.5, 1.8, 3.3, '11', 'módulos');
+  stat(s, M + 7.0, 1.8, 3.3, '4', 'roles con permisos por operación');
+  card(s, M, 3.55, 12.13, 3.1);
+  bullets(s, ['OpenAPI 3.1 en JSON, validado con Redocly', 'Cada operación declara el rol que la puede usar y los casos de uso que realiza', 'Errores uniformes en formato application/problem+json', 'Esquemas completos del circuito central: Cliente, Oportunidad, Cotización, Viaje, Pago y Alerta', 'Web y mobile generan sus tipos desde el contrato (openapi-typescript)'], M + 0.35, 3.8, 11.5, 2.7, 15);
+  s.addNotes('Contrato preliminar: en PC2, el contrato de referencia pasa a ser el que genera FastAPI a medida que se escriben los endpoints.');
+}
+
 // 9 · IA del producto
 {
-  const s = base('La IA dentro del producto', { section: '2 · Modelos de IA', presenter: 'Francisco' });
+  const s = base('La IA dentro del producto', { section: '7 · Modelos y agentes de IA', presenter: 'Francisco' });
   card(s, M, 1.7, 5.6, 4.9, C.navy);
   s.addText('Claude Sonnet 5.5', { x: M + 0.35, y: 1.95, w: 5, h: 0.6, fontFace: F, fontSize: 28, bold: true, color: C.white, margin: 0, isTextBox: true });
   s.addText('Borradores de publicaciones para redes (CU-20)', { x: M + 0.35, y: 2.6, w: 5, h: 0.4, fontFace: F, fontSize: 15, color: C.light, margin: 0, isTextBox: true });
@@ -250,7 +396,7 @@ function stat(s, x, y, w, value, label, color = C.primary, lcolor = C.muted) {
 
 // 10 · Agentes
 {
-  const s = base('Cómo trabajamos con agentes de IA', { section: '3 · Agentes de IA', presenter: 'Francisco' });
+  const s = base('Cómo trabajamos con agentes de IA', { section: '7 · Modelos y agentes de IA', presenter: 'Francisco' });
   const cyc = [['Entrar en contexto', 'Trae lo nuevo del repositorio y lee el estado y la bitácora'], ['Trabajar', 'Edita solo las notas de la tarea y respeta las decisiones'], ['Verificar', 'Diagramas, entregables y enlaces'], ['Registrar y subir', 'Bitácora, commit con la identidad de cada uno y push']];
   cyc.forEach(([t, d], i) => {
     const y = 1.6 + i * 1.3;
@@ -269,29 +415,65 @@ function stat(s, x, y, w, value, label, color = C.primary, lcolor = C.muted) {
   s.addText('El repositorio es la memoria compartida: lo que no queda escrito no pasa de una sesión a otra.', { x: M, y: 6.3, w: 4.4, h: 0.7, fontFace: F, fontSize: 12, italic: true, color: C.primary, margin: 0, isTextBox: true });
 }
 
-// 11 · Clases
+// N2 · Prompts
 {
-  const s = base('Modelo de dominio: diagrama de clases', { section: '4 · Modelo de datos', presenter: 'Nahuel' });
-  fitImage(s, IMG('03-Dominio/Diagramas/Clases/DGM-clases.png'), 3.6, 1.45, 9.13, 5.55);
-  stat(s, M, 1.8, 2.8, '13', 'entidades del dominio');
-  stat(s, M, 3.3, 2.8, '20', 'enumeraciones');
-  stat(s, M, 4.8, 2.8, '6', 'máquinas de estado');
-  s.addNotes('Cliente, Oportunidad, Cotización, Viaje, Pago, Alerta, Hotel, Reseña, Usuario, ContenidoRed, Destino, RequisitoDestino y Operador, más la clase asociativa ViajeHotel.');
+  const s = base('Los prompts', { section: '7 · Modelos y agentes de IA', presenter: 'Francisco' });
+  card(s, M, 1.6, 6.3, 5.1, C.navy);
+  s.addText('Prompt de CU-20 · IA del producto', { x: M + 0.3, y: 1.8, w: 5.7, h: 0.4, fontFace: F, fontSize: 16, bold: true, color: C.light, margin: 0, isTextBox: true });
+  s.addText([
+    'Sos redactor de contenido para redes sociales de una',
+    'agencia de turismo argentina. [...]',
+    'Proponé UN borrador a partir del tema, el canal y el tono.',
+    '- Usá solo la información del pedido: no inventes',
+    '  precios, fechas ni cupos. Si falta un dato, dejá',
+    '  un marcador: [precio], [fecha de salida].',
+    '- No incluyas datos personales de clientes.',
+    '- Adaptá el formato al canal:',
+    '  instagram: hasta 120 palabras, llamada a la',
+    '    acción y entre 3 y 6 hashtags.',
+    '  tiktok: guion de 15 a 30 segundos en escenas.',
+    '  whatsapp_ventas: hasta 60 palabras, sin',
+    '    hashtags, con una pregunta final.',
+    '- No publicás nada: una persona revisa y publica.',
+  ].join('\n'), { x: M + 0.3, y: 2.3, w: 5.8, h: 3.4, fontFace: 'Courier New', fontSize: 11.5, color: C.white, margin: 0, valign: 'top', isTextBox: true });
+  s.addText('Tema: {tema} · Canal: {canal} · Tono: {tono}', { x: M + 0.3, y: 5.8, w: 5.8, h: 0.5, fontFace: 'Courier New', fontSize: 11.5, bold: true, color: C.amber, margin: 0, isTextBox: true });
+  card(s, 7.2, 1.6, 5.53, 5.1);
+  s.addText('CLAUDE.md · prompt del agente de desarrollo', { x: 7.5, y: 1.8, w: 5.0, h: 0.4, fontFace: F, fontSize: 16, bold: true, color: C.navy, margin: 0, isTextBox: true });
+  bullets(s, [
+    'Claude Code lo lee al empezar cada sesión: es su prompt de sistema para este proyecto.',
+    'Cómo entrar en contexto: identificar a la persona, traer el trabajo del equipo y leer el estado.',
+    'Reglas: respetar el alcance, no inventar datos del negocio y no aprobar nada sin el equipo.',
+    'Cómo cerrar: registrar en la bitácora, hacer commit con la identidad de la persona y subir.',
+  ], 7.5, 2.35, 5.0, 4.1, 14);
+  s.addNotes('El prompt de CU-20 es una propuesta del equipo (el documento lo tiene completo, con un ejemplo). CLAUDE.md completo va en la carpeta de entrega.');
 }
 
-// 12 · ER y SQL
+// N3 · Mermaid
 {
-  const s = base('Modelo entidad-relación y SQL', { section: '4 · Modelo de datos', presenter: 'Nahuel' });
-  fitImage(s, IMG('03-Dominio/Diagramas/DER/DGM-ER.png'), M, 1.45, 6.3, 5.6);
-  card(s, 7.2, 1.6, 5.53, 5.2);
-  s.addText('Script SQL · PostgreSQL', { x: 7.5, y: 1.85, w: 5, h: 0.4, fontFace: F, fontSize: 18, bold: true, color: C.navy, margin: 0, isTextBox: true });
-  bullets(s, ['15 tablas y 20 tipos enumerados nativos', 'Claves UUID con gen_random_uuid()', 'Auditoría en todas las tablas: quién creó y modificó cada registro', 'Ganancia y margen como columnas calculadas', 'CHECK: cada alerta tiene a lo sumo un origen', 'Validado corriéndolo en PostgreSQL 18 con casos de prueba permitidos y rechazados'], 7.5, 2.4, 5, 3.6, 14);
-  s.addText('En PC2, la primera migración de Alembic lo reproduce.', { x: 7.5, y: 6.1, w: 5, h: 0.5, fontFace: F, fontSize: 12, italic: true, color: C.primary, margin: 0, isTextBox: true });
+  const s = base('Diagramas como código', { section: '8 · Modelado con Mermaid.js', presenter: 'Francisco' });
+  bullets(s, [
+    'Los 34 diagramas del proyecto están escritos en Mermaid.js, dentro de la nota que los explica.',
+    'Se versionan en Git: cada cambio queda registrado con su autor.',
+    'La imagen se genera desde el código, nunca a mano, con mermaid-cli y el motor ELK.',
+    'Cubre clases, secuencia, estados y entidad-relación; casos de uso, actividad y C4 con diagramas de flujo.',
+  ], M, 1.65, 5.6, 4.6, 15);
+  card(s, 6.3, 1.6, 6.43, 1.85, C.navy);
+  s.addText([
+    'flowchart LR',
+    '  Push(["Cambio en el código"]) --> Lint["Estilo y análisis estático"]',
+    '  Lint --> Tipos["Chequeo de tipos"]',
+    '  Tipos --> Tests["Pruebas automáticas"]',
+    '  Tests --> Seg["Seguridad: dependencias,<br/>código y secretos"]',
+    '  Seg --> Deploy(["Despliegue en el servidor<br/>solo desde la rama principal"])',
+  ].join('\n'), { x: 6.5, y: 1.8, w: 6.1, h: 2.2, fontFace: 'Courier New', fontSize: 10.5, color: C.white, margin: 0, valign: 'top', isTextBox: true });
+  fitImage(s, IMG('05-Diseño/img/DES-pipeline-calidad.png'), 6.3, 3.7, 6.43, 1.6);
+  s.addText('Este es el código completo del diagrama del pipeline de calidad, y la imagen que se genera a partir de él.', { x: 6.3, y: 5.45, w: 6.43, h: 0.5, fontFace: F, fontSize: 11, italic: true, color: C.muted, margin: 0, isTextBox: true });
+  s.addNotes('Mermaid permite que los diagramas vivan junto al análisis y se mantengan al día: si cambia el modelo, se cambia el código y se regenera la imagen.');
 }
 
 // 13 · Modelo de desarrollo
 {
-  const s = base('Modelo de desarrollo: iterativo e incremental', { section: '5 · Modelo de desarrollo', presenter: 'Paloma' });
+  const s = base('Modelo de desarrollo: iterativo e incremental', { section: 'Anexo · Modelo de desarrollo', presenter: 'Paloma' });
   fitImage(s, IMG('05-Diseño/img/DES-iteraciones.png'), M, 1.5, 12.13, 2.9);
   const pr = [['Una sola fuente de verdad', 'Todo en un repositorio Git, en Markdown y Mermaid.'], ['Borrador → revisión → formalizado', 'Nada se formaliza sin la aprobación de los tres.'], ['Decisiones registradas', '13 decisiones con alternativas y justificación.'], ['Sync y frentes', 'Sync semanal; cada uno lleva un frente y el resto revisa.']];
   pr.forEach(([t, d], i) => {
@@ -305,7 +487,7 @@ function stat(s, x, y, w, value, label, color = C.primary, lcolor = C.muted) {
 
 // 14 · Calidad
 {
-  const s = base('Git y control de calidad', { section: '5 · Modelo de desarrollo', presenter: 'Paloma' });
+  const s = base('Git y control de calidad', { section: 'Anexo · Modelo de desarrollo', presenter: 'Paloma' });
   fitImage(s, IMG('05-Diseño/img/DES-pipeline-calidad.png'), M, 1.55, 12.13, 1.6);
   card(s, M, 3.5, 5.8, 3.2);
   s.addText('Git y trazabilidad', { x: M + 0.3, y: 3.7, w: 5.2, h: 0.4, fontFace: F, fontSize: 17, bold: true, color: C.navy, margin: 0, isTextBox: true });
@@ -314,112 +496,6 @@ function stat(s, x, y, w, value, label, color = C.primary, lcolor = C.muted) {
   const rows = [['Backend', 'ruff, mypy', 'pytest'], ['Web', 'ESLint, TypeScript', 'Vitest, Playwright'], ['Mobile', 'ESLint, TypeScript', 'Jest, Maestro']];
   s.addTable([hdr, ...rows.map(r => r.map((c, i) => ({ text: c, options: { bold: i === 0 } })))], { x: 6.7, y: 3.5, w: 6.03, colW: [1.4, 2.3, 2.33], fontFace: F, fontSize: 14, border: { type: 'solid', color: 'E3E8ED', pt: 0.75 }, rowH: 0.5, fill: { color: C.white } });
   s.addText('Seguridad: pip-audit, pnpm audit, bandit, Semgrep y gitleaks. Dependabot propone las actualizaciones.', { x: 6.7, y: 5.75, w: 6.03, h: 0.8, fontFace: F, fontSize: 13, color: C.text, margin: 0, isTextBox: true });
-}
-
-// 15 · Interfaces: cómo se diseñó
-{
-  const s = base('Interfaces gráficas: prototipo en Figma', { section: '5 · Modelo de desarrollo', presenter: 'Paloma' });
-  const img = PROT('03-cu14-agenda.png');
-  const r = fitImage(s, img, 6.2, 1.5, 6.53, 5.4);
-  s.addShape(pres.shapes.RECTANGLE, { x: r.x, y: r.y, w: r.w, h: r.h, fill: { type: 'none' }, line: { color: 'D5DDE4', width: 1 } });
-  const st = ['Validar el estilo con una pantalla: la agenda del día', 'Sistema de diseño liviano: paleta del equipo, Plus Jakarta Sans, 7 componentes y 28 íconos', 'Pantallas clave del circuito y después el resto de los casos de uso', 'Vistas por perfil y mobile', 'Navegable: cada pantalla se alcanza desde un punto de inicio'];
-  st.forEach((t, i) => {
-    const y = 1.65 + i * 0.95;
-    numCircle(s, M, y, i + 1, 0.48, C.mid);
-    s.addText(t, { x: M + 0.7, y: y - 0.02, w: 4.6, h: 0.8, fontFace: F, fontSize: 14, color: C.text, margin: 0, valign: 'top', isTextBox: true });
-  });
-  s.addText('Contraste AA · el color nunca es la única señal · «Deshacer» en lugar de confirmar', { x: M, y: 6.45, w: 5.3, h: 0.6, fontFace: F, fontSize: 12, italic: true, color: C.primary, margin: 0, isTextBox: true });
-}
-
-// 16 · Vista por perfil
-{
-  const s = base('Una vista por perfil', { section: '5 · Modelo de desarrollo', presenter: 'Paloma' });
-  const shots = [['03-cu14-agenda.png', 'Empleado', 'Todo el circuito; su agenda y su dashboard'], ['49-admin-agenda-agencia.png', 'Admin', 'Alertas de toda la agencia y configuración'], ['28-cu21-dashboard.png', 'Dueña', 'Dashboard y reportes de la empresa'], ['34-freelance-embudo.png', 'Freelance', 'Solo sus clientes, oportunidades y viajes']];
-  shots.forEach(([f, t, d], i) => {
-    const col = i % 2, row = Math.floor(i / 2);
-    const x = M + col * 6.15, y = 1.5 + row * 2.8;
-    const r = fitImage(s, PROT(f), x, y, 3.3, 2.55);
-    s.addShape(pres.shapes.RECTANGLE, { x: r.x, y: r.y, w: r.w, h: r.h, fill: { type: 'none' }, line: { color: 'D5DDE4', width: 1 } });
-    s.addText(t, { x: x + 3.5, y: y + 0.5, w: 2.4, h: 0.45, fontFace: F, fontSize: 20, bold: true, color: C.navy, margin: 0, isTextBox: true });
-    s.addText(d, { x: x + 3.5, y: y + 1.0, w: 2.4, h: 1.0, fontFace: F, fontSize: 13, color: C.muted, margin: 0, isTextBox: true });
-  });
-}
-
-// 17 · Mobile
-{
-  const s = base('Mobile: agenda, alertas y clientes', { section: '5 · Modelo de desarrollo', presenter: 'Paloma' });
-  const ph = ['35-mobile-agenda.png', '53-mobile-detalle-alerta.png', '57-mobile-clientes.png', '36-mobile-ficha-cliente.png'];
-  ph.forEach((f, i) => {
-    const r = fitImage(s, PROT(f), 4.9 + i * 2.0, 1.55, 1.85, 4.0);
-    s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: r.x, y: r.y, w: r.w, h: r.h, fill: { type: 'none' }, line: { color: 'C9D3DC', width: 1 }, rectRadius: 0.1 });
-  });
-  bullets(s, ['Ver la agenda y atender alertas: resolver, posponer, marcar como vista', 'Crear recordatorios', 'Buscar clientes, ver su ficha y dar de alta uno nuevo', 'Cotizar, gestionar viajes y cobrar: desde la web'], M, 1.7, 3.9, 4, 15);
-  s.addText('React Native + Expo · la misma API y el mismo contrato que la web', { x: M, y: 5.9, w: 12, h: 0.5, fontFace: F, fontSize: 13, italic: true, color: C.primary, margin: 0, isTextBox: true });
-}
-
-// 18 · Demo
-{
-  const s = base('Recorrido del prototipo', { section: '5 · Modelo de desarrollo', presenter: 'Paloma', dark: true });
-  stat(s, M, 1.9, 3.5, '59', 'pantallas', C.white, C.light);
-  stat(s, M, 3.4, 3.5, '5', 'puntos de inicio', C.white, C.light);
-  const st = ['Rumbo · escritorio (empleado): inicio de sesión → agenda → cliente → consulta → cotización → viaje → cobro', 'Rumbo · mobile', 'Dueña · dashboard', 'Admin · configuración', 'Freelance · embudo'];
-  st.forEach((t, i) => {
-    const y = 1.9 + i * 0.8;
-    numCircle(s, 4.6, y, i + 1, 0.5, C.primary);
-    s.addText(t, { x: 5.3, y: y - 0.02, w: 7.4, h: 0.7, fontFace: F, fontSize: 16, color: C.white, margin: 0, valign: 'middle', isTextBox: true });
-  });
-  s.addText('figma.com/design/5rq8HOlZQ3uu4IUpBuhuZp · Present → Opciones → «Ajustar»', { x: M, y: 6.25, w: 12, h: 0.4, fontFace: F, fontSize: 13, color: C.light, margin: 0, hyperlink: { url: 'https://www.figma.com/design/5rq8HOlZQ3uu4IUpBuhuZp' }, isTextBox: true });
-  s.addNotes('Si hay tiempo, demo en vivo desde Figma. Si no, las capturas de las diapositivas anteriores alcanzan.');
-}
-
-// 19 · Despliegue
-{
-  const s = base('Arquitectura: vista general y despliegue', { section: '6 · Arquitectura', presenter: 'Nahuel' });
-  fitImage(s, IMG('05-Diseño/Arquitectura/img/ARQ-despliegue.png'), M, 1.45, 12.13, 3.75);
-  bullets(s, ['Cliente-servidor: web y mobile hablan en JSON con una única API', 'FastAPI + PostgreSQL + LangChain', 'Servidor on-premise en la agencia con Docker Compose'], M, 5.45, 5.9, 1.6, 14);
-  bullets(s, ['Proceso automático diario a las 00:00', 'Acceso externo por Cloudflare Tunnel', 'Respaldo diario con copia fuera del servidor'], 6.83, 5.45, 5.9, 1.6, 14);
-}
-
-// 20 · C4
-{
-  const s = base('Modelo C4: contexto y contenedores', { section: '6 · Arquitectura', presenter: 'Nahuel' });
-  const a = fitImage(s, IMG('05-Diseño/Arquitectura/img/ARQ-C4-1-contexto.png'), M, 1.5, 5.9, 5.0);
-  const b = fitImage(s, IMG('05-Diseño/Arquitectura/img/ARQ-C4-2-contenedores.png'), 6.83, 1.5, 5.9, 5.0);
-  s.addText('Nivel 1 · Contexto', { x: M, y: 6.6, w: 5.9, h: 0.35, fontFace: F, fontSize: 13, bold: true, color: C.primary, align: 'center', margin: 0, isTextBox: true });
-  s.addText('Nivel 2 · Contenedores', { x: 6.83, y: 6.6, w: 5.9, h: 0.35, fontFace: F, fontSize: 13, bold: true, color: C.primary, align: 'center', margin: 0, isTextBox: true });
-}
-
-// 21 · Componentes
-{
-  const s = base('Modelo C4: componentes de la API', { section: '6 · Arquitectura', presenter: 'Nahuel' });
-  fitImage(s, IMG('05-Diseño/Arquitectura/img/ARQ-C4-3-componentes.png'), M, 1.45, 12.13, 4.0);
-  bullets(s, ['Tres capas: presentación, negocio y datos, más core', 'Un paquete por módulo funcional'], M, 5.7, 5.9, 1.3, 14);
-  bullets(s, ['Visibilidad por fila: el filtro por rol es obligatorio en toda lectura', 'Auditoría de autor y fecha en cada cambio'], 6.83, 5.7, 5.9, 1.3, 14);
-}
-
-// 22 · MVC
-{
-  const s = base('MVC en Rumbo', { section: '6 · Arquitectura', presenter: 'Francisco' });
-  fitImage(s, IMG('05-Diseño/Arquitectura/img/ARQ-MVC.png'), M, 1.45, 12.13, 3.6);
-  const mvc = [['Vista', 'Web (React) y mobile (React Native)'], ['Controlador', 'Routers y esquemas de la API FastAPI'], ['Modelo', 'Servicios, estados, políticas y PostgreSQL']];
-  mvc.forEach(([t, d], i) => {
-    const x = M + i * 4.1;
-    card(s, x, 5.25, 3.9, 1.3, i === 1 ? C.pale : C.white);
-    s.addText(t, { x: x + 0.25, y: 5.37, w: 3.4, h: 0.45, fontFace: F, fontSize: 19, bold: true, color: C.navy, margin: 0, isTextBox: true });
-    s.addText(d, { x: x + 0.25, y: 5.85, w: 3.4, h: 0.5, fontFace: F, fontSize: 13, color: C.muted, margin: 0, isTextBox: true });
-  });
-  s.addText('Vista y Controlador se comunican en JSON según el contrato OpenAPI.', { x: M, y: 6.7, w: 12, h: 0.35, fontFace: F, fontSize: 12, italic: true, color: C.primary, margin: 0, isTextBox: true });
-}
-
-// 23 · OpenAPI
-{
-  const s = base('Comunicación Vista–Controlador: OpenAPI', { section: '6 · Arquitectura', presenter: 'Nahuel' });
-  stat(s, M, 1.8, 3.3, '96', 'operaciones REST');
-  stat(s, M + 3.5, 1.8, 3.3, '11', 'módulos');
-  stat(s, M + 7.0, 1.8, 3.3, '4', 'roles con permisos por operación');
-  card(s, M, 3.55, 12.13, 3.1);
-  bullets(s, ['OpenAPI 3.1 en JSON, validado con Redocly', 'Cada operación declara el rol que la puede usar y los casos de uso que realiza', 'Errores uniformes en formato application/problem+json', 'Esquemas completos del circuito central: Cliente, Oportunidad, Cotización, Viaje, Pago y Alerta', 'Web y mobile generan sus tipos desde el contrato (openapi-typescript)'], M + 0.35, 3.8, 11.5, 2.7, 15);
-  s.addNotes('Contrato preliminar: en PC2, el contrato de referencia pasa a ser el que genera FastAPI a medida que se escriben los endpoints.');
 }
 
 // 24 · Cierre
