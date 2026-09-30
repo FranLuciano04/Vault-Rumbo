@@ -27,7 +27,7 @@ Los tres tomamos **los tres roles** (Coordinador de vault · Guardián del domin
 - [x] Diagramas de **actividad** de flujos clave — ✅ los 5 en `03-Dominio/Diagramas/Actividad/` ([[DGM-ACT — De la consulta a la venta|CU-01]], [[DGM-ACT — Confirmar reserva|CU-07]], [[DGM-ACT — Registrar cobro de un pago|CU-12]], [[DGM-ACT — Cancelar viaje|CU-27]], [[DGM-ACT — Proceso automático diario|proceso diario]]); sus 18 huecos se resolvieron y se **formalizaron el 29/09**
 - [ ] [[ARQ — Vista general]] formalizada
 - [x] DEC estructurales registradas y **ratificadas**: DEC-0001→0009 selladas (11/09 y 17/09; DEC-0004 obsoleta); **DEC-0002 y DEC-0010 formalizadas el 29/09**
-- [ ] Prototipo UI de pantallas clave (Figma) — plan B · ⏳ **B2 y B3 hechos el 29/09 (Paloma)**: las 11 pantallas en [Rumbo — Prototipo PC1](https://www.figma.com/design/5rq8HOlZQ3uu4IUpBuhuZp), con sistema de diseño propio. Falta B4 (PNG + fila en [[Entregables — índice]])
+- [ ] Prototipo UI de pantallas clave (Figma) — plan B · ⏳ **B2 y B3 hechos el 29/09 (Paloma)**: las 11 pantallas en [Rumbo — Prototipo PC1](https://www.figma.com/design/5rq8HOlZQ3uu4IUpBuhuZp), con sistema de diseño propio. Ampliado el mismo día al **sistema completo**: 20 pantallas más que cubren el resto de los CU (todos menos CU-01, que es el circuito completo) y las vistas `admin` y `freelance`, en filas por módulo. Falta B4 (PNG + fila en [[Entregables — índice]])
 - [ ] Modelos de IA del producto, prompts y agentes documentados — plan E
 - [ ] Contrato OpenAPI (JSON) y script SQL del modelo de datos — plan F
 - [ ] Modelo C4 y sección MVC en la arquitectura — plan G
