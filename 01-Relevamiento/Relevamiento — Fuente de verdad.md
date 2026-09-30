@@ -20,6 +20,7 @@ La agencia trabaja con papel y Excel: se pierden ventas, se olvidan cobros y no 
 CRM a medida para agencias de turismo PyME. Combina web, mobile, backend, base relacional, API REST e IA sobre una problemática concreta y verificable.
 
 ## Mapa del relevamiento
+- 📜 [[Antecedentes]]: cómo trabaja hoy la agencia y qué ofrece el mercado
 - 🎯 [[Objetivos del sistema]]
 - 🚧 [[Alcance y fuera de alcance]]
 - 👥 [[Actores]]
