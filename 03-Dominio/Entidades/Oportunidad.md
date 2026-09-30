@@ -23,6 +23,8 @@ Representa una **consulta / lead**: el interés de un cliente en un viaje antes 
 | fechas | Rango | Fechas tentativas |
 | pasajeros | Int | Cantidad |
 | estado | Enum | `nueva` (recibida, sin atender) · `en_gestión` (se está atendiendo/asesorando, antes de cotizar) · `cotizada` (cotización enviada) · `ganada` · `perdida` |
+| motivo_perdida / motivo_perdida_detalle | Enum + Texto (opcionales) | Motivo al cerrar `perdida`, de una lista fija: `precio · fechas_disponibilidad · desistio · otra_agencia · sin_respuesta · otro`; el detalle es texto libre si es `otro` ([[CU-05 Seguir oportunidad|CU-05]] A2) — [[DEC-0013 Datos que faltaban en el ER|DEC-0013]] |
+| notas | Texto (opcional) | Notas de la consulta y del seguimiento: qué se habló y los próximos pasos ([[CU-04 Registrar consulta|CU-04]], [[CU-05 Seguir oportunidad|CU-05]]) — [[DEC-0013 Datos que faltaban en el ER|DEC-0013]] |
 | responsable | FK → [[Usuario]] | Empleado que registró/sigue la consulta; define la vista "mis oportunidades". Ver [[DEC-0005 Autenticación y modelo de roles]] |
 
 ## Relaciones

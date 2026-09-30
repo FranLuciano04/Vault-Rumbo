@@ -22,6 +22,7 @@ Opinión post-viaje que deja un [[Cliente]] sobre un [[Hotel]]. Alimenta el cat�
 | comentario | Texto | Opinión |
 | fecha | Date (dd/mm/aa) | Cuándo |
 | estado | Enum | publicada · oculta — baja lógica de moderación, ver [[CU-29 Eliminar reseña]] |
+| motivo_baja | Texto (opcional) | Motivo de la baja al ocultarla ([[CU-29 Eliminar reseña|CU-29]]) — [[DEC-0013 Datos que faltaban en el ER|DEC-0013]] |
 
 ## Relaciones
 - *..1 con [[Cliente]] (quien viajó)

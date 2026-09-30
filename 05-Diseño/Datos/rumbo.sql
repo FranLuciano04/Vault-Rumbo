@@ -8,13 +8,14 @@
 BEGIN;
 
 -- -----------------------------------------------------------------------------
--- Enumeraciones (19), con los valores del DGM-ER
+-- Enumeraciones (20), con los valores del DGM-ER
 -- -----------------------------------------------------------------------------
 CREATE TYPE rol_usuario        AS ENUM ('admin', 'empleado', 'dueño', 'freelance');
 CREATE TYPE tipo_comision      AS ENUM ('importe', 'porcentaje');  -- el porcentaje es sobre la ganancia (DEC-0007, DEC-0013)
 CREATE TYPE segmento_cliente   AS ENUM ('familia', 'amigos', 'individual', 'pareja');
 CREATE TYPE canal_oportunidad  AS ENUM ('instagram', 'whatsapp', 'presencial');
 CREATE TYPE estado_oportunidad AS ENUM ('nueva', 'en_gestion', 'cotizada', 'ganada', 'perdida');
+CREATE TYPE motivo_perdida     AS ENUM ('precio', 'fechas_disponibilidad', 'desistio', 'otra_agencia', 'sin_respuesta', 'otro');
 CREATE TYPE moneda             AS ENUM ('ARS', 'USD');
 CREATE TYPE estado_cotizacion  AS ENUM ('borrador', 'enviada', 'aceptada', 'rechazada', 'vencida');
 CREATE TYPE categoria_viaje    AS ENUM ('grupal', 'individual');
@@ -153,11 +154,15 @@ CREATE TABLE oportunidad (
     fecha_hasta_tentativa date,
     pasajeros             integer            NOT NULL CHECK (pasajeros >= 1),
     estado                estado_oportunidad NOT NULL DEFAULT 'nueva',
+    motivo_perdida        motivo_perdida,             -- obligatorio al cerrar perdida (CU-05 A2, DEC-0013)
+    motivo_perdida_detalle text,                      -- texto libre si el motivo es otro
+    notas                 text,                       -- notas de la consulta y del seguimiento (DEC-0013)
     created_by            uuid REFERENCES usuario (id),
     updated_by            uuid REFERENCES usuario (id),
     created_at            timestamptz NOT NULL DEFAULT now(),
     updated_at            timestamptz NOT NULL DEFAULT now(),
-    CHECK (fecha_hasta_tentativa >= fecha_desde_tentativa)
+    CHECK (fecha_hasta_tentativa >= fecha_desde_tentativa),
+    CONSTRAINT oportunidad_motivo_perdida_ck CHECK ((estado = 'perdida') = (motivo_perdida IS NOT NULL))
 );
 
 CREATE TABLE cotizacion (
@@ -189,6 +194,8 @@ CREATE TABLE viaje (
     categoria         categoria_viaje NOT NULL,
     estado            estado_viaje    NOT NULL DEFAULT 'reservado',
     estado_previo     estado_viaje,                   -- estado antes de cancelarse, para revertir (CU-27 A3, DEC-0013)
+    motivo_cancelacion text,                          -- solo si cancelado (CU-27, DEC-0013)
+    fecha_cancelacion date,                           -- solo si cancelado
     moneda            moneda          NOT NULL,       -- moneda de referencia del viaje (DEC-0007)
     precio_venta      numeric(14,2)   NOT NULL CHECK (precio_venta >= 0),
     costo             numeric(14,2)   NOT NULL CHECK (costo >= 0),  -- del operador
@@ -204,9 +211,10 @@ CREATE TABLE viaje (
     updated_at        timestamptz NOT NULL DEFAULT now(),
     CHECK (fecha_regreso >= fecha_salida),
     CONSTRAINT viaje_comision_porcentaje_ck CHECK (comision_tipo <> 'porcentaje' OR comision_vendedor <= 100),
-    -- estado_previo solo tiene valor mientras el viaje está cancelado, y nunca es 'cancelado'
+    -- estado previo, motivo y fecha de cancelación: los tres cargados solo mientras el viaje está cancelado
     CONSTRAINT viaje_estado_previo_ck CHECK (
-        (estado = 'cancelado') = (estado_previo IS NOT NULL) AND estado_previo IS DISTINCT FROM 'cancelado'
+        num_nonnulls(estado_previo, motivo_cancelacion, fecha_cancelacion) = CASE WHEN estado = 'cancelado' THEN 3 ELSE 0 END
+        AND estado_previo IS DISTINCT FROM 'cancelado'
     )
 );
 
@@ -257,10 +265,12 @@ CREATE TABLE resena (
     comentario text          NOT NULL,
     fecha      date          NOT NULL,
     estado     estado_resena NOT NULL DEFAULT 'publicada',
+    motivo_baja text,                                          -- motivo al ocultarla (CU-29, DEC-0013)
     created_by uuid REFERENCES usuario (id),
     updated_by uuid REFERENCES usuario (id),
     created_at timestamptz NOT NULL DEFAULT now(),
-    updated_at timestamptz NOT NULL DEFAULT now()
+    updated_at timestamptz NOT NULL DEFAULT now(),
+    CONSTRAINT resena_motivo_baja_ck CHECK ((estado = 'oculta') = (motivo_baja IS NOT NULL))
 );
 
 CREATE TABLE alerta (
@@ -270,6 +280,7 @@ CREATE TABLE alerta (
     pago_id                 uuid          REFERENCES pago (id),              -- origen
     oportunidad_id          uuid          REFERENCES oportunidad (id),       -- origen
     cliente_id              uuid          REFERENCES cliente (id),           -- origen
+    viaje_hotel_id          uuid          REFERENCES viaje_hotel (id),       -- origen: pago al proveedor del tramo (DEC-0013)
     tipo                    tipo_alerta   NOT NULL,
     fecha                   date          NOT NULL,
     estado                  estado_alerta NOT NULL DEFAULT 'pendiente',
@@ -278,9 +289,9 @@ CREATE TABLE alerta (
     updated_by              uuid REFERENCES usuario (id),
     created_at              timestamptz NOT NULL DEFAULT now(),
     updated_at              timestamptz NOT NULL DEFAULT now(),
-    -- a lo sumo un origen; ninguno en una alerta manual suelta (CU-28)
+    -- a lo sumo uno de los cinco orígenes; ninguno en una alerta manual suelta (CU-28)
     CONSTRAINT alerta_un_origen_ck
-        CHECK (num_nonnulls(viaje_id, pago_id, oportunidad_id, cliente_id) <= 1)
+        CHECK (num_nonnulls(viaje_id, pago_id, oportunidad_id, cliente_id, viaje_hotel_id) <= 1)
 );
 
 CREATE TABLE contenido_red (

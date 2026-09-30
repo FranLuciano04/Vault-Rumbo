@@ -59,6 +59,9 @@ erDiagram
         date fecha_hasta_tentativa "nullable"
         int pasajeros
         enum estado "nueva, en_gestion, cotizada, ganada, perdida"
+        enum motivo_perdida "nullable, precio, fechas_disponibilidad, desistio, otra_agencia, sin_respuesta, otro"
+        text motivo_perdida_detalle "nullable, si es otro"
+        text notas "nullable, seguimiento"
     }
     COTIZACION {
         uuid id PK
@@ -83,6 +86,8 @@ erDiagram
         enum categoria "grupal, individual"
         enum estado "reservado, vendido, confirmado, en_curso, finalizado, cancelado"
         enum estado_previo "nullable, solo si cancelado"
+        text motivo_cancelacion "nullable, solo si cancelado"
+        date fecha_cancelacion "nullable, solo si cancelado"
         enum moneda "ARS, USD, moneda de referencia"
         numeric precio_venta
         numeric costo "del operador"
@@ -156,6 +161,7 @@ erDiagram
         text comentario
         date fecha
         enum estado "publicada, oculta"
+        text motivo_baja "nullable, si oculta"
     }
     ALERTA {
         uuid id PK
@@ -164,6 +170,7 @@ erDiagram
         uuid pago_id FK "nullable, origen"
         uuid oportunidad_id FK "nullable, origen"
         uuid cliente_id FK "nullable, origen"
+        uuid viaje_hotel_id FK "nullable, origen"
         enum tipo "pago, formulario, salida, insistencia, reseña, manual, recontacto, viaje"
         date fecha
         enum estado "pendiente, vista, resuelta"
@@ -212,17 +219,18 @@ erDiagram
     PAGO |o--o{ ALERTA : vence
     OPORTUNIDAD |o--o{ ALERTA : insistencia
     CLIENTE |o--o{ ALERTA : recontacto
+    VIAJE_HOTEL |o--o{ ALERTA : pago_proveedor
 ```
 
 ## Notas del modelo
 
 - **`VIAJE ||--|{ PAGO` — todo viaje tiene al menos un pago** (resuelto 21/09, ver [[DGM — Diagrama de clases]]). [[CU-07 Confirmar reserva]] es el único CU que crea un `VIAJE` e incluye (`<<include>>`) [[CU-11 Definir plan de cuotas]], y aun sin cuotas se crea un `PAGO` de tipo `saldo` (A2). ⚠️ Una FK no puede exigir "al menos una fila hija": la obligatoriedad la hace cumplir la **lógica de aplicación**, no el motor.
-- **`ALERTA` tiene cuatro orígenes posibles y excluyentes** (resuelto 21/09): `viaje_id`, `pago_id`, `oportunidad_id` y `cliente_id`, **las cuatro nullable**, con un **CHECK de que a lo sumo una esté cargada** — ninguna cuando es una alerta `manual` suelta ([[CU-28 Crear recordatorio manual]]). Se descartó el origen polimórfico (`origen_tipo` + `origen_id`) porque pierde la integridad referencial; con 4 orígenes cerrados, la tabla más ancha es un costo menor.
+- **`ALERTA` tiene cinco orígenes posibles y excluyentes** (resuelto 21/09; el quinto, `viaje_hotel_id`, lo sumó [[DEC-0013 Datos que faltaban en el ER|DEC-0013]] para la alerta de pago al proveedor de cada tramo): `viaje_id`, `pago_id`, `oportunidad_id`, `cliente_id` y `viaje_hotel_id`, **todas nullable**, con un **CHECK de que a lo sumo una esté cargada** — ninguna cuando es una alerta `manual` suelta ([[CU-28 Crear recordatorio manual]]). Se descartó el origen polimórfico (`origen_tipo` + `origen_id`) porque pierde la integridad referencial; con 5 orígenes cerrados, la tabla más ancha es un costo menor.
 - **`USUARIO` aparece cinco veces** (`responsable` de viaje y de oportunidad, `vendedor`, `asesor_asignado`, `propietario` de alerta): es lo que implementa el modelo de visibilidad *lectura global + propiedad* de [[DEC-0005 Autenticación y modelo de roles]] y la restricción del rol `freelance` de [[DEC-0008 Autenticación propia y rol de vendedor freelance]].
 - **Auditoría:** [[DEC-0008 Autenticación propia y rol de vendedor freelance]] exige registrar **autor y fecha** de las acciones. **Decidido en la sync del 29/09:** `created_by` / `updated_by` (FK a `USUARIO`) y `created_at` / `updated_at` van en **todas las tablas de entidad**, operativas y catálogos (las 13 entidades; la tabla asociativa `VIAJE_HOTEL` hereda la auditoría de `VIAJE`). No se dibujan en el diagrama para no multiplicar las líneas hacia `USUARIO`. **`created_by` y `updated_by` son nullable** (aprobado el 29/09): lo que hace el proceso automático diario los deja **vacíos**, y un autor vacío se lee como «lo hizo el sistema». `created_at` y `updated_at` siempre se cargan.
 - `VIAJE.destino_id` y `HOTEL.destino_id` son FK a `DESTINO` (antes texto libre): ver [[DEC-0006 Destino como entidad de catálogo]]. `OPORTUNIDAD.destino_consultado` sigue siendo **texto libre** y se normaliza recién al derivar en `VIAJE`.
 - `VIAJE` suma `operador_id`, `vendedor_id`, `moneda`, `costo`, `ganancia`, `margen` y `comision_vendedor` — ver [[DEC-0007 Modelo económico — ganancia, margen y comisión de vendedor]] y [[DEC-0009 Operador-Proveedor como entidad de catálogo]] (sync 17/09). `ganancia` y `margen` son **calculados**: se pueden materializar como columnas generadas o resolver en la vista.
-- **Datos sumados al escribir el SQL** ([[DEC-0013 Datos que faltaban en el ER]], 29/09, a ratificar): `PAGO.fecha_cobro`; `VIAJE.comision_tipo` (`importe` o `porcentaje`) y `VIAJE.estado_previo` (para revertir una cancelación); en `USUARIO`, `activo` (baja lógica), `acceso_redes` y la comisión por defecto del vendedor (`comision_default_tipo` y `comision_default_valor`); y la tabla **`CONFIGURACION`**, de una sola fila, con los parámetros que edita `admin` (vigencia de la cotización, anticipación de la alerta `salida` y plazo del recontacto). `CONFIGURACION` es una tabla de parámetros, no una entidad del dominio, y no se relaciona con las demás. Con ella el esquema tiene **15 tablas**.
+- **Datos sumados al escribir el SQL** ([[DEC-0013 Datos que faltaban en el ER]], 29/09, a ratificar): `PAGO.fecha_cobro`; `VIAJE.comision_tipo` (`importe` o `porcentaje`), `VIAJE.estado_previo` (para revertir una cancelación), `VIAJE.motivo_cancelacion` y `fecha_cancelacion`; en `OPORTUNIDAD`, `notas` y el motivo de pérdida (lista fija más detalle si es `otro`); `RESENA.motivo_baja`; `ALERTA.viaje_hotel_id` como quinto origen; en `USUARIO`, `activo` (baja lógica), `acceso_redes` y la comisión por defecto del vendedor (`comision_default_tipo` y `comision_default_valor`); y la tabla **`CONFIGURACION`**, de una sola fila, con los parámetros que edita `admin` (vigencia de la cotización, anticipación de la alerta `salida` y plazo del recontacto). `CONFIGURACION` es una tabla de parámetros, no una entidad del dominio, y no se relaciona con las demás. Con ella el esquema tiene **15 tablas**.
 - `COTIZACION.items` se modela como **`jsonb`**, no como tabla propia: decidido el 21/09 no promoverlo a entidad ([[DGM — Diagrama de clases]], punto 4). Si más adelante hacen falta reportes por concepto, se reabre.
 - Relación N:M `VIAJE`–`HOTEL` y objeto de la `RESENA` (Hotel + Cliente, con Viaje opcional): ver [[DEC-0003 Relación Viaje–Hotel y Reseña]].
 

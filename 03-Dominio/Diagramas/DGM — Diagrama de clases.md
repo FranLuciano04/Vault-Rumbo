@@ -65,6 +65,9 @@ classDiagram
         +Date fechaHastaTentativa
         +Int pasajeros
         +EstadoOportunidad estado
+        +MotivoPerdida motivoPerdida
+        +String motivoPerdidaDetalle
+        +String notas
     }
     class Cotizacion["Cotización"] {
         +UUID id
@@ -84,6 +87,8 @@ classDiagram
         +CategoriaViaje categoria
         +EstadoViaje estado
         +EstadoViaje estadoPrevio
+        +String motivoCancelacion
+        +Date fechaCancelacion
         +Moneda moneda
         +Decimal precioVenta
         +Decimal costo
@@ -151,6 +156,7 @@ classDiagram
         +String comentario
         +Date fecha
         +EstadoResena estado
+        +String motivoBaja
     }
 
     %% ======== Alertas y redes ========
@@ -202,6 +208,7 @@ classDiagram
     Pago "0..1" --> "0..*" Alerta : vencimiento
     Oportunidad "0..1" --> "0..*" Alerta : insistencia
     Cliente "0..1" --> "0..*" Alerta : recontacto
+    ViajeHotel "0..1" --> "0..*" Alerta : pago a proveedor
 ```
 
 ### Cómo leerlo
@@ -216,7 +223,7 @@ classDiagram
 
 ## Enumeraciones del dominio
 
-Las **19 enumeraciones** son parte del mismo modelo; se muestran en tres bandas agrupadas por módulo para que cada una entre legible en una hoja. La caja de la clase va **sin atributos** (ya están en la vista principal) y cada **dependencia punteada** indica qué atributo usa la enumeración. `Moneda` es la única compartida: la usan [[Viaje]], [[Cotización]] y [[Pago]].
+Las **20 enumeraciones** son parte del mismo modelo; se muestran en tres bandas agrupadas por módulo para que cada una entre legible en una hoja. La caja de la clase va **sin atributos** (ya están en la vista principal) y cada **dependencia punteada** indica qué atributo usa la enumeración. `Moneda` es la única compartida: la usan [[Viaje]], [[Cotización]] y [[Pago]].
 
 ### 1 · CRM y seguridad
 
@@ -264,9 +271,19 @@ classDiagram
         rechazada
         vencida
     }
+    class MotivoPerdida {
+        <<enumeration>>
+        precio
+        fechas_disponibilidad
+        desistio
+        otra_agencia
+        sin_respuesta
+        otro
+    }
     Usuario ..> RolUsuario : rol
     Cliente ..> SegmentoCliente : segmento
     Oportunidad ..> CanalOportunidad : canal
+    Oportunidad ..> MotivoPerdida : motivoPerdida
     Oportunidad ..> EstadoOportunidad : estado
     Cotizacion ..> EstadoCotizacion : estado
 ```
@@ -425,7 +442,7 @@ Se señalaron sin elegir una versión en silencio, según [[CLAUDE|CLAUDE.md#Ord
 
 1. ✅ **`Viaje`–`Pago` = `1..*`** (resuelto 21/09, Nahuel). **Todo `Viaje` tiene al menos un `Pago`.** Vale la nota de [[Viaje]], no el `||--o{` del [[DGM-ER]]: [[CU-07 Confirmar reserva]] es el **único** CU que crea un `Viaje` y encadena [[CU-10 Registrar economía del viaje|CU-10]] y [[CU-11 Definir plan de cuotas|CU-11]] como `<<include>>` (no está completo sin ellos); su postcondición exige el plan cargado, el estado inicial `reservado` se define como *"economía y plan cargados"*, y [[CU-11 Definir plan de cuotas|CU-11]] A2 cubre el mínimo (sin cuotas se crea igual un `Pago` de tipo `saldo` por el total). El hueco entre "se crea el viaje" y "se carga el plan" es **intra-transacción**, no un estado válido del dominio, que es lo que modela un diagrama de clases conceptual. → **Corregir [[DGM-ER]]:** `VIAJE ||--o{ PAGO` pasa a **`VIAJE ||--|{ PAGO`**. La obligatoriedad se hace cumplir en la lógica de aplicación (una FK no puede exigir "al menos una fila hija").
 2. ✅ **`Viaje`–`Alerta` = `0..1` → `0..*`** (resuelto 21/09, Nahuel). La nota de [[Viaje]] dice `1..*`, pero [[Alerta]] admite alertas que **no** cuelgan de un viaje (insistencia sobre [[Oportunidad]], recontacto sobre [[Cliente]], vencimiento sobre [[Pago]], y las `manual` sueltas de [[CU-28 Crear recordatorio manual]]). → **Corregir la nota de [[Viaje]]**.
-3. ✅ **Origen de la `Alerta` en el ER: cuatro FK nullable + CHECK** (resuelto 21/09, Nahuel). El [[DGM-ER]] declaraba **un solo** origen (`VIAJE ||--o{ ALERTA`), así que no había dónde guardar de qué [[Oportunidad]], [[Pago]] o [[Cliente]] venía una alerta. Se optó por que `ALERTA` lleve `viaje_id`, `pago_id`, `oportunidad_id` y `cliente_id` **nullable**, con un **CHECK de que a lo sumo una esté cargada** (ninguna si es `manual` suelta). Se descartó el origen polimórfico (`origen_tipo` + `origen_id`) porque **pierde la FK** y deja la integridad en la aplicación; con 4 orígenes cerrados, la tabla más ancha es un costo menor frente a la integridad referencial real de PostgreSQL. → **Ya propagado al [[DGM-ER]]**.
+3. ✅ **Origen de la `Alerta` en el ER: cuatro FK nullable + CHECK** (resuelto 21/09, Nahuel). El [[DGM-ER]] declaraba **un solo** origen (`VIAJE ||--o{ ALERTA`), así que no había dónde guardar de qué [[Oportunidad]], [[Pago]] o [[Cliente]] venía una alerta. Se optó por que `ALERTA` lleve `viaje_id`, `pago_id`, `oportunidad_id` y `cliente_id` **nullable**, con un **CHECK de que a lo sumo una esté cargada** (ninguna si es `manual` suelta). Se descartó el origen polimórfico (`origen_tipo` + `origen_id`) porque **pierde la FK** y deja la integridad en la aplicación; con 4 orígenes cerrados, la tabla más ancha es un costo menor frente a la integridad referencial real de PostgreSQL. → **Ya propagado al [[DGM-ER]]**. [[DEC-0013 Datos que faltaban en el ER|DEC-0013]] sumó un quinto origen, el tramo del itinerario (`viaje_hotel_id`), para la alerta de pago al proveedor.
 4. ✅ **`Cotización.items` queda como atributo `Lista`** (decidido 21/09, Nahuel): no se promueve a una 14.ª entidad `ItemCotizacion`. Si más adelante hacen falta reportes por concepto, se reabre.
 
 ## Pendientes
@@ -435,7 +452,7 @@ Se señalaron sin elegir una versión en silencio, según [[CLAUDE|CLAUDE.md#Ord
 - ✅ Lo resuelto el 21/09 ya está propagado a [[DGM-ER]] (`VIAJE ||--|{ PAGO` y los 4 orígenes de `ALERTA`) y a la nota de [[Viaje]].
 - ✅ El [[DGM-ER]] quedó **completo y coherente** con este diagrama el 21/09: sumó los atributos de las 14 tablas y las 4 relaciones que le faltaban (`USUARIO`–`ALERTA`, `USUARIO`–`CLIENTE`, `USUARIO`–`OPORTUNIDAD`, `DESTINO`–`REQUISITO_DESTINO`).
 - ✅ Auditoría (sync 29/09): `created_by`/`updated_by`/`created_at`/`updated_at` en **todas** las tablas de entidad (operativas y catálogos); no se dibujan para no multiplicar las líneas hacia `Usuario`. Ver [[DGM-ER]].
-- ⏳ [[DEC-0013 Datos que faltaban en el ER]] (29/09, a ratificar): `Pago.fechaCobro`, `Viaje.comisionTipo`, `Viaje.estadoPrevio`, `Usuario.activo`, `Usuario.accesoRedes` y la comisión por defecto del vendedor, con el nuevo enum `TipoComision`.
+- ⏳ [[DEC-0013 Datos que faltaban en el ER]] (29/09, a ratificar): `Pago.fechaCobro`, `Viaje.comisionTipo`, `Viaje.estadoPrevio`, `Usuario.activo`, `Usuario.accesoRedes`, la comisión por defecto del vendedor (enum `TipoComision`), `Oportunidad.notas` y `motivoPerdida` (enum `MotivoPerdida`), `Viaje.motivoCancelacion` y `fechaCancelacion`, `Reseña.motivoBaja` y el tramo (`ViajeHotel`) como quinto origen de la `Alerta`.
 - Renderizar el PNG (mermaid-cli, motor ELK) cuando el diagrama se incorpore a un entregable — ver [[Entregables — índice]].
 
 ## Relacionado

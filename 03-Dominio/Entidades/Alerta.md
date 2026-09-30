@@ -23,6 +23,7 @@ Recordatorio automático para no perder vencimientos ni tareas: pagos, formulari
 | estado | Enum | pendiente · vista · resuelta |
 | propietario | FK → [[Usuario]] | Quien la recibe/creó; define la agenda personal. Ver [[DEC-0005 Autenticación y modelo de roles]] |
 | cerrada_por_cancelacion | Boolean | `true` si la resolvió la cancelación del [[Viaje]] ([[CU-27 Cancelar viaje]] paso 4). Al revertir la cancelación (A3) se reabren **solo** las alertas con esta marca, y la marca se limpia. Default `false` |
+| origen | FK opcional, a lo sumo una | [[Viaje]], [[Pago]], [[Oportunidad]], [[Cliente]] o **tramo del itinerario** (`viaje_hotel`, para la alerta de pago al proveedor de [[CU-09 Armar itinerario de hoteles|CU-09]]); ninguna en una `manual` suelta — [[DEC-0013 Datos que faltaban en el ER|DEC-0013]] |
 
 ## Relaciones
 - *..1 con [[Viaje]] (o [[Oportunidad]] para insistencia, [[Pago]] para vencimientos)
