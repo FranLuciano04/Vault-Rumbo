@@ -30,6 +30,11 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
+## 30/09/26 — Paloma (Claude Opus 5.5) — revisión de H2 y documentos regenerados
+- **Hecho:** Revisión de [[Modelo de desarrollo]] (H2): en *Interfaces gráficas* se sumaron cómo se diseñó, el sistema de diseño, los criterios de usabilidad, la vista por perfil y el alcance web/mobile; sigue `en-revision` para que lo apruebe el equipo. Se instaló pandoc 3.12 en esta PC (winget) y se regeneraron `Rumbo — Modelo de desarrollo.docx` (59 pantallas) y `Rumbo — PC1.docx`, junto con los anexos que genera `build-pc1.sh`. `paletaColores/` quedó en `.gitignore` (la paleta ya está como variables en Figma).
+- **Verificado:** el `.docx` de desarrollo tiene las 59 pantallas y la sección nueva, sin notas internas. En el documento único aparecen referencias a DEC dentro de bloques de código (árbol de carpetas y SQL), que vienen de las notas de Francisco y Nahuel.
+- **Pendiente:** aprobar H2 en la sync; `#accion/decidir` configuración de la dueña.
+
 ## 30/09/26 — Paloma (Claude Opus 5.5) — B5: mobile completo y navegación
 - **Hecho:** 8 pantallas mobile nuevas (inicio de sesión, detalle de alerta, posponer, agenda tras resolver con «Deshacer», nuevo recordatorio, clientes, nuevo cliente y Más) con los componentes del sistema de diseño. La barra de pestañas pasó a Agenda · Clientes · Más (Ventas y Viajes quedan fuera del alcance mobile de RNF-14). El punto de inicio *Rumbo · mobile* arranca en el inicio de sesión. Revisión de navegación de todo el prototipo: todas las pantallas se alcanzan desde los 5 puntos de inicio, sin enlaces rotos; se enlazaron el error de inicio de sesión y el catálogo sin resultados, y se corrigieron puntos de inicio duplicados que habían dejado las copias. PNG 52 a 59 nuevos; 35 y 36 reexportados. **B5 cerrado.**
 - **Pendiente:** `#accion/decidir` configuración de la dueña; regenerar el `.docx` de Modelo de desarrollo con las 59 pantallas.

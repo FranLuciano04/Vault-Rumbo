@@ -10,3 +10,6 @@
 Thumbs.db
 
 # Se versiona el resto de .obsidian/ (plugins y config compartida del equipo)
+
+# Referencia local de la paleta (ya cargada como variables en Figma)
+paletaColores/
