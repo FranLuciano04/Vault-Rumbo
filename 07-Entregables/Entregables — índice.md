@@ -17,6 +17,7 @@ tags:: #tipo/referencia #estado/formalizado
 ## Entregables
 | Entregable | Fuente (.md) | Salida | PC |
 |---|---|---|---|
+| **Documento único del PC1** | Las notas de todas las secciones y los `.docx` sueltos (ver *Parámetros del documento único*) | `07-Entregables/PC1/Rumbo — PC1.docx` | PC1 |
 | Relevamiento | `01-Relevamiento/*.md` (7 notas) | `07-Entregables/Relevamiento/Rumbo — Relevamiento.docx` | PC1 |
 | Requisitos | `02-Analisis/Requisitos funcionales.md` | `07-Entregables/Requisitos/Rumbo — Requisitos.docx` | PC1 |
 | Casos de uso | `02-Analisis/Casos de uso/CU-*.md` | `07-Entregables/Casos de uso/Rumbo — Casos de uso.docx` | PC1 |
@@ -66,6 +67,13 @@ Genera `07-Entregables/Casos de uso/Rumbo — Casos de uso.docx`. Usa por defect
 - ⚠️ En [[IA — Agentes del proyecto]] **no usar sublistas**: el filtro compacta los espacios y las aplana.
 - **Estética:** la misma plantilla `reference.docx`.
 - **Cómo generarlo:** `bash "07-Entregables/build/build-ia.sh"` desde la raíz del repo.
+
+## Parámetros del documento único del PC1 (30/09)
+- **Es lo que se entrega.** Un solo `.docx` con la documentación obligatoria en el orden de la lámina y los anexos adentro (decidido en la sync del 30/09). Los `.docx` sueltos quedan como respaldo. El `openapi.json` completo se entrega aparte.
+- **Orden:** portada y presentación del documento (con las interpretaciones de «MVC» y «modelo de desarrollo») · 1. presentación general · 2. modelos de IA y justificación · 3. agentes de IA · 4. modelo de datos y relaciones (clases, ER, las 13 entidades y el modelo SQL) · 5. modelo de desarrollo e interfaces gráficas · 6. arquitectura (vistas y C4, MVC y capas, contrato OpenAPI) · anexo A requisitos · anexo B casos de uso · anexo C diagramas de estados, actividad y secuencia · anexo D script SQL.
+- **Cómo se arma** (`build-pc1.sh`): primero regenera los cinco `.docx` sueltos; las secciones 1, 2, 3 y 5 y los anexos A y B salen de **convertir esos `.docx` a Markdown** con pandoc (así el contenido es idéntico); las secciones 4 y 6 y el anexo C salen de las notas, con el mismo `filtrar()` y sus PNG en lugar de los bloques Mermaid. Los bloques de código se protegen del filtro para no perder la sangría. Los pies de figura van sin número para que no se repitan.
+- **Cómo generarlo:** `bash "07-Entregables/build/build-pc1.sh"` desde la raíz (con `SIN_SUELTOS=1` no rehace los sueltos). Cerrar los `.docx` en Word antes. Al 30/09: 237 páginas, 93 imágenes y 70 tablas.
+- ⚠️ En las tablas de las notas, los enlaces con alias van escapados (`[[nota\|alias]]`); sin la barra invertida la tabla se corta y la galería del prototipo toma mal las columnas.
 
 ## Parámetros del entregable de Modelo de desarrollo (30/09)
 - **Contenido:** portada + [[Modelo de desarrollo]] (ciclo de vida iterativo por PC, prácticas del equipo, control de calidad e interfaces gráficas, con dos figuras) + la **galería de pantallas** del prototipo. Responde a la lámina «Modelo de desarrollo utilizado con interfaces gráficas».

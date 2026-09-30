@@ -68,18 +68,18 @@ Tokens en variables (paleta del equipo: azules `#22506F` → `#73A5C4` y gris `#
 | 44 | Freelance · catálogo de hoteles (solo consulta) | CU-18 | `img/44-freelance-catalogo-hoteles.png` |
 | 45 | Freelance · detalle de hotel (solo lectura) | CU-18 paso 3 | `img/45-freelance-detalle-hotel.png` |
 | 46 | Freelance · dashboard (sus ventas y comisiones) | CU-21 A1 | `img/46-freelance-dashboard.png` |
-| 47 | Empleado · dashboard (lo suyo) | [[CU-21 Ver dashboard y embudo|CU-21]] A1 | `img/47-empleado-dashboard.png` |
+| 47 | Empleado · dashboard (lo suyo) | [[CU-21 Ver dashboard y embudo\|CU-21]] A1 | `img/47-empleado-dashboard.png` |
 | 48 | Empleado · detalle de hotel (sin moderar) | CU-18 paso 3 · CU-16 · CU-17 | `img/48-empleado-detalle-hotel.png` |
 | 49 | Admin · agenda de toda la agencia | CU-14 | `img/49-admin-agenda-agencia.png` |
 | 50 | Dueña · agenda de toda la agencia | CU-14 | `img/50-duena-agenda-agencia.png` |
-| 51 | Dueña · configuración (destinos y operadores) | [[CU-26 Gestionar destinos|CU-26]] · CU-15 · [[CU-31 Gestionar operadores|CU-31]] | `img/51-duena-configuracion.png` |
-| 52 | Mobile · inicio de sesión | [[CU-24 Iniciar sesión|CU-24]] | `img/52-mobile-inicio-sesion.png` |
+| 51 | Dueña · configuración (destinos y operadores) | [[CU-26 Gestionar destinos\|CU-26]] · CU-15 · [[CU-31 Gestionar operadores\|CU-31]] | `img/51-duena-configuracion.png` |
+| 52 | Mobile · inicio de sesión | [[CU-24 Iniciar sesión\|CU-24]] | `img/52-mobile-inicio-sesion.png` |
 | 53 | Mobile · detalle de alerta | CU-14 | `img/53-mobile-detalle-alerta.png` |
 | 54 | Mobile · posponer alerta | CU-14 | `img/54-mobile-posponer-alerta.png` |
 | 55 | Mobile · agenda tras resolver, con «Deshacer» | CU-14 | `img/55-mobile-agenda-tras-resolver.png` |
-| 56 | Mobile · nuevo recordatorio | [[CU-28 Crear recordatorio manual|CU-28]] | `img/56-mobile-nuevo-recordatorio.png` |
+| 56 | Mobile · nuevo recordatorio | [[CU-28 Crear recordatorio manual\|CU-28]] | `img/56-mobile-nuevo-recordatorio.png` |
 | 57 | Mobile · clientes | CU-03 paso 1 | `img/57-mobile-clientes.png` |
-| 58 | Mobile · nuevo cliente | [[CU-02 Registrar cliente|CU-02]] | `img/58-mobile-nuevo-cliente.png` |
+| 58 | Mobile · nuevo cliente | [[CU-02 Registrar cliente\|CU-02]] | `img/58-mobile-nuevo-cliente.png` |
 | 59 | Mobile · más (perfil y cerrar sesión) | CU-24 | `img/59-mobile-mas.png` |
 
 [[CU-01 De la consulta a la venta|CU-01]] no tiene pantalla propia: es el circuito completo y se recorre navegando las pantallas 11 → 12 → 13 → 15 → 18.
