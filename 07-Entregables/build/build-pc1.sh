@@ -1,27 +1,28 @@
 #!/usr/bin/env bash
-# Genera el DOCUMENTO ÚNICO del PC1 (H3): un solo .docx con las seis secciones de la
-# documentación obligatoria de la cátedra y los anexos, en el orden acordado en la sync
-# del 30/09/26 (ver «Estado del proyecto», paso H3).
+# Genera el DOCUMENTO PRINCIPAL del PC1: «Documento con el MVC», con el contenido que pide la
+# cátedra y en su orden (decidido en la sync del 30/09/26, ver «Estado del proyecto», H3):
 #
-#   1. Presentación general ............ del .docx de Relevamiento
-#   2. Modelos de IA y justificación .... del .docx de Inteligencia artificial
-#   3. Agentes de IA .................... del .docx de Inteligencia artificial
-#   4. Modelo de datos y relaciones ..... de las notas (clases, ER, entidades y SQL)
-#   5. Modelo de desarrollo ............. del .docx de Modelo de desarrollo
-#   6. Arquitectura ..................... de las notas (ARQ, MVC y capas, OpenAPI)
-#   Anexos: A requisitos y B casos de uso (de sus .docx), C diagramas UML (de las notas)
-#           y D script SQL. El openapi.json completo se entrega aparte.
+#   1. Definición del problema ........ Antecedentes y Justificación
+#   2. Alcance y límites ............... Objetivos, Alcance, Actores y la tabla de casos de uso
+#   3. Modelo conceptual ............... frontend, backend y base de datos, y las interfaces principales
+#   4. Modelo de flujo ................. diagramas UML principales y C4
+#   5. Modelo de datos SQL ............. ER, criterios y el script completo
+#   6. Comunicación Vista–Controlador .. MVC y contrato OpenAPI (JSON)
+#   7. Modelos y agentes de IA ......... modelo del producto, agentes y prompts
+#   8. Modelado con Mermaid.js
+#   Material complementario: la carpeta de entrega (armar-entrega.sh).
 #
-# Primero regenera los .docx sueltos (que quedan como respaldo) y después los convierte a
-# Markdown con pandoc: así el documento único tiene exactamente su mismo contenido.
+# Todo sale de las notas del vault, con el mismo filtro que el resto de los entregables, y de
+# los textos propios del documento en 07-Entregables/PC1/ (portada y presentaciones de sección).
 # Uso, desde la raíz del repo:  bash "07-Entregables/build/build-pc1.sh"
-# Requiere pandoc (ver 00-Inicio/Skills compartidas.md). Cerrar los .docx en Word antes.
+# Requiere pandoc (ver 00-Inicio/Skills compartidas.md). Cerrar el .docx en Word antes.
 set -e
 
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 B="$ROOT/07-Entregables/build"
+T="$ROOT/07-Entregables/PC1"
 BUILD="$(mktemp -d)"
-OUT="${OUT_OVERRIDE:-$ROOT/07-Entregables/PC1/Rumbo — PC1.docx}"
+OUT="${OUT_OVERRIDE:-$T/Rumbo — PC1.docx}"
 
 if command -v pandoc >/dev/null 2>&1; then
   PANDOC="pandoc"
@@ -32,13 +33,6 @@ elif [ -x "$HOME/AppData/Local/Pandoc/pandoc.exe" ]; then
 else
   echo "ERROR: no se encontró pandoc. Instalar: winget install --id JohnMacFarlane.Pandoc" >&2
   exit 1
-fi
-
-# --- 0. Regenerar los .docx sueltos ----------------------------------------------------
-if [ -z "$SIN_SUELTOS" ]; then
-  for s in relevamiento ia desarrollo requisitos casos-de-uso; do
-    bash "$B/build-$s.sh" >/dev/null
-  done
 fi
 
 # --- Herramientas -------------------------------------------------------------------------
@@ -75,7 +69,7 @@ filtrar() {
 }
 
 # nota ARCHIVO: filtra una nota protegiendo el interior de sus bloques de código, que el
-# filtro de arriba compactaría (sangría del JSON, árbol de carpetas).
+# filtro compactaría (sangría del JSON, del SQL y de los prompts).
 nota() {
   local id; id="$(basename "$1" .md | tr -c 'A-Za-z0-9' '_')"
   awk -v map="$BUILD/codigo-$id.txt" '
@@ -88,16 +82,17 @@ nota() {
     { print }'
 }
 
-# desde_docx DOCX CARPETA: convierte un .docx suelto a Markdown, extrae sus imágenes y
-# descarta el índice y la sección «Presentación» propia de ese documento.
-desde_docx() {
-  "$PANDOC" "$1" -t markdown --wrap=none --extract-media="$BUILD/$2" \
-    | awk '/^# /{ skip = ($0 ~ /^# (Índice|Presentación)/) ? 1 : 0 } skip==1{next} {print}'
+# seccion REGEX [sin-titulo]: deja solo las secciones ## cuyo título coincide con REGEX.
+seccion() {
+  awk -v re="$1" -v sint="$2" '
+    /^```/{ code = !code }
+    !code && /^#{1,2} /{ on = ($0 ~ /^## / && $0 ~ re) ? 1 : 0; if (on && sint != "") next }
+    on{print}'
 }
 
 # omitir REGEX: descarta las secciones ## cuyo título coincide con REGEX.
 omitir() {
-  awk -v re="$1" '/^## /{ skip = ($0 ~ re) ? 1 : 0 } /^# /{skip=0} skip==1{next} {print}'
+  awk -v re="$1" '/^```/{ code = !code } !code && /^## /{ skip = ($0 ~ re) ? 1 : 0 } !code && /^# /{skip=0} skip==1{next} {print}'
 }
 
 # titulo NUEVO: reemplaza el primer título # por NUEVO.
@@ -105,12 +100,17 @@ titulo() {
   awk -v t="$1" '/^# / && !h { print "# " t; h=1; next } {print}'
 }
 
-# figuras "pie|imagen" ...: cambia cada bloque Mermaid, en orden, por su PNG ya
-# renderizado, y quita los blockquotes (notas internas).
+# sin_titulo: quita el primer título # (el de la nota).
+sin_titulo() {
+  awk '/^# / && !h { h=1; next } {print}'
+}
+
+# figuras "pie|imagen[|ancho]" ...: cambia cada bloque Mermaid, en orden, por su PNG ya
+# renderizado, y quita los blockquotes (notas internas) fuera de los bloques de código.
 figuras() {
   awk -v lista="$(printf '%s\n' "$@")" '
     BEGIN{ split(lista, f, "\n"); k=0 }
-    /^```mermaid/{ mer=1; k++; split(f[k], p, "|"); if (p[2] != "") printf "![%s](%s){ width=100%% }\n", p[1], p[2]; next }
+    /^```mermaid/{ mer=1; k++; n=split(f[k], p, "|"); a = (n >= 3) ? p[3] : "100%"; if (p[2] != "") printf "![%s](%s){ width=%s }\n", p[1], p[2], a; next }
     mer==1 && /^```/{ mer=0; next }
     mer==1{next}
     /^```/{ code = !code }
@@ -118,140 +118,159 @@ figuras() {
     {print}'
 }
 
-# bajar N: baja N niveles los títulos (fuera de los bloques de código).
+# bajar N / subir N: cambia el nivel de los títulos (fuera de los bloques de código).
 bajar() {
-  awk -v n="$1" '
-    /^```/{ code = !code }
-    !code && /^#+ /{ printf "%s", substr("######", 1, n) }
-    {print}'
+  awk -v n="$1" '/^```/{ code = !code } !code && /^#+ /{ printf "%s", substr("######", 1, n) } {print}'
+}
+subir() {
+  awk -v n="$1" '/^```/{ code = !code } !code && /^#+ /{ match($0, /^#+/); if (RLENGTH > n) $0 = substr($0, n + 1) } {print}'
 }
 
 # Enlaces Markdown a archivos del vault (p. ej. [`rumbo.sql`](rumbo.sql)): queda el texto.
 sin_enlaces_locales() {
-  sed -E 's/\[(`?[^]]+`?)\]\(([^):]+\.(sql|json|js|md))\)/\1/g'
+  sed -E 's/\[(`?[^]]+`?)\]\(([^):]+\.(sql|json|js|md|py))\)/\1/g'
 }
 
 h1() { printf '\n# %s\n\n' "$1"; }
+h2() { printf '\n## %s\n\n' "$1"; }
+
+# Tabla de casos de uso: módulo según el MOC y actor principal según cada CU.
+tabla_cu() {
+  local moc="$ROOT/02-Analisis/MOC — Casos de uso.md" dir="$ROOT/02-Analisis/Casos de uso"
+  printf '| Caso de uso | Módulo | Actor principal |\n|---|---|---|\n'
+  awk '
+    /^### /{ m=$0; sub(/^### /, "", m); sub(/ — .*/, "", m); sub(/ \/ Catálogos/, " y catálogos", m) }
+    /^## Flujo núcleo/{ m="Circuito completo" }
+    /^- \[\[CU-[0-9]+ /{ c=$0; sub(/^- \[\[/, "", c); sub(/\]\].*/, "", c); print c "\t" m }' "$moc" \
+  | sort | while IFS=$'\t' read -r cu mod; do
+      actor="$(awk '/^## Actor principal/{getline; print; exit}' "$dir/$cu.md" \
+        | sed -E 's/\[\[Actores\|([^]]*)\]\]/\1/g; s/\[\[([^]|]*)\]\]/\1/g; s/\. No incluye.*//; s/ con acceso al módulo de redes/ (con acceso a redes)/; s/ \(rol operativo.*//; s/^ +| +$//g')"
+      printf '| %s | %s | %s |\n' "$cu" "$mod" "${actor^}"
+    done
+}
+
+# Operaciones del contrato por módulo, con ejemplos de rutas.
+tabla_api() {
+  node -e '
+    const d = require(process.argv[1]);
+    const por = {};
+    for (const [ruta, ops] of Object.entries(d.paths))
+      for (const [m, op] of Object.entries(ops)) {
+        const t = (op.tags || ["otros"])[0];
+        (por[t] = por[t] || []).push(m.toUpperCase() + " " + ruta);
+      }
+    const nombre = t => ({ economia: "Economía y pagos", configuracion: "Configuración y catálogos", oportunidades: "Oportunidades y cotización", hoteles: "Catálogo de hoteles", seguridad: "Usuarios y seguridad" })[t] || t.charAt(0).toUpperCase() + t.slice(1);
+    console.log("| Módulo | Operaciones | Ejemplos |\n|---|---|---|");
+    for (const t of (d.tags || []).map(x => x.name).filter(t => por[t]))
+      console.log("| " + nombre(t) + " | " + por[t].length + " | `" + por[t].slice(0, 2).join("` · `").replace(/\{/g, "{").replace(/\|/g, "\\|") + "` |");
+  ' "$ROOT/05-Diseño/API/openapi.json"
+}
 
 D="$ROOT/03-Dominio/Diagramas"
-A="$ROOT/05-Diseño/Arquitectura/img"
+ARQ="$ROOT/05-Diseño/Arquitectura/ARQ — Vista general.md"
+MVC="$ROOT/05-Diseño/Arquitectura/ARQ — MVC y modelo conceptual por capa.md"
 
-# --- 1 a 3: de los .docx de Relevamiento e Inteligencia artificial ----------------------
-desde_docx "$ROOT/07-Entregables/Relevamiento/Rumbo — Relevamiento.docx" m-rel > "$BUILD/rel.md"
-desde_docx "$ROOT/07-Entregables/IA/Rumbo — Inteligencia artificial.docx" m-ia > "$BUILD/ia.md"
-desde_docx "$ROOT/07-Entregables/Desarrollo/Rumbo — Modelo de desarrollo.docx" m-des > "$BUILD/des.md"
-
+# --- 1. Definición del problema --------------------------------------------------------------
 {
-  h1 "1. Presentación general"
-  bajar 1 < "$BUILD/rel.md"
-  h1 "2. Modelos de IA utilizados y justificación"
-  awk '/^# Agentes de IA del proyecto/{exit} {print}' "$BUILD/ia.md" | bajar 1
-  h1 "3. Agentes de IA"
-  awk '/^# Agentes de IA del proyecto/{f=1} f' "$BUILD/ia.md" | bajar 1
-} > "$BUILD/10-sec1a3.md"
+  h1 "1. Definición del problema"
+  nota "$ROOT/01-Relevamiento/Antecedentes.md" | titulo "Antecedentes" | figuras | bajar 1
+  nota "$ROOT/01-Relevamiento/Justificación del sistema.md" | titulo "Justificación" | figuras | bajar 1
+} > "$BUILD/10.md"
 
-# --- 4. Modelo de datos y relaciones: de las notas --------------------------------------
+# --- 2. Alcance y límites ------------------------------------------------------------------------
 {
-  h1 "4. Modelo de datos y relaciones"
-  nota "$D/DGM — Diagrama de clases.md" | omitir "Refinamientos|Incoherencias|Pendientes|Relacionado" \
-    | titulo "Diagrama de clases" \
-    | figuras "Diagrama de clases, vista principal.|DGM-clases.png" \
-              "Enumeraciones del dominio (1 de 3).|DGM-clases-enums-1.png" \
-              "Enumeraciones del dominio (2 de 3).|DGM-clases-enums-2.png" \
-              "Enumeraciones del dominio (3 de 3).|DGM-clases-enums-3.png" | bajar 1
-  nota "$D/DGM-ER.md" | omitir "Resuelto|tamaño|Pendientes" | titulo "Modelo entidad-relación" \
-    | figuras "Modelo entidad-relación.|DGM-ER.png" | bajar 1
-  printf '\n## Entidades del dominio\n\n'
-  for e in Cliente Oportunidad Cotización Viaje Pago Alerta Hotel Reseña Destino RequisitoDestino Operador Usuario ContenidoRed; do
-    nota "$ROOT/03-Dominio/Entidades/$e.md" | omitir "Aparece en" | figuras | bajar 2
+  h1 "2. Alcance y límites"
+  nota "$ROOT/01-Relevamiento/Objetivos del sistema.md" | titulo "Objetivos" | figuras | bajar 1
+  nota "$ROOT/01-Relevamiento/Alcance y fuera de alcance.md" | titulo "Alcance y límites del sistema" \
+    | sed -E 's/^- (❌|✅) /- /' | figuras | bajar 1
+  nota "$ROOT/01-Relevamiento/Actores.md" | titulo "Actores" | figuras | bajar 1
+  h2 "Casos de uso"
+  printf 'El sistema tiene **31 casos de uso**. CU-01 es el circuito completo de la consulta a la venta, y los demás lo componen. La especificación de cada uno (precondiciones, flujos y postcondiciones) está en el anexo de casos de uso de la carpeta de entrega.\n\n'
+  tabla_cu
+} > "$BUILD/20.md"
+
+# --- 3. Modelo conceptual -----------------------------------------------------------------------
+{
+  h1 "3. Modelo conceptual: frontend, backend y base de datos"
+  nota "$MVC" | seccion "Modelo conceptual por capa" sin | figuras "Modelo conceptual por capa.|ARQ-capas-conceptual.png" | subir 1
+  h2 "Interfaces principales del prototipo"
+  printf 'El frontend se diseñó como un **prototipo navegable en Figma** ([Rumbo — Prototipo PC1](https://www.figma.com/design/5rq8HOlZQ3uu4IUpBuhuZp)), con 59 pantallas que cubren los casos de uso y las vistas de cada rol. Estas son las principales; todas están en la carpeta de entrega y en el anexo de modelo de desarrollo.\n\n'
+  for s in "03-cu14-agenda.png|Agenda de alertas del día — CU-14" "13-cu06-emitir-cotizacion.png|Emitir cotización — CU-06" \
+           "15-cu07-10-11-ficha-viaje.png|Ficha del viaje, con su economía y el plan de cuotas — CU-07, CU-10 y CU-11" \
+           "18-cu12-registrar-cobro.png|Registrar cobro — CU-12" "28-cu21-dashboard.png|Dashboard de la dueña — CU-21" \
+           "46-freelance-dashboard.png|Dashboard del freelance: solo sus ventas y comisiones — CU-21 A1"; do
+    printf '![%s.](%s){ width=100%% }\n\n' "${s#*|}" "${s%%|*}"
   done
-  nota "$ROOT/05-Diseño/Datos/Modelo de datos SQL.md" | sin_enlaces_locales | figuras | bajar 1
-} > "$BUILD/40-datos.md"
+  printf '![Mobile: agenda del día — CU-14.](35-mobile-agenda.png){ width=30%% } ![Mobile: clientes — CU-03.](57-mobile-clientes.png){ width=30%% }\n\n'
+} > "$BUILD/30.md"
 
-# --- 5. Modelo de desarrollo e interfaces gráficas --------------------------------------
+# --- 4. Modelo de flujo: UML y C4 --------------------------------------------------------------
 {
-  h1 "5. Modelo de desarrollo e interfaces gráficas"
-  bajar 1 < "$BUILD/des.md"
-} > "$BUILD/50-desarrollo.md"
-
-# --- 6. Arquitectura: de las notas -------------------------------------------------------
-{
-  h1 "6. Arquitectura de la solución"
-  nota "$ROOT/05-Diseño/Arquitectura/ARQ — Vista general.md" | omitir "Pendiente" \
-    | titulo "Vistas de la arquitectura y modelo C4" \
-    | figuras "Vista de despliegue.|ARQ-despliegue.png" \
-              "Vista de componentes del monorepo.|ARQ-monorepo.png" \
-              "Vista lógica del backend: capas.|ARQ-logica-capas.png" \
-              "Vista lógica del backend: módulos.|ARQ-logica-modulos.png" \
-              "Modelo C4, nivel 1: contexto.|ARQ-C4-1-contexto.png" \
+  h1 "4. Modelo de flujo: gráficos UML y C4"
+  cat "$T/40 - Modelo de flujo.md"
+  nota "$ARQ" | seccion "Modelo C4" \
+    | figuras "Modelo C4, nivel 1: contexto.|ARQ-C4-1-contexto.png" \
               "Modelo C4, nivel 2: contenedores.|ARQ-C4-2-contenedores.png" \
-              "Modelo C4, nivel 3: componentes de la API.|ARQ-C4-3-componentes.png" | bajar 1
-  nota "$ROOT/05-Diseño/Arquitectura/ARQ — MVC y modelo conceptual por capa.md" \
-    | titulo "MVC y modelo conceptual por capa" \
-    | figuras "MVC en Rumbo.|ARQ-MVC.png" \
-              "Registrar el cobro de un pago: Vista, Controlador y Modelo.|ARQ-MVC-secuencia-cobro.png" \
-              "Modelo conceptual por capa.|ARQ-capas-conceptual.png" | bajar 1
-  nota "$ROOT/05-Diseño/API/Contrato de la API (OpenAPI).md" | omitir "Cómo se edita|Supuestos|Relación con otras" \
-    | titulo "Contrato de la API (OpenAPI)" | sin_enlaces_locales | sed 's| y de DEC-0005/0008||' | figuras | bajar 1
-} > "$BUILD/60-arquitectura.md"
+              "Modelo C4, nivel 3: componentes de la API.|ARQ-C4-3-componentes.png"
+  nota "$ARQ" | seccion "Vista de despliegue" | figuras "Vista de despliegue.|ARQ-despliegue.png"
+} > "$BUILD/40.md"
 
-# --- Anexos ---------------------------------------------------------------------------------
-desde_docx "$ROOT/07-Entregables/Requisitos/Rumbo — Requisitos.docx" m-req > "$BUILD/req.md"
-desde_docx "$ROOT/07-Entregables/Casos de uso/Rumbo — Casos de uso.docx" m-cu > "$BUILD/cu.md"
-
+# --- 5. Modelo de datos SQL ----------------------------------------------------------------------
 {
-  h1 "Anexo A. Especificación de requisitos"
-  bajar 1 < "$BUILD/req.md"
-  h1 "Anexo B. Especificación de casos de uso"
-  bajar 1 < "$BUILD/cu.md"
-} > "$BUILD/70-anexos-ab.md"
-
-{
-  h1 "Anexo C. Diagramas UML de estados, actividad y secuencia"
-  printf '\n## Diagramas de estados\n\n'
-  for e in Viaje Oportunidad Pago Cotización Alerta ContenidoRed; do
-    nota "$D/Estados/EST-$e.md" \
-      | omitir "Convenciones del diagrama|Para qué se creó|Huecos|Cambios de la sync|Fuentes" \
-      | titulo "Estados de $e" | figuras "Diagrama de estados de $e.|EST-$e.png" | bajar 2
-  done
-  printf '\n## Diagramas de actividad\n\n'
-  for a in "De la consulta a la venta|consulta-a-venta" "Confirmar reserva|confirmar-reserva" \
-           "Registrar cobro de un pago|registrar-cobro" "Cancelar viaje|cancelar-viaje" \
-           "Proceso automático diario|proceso-diario"; do
-    n="${a%%|*}"; img="${a##*|}"
-    nota "$D/Actividad/DGM-ACT — $n.md" | omitir "Convenciones del diagrama|Cómo mantenerlo" \
-      | titulo "Actividad: $n" | figuras "Diagrama de actividad: $n.|DGM-ACT-$img.png" | bajar 2
-  done
-  printf '\n## Diagramas de secuencia\n\n'
-  for a in "Confirmar reserva|confirmar-reserva" "Registrar cobro de un pago|registrar-cobro" "Cancelar viaje|cancelar-viaje"; do
-    n="${a%%|*}"; img="${a##*|}"
-    nota "$D/Secuencia/DGM-SEC — $n.md" | omitir "Convenciones del diagrama|Cómo mantenerlo" \
-      | titulo "Secuencia: $n" | figuras "Diagrama de secuencia: $n.|DGM-SEC-$img.png" | bajar 2
-  done
-} > "$BUILD/80-anexo-c.md"
-
-{
-  h1 "Anexo D. Script SQL del modelo de datos"
+  h1 "5. Modelo de datos SQL"
+  h2 "Modelo entidad-relación"
+  nota "$D/DGM-ER.md" | seccion "Convenciones" sin | figuras "Modelo entidad-relación.|DGM-ER.png"
+  nota "$ROOT/05-Diseño/Datos/Modelo de datos SQL.md" | sin_titulo | sin_enlaces_locales | omitir "En PC2" | figuras
+  h2 "Script SQL"
   printf 'Script `rumbo.sql` completo, validado en PostgreSQL 18.\n\n```sql\n'
   cat "$ROOT/05-Diseño/Datos/rumbo.sql"
   printf '\n```\n'
-} > "$BUILD/90-anexo-d.md"
+} > "$BUILD/50.md"
 
-# Los pies de figura de los .docx sueltos traen su propia numeración («Figura 3. …»);
-# en el documento único se sacan para que no se repitan los números.
+# --- 6. Comunicación Vista–Controlador -----------------------------------------------------------
+{
+  h1 "6. Comunicación Vista–Controlador: OpenAPI en JSON"
+  nota "$MVC" | seccion "MVC en Rumbo|Comunicación entre Vista y Controlador" \
+    | figuras "MVC en Rumbo.|ARQ-MVC.png" "Registrar el cobro de un pago: Vista, Controlador y Modelo.|ARQ-MVC-secuencia-cobro.png"
+  h2 "Contrato OpenAPI"
+  nota "$ROOT/05-Diseño/API/Contrato de la API (OpenAPI).md" | seccion "Qué es y qué no es|Convenciones|Autenticación y roles|Errores" \
+    | sin_enlaces_locales | sed 's| y de DEC-0005/0008||' | figuras | bajar 1
+  printf '\n### Operaciones por módulo\n\nEl contrato completo, con los esquemas JSON de cada operación, es el archivo `openapi.json` de la carpeta de entrega.\n\n'
+  tabla_api
+} > "$BUILD/60.md"
+
+# --- 7. Modelos y agentes de IA, con sus prompts -------------------------------------------------
+{
+  h1 "7. Selección de modelos y agentes de IA, con sus prompts"
+  nota "$ROOT/05-Diseño/Decisiones/DEC-0012 Modelo de IA del producto.md" | titulo "Modelo de IA del producto" \
+    | omitir "Impacto|Decisores|Vínculo" | sed -E 's/\| ✅ \|/| Sí |/g; s/\| ❌ \|/| No |/g' | figuras | bajar 1
+  nota "$ROOT/05-Diseño/IA — Agentes del proyecto.md" | titulo "Agentes de IA del proyecto" | omitir "IA dentro del producto" \
+    | figuras "Ciclo de trabajo de una sesión con el agente.|IA-ciclo-de-trabajo.png|55%" | bajar 1
+  nota "$ROOT/05-Diseño/IA — Prompt de CU-20.md" | titulo "Prompt de la IA del producto (CU-20)" \
+    | sed 's/ En PC2 el prompt vive, versionado, en `negocio\/prompts\/contenido_red.py` (ARQ — Vista general)\.//' | figuras | bajar 1
+  cat "$T/75 - Prompts de los agentes.md"
+} > "$BUILD/70.md"
+
+# --- 8. Modelado con Mermaid.js ----------------------------------------------------------------
+{
+  h1 "8. Modelado con Mermaid.js"
+  cat "$T/80 - Modelado con Mermaid.md"
+  cat "$T/90 - Material complementario.md"
+} > "$BUILD/80.md"
+
+# Pandoc exige una línea en blanco antes de cada título: se agrega donde falte al unir bloques.
 for f in "$BUILD"/[0-9]*.md; do
-  sed -i -E 's/!\[Figura [0-9]+\. /![/' "$f"
+  awk '/^```/{ code = !code } !code && /^#+ / && prev != "" { print "" } { print; prev = $0 }' "$f" > "$f.tmp" && mv "$f.tmp" "$f"
 done
 
 REF="${1:-$B/reference.docx}"
 REFARG=(); [ -f "$REF" ] && REFARG=(--reference-doc="$REF")
 
 "$PANDOC" \
-  "$ROOT/07-Entregables/PC1/00 - Portada.md" \
-  "$BUILD/10-sec1a3.md" "$BUILD/40-datos.md" "$BUILD/50-desarrollo.md" "$BUILD/60-arquitectura.md" \
-  "$BUILD/70-anexos-ab.md" "$BUILD/80-anexo-c.md" "$BUILD/90-anexo-d.md" \
+  "$T/00 - Portada.md" "$BUILD/10.md" "$BUILD/20.md" "$BUILD/30.md" "$BUILD/40.md" \
+  "$BUILD/50.md" "$BUILD/60.md" "$BUILD/70.md" "$BUILD/80.md" \
   --toc --toc-depth=2 -M toc-title="Índice" \
-  --resource-path="$D/Clases:$D/DER:$D/Estados/img:$D/Actividad/img:$D/Secuencia/img:$A" \
+  --resource-path="$D/Clases:$D/DER:$D/Estados/img:$D/Actividad/img:$D/Secuencia/img:$ROOT/05-Diseño/Arquitectura/img:$ROOT/05-Diseño/img:$ROOT/07-Entregables/Prototipo/img:$ROOT/07-Entregables/Casos de uso/img:$ROOT/07-Entregables/Relevamiento/img" \
   "${REFARG[@]}" \
   -o "$OUT"
 

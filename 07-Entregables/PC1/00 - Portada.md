@@ -1,6 +1,6 @@
 ---
 title: "Rumbo — CRM para agencias de turismo"
-subtitle: "Punto de Control 1 · Análisis, diseño y planificación — Universidad de Morón · Ingeniería Informática — Trabajo de Campo"
+subtitle: "Punto de Control 1 · Documento con el MVC — Universidad de Morón · Ingeniería Informática — Trabajo de Campo"
 author:
   - "Francisco Luciano"
   - "Nahuel Viniegra"
@@ -10,16 +10,18 @@ date: "2.º cuatrimestre 2026 · Entrega: 02/10/26"
 
 # Presentación del documento
 
-**Rumbo** es un CRM a medida para agencias de turismo PyME. Este documento reúne todo el trabajo del **Punto de Control 1**: el análisis, el diseño y la planificación del sistema. Sigue el orden de la documentación obligatoria de la cátedra:
+**Rumbo** es un CRM a medida para agencias de turismo PyME. Este documento presenta el análisis y el diseño del sistema en el orden del contenido que pide la cátedra para el Punto de Control 1:
 
-1. **Presentación general:** antecedentes, justificación, objetivos, alcance y límites, actores y el circuito de trabajo que el sistema digitaliza.
-2. **Modelos de IA utilizados y su justificación.**
-3. **Agentes de IA** con los que trabaja el equipo.
-4. **Modelo de datos y relaciones:** diagrama de clases, modelo entidad-relación, entidades del dominio y modelo de datos SQL.
-5. **Modelo de desarrollo** utilizado, con las **interfaces gráficas** del prototipo.
-6. **Arquitectura de la solución:** vistas, modelo C4, **MVC**, modelo conceptual por capa y contrato **OpenAPI**.
+1. **Definición del problema.**
+2. **Alcance y límites.**
+3. **Modelo conceptual:** frontend, backend y base de datos.
+4. **Modelo de flujo:** gráficos UML y C4.
+5. **Modelo de datos SQL.**
+6. **Comunicación Vista–Controlador:** OpenAPI en formato JSON.
+7. **Selección de modelos y agentes de IA,** con sus prompts.
+8. **Modelado con Mermaid.js.**
 
-Al final, los **anexos** incluyen la especificación de requisitos, la especificación de los casos de uso, los diagramas UML de estados, de actividad y de secuencia, y el script SQL completo. El contrato OpenAPI completo, en formato JSON, se entrega junto con este documento en el archivo `openapi.json`.
+El documento incluye los diagramas y las pantallas principales. El material completo va en la **carpeta de entrega**, descripta al final: las especificaciones de requisitos y de casos de uso, el relevamiento, el modelo de desarrollo con todas las interfaces gráficas, todos los diagramas en imagen, el contrato OpenAPI completo en JSON, el script SQL y la presentación.
 
 **Interpretaciones adoptadas.** Se entiende **MVC** como el patrón **Modelo-Vista-Controlador**, en línea con la «comunicación Vista–Controlador» que pide la cátedra, y **modelo de desarrollo** como la **metodología de trabajo** del equipo.
 

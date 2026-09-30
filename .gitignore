@@ -15,3 +15,6 @@ Thumbs.db
 paletaColores/
 node_modules/
 package-lock.json
+
+# Carpeta de entrega del PC1: se arma con 07-Entregables/build/armar-entrega.sh
+07-Entregables/PC1/Rumbo — Entrega PC1/
