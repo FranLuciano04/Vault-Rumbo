@@ -73,6 +73,14 @@ Tokens en variables (paleta del equipo: azules `#22506F` → `#73A5C4` y gris `#
 | 49 | Admin · agenda de toda la agencia | CU-14 | `img/49-admin-agenda-agencia.png` |
 | 50 | Dueña · agenda de toda la agencia | CU-14 | `img/50-duena-agenda-agencia.png` |
 | 51 | Dueña · configuración (destinos y operadores) | [[CU-26 Gestionar destinos|CU-26]] · CU-15 · [[CU-31 Gestionar operadores|CU-31]] | `img/51-duena-configuracion.png` |
+| 52 | Mobile · inicio de sesión | [[CU-24 Iniciar sesión|CU-24]] | `img/52-mobile-inicio-sesion.png` |
+| 53 | Mobile · detalle de alerta | CU-14 | `img/53-mobile-detalle-alerta.png` |
+| 54 | Mobile · posponer alerta | CU-14 | `img/54-mobile-posponer-alerta.png` |
+| 55 | Mobile · agenda tras resolver, con «Deshacer» | CU-14 | `img/55-mobile-agenda-tras-resolver.png` |
+| 56 | Mobile · nuevo recordatorio | [[CU-28 Crear recordatorio manual|CU-28]] | `img/56-mobile-nuevo-recordatorio.png` |
+| 57 | Mobile · clientes | CU-03 paso 1 | `img/57-mobile-clientes.png` |
+| 58 | Mobile · nuevo cliente | [[CU-02 Registrar cliente|CU-02]] | `img/58-mobile-nuevo-cliente.png` |
+| 59 | Mobile · más (perfil y cerrar sesión) | CU-24 | `img/59-mobile-mas.png` |
 
 [[CU-01 De la consulta a la venta|CU-01]] no tiene pantalla propia: es el circuito completo y se recorre navegando las pantallas 11 → 12 → 13 → 15 → 18.
 
@@ -102,11 +110,17 @@ Se dibujan aparte solo las pantallas que **cambian según el rol** (fila «Vista
 - ⚠️ `#accion/decidir` **Configuración del `dueño`:** se siguieron los CU (CU-15, CU-26 y CU-31 incluyen al `dueño`; CU-13 y CU-25 son solo del `admin`). Que la dueña no pueda gestionar usuarios ni comisiones es llamativo: ratificar con el equipo o ampliar CU-13 y CU-25.
 - Límite del prototipo: las pantallas compartidas llevan la barra lateral de Sofía, así que al navegar desde la vista del `admin` o del `dueño` a una sección común se ve el menú del `empleado`. La moderación (24) no tiene enlace desde el catálogo, que ahora abre la vista del `empleado` (48).
 
+## Mobile completo (B5, 30/09/26)
+Alcance de RNF-14 y [[ARQ — Vista general]]: **agenda, alertas y clientes**. Por eso la barra de pestañas quedó en **Agenda · Clientes · Más** (se sacaron Ventas y Viajes, que son solo de la web). Recorrido desde el punto de inicio *Rumbo · mobile*, que ahora arranca en el inicio de sesión (52): agenda (35) → tocar la cuota vencida → detalle de la alerta (53) → resolver (55, con «Deshacer»), posponer (54), ver cliente (36) o marcar como vista; botón «+» → nuevo recordatorio (56); pestaña Clientes (57) → ficha (36) o «+» → nuevo cliente (58); pestaña Más (59) → cerrar sesión. El cobro y la gestión del viaje se hacen desde la web, y la pantalla «Más» lo aclara. Se muestra la vista del `empleado`; en el teléfono cada rol ve lo mismo que en la web (el `freelance`, solo lo suyo).
+
+## Navegación del prototipo
+Revisión del 30/09/26: **todas las pantallas se alcanzan** desde alguno de los 5 puntos de inicio y no hay enlaces rotos. Se sumaron los enlaces a los estados que estaban sueltos: en el inicio de sesión de escritorio, tocar el campo de contraseña muestra el error (2), y en el catálogo tocar el filtro de destino muestra «sin resultados» (22). Quedan sin enlace solo los dos recortes de estado de la agenda (4 y 5), que no son pantallas completas. En las filas de la agenda mobile, solo la cuota vencida abre el detalle, para que el contenido coincida.
+
 ## Pendiente: prototipado completo (B5)
 Pedido en la sync del 30/09/26, al aprobar el prototipo. Detalle en el paso **B5** de [[Estado del proyecto]]:
 - ✅ **Cada sección vista por cada rol** (30/09/26, ver *Vistas por rol*).
 - ✅ **El `freelance` completo** (30/09/26, ver arriba): todas sus secciones, solo con lo suyo, sin cargar ni editar hoteles, sin registrar reseñas y sin el módulo de redes. `empleado`, `admin` y `dueño` sí cargan hoteles y reseñas; moderar reseñas es solo de `admin` y `dueño`.
-- **El mobile completo:** agenda, alertas y clientes, según el alcance mobile de [[ARQ — Vista general]].
+- ✅ **El mobile completo** (30/09/26, ver *Mobile completo*): agenda, alertas y clientes, según el alcance mobile de [[ARQ — Vista general]].
 
 ## Cómo regenerar los PNG
 No hay script: se exportan desde Figma con el MCP (`get_screenshot` de cada pantalla, a 1440 px de ancho) y se guardan en `img/` con el mismo nombre. Si cambia una pantalla, se reexporta solo esa.

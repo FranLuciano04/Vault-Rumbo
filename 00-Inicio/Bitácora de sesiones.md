@@ -30,6 +30,10 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
+## 30/09/26 — Paloma (Claude Opus 5.5) — B5: mobile completo y navegación
+- **Hecho:** 8 pantallas mobile nuevas (inicio de sesión, detalle de alerta, posponer, agenda tras resolver con «Deshacer», nuevo recordatorio, clientes, nuevo cliente y Más) con los componentes del sistema de diseño. La barra de pestañas pasó a Agenda · Clientes · Más (Ventas y Viajes quedan fuera del alcance mobile de RNF-14). El punto de inicio *Rumbo · mobile* arranca en el inicio de sesión. Revisión de navegación de todo el prototipo: todas las pantallas se alcanzan desde los 5 puntos de inicio, sin enlaces rotos; se enlazaron el error de inicio de sesión y el catálogo sin resultados, y se corrigieron puntos de inicio duplicados que habían dejado las copias. PNG 52 a 59 nuevos; 35 y 36 reexportados. **B5 cerrado.**
+- **Pendiente:** `#accion/decidir` configuración de la dueña; regenerar el `.docx` de Modelo de desarrollo con las 59 pantallas.
+
 ## 30/09/26 — Paloma (Claude Opus 5.5) — B5: vistas por rol
 - **Hecho:** Matriz rol × sección en [[Prototipo UI]] (según los actores de cada CU) y 5 pantallas nuevas donde la vista cambia: dashboard del `empleado` (lo suyo, CU-21 A1), detalle de hotel del `empleado` (sin moderar), agenda de toda la agencia para `admin` y `dueño` (con el responsable de cada alerta y filtro por responsable) y configuración de la dueña (solo Destinos y Operadores). Menús por rol: el `empleado` ya no ve Reportes ni Configuración; los menús de `admin` y `dueño` abren sus agendas y el del `empleado` su dashboard. Coherencia de datos: el viaje a Mendoza y el Centro de Jubilados pasan a Sofía, y su agenda deja solo sus alertas. PNG 47 a 51 nuevos y 21 PNG del `empleado` reexportados.
 - **Pendiente:** `#accion/decidir` configuración de la dueña (CU-13 y CU-25 son solo del `admin`); B5 (3): mobile completo; regenerar el `.docx` de Modelo de desarrollo con la tabla de 51 pantallas.
