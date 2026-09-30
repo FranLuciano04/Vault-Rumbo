@@ -1,13 +1,14 @@
 ---
 tipo: referencia
-estado: borrador
+estado: formalizado
 responsable: Paloma
 pc: pc1
-actualizado: 29/09/26
+actualizado: 30/09/26
+fecha_aprobacion: 30/09/26
 ---
 # Prototipo UI
 
-tags:: #tipo/referencia #estado/borrador #pc/pc1
+tags:: #tipo/referencia #estado/formalizado #pc/pc1
 
 > Prototipo navegable de Rumbo en Figma (paso **B4** del plan de PC1). La fuente es el archivo de Figma; los PNG de `img/` son su exportación para el documento único y la presentación, **no se editan a mano**.
 
@@ -60,8 +61,14 @@ Tokens en variables (paleta del equipo: azules `#22506F` → `#73A5C4` y gris `#
 
 [[CU-01 De la consulta a la venta|CU-01]] no tiene pantalla propia: es el circuito completo y se recorre navegando las pantallas 11 → 12 → 13 → 15 → 18.
 
+## Pendiente: prototipado completo (B5)
+Pedido en la sync del 30/09/26, al aprobar el prototipo. Detalle en el paso **B5** de [[Estado del proyecto]]:
+- **Cada sección vista por cada rol** (`empleado`, `admin`, `dueño` y `freelance`).
+- **El `freelance` completo:** todas sus secciones, solo con lo suyo, sin cargar ni editar hoteles, sin registrar reseñas y sin el módulo de redes. `empleado`, `admin` y `dueño` sí cargan hoteles y reseñas; moderar reseñas es solo de `admin` y `dueño`.
+- **El mobile completo:** agenda, alertas y clientes, según el alcance mobile de [[ARQ — Vista general]].
+
 ## Cómo regenerar los PNG
 No hay script: se exportan desde Figma con el MCP (`get_screenshot` de cada pantalla, a 1440 px de ancho) y se guardan en `img/` con el mismo nombre. Si cambia una pantalla, se reexporta solo esa.
 
 ## 🔎 Revisión
-> [!question] Paloma (29/09) — la agenda (pantallas 3, 7 y 35) muestra el segmento **«Próximas»** y el **«Progreso del día»**, que están **propuestos** en la Revisión de [[CU-14 Ver y atender alertas del día]] a la espera de que Nahuel los acepte #accion/decidir. Si se rechazan, hay que sacarlos del prototipo y reexportar esos PNG.
+> [!success] Paloma (29/09) — la agenda (pantallas 3, 7 y 35) muestra el segmento **«Próximas»** y el **«Progreso del día»**. ✅ Nahuel los aceptó el 29/09 (A5 de [[CU-14 Ver y atender alertas del día]], RF-154 y RF-155), así que se mantienen.

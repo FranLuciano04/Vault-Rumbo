@@ -1,14 +1,15 @@
 ---
 tipo: analisis
-estado: borrador
+estado: formalizado
 modulo: []
 responsable: Nahuel
 pc: pc1
-actualizado: 29/09/26
+actualizado: 30/09/26
+fecha_aprobacion: 30/09/26
 ---
 # Modelo de datos SQL
 
-tags:: #tipo/analisis #estado/borrador #pc/pc1
+tags:: #tipo/analisis #estado/formalizado #pc/pc1
 
 > Responde a la lámina del PC1 «Modelo de datos SQL» (paso **F2** del plan). El script es [`rumbo.sql`](rumbo.sql), en esta misma carpeta. Se deriva del [[DGM-ER]], que es la fuente: si cambia el ER, se cambia primero el ER y después el script.
 
