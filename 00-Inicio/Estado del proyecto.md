@@ -29,7 +29,7 @@ Los tres tomamos **los tres roles** (Coordinador de vault · Guardián del domin
 - [x] DEC estructurales registradas y **ratificadas**: DEC-0001→0009 selladas (11/09 y 17/09; DEC-0004 obsoleta); **DEC-0002 y DEC-0010 formalizadas el 29/09**
 - [x] Prototipo UI de pantallas clave (Figma) — plan B · ✅ **B2, B3 y B4 hechos el 29/09 (Paloma)**: las 11 pantallas en [Rumbo — Prototipo PC1](https://www.figma.com/design/5rq8HOlZQ3uu4IUpBuhuZp), con sistema de diseño propio. Ampliado el mismo día al **sistema completo**: 20 pantallas más que cubren el resto de los CU (todos menos CU-01, que es el circuito completo) y las vistas `admin` y `freelance`, en filas por módulo. Navegable (435 interacciones, 5 puntos de inicio). B4: 36 PNG en `07-Entregables/Prototipo/img/` y nota [[Prototipo UI]]. ✅ Aprobado y formalizado en la sync del 30/09; ⏳ **B5**: completar todas las secciones por rol y el mobile — ✅ el `freelance` completo y las vistas por rol (30/09, 51 PNG); falta el mobile
 - [x] Modelos de IA del producto, prompts y agentes documentados — plan E · ✅ 30/09 (Francisco): E3 y E4 hechos; [[IA — Agentes del proyecto]] queda `en-revision` para A6
-- [ ] Contrato OpenAPI (JSON) y script SQL del modelo de datos — plan F
+- [x] Contrato OpenAPI (JSON) y script SQL del modelo de datos — plan F · ✅ F1 y F2 formalizados en la sync del 30/09; F3 (diagramas de dominio al documento) entra con H3
 - [ ] Modelo C4 y sección MVC en la arquitectura — plan G
 - [ ] Documento único del PC1 (con antecedentes y modelo de desarrollo) y presentación — plan H
 
