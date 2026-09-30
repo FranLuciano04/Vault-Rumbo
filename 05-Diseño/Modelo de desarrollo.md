@@ -102,7 +102,43 @@ La seguridad se revisa con pip-audit, pnpm audit, bandit, Semgrep (reglas OWASP)
 ## Interfaces gráficas
 Las interfaces se diseñaron en un **prototipo navegable en Figma**, construido sobre el modelo ya aprobado: usan el lenguaje del negocio (cliente, oportunidad, cotización, viaje, pago, alerta), los estados reales de cada entidad y datos de ejemplo ficticios pero coherentes entre pantallas ([[Prototipo UI]]).
 
-El prototipo es **navegable**: tiene un punto de inicio por perfil (empleado en escritorio, mobile, dueña, administrador y vendedor freelance) y se recorre como si fuera el sistema. Las pantallas se muestran a continuación, cada una con el caso de uso que realiza.
+### Cómo se diseñó
+1. **Validar el estilo con una sola pantalla.** Se empezó por la agenda de alertas del día, que es la pantalla de inicio del empleado, y se ajustó hasta que el equipo estuvo de acuerdo con el estilo, antes de hacer el resto.
+2. **Armar un sistema de diseño liviano.** Con ese estilo se definieron los elementos que se repiten en todas las pantallas, para que el prototipo sea coherente y cada pantalla nueva salga rápido.
+3. **Diseñar las pantallas clave** siguiendo el circuito de la consulta a la venta y después **el resto de los casos de uso**, agrupados por módulo.
+4. **Completar las vistas por perfil y el mobile**, a pedido del equipo al aprobar el prototipo.
+5. **Hacerlo navegable** y revisar que cada pantalla se alcance desde algún punto de inicio.
+
+### Sistema de diseño
+- **Colores:** la paleta de azules y grises que eligió el equipo, cargada como variables. Además hay colores de estado: rojo para lo atrasado, verde para lo resuelto y ámbar para los avisos.
+- **Tipografía:** Plus Jakarta Sans, con ocho estilos de texto (de títulos a etiquetas).
+- **Componentes reutilizables:** botón, etiqueta de estado, ítem de menú, fila de alerta, campo, chip y barra lateral, además de 28 íconos. Todas las pantallas se arman con estos componentes.
+- **Accesibilidad:** el contraste del texto cumple el nivel AA de WCAG y el color nunca es la única señal: cada estado lleva también un texto o un ícono.
+
+### Criterios de usabilidad
+- **La acción principal a la vista:** cada alerta ofrece el botón que corresponde a su tipo (registrar un cobro, revisar la documentación, contactar al cliente).
+- **Menos filtros, más claros:** la agenda se filtra con un control de cuatro opciones (todas, atrasadas, hoy y próximas) en lugar de muchos filtros sueltos.
+- **Deshacer en lugar de confirmar:** al resolver una alerta aparece un aviso con «Deshacer», así el trabajo diario no se frena con confirmaciones.
+- **Estados vacíos y errores dibujados:** la agenda sin pendientes, la búsqueda sin resultados, el posible cliente duplicado y el inicio de sesión con credenciales inválidas.
+- **Formularios sobre la pantalla de origen:** las altas y las confirmaciones se abren como panel o diálogo, sin perder de vista la pantalla desde la que se abrieron.
+
+### Una vista por perfil
+El sistema no se ve igual para todos. El prototipo muestra lo que ve y lo que puede hacer cada perfil:
+
+| Perfil | Qué cambia |
+|---|---|
+| Empleado | Opera todo el circuito y ve la información de toda la agencia, con un filtro para lo suyo. Su agenda y su dashboard muestran solo lo suyo. No ve reportes ni configuración. |
+| Administrador | Además, ve las alertas de toda la agencia, modera las reseñas, ve reportes y configura el sistema completo. |
+| Dueña | Ve el dashboard y los reportes de toda la empresa, las alertas de toda la agencia y la configuración de destinos y operadores. |
+| Vendedor freelance | Ve y opera solo sus clientes, oportunidades y viajes. Consulta los hoteles sin modificarlos, no usa redes y ve su comisión, no la rentabilidad de la agencia. |
+
+### Web y mobile
+La **web** cubre la gestión completa. La **app mobile** cubre lo que se usa fuera del escritorio: la agenda y las alertas (verlas, resolverlas, posponerlas y crear recordatorios) y los clientes (buscarlos, ver su ficha y dar de alta uno nuevo). Lo demás, como cotizar, gestionar viajes o registrar cobros, se hace desde la web.
+
+### Prototipo navegable
+Tiene un punto de inicio por perfil (empleado en escritorio, mobile, dueña, administrador y vendedor freelance) y se recorre como si fuera el sistema. Las pantallas se muestran a continuación, cada una con el caso de uso que realiza.
 
 ## 🔎 Revisión
 > [!note] Francisco (30/09) — borrador armado en la sync del 30/09 para liberar a Paloma, que tiene B5. Los cambios de Francisco sobre el `.docx` (30/09) ya están pasados a esta nota. Detalle de los agentes en [[IA — Agentes del proyecto]]. Sale de [[Trabajo en equipo — Git y memoria]], [[DEC-0001 Stack tecnológico]], [[Cronograma y PC]], [[Estado del proyecto]] y la [[Bitácora de sesiones]]. La galería de pantallas del entregable se genera sola desde la tabla de [[Prototipo UI]]: cuando B5 sume pantallas, alcanza con volver a correr `build-desarrollo.sh`. **Paloma:** revisar sobre todo *Interfaces gráficas* y sumar lo que haga falta del sistema de diseño.
+
+> [!success] Paloma (30/09) — revisado. El resto de la nota está bien. En *Interfaces gráficas* se sumaron cómo se diseñó, el sistema de diseño, los criterios de usabilidad, la vista por perfil y el alcance web/mobile, todo tomado de [[Prototipo UI]] (B5 cerrado, 59 pantallas). La fila de la dueña sigue la decisión abierta sobre su configuración (solo destinos y operadores). Queda para aprobar en la sync; después hay que regenerar el `.docx` con `build-desarrollo.sh`.
