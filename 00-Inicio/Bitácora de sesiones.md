@@ -30,6 +30,11 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
+## 30/09/26 — Paloma (Claude Opus 5.5) — revisión de la sección 3 y de las slides de interfaces
+- **Hecho:** Se revisó la sección 3 del documento principal (modelo conceptual e interfaces principales) y las slides de interfaces (9 a 12). Se hicieron tres correcciones. (1) **Listas anidadas:** en todo el documento y en los anexos salían aplanadas, porque el filtro de los 6 scripts `07-Entregables/build/build-*.sh` comprimía también la sangría del principio de línea. El filtro se cambió para que solo comprima los espacios dentro del texto, y ahora se ven anidadas las 13 sublistas del documento principal (por ejemplo, Web y Mobile en «Qué atiende»); el resto del texto no cambió. (2) **Deck:** en la slide «Una vista por perfil», la dueña pasó de «Dashboard y reportes de la empresa» a «Todo lo del admin, más el dashboard y los reportes de la empresa» (decisión de la sync del 30/09). (3) Se regeneraron `Rumbo — PC1.docx`, el `.pptx` y su PDF.
+- **Verificado:** la sección 3 comparada antes y después: solo cambia la sangría. La slide 10 se revisó como imagen. Las cifras de la sección coinciden (11 módulos, 15 tablas, 59 pantallas).
+- **Pendiente:** los anexos toman la corrección de las listas cuando se regeneren en D2. (Lo del mobile «consulta de clientes» ya lo había corregido Nahuel en G3.)
+
 ## 30/09/26 — Paloma (Claude Opus 5.5) — configuración de la dueña en el prototipo
 - **Hecho:** En la pantalla 51 de Figma, «Dueña · Configuración», se hicieron visibles las pestañas *Parámetros y comisiones* (CU-13) y *Usuarios y roles* (CU-25), que estaban ocultas. Ahora se ven las cuatro pestañas del `admin`, y cada una lleva a su pantalla (30, 31 y 33; se sumó el enlace de *Operadores*). La moderación de reseñas (CU-29) sigue en el detalle de hotel (24), igual que para el `admin`. Se reexportó `img/51-duena-configuracion.png` con el mismo nombre y se cerró la tarea en [[Prototipo UI]], en el paso B5 de [[Estado del proyecto]] y en [[Cierre del PC1 — tareas pendientes]].
 - **Commits:** ver el commit de esta entrada.

@@ -55,7 +55,7 @@ filtrar() {
     s/\([[:space:]]*\)//g;
     s/[[:space:]]+\./\./g;
     s/\.\.+/\./g;
-    s/[[:space:]]{2,}/ /g;
+    s/([^[:space:]])[[:space:]]{2,}/\1 /g;
     s/[[:space:]]+,/,/g'
 }
 

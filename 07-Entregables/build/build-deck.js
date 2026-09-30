@@ -249,7 +249,7 @@ function stat(s, x, y, w, value, label, color = C.primary, lcolor = C.muted) {
 // 16 · Vista por perfil
 {
   const s = base('Una vista por perfil', { section: '3 · Modelo conceptual', presenter: 'Paloma' });
-  const shots = [['03-cu14-agenda.png', 'Empleado', 'Todo el circuito; su agenda y su dashboard'], ['49-admin-agenda-agencia.png', 'Admin', 'Alertas de toda la agencia y configuración'], ['28-cu21-dashboard.png', 'Dueña', 'Dashboard y reportes de la empresa'], ['34-freelance-embudo.png', 'Freelance', 'Solo sus clientes, oportunidades y viajes']];
+  const shots = [['03-cu14-agenda.png', 'Empleado', 'Todo el circuito; su agenda y su dashboard'], ['49-admin-agenda-agencia.png', 'Admin', 'Alertas de toda la agencia y configuración'], ['28-cu21-dashboard.png', 'Dueña', 'Todo lo del admin, más el dashboard y los reportes de la empresa'], ['34-freelance-embudo.png', 'Freelance', 'Solo sus clientes, oportunidades y viajes']];
   shots.forEach(([f, t, d], i) => {
     const col = i % 2, row = Math.floor(i / 2);
     const x = M + col * 6.15, y = 1.5 + row * 2.8;
