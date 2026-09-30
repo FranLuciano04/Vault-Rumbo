@@ -27,7 +27,7 @@ Los tres tomamos **los tres roles** (Coordinador de vault · Guardián del domin
 - [x] Diagramas de **actividad** de flujos clave — ✅ los 5 en `03-Dominio/Diagramas/Actividad/` ([[DGM-ACT — De la consulta a la venta|CU-01]], [[DGM-ACT — Confirmar reserva|CU-07]], [[DGM-ACT — Registrar cobro de un pago|CU-12]], [[DGM-ACT — Cancelar viaje|CU-27]], [[DGM-ACT — Proceso automático diario|proceso diario]]); sus 18 huecos se resolvieron y se **formalizaron el 29/09**
 - [ ] [[ARQ — Vista general]] formalizada
 - [x] DEC estructurales registradas y **ratificadas**: DEC-0001→0009 selladas (11/09 y 17/09; DEC-0004 obsoleta); **DEC-0002 y DEC-0010 formalizadas el 29/09**
-- [ ] Prototipo UI de pantallas clave (Figma) — plan B
+- [ ] Prototipo UI de pantallas clave (Figma) — plan B · ⏳ **B2 y B3 hechos el 29/09 (Paloma)**: las 11 pantallas en [Rumbo — Prototipo PC1](https://www.figma.com/design/5rq8HOlZQ3uu4IUpBuhuZp), con sistema de diseño propio. Falta B4 (PNG + fila en [[Entregables — índice]])
 - [ ] Modelos de IA del producto, prompts y agentes documentados — plan E
 - [ ] Contrato OpenAPI (JSON) y script SQL del modelo de datos — plan F
 - [ ] Modelo C4 y sección MVC en la arquitectura — plan G
@@ -103,8 +103,8 @@ Los tres tomamos **los tres roles** (Coordinador de vault · Guardián del domin
 
 ### B · Prototipo UI en Figma — obligatorio
 - [x] **B1. Acordar las pantallas clave.** Propuesta, una por cada CU central: inicio de sesión ([[CU-24 Iniciar sesión|CU-24]]) · **agenda de alertas del día** ([[CU-14 Ver y atender alertas del día|CU-14]]) · ficha del cliente ([[CU-03 Gestionar ficha del cliente|CU-03]]) · embudo de oportunidades ([[CU-05 Seguir oportunidad|CU-05]]) · emitir cotización ([[CU-06 Emitir cotización|CU-06]]) · **ficha del viaje** con economía, plan de cuotas y checklist de pagos ([[CU-07 Confirmar reserva|CU-07]], [[CU-10 Registrar economía del viaje|CU-10]], [[CU-11 Definir plan de cuotas|CU-11]]) · registrar cobro ([[CU-12 Registrar cobro de un pago|CU-12]]) · dashboard ([[CU-21 Ver dashboard y embudo|CU-21]]) · catálogo de hoteles ([[CU-18 Buscar y recomendar hoteles|CU-18]]). **Mobile** (RNF-14): agenda y ficha del cliente.
-- [ ] **B2. Wireframes** de baja fidelidad de esas pantallas, recorriendo el camino principal de [[CU-01 De la consulta a la venta|CU-01]] de punta a punta.
-- [ ] **B3. Diseño en Figma** (vía MCP) con el vocabulario del lenguaje ubicuo y los estados reales del modelo (`reservado → vendido → confirmado…`, alertas `pendiente/vista/resuelta`).
+- [x] **B2. Wireframes** de baja fidelidad de esas pantallas, recorriendo el camino principal de [[CU-01 De la consulta a la venta|CU-01]] de punta a punta. — ✅ 29/09 (Paloma): se saltó la baja fidelidad y se fue directo a B3, validando el estilo con una primera pantalla.
+- [x] **B3. Diseño en Figma** (vía MCP) con el vocabulario del lenguaje ubicuo y los estados reales del modelo (`reservado → vendido → confirmado…`, alertas `pendiente/vista/resuelta`). — ✅ 29/09 (Paloma): [Rumbo — Prototipo PC1](https://www.figma.com/design/5rq8HOlZQ3uu4IUpBuhuZp). Página «🧩 Componentes»: tokens (paleta del equipo, espaciado y radios), 8 estilos de texto (Plus Jakarta Sans), 2 sombras, 28 íconos y los componentes Botón, Etiqueta, Ítem de menú, Fila de alerta, Campo, Chip y Barra lateral. Página «🖥 Pantallas»: las 11 pantallas más los estados CU-14 vacío (A3), aviso con «Deshacer» y CU-24 error (A1). ⚠️ La agenda muestra «Próximas» y «Progreso del día», **propuestos** en CU-14 (A5 y el indicador, con `Alerta.resuelta_en`) y a la espera de que Nahuel los acepte; si no se aceptan, hay que sacarlos del prototipo.
 - [ ] **B4. Publicar:** link de Figma + PNG de cada pantalla en `07-Entregables/Prototipo/`, y una fila nueva en [[Entregables — índice]].
 
 ### C · Recomendados — refuerzan el modelo

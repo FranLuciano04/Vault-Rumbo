@@ -1159,6 +1159,10 @@ Los requisitos **RF-151** (control de acceso por rol y propiedad) y **RF-152** (
 
 > [!important] **Esta sección es interna y no sale en el entregable** (el `filtrar()` de `build-requisitos.sh` la recorta). Acá vive lo que el equipo necesita saber y los profesores no: cómo se armó realmente el catálogo, qué está sin cerrar y qué hay que confirmar con la agencia. **No mover nada de esto al cuerpo de la nota.**
 
+> [!question] Paloma (29/09) — **propuesta de RF-154, a aceptar por Nahuel** #accion/decidir. Si se acepta el flujo A5 propuesto en [[CU-14 Ver y atender alertas del día]], sumar: **RF-154 — Listar las próximas alertas.** *Descripción:* el sistema permite ver las [[Alerta|Alertas]] en estado `pendiente` con fecha posterior a hoy, ordenadas por fecha y filtradas por propietario, para que el empleado adelante trabajo y las atienda antes de su fecha. *Actor:* empleado · *Tipo:* consulta · *Prioridad:* media · *Entidades:* [[Alerta]]. Al aceptarlo: agregarlo en el módulo 5 (después de RF-079), sumar RF-154 al índice por módulo y a la fila de CU-14 en la matriz, pasar el total a 154 y regenerar el `.docx`.
+>
+> [!question] Paloma (29/09) — **propuesta de RF-155, a aceptar por Nahuel** #accion/decidir. Si se acepta el indicador de progreso propuesto en [[CU-14 Ver y atender alertas del día]], sumar: **RF-155 — Mostrar el progreso del día.** *Descripción:* el sistema muestra, junto a la agenda, cuántas [[Alerta|Alertas]] del propietario se resolvieron en el día sobre el total del día (resueltas hoy más vigentes), y lo actualiza con cada resolución, incluidas las automáticas. *Actor:* empleado · *Tipo:* consulta · *Prioridad:* baja · *Entidades:* [[Alerta]]. Depende del atributo nuevo `Alerta.resuelta_en`. Mismos pasos de integración que RF-154 (total a 155 si se aceptan ambos).
+
 ### Ratificación en la sync del 29/09
 > [!success] **Ratificado por Francisco, Nahuel y Paloma el 29/09/26.** Se aprobaron el catálogo completo, el criterio de prioridad derivado de la estructura del CU y los tres RF compartidos (RF-034, RF-038 y RF-059). Lo que se cerró en esa sync y ya está en el cuerpo:
 >
