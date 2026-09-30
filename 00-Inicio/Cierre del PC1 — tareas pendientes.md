@@ -19,6 +19,15 @@ Al 30/09/26 a la noche el PC1 está **prácticamente completo**:
 - Todo lo del PC1 está **formalizado salvo una nota**: [[ARQ — MVC y modelo conceptual por capa]] (G2 y G3), que revisa Nahuel.
 - Decisiones del 30/09 que hay que tener presentes: el `freelance` no gestiona hoteles, no registra reseñas y no usa redes; la `dueño` tiene todo lo del `admin`; los enums de la capa técnica van en ASCII; los prompts de la entrega son los usados para **construir** el producto (el de CU-20 quedó para PC2). Detalle en la [[Bitácora de sesiones]] del 30/09.
 
+## Plan del jueves 01/10 (los tres)
+Acordado por Francisco al cerrar el 30/09:
+1. **Ensayar** la exposición con el deck.
+2. **Revisar el documento principal** y pasar las **modificaciones**: se cargan en las notas fuente o en `07-Entregables/PC1/*.md` y se regenera todo.
+3. **Subir la carpeta de entrega al Drive** y agregar el link al documento.
+4. **Definir cómo se hace la exposición:** duración, orden de quién habla y si el prototipo va en vivo o con capturas.
+
+El viernes queda para el cierre (D1–D3) y la entrega a las 20 hs.
+
 ## Nahuel
 - [ ] **Revisar [[ARQ — MVC y modelo conceptual por capa]] (G2 y G3).** Lo más importante:
   1. Que los **servicios de negocio** estén en el **Modelo** y no en el Controlador (se eligió la lectura clásica de MVC, con controlador delgado; ver la Revisión de la nota).
