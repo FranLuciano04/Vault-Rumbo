@@ -1,14 +1,15 @@
 ---
 tipo: analisis
-estado: en-revision
+estado: formalizado
 modulo: []
 responsable: Paloma
 pc: pc1
 actualizado: 30/09/26
+fecha_aprobacion: 30/09/26
 ---
 # Modelo de desarrollo
 
-tags:: #tipo/analisis #estado/en-revision #pc/pc1
+tags:: #tipo/analisis #estado/formalizado #pc/pc1
 
 > Paso **H2** del plan a 3 días. Responde a la lámina del PC1 «Modelo de desarrollo utilizado con interfaces gráficas». Supuesto del plan (H0): «modelo de desarrollo» se lee como la **metodología de trabajo** del equipo. Borrador armado por Francisco el 30/09, por acuerdo de la sync, para que Paloma se concentre en B5; lo revisa Paloma.
 
@@ -129,7 +130,7 @@ El sistema no se ve igual para todos. El prototipo muestra lo que ve y lo que pu
 |---|---|
 | Empleado | Opera todo el circuito y ve la información de toda la agencia, con un filtro para lo suyo. Su agenda y su dashboard muestran solo lo suyo. No ve reportes ni configuración. |
 | Administrador | Además, ve las alertas de toda la agencia, modera las reseñas, ve reportes y configura el sistema completo. |
-| Dueña | Ve el dashboard y los reportes de toda la empresa, las alertas de toda la agencia y la configuración de destinos y operadores. |
+| Dueña | Tiene todo lo del administrador (configuración completa, usuarios, comisiones y moderación de reseñas) y, además, el dashboard y los reportes de toda la empresa. |
 | Vendedor freelance | Ve y opera solo sus clientes, oportunidades y viajes. Consulta los hoteles sin modificarlos, no usa redes y ve su comisión, no la rentabilidad de la agencia. |
 
 ### Web y mobile
@@ -139,6 +140,8 @@ La **web** cubre la gestión completa. La **app mobile** cubre lo que se usa fue
 Tiene un punto de inicio por perfil (empleado en escritorio, mobile, dueña, administrador y vendedor freelance) y se recorre como si fuera el sistema. Las pantallas se muestran a continuación, cada una con el caso de uso que realiza.
 
 ## 🔎 Revisión
+> [!success] Sync 30/09/26 (Francisco, Nahuel y Paloma) — **aprobada y formalizada**. Antes de formalizar se corrigió la fila de la dueña en *Una vista por perfil*: tiene todo lo del administrador (decisión del mismo día sobre CU-13, CU-25 y CU-29). Si al revisar el documento hace falta un ajuste, se hace sobre esta nota.
+
 > [!note] Francisco (30/09) — borrador armado en la sync del 30/09 para liberar a Paloma, que tiene B5. Los cambios de Francisco sobre el `.docx` (30/09) ya están pasados a esta nota. Detalle de los agentes en [[IA — Agentes del proyecto]]. Sale de [[Trabajo en equipo — Git y memoria]], [[DEC-0001 Stack tecnológico]], [[Cronograma y PC]], [[Estado del proyecto]] y la [[Bitácora de sesiones]]. La galería de pantallas del entregable se genera sola desde la tabla de [[Prototipo UI]]: cuando B5 sume pantallas, alcanza con volver a correr `build-desarrollo.sh`. **Paloma:** revisar sobre todo *Interfaces gráficas* y sumar lo que haga falta del sistema de diseño.
 
 > [!success] Paloma (30/09) — revisado. El resto de la nota está bien. En *Interfaces gráficas* se sumaron cómo se diseñó, el sistema de diseño, los criterios de usabilidad, la vista por perfil y el alcance web/mobile, todo tomado de [[Prototipo UI]] (B5 cerrado, 59 pantallas). La fila de la dueña sigue la decisión abierta sobre su configuración (solo destinos y operadores). Queda para aprobar en la sync; después hay que regenerar el `.docx` con `build-desarrollo.sh`.
