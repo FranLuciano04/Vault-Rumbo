@@ -2,7 +2,7 @@
 # Renderiza a PNG los diagramas de diseño (arquitectura e IA) desde sus bloques Mermaid.
 # Uso: desde la raíz del repo:  bash "07-Entregables/build/render-diagramas-diseno.sh"
 # Requiere Node.js (npx). Salida: 05-Diseño/Arquitectura/img/ y 05-Diseño/img/
-# Al sumar un diagrama nuevo en 05-Diseño (vista lógica, C4…), agregar su línea abajo.
+# Al sumar un diagrama nuevo en 05-Diseño, agregar su línea abajo (el número es el orden del bloque mermaid en la nota).
 set -e
 
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
@@ -22,6 +22,9 @@ render "Arquitectura/ARQ — Vista general.md" 1 "Arquitectura/img/ARQ-despliegu
 render "Arquitectura/ARQ — Vista general.md" 2 "Arquitectura/img/ARQ-monorepo"
 render "Arquitectura/ARQ — Vista general.md" 3 "Arquitectura/img/ARQ-logica-capas"
 render "Arquitectura/ARQ — Vista general.md" 4 "Arquitectura/img/ARQ-logica-modulos"
+render "Arquitectura/ARQ — Vista general.md" 5 "Arquitectura/img/ARQ-C4-1-contexto"
+render "Arquitectura/ARQ — Vista general.md" 6 "Arquitectura/img/ARQ-C4-2-contenedores"
+render "Arquitectura/ARQ — Vista general.md" 7 "Arquitectura/img/ARQ-C4-3-componentes"
 render "IA — Agentes del proyecto.md"        1 "img/IA-ciclo-de-trabajo"
 
 rm -rf "$TMP"

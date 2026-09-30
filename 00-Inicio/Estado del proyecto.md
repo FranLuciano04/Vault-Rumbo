@@ -124,7 +124,7 @@ Los tres tomamos **los tres roles** (Coordinador de vault · Guardián del domin
 - [ ] **F3. Llevar los diagramas de dominio a un entregable:** clases, ER y los de estado, actividad y secuencia hoy **no están en ningún `.docx`**; entran en el documento único (H).
 
 ### G · Arquitectura ampliada: C4 y MVC — obligatorio (láminas: «Modelo conceptual: Frontend, Backend, Base de datos», «C4 Model» y «Documento con el MVC»)
-- [ ] **G1. Modelo C4 en Mermaid** dentro de [[ARQ — Vista general]]: **nivel 1, contexto** (Rumbo, los usuarios de la agencia, el pasajero, Claude y WhatsApp/Instagram como canales manuales), **nivel 2, contenedores** (web, mobile, API, PostgreSQL, scheduler, IA) y **nivel 3, componentes** de la API (reusa A3).
+- [x] **G1. Modelo C4 en Mermaid** dentro de [[ARQ — Vista general]]: **nivel 1, contexto** (Rumbo, los usuarios de la agencia, el pasajero, Claude y WhatsApp/Instagram como canales manuales), **nivel 2, contenedores** (web, mobile, API, PostgreSQL, scheduler, IA) y **nivel 3, componentes** de la API (reusa A3). ✅ 29/09 (Nahuel): los tres niveles en ARQ, exportados a PNG.
 - [ ] **G2. Sección MVC:** qué es **Modelo** (entidades y reglas en el backend + PostgreSQL), **Vista** (React y React Native) y **Controlador** (routers y servicios de FastAPI) en Rumbo, y cómo se comunican Vista y Controlador por el contrato OpenAPI en JSON (F1). Los diagramas de secuencia ya separan interfaz, control y entidades, así que se usan como ejemplo.
 - [ ] **G3. Modelo conceptual por capa** (frontend, backend de negocio y base de datos): una página por capa con sus responsabilidades, tecnologías y los módulos que atiende.
 

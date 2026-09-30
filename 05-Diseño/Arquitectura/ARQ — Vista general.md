@@ -27,7 +27,7 @@ Rumbo es una aplicación **cliente-servidor**: dos clientes (web y mobile) habla
 | **Servidor** | Ubuntu Server LTS + Docker Compose + UPS | Aloja la API, la base, el proceso automático, nginx y el conector `cloudflared`; todos los usuarios entran por Cloudflare Tunnel. |
 | **Calidad y despliegue** | GitHub Actions + runner self-hosted + Dependabot | Lint, tipos, pruebas y seguridad en cada push; despliega solo si el pipeline pasa en `main`. |
 
-La arquitectura se describe en tres vistas: **despliegue** (dónde corre cada pieza), **componentes del monorepo** (cómo se organiza el código) y **vista lógica del backend** (las tres capas de la API y sus módulos).
+La arquitectura se describe en tres vistas: **despliegue** (dónde corre cada pieza), **componentes del monorepo** (cómo se organiza el código) y **vista lógica del backend** (las tres capas de la API y sus módulos). Al final, el **modelo C4** resume todo en tres niveles: contexto, contenedores y componentes.
 
 ## Vista de despliegue
 Dónde corre cada pieza en producción, según [[DEC-0011 Infraestructura de despliegue on-premise]]. Todo el backend vive en un servidor dentro de la agencia. **Todos los usuarios**, también los de la red local, entran por la URL de Cloudflare Tunnel: el contenedor `cloudflared` abre la conexión desde el servidor hacia la nube, así que el router no expone ningún puerto. La flecha punteada desde el navegador es la entrada local directa, que queda solo como respaldo si se corta internet; la caja punteada es lo que se difiere a PC2.
@@ -275,6 +275,134 @@ backend/rumbo/
 
 Los once módulos (`clientes`, `oportunidades`, `viajes`, `economia`, `alertas`, `configuracion`, `hoteles`, `redes`, `dashboard`, `calendario` y `seguridad`) aparecen con el mismo nombre de archivo en `routers/`, `esquemas/`, `servicios/` y `repositorios/`. Cotización y recontacto (CU-06 y CU-30) viven dentro de `oportunidades`.
 
+## Modelo C4
+El [modelo C4](https://c4model.com) describe el sistema en niveles de zoom: **contexto** (Rumbo y con quién se relaciona), **contenedores** (las piezas que se ejecutan por separado) y **componentes** (cómo está hecha por dentro la API). Resume en ese formato lo que las vistas de arriba muestran en detalle. Mermaid tiene un tipo de diagrama C4 propio, pero todavía es experimental y se lee mal impreso, así que se dibuja con diagramas de flujo y los colores habituales de C4: personas en azul oscuro, lo que se construye en azules y los sistemas externos en gris.
+
+### Nivel 1 · Contexto
+```mermaid
+%%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
+flowchart LR
+    Agencia["Usuarios de la agencia<br/>[Personas]<br/>admin · dueño · empleado · freelance"]
+    Pasajero["Pasajero<br/>[Persona]<br/>cliente de la agencia"]
+    Rumbo["Rumbo<br/>[Sistema]<br/>CRM de la agencia: clientes, consultas,<br/>cotizaciones, viajes, pagos y alertas"]
+    Claude["API de Claude<br/>[Sistema externo · Anthropic]<br/>borradores de contenido"]
+    Redes["WhatsApp, Instagram y TikTok<br/>[Canales externos]<br/>sin integración: se usan a mano"]
+
+    Agencia -->|"registra y consulta la operación<br/>web y mobile"| Rumbo
+    Rumbo -->|"pide borradores de posteos<br/>CU-20 · HTTPS"| Claude
+    Pasajero -->|"consulta y confirma<br/>por mensajes o en persona"| Redes
+    Agencia -->|"responde, envía cotizaciones<br/>y publica, a mano"| Redes
+
+    classDef persona fill:#08427b,stroke:#052e56,color:#ffffff
+    classDef sistema fill:#1168bd,stroke:#0b4884,color:#ffffff
+    classDef externo fill:#999999,stroke:#6b6b6b,color:#ffffff
+    class Agencia,Pasajero persona
+    class Rumbo sistema
+    class Claude,Redes externo
+```
+
+- El **pasajero no usa Rumbo**: habla con la agencia por WhatsApp, Instagram o en persona, y lo que la agencia registra de esa conversación es lo que entra al sistema.
+- **WhatsApp, Instagram y TikTok no están integrados** (publicar y enviar mensajes automáticamente está fuera de alcance): Rumbo genera alertas y borradores, y una persona los usa en cada canal.
+- La única integración con un sistema externo en tiempo de uso es la **API de Claude**, solo para CU-20 ([[DEC-0012 Modelo de IA del producto|DEC-0012]]).
+
+### Nivel 2 · Contenedores
+```mermaid
+%%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
+flowchart LR
+    Agencia["Usuarios de la agencia<br/>[Personas]"]
+
+    subgraph Rumbo["Rumbo · servidor de la agencia (DEC-0011)"]
+      Web["Aplicación web<br/>[React + TypeScript + Vite]<br/>back-office completo; nginx la sirve compilada"]
+      Mobile["Aplicación mobile<br/>[React Native + Expo]<br/>agenda, alertas y clientes"]
+      API["API<br/>[Python + FastAPI]<br/>reglas del negocio, permisos y auditoría"]
+      Sched["Proceso automático<br/>[cron + comando de la API]<br/>todos los días a las 00:00"]
+      DB[("Base de datos<br/>[PostgreSQL]<br/>15 tablas · rumbo.sql")]
+    end
+
+    Claude["API de Claude<br/>[Sistema externo]"]
+
+    Agencia -->|"usa · navegador"| Web
+    Agencia -->|"usa · teléfono"| Mobile
+    Web -->|"JSON / HTTPS · contrato OpenAPI<br/>por Cloudflare Tunnel"| API
+    Mobile -->|"JSON / HTTPS · contrato OpenAPI<br/>por Cloudflare Tunnel"| API
+    Sched -->|"ejecuta jobs.diario"| API
+    API -->|"lee y escribe · SQLAlchemy"| DB
+    API -->|"borradores de CU-20 · HTTPS"| Claude
+
+    classDef persona fill:#08427b,stroke:#052e56,color:#ffffff
+    classDef contenedor fill:#438dd5,stroke:#2e6295,color:#ffffff
+    classDef externo fill:#999999,stroke:#6b6b6b,color:#ffffff
+    class Agencia persona
+    class Web,Mobile,API,Sched,DB contenedor
+    class Claude externo
+```
+
+- **Web y mobile** no guardan datos del negocio ni tienen reglas propias: todo pasa por la API según el [[Contrato de la API (OpenAPI)]].
+- El **proceso automático** no es otro programa: es el mismo código de la API ejecutado como comando (`python -m rumbo.presentacion.jobs.diario`), por eso usa las mismas reglas.
+- Cómo se despliegan estos contenedores (Docker Compose, `nginx`, `cloudflared`) está en la *Vista de despliegue*; aquí `nginx` y el túnel quedan como parte del camino entre los clientes y la API.
+
+### Nivel 3 · Componentes de la API
+Reúne la *Vista lógica del backend* en formato C4: cada caja es un componente de una capa, y las flechas son las llamadas de un caso de uso típico.
+
+```mermaid
+%%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
+flowchart LR
+    Clientes["Web y mobile<br/>[Contenedores]"]
+    Sched["Proceso automático<br/>[Contenedor]"]
+
+    subgraph API["API · FastAPI"]
+      subgraph Pres["Presentación"]
+        Routers["Routers y esquemas<br/>[FastAPI + Pydantic]<br/>un router por módulo"]
+        Deps["Dependencias<br/>[FastAPI]<br/>usuario actual"]
+        Jobs["jobs.diario<br/>[comando]"]
+      end
+      subgraph Neg["Lógica de negocio"]
+        Serv["Servicios<br/>[Python]<br/>un caso de uso, una transacción"]
+        Est["Estados<br/>[Python]<br/>transiciones de los EST-*"]
+        Pol["Políticas<br/>[Python]<br/>visibilidad y permisos"]
+        Prompts["Prompts<br/>[Python]<br/>plantilla y límites de CU-20"]
+      end
+      subgraph Dat["Acceso a datos"]
+        Repos["Repositorios<br/>[SQLAlchemy]<br/>consultas con el filtro recibido"]
+        Modelos["Modelos<br/>[SQLAlchemy]<br/>tablas del DGM-ER"]
+      end
+      subgraph Core["core · transversal"]
+        Seg["seguridad<br/>[Python]<br/>contraseñas y tokens"]
+        Db["db<br/>[SQLAlchemy async]<br/>sesión y auditoría"]
+        IA["ia<br/>[LangChain]<br/>cliente de Claude"]
+      end
+    end
+
+    DB[("PostgreSQL<br/>[Contenedor]")]
+    Claude["API de Claude<br/>[Sistema externo]"]
+
+    Clientes -->|"JSON / HTTPS"| Routers
+    Routers --> Deps
+    Deps -->|"valida el token"| Seg
+    Routers -->|"llama al caso de uso"| Serv
+    Sched --> Jobs
+    Jobs -->|"mismos servicios"| Serv
+    Serv --> Pol
+    Serv --> Est
+    Serv -->|"filtro de visibilidad"| Repos
+    Serv --> Prompts
+    Serv -->|"prompt armado"| IA
+    Repos --> Modelos
+    Repos --> Db
+    Db -->|"SQL"| DB
+    IA -->|"HTTPS"| Claude
+
+    classDef contenedor fill:#438dd5,stroke:#2e6295,color:#ffffff
+    classDef componente fill:#85bbf0,stroke:#5d82a8,color:#000000
+    classDef externo fill:#999999,stroke:#6b6b6b,color:#ffffff
+    class Clientes,Sched,DB contenedor
+    class Routers,Deps,Jobs,Serv,Est,Pol,Prompts,Repos,Modelos,Seg,Db,IA componente
+    class Claude externo
+```
+
+- Las flechas respetan la regla de las capas: presentación llama a negocio y negocio a datos, sin saltear capas; `core` lo puede usar cualquiera y no usa ninguna capa.
+- La tabla de paquetes, las reglas transversales y los once módulos están en la *Vista lógica del backend*; este nivel no los repite.
+
 ## Decisiones que sostienen esta arquitectura
 - **Stack:** [[DEC-0001 Stack tecnológico]], con **Dependabot** para actualizar dependencias (29/09).
 - **Roles y visibilidad:** [[DEC-0005 Autenticación y modelo de roles]], ampliada por [[DEC-0008 Autenticación propia y rol de vendedor freelance]]: roles `admin`, `dueño`, `empleado` y `freelance`, con visibilidad por fila y catálogo compartido.
@@ -285,5 +413,4 @@ Los once módulos (`clientes`, `oportunidades`, `viajes`, `economia`, `alertas`,
 - **Contrato entre vista y controlador:** [[Contrato de la API (OpenAPI)]], preliminar para el PC1; en PC2 lo genera FastAPI.
 
 ## Pendiente
-- **G1 · Modelo C4** (contexto, contenedores y componentes), que reutiliza estas vistas.
 - **A6 · Ratificar esta nota** en el cierre del día 2 y pasarla a `formalizado`.
