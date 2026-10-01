@@ -2,7 +2,7 @@
 tipo: referencia
 estado: formalizado
 responsable: equipo
-actualizado: 30/09/26
+actualizado: 01/10/26
 ---
 
 # 📊 Estado del proyecto
@@ -10,7 +10,7 @@ actualizado: 30/09/26
 > Memoria externa del equipo (y de Claude). Se actualiza en cada **sync semanal**. Es lo primero que se lee al retomar. Mantener **corto**.
 
 ## Fase actual
-> 👉 **Cierre del PC1 (30/09 a la noche):** casi todo está hecho y formalizado. Las tareas que faltan, **por persona**, están en [[Cierre del PC1 — tareas pendientes]]. Leerla antes de empezar.
+> 👉 **01/10:** documento, deck y carpeta del Drive listos; D1 hecho. Para el viernes 02/10 quedan **D3** (tag `pc1`) y la **entrega a las 20 hs**. **Cierre del PC1 (30/09 a la noche):** casi todo está hecho y formalizado. Las tareas que faltan, **por persona**, están en [[Cierre del PC1 — tareas pendientes]]. Leerla antes de empezar.
 
 **Análisis y diseño → rumbo a PC1, ⚠️ adelantado al vie 02/10/26 a las 20 hs (entrega y exposición oral).** El plan se comprimió en *Plan comprimido a 3 días*; las decisiones de diseño se tomaron el 29/09. ✅ **Sync del 29/09: todo el análisis quedó ratificado y formalizado** — 31 CU y su diagrama, 13 entidades, clases y ER, 6 diagramas de estado, 5 de actividad, 4 de secuencia y [[Requisitos funcionales]] (155 RF + 16 RNF con valores). Se cerraron los 18 huecos de los diagramas de actividad y las abiertas anteriores (ver *Definido y sellado en la sync 29/09*). **Próximo:** arquitectura y prototipo UI en Figma (ver *Pasos restantes hacia PC1*).
 
@@ -33,7 +33,7 @@ Los tres tomamos **los tres roles** (Coordinador de vault · Guardián del domin
 - [x] Modelos de IA del producto, prompts y agentes documentados — plan E · ✅ 30/09 (Francisco): E3 y E4 hechos; [[IA — Agentes del proyecto]] queda `en-revision` para A6
 - [x] Contrato OpenAPI (JSON) y script SQL del modelo de datos — plan F · ✅ F1 y F2 formalizados en la sync del 30/09; F3 (diagramas de dominio al documento) entra con H3
 - [x] Modelo C4 y sección MVC en la arquitectura — plan G · ✅ G1 (Nahuel, 29/09); G2 y G3 revisados por Nahuel y formalizados el 30/09
-- [ ] Documento único del PC1 (con antecedentes y modelo de desarrollo) y presentación — plan H
+- [x] Documento único del PC1 (con antecedentes y modelo de desarrollo) y presentación — plan H · ✅ 01/10: revisados por el equipo y dados por definitivos; carpeta de entrega subida al Drive y D1 hecho (ver [[Cierre del PC1 — tareas pendientes]])
 
 ### Recomendado (buenas prácticas — refuerzan el modelo)
 - [x] Diagramas de **secuencia** de CU clave (consulta→cotización→reserva, registrar pago) — ✅ el de negocio ya estaba: [[DGM-SEC — De la consulta a la venta]] (22/09, Figura 1 del relevamiento, se conserva tal cual). **25/09 (Nahuel):** se sumaron los **3** diagramas de secuencia de análisis acordados (boundary-control-entity completo: `Interfaz` entre el actor y el control `Sistema Rumbo`, entidades del CU, y **Base de Datos** para cada búsqueda/guardado), en `03-Dominio/Diagramas/Secuencia/`: [[DGM-SEC — Confirmar reserva|CU-07]], [[DGM-SEC — Registrar cobro de un pago|CU-12]] y [[DGM-SEC — Cancelar viaje|CU-27]]. La notación quedó cerrada en [[DEC-0010 Notación de los diagramas de actividad y de secuencia|DEC-0010]]. ✅ Formalizados el 29/09
