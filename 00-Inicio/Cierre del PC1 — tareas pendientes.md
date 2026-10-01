@@ -44,7 +44,7 @@ El viernes queda para el cierre (D1–D3) y la entrega a las 20 hs.
 - [x] ✅ 01/10 (hecho, según Paloma). **Ensayo:** viernes 02/10 a las 17 hs a más tardar, con el deck y las notas del orador (cada slide dice quién expone).
 
 ## Cierre del viernes 02/10
-- [ ] **D1.** Que no quede ninguna nota del PC1 sin formalizar. Control rápido desde la raíz:
+- [x] ✅ 01/10 (Paloma, con el equipo): el control da **cero** notas del PC1 sin formalizar (también por el campo `pc:`); la única en `borrador` es `IA — Prompt de CU-20`, que es del PC2. **D1.** Que no quede ninguna nota del PC1 sin formalizar. Control rápido desde la raíz:
   `grep -rlZ --include=*.md "#pc/pc1" . | xargs -0 grep -lE "^estado: (borrador|en-revision)" | grep -v _plantillas`
 - [ ] **D2.** Regenerar todo con `bash "07-Entregables/build/armar-entrega.sh"`, revisar el PDF del documento y volver a subir la carpeta al Drive.
 - [ ] **D3.** Commit final, `git tag pc1` y `git push origin main --tags`.
