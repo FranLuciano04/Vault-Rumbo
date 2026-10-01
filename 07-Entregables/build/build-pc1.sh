@@ -183,7 +183,7 @@ MVC="$ROOT/05-Diseño/Arquitectura/ARQ — MVC y modelo conceptual por capa.md"
   nota "$ROOT/01-Relevamiento/Objetivos del sistema.md" | titulo "Objetivos" | figuras | bajar 1
   nota "$ROOT/01-Relevamiento/Alcance y fuera de alcance.md" | titulo "Alcance y límites del sistema" \
     | sed -E 's/^- (❌|✅) /- /' | figuras | bajar 1
-  nota "$ROOT/01-Relevamiento/Actores.md" | titulo "Actores" | figuras | bajar 1
+  nota "$ROOT/01-Relevamiento/Actores.md" | titulo "Actores" | sed -E '/^#+ /s/\*//g' | figuras | bajar 1
   h2 "Casos de uso"
   printf 'El sistema tiene **31 casos de uso**. CU-01 es el circuito completo de la consulta a la venta, y los demás lo componen. La especificación de cada uno (precondiciones, flujos y postcondiciones) está en el anexo de casos de uso de la carpeta de entrega.\n\n'
   tabla_cu
@@ -209,6 +209,7 @@ MVC="$ROOT/05-Diseño/Arquitectura/ARQ — MVC y modelo conceptual por capa.md"
   h1 "4. Modelo de flujo: gráficos UML y C4"
   cat "$T/40 - Modelo de flujo.md"
   nota "$ARQ" | seccion "Modelo C4" \
+    | sed 's/ Mermaid tiene un tipo de diagrama C4 propio, pero todavía es experimental y se lee mal impreso, así que se dibuja con diagramas de flujo y los colores habituales de C4:/ /' \
     | figuras "Modelo C4, nivel 1: contexto.|ARQ-C4-1-contexto.png" \
               "Modelo C4, nivel 2: contenedores.|ARQ-C4-2-contenedores.png" \
               "Modelo C4, nivel 3: componentes de la API.|ARQ-C4-3-componentes.png"
@@ -244,7 +245,7 @@ MVC="$ROOT/05-Diseño/Arquitectura/ARQ — MVC y modelo conceptual por capa.md"
   h1 "7. Selección de modelos y agentes de IA, con sus prompts"
   nota "$ROOT/05-Diseño/Decisiones/DEC-0012 Modelo de IA del producto.md" | titulo "Modelo de IA del producto" \
     | omitir "Impacto|Decisores|Vínculo" | sed -E 's/\| ✅ \|/| Sí |/g; s/\| ❌ \|/| No |/g' | figuras | bajar 1
-  nota "$ROOT/05-Diseño/IA — Agentes del proyecto.md" | titulo "Agentes de IA del proyecto" | omitir "IA dentro del producto" \
+  nota "$ROOT/05-Diseño/IA — Agentes del proyecto.md" | titulo "Agentes de IA del proyecto" | omitir "IA dentro del producto" | grep -v '^- \*\*Ejemplo real:\*\*' \
     | figuras "Ciclo de trabajo de una sesión con el agente.|IA-ciclo-de-trabajo.png|height=8.5in" | bajar 1
   cat "$T/75 - Prompts de los agentes.md"
 } > "$BUILD/70.md"
@@ -271,6 +272,10 @@ REFARG=(); [ -f "$REF" ] && REFARG=(--reference-doc="$REF")
   --resource-path="$D/Clases:$D/DER:$D/Estados/img:$D/Actividad/img:$D/Secuencia/img:$ROOT/05-Diseño/Arquitectura/img:$ROOT/05-Diseño/img:$ROOT/07-Entregables/Prototipo/img:$ROOT/07-Entregables/Casos de uso/img:$ROOT/07-Entregables/Relevamiento/img" \
   "${REFARG[@]}" \
   -o "$OUT"
+
+# Bordes en los cuadros (revisión de Paloma, 01/10/26): todos menos el de tipos de diagrama.
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$(cygpath -w "$B/bordes-tablas.ps1")" \
+  -Docx "$(cygpath -w "$OUT")" -Excluir "Tipo de diagrama"
 
 if [ -n "$KEEP_BUILD" ]; then echo "Intermedios en: $BUILD"; else rm -rf "$BUILD"; fi
 echo "OK -> $OUT"
