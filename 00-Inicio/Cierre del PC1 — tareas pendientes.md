@@ -3,7 +3,7 @@ tipo: referencia
 estado: formalizado
 responsable: Francisco
 pc: pc1
-actualizado: 30/09/26
+actualizado: 01/10/26
 ---
 # Cierre del PC1 — tareas pendientes
 
@@ -38,7 +38,7 @@ El viernes queda para el cierre (D1–D3) y la entrega a las 20 hs.
 - [x] ✅ 30/09 (Paloma): sección 3 y slides de interfaces revisadas; se corrigieron las listas anidadas del documento (el filtro de los scripts de armado las aplanaba) y la descripción de la dueña en la slide «Una vista por perfil». **Revisar tus partes del documento y del deck:** la sección **3** (modelo conceptual e interfaces principales) y las slides de interfaces. Ojo: **Francisco reordenó `build-deck.js`** el 30/09 (agenda de 8 puntos, secciones renumeradas y tres slides nuevas). Trabajá siempre sobre la versión de `main`, no sobre una copia anterior.
 
 ## Los tres
-- [ ] **Revisar el documento principal completo** (57 páginas). Cualquier cambio se hace en la **nota fuente** o en los textos de `07-Entregables/PC1/*.md`, **nunca en el `.docx`**, y después se regenera.
+- [x] ✅ 01/10 (Paloma): revisado y dado por definitivo, junto con el deck; los cambios hechos en Word se pasaron a las fuentes (ver [[Bitácora de sesiones]]). **Revisar el documento principal completo** (57 páginas). Cualquier cambio se hace en la **nota fuente** o en los textos de `07-Entregables/PC1/*.md`, **nunca en el `.docx`**, y después se regenera.
 - [ ] **Decidir la duración de la exposición** y si el prototipo se muestra **en vivo** (Figma, con internet) **o con capturas**.
 - [ ] **Subir la carpeta de entrega al Drive** y pegar el link en `07-Entregables/PC1/90 - Material complementario.md` (y, si se quiere, en la portada, `00 - Portada.md`). Después, regenerar.
 - [ ] **Ensayo:** viernes 02/10 a las 17 hs a más tardar, con el deck y las notas del orador (cada slide dice quién expone).
