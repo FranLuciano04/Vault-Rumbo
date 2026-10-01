@@ -105,12 +105,12 @@ sin_titulo() {
   awk '/^# / && !h { h=1; next } {print}'
 }
 
-# figuras "pie|imagen[|ancho]" ...: cambia cada bloque Mermaid, en orden, por su PNG ya
+# figuras "pie|imagen[|ancho o atributo, p. ej. height=8.5in]" ...: cambia cada bloque Mermaid, en orden, por su PNG ya
 # renderizado, y quita los blockquotes (notas internas) fuera de los bloques de código.
 figuras() {
   awk -v lista="$(printf '%s\n' "$@")" '
     BEGIN{ split(lista, f, "\n"); k=0 }
-    /^```mermaid/{ mer=1; k++; n=split(f[k], p, "|"); a = (n >= 3) ? p[3] : "100%"; if (p[2] != "") printf "![%s](%s){ width=%s }\n", p[1], p[2], a; next }
+    /^```mermaid/{ mer=1; k++; n=split(f[k], p, "|"); a = (n >= 3) ? p[3] : "100%"; if (a !~ /=/) a = "width=" a; if (p[2] != "") printf "![%s](%s){ %s }\n", p[1], p[2], a; next }
     mer==1 && /^```/{ mer=0; next }
     mer==1{next}
     /^```/{ code = !code }
@@ -245,7 +245,7 @@ MVC="$ROOT/05-Diseño/Arquitectura/ARQ — MVC y modelo conceptual por capa.md"
   nota "$ROOT/05-Diseño/Decisiones/DEC-0012 Modelo de IA del producto.md" | titulo "Modelo de IA del producto" \
     | omitir "Impacto|Decisores|Vínculo" | sed -E 's/\| ✅ \|/| Sí |/g; s/\| ❌ \|/| No |/g' | figuras | bajar 1
   nota "$ROOT/05-Diseño/IA — Agentes del proyecto.md" | titulo "Agentes de IA del proyecto" | omitir "IA dentro del producto" \
-    | figuras "Ciclo de trabajo de una sesión con el agente.|IA-ciclo-de-trabajo.png|55%" | bajar 1
+    | figuras "Ciclo de trabajo de una sesión con el agente.|IA-ciclo-de-trabajo.png|height=8.5in" | bajar 1
   cat "$T/75 - Prompts de los agentes.md"
 } > "$BUILD/70.md"
 

@@ -4,7 +4,7 @@ Los diagramas de esta sección muestran cómo fluye el trabajo de la agencia a t
 
 El sistema tiene **31 casos de uso** en once módulos. `Admin`, `Dueño` y `Freelance` son especializaciones del `Empleado`: heredan sus casos operativos, y solo se dibujan aparte los que son exclusivos de cada uno. El freelance, además, no gestiona hoteles, no registra reseñas y no usa el módulo de redes. El pasajero es actor externo: recibe la cotización y aporta la reseña, pero no opera el sistema.
 
-![Diagrama de casos de uso.](DGM-casos-de-uso.png){ width=55% }
+![Diagrama de casos de uso.](DGM-casos-de-uso.png){ height=8.5in }
 
 ## Circuito de la consulta a la venta
 
@@ -30,9 +30,9 @@ Seis entidades tienen un ciclo de vida con reglas propias: `Viaje`, `Oportunidad
 
 ## Diagrama de actividad
 
-El circuito completo de CU-01, con las decisiones de cada paso y el actor que realiza cada acción.
+El proceso automático diario: lo que el sistema hace solo, todos los días a las 00:00, sin que nadie lo dispare. Las cuatro tareas son independientes y corren en paralelo: vencer pagos, vencer cotizaciones, sugerir el avance de los viajes según sus fechas y detectar clientes para recontactar. Los diagramas de actividad de los casos de uso (CU-01, CU-07, CU-12 y CU-27) están en la carpeta de entrega.
 
-![Actividad: de la consulta a la venta.](DGM-ACT-consulta-a-venta.png){ width=80% }
+![Actividad: proceso automático diario.](DGM-ACT-proceso-diario.png){ width=100% }
 
 ## Diagrama de secuencia de análisis
 
