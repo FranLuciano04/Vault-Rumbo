@@ -38,7 +38,8 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Commits:** df392f4, 1d4e70a y el de esta entrada.
 - **Carpeta de entrega (paso 2 del plan del jueves):** según Paloma, el equipo ya definió la exposición, ensayó y Nahuel revisó sus secciones. Se agregó el link de la carpeta de Google Drive en `00 - Portada.md` y en `90 - Material complementario.md`, y se corrió `armar-entrega.sh`: anexos, documento principal (53 páginas, índice actualizado) y su PDF regenerados; el `.docx` del repo es el de la carpeta. Un guardado de PowerPoint al cerrar cambió el `.pptx` sin cambios de contenido (mismo texto en las 27 slides, mismas imágenes) y se descartó.
 - **Verificado:** el PDF tiene el link al Drive en la portada y en Material complementario, no tiene imágenes que excedan la página y no incluye lo que se quitó en la revisión.
-- **Pendiente:** subir el contenido de `07-Entregables/PC1/Rumbo — Entrega PC1/` a la carpeta del Drive; D3 (tag `pc1`) y la entrega a las 20 hs.
+- **Drive:** Paloma subió la carpeta de entrega completa a la carpeta compartida.
+- **Pendiente:** D3 (tag `pc1`) y la entrega a las 20 hs.
 - **D1 (adelantado al jueves, con el equipo):** cero notas del PC1 en `borrador` o `en-revision` (control por tag y por `pc:`). [[IA — Agentes del proyecto]] y [[Antecedentes]] ya estaban formalizadas desde el 30/09. Solo `IA — Prompt de CU-20` sigue en `borrador`, y es del PC2. Los `#accion/decidir` que quedan en notas del PC1 son texto histórico de puntos ya resueltos; la sección «Pendiente» de [[DEC-0005 Autenticación y modelo de roles]] quedó resuelta por DEC-0008.
 
 ## 30/09/26 — Paloma (Claude Opus 5.5) — menú según el perfil en el prototipo

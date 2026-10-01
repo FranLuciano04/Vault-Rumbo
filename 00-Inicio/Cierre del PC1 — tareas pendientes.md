@@ -40,7 +40,7 @@ El viernes queda para el cierre (D1–D3) y la entrega a las 20 hs.
 ## Los tres
 - [x] ✅ 01/10 (Paloma): revisado y dado por definitivo, junto con el deck; los cambios hechos en Word se pasaron a las fuentes (ver [[Bitácora de sesiones]]). **Revisar el documento principal completo** (57 páginas). Cualquier cambio se hace en la **nota fuente** o en los textos de `07-Entregables/PC1/*.md`, **nunca en el `.docx`**, y después se regenera.
 - [x] ✅ 01/10: decidido por el equipo (según Paloma). **Decidir la duración de la exposición** y si el prototipo se muestra **en vivo** (Figma, con internet) **o con capturas**.
-- [ ] ⏳ 01/10 (Paloma): link de la carpeta agregado a la portada y a «Material complementario» ([Drive](https://drive.google.com/drive/folders/1JvgA_poPhLQiwkRfUb7qDVMF-cxD8twa)), todo regenerado con `armar-entrega.sh`; **falta subir el contenido de `Rumbo — Entrega PC1/` a esa carpeta**. **Subir la carpeta de entrega al Drive** y pegar el link en `07-Entregables/PC1/90 - Material complementario.md` (y, si se quiere, en la portada, `00 - Portada.md`). Después, regenerar.
+- [x] ✅ 01/10 (Paloma): carpeta subida al Drive. Link de la carpeta agregado a la portada y a «Material complementario» ([Drive](https://drive.google.com/drive/folders/1JvgA_poPhLQiwkRfUb7qDVMF-cxD8twa)), todo regenerado con `armar-entrega.sh`. **Subir la carpeta de entrega al Drive** y pegar el link en `07-Entregables/PC1/90 - Material complementario.md` (y, si se quiere, en la portada, `00 - Portada.md`). Después, regenerar.
 - [x] ✅ 01/10 (hecho, según Paloma). **Ensayo:** viernes 02/10 a las 17 hs a más tardar, con el deck y las notas del orador (cada slide dice quién expone).
 
 ## Cierre del viernes 02/10
