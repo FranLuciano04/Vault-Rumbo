@@ -23,5 +23,7 @@ date: "2.º cuatrimestre 2026 · Entrega: 02/10/26"
 
 El documento incluye los diagramas y las pantallas principales. El material completo va en la **carpeta de entrega**, descripta al final: las especificaciones de requisitos y de casos de uso, el relevamiento, el modelo de desarrollo con todas las interfaces gráficas, todos los diagramas en imagen, el contrato OpenAPI completo en JSON, el script SQL y la presentación.
 
+**Carpeta de entrega:** [Rumbo — Entrega PC1 en Google Drive](https://drive.google.com/drive/folders/1JvgA_poPhLQiwkRfUb7qDVMF-cxD8twa).
+
 
 \newpage

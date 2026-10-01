@@ -30,7 +30,7 @@ El viernes queda para el cierre (D1–D3) y la entrega a las 20 hs.
 
 ## Nahuel
 - [x] **Revisar [[ARQ — MVC y modelo conceptual por capa]] (G2 y G3).** ✅ 30/09 (Nahuel): aprobada y formalizada; se unificó `seguridad` en G3, el mobile incluye los clientes y se corrigió en [[ARQ — Vista general]] que configuración y moderación son de `admin` y `dueño`.
-- [ ] **Revisar tus partes del documento y del deck:** secciones **4** (flujo UML y C4), **5** (modelo de datos SQL) y **6** (comunicación Vista–Controlador), y sus slides.
+- [x] ✅ 01/10 (hecho, según Paloma). **Revisar tus partes del documento y del deck:** secciones **4** (flujo UML y C4), **5** (modelo de datos SQL) y **6** (comunicación Vista–Controlador), y sus slides.
 
 ## Paloma
 - [x] **Configuración de la dueña en el prototipo.** ✅ 30/09 (Paloma): pestañas visibles y enlazadas en la pantalla 51, PNG reexportado. Desde el 30/09 la dueña también gestiona **usuarios (CU-25), comisiones (CU-13) y la moderación de reseñas (CU-29)**. Hoy la pantalla **51** muestra solo Destinos y Operadores. Hay que sumarle esas secciones (se pueden reusar las pantallas 30, 31 y 24 del admin), reexportar el PNG con el **mismo nombre** en `07-Entregables/Prototipo/img/` y cerrar el ⏳ correspondiente en [[Prototipo UI]] y en el paso **B5** de [[Estado del proyecto]].
@@ -39,9 +39,9 @@ El viernes queda para el cierre (D1–D3) y la entrega a las 20 hs.
 
 ## Los tres
 - [x] ✅ 01/10 (Paloma): revisado y dado por definitivo, junto con el deck; los cambios hechos en Word se pasaron a las fuentes (ver [[Bitácora de sesiones]]). **Revisar el documento principal completo** (57 páginas). Cualquier cambio se hace en la **nota fuente** o en los textos de `07-Entregables/PC1/*.md`, **nunca en el `.docx`**, y después se regenera.
-- [ ] **Decidir la duración de la exposición** y si el prototipo se muestra **en vivo** (Figma, con internet) **o con capturas**.
-- [ ] **Subir la carpeta de entrega al Drive** y pegar el link en `07-Entregables/PC1/90 - Material complementario.md` (y, si se quiere, en la portada, `00 - Portada.md`). Después, regenerar.
-- [ ] **Ensayo:** viernes 02/10 a las 17 hs a más tardar, con el deck y las notas del orador (cada slide dice quién expone).
+- [x] ✅ 01/10: decidido por el equipo (según Paloma). **Decidir la duración de la exposición** y si el prototipo se muestra **en vivo** (Figma, con internet) **o con capturas**.
+- [ ] ⏳ 01/10 (Paloma): link de la carpeta agregado a la portada y a «Material complementario» ([Drive](https://drive.google.com/drive/folders/1JvgA_poPhLQiwkRfUb7qDVMF-cxD8twa)), todo regenerado con `armar-entrega.sh`; **falta subir el contenido de `Rumbo — Entrega PC1/` a esa carpeta**. **Subir la carpeta de entrega al Drive** y pegar el link en `07-Entregables/PC1/90 - Material complementario.md` (y, si se quiere, en la portada, `00 - Portada.md`). Después, regenerar.
+- [x] ✅ 01/10 (hecho, según Paloma). **Ensayo:** viernes 02/10 a las 17 hs a más tardar, con el deck y las notas del orador (cada slide dice quién expone).
 
 ## Cierre del viernes 02/10
 - [ ] **D1.** Que no quede ninguna nota del PC1 sin formalizar. Control rápido desde la raíz:
