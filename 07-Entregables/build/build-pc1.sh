@@ -273,9 +273,10 @@ REFARG=(); [ -f "$REF" ] && REFARG=(--reference-doc="$REF")
   "${REFARG[@]}" \
   -o "$OUT"
 
-# Bordes en los cuadros (revisión de Paloma, 01/10/26): todos menos el de tipos de diagrama.
+# Bordes en los cuadros (revisión de Paloma, 01/10/26): todos menos el de tipos de diagrama;
+# en el cuadro comparativo de Antecedentes, la primera columna va centrada.
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$(cygpath -w "$B/bordes-tablas.ps1")" \
-  -Docx "$(cygpath -w "$OUT")" -Excluir "Tipo de diagrama"
+  -Docx "$(cygpath -w "$OUT")" -Excluir "Tipo de diagrama" -Centrar "Necesidad de la agencia"
 
 if [ -n "$KEEP_BUILD" ]; then echo "Intermedios en: $BUILD"; else rm -rf "$BUILD"; fi
 echo "OK -> $OUT"
