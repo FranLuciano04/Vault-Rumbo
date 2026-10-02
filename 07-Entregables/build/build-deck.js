@@ -480,7 +480,7 @@ function stat(s, x, y, w, value, label, color = C.primary, lcolor = C.muted) {
     s.addText(t, { x: x + 0.2, y: 4.8, w: 2.5, h: 0.7, fontFace: F, fontSize: 15, bold: true, color: C.navy, margin: 0, valign: 'top', isTextBox: true });
     s.addText(d, { x: x + 0.2, y: 5.5, w: 2.5, h: 1.0, fontFace: F, fontSize: 12, color: C.muted, margin: 0, valign: 'top', isTextBox: true });
   });
-  s.addNotes('Una iteración por punto de control: PC1 análisis y diseño (02/10), PC2 código (20/11), PC3 pruebas y documentación (04/12). Cada cierre deja un tag en Git.');
+  s.addNotes('Una iteración por punto de control: PC1 análisis y diseño (02/10), PC2 código (30/10), PC3 pruebas y documentación (13/11). Cada cierre deja un tag en Git.');
 }
 
 // 14 · Calidad
@@ -505,7 +505,7 @@ function stat(s, x, y, w, value, label, color = C.primary, lcolor = C.muted) {
     stat(s, M + col * 4.1, 1.8 + row * 1.7, 3.8, v, l, C.white, C.light);
   });
   card(s, M, 5.35, 12.13, 1.3, C.primary);
-  rich(s, [['Próximo: PC2 · 20/11/26 — ', 1], ['código funcional de los módulos núcleo, sobre este diseño, en ramas y pull requests.', 0]], M + 0.35, 5.65, 11.5, 0.8, 18, C.white);
+  rich(s, [['Próximo: PC2 · 30/10/26 — ', 1], ['código funcional de los módulos núcleo, sobre este diseño, en ramas y pull requests.', 0]], M + 0.35, 5.65, 11.5, 0.8, 18, C.white);
   s.addNotes('Cierre y preguntas.');
 }
 

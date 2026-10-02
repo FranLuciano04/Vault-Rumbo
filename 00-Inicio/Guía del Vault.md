@@ -268,7 +268,7 @@ Ver la carpeta `_plantillas/` para el contenido; están comentadas por dentro.
 
 **Criterio de cierre de PC1:** en la sync previa a la semana 9, `#pc/pc1 AND #estado/borrador` debe dar **cero resultados** en lo listado arriba. `Estado del proyecto.md` refleja el checklist tildado.
 
-### 5.2 Transición a desarrollo → PC2 (sem. 13 · 20/11/26) y PC3 (sem. 15 · 04/12/26)
+### 5.2 Transición a desarrollo → PC2 (sem. 10 · 30/10/26) y PC3 (sem. 12 · 13/11/26)
 
 Cuando arranca el código, el vault **no se abandona**: se convierte en la memoria de diseño contra la que se contrasta el código. Se activa `06-Desarrollo/`.
 

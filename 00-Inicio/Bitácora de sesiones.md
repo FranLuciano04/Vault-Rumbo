@@ -30,10 +30,10 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
-## 02/10/26 — Nahuel (Claude Sonnet 5.5) — fechas del diagrama de iteraciones (slide 25)
-- **Hecho:** Se guardaron los cambios de Nahuel en el deck. En el diagrama de iteraciones de [[Modelo de desarrollo]] (slide 25) las fechas pasaron a **PC2 30/10/26** y **PC3 13/11/26** y se quitó el nodo «Cierre y defensa 11/12/26». Se regeneró `DES-iteraciones.png` desde el Mermaid y se reemplazó la imagen directamente en el `.pptx` (sin regenerar el deck, para no perder los cambios hechos a mano).
-- **Commits:** ca61590 y el de esta entrada.
-- **Pendiente:** otras apariciones de las fechas viejas (PC2 20/11, PC3 04/12): slide 27 («Próximo: PC2 · 20/11/26») y notas de la slide 25 en el `.pptx`, `build-deck.js` (líneas 483 y 508, que regenerarían el deck con las fechas viejas), [[Cronograma y PC]] y [[Guía del Vault]]. El `.docx` y el PDF de PC1 también llevan el diagrama anterior y hay que regenerarlos.
+## 02/10/26 — Nahuel (Claude Sonnet 5.5) — fechas de PC2 y PC3 actualizadas en todo el vault
+- **Hecho:** Se guardaron los cambios de Nahuel en el deck. Nuevas fechas: **PC2 30/10/26** y **PC3 13/11/26**; en el diagrama de iteraciones de [[Modelo de desarrollo]] (slide 25) se quitó además el nodo «Cierre y defensa». Se actualizaron [[Cronograma y PC]] (PC2 en la semana 10 y PC3 en la 12; la fila del cierre queda como «fecha a confirmar»), [[Guía del Vault]], [[Bitácora técnica]], la slide 27 y las notas de la slide 25 del `.pptx` (editado directo, sin regenerar el deck para no perder los cambios hechos a mano), `build-deck.js` y `deck-pc1.js`. Se regeneraron `DES-iteraciones.png`, el `.docx` del modelo de desarrollo, `Rumbo — PC1.docx` y el PDF de la presentación.
+- **Commits:** 0284ed6 y los de esta entrada.
+- **Pendiente:** confirmar la fecha del cierre y la defensa (el 11/12/26 quedó solo en el cronograma, sin confirmar). La carpeta de entrega (`armar-entrega.sh`) hay que volver a armarla en D2 para que tome el documento y el PDF nuevos, y subirla de nuevo al Drive.
 
 ## 01/10/26 — Paloma (Claude Opus 5.5) — revisión del documento principal: imágenes cortadas
 - **Hecho:** Revisión completa de `Rumbo — PC1.docx` con un PDF de prueba. Tres imágenes eran más altas que la hoja y salían **cortadas** al pie: el diagrama de casos de uso (pág. 19), la actividad de CU-01 (pág. 24, ~27" de alto, solo se veían los pasos 1 a 3) y el ciclo de trabajo con el agente (pág. 49). Arreglo: el diagrama de casos de uso y el ciclo van con alto máximo (`height=8.5in`; `figuras()` de `build-pc1.sh` ahora acepta un atributo además del ancho), y en la sección 4 la actividad de CU-01 se **reemplazó** por [[DGM-ACT — Proceso automático diario]], que es horizontal y se lee en una página; el texto aclara que los de los CU van en la carpeta de entrega. Se regeneró el documento (54 páginas).

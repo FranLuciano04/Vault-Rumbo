@@ -2,7 +2,7 @@
 tipo: referencia
 estado: formalizado
 responsable: equipo
-actualizado: 30/09/26
+actualizado: 02/10/26
 ---
 # 🗓️ Cronograma y Puntos de Control
 
@@ -20,13 +20,13 @@ Fuentes: [[Rumbo — cronograma.docx|cronograma completado]] · [[Modelo institu
 | 7 | 09/10/26 | — |
 | 8 | 16/10/26 | — |
 | 9 | 23/10/26 | — (fecha original del PC1) |
-| 10 | 30/10/26 | Inicio desarrollo |
+| **10** | **30/10/26** | **🎯 PC2 — código** `#pc/pc2` |
 | 11 | 06/11/26 | — |
-| 12 | 13/11/26 | — |
-| **13** | **20/11/26** | **🎯 PC2 — código** `#pc/pc2` |
+| **12** | **13/11/26** | **🎯 PC3 — testing / documentación** `#pc/pc3` |
+| 13 | 20/11/26 | — |
 | 14 | 27/11/26 | — |
-| **15** | **04/12/26** | **🎯 PC3 — testing / documentación** `#pc/pc3` |
-| **16** | **11/12/26** | **🏁 Cierre / Defensa** |
+| 15 | 04/12/26 | — |
+| 16 | 11/12/26 | Cierre / Defensa — fecha a confirmar |
 
 ## Qué se exige en cada PC
 - **PC1 — Análisis, diseño y planificación** (adelantado a la semana 6: vie 02/10/26, 20 hs, con exposición oral). **Entrega: un documento con el MVC.** Según las láminas de la cátedra (29/09):

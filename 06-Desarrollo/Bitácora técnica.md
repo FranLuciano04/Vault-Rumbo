@@ -18,4 +18,4 @@ tags:: #tipo/referencia
 ```
 
 ---
-_(Se activa en PC2 — 20/11/26.)_
+_(Se activa en PC2 — 30/10/26.)_

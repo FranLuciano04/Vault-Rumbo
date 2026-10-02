@@ -434,7 +434,7 @@ const next = () => ++n;
   const st = [['31', 'casos de uso'], ['155', 'requisitos funcionales'], ['16', 'no funcionales'], ['13', 'entidades'], ['96', 'operaciones de API'], ['59', 'pantallas']];
   st.forEach((v, i) => stat(s, M + (i % 3) * 4.1, 2.0 + Math.floor(i / 3) * 1.65, 3.8, v[0], v[1], true));
   s.addText([
-    { text: 'Próximo: PC2 · 20/11/26', options: { bold: true, color: C.accent, breakLine: true } },
+    { text: 'Próximo: PC2 · 30/10/26', options: { bold: true, color: C.accent, breakLine: true } },
     { text: 'Código de los módulos núcleo, en ramas y pull requests, con el pipeline de calidad.' },
   ], { x: M, y: 5.5, w: 8.5, h: 0.9, fontFace: BODY, fontSize: 16, color: 'CFE0EC', margin: 0, paraSpaceAfter: 4, isTextBox: true });
   s.addText('Gracias', { x: 9.2, y: 5.5, w: 3.53, h: 0.9, fontFace: HEAD, fontSize: 34, italic: true, color: C.white, align: 'right', margin: 0, isTextBox: true });
