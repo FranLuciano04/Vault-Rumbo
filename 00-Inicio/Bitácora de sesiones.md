@@ -30,6 +30,11 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
+## 02/10/26 — Nahuel (Claude Sonnet 5.5) — fechas del diagrama de iteraciones (slide 25)
+- **Hecho:** Se guardaron los cambios de Nahuel en el deck. En el diagrama de iteraciones de [[Modelo de desarrollo]] (slide 25) las fechas pasaron a **PC2 30/10/26** y **PC3 13/11/26** y se quitó el nodo «Cierre y defensa 11/12/26». Se regeneró `DES-iteraciones.png` desde el Mermaid y se reemplazó la imagen directamente en el `.pptx` (sin regenerar el deck, para no perder los cambios hechos a mano).
+- **Commits:** ca61590 y el de esta entrada.
+- **Pendiente:** otras apariciones de las fechas viejas (PC2 20/11, PC3 04/12): slide 27 («Próximo: PC2 · 20/11/26») y notas de la slide 25 en el `.pptx`, `build-deck.js` (líneas 483 y 508, que regenerarían el deck con las fechas viejas), [[Cronograma y PC]] y [[Guía del Vault]]. El `.docx` y el PDF de PC1 también llevan el diagrama anterior y hay que regenerarlos.
+
 ## 01/10/26 — Paloma (Claude Opus 5.5) — revisión del documento principal: imágenes cortadas
 - **Hecho:** Revisión completa de `Rumbo — PC1.docx` con un PDF de prueba. Tres imágenes eran más altas que la hoja y salían **cortadas** al pie: el diagrama de casos de uso (pág. 19), la actividad de CU-01 (pág. 24, ~27" de alto, solo se veían los pasos 1 a 3) y el ciclo de trabajo con el agente (pág. 49). Arreglo: el diagrama de casos de uso y el ciclo van con alto máximo (`height=8.5in`; `figuras()` de `build-pc1.sh` ahora acepta un atributo además del ancho), y en la sección 4 la actividad de CU-01 se **reemplazó** por [[DGM-ACT — Proceso automático diario]], que es horizontal y se lee en una página; el texto aclara que los de los CU van en la carpeta de entrega. Se regeneró el documento (54 páginas).
 - **Verificado:** PDF de prueba sin ninguna imagen que exceda la página; las tres páginas revisadas como imagen.

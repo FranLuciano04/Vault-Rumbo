@@ -28,17 +28,17 @@ flowchart LR
       Ana --> Dis["Arquitectura, datos, API<br/>y prototipo de interfaces"]
     end
 
-    subgraph I2["Iteración 2 · PC2 — código · 20/11/26"]
+    subgraph I2["Iteración 2 · PC2 — código · 30/10/26"]
       direction TB
       Cod["Módulos núcleo<br/>en ramas y pull requests"] --> Cal["Pipeline de calidad<br/>en cada cambio"]
     end
 
-    subgraph I3["Iteración 3 · PC3 — pruebas y documentación · 04/12/26"]
+    subgraph I3["Iteración 3 · PC3 — pruebas y documentación · 13/11/26"]
       direction TB
       Pru["Pruebas del sistema"] --> Doc["Documentación final"]
     end
 
-    I1 --> I2 --> I3 --> Def(["Cierre y defensa<br/>11/12/26"])
+    I1 --> I2 --> I3
 ```
 
 - **Iteración 1 (PC1):** relevamiento, análisis y diseño. Termina con el modelo UML completo, la arquitectura, el modelo de datos, el contrato de la API y el prototipo de interfaces.
