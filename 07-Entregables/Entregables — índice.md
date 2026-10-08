@@ -2,7 +2,7 @@
 tipo: referencia
 estado: formalizado
 responsable: equipo
-actualizado: 11/09/26
+actualizado: 08/10/26
 ---
 # Entregables — índice
 
@@ -25,8 +25,17 @@ tags:: #tipo/referencia #estado/formalizado
 | Modelo de desarrollo e interfaces gráficas | [[Modelo de desarrollo]] + la tabla de pantallas de [[Prototipo UI]] | `07-Entregables/Desarrollo/Rumbo — Modelo de desarrollo.docx` | PC1 |
 | Prototipo UI | [Figma — Rumbo · Prototipo PC1](https://www.figma.com/design/5rq8HOlZQ3uu4IUpBuhuZp) (la fuente es Figma, no un `.md`) | `07-Entregables/Prototipo/img/` (59 PNG) · detalle en [[Prototipo UI]] | PC1 |
 | Presentación oral del PC1 (H4) | resumen del documento único, con los diagramas y el prototipo | `07-Entregables/PC1/Rumbo — PC1 (presentación).pptx` y `.pdf` · script `build/build-deck.js` | PC1 |
+| **Documento general del proyecto** (para los profesores) | Las notas del vault y los textos de `07-Entregables/General/` (ver *Parámetros del documento general*) | `07-Entregables/General/Rumbo — Documento general.docx` y `.pdf` · script `build/build-general.sh` | a confirmar |
 
 > **Los tres se entregan juntos y se leen en ese orden:** el relevamiento define el problema y el alcance, los requisitos especifican qué debe hacer el sistema dentro de ese alcance, y los casos de uso describen cómo se realiza cada requisito. Para que no se contradigan, **cada contenido vive en un solo documento** y los otros lo referencian: el **alcance** está únicamente en el relevamiento, y la **especificación formal del circuito** (precondiciones, flujos alternativos) únicamente en casos de uso.
+
+## Parámetros del documento general (08/10)
+- **Qué es:** un documento único y autocontenido para los profesores, con los resultados del análisis y el diseño (no la cocina interna). Pedido por Nahuel el 08/10/26.
+- **Contenido, en orden:** 1. definición del problema (Antecedentes y Justificación) · 2. el negocio y el relevamiento (circuito, necesidades de la 2.ª ronda con la agencia y actores) · 3. objetivos, alcance y límites · 4. requisitos completos (155 RF, 16 RNF, matriz y RN-01) · 5. casos de uso (diagrama, tabla y los 31 especificados) · 6. modelo UML (clases y enumeraciones, ER, estados, actividad y secuencia) · 7. tecnologías · 8. arquitectura (capas, MVC, C4 y despliegue) · 9. prototipo (12 pantallas). Unas 127 páginas.
+- **Queda afuera:** las decisiones de IA (están en el entregable de IA), las referencias internas (`DEC-`, `ARQ`, `MOC`, syncs y fechas de trabajo), el script SQL, el contrato OpenAPI y el modelo de desarrollo.
+- **Fuentes:** las notas del vault con el mismo `filtrar()`, más tres textos propios en `07-Entregables/General/`: `00 - Portada.md`, `60 - Modelo UML.md` (las marcas `@@ESTADOS <nota>@@` se cambian por la tabla de estados de cada `EST-`) y `70 - Tecnologías.md` (el stack de DEC-0001 y la infraestructura de DEC-0011 contados como resultado). **Si cambia el stack o un diagrama, actualizar también estos textos.**
+- **Limpieza propia:** al final del script, un `sed` cambia los nombres de notas que quedan en el texto (p. ej. «Alcance y fuera de alcance») por la sección del documento. Después de compilar con `KEEP_BUILD=1`, buscar `DEC-`, `ARQ`, `[[`, `sync` en los intermedios: tiene que dar 0.
+- **Cómo generarlo:** `bash "07-Entregables/build/build-general.sh"` desde la raíz (con `NO_PDF=1` se saltea el PDF). Cerrar el `.docx` y el `.pdf` antes.
 
 ## Parámetros del entregable de Casos de uso (definido en la sync 11/09)
 - **Contenido:** documento **completo** → carátula + breve **introducción** + **diagrama de casos de uso** ([[DGM — Casos de uso]], como imagen incrustada) + **actores** ([[Actores]]) + los **30 CU** especificados.

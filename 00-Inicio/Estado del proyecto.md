@@ -2,7 +2,7 @@
 tipo: referencia
 estado: formalizado
 responsable: equipo
-actualizado: 01/10/26
+actualizado: 08/10/26
 ---
 
 # 📊 Estado del proyecto
@@ -10,7 +10,7 @@ actualizado: 01/10/26
 > Memoria externa del equipo (y de Claude). Se actualiza en cada **sync semanal**. Es lo primero que se lee al retomar. Mantener **corto**.
 
 ## Fase actual
-> 👉 **01/10:** documento, deck y carpeta del Drive listos; D1 hecho. Para el viernes 02/10 quedan **D3** (tag `pc1`) y la **entrega a las 20 hs**. **Cierre del PC1 (30/09 a la noche):** casi todo está hecho y formalizado. Las tareas que faltan, **por persona**, están en [[Cierre del PC1 — tareas pendientes]]. Leerla antes de empezar.
+> 👉 **08/10:** se generó el **documento general** para los profesores (`07-Entregables/General/`, build `build-general.sh`); falta la revisión del equipo. **01/10:** documento, deck y carpeta del Drive listos; D1 hecho. Para el viernes 02/10 quedan **D3** (tag `pc1`) y la **entrega a las 20 hs**. **Cierre del PC1 (30/09 a la noche):** casi todo está hecho y formalizado. Las tareas que faltan, **por persona**, están en [[Cierre del PC1 — tareas pendientes]]. Leerla antes de empezar.
 
 **Análisis y diseño → rumbo a PC1, ⚠️ adelantado al vie 02/10/26 a las 20 hs (entrega y exposición oral).** El plan se comprimió en *Plan comprimido a 3 días*; las decisiones de diseño se tomaron el 29/09. ✅ **Sync del 29/09: todo el análisis quedó ratificado y formalizado** — 31 CU y su diagrama, 13 entidades, clases y ER, 6 diagramas de estado, 5 de actividad, 4 de secuencia y [[Requisitos funcionales]] (155 RF + 16 RNF con valores). Se cerraron los 18 huecos de los diagramas de actividad y las abiertas anteriores (ver *Definido y sellado en la sync 29/09*). **Próximo:** arquitectura y prototipo UI en Figma (ver *Pasos restantes hacia PC1*).
 
