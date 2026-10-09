@@ -266,14 +266,25 @@ for f in "$BUILD"/[0-9]*.md; do
   | awk '/^```/{ code = !code } !code && /^#+ / && prev != "" { print "" } { print; prev = $0 }' > "$f.tmp" && mv "$f.tmp" "$f"
 done
 
+IMGS=("$D/Clases" "$D/DER" "$D/Estados/img" "$D/Actividad/img" "$D/Secuencia/img" "$ROOT/05-Diseño/Arquitectura/img" \
+      "$ROOT/07-Entregables/Prototipo/img" "$ROOT/07-Entregables/Casos de uso/img" "$ROOT/07-Entregables/Relevamiento/img")
+
+# Ninguna imagen más alta que la hoja: las que se pasan poco se achican y los diagramas largos
+# (los de actividad) se parten en tramos de una hoja, en $BUILD/img.
+win_lista() { local s="" p; for p in "$@"; do s="$s|$(cygpath -w "$p")"; done; printf '%s' "${s#|}"; }
+MSYS2_ARG_CONV_EXCL="*" powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$(cygpath -w "$B/ajustar-imagenes.ps1")" \
+  -Markdown "$(win_lista "$BUILD"/[0-9]*.md)" -Rutas "$(win_lista "${IMGS[@]}")" -Salida "$(cygpath -w "$BUILD/img")"
+
 REF="${1:-$B/reference.docx}"
 REFARG=(); [ -f "$REF" ] && REFARG=(--reference-doc="$REF")
+
+RUTAS="$BUILD/img"; for p in "${IMGS[@]}"; do RUTAS="$RUTAS:$p"; done
 
 "$PANDOC" \
   "$T/00 - Portada.md" "$BUILD/10.md" "$BUILD/20.md" "$BUILD/30.md" "$BUILD/40.md" \
   "$BUILD/50.md" "$BUILD/60.md" "$BUILD/70.md" "$BUILD/80.md" "$BUILD/90.md" \
   --toc --toc-depth=2 -M toc-title="Índice" \
-  --resource-path="$D/Clases:$D/DER:$D/Estados/img:$D/Actividad/img:$D/Secuencia/img:$ROOT/05-Diseño/Arquitectura/img:$ROOT/07-Entregables/Prototipo/img:$ROOT/07-Entregables/Casos de uso/img:$ROOT/07-Entregables/Relevamiento/img" \
+  --resource-path="$RUTAS" \
   "${REFARG[@]}" \
   -o "$OUT"
 
