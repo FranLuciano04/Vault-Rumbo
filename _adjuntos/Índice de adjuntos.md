@@ -24,3 +24,4 @@ tags:: #tipo/referencia #estado/formalizado
 
 ## Antecedentes
 - [[Propuestas de trabajo de campo.pptx|Propuestas de trabajo de campo (PPTX)]] — comparación inicial de las tres propuestas; Rumbo fue la propuesta seleccionada.
+- [[Propuestas de trabajo de campo.pdf|Propuestas de trabajo de campo (PDF)]] — la misma presentación en PDF; resumida en [[Elección del proyecto]], que la lleva al documento general.

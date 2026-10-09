@@ -2,7 +2,7 @@
 # Genera el DOCUMENTO GENERAL del proyecto para los profesores: reúne en un solo archivo el
 # análisis y el diseño, con los diagramas UML y los de arquitectura más importantes.
 #
-#   1. Definición del problema ........ Antecedentes y Justificación
+#   1. Definición del problema ........ Propuestas iniciales y elección, Antecedentes y Justificación
 #   2. El negocio y el relevamiento ... Circuito, necesidades relevadas (2.ª ronda) y Actores
 #   3. Objetivos, alcance y límites
 #   4. Requisitos ...................... los 155 RF, los 16 RNF y la matriz de trazabilidad
@@ -146,6 +146,7 @@ MVC="$ROOT/05-Diseño/Arquitectura/ARQ — MVC y modelo conceptual por capa.md"
 # --- 1. Definición del problema --------------------------------------------------------------
 {
   h1 "1. Definición del problema"
+  nota "$REL/Elección del proyecto.md" | titulo "Propuestas iniciales y elección del proyecto" | figuras | bajar 1
   nota "$REL/Antecedentes.md" | titulo "Antecedentes" | figuras | bajar 1
   nota "$REL/Justificación del sistema.md" | titulo "Justificación" | figuras | bajar 1
 } > "$BUILD/10.md"

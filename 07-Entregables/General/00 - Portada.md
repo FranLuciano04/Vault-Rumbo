@@ -14,7 +14,7 @@ date: "2.º cuatrimestre 2026"
 
 Este documento reúne en un solo lugar el análisis y el diseño del sistema:
 
-1. **Definición del problema:** cómo trabaja hoy la agencia, qué ofrece el mercado y por qué se justifica el sistema.
+1. **Definición del problema:** las propuestas iniciales y la elección del proyecto, cómo trabaja hoy la agencia, qué ofrece el mercado y por qué se justifica el sistema.
 2. **El negocio y el relevamiento:** el circuito de la consulta a la venta, las necesidades relevadas con la agencia y los actores.
 3. **Objetivos, alcance y límites.**
 4. **Requisitos:** los 155 requisitos funcionales, los 16 no funcionales y la matriz de trazabilidad.
