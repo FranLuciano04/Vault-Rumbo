@@ -2,7 +2,7 @@
 tipo: referencia
 estado: formalizado
 responsable: equipo
-actualizado: 11/09/26
+actualizado: 12/10/26
 ---
 
 # Skills compartidas
@@ -24,12 +24,36 @@ Los plugins, las skills sincronizadas desde una cuenta y otras dependencias exte
 | Skill | Tipo | Estado | Versión | Ubicación o fuente | Invocación | Finalidad |
 |---|---|---|---|---|---|---|
 | gestionar-skills | proyecto | requerida | 1.0.0 | `.claude/skills/gestionar-skills/SKILL.md` | `/gestionar-skills` o automática | Incorporar, registrar, verificar y compartir skills |
+| tomar-ticket | proyecto | requerida | 1.0.0 | `.claude/skills/tomar-ticket/SKILL.md` | `/tomar-ticket` o «dame un ticket» | Semáforo de tickets: tomar, liberar y ver los vencidos ([[DEC-0014 Flujo de implementación con agentes\|DEC-0014]]) |
+| implementar-ticket | proyecto | requerida | 1.0.0 | `.claude/skills/implementar-ticket/SKILL.md` | `/implementar-ticket T-NNN` | Orquestar el TDD de un ticket con subagentes y cerrarlo con un PR |
+| cerrar-modulo | proyecto | requerida | 1.0.0 | `.claude/skills/cerrar-modulo/SKILL.md` | `/cerrar-modulo MN` | Barrera de módulo: pedido de review a Codex, hallazgos como tickets, tag `mod-N` |
+
+### Copiadas de addyosmani/agent-skills
+Tipo `proyecto`, licencia MIT (`.claude/skills/LICENSE-agent-skills`), origen [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills) @ `1be8e34` (10/10/26). Cada `SKILL.md` lleva arriba un bloque **«Adaptación Rumbo»** que manda sobre el texto original; las referencias compartidas están en `.claude/references/`. Incorporadas el 12/10/26 por Nahuel, aprobadas por el equipo en [[DEC-0014 Flujo de implementación con agentes|DEC-0014]]. Para actualizarlas: traer la versión nueva con `/gestionar-skills`, conservar el bloque de adaptación y anotar el commit nuevo acá.
+
+| Skill | Estado | Uso en el flujo |
+|---|---|---|
+| spec-driven-development | requerida | Fase 0: spec de implementación |
+| interview-me | requerida | Fase 0: grill de los huecos de implementación |
+| planning-and-task-breakdown | requerida | Fase 0: plan y tickets |
+| test-driven-development | requerida | Rojo, verde y refactor de cada ticket |
+| incremental-implementation | requerida | Implementación por tajadas y commits por fase |
+| source-driven-development | requerida | Verificar contra la documentación oficial del stack |
+| code-review-and-quality | requerida | Review de cada ticket |
+| security-and-hardening | requerida | Tickets de riesgo alto y módulo de auth |
+| documentation-and-adrs | opcional | Decisiones (mapeadas a las `DEC-`) y documentación |
+| ci-cd-and-automation | opcional | Pipeline de GitHub Actions |
+| shipping-and-launch | opcional | Despliegue on-premise |
+| performance-optimization | opcional | PC3: RNF de rendimiento |
+| observability-and-instrumentation | opcional | PC3: logs y diagnóstico |
 
 ## Dependencias externas (no son skills)
 | Herramienta | Estado | Fuente / instalación | Para qué |
 |---|---|---|---|
 | pandoc | requerida al compilar entregables | `winget install --id JohnMacFarlane.Pandoc` (Windows) · https://pandoc.org/installing.html | Generar los `.docx` entregables desde los `.md`. Ver [[Entregables — índice]] y [[Especificación de casos de uso — flujo]]. Solo la necesita quien compila el entregable. |
-| Node.js (npx) | requerida al renderizar diagramas | https://nodejs.org (LTS) · trae `npx` | Renderizar los diagramas Mermaid a imagen con `npx @mermaid-js/mermaid-cli` (motor ELK). Solo la necesita quien regenera un diagrama del entregable. |
+| Node.js (npx) | requerida | https://nodejs.org (LTS) · trae `npx` | Correr `06-Desarrollo/herramientas/tickets.mjs` (semáforo y grafo de tickets) y renderizar los diagramas Mermaid con `npx @mermaid-js/mermaid-cli` (motor ELK). |
+| GitHub CLI (`gh`) | requerida para implementar | `winget install --id GitHub.cli` y después `gh auth login` | Abrir y mergear los PR de los tickets (`/implementar-ticket`). |
+| Codex (OpenAI) | requerida para quien dispara la review de módulo | https://developers.openai.com/codex | Revisor externo de cada módulo según [[Review de módulo — rol de Codex]]. |
 | pptxgenjs | requerida al regenerar el deck | `npm install pptxgenjs` (en cualquier carpeta; al correr, `NODE_PATH` apunta a su `node_modules`) | Generar el deck del PC1 con `07-Entregables/build/deck-pc1.js`. Solo lo necesita quien regenera la presentación. |
 
 > **Sin Python:** la plantilla estética del `.docx` se genera con `07-Entregables/build/make-reference.ps1` (**PowerShell**, incluido en Windows, sin dependencias). No hace falta instalar Python.

@@ -8,7 +8,7 @@ Este archivo es un mapa operativo. No reemplaza las fuentes de verdad y debe man
 
 Al iniciar cada sesión:
 
-1. **Identificar quién trabaja en la sesión** a partir de la identidad Git (`git config user.name`); si no queda clara, preguntar. Saludar por nombre y avisar si sus CU/tareas asignadas tienen algo pendiente. Ver el mapa en [[Bitácora de sesiones#Quién es quién]].
+1. **Identificar quién trabaja en la sesión** a partir de la identidad Git (`git config user.name`); si no queda clara, preguntar. Saludar por nombre y avisar si sus CU/tareas asignadas tienen algo pendiente, incluido un ticket que tenga tomado (`node 06-Desarrollo/herramientas/tickets.mjs disponibles`). Ver el mapa en [[Bitácora de sesiones#Quién es quién]].
 2. Ejecutar `git status` y preservar cualquier cambio local existente.
 3. Si el árbol está limpio, ejecutar `git pull --ff-only origin main` para trabajar sobre la última versión.
 4. Leer `00-Inicio/Estado del proyecto.md`.
@@ -36,6 +36,7 @@ No cargar todo el vault por defecto. Usar rutas, enlaces `[[ ]]`, prefijos e ín
 | Arquitectura | `05-Diseño/Arquitectura/ARQ — Vista general.md` |
 | Stack y convenciones para código | `05-Diseño/Decisiones/DEC-0001 Stack tecnológico.md` |
 | Avances de implementación | `06-Desarrollo/Bitácora técnica.md` |
+| Implementar código (tickets, TDD, reviews) | `06-Desarrollo/Flujo de implementación.md` (DEC-0014) y `/tomar-ticket`, `/implementar-ticket`, `/cerrar-modulo` |
 
 Seguir los enlaces desde estas notas y abrir únicamente el detalle necesario para la tarea actual.
 

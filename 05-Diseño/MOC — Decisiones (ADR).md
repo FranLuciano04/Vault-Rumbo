@@ -24,6 +24,7 @@ tags:: #tipo/modulo #estado/formalizado
 - [[DEC-0011 Infraestructura de despliegue on-premise]] (formalizada 29/09)
 - [[DEC-0012 Modelo de IA del producto]] (formalizada 29/09)
 - [[DEC-0013 Datos que faltaban en el ER]] (formalizada el 30/09/26)
+- [[DEC-0014 Flujo de implementación con agentes]] (formalizada el 12/10/26; ajusta la estructura de DEC-0001 a `src/`)
 
 ## Todas (Dataview)
 ```dataview

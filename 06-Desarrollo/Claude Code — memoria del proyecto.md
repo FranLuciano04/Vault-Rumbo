@@ -2,7 +2,7 @@
 tipo: referencia
 estado: formalizado
 responsable: equipo
-actualizado: 30/09/26
+actualizado: 12/10/26
 ---
 # Claude Code — memoria del proyecto
 
@@ -21,7 +21,7 @@ CRM para agencias de turismo PyME. Digitaliza el circuito consulta → cotizaci�
 - Backend: FastAPI + PostgreSQL + LangChain; SQLAlchemy 2.0 async + Alembic; dependencias con uv. Arquitectura en tres capas + `core`: [[ARQ — Vista general]].
 - Web: React + TypeScript + Vite; TanStack Query + Axios.
 - Mobile: React Native + Expo + EAS Build; comparte Query/Axios.
-- Monorepo: pnpm workspaces (`apps/web`, `apps/mobile`, `packages/shared`) y `backend/` con uv.
+- Monorepo dentro de `src/`: pnpm workspaces (`src/apps/web`, `src/apps/mobile`, `src/packages/shared`) y `src/backend/` con uv.
 - Contrato compartido: OpenAPI → openapi-typescript; validaciones con zod.
 - Infraestructura: servidor **on-premise** con Docker Compose y Cloudflare Tunnel, ver [[DEC-0011 Infraestructura de despliegue on-premise]]. IA del producto: Claude Sonnet 5.5, ver [[DEC-0012 Modelo de IA del producto]]. Calidad y pruebas: [[DEC-0001 Stack tecnológico]].
 
@@ -37,5 +37,6 @@ Pagos online, publicación automática en redes, integración GDS/mayoristas, fa
 3. Al terminar, volcá el resultado a [[Estado del proyecto]] o a una `DEC-`.
 
 ## Vínculo código ↔ decisiones (PC2+)
-- Commits referencian el ID: `feat(pagos): comisión automática (RN-01, DEC-0001)`.
+- Cómo se implementa: [[Flujo de implementación]] ([[DEC-0014 Flujo de implementación con agentes|DEC-0014]]): tickets con semáforo en Git, TDD con subagentes y review de Codex por módulo. Código en `src/`.
+- Commits referencian el ticket y las reglas: `feat(T-031): registrar cobro (RF-070, RN-01)`.
 - Cada `DEC-` que cambia código anota `rama:` y `commits:`.

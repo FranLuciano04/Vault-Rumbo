@@ -20,3 +20,19 @@ package-lock.json
 07-Entregables/PC1/Rumbo — Entrega PC1/
 # Archivos temporales de Office (documento abierto)
 ~$*
+
+# Implementación (DEC-0014): worktrees de Claude Code, dependencias y secretos del código en src/
+.claude/worktrees/
+.claude/settings.local.json
+.venv/
+__pycache__/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+src/**/dist/
+src/**/build/
+src/**/coverage/
+.expo/
+.env
+.env.*
+!.env.example

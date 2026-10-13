@@ -30,6 +30,29 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
+## 12/10/26 — Nahuel, con Francisco y Paloma (Claude Opus 5.5) — flujo de implementación
+- **Hecho:** con el equipo reunido se diseñó y aprobó [[DEC-0014 Flujo de implementación con agentes]]:
+  - spec → grill → plan de tickets del **sistema completo**;
+  - tickets por capa contra el contrato OpenAPI, con dependencias y barreras de revisión por módulo;
+  - semáforo con push atómico a `main` (un ticket por persona, vencimiento a las 48 h);
+  - TDD con subagentes (`test-writer`, `implementador`, `reviewer-ticket`) y modelo por rol según una rúbrica;
+  - review de cada módulo por **Codex**, disparada a mano;
+  - código en `src/` (ajusta [[DEC-0001 Stack tecnológico|DEC-0001]]).
+- **Paso 1 implementado:**
+  - Skills `/tomar-ticket`, `/implementar-ticket` y `/cerrar-modulo`.
+  - 13 skills de Addy Osmani copiadas con un bloque «Adaptación Rumbo», más las referencias en `.claude/references/`.
+  - `.claude/agents/`.
+  - `06-Desarrollo/herramientas/tickets.mjs`.
+  - [[Flujo de implementación]], [[Review de módulo — rol de Codex]], [[Tablero de tickets]], [[Grafo de tickets]] y [[PL-Ticket]].
+  - `.gitignore` para el código; Obsidian ignora `src/`.
+- **Verificado:** el semáforo, probado con un remoto local y dos clones. El segundo claim del mismo ticket pierde y se descarta solo; si el único choque es el grafo, se regenera y se sube; también se probaron el límite de un ticket, el bloqueo de liberar un ticket ajeno no vencido, el cierre con `hecho` + merge, `publicar-grafo`, `modulo` y los errores de `validar`. El Mermaid generado es válido.
+- **Commits:** e9e6480 (entregable de IA, aparte) y el de esta entrada.
+- **Pendiente:**
+  - **Paso 2:** spec de implementación + grill con el equipo, y después el plan y los tickets.
+  - Cada integrante: instalar `gh` y loguearse (`gh auth login`), y reiniciar Claude Code después del pull para que carguen los subagentes.
+  - Quien dispare la review de módulo: tener Codex.
+  - Más adelante (lo crea el módulo de fundaciones): el CI y el auto-merge. ⚠️ La regla de protección de `main` tiene que exigir checks **solo a los PR**, sin bloquear los push directos de los claims y las notas (por ejemplo, un ruleset con bypass, o checks limitados a `src/`). La configura el dueño del repo.
+
 ## 08/10/26 — Nahuel (Claude Opus 5.5) — documento general para los profesores
 - **Hecho:** nuevo entregable **[[Entregables — índice#Parámetros del documento general (08/10)|documento general]]**: `07-Entregables/General/Rumbo — Documento general.docx` y `.pdf` (127 páginas), generados por `07-Entregables/build/build-general.sh`. Reúne definición del problema, relevamiento y negocio (incluida la 2.ª ronda con la agencia), objetivos y alcance, los 155 RF + 16 RNF + matriz + RN-01, el diagrama y los 31 CU completos, todos los diagramas UML (clases y enumeraciones, ER, 6 de estados, 5 de actividad, 4 de secuencia), tecnologías, arquitectura (capas, MVC, C4 y despliegue) y 12 pantallas del prototipo. Textos propios en `07-Entregables/General/` (portada, modelo UML y tecnologías).
 - **Afuera, a pedido de Nahuel:** decisiones de IA (van en su documento), referencias internas (DEC, ARQ, MOC, sync, fechas internas), el script SQL, el contrato OpenAPI y el modelo de desarrollo. Verificado: 0 fugas de `DEC-`/`ARQ`/`[[` en los intermedios.

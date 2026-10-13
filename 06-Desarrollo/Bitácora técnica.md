@@ -18,4 +18,7 @@ tags:: #tipo/referencia
 ```
 
 ---
-_(Se activa en PC2 — 30/10/26.)_
+
+### 12/10/26 — Nahuel
+- Se definió el proceso de implementación: [[Flujo de implementación]], con skills, subagentes y `06-Desarrollo/herramientas/tickets.mjs` (semáforo y grafo). Todavía no hay código: el próximo paso es la spec y el plan con los tickets. Desde ahora, una entrada por módulo cerrado.
+- Decisiones tocadas: [[DEC-0014 Flujo de implementación con agentes]], [[DEC-0001 Stack tecnológico]] (estructura en `src/`).

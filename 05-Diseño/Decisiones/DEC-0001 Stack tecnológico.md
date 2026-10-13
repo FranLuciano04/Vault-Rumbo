@@ -5,7 +5,7 @@ modulo: []
 decisores: [Paloma, Nahuel, Francisco]
 fecha_aprobacion: 11/09/26
 supersede:
-actualizado: 09/09/26
+actualizado: 12/10/26
 ---
 # DEC-0001 Stack tecnológico
 
@@ -39,15 +39,16 @@ Rumbo es un proyecto integrador con web, mobile, backend, base de datos relacion
 - Hooks de **TanStack Query** reutilizados entre las aplicaciones.
 
 ### Organización y paquetes
-Monorepo con esta estructura inicial:
+Monorepo con esta estructura inicial, dentro de `src/` del mismo repositorio del vault (ajuste del 12/10/26, [[DEC-0014 Flujo de implementación con agentes|DEC-0014]]):
 
 ```text
-apps/
-├── web/             # React + Vite
-└── mobile/          # React Native + Expo
-packages/
-└── shared/          # tipos, esquemas, cliente y hooks compartidos
-backend/             # FastAPI, con entorno propio de uv
+src/
+├── apps/
+│   ├── web/         # React + Vite
+│   └── mobile/      # React Native + Expo
+├── packages/
+│   └── shared/      # tipos, esquemas, cliente y hooks compartidos
+└── backend/         # FastAPI, con entorno propio de uv
 ```
 
 - **pnpm workspaces:** paquetes Node/TypeScript del monorepo.
