@@ -4,7 +4,7 @@ estado: formalizado
 modulo: []
 responsable:
 pc: pc1
-actualizado: 29/09/26
+actualizado: 13/10/26
 fecha_aprobacion: 29/09/26
 ---
 # Usuario
@@ -22,6 +22,7 @@ Persona que **opera** el sistema. Un mismo Usuario puede tener varios roles (PyM
 | email | String | Login |
 | rol | Enum | admin · empleado · dueño · **freelance** — `freelance` (vendedor externo, visibilidad restringida) según [[DEC-0008 Autenticación propia y rol de vendedor freelance]]. Ver [[DEC-0005 Autenticación y modelo de roles]] y [[Actores]] |
 | activo | Bool | **Baja lógica** ([[CU-25 Gestionar usuarios y roles|CU-25]] A3): un usuario inactivo no inicia sesión y conserva su historial — [[DEC-0013 Datos que faltaban en el ER|DEC-0013]] |
+| debe_cambiar_password | Bool | La contraseña actual es **temporal** (la asignó un `admin` o la dueña en el alta o al restablecerla, [[CU-25 Gestionar usuarios y roles|CU-25]]): el sistema obliga a cambiarla en el próximo ingreso ([[CU-24 Iniciar sesión|CU-24]]) — [[DEC-0015 Decisiones de implementación|DEC-0015]] |
 | acceso_redes | Bool | **Capacidad** de usar el módulo de redes ([[ContenidoRed]]), asignada por `admin`; `admin` y `dueño` la tienen por rol — [[DEC-0013 Datos que faltaban en el ER|DEC-0013]] |
 | comision_default_tipo / comision_default_valor | Enum `importe · porcentaje` + Decimal (opcionales) | **Comisión por defecto** del vendedor ([[CU-13 Configurar porcentaje de comisión|CU-13]]); el porcentaje es sobre la ganancia — [[DEC-0013 Datos que faltaban en el ER|DEC-0013]] |
 

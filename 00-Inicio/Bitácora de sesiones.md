@@ -30,6 +30,11 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
+## 13/10/26 — Nahuel, con Francisco y Paloma (Claude Opus 5.5) — grill y spec de implementación
+- **Hecho:** grill de la fase 0 (`interview-me`, 10 preguntas, equipo completo). Sus decisiones quedaron en [[DEC-0015 Decisiones de implementación]] (formalizada): Docker en las 3 PC, JWT de 12 h con chequeo de usuario activo, contraseña temporal con cambio obligado (nuevo `Usuario.debe_cambiar_password`, propagado a [[Usuario]], [[DGM-ER]] y `rumbo.sql`), Tailwind + shadcn/ui en la web, NativeWind + Expo Router en el mobile, un ticket de contrato por módulo, Compose local y servidor al final, CI en runners de GitHub con filtros, cobertura 80/70/70 + e2e de Playwright, y una clave de IA del equipo solo para demos. Se escribió la [[Spec de implementación]] (`en-revision`) con el mapa de 11 módulos; la meta mínima del PC2 es M0 a M6.
+- **Verificado:** el ER renderiza con mermaid-cli con el campo nuevo y los enlaces nuevos resuelven. ⚠️ El `rumbo.sql` modificado no se corrió contra PostgreSQL (el daemon de Docker no estaba levantado); lo ejecuta el ticket de la migración inicial.
+- **Pendiente:** que el equipo apruebe la spec y, después, el paso 3 (plan y tickets).
+
 ## 12/10/26 — Nahuel, con Francisco y Paloma (Claude Opus 5.5) — flujo de implementación
 - **Hecho:** con el equipo reunido se diseñó y aprobó [[DEC-0014 Flujo de implementación con agentes]]:
   - spec → grill → plan de tickets del **sistema completo**;

@@ -4,7 +4,7 @@ estado: formalizado
 modulo: []
 responsable: Guardián del dominio
 pc: pc1
-actualizado: 29/09/26
+actualizado: 13/10/26
 fecha_aprobacion: 29/09/26
 ---
 # DGM-ER
@@ -36,6 +36,7 @@ erDiagram
         enum rol "admin, empleado, dueno, freelance"
         bool acceso_redes "capacidad de redes, DEC-0013"
         bool activo "baja logica, DEC-0013"
+        bool debe_cambiar_password "temporal, DEC-0015"
         enum comision_default_tipo "nullable, importe o porcentaje"
         numeric comision_default_valor "nullable, default del vendedor"
     }
