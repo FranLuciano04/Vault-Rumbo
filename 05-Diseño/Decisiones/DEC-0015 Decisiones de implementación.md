@@ -18,8 +18,8 @@ El diseño del PC1 fija el dominio, la arquitectura y el contrato, pero deja abi
 
 ## Decisión
 1. **Entorno con Docker.** Los tres integrantes usan Docker Desktop. Un Compose de desarrollo levanta PostgreSQL 18 para la app y otro, aparte, para los tests. Cada test corre en una transacción que se revierte. SQLite no sirve, porque el esquema usa enums nativos, CHECK y `gen_random_uuid()`.
-2. **Sesión con JWT de 12 h.** `POST /auth/login` devuelve un JWT firmado (HS256, secreto en el `.env`) que dura una jornada. En cada pedido la API carga al usuario y **rechaza el token si el usuario ya no está activo**, así que una baja de [[CU-25 Gestionar usuarios y roles|CU-25]] corta el acceso al instante. El logout descarta el token en el cliente. La web lo guarda en memoria con respaldo en `sessionStorage`; el mobile, en SecureStore.
-3. **Contraseñas temporales con cambio obligado.**
+2. ~~**Sesión con JWT de 12 h.**~~ ⚠️ *Reemplazado el mismo 13/10 por [[DEC-0016 Autenticación con Firebase|DEC-0016]].* `POST /auth/login` devuelve un JWT firmado (HS256, secreto en el `.env`) que dura una jornada. En cada pedido la API carga al usuario y **rechaza el token si el usuario ya no está activo**, así que una baja de [[CU-25 Gestionar usuarios y roles|CU-25]] corta el acceso al instante. El logout descarta el token en el cliente. La web lo guarda en memoria con respaldo en `sessionStorage`; el mobile, en SecureStore.
+3. ~~**Contraseñas temporales con cambio obligado.**~~ ⚠️ *Reemplazado el mismo 13/10 por [[DEC-0016 Autenticación con Firebase|DEC-0016]]: Rumbo no maneja contraseñas y `debe_cambiar_password` se quitó del modelo.*
    - En el alta, o al restablecerla, el `admin` o la dueña asigna una **contraseña temporal** y se la entrega en persona.
    - El nuevo campo **`Usuario.debe_cambiar_password`** obliga a cambiarla en el próximo ingreso. Mientras sea `true`, la API solo acepta el cambio de contraseña y `/auth/yo`.
    - No hay recuperación por mail.
@@ -66,8 +66,7 @@ El diseño del PC1 fija el dominio, la arquitectura y el contrato, pero deja abi
 | Clave de IA | Una por persona; sin clave | Gasto disperso; o no se podría mostrar CU-20 |
 
 ## Impacto
-- [[Usuario]], [[DGM-ER]] y `05-Diseño/Datos/rumbo.sql`: campo `debe_cambiar_password`.
-- [[CU-24 Iniciar sesión|CU-24]] y [[CU-25 Gestionar usuarios y roles|CU-25]]: el cambio obligado y el restablecimiento por el `admin` se implementan como parte de esos CU (endpoints nuevos del punto 3).
+- ~~[[Usuario]], [[DGM-ER]] y `rumbo.sql`: campo `debe_cambiar_password`~~ y ~~cambio obligado en CU-24 y CU-25~~: reemplazados por [[DEC-0016 Autenticación con Firebase|DEC-0016]] (campo `firebase_uid`).
 - [[Spec de implementación]]: recoge estas decisiones como reglas para los tickets.
 - Respeta el alcance: sin servicio de mail, sin OAuth, sin tiendas de apps.
 

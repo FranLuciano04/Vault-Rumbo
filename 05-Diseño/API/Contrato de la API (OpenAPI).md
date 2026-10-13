@@ -38,6 +38,8 @@ node "05-Diseño/API/generar-openapi.js" "05-Diseño/API/openapi.json"
 - **Extensiones propias:** cada operación declara `x-roles` y `x-casos-de-uso`, además de describirlos en texto.
 
 ## Autenticación y roles
+> ⚠️ **13/10/26:** con [[DEC-0016 Autenticación con Firebase|DEC-0016]], el login pasa a Firebase Authentication. Salen `/auth/login` y `/auth/logout`: la web y el mobile inician sesión con el SDK de Firebase y mandan su *ID token* como Bearer. El resto de esta sección (roles, visibilidad y escritura) sigue vigente. Este archivo queda como foto del PC1: el contrato del PC2 lo genera FastAPI.
+
 - `POST /auth/login` es la única operación pública: recibe email y contraseña y devuelve un **token Bearer** que firma `core.seguridad` ([[DEC-0008 Autenticación propia y rol de vendedor freelance|DEC-0008]]). El resto exige el token.
 - **Roles por operación**, derivados de los actores de cada CU y de DEC-0005/0008:
   - **todos** (`admin`, `dueno`, `empleado`, `freelance`; los valores de los enum van en ASCII, como en el [[DGM-ER]]): la operación diaria (clientes, oportunidades, cotizaciones, viajes, pagos, alertas, calendario y dashboard propio) y la **lectura** de los catálogos.

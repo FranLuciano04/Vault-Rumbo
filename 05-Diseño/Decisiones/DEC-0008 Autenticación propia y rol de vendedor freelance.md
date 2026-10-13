@@ -11,6 +11,8 @@ actualizado: 17/09/26
 
 tags:: #tipo/decision #estado/formalizado #pc/pc1
 
+> ⚠️ **13/10/26:** el **§1 (autenticación propia)** quedó reemplazado por [[DEC-0016 Autenticación con Firebase|DEC-0016]]: el login es con Firebase Authentication. Los §2 a §4 (auditoría, rol `freelance` y visibilidad) siguen vigentes.
+
 > ✅ **Ratificada en la sync del 17/09/26** (Francisco, Nahuel y Paloma). **Amplía** (no supersede) a [[DEC-0005 Autenticación y modelo de roles]]: resuelve el mecanismo que quedó `#accion/decidir` y agrega un rol. Origen: [[Relevamiento — respuestas de la agencia (17-09)]] (bloque 6).
 
 ## Contexto

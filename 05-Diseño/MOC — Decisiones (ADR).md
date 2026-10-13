@@ -25,7 +25,8 @@ tags:: #tipo/modulo #estado/formalizado
 - [[DEC-0012 Modelo de IA del producto]] (formalizada 29/09)
 - [[DEC-0013 Datos que faltaban en el ER]] (formalizada el 30/09/26)
 - [[DEC-0014 Flujo de implementación con agentes]] (formalizada el 12/10/26; ajusta la estructura de DEC-0001 a `src/`)
-- [[DEC-0015 Decisiones de implementación]] (formalizada el 13/10/26; grill de la fase 0: sesión, contraseñas, UI, contrato por módulo, CI y calidad; suma `Usuario.debe_cambiar_password`)
+- [[DEC-0015 Decisiones de implementación]] (formalizada el 13/10/26; grill de la fase 0: sesión, contraseñas, UI, contrato por módulo, CI y calidad; sus §2 y §3 los reemplaza DEC-0016)
+- [[DEC-0016 Autenticación con Firebase]] (formalizada el 13/10/26; reemplaza DEC-0008 §1 y DEC-0015 §2 y §3)
 
 ## Todas (Dataview)
 ```dataview

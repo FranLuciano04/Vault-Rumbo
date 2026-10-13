@@ -23,6 +23,7 @@ CRM para agencias de turismo PyME. Digitaliza el circuito consulta → cotizaci�
 - Mobile: React Native + Expo + EAS Build; comparte Query/Axios.
 - Monorepo dentro de `src/`: pnpm workspaces (`src/apps/web`, `src/apps/mobile`, `src/packages/shared`) y `src/backend/` con uv.
 - Contrato compartido: OpenAPI → openapi-typescript; validaciones con zod.
+- Autenticación: **Firebase Authentication** (email y Google); rol, permisos y auditoría en Rumbo, ver [[DEC-0016 Autenticación con Firebase]].
 - Infraestructura: servidor **on-premise** con Docker Compose y Cloudflare Tunnel, ver [[DEC-0011 Infraestructura de despliegue on-premise]]. IA del producto: Claude Sonnet 5.5, ver [[DEC-0012 Modelo de IA del producto]]. Calidad y pruebas: [[DEC-0001 Stack tecnológico]].
 
 ## Dominio (punteros, no copiar)

@@ -45,10 +45,9 @@ CREATE TABLE usuario (
     id            uuid PRIMARY KEY DEFAULT gen_random_uuid(),
     nombre        varchar(120) NOT NULL,
     email         varchar(254) NOT NULL UNIQUE,
-    password_hash varchar(255) NOT NULL,              -- login propio, DEC-0008
+    firebase_uid  varchar(128) NOT NULL UNIQUE,       -- cuenta de Firebase Authentication (DEC-0016)
     rol           rol_usuario  NOT NULL,
     activo        boolean      NOT NULL DEFAULT true,  -- baja lógica; inactivo no inicia sesión (DEC-0013)
-    debe_cambiar_password boolean NOT NULL DEFAULT true, -- contraseña temporal: cambio obligado al ingresar (DEC-0015)
     acceso_redes  boolean      NOT NULL DEFAULT false, -- capacidad; admin y dueño la tienen por rol (DEC-0013)
     comision_default_tipo  tipo_comision,              -- comisión por defecto del vendedor (CU-13)
     comision_default_valor numeric(14,2) CHECK (comision_default_valor >= 0),

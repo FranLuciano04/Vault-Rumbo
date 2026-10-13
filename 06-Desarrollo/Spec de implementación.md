@@ -8,7 +8,7 @@ actualizado: 13/10/26
 
 tags:: #tipo/referencia #estado/en-revision #pc/pc2
 
-> Qué se construye, con qué, dónde y cómo se sabe que está bien. **Enlaza** al diseño del PC1 en vez de copiarlo: los subagentes leen esta spec y solo las notas que enlaza su ticket. Proceso en [[Flujo de implementación]] ([[DEC-0014 Flujo de implementación con agentes|DEC-0014]]); decisiones técnicas del grill en [[DEC-0015 Decisiones de implementación|DEC-0015]].
+> Qué se construye, con qué, dónde y cómo se sabe que está bien. **Enlaza** al diseño del PC1 en vez de copiarlo: los subagentes leen esta spec y solo las notas que enlaza su ticket. Proceso en [[Flujo de implementación]] ([[DEC-0014 Flujo de implementación con agentes|DEC-0014]]); decisiones técnicas del grill en [[DEC-0015 Decisiones de implementación|DEC-0015]], con la autenticación reemplazada por [[DEC-0016 Autenticación con Firebase|DEC-0016]].
 
 ## 1. Objetivo
 Implementar **Rumbo completo**: los 31 casos de uso de [[MOC — Casos de uso]], con la web como back-office y la app mobile para agenda, alertas y clientes (RNF-14), sobre la arquitectura de [[ARQ — Vista general]].
@@ -24,7 +24,8 @@ Implementar **Rumbo completo**: los 31 casos de uso de [[MOC — Casos de uso]],
 | Comportamiento | Cada `CU-xx` de `02-Analisis/Casos de uso/` (pasos y flujos alternativos) y [[Requisitos funcionales]] (155 RF + 16 RNF) |
 | Reglas | `02-Analisis/Reglas de negocio/` ([[RN-01 Comisión automática]]) y las `DEC-` de [[MOC — Decisiones (ADR)]] |
 | Estados | Los `EST-*` de `03-Dominio/Diagramas/Estados/`: cada transición es un endpoint de acción; las inválidas responden `409` |
-| Datos | [[DGM-ER]] y `05-Diseño/Datos/rumbo.sql` (con `Usuario.debe_cambiar_password` de [[DEC-0015 Decisiones de implementación\|DEC-0015]]) |
+| Datos | [[DGM-ER]] y `05-Diseño/Datos/rumbo.sql` (con `Usuario.firebase_uid` de [[DEC-0016 Autenticación con Firebase\|DEC-0016]]) |
+| Autenticación | [[DEC-0016 Autenticación con Firebase\|DEC-0016]]: Firebase Authentication autentica; rol, visibilidad, permisos y auditoría quedan en Rumbo |
 | Interfaz entre capas | [[Contrato de la API (OpenAPI)]]: rutas, roles, códigos de error, convenciones (problem+json, paginación, importes como texto decimal, acciones `POST` para transiciones). En el PC2 lo genera FastAPI (ver el ticket de contrato, §8) |
 | Arquitectura del backend | [[ARQ — Vista general]]: tres capas + `core`, once módulos, visibilidad por fila como parámetro obligatorio del repositorio, auditoría automática en `core.db` y `jobs.diario` con los mismos servicios |
 | Pantallas | [[Prototipo UI]] (Figma, 59 capturas en `07-Entregables/Prototipo/img/`) |
@@ -35,12 +36,13 @@ Implementar **Rumbo completo**: los 31 casos de uso de [[MOC — Casos de uso]],
 Si una fuente contradice a otra, se aplica el orden de autoridad de `CLAUDE.md`, y la contradicción se señala y se resuelve con una `DEC-`.
 
 ## 3. Stack y versiones
-Lo fija [[DEC-0001 Stack tecnológico|DEC-0001]], con los ajustes de [[DEC-0015 Decisiones de implementación|DEC-0015]]:
-- **Backend:** Python 3.13 · uv · FastAPI · Pydantic v2 · SQLAlchemy 2.0 async (asyncpg) · Alembic · PyJWT · argon2-cffi · LangChain + `langchain-anthropic` (`claude-sonnet-5-5`) · WeasyPrint · openpyxl.
+Lo fija [[DEC-0001 Stack tecnológico|DEC-0001]], con los ajustes de [[DEC-0015 Decisiones de implementación|DEC-0015]] y [[DEC-0016 Autenticación con Firebase|DEC-0016]]:
+- **Backend:** Python 3.13 · uv · FastAPI · Pydantic v2 · SQLAlchemy 2.0 async (asyncpg) · Alembic · `firebase-admin` · LangChain + `langchain-anthropic` (`claude-sonnet-5-5`) · WeasyPrint · openpyxl.
+- **Autenticación:** Firebase Authentication (email y contraseña + Google; registro abierto deshabilitado). Firebase Auth Emulator (`firebase-tools`, con Java) para el desarrollo local y los e2e.
 - **Base:** PostgreSQL 18.
 - **Front:** Node 22 LTS · pnpm (workspace en `src/`) · TypeScript estricto · TanStack Query · Axios · zod · openapi-typescript · MSW.
-  - Web: React · Vite · React Router · Tailwind CSS · shadcn/ui · react-hook-form.
-  - Mobile: React Native · Expo · Expo Router · NativeWind · SecureStore.
+  - Web: React · Vite · React Router · Tailwind CSS · shadcn/ui · react-hook-form · SDK web de Firebase (`firebase/auth`).
+  - Mobile: React Native · Expo con **development build** (no Expo Go, por el login con Google) · Expo Router · NativeWind · SDK de Firebase.
 - **Calidad:**
   - Backend: ruff · mypy · pytest · pytest-asyncio · httpx `AsyncClient` · pytest-cov · factory-boy · faker.
   - Web: ESLint · Prettier · Vitest · Testing Library · Playwright.
@@ -54,11 +56,12 @@ Lo fija [[DEC-0001 Stack tecnológico|DEC-0001]], con los ajustes de [[DEC-0015 
 ```bash
 # Infraestructura local (PostgreSQL de desarrollo en 5432 y de tests en 5433)
 docker compose -f src/docker-compose.dev.yml up -d
+npx firebase-tools emulators:start --only auth --project demo-rumbo   # Auth Emulator en 9099
 
 # Backend (desde src/backend)
 uv sync
 uv run alembic upgrade head
-uv run python -m rumbo.presentacion.cli datos-iniciales      # dueña inicial + datos de demo
+uv run python -m rumbo.presentacion.cli datos-iniciales      # dueña inicial (también en Firebase) + datos de demo
 uv run fastapi dev rumbo/main.py                              # API en http://localhost:8000/api
 uv run ruff check . && uv run ruff format --check .
 uv run mypy rumbo
@@ -143,6 +146,7 @@ async def registrar_cobro(sesion: AsyncSession, actor: Usuario, pago_id: UUID, d
 - **Nombres por requisito:** `test_rf070_cobrar_primer_pago_pasa_viaje_a_vendido`, `describe('RF-070 …')`.
 - **Cobertura mínima (el CI falla por debajo):** `rumbo/negocio/` ≥ 80 % y backend total ≥ 70 %; la lógica del front ≥ 70 %.
 - **IA:** los tests usan un modelo falso inyectado en `core.ia`. **Nunca** se llama a la API de Claude desde los tests ni desde el CI.
+- **Autenticación:** los tests del backend inyectan un verificador falso de tokens en `core.seguridad` (un usuario por rol); los e2e usan el Firebase Auth Emulator. **Nunca** se usa el proyecto real de Firebase en tests ni en el CI.
 
 ## 7. Límites
 **Siempre:**
@@ -161,10 +165,11 @@ async def registrar_cobro(sesion: AsyncSession, actor: Usuario, pago_id: UUID, d
 - Cualquier contradicción entre el código y un CU, un EST o una DEC.
 
 **Nunca:**
-- Commitear secretos, `.env` ni claves (la de Claude va solo en el `.env` de las demos o del servidor).
+- Commitear secretos, `.env` ni claves: la de Claude y la **cuenta de servicio de Firebase** van solo en el `.env` (la config pública del SDK web sí se versiona).
+- Guardar o manejar contraseñas en Rumbo: las maneja Firebase ([[DEC-0016 Autenticación con Firebase|DEC-0016]]).
 - Borrar o debilitar un test para que algo pase.
 - Llamar a la API de Claude con datos de clientes (RNF-16).
-- Implementar lo que está fuera de alcance: pagos online, publicación automática en redes, GDS o mayoristas, facturación, mail, Google OAuth.
+- Implementar lo que está fuera de alcance: pagos online, publicación automática en redes, GDS o mayoristas, facturación, mails propios (los de contraseña los manda Firebase), registro abierto de usuarios y otros proveedores de login que no sean email o Google.
 - Mergear código a `main` sin PR.
 
 ## 8. Mapa de módulos
@@ -172,8 +177,8 @@ Cada módulo es una **barrera de revisión** con Codex ([[DEC-0014 Flujo de impl
 
 | Módulo | Alcance | Depende de |
 |---|---|---|
-| **M0 Fundaciones** | Workspace en `src/`, Compose de desarrollo, `core` (config, db con auditoría, seguridad JWT + Argon2id, cliente de IA falso/real), migración inicial desde `rumbo.sql`, políticas de visibilidad, errores problem+json y paginación, CLI (`datos-iniciales`, `exportar-openapi`), CI con filtros, `@rumbo/shared` (cliente, tipos, MSW), shells web y mobile con los tokens del Figma, **CU-24** (login, logout, `/auth/yo`, cambio obligado de contraseña) | — |
-| **M1 Usuarios y configuración** | CU-25 (con restablecer contraseña), CU-13, parámetros, CU-26, CU-15, CU-31 | M0 |
+| **M0 Fundaciones** | Workspace en `src/`, Compose de desarrollo, **proyecto de Firebase** (crearlo, habilitar email y Google, deshabilitar el registro abierto, cuenta de servicio en el `.env`, emulador), `core` (config, db con auditoría, seguridad con `firebase-admin`, cliente de IA falso/real), migración inicial desde `rumbo.sql`, políticas de visibilidad, errores problem+json y paginación, CLI (`datos-iniciales`, `exportar-openapi`), CI con filtros, `@rumbo/shared` (cliente con el ID token, tipos, MSW), shells web y mobile (development build) con los tokens del Figma, **CU-24** (login con email y con Google, «olvidé mi contraseña», logout, `/auth/yo`) | — |
+| **M1 Usuarios y configuración** | CU-25 (el alta crea la cuenta en Firebase y dispara el mail), CU-13, parámetros, CU-26, CU-15, CU-31 | M0 |
 | **M2 Clientes** | CU-02, CU-03 (web y mobile) | M0 |
 | **M3 Alertas** | CU-14, CU-28 y el servicio de alertas que usan los demás módulos (web y mobile) | M2 |
 | **M4 Oportunidades y cotizaciones** | CU-04, CU-05, CU-06 (con el PDF) | M2, M3 |

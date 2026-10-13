@@ -4,7 +4,7 @@ estado: formalizado
 modulo: []
 responsable: Nahuel
 pc: pc1
-actualizado: 30/09/26
+actualizado: 13/10/26
 fecha_aprobacion: 30/09/26
 ---
 # ARQ — Vista general
@@ -24,6 +24,7 @@ Rumbo es una aplicación **cliente-servidor**: dos clientes (web y mobile) habla
 | **API** | Python + FastAPI, en **tres capas** más un paquete `core` transversal | Única puerta al dominio: presentación, lógica de negocio y acceso a datos; `core` reúne configuración, base, seguridad y el cliente de IA (ver *Vista lógica del backend*). |
 | **Base de datos** | PostgreSQL, con SQLAlchemy 2.0 async y Alembic | Persistencia de las 13 entidades del [[DGM-ER]]. |
 | **Proceso automático** | Contenedor con cron | Todos los días a las 00:00 vence pagos y cotizaciones y genera alertas, usando los mismos servicios que la API. |
+| **Autenticación** | Firebase Authentication | Cuentas del personal (email y contraseña, o Google) y mails de contraseña; el rol y los permisos siguen en Rumbo ([[DEC-0016 Autenticación con Firebase|DEC-0016]]). |
 | **IA del producto** | LangChain + Claude Sonnet 5.5 | Solo para los borradores de contenido de CU-20 ([[DEC-0012 Modelo de IA del producto]]). |
 | **Servidor** | Ubuntu Server LTS + Docker Compose + UPS | Aloja la API, la base, el proceso automático, nginx y el conector `cloudflared`; todos los usuarios entran por Cloudflare Tunnel. |
 | **Calidad y despliegue** | GitHub Actions + runner self-hosted + Dependabot | Lint, tipos, pruebas y seguridad en cada push; despliega solo si el pipeline pasa en `main`. |
@@ -59,6 +60,7 @@ flowchart LR
 
     subgraph Nube["Servicios en la nube"]
       Claude["API de Claude<br/>Sonnet 5.5 · DEC-0012"]
+      Firebase["Firebase Authentication<br/>cuentas y login · DEC-0016"]
       GH["GitHub<br/>repositorio privado + Actions"]
     end
 
@@ -72,6 +74,9 @@ flowchart LR
     Sched -->|"vence pagos y cotizaciones,<br/>genera alertas"| DB
     Backup -.-> DB
     API -->|"CU-20"| Claude
+    Nav -->|"login"| Firebase
+    Tel -->|"login"| Firebase
+    API -->|"verifica tokens,<br/>crea cuentas"| Firebase
     Runner -->|"toma los jobs de main"| GH
     Runner -->|"docker compose up"| Compose
 
@@ -162,7 +167,7 @@ flowchart LR
     subgraph C["core · transversal, fuera de las capas"]
       direction TB
       Cfg["config<br/>variables de entorno"]
-      Sec["seguridad<br/>contraseñas y tokens · DEC-0008"]
+      Sec["seguridad<br/>verifica tokens de Firebase · DEC-0016"]
       Db["db<br/>motor, sesión y auditoría"]
       IA["ia<br/>cliente LangChain + Claude · DEC-0012"]
     end
@@ -182,12 +187,12 @@ flowchart LR
 | **1 · Presentación** | `presentacion/` | Recibe el pedido HTTP, valida el JSON con los esquemas Pydantic (que publican el contrato OpenAPI), identifica al usuario validando su token con `core.seguridad` y llama a un servicio. `jobs/diario.py` es el otro punto de entrada: lo ejecuta el scheduler a las 00:00. | No tiene reglas de negocio ni consultas. |
 | **2 · Lógica de negocio** | `negocio/` | Los **servicios** orquestan un caso de uso completo en **una transacción**: por ejemplo, confirmar la reserva crea el `Viaje`, el plan de cuotas y las alertas, y pasa la `Oportunidad` a `ganada` (CU-07). Los **estados** aplican las transiciones de los `EST-*` y rechazan las inválidas. Las **políticas** deciden qué puede ver y editar cada rol. Los **prompts** definen qué se le pide a la IA y con qué límites. | No arma SQL ni conoce HTTP. |
 | **3 · Acceso a datos** | `datos/` | Los **modelos** mapean las 15 tablas del [[DGM-ER]] y los **repositorios** buscan y guardan, usando la sesión de `core.db`. | No decide reglas de negocio. |
-| **core** | `core/` | **`config`** lee la configuración del entorno. **`db`** crea el motor y la sesión de SQLAlchemy (una transacción por pedido) y completa la auditoría antes de cada guardado. **`seguridad`** hashea contraseñas y emite y valida tokens. **`ia`** habla con la API de Claude por LangChain. | No conoce ninguna capa ni tiene reglas del negocio. |
+| **core** | `core/` | **`config`** lee la configuración del entorno. **`db`** crea el motor y la sesión de SQLAlchemy (una transacción por pedido) y completa la auditoría antes de cada guardado. **`seguridad`** verifica el *ID token* de Firebase y crea las cuentas con el Admin SDK (DEC-0016). **`ia`** habla con la API de Claude por LangChain. | No conoce ninguna capa ni tiene reglas del negocio. |
 
 **Cómo se reparten las reglas transversales:**
 - **Visibilidad por fila.** La capa de negocio decide el filtro: `freelance` solo ve lo propio; las `Alerta` son propias salvo para `admin` y `dueño`; el resto de los roles lee toda la agencia ([[DEC-0005 Autenticación y modelo de roles|DEC-0005]]). El servicio se lo pasa al repositorio como **parámetro obligatorio** de toda consulta de lectura. Así datos no depende de negocio y ningún listado puede olvidar el filtro.
 - **Permisos de escritura.** Los valida el servicio antes de modificar: el responsable del registro o `admin`/`dueño`; configuración y moderación, solo `admin` y `dueño`.
-- **Autenticación.** El login de CU-24 es un servicio de negocio (`seguridad`) que verifica la contraseña con `core.seguridad` y devuelve un token. En cada pedido, presentación valida el token con `core.seguridad` y obtiene el usuario actual ([[DEC-0008 Autenticación propia y rol de vendedor freelance|DEC-0008]]).
+- **Autenticación.** El login de CU-24 lo hacen la web y el mobile con el SDK de **Firebase Authentication**, que devuelve un *ID token*. En cada pedido, presentación lo verifica con `core.seguridad` y carga el usuario de Rumbo por `firebase_uid`; si no existe o está inactivo, `401`. Rumbo no guarda contraseñas: el rol, los permisos y la auditoría siguen en la base ([[DEC-0016 Autenticación con Firebase|DEC-0016]]).
 - **Auditoría.** Presentación deja el usuario del pedido en el contexto de la sesión, y `core.db` lo usa para completar `created_by`, `updated_by`, `created_at` y `updated_at` en **todas las tablas**, sin que cada servicio tenga que acordarse. Lo que hace el proceso automático queda con `created_by`/`updated_by` **vacíos**, que se lee como «lo hizo el sistema».
 - **IA (CU-20), partida en dos.** La **regla de negocio** vive en `negocio/prompts/`: la plantilla con tema, canal y tono, y los límites (no usa datos de clientes, no publica). El **cable técnico** vive en `core/ia.py`: el modelo `claude-sonnet-5-5`, la clave de API, los tiempos de espera y el manejo de errores ([[DEC-0012 Modelo de IA del producto|DEC-0012]]). El servicio de `redes` arma el prompt y se lo pasa a `core.ia`. Si la API de Claude falla, CU-20 informa el error y el resto del sistema sigue funcionando. Es **una sola llamada** (entra un prompt, sale un borrador), no un agente.
 - **Proceso automático.** `jobs/diario.py` llama a los **mismos servicios** que los routers. Así vencer un pago a medianoche aplica exactamente las mismas reglas que si lo hiciera una persona.
@@ -251,7 +256,7 @@ backend/rumbo/
 ├── core/                       # TRANSVERSAL · no usa ninguna capa; todas pueden usarlo
 │   ├── config.py               # configuración leída del entorno (.env fuera de Git)
 │   ├── db.py                   # motor y sesión async de SQLAlchemy + auditoría automática
-│   ├── seguridad.py            # hash de contraseñas, emisión y validación de tokens (DEC-0008)
+│   ├── seguridad.py            # verificación de tokens y alta de cuentas en Firebase (DEC-0016)
 │   └── ia.py                   # cliente LangChain + Claude Sonnet 5.5 (DEC-0012)
 │
 ├── presentacion/               # CAPA 1 · Presentación
@@ -287,10 +292,12 @@ flowchart LR
     Pasajero["Pasajero<br/>[Persona]<br/>cliente de la agencia"]
     Rumbo["Rumbo<br/>[Sistema]<br/>CRM de la agencia: clientes, consultas,<br/>cotizaciones, viajes, pagos y alertas"]
     Claude["API de Claude<br/>[Sistema externo · Anthropic]<br/>borradores de contenido"]
+    Firebase["Firebase Authentication<br/>[Sistema externo · Google]<br/>cuentas y login del personal"]
     Redes["WhatsApp, Instagram y TikTok<br/>[Canales externos]<br/>sin integración: se usan a mano"]
 
     Agencia -->|"registra y consulta la operación<br/>web y mobile"| Rumbo
     Rumbo -->|"pide borradores de posteos<br/>CU-20 · HTTPS"| Claude
+    Rumbo -->|"autentica a los usuarios<br/>HTTPS"| Firebase
     Pasajero -->|"consulta y confirma<br/>por mensajes o en persona"| Redes
     Agencia -->|"responde, envía cotizaciones<br/>y publica, a mano"| Redes
 
@@ -299,12 +306,12 @@ flowchart LR
     classDef externo fill:#999999,stroke:#6b6b6b,color:#ffffff
     class Agencia,Pasajero persona
     class Rumbo sistema
-    class Claude,Redes externo
+    class Claude,Redes,Firebase externo
 ```
 
 - El **pasajero no usa Rumbo**: habla con la agencia por WhatsApp, Instagram o en persona, y lo que la agencia registra de esa conversación es lo que entra al sistema.
 - **WhatsApp, Instagram y TikTok no están integrados** (publicar y enviar mensajes automáticamente está fuera de alcance): Rumbo genera alertas y borradores, y una persona los usa en cada canal.
-- La única integración con un sistema externo en tiempo de uso es la **API de Claude**, solo para CU-20 ([[DEC-0012 Modelo de IA del producto|DEC-0012]]).
+- Hay dos integraciones con sistemas externos en tiempo de uso: la **API de Claude**, solo para CU-20 ([[DEC-0012 Modelo de IA del producto|DEC-0012]]), y **Firebase Authentication**, para las cuentas y el login del personal ([[DEC-0016 Autenticación con Firebase|DEC-0016]]). A Firebase no van datos de pasajeros.
 
 ### Nivel 2 · Contenedores
 ```mermaid
@@ -321,6 +328,7 @@ flowchart LR
     end
 
     Claude["API de Claude<br/>[Sistema externo]"]
+    Firebase["Firebase Authentication<br/>[Sistema externo]"]
 
     Agencia -->|"usa · navegador"| Web
     Agencia -->|"usa · teléfono"| Mobile
@@ -329,13 +337,16 @@ flowchart LR
     Sched -->|"ejecuta jobs.diario"| API
     API -->|"lee y escribe · SQLAlchemy"| DB
     API -->|"borradores de CU-20 · HTTPS"| Claude
+    Web -->|"login · SDK"| Firebase
+    Mobile -->|"login · SDK"| Firebase
+    API -->|"verifica tokens · Admin SDK"| Firebase
 
     classDef persona fill:#08427b,stroke:#052e56,color:#ffffff
     classDef contenedor fill:#438dd5,stroke:#2e6295,color:#ffffff
     classDef externo fill:#999999,stroke:#6b6b6b,color:#ffffff
     class Agencia persona
     class Web,Mobile,API,Sched,DB contenedor
-    class Claude externo
+    class Claude,Firebase externo
 ```
 
 - **Web y mobile** no guardan datos del negocio ni tienen reglas propias: todo pasa por la API según el [[Contrato de la API (OpenAPI)]].
@@ -368,7 +379,7 @@ flowchart LR
         Modelos["Modelos<br/>[SQLAlchemy]<br/>tablas del DGM-ER"]
       end
       subgraph Core["core · transversal"]
-        Seg["seguridad<br/>[Python]<br/>contraseñas y tokens"]
+        Seg["seguridad<br/>[firebase-admin]<br/>verifica tokens"]
         Db["db<br/>[SQLAlchemy async]<br/>sesión y auditoría"]
         IA["ia<br/>[LangChain]<br/>cliente de Claude"]
       end
@@ -407,7 +418,7 @@ flowchart LR
 ## Decisiones que sostienen esta arquitectura
 - **Stack:** [[DEC-0001 Stack tecnológico]], con **Dependabot** para actualizar dependencias (29/09).
 - **Roles y visibilidad:** [[DEC-0005 Autenticación y modelo de roles]], ampliada por [[DEC-0008 Autenticación propia y rol de vendedor freelance]]: roles `admin`, `dueño`, `empleado` y `freelance`, con visibilidad por fila y catálogo compartido.
-- **Autenticación:** usuario y contraseña individual, con auditoría de autor en cada registro (DEC-0008). Google OAuth queda como opción futura.
+- **Autenticación:** Firebase Authentication (email y contraseña, o Google), con cuentas individuales y auditoría de autor en cada registro en Rumbo ([[DEC-0016 Autenticación con Firebase|DEC-0016]], que reemplaza el login propio de DEC-0008).
 - **Infraestructura y despliegue:** [[DEC-0011 Infraestructura de despliegue on-premise]].
 - **Persistencia y migraciones** (29/09): SQLAlchemy 2.0 async y Alembic. El esquema inicial es el del [[DGM-ER]], escrito como script en [[Modelo de datos SQL]]; en PC2, la primera migración de Alembic lo reproduce.
 - **IA del producto:** [[DEC-0012 Modelo de IA del producto]].

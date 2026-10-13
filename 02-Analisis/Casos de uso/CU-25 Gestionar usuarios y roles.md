@@ -4,7 +4,7 @@ estado: formalizado
 modulo: [seguridad]
 responsable: Nahuel
 pc: pc1
-actualizado: 30/09/26
+actualizado: 13/10/26
 fecha_aprobacion: 29/09/26
 ---
 # CU-25 Gestionar usuarios y roles
@@ -26,7 +26,7 @@ Alta, baja y edición de [[Usuario|Usuarios]], asignación de su `rol` y de la c
 ## Flujo principal
 1. El admin abre la gestión de [[Usuario|Usuarios]].
 2. El sistema lista los [[Usuario|Usuarios]] con su `rol` y estado.
-3. El admin da de alta un [[Usuario]] con `nombre`, `email`, `rol` (`empleado` · `admin` · `dueño` · `freelance`) y sus **credenciales de acceso** (usuario/contraseña individual, [[DEC-0008 Autenticación propia y rol de vendedor freelance]]).
+3. El admin da de alta un [[Usuario]] con `nombre`, `email`, `rol` (`empleado` · `admin` · `dueño` · `freelance`). El sistema crea su **cuenta individual** en Firebase Authentication y le envía por mail el link para elegir su contraseña; nadie más conoce la contraseña ([[DEC-0016 Autenticación con Firebase|DEC-0016]]).
 4. Opcionalmente asigna la **capacidad de acceso al módulo de redes** ([[ContenidoRed]]), que no es un rol sino un permiso ([[Actores]]).
 5. El sistema valida y guarda el [[Usuario]]. Si el rol es `freelance`, queda con **visibilidad restringida** (solo lo suyo, [[DEC-0008 Autenticación propia y rol de vendedor freelance]]); los [[Cliente|Clientes]] que cree quedan con él como `asesor_asignado`.
 

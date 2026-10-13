@@ -22,7 +22,7 @@ Persona que **opera** el sistema. Un mismo Usuario puede tener varios roles (PyM
 | email | String | Login |
 | rol | Enum | admin · empleado · dueño · **freelance** — `freelance` (vendedor externo, visibilidad restringida) según [[DEC-0008 Autenticación propia y rol de vendedor freelance]]. Ver [[DEC-0005 Autenticación y modelo de roles]] y [[Actores]] |
 | activo | Bool | **Baja lógica** ([[CU-25 Gestionar usuarios y roles|CU-25]] A3): un usuario inactivo no inicia sesión y conserva su historial — [[DEC-0013 Datos que faltaban en el ER|DEC-0013]] |
-| debe_cambiar_password | Bool | La contraseña actual es **temporal** (la asignó un `admin` o la dueña en el alta o al restablecerla, [[CU-25 Gestionar usuarios y roles|CU-25]]): el sistema obliga a cambiarla en el próximo ingreso ([[CU-24 Iniciar sesión|CU-24]]) — [[DEC-0015 Decisiones de implementación|DEC-0015]] |
+| firebase_uid | String | Identificador de la cuenta en **Firebase Authentication**, único. Lo asigna el alta de [[CU-25 Gestionar usuarios y roles|CU-25]]; con él la API reconoce al usuario de cada pedido — [[DEC-0016 Autenticación con Firebase|DEC-0016]] |
 | acceso_redes | Bool | **Capacidad** de usar el módulo de redes ([[ContenidoRed]]), asignada por `admin`; `admin` y `dueño` la tienen por rol — [[DEC-0013 Datos que faltaban en el ER|DEC-0013]] |
 | comision_default_tipo / comision_default_valor | Enum `importe · porcentaje` + Decimal (opcionales) | **Comisión por defecto** del vendedor ([[CU-13 Configurar porcentaje de comisión|CU-13]]); el porcentaje es sobre la ganancia — [[DEC-0013 Datos que faltaban en el ER|DEC-0013]] |
 
@@ -35,7 +35,7 @@ Autorización a nivel de fila (patrón *lectura global + propiedad*): `empleado`
 - **`freelance`:** excepción al patrón — ve y opera **solo lo suyo** (bloqueo de lectura fuera de sus clientes/operaciones); ve el catálogo compartido y crea clientes que quedan como suyos. Ratificado 17/09 — [[DEC-0008 Autenticación propia y rol de vendedor freelance]].
 
 ## Autenticación
-Login con **usuario y contraseña individual** por persona; se audita **autor y fecha** (`created_by`/`updated_by`) de las acciones. Google OAuth opcional/futuro. Ratificado en la sync 17/09 — ver [[DEC-0008 Autenticación propia y rol de vendedor freelance]] y [[CU-24 Iniciar sesión]].
+Cuenta **individual** por persona en **Firebase Authentication** (email y contraseña, o Google), creada solo por un `admin` o la dueña; Rumbo no guarda contraseñas. El rol y los permisos viven en Rumbo. Se audita **autor y fecha** (`created_by`/`updated_by`) de las acciones. Ver [[DEC-0016 Autenticación con Firebase|DEC-0016]] (reemplaza el login propio de [[DEC-0008 Autenticación propia y rol de vendedor freelance|DEC-0008]] §1) y [[CU-24 Iniciar sesión]].
 
 ## Aparece en
 - [[Actores]] · [[MOC — Modelo de dominio]]

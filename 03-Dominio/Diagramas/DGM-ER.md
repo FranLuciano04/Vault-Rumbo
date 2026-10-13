@@ -32,11 +32,10 @@ erDiagram
         uuid id PK
         varchar nombre
         varchar email UK
-        varchar password_hash "login propio, DEC-0008"
+        varchar firebase_uid UK "Firebase Auth, DEC-0016"
         enum rol "admin, empleado, dueno, freelance"
         bool acceso_redes "capacidad de redes, DEC-0013"
         bool activo "baja logica, DEC-0013"
-        bool debe_cambiar_password "temporal, DEC-0015"
         enum comision_default_tipo "nullable, importe o porcentaje"
         numeric comision_default_valor "nullable, default del vendedor"
     }
