@@ -2,7 +2,7 @@
 id: T-000
 titulo: Verbo + objeto, sin «y»
 modulo: M0 — Nombre del módulo
-capa: backend  # backend · web · mobile · shared · e2e · infra
+capa: backend  # contrato · backend · web · mobile · shared · e2e · infra (define qué subagentes lo trabajan)
 estado: libre  # libre · tomado · hecho · bloqueado
 depende_de: []
 tamaño: S  # XS · S · M (si da L, partir el ticket)

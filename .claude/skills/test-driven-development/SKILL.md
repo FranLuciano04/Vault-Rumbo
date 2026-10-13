@@ -9,7 +9,7 @@ description: Drives development with tests using the red-green-refactor loop. Us
 - Proceso de Rumbo: [[DEC-0014 Flujo de implementación con agentes]] y `06-Desarrollo/Flujo de implementación.md`. Stack y herramientas de calidad: `DEC-0001`. Todo el código vive en `src/`.
 - Los artefactos que se escriben en el vault van en español de Argentina, con tildes. El código y los identificadores siguen las convenciones del stack.
 - Los comandos `/spec`, `/plan`, `/build`, `/test`, `/review` y `/ship` no están instalados: en Rumbo se usan `/tomar-ticket`, `/implementar-ticket` y `/cerrar-modulo`.
-- Dentro de un ticket, los pasos rojo, verde y refactor los hacen **subagentes distintos** (`test-writer` e `implementador`) dirigidos por `/implementar-ticket`.
+- Dentro de un ticket, los pasos rojo, verde y refactor los hacen **subagentes distintos** (`test-writer`, un implementador según la capa y `simplificador`) dirigidos por `/implementar-ticket`.
 - Los tests se nombran por requisito: `test_rf070_...` en pytest y `describe('RF-070 …')` en Vitest o Jest.
 - Herramientas por capa: pytest + pytest-asyncio + httpx `AsyncClient` (backend), Vitest + Testing Library (web), Jest + RN Testing Library (mobile). En el front, TDD para la lógica (hooks, zod y componentes con lógica). Los e2e (Playwright y Maestro) son tickets propios de cada módulo.
 - `../../references/testing-patterns.md` muestra patrones de JS/TS; para Python aplicar los mismos principios.

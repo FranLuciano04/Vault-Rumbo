@@ -17,7 +17,7 @@ tags:: #tipo/referencia #estado/formalizado #pc/pc2
 |---|---|
 | Cada integrante | Lanza los comandos y aprueba en las barreras |
 | Orquestador (la sesión de Claude de cada uno, **Opus 5.5 con effort medio**) | Dirige el ticket: lanza los subagentes, verifica, commitea y abre el PR. No escribe código |
-| Subagentes `test-writer`, `implementador` y `reviewer-ticket` | Escriben los tests, implementan y revisan, con el modelo que dice el ticket |
+| Subagentes de `.claude/agents/` (`test-writer`; `implementador`, `-contrato`, `-front` o `-infra` según la capa; `simplificador`; `reviewer-ticket` o `reviewer-seguridad`) | Escriben los tests, implementan, simplifican y revisan, con el modelo que dice el ticket y sus skills de Addy **precargadas** |
 | Codex | Revisa cada módulo terminado; se dispara a mano |
 | `06-Desarrollo/herramientas/tickets.mjs` | Lo mecánico: claim, grafo, validación (cero tokens) |
 
@@ -30,11 +30,12 @@ tags:: #tipo/referencia #estado/formalizado #pc/pc2
 1. **`/tomar-ticket`:** pull, elige el primer ticket `disponible` y lo marca como suyo con un push a `main`. Si otro lo tomó un instante antes, el push choca y elige otro.
 2. **`/implementar-ticket T-NNN`**, en la rama `feature/T-NNN-…`:
    - 🔴 **Rojo:** `test-writer` escribe los tests (nombrados por RF) → el orquestador comprueba que **fallen por el motivo correcto**.
-   - 🟢 **Verde:** `implementador` escribe el código mínimo → tests en verde **y** `git diff` sin cambios en los tests.
-   - 🔵 **Refactor:** el mismo implementador limpia → siguen en verde.
-   - 🔍 **Review:** `reviewer-ticket`, con un **modelo distinto** del implementador → hallazgos clasificados por severidad.
-   - 🔧 **Fix:** `implementador` arregla → lint, type-check y tests en verde.
-3. **Cierre:** el PR marca el ticket como `hecho`.
+   - 🟢 **Verde:** el implementador de la capa escribe el código mínimo → tests en verde **y** `git diff` sin cambios en los tests.
+   - 🔵 **Refactor:** `simplificador` limpia el diff → siguen en verde.
+   - 🔍 **Review:** `reviewer-ticket` (o `reviewer-seguridad` si el riesgo es alto), con un **modelo distinto** del implementador → hallazgos clasificados por severidad.
+   - 🔧 **Fix:** el implementador arregla → lint, type-check y tests en verde.
+   - Los tickets de `infra` no siguen TDD (se verifican ejecutando) y los de `e2e` no exigen el rojo.
+3. **Cierre:** el PR, escrito con la skill **`pr`** (formato fijo), marca el ticket como `hecho`.
    - **Riesgo normal:** se mergea solo cuando pasa el CI.
    - **Riesgo alto** (auth, permisos, dinero, estados, proceso diario): espera la aprobación de otro integrante.
    - El merge libera el ticket y destraba los que dependían de él.

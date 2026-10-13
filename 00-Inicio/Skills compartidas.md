@@ -26,10 +26,14 @@ Los plugins, las skills sincronizadas desde una cuenta y otras dependencias exte
 | gestionar-skills | proyecto | requerida | 1.0.0 | `.claude/skills/gestionar-skills/SKILL.md` | `/gestionar-skills` o automática | Incorporar, registrar, verificar y compartir skills |
 | tomar-ticket | proyecto | requerida | 1.0.0 | `.claude/skills/tomar-ticket/SKILL.md` | `/tomar-ticket` o «dame un ticket» | Semáforo de tickets: tomar, liberar y ver los vencidos ([[DEC-0014 Flujo de implementación con agentes\|DEC-0014]]) |
 | implementar-ticket | proyecto | requerida | 1.0.0 | `.claude/skills/implementar-ticket/SKILL.md` | `/implementar-ticket T-NNN` | Orquestar el TDD de un ticket con subagentes y cerrarlo con un PR |
+| pr | proyecto | requerida | 1.0.0 | `.claude/skills/pr/SKILL.md` | `/pr T-NNN` o al cerrar `/implementar-ticket` | Escribir y abrir el PR de un ticket con el formato fijo del proyecto |
+| review-de-ticket | proyecto | requerida | 1.0.0 | `.claude/skills/review-de-ticket/SKILL.md` | precargada por `reviewer-ticket` y `reviewer-seguridad` | Criterios y formato de salida de la review de un ticket |
 | cerrar-modulo | proyecto | requerida | 1.0.0 | `.claude/skills/cerrar-modulo/SKILL.md` | `/cerrar-modulo MN` | Barrera de módulo: pedido de review a Codex, hallazgos como tickets, tag `mod-N` |
 
 ### Copiadas de addyosmani/agent-skills
 Tipo `proyecto`, licencia MIT (`.claude/skills/LICENSE-agent-skills`), origen [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills) @ `1be8e34` (10/10/26). Cada `SKILL.md` lleva arriba un bloque **«Adaptación Rumbo»** que manda sobre el texto original; las referencias compartidas están en `.claude/references/`. Incorporadas el 12/10/26 por Nahuel, aprobadas por el equipo en [[DEC-0014 Flujo de implementación con agentes|DEC-0014]]. Para actualizarlas: traer la versión nueva con `/gestionar-skills`, conservar el bloque de adaptación y anotar el commit nuevo acá.
+
+> Los subagentes de `.claude/agents/` **precargan** sus skills con el campo `skills:` del frontmatter (el contenido completo se inyecta al arrancar). La tabla de qué subagente precarga cuál está en `.claude/skills/implementar-ticket/SKILL.md`.
 
 | Skill | Estado | Uso en el flujo |
 |---|---|---|
@@ -40,10 +44,14 @@ Tipo `proyecto`, licencia MIT (`.claude/skills/LICENSE-agent-skills`), origen [a
 | incremental-implementation | requerida | Implementación por tajadas y commits por fase |
 | source-driven-development | requerida | Verificar contra la documentación oficial del stack |
 | code-review-and-quality | requerida | Review de cada ticket |
-| security-and-hardening | requerida | Tickets de riesgo alto y módulo de auth |
+| security-and-hardening | requerida | Tickets de riesgo alto (`reviewer-seguridad`) |
+| api-and-interface-design | requerida | Ticket de contrato de cada módulo (`implementador-contrato`) — sumada el 13/10/26 |
+| frontend-ui-engineering | requerida | Tickets de web y mobile (`implementador-front`) — sumada el 13/10/26 |
+| debugging-and-error-recovery | requerida | Cuando un verde falla, antes de escalar de modelo — sumada el 13/10/26 |
+| code-simplification | requerida | Paso de refactor (`simplificador`) — sumada el 13/10/26 |
 | documentation-and-adrs | opcional | Decisiones (mapeadas a las `DEC-`) y documentación |
-| ci-cd-and-automation | opcional | Pipeline de GitHub Actions |
-| shipping-and-launch | opcional | Despliegue on-premise |
+| ci-cd-and-automation | requerida | Tickets de `infra` (`implementador-infra`): pipeline de GitHub Actions |
+| shipping-and-launch | requerida | Tickets de `infra` (`implementador-infra`): Compose y despliegue on-premise |
 | performance-optimization | opcional | PC3: RNF de rendimiento |
 | observability-and-instrumentation | opcional | PC3: logs y diagnóstico |
 

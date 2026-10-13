@@ -9,8 +9,8 @@ description: Conducts multi-axis code review. Use before merging any change. Use
 - Proceso de Rumbo: [[DEC-0014 Flujo de implementación con agentes]] y `06-Desarrollo/Flujo de implementación.md`. Stack y herramientas de calidad: `DEC-0001`. Todo el código vive en `src/`.
 - Los artefactos que se escriben en el vault van en español de Argentina, con tildes. El código y los identificadores siguen las convenciones del stack.
 - Los comandos `/spec`, `/plan`, `/build`, `/test`, `/review` y `/ship` no están instalados: en Rumbo se usan `/tomar-ticket`, `/implementar-ticket` y `/cerrar-modulo`.
-- La usa el subagente `reviewer-ticket` sobre el diff de un ticket. Además de los cinco ejes, controlar que el código cumpla los criterios del ticket y las reglas del dominio que enlaza (CU, RF, RN, DEC).
-- Formato de salida y severidades: los de `.claude/agents/reviewer-ticket.md`.
+- La precargan los subagentes `reviewer-ticket` y `reviewer-seguridad` sobre el diff de un ticket. Además de los cinco ejes, controlar que el código cumpla los criterios del ticket y las reglas del dominio que enlaza (CU, RF, RN, DEC).
+- Formato de salida y severidades: los de la skill `review-de-ticket`, que se precarga junto con esta.
 
 ---
 

@@ -52,10 +52,14 @@ El **orquestador** es la sesión principal de cada persona, en **Opus 5.5 con ef
 | Paso | Subagente (`.claude/agents/`) | Control del orquestador |
 |---|---|---|
 | 🔴 Rojo | `test-writer` | Los tests fallan, y por el motivo correcto |
-| 🟢 Verde | `implementador` (modo verde) | Tests en verde y **archivos de test intactos** (`git diff`) |
-| 🔵 Refactor | `implementador` (modo refactor) | Siguen en verde y los tests intactos |
-| 🔍 Review | `reviewer-ticket` (**modelo distinto del implementador**) | Clasifica los hallazgos por severidad |
-| 🔧 Fix | `implementador` (modo fix) | Tests, lint y type-check en verde |
+| 🟢 Verde | implementador **según la capa**: `implementador` (backend y shared), `implementador-contrato`, `implementador-front` (web y mobile) o `implementador-infra` | Tests en verde y **archivos de test intactos** (`git diff`) |
+| 🔵 Refactor | `simplificador` | Siguen en verde y los tests intactos |
+| 🔍 Review | `reviewer-ticket`, o `reviewer-seguridad` si el riesgo es alto (**modelo distinto del implementador**) | Clasifica los hallazgos por severidad |
+| 🔧 Fix | el mismo implementador (modo fix) | Tests, lint y type-check en verde |
+
+- **Skills precargadas** (actualizado el 13/10/26): cada subagente declara sus skills en el campo `skills:` de su definición y Claude Code inyecta su contenido completo al arrancarlo, así que no dependen de que el modelo las lea. La tabla de qué subagente precarga qué skill está en `.claude/skills/implementar-ticket/SKILL.md`.
+- Los tickets de **`infra`** no siguen TDD: se verifican ejecutando lo que construyen. Los de **`e2e`** no exigen el rojo.
+- El PR de cada ticket se escribe con la skill **`pr`**, con un formato fijo: objetivo, trazabilidad, evidencia TDD, tests y cobertura, review, modelos usados y checklist.
 
 - En el **front** se aplica TDD a la lógica (hooks, esquemas zod y componentes con lógica). Los e2e son tickets propios de la barrera del módulo.
 - **Merge:** si el ticket es de riesgo normal y el CI pasa, se mergea solo. Si es de **riesgo alto** (autenticación, permisos, dinero, estados, proceso diario), necesita la aprobación de otro integrante en GitHub. Siempre con merge commit, para que la secuencia rojo-verde-refactor quede como evidencia.
@@ -80,7 +84,7 @@ Cuando todos los tickets de un módulo están hechos, `/cerrar-modulo` prepara u
 - [[Tablero de tickets]] es una consulta Dataview que muestra en vivo quién tiene qué.
 
 ### 9. Skills de Addy Osmani
-Se copiaron a `.claude/skills/`, fijadas al commit `1be8e34`, con su licencia y un bloque «Adaptación Rumbo» arriba de cada una: `spec-driven-development`, `planning-and-task-breakdown`, `interview-me`, `test-driven-development`, `incremental-implementation`, `source-driven-development`, `code-review-and-quality`, `security-and-hardening`, `documentation-and-adrs` (mapeada a las `DEC-`), `ci-cd-and-automation`, `shipping-and-launch`, `performance-optimization` y `observability-and-instrumentation` (estas dos, para el PC3). Las propias del flujo son `tomar-ticket`, `implementar-ticket` y `cerrar-modulo`. Catálogo en [[Skills compartidas]].
+Se copiaron a `.claude/skills/`, fijadas al commit `1be8e34`, con su licencia y un bloque «Adaptación Rumbo» arriba de cada una: `spec-driven-development`, `planning-and-task-breakdown`, `interview-me`, `test-driven-development`, `incremental-implementation`, `source-driven-development`, `code-review-and-quality`, `security-and-hardening`, `documentation-and-adrs` (mapeada a las `DEC-`), `ci-cd-and-automation`, `shipping-and-launch`, `performance-optimization` y `observability-and-instrumentation` (estas dos, para el PC3). El 13/10/26 se sumaron `api-and-interface-design`, `frontend-ui-engineering`, `debugging-and-error-recovery` y `code-simplification`. Las propias del flujo son `tomar-ticket`, `implementar-ticket`, `cerrar-modulo`, `review-de-ticket` y `pr`. Catálogo en [[Skills compartidas]].
 
 ### 10. Código en `src/`
 El código vive en el mismo repositorio del vault, dentro de `src/`. Esto **ajusta la estructura** de [[DEC-0001 Stack tecnológico|DEC-0001]]: `src/apps/web`, `src/apps/mobile`, `src/packages/shared` y `src/backend`. Obsidian ignora `src/`.

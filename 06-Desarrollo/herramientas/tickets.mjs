@@ -19,7 +19,7 @@ import { spawnSync } from 'node:child_process';
 
 const HORAS_VENCIMIENTO = 48;
 const ESTADOS = ['libre', 'tomado', 'hecho', 'bloqueado'];
-const CAPAS = ['backend', 'web', 'mobile', 'shared', 'e2e', 'infra'];
+const CAPAS = ['contrato', 'backend', 'web', 'mobile', 'shared', 'e2e', 'infra'];
 const TAMANOS = ['XS', 'S', 'M'];
 const RIESGOS = ['normal', 'alto'];
 const MODELOS = ['haiku', 'sonnet', 'opus'];
