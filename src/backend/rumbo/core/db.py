@@ -1,6 +1,8 @@
 from collections.abc import AsyncIterator
 from functools import lru_cache
+from typing import Annotated
 
+from fastapi import Depends
 from sqlalchemy.ext.asyncio import (
     AsyncEngine,
     AsyncSession,
@@ -41,3 +43,8 @@ async def obtener_sesion() -> AsyncIterator[AsyncSession]:
     """Dependencia de FastAPI: sesión async del pedido."""
     async for sesion in sesion_por_pedido(_fabrica_de_la_app()):
         yield sesion
+
+
+SesionDep = Annotated[AsyncSession, Depends(obtener_sesion, scope="function")]
+"""Única forma de pedir sesión en los routers. `scope="function"` hace que el commit
+corra antes de enviar la respuesta: si falla, el cliente recibe un error y no un 2xx."""

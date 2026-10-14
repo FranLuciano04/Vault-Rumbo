@@ -2,11 +2,10 @@ import os
 from collections.abc import AsyncIterator
 
 import pytest
+from httpx import ASGITransport, AsyncClient
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, create_async_engine
 from sqlalchemy.pool import NullPool
-
-from httpx import ASGITransport, AsyncClient
 
 
 class _EntornoTests(BaseSettings):

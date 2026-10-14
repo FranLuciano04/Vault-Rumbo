@@ -47,3 +47,14 @@ def test_rnf05_la_app_no_arranca_sin_database_url(tmp_path: Path) -> None:
 
     assert resultado.returncode != 0
     assert "database_url" in resultado.stderr.lower()
+
+
+def test_rnf05_settings_rechaza_database_url_sin_driver_asyncpg(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv("DATABASE_URL", "postgresql://u:p@localhost:5432/x")
+
+    with pytest.raises(ValidationError) as error:
+        Settings(_env_file=None)
+
+    assert "postgresql+asyncpg://" in str(error.value)
