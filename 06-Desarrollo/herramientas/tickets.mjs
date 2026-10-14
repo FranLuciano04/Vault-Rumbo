@@ -10,6 +10,8 @@
 //   liberar <T-NNN> [motivo]  Suelta un ticket propio, o uno ajeno sin actividad hace más de 48 h.
 //   vencidos                Lista los tickets tomados sin actividad hace más de 48 h.
 //   hecho <T-NNN>           Marca el ticket como hecho (se corre en la rama del ticket, antes del PR).
+//   fase <T-NNN> <rojo|verde|refactor|fix|hecho> [mensaje] [--tocar-tests]
+//                           En la rama del ticket: verifica que los tests sigan como en el rojo, commitea y sube.
 //   publicar-grafo          En main: regenera el grafo y lo sube (después de mergear un PR).
 //   modulo <MN>             Estado de un módulo y los merges de sus tickets (para la review de Codex).
 
@@ -333,6 +335,48 @@ function hecho(id) {
   console.log(`${id} marcado como hecho en ${t.rel}. Commitealo junto con el PR.`);
 }
 
+// Una fase del TDD en una sola llamada: verificar que los tests sigan intactos, commitear y subir la rama.
+const ES_TEST = /(^|\/)(tests?|__tests__|e2e)\/|\.(test|spec)\.[jt]sx?$|(^|\/)test_[^/]*\.py$/;
+const FASES = { rojo: 'test', verde: 'feat', refactor: 'refactor', fix: 'fix', hecho: 'tickets' };
+
+function fase(id, nombre, resto) {
+  if (!FASES[nombre]) throw new Error(`Fase desconocida: ${nombre}. Usá ${Object.keys(FASES).join(', ')}.`);
+  const tocarTests = resto.includes('--tocar-tests');
+  const mensaje = resto.filter(a => a !== '--tocar-tests').join(' ').trim();
+  const t = buscar(cargarTickets(), id);
+  const rama = gitOk(['rev-parse', '--abbrev-ref', 'HEAD']);
+  if (rama !== t.rama) throw new Error(`Esto se corre en la rama del ticket (${t.rama}); estás en ${rama}.`);
+
+  if (nombre === 'hecho') {
+    fs.writeFileSync(t.archivo, setCampo(fs.readFileSync(t.archivo, 'utf8'), 'estado', 'hecho'));
+    gitOk(['add', '-A']);
+    gitOk(['commit', '-m', `tickets: ${id} hecho`]);
+  } else {
+    if (!mensaje) throw new Error('Falta el mensaje del commit.');
+    if (nombre !== 'rojo') {
+      // La base es el último commit que fijó los tests: el rojo o un fix autorizado a tocarlos.
+      const rojo = git(['log', '--format=%H', `--grep=^test(${id}):`, '--grep=^Tests-autorizados: sí', 'origin/main..HEAD']).out.split(/\r?\n/)[0];
+      if (rojo) {
+        const cambiados = new Set([
+          ...git(['diff', '--name-only', rojo, 'HEAD']).out.split(/\r?\n/),
+          ...git(['status', '--porcelain']).out.split(/\r?\n/).map(l => l.slice(3).replace(/^.* -> /, '')),
+        ].filter(f => f && ES_TEST.test(f)));
+        if (cambiados.size && !(nombre === 'fix' && tocarTests)) {
+          console.error(`❌ Cambiaron archivos de test desde el rojo (${rojo.slice(0, 7)}):\n  ${[...cambiados].join('\n  ')}\nRestauralos con «git checkout ${rojo.slice(0, 7)} -- <archivo>». Solo un fix autorizado usa --tocar-tests.`);
+          process.exit(2);
+        }
+      }
+    }
+    gitOk(['add', '-A']);
+    if (!git(['diff', '--cached', '--quiet']).code) { console.log(`Sin cambios en la fase ${nombre}: no hay commit.`); return; }
+    const tipo = nombre === 'verde' && t.capa === 'infra' ? 'chore' : FASES[nombre];
+    gitOk(['commit', '-m', `${tipo}(${id}): ${mensaje}`, ...(tocarTests ? ['-m', 'Tests-autorizados: sí'] : [])]);
+  }
+  const push = git(['push', '-u', 'origin', rama]);
+  if (push.code !== 0) throw new Error(`El commit quedó local, pero el push falló:\n${push.err}`);
+  console.log(`🟢 ${gitOk(['log', '-1', '--format=%h %s'])} — subido a ${rama}.\n${gitOk(['show', '--stat', '--format=', 'HEAD'])}`);
+}
+
 function publicarGrafo() {
   exigirMainLimpio();
   if (!escribirGrafo()) { console.log('El grafo ya estaba al día.'); return; }
@@ -396,10 +440,11 @@ try {
     case 'liberar': liberar(args[0], args.slice(1).join(' ')); break;
     case 'vencidos': vencidos(); break;
     case 'hecho': hecho(args[0]); break;
+    case 'fase': fase(args[0], args[1], args.slice(2)); break;
     case 'publicar-grafo': publicarGrafo(); break;
     case 'modulo': modulo(args[0]); break;
     default:
-      console.log(fs.readFileSync(new URL(import.meta.url), 'utf8').split('\n').slice(1, 14).map(l => l.replace(/^\/\/ ?/, '')).join('\n'));
+      console.log(fs.readFileSync(new URL(import.meta.url), 'utf8').split('\n').slice(1, 16).map(l => l.replace(/^\/\/ ?/, '')).join('\n'));
       process.exit(cmd ? 1 : 0);
   }
 } catch (e) {

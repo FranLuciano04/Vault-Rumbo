@@ -42,16 +42,16 @@ Tipo `proyecto`, licencia MIT (`.claude/skills/LICENSE-agent-skills`), origen [a
 | planning-and-task-breakdown | requerida | Fase 0: plan y tickets |
 | test-driven-development | requerida | Rojo, verde y refactor de cada ticket |
 | incremental-implementation | requerida | Implementación por tajadas y commits por fase |
-| source-driven-development | requerida | Verificar contra la documentación oficial del stack |
+| source-driven-development | requerida | Verificar contra la documentación oficial del stack; a demanda, ante una librería nueva o una API dudosa (14/10/26) |
 | code-review-and-quality | requerida | Review de cada ticket |
 | security-and-hardening | requerida | Tickets de riesgo alto (`reviewer-seguridad`) — adaptación alineada con [[DEC-0016 Autenticación con Firebase\|DEC-0016]] el 14/10/26 |
 | api-and-interface-design | requerida | Ticket de contrato de cada módulo (`implementador-contrato`) — sumada el 13/10/26 |
 | frontend-ui-engineering | requerida | Tickets de web y mobile (`implementador-front`) — sumada el 13/10/26 |
-| debugging-and-error-recovery | requerida | Cuando un verde falla, antes de escalar de modelo — sumada el 13/10/26 |
+| debugging-and-error-recovery | requerida | Cuando un verde falla, antes de escalar de modelo; la invoca el implementador a demanda (14/10/26) — sumada el 13/10/26 |
 | code-simplification | requerida | Paso de refactor (`simplificador`) — sumada el 13/10/26 |
 | documentation-and-adrs | opcional | Decisiones (mapeadas a las `DEC-`) y documentación |
 | ci-cd-and-automation | requerida | Tickets de `infra` (`implementador-infra`): pipeline de GitHub Actions |
-| shipping-and-launch | requerida | Tickets de `infra` (`implementador-infra`): Compose y despliegue on-premise |
+| shipping-and-launch | requerida | Tickets de despliegue (M10), a demanda de `implementador-infra` |
 | performance-optimization | opcional | PC3: RNF de rendimiento |
 | observability-and-instrumentation | opcional | PC3: logs y diagnóstico |
 

@@ -33,7 +33,8 @@ tags:: #tipo/referencia #estado/formalizado #pc/pc2
    - 🟢 **Verde:** el implementador de la capa escribe el código mínimo → tests en verde **y** `git diff` sin cambios en los tests.
    - 🔵 **Refactor:** `simplificador` limpia el diff → siguen en verde.
    - 🔍 **Review:** `reviewer-ticket` (o `reviewer-seguridad` si el riesgo es alto), con un **modelo distinto** del implementador → hallazgos clasificados por severidad.
-   - 🔧 **Fix:** el implementador arregla → lint, type-check y tests en verde.
+   - 🔧 **Fix:** el **mismo** implementador del verde arregla (se lo continúa, no se lanza otro) → lint, type-check y tests en verde.
+   - Cada fase se cierra con `tickets.mjs fase T-NNN <fase> "<mensaje>"`, que controla los tests, commitea y sube en un solo paso.
    - Los tickets de `infra` no siguen TDD (se verifican ejecutando) y los de `e2e` no exigen el rojo.
 3. **Cierre:** el PR, escrito con la skill **`pr`** (formato fijo), marca el ticket como `hecho`.
    - **Riesgo normal:** se mergea solo cuando pasa el CI.
@@ -64,6 +65,7 @@ node 06-Desarrollo/herramientas/tickets.mjs disponibles
 node 06-Desarrollo/herramientas/tickets.mjs tomar T-NNN
 node 06-Desarrollo/herramientas/tickets.mjs vencidos
 node 06-Desarrollo/herramientas/tickets.mjs liberar T-NNN <motivo>
+node 06-Desarrollo/herramientas/tickets.mjs fase T-NNN <rojo|verde|refactor|fix|hecho> "<mensaje>"
 node 06-Desarrollo/herramientas/tickets.mjs validar
 node 06-Desarrollo/herramientas/tickets.mjs grafo
 node 06-Desarrollo/herramientas/tickets.mjs publicar-grafo

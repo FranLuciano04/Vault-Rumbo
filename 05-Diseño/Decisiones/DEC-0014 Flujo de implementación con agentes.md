@@ -5,7 +5,7 @@ modulo: [desarrollo]
 decisores: [Francisco, Nahuel, Paloma]
 fecha_aprobacion: 12/10/26
 supersede:
-actualizado: 12/10/26
+actualizado: 14/10/26
 ---
 # DEC-0014 Flujo de implementación con agentes
 
@@ -52,12 +52,16 @@ El **orquestador** es la sesión principal de cada persona, en **Opus 5.5 con ef
 | Paso | Subagente (`.claude/agents/`) | Control del orquestador |
 |---|---|---|
 | 🔴 Rojo | `test-writer` | Los tests fallan, y por el motivo correcto |
-| 🟢 Verde | implementador **según la capa**: `implementador` (backend y shared), `implementador-contrato`, `implementador-front` (web y mobile) o `implementador-infra` | Tests en verde y **archivos de test intactos** (`git diff`) |
+| 🟢 Verde | implementador **según la capa**: `implementador` (backend y shared), `implementador-contrato`, `implementador-front` (web y mobile) o `implementador-infra` | Tests en verde y **archivos de test intactos** (`tickets.mjs fase`) |
 | 🔵 Refactor | `simplificador` | Siguen en verde y los tests intactos |
 | 🔍 Review | `reviewer-ticket`, o `reviewer-seguridad` si el riesgo es alto (**modelo distinto del implementador**) | Clasifica los hallazgos por severidad |
-| 🔧 Fix | el mismo implementador (modo fix) | Tests, lint y type-check en verde |
+| 🔧 Fix | el **mismo** implementador del verde, continuado con `SendMessage` (modo fix) | Tests, lint y type-check en verde |
 
 - **Skills precargadas** (actualizado el 13/10/26): cada subagente declara sus skills en el campo `skills:` de su definición y Claude Code inyecta su contenido completo al arrancarlo, así que no dependen de que el modelo las lea. La tabla de qué subagente precarga qué skill está en `.claude/skills/implementar-ticket/SKILL.md`.
+- **Ajuste por tokens (14/10/26, aprobado por el equipo tras medir T-001 y T-009):**
+  - El fix lo hace el implementador del verde, continuado con `SendMessage`: un subagente nuevo releía todo y costaba casi lo mismo que el verde (35,6 mil tokens contra 38,3 mil en T-009).
+  - Lo mecánico de cada fase (controlar que los tests sigan intactos, commit y push) es una sola llamada a `tickets.mjs fase`: eran 16 de las 28 llamadas del orquestador.
+  - Se precargan menos skills: `debugging-and-error-recovery`, `source-driven-development` y `shipping-and-launch` se invocan a demanda (pesaban el 22 a 24 % del implementador).
 - Los tickets de **`infra`** no siguen TDD: se verifican ejecutando lo que construyen. Los de **`e2e`** no exigen el rojo.
 - El PR de cada ticket se escribe con la skill **`pr`**, con un formato fijo: objetivo, trazabilidad, evidencia TDD, tests y cobertura, review, modelos usados y checklist.
 
@@ -71,7 +75,7 @@ Cuando todos los tickets de un módulo están hechos, `/cerrar-modulo` prepara u
 
 | Modelo | Hace | No hace nunca |
 |---|---|---|
-| **Haiku 5.5** | Lo mecánico, donde la respuesta la fija un patrón existente o una instrucción exacta: configuración (ruff, ESLint, `tsconfig`, CI desde plantilla), ABM de catálogos **después** del primero, tipos y mocks generados desde el OpenAPI, fixtures, arreglos puntuales de una review | Tests de lógica de negocio, reviews, nada con reglas del dominio ni de riesgo alto |
+| **Haiku 5.5** | Lo mecánico, donde la respuesta la fija un patrón existente o una instrucción exacta: configuración (ruff, ESLint, `tsconfig`, CI desde plantilla), ABM de catálogos **después** del primero, tipos y mocks generados desde el OpenAPI, fixtures (desde el 14/10/26 ya no hace los arreglos de la review: los hace el implementador del verde) | Tests de lógica de negocio, reviews, nada con reglas del dominio ni de riesgo alto |
 | **Sonnet 5.5** | Features estándar, la mayoría de los tests, la review de tickets implementados por Opus, el primer ABM que fija el patrón | Implementar lo de riesgo alto |
 | **Opus 5.5** | Orquestador. Lógica delicada: estados de `Viaje`, `Pago`, `Oportunidad` y `Cotización`; multimoneda; comisión ([[RN-01 Comisión automática]]); autorización por fila ([[DEC-0005 Autenticación y modelo de roles|DEC-0005]] y [[DEC-0008 Autenticación propia y rol de vendedor freelance|DEC-0008]]); idempotencia del proceso diario; la review de lo que implementan Sonnet o Haiku | — |
 
