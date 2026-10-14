@@ -3,7 +3,7 @@ id: T-009
 titulo: Responder los errores con problem+json
 modulo: M0 — Fundaciones
 capa: backend
-estado: libre
+estado: tomado
 depende_de: [T-001]
 tamaño: S
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [RNF-06, RNF-12]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: Nahuel Viniegra
+tomado_el: 14/10/26 18:00
+rama: feature/T-009-responder-los-errores-con-problem-json
 pr:
 ---
 # T-009 Responder los errores con problem+json
