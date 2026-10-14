@@ -30,6 +30,11 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
+## 14/10/26 — Nahuel (Claude Opus 5.5) — T-009: errores problem+json y paginación
+- **Hecho:** T-009 implementado con el flujo de [[Flujo de implementación|DEC-0014]]. Manejadores problem+json para las excepciones de dominio, `HTTPException`, la validación 422 (con la lista `errores`) y un 500 genérico que no filtra detalles. Dependencia común de paginación (`pagina`, `por_pagina` ≤ 100, 20 por defecto) y `Pagina[T]`. La review con Opus encontró que las subclases de las excepciones de dominio respondían 500, porque el estado se buscaba por tipo exacto; se corrigió con `isinstance` y tests nuevos. 22 tests, cobertura del backend 97,9 %. PR [#2](https://github.com/FranLuciano04/Vault-Rumbo/pull/2) mergeado.
+- **Commits:** 82cda4c, 1ead4bf, 4eb0557, de5e084 (merge c176046).
+- **Pendiente:** decisiones que el contrato no fija y conviene ratificar: `por_pagina` por defecto 20 y no incluir el campo `type` del RFC 9457. Queda sin test el caso de `HTTPException` con un `detail` que no es texto.
+
 ## 14/10/26 — Nahuel (Claude Opus 5.5) — T-001: backend con uv y FastAPI
 - **Hecho:** primer ticket implementado con el flujo de [[Flujo de implementación|DEC-0014]]. `src/backend` con Python 3.13, uv, FastAPI (`GET /api/salud`), las capas de ARQ, ruff, mypy, pytest y cobertura ≥ 70 %. La review con Opus encontró que `strict = true` en un override de mypy 2.4 se aplica a todo el proyecto; se corrigió con flags explícitos. Se agregó a la spec §4 el comando de cobertura de `negocio/` ≥ 80 %. PR [#1](https://github.com/FranLuciano04/Vault-Rumbo/pull/1) mergeado.
 - **Commits:** 64fe1c2, be65483, 3a5aa0c (merge 7dc0615).
