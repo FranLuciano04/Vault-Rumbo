@@ -14,7 +14,7 @@ tags:: #tipo/referencia
 
 | Módulo | Tickets | Hechos | Tomados | Disponibles | Esperando | Bloqueados | Estado del módulo |
 |---|---|---|---|---|---|---|---|
-| M0 — Fundaciones | 25 | 3 | 0 | 3 | 19 | 0 | 🛠️ en curso |
+| M0 — Fundaciones | 25 | 3 | 1 | 2 | 19 | 0 | 🛠️ en curso |
 | M1 — Usuarios y configuración | 13 | 0 | 0 | 0 | 13 | 0 | 🛠️ en curso |
 | M2 — Clientes | 11 | 0 | 0 | 0 | 11 | 0 | 🛠️ en curso |
 | M3 — Alertas | 11 | 0 | 0 | 0 | 11 | 0 | 🛠️ en curso |
@@ -38,7 +38,7 @@ flowchart LR
     T003["T-003 · Crear la app mobile con Expo development build<br/><small>infra</small>"]:::esperando
     T004["T-004 · Levantar PostgreSQL de desarrollo con Docker Compose<br/><small>infra</small>"]:::hecho
     T005["T-005 · Configurar el proyecto de Firebase con su emulador<br/><small>infra · ⚠️ riesgo alto</small>"]:::disponible
-    T006["T-006 · Configurar la sesión async de la base con su entorno<br/><small>backend</small>"]:::disponible
+    T006["T-006 · Configurar la sesión async de la base con su entorno<br/><small>backend</small><br/>👤 Nahuel Viniegra"]:::tomado
     T007["T-007 · Mapear las entidades del ER con SQLAlchemy<br/><small>backend</small>"]:::esperando
     T008["T-008 · Crear la migración inicial de Alembic desde rumbo.sql<br/><small>backend</small>"]:::esperando
     T009["T-009 · Responder los errores con problem+json<br/><small>backend</small>"]:::hecho

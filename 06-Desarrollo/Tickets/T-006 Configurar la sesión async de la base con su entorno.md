@@ -3,7 +3,7 @@ id: T-006
 titulo: Configurar la sesión async de la base con su entorno
 modulo: M0 — Fundaciones
 capa: backend
-estado: libre
+estado: tomado
 depende_de: [T-001, T-004]
 tamaño: S
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [DEC-0015, RNF-05]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: Nahuel Viniegra
+tomado_el: 14/10/26 19:30
+rama: feature/T-006-configurar-la-sesion-async-de-la-base-co
 pr:
 ---
 # T-006 Configurar la sesión async de la base con su entorno
