@@ -33,16 +33,27 @@ select = ["E", "F", "I", "B", "UP", "S", "ASYNC"]
 [tool.mypy]
 python_version = "3.13"
 warn_unused_configs = true
+warn_redundant_casts = true
 check_untyped_defs = true
 
 [[tool.mypy.overrides]]
 module = ["rumbo.core", "rumbo.core.*", "rumbo.negocio", "rumbo.negocio.*"]
-strict = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+disallow_untyped_calls = true
+disallow_untyped_decorators = true
+disallow_any_generics = true
+disallow_subclassing_any = true
+check_untyped_defs = true
+no_implicit_reexport = true
+warn_return_any = true
+strict_equality = true
+extra_checks = true
+warn_unused_ignores = true
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
 testpaths = ["tests"]
-addopts = "--cov=rumbo --cov-report=term-missing"
 
 [tool.coverage.run]
 source = ["rumbo"]

@@ -69,6 +69,7 @@ uv run fastapi dev rumbo/main.py                              # API en http://lo
 uv run ruff check . && uv run ruff format --check .
 uv run mypy rumbo
 uv run pytest --cov=rumbo --cov-report=term-missing           # umbrales en pyproject (§6)
+uv run pytest --cov=rumbo/negocio --cov-fail-under=80         # umbral de negocio para el CI (§6)
 uv run python -m rumbo.presentacion.jobs.diario               # proceso automático, a mano
 uv run python -m rumbo.presentacion.cli exportar-openapi ../packages/shared/openapi.json
 
