@@ -1,13 +1,16 @@
 ---
 tipo: referencia
-estado: en-revision
+estado: formalizado
+fecha_aprobacion: 14/10/26
 responsable: equipo
-actualizado: 13/10/26
+actualizado: 14/10/26
 ---
 # Plan de implementación
 
-tags:: #tipo/referencia #estado/en-revision #pc/pc2
+tags:: #tipo/referencia #estado/formalizado #pc/pc2
 
+> ✅ **Aprobado por el equipo completo el 14/10/26**, junto con los tickets.
+>
 > Cómo se cortó la [[Spec de implementación]] en tickets, en qué orden conviene trabajarlos y qué riesgos tiene el plan. Los tickets son los archivos de `06-Desarrollo/Tickets/`. El estado en vivo está en el [[Grafo de tickets]] y el [[Tablero de tickets]]. El proceso está en el [[Flujo de implementación]].
 
 ## 1. Números
