@@ -3,7 +3,7 @@ id: T-004
 titulo: Levantar PostgreSQL de desarrollo con Docker Compose
 modulo: M0 — Fundaciones
 capa: infra
-estado: libre
+estado: tomado
 depende_de: []
 tamaño: XS
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: haiku
 modelo_review: opus
 trazabilidad: [DEC-0015]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: Nahuel Viniegra
+tomado_el: 14/10/26 18:39
+rama: feature/T-004-levantar-postgresql-de-desarrollo-con-do
 pr:
 ---
 # T-004 Levantar PostgreSQL de desarrollo con Docker Compose
