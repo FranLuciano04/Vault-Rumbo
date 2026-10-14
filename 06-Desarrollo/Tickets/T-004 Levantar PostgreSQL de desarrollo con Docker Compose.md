@@ -3,7 +3,7 @@ id: T-004
 titulo: Levantar PostgreSQL de desarrollo con Docker Compose
 modulo: M0 — Fundaciones
 capa: infra
-estado: tomado
+estado: hecho
 depende_de: []
 tamaño: XS
 riesgo: normal
@@ -46,3 +46,8 @@ No sigue TDD (`infra`). Se verifica levantando el Compose y conectándose a las 
 - El Compose de producción (ticket propio).
 
 ## Notas de implementación
+- Un solo `src/docker-compose.dev.yml` con dos servicios `postgres:18` (dev con volumen, test con `tmpfs`), según el comando único de la Spec §4. Si el equipo entendía «dos archivos» en DEC-0015 §1, se aclara en la DEC.
+- Credenciales obligatorias desde `src/.env` (plantilla `src/.env.example`, agregada fuera de «archivos probables»). Puertos solo en 127.0.0.1.
+- Desvío: puertos del host sobrescribibles con `RUMBO_DEV_PORT` y `RUMBO_TEST_PORT` (por defecto 5432 y 5433). En la PC de Nahuel, 5432 y 5433 estaban ocupados, así que se verificó en 15432 y 15433: las dos bases quedaron healthy y psql conectó a `rumbo` y `rumbo_test` (PG 18.6).
+- Review (opus): 3 menores, todos arreglados (healthcheck por TCP, nota de puertos y nota de codificación de la clave en `src/backend/.env.example`).
+- Modelos: implementación y fix con haiku, review con opus. Sin escalados.
