@@ -68,7 +68,12 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
   - El fix ahora lo hace el implementador del verde, continuado con `SendMessage`; Haiku ya no hace los arreglos.
   - Nuevo `tickets.mjs fase T-NNN <rojo|verde|refactor|fix|hecho>`: controla que los tests sigan intactos (sale con código 2 si cambiaron; `--tocar-tests` para un fix autorizado), commitea y sube en una llamada. Probado en un repo de prueba.
   - Los implementadores precargan menos skills; `debugging-and-error-recovery`, `source-driven-development` y `shipping-and-launch` se invocan a demanda (sumaron la herramienta Skill).
-- **Pendiente:** medir el próximo ticket de backend para confirmar el ahorro; reiniciar Claude Code para que cargue las definiciones nuevas de los subagentes.
+- **Medición de T-006 (mismo día):** el fix continuado sumó 5,9 mil tokens, contra ~36 mil de un subagente nuevo, y las skills precargadas del implementador bajaron del 22 % al 7 %. La sesión principal perdió ~15 pasos en problemas del entorno (`SSLKEYLOGFILE`, temporal, puertos), que quedaron en la spec §4.
+  - `tickets.mjs fase` acepta `--test "<cmd>"`: corre los tests en la misma llamada (tienen que fallar en el rojo y pasar en el resto) y no commitea si no se cumple. Probado en un repo de prueba.
+  - Los implementadores formatean y corrigen el lint antes de devolver.
+  - Ticket nuevo T-140 (hallazgo T-006): que el `conftest` quite `SSLKEYLOGFILE`.
+  - Se descartó saltear el refactor en los tickets chicos.
+- **Pendiente:** T-140; reiniciar Claude Code para que cargue las definiciones nuevas.
 
 ## 13/10/26 — Nahuel, con Francisco y Paloma (Claude Opus 5.5) — grill y spec de implementación
 - **Paso 3, plan y tickets (mismo día):** el equipo aprobó la [[Spec de implementación]] (formalizada; se sumó `pydantic-settings` a §3). Con `planning-and-task-breakdown` se escribió el [[Plan de implementación]] (`en-revision`) y se crearon **139 tickets** (T-001 a T-139) en los 11 módulos: contrato primero, backend por CU o flujo, web y mobile por pantalla, un e2e por módulo (dos en M6). El proyecto de Firebase es T-005. Prioridad del PC2: los 79 tickets del camino de CU-01 (T-108). `tickets.mjs validar` da 139 válidos y el [[Grafo de tickets]] quedó regenerado; arrancan disponibles T-001, T-002, T-004 y T-005.

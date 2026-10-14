@@ -1,0 +1,51 @@
+---
+id: T-140
+titulo: Aislar los tests de la variable SSLKEYLOGFILE
+modulo: M0 — Fundaciones
+capa: backend
+estado: libre
+depende_de: [T-006]
+tamaño: XS
+riesgo: normal
+modelo_tests: sonnet
+modelo_impl: haiku
+modelo_review: opus
+trazabilidad: [DEC-0015, RNF-15]
+origen: hallazgo T-006
+asignado:
+tomado_el:
+rama:
+pr:
+---
+# T-140 Aislar los tests de la variable SSLKEYLOGFILE
+
+tags:: #tipo/ticket
+
+> No editar `estado`, `asignado`, `tomado_el` ni `rama` a mano: los maneja `06-Desarrollo/herramientas/tickets.mjs` (ver [[Flujo de implementación]]).
+
+## Objetivo
+`uv run pytest` funciona en Windows también cuando lo corre Claude Code, sin anteponer `env -u SSLKEYLOGFILE`. Hoy el sandbox de Claude Code define `SSLKEYLOGFILE`, y en Windows asyncpg aborta con `OPENSSL_Uplink … no OPENSSL_Applink` al conectarse a PostgreSQL (lo encontró T-006).
+
+## Criterios de aceptación
+- [ ] `tests/conftest.py` quita `SSLKEYLOGFILE` del entorno al cargarse, antes de cualquier conexión, con un comentario que explica el porqué y cita este ticket.
+- [ ] Con `SSLKEYLOGFILE` definida, `uv run pytest` (sin `env -u`) pasa completo.
+- [ ] La spec §4 deja de pedir `env -u SSLKEYLOGFILE` y conserva las notas de `--basetemp` y de los puertos.
+
+## Tests esperados
+- `tests/test_entorno.py`: `test_rnf15_sslkeylogfile_no_llega_a_los_tests` comprueba que la variable no está en `os.environ` durante los tests.
+- Verificación del orquestador: `SSLKEYLOGFILE=/tmp/x uv run pytest` en verde. Sin el arreglo, en Windows aborta.
+
+## Contexto (leer solo esto)
+- [[T-006 Configurar la sesión async de la base con su entorno]] — «Notas de implementación», punto «Entorno local».
+- [[Spec de implementación]] §4 — bloque «Entorno de Claude Code en Windows».
+
+## Archivos probables
+- `src/backend/tests/conftest.py`
+- `src/backend/tests/test_entorno.py`
+- `06-Desarrollo/Spec de implementación.md`
+
+## Fuera de alcance
+- Los otros menores de T-006 (test de aislamiento que depende del orden y `motor.dispose()` al apagar): quedan para el lifespan.
+- Cambiar cómo se conecta la app fuera de los tests: a quien corre el servidor en su terminal no le pasa.
+
+## Notas de implementación

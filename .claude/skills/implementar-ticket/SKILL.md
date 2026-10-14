@@ -43,21 +43,22 @@ Los implementadores invocan **a demanda** `debugging-and-error-recovery` (cuando
 2. Rama: `git checkout main && git pull --ff-only origin main`. Después, `git checkout <rama>` si ya existe (local o en `origin`), o `git checkout -b <rama>`.
 3. **Retomar:** si la rama ya tiene commits, mirá `git log main..HEAD --oneline` y seguí desde la fase que falta (`test` → `feat` → `refactor` → `fix` → `tickets: … hecho`).
 
+**Tests en la misma llamada:** `fase` acepta `--test "<comando>"`, que corre desde la raíz del repo, con bash. Pasale el comando que cubre los tests del ticket y la suite afectada (por ejemplo, `--test "cd src/backend && uv run pytest tests/api/test_errores.py"`). En el rojo exige que fallen (código 3 si pasan); en verde, refactor y fix, que pasen (código 4 si fallan). En ambos casos no commitea, y muestra las últimas líneas de la salida, así no hace falta correr los tests aparte.
+
 ## 1. 🔴 Rojo (todas las capas menos `infra`)
 - Lanzá `test-writer` con `model: <modelo_tests>`, en el modo de la tabla.
-- **Verificá vos:** corré los tests nuevos. En modo rojo tienen que **fallar**, y por el motivo correcto: una aserción, `NotImplementedError` o «no implementado». Si fallan por un error de sintaxis, un import del propio test o un fixture roto, devolvéselo una vez.
-- En **e2e**, si los tests pasan contra el sistema real, el ticket queda casi cerrado: pasá a la review. Si fallan, decidí con el reporte si es un bug del sistema (paso 2, en modo fix) o del test (devolvéselo).
-- `node 06-Desarrollo/herramientas/tickets.mjs fase T-NNN rojo "<qué fija> (RF-…)"`: commitea `test(T-NNN): …` y sube la rama (el push registra actividad para el vencimiento de 48 h).
+- **Verificá vos,** con la salida de `fase … rojo --test`: los tests tienen que **fallar**, y por el motivo correcto: una aserción, `NotImplementedError` o «no implementado». Si fallan por un error de sintaxis, un import del propio test o un fixture roto, devolvéselo una vez.
+- En **e2e** no se exige el rojo: corré `fase … rojo` **sin** `--test` y mirá vos la corrida. Si los tests pasan contra el sistema real, el ticket queda casi cerrado: pasá a la review. Si fallan, decidí con el reporte si es un bug del sistema (paso 2, en modo fix) o del test (devolvéselo).
+- `node 06-Desarrollo/herramientas/tickets.mjs fase T-NNN rojo "<qué fija> (RF-…)" --test "<cmd>"`: comprueba que fallan, commitea `test(T-NNN): …` y sube la rama (el push registra actividad para el vencimiento de 48 h).
 
 ## 2. 🟢 Verde
 - Lanzá el implementador de la tabla con `model: <modelo_impl>`, en modo **verde** (en `infra`, el único modo).
-- **Verificá vos:**
-  - Los tests del ticket y la suite afectada están en verde. En `infra`: lo que reportó como verificado, lo volvés a ejecutar.
-- `node 06-Desarrollo/herramientas/tickets.mjs fase T-NNN verde "<qué hace>"`: controla que **los tests estén intactos** desde el rojo, commitea `feat` (`chore` en `infra`) y sube. Si cambió un test, sale con código 2 y lista los archivos: restauralos con el comando que imprime, volvé a correr y devolvéselo al implementador.
+- En `infra`, lo que el implementador reportó como verificado lo volvés a ejecutar vos (pasalo como `--test` si es un comando).
+- `node 06-Desarrollo/herramientas/tickets.mjs fase T-NNN verde "<qué hace>" --test "<cmd>"`: comprueba que los tests y la suite afectada pasen, controla que **estén intactos** desde el rojo, commitea `feat` (`chore` en `infra`) y sube. Si cambió un test, sale con código 2 y lista los archivos: restauralos con el comando que imprime, volvé a correr y devolvéselo al implementador.
 
 ## 3. 🔵 Refactor (todas menos `e2e` e `infra`)
 - Lanzá `simplificador` con `model: <modelo_impl>`.
-- Tests en verde y `tickets.mjs fase T-NNN refactor "<qué simplificó>"` (si no hubo cambios, no commitea).
+- `tickets.mjs fase T-NNN refactor "<qué simplificó>" --test "<cmd>"` (si no hubo cambios, no commitea).
 
 ## 4. 🔍 Review
 - Lanzá `reviewer-ticket` (o `reviewer-seguridad` si el riesgo es alto) con `model: <modelo_review>`.
@@ -68,7 +69,7 @@ Los implementadores invocan **a demanda** `debugging-and-error-recovery` (cuando
 
 ## 5. 🔧 Fix
 - Continuá con `SendMessage` al **implementador del verde**, en modo **fix**, pasándole los hallazgos a arreglar. Solo si ya no se puede continuar (por ejemplo, al retomar en otra sesión) lanzá uno nuevo con `model: <modelo_impl>`. Si un hallazgo dice que un test está mal y estás de acuerdo, autorizalo **explícitamente** a corregir ese test.
-- Tests en verde y `tickets.mjs fase T-NNN fix "hallazgos de la review"`. Si autorizaste corregir un test, agregá `--tocar-tests`.
+- `tickets.mjs fase T-NNN fix "hallazgos de la review" --test "<cmd>"`. Si autorizaste corregir un test, agregá `--tocar-tests`.
 - Si hubo bloqueantes, una sola ronda más de review, solo sobre el diff del fix.
 
 ## 6. Checks

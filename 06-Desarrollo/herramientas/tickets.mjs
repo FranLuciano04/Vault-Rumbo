@@ -10,8 +10,9 @@
 //   liberar <T-NNN> [motivo]  Suelta un ticket propio, o uno ajeno sin actividad hace más de 48 h.
 //   vencidos                Lista los tickets tomados sin actividad hace más de 48 h.
 //   hecho <T-NNN>           Marca el ticket como hecho (se corre en la rama del ticket, antes del PR).
-//   fase <T-NNN> <rojo|verde|refactor|fix|hecho> [mensaje] [--tocar-tests]
-//                           En la rama del ticket: verifica que los tests sigan como en el rojo, commitea y sube.
+//   fase <T-NNN> <rojo|verde|refactor|fix|hecho> [mensaje] [--test "<cmd>"] [--tocar-tests]
+//                           En la rama del ticket: corre los tests (fallan en el rojo, pasan en el resto),
+//                           verifica que sigan como en el rojo, commitea y sube.
 //   publicar-grafo          En main: regenera el grafo y lo sube (después de mergear un PR).
 //   modulo <MN>             Estado de un módulo y los merges de sus tickets (para la review de Codex).
 
@@ -339,10 +340,33 @@ function hecho(id) {
 const ES_TEST = /(^|\/)(tests?|__tests__|e2e)\/|\.(test|spec)\.[jt]sx?$|(^|\/)test_[^/]*\.py$/;
 const FASES = { rojo: 'test', verde: 'feat', refactor: 'refactor', fix: 'fix', hecho: 'tickets' };
 
+// Corre los tests desde la raíz del repo (con bash, para que anden `env -u` y `cd … &&` también en Windows).
+// En el rojo tienen que fallar; en las demás fases, pasar. Si no, sale sin commitear.
+function correrTests(comando, nombre) {
+  let r = spawnSync('bash', ['-c', comando], { cwd: ROOT, encoding: 'utf8' });
+  if (r.error) r = spawnSync(comando, { cwd: ROOT, encoding: 'utf8', shell: true });
+  const salida = `${r.stdout || ''}${r.stderr || ''}`.trimEnd().split(/\r?\n/);
+  const cola = salida.slice(-25).join('\n');
+  const pasan = r.status === 0;
+  console.log(`🧪 ${comando}\n${salida.length > 25 ? '…\n' : ''}${cola}\n`);
+  if (nombre === 'rojo' && pasan) {
+    console.error('❌ Los tests pasan antes de implementar: en el rojo tienen que fallar. No se commiteó.');
+    process.exit(3);
+  }
+  if (nombre !== 'rojo' && !pasan) {
+    console.error(`❌ Los tests fallan (código ${r.status}): la fase ${nombre} necesita verde. No se commiteó.`);
+    process.exit(4);
+  }
+}
+
 function fase(id, nombre, resto) {
   if (!FASES[nombre]) throw new Error(`Fase desconocida: ${nombre}. Usá ${Object.keys(FASES).join(', ')}.`);
-  const tocarTests = resto.includes('--tocar-tests');
-  const mensaje = resto.filter(a => a !== '--tocar-tests').join(' ').trim();
+  const iTest = resto.indexOf('--test');
+  const comandoTest = iTest >= 0 ? resto[iTest + 1] : null;
+  if (iTest >= 0 && !comandoTest) throw new Error('--test necesita el comando entre comillas.');
+  const resto2 = iTest >= 0 ? [...resto.slice(0, iTest), ...resto.slice(iTest + 2)] : resto;
+  const tocarTests = resto2.includes('--tocar-tests');
+  const mensaje = resto2.filter(a => a !== '--tocar-tests').join(' ').trim();
   const t = buscar(cargarTickets(), id);
   const rama = gitOk(['rev-parse', '--abbrev-ref', 'HEAD']);
   if (rama !== t.rama) throw new Error(`Esto se corre en la rama del ticket (${t.rama}); estás en ${rama}.`);
@@ -353,6 +377,7 @@ function fase(id, nombre, resto) {
     gitOk(['commit', '-m', `tickets: ${id} hecho`]);
   } else {
     if (!mensaje) throw new Error('Falta el mensaje del commit.');
+    if (comandoTest) correrTests(comandoTest, nombre);
     if (nombre !== 'rojo') {
       // La base es el último commit que fijó los tests: el rojo o un fix autorizado a tocarlos.
       const rojo = git(['log', '--format=%H', `--grep=^test(${id}):`, '--grep=^Tests-autorizados: sí', 'origin/main..HEAD']).out.split(/\r?\n/)[0];
@@ -444,7 +469,7 @@ try {
     case 'publicar-grafo': publicarGrafo(); break;
     case 'modulo': modulo(args[0]); break;
     default:
-      console.log(fs.readFileSync(new URL(import.meta.url), 'utf8').split('\n').slice(1, 16).map(l => l.replace(/^\/\/ ?/, '')).join('\n'));
+      console.log(fs.readFileSync(new URL(import.meta.url), 'utf8').split('\n').slice(1, 17).map(l => l.replace(/^\/\/ ?/, '')).join('\n'));
       process.exit(cmd ? 1 : 0);
   }
 } catch (e) {
