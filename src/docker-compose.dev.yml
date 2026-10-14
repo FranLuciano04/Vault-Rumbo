@@ -1,0 +1,54 @@
+# PostgreSQL de desarrollo (5432) y de tests (5433). DEC-0015 §1.
+# Uso, desde la raíz del repo:
+#   cp src/.env.example src/.env      # una sola vez, y poner una contraseña local
+#   docker compose -f src/docker-compose.dev.yml up -d
+#
+# Las credenciales salen de src/.env (fuera de Git). Compose lo lee solo porque
+# este archivo vive en src/. Las bases escuchan solo en 127.0.0.1.
+# Si 5432 o 5433 ya están ocupados en la PC, cambiar RUMBO_DEV_PORT / RUMBO_TEST_PORT en src/.env.
+
+name: rumbo-dev
+
+services:
+  postgres-dev:
+    image: postgres:18
+    container_name: rumbo-postgres-dev
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${RUMBO_DB_USER:?Falta RUMBO_DB_USER en src/.env (ver src/.env.example)}
+      POSTGRES_PASSWORD: ${RUMBO_DB_PASSWORD:?Falta RUMBO_DB_PASSWORD en src/.env (ver src/.env.example)}
+      POSTGRES_DB: rumbo
+    ports:
+      - "127.0.0.1:${RUMBO_DEV_PORT:-5432}:5432"
+    # PostgreSQL 18 guarda los datos bajo /var/lib/postgresql/18/docker, por eso se monta la raíz.
+    volumes:
+      - rumbo_pgdata_dev:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U \"$$POSTGRES_USER\" -d \"$$POSTGRES_DB\""]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
+
+  postgres-test:
+    image: postgres:18
+    container_name: rumbo-postgres-test
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${RUMBO_DB_USER:?Falta RUMBO_DB_USER en src/.env (ver src/.env.example)}
+      POSTGRES_PASSWORD: ${RUMBO_DB_PASSWORD:?Falta RUMBO_DB_PASSWORD en src/.env (ver src/.env.example)}
+      POSTGRES_DB: rumbo_test
+    ports:
+      - "127.0.0.1:${RUMBO_TEST_PORT:-5433}:5432"
+    # Base de tests en tmpfs: se descarta en cada "down" y arranca limpia.
+    tmpfs:
+      - /var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U \"$$POSTGRES_USER\" -d \"$$POSTGRES_DB\""]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
+
+volumes:
+  rumbo_pgdata_dev:
