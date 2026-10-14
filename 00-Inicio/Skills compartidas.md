@@ -2,7 +2,7 @@
 tipo: referencia
 estado: formalizado
 responsable: equipo
-actualizado: 12/10/26
+actualizado: 14/10/26
 ---
 
 # Skills compartidas
@@ -44,7 +44,7 @@ Tipo `proyecto`, licencia MIT (`.claude/skills/LICENSE-agent-skills`), origen [a
 | incremental-implementation | requerida | Implementación por tajadas y commits por fase |
 | source-driven-development | requerida | Verificar contra la documentación oficial del stack |
 | code-review-and-quality | requerida | Review de cada ticket |
-| security-and-hardening | requerida | Tickets de riesgo alto (`reviewer-seguridad`) |
+| security-and-hardening | requerida | Tickets de riesgo alto (`reviewer-seguridad`) — adaptación alineada con [[DEC-0016 Autenticación con Firebase|DEC-0016]] el 14/10/26 |
 | api-and-interface-design | requerida | Ticket de contrato de cada módulo (`implementador-contrato`) — sumada el 13/10/26 |
 | frontend-ui-engineering | requerida | Tickets de web y mobile (`implementador-front`) — sumada el 13/10/26 |
 | debugging-and-error-recovery | requerida | Cuando un verde falla, antes de escalar de modelo — sumada el 13/10/26 |

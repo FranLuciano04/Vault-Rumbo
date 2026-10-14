@@ -30,6 +30,10 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
+## 14/10/26 — Nahuel (Claude Opus 5.5) — precarga de skills de los reviewers
+- **Hecho:** se probó la precarga de skills de `reviewer-ticket` y `reviewer-seguridad`: sin abrir archivos, cada uno citó textualmente las skills de su frontmatter `skills:` (2 y 3) y las citas coinciden con los `SKILL.md`. Resuelve el pendiente de confirmar la precarga. Se corrigió el bloque «Adaptación Rumbo» de `security-and-hardening`, que todavía hablaba de autenticación propia: ahora remite a [[DEC-0016 Autenticación con Firebase|DEC-0016]] (verificación del *ID token*, `firebase_uid`, `401` si el usuario no existe o está inactivo, cuenta de servicio en el `.env`). Catálogo en [[Skills compartidas]] actualizado.
+- **Pendiente:** implementar el primer ticket en una sesión limpia y medir su uso de tokens.
+
 ## 14/10/26 — Nahuel, con Francisco y Paloma (Claude Opus 5.5) — plan aprobado
 - **Hecho:** el equipo aprobó el [[Plan de implementación]] y los 139 tickets; el plan quedó formalizado.
 - **Pendiente:** implementar el primer ticket en una sesión limpia y medir su uso de tokens para optimizar el flujo; confirmar la precarga de skills de los subagentes.

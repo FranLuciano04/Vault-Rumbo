@@ -9,7 +9,7 @@ description: Hardens code against vulnerabilities. Use when auditing an input ha
 - Proceso de Rumbo: [[DEC-0014 Flujo de implementación con agentes]] y `06-Desarrollo/Flujo de implementación.md`. Stack y herramientas de calidad: `DEC-0001`. Todo el código vive en `src/`.
 - Los artefactos que se escriben en el vault van en español de Argentina, con tildes. El código y los identificadores siguen las convenciones del stack.
 - Los comandos `/spec`, `/plan`, `/build`, `/test`, `/review` y `/ship` no están instalados: en Rumbo se usan `/tomar-ticket`, `/implementar-ticket` y `/cerrar-modulo`.
-- Obligatoria en los tickets de `riesgo: alto` y en el módulo de autenticación y roles. Reglas propias: autenticación propia y roles en DEC-0005 y DEC-0008 (autorización por fila, el `freelance` ve solo lo suyo), auditoría `created_by`/`updated_by` y secretos solo en el `.env` del servidor (DEC-0011).
+- Obligatoria en los tickets de `riesgo: alto` y en el módulo de autenticación y roles. Reglas propias: autenticación con Firebase según DEC-0016 (el backend verifica el *ID token* con `firebase-admin`, carga al `Usuario` por `firebase_uid` y responde `401` si no existe o está inactivo; Rumbo nunca maneja contraseñas ni usa *custom claims*), roles en DEC-0005 y DEC-0008 (autorización por fila, el `freelance` ve solo lo suyo), auditoría `created_by`/`updated_by` y secretos solo en el `.env` del servidor (DEC-0011), incluida la cuenta de servicio de Firebase.
 
 ---
 
