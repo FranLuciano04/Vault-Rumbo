@@ -1,10 +1,16 @@
-from typing import Any
+from functools import lru_cache
+
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
-class Settings:
-    """Stub T-006: la implementación real es un BaseSettings con `database_url`."""
+class Settings(BaseSettings):
+    """Configuración de la app, tomada del entorno (o de .env en desarrollo)."""
+
+    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
     database_url: str
 
-    def __init__(self, **datos: Any) -> None:
-        raise NotImplementedError
+
+@lru_cache
+def get_settings() -> Settings:
+    return Settings()  # type: ignore[call-arg]
