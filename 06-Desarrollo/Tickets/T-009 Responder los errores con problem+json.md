@@ -3,7 +3,7 @@ id: T-009
 titulo: Responder los errores con problem+json
 modulo: M0 — Fundaciones
 capa: backend
-estado: tomado
+estado: hecho
 depende_de: [T-001]
 tamaño: S
 riesgo: normal
@@ -47,3 +47,7 @@ Toda respuesta de error de la API sale en formato problem+json con los códigos 
 - Los 401 de autenticación (los produce `core.seguridad` con estos mismos handlers).
 
 ## Notas de implementación
+- `crear_app()` registra los manejadores (`registrar_manejadores`): `ErrorDeDominio` → estado según la jerarquía (`isinstance`, así las subclases heredan el código); una `ErrorDeDominio` sin estado y cualquier excepción no controlada → 500 genérico con log. `HTTPException` (ruta inexistente, futuros 401) y validación 422 también salen en problem+json.
+- Decisiones sin fijar en el contrato: `por_pagina` por defecto 20 (máximo 100); títulos en español; sin campo `type` del RFC 9457; el 422 omite `input`, `ctx` y `url` para no reflejar lo que mandó el cliente.
+- Review (opus): 1 importante (estado por tipo exacto → subclases daban 500) y 2 menores, arreglados con tests nuevos. Queda sin test la rama de `HTTPException` con `detail` no `str` (`presentacion/errores.py:71`).
+- Modelos usados: tests sonnet, implementación y refactor sonnet (refactor sin cambios), review opus, fix haiku.
