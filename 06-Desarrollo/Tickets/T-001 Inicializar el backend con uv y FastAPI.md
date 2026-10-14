@@ -3,7 +3,7 @@ id: T-001
 titulo: Inicializar el backend con uv y FastAPI
 modulo: M0 — Fundaciones
 capa: infra
-estado: libre
+estado: tomado
 depende_de: []
 tamaño: S
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [DEC-0001, DEC-0015]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: Nahuel Viniegra
+tomado_el: 14/10/26 17:22
+rama: feature/T-001-inicializar-el-backend-con-uv-y-fastapi
 pr:
 ---
 # T-001 Inicializar el backend con uv y FastAPI
