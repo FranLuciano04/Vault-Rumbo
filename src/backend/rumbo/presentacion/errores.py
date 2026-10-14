@@ -46,15 +46,27 @@ def _problema(estado: int, detalle: str, **extra: Any) -> JSONResponse:
     return JSONResponse(cuerpo, status_code=estado, media_type=PROBLEM_JSON)
 
 
-async def _error_de_dominio(_: Request, exc: Exception) -> JSONResponse:
+def _estado_de_dominio(error: ErrorDeDominio) -> int | None:
+    for clase, estado in _ESTADO_POR_DOMINIO.items():
+        if isinstance(error, clase):
+            return estado
+    return None
+
+
+async def _error_de_dominio(request: Request, exc: Exception) -> JSONResponse:
     error = cast(ErrorDeDominio, exc)
-    estado = _ESTADO_POR_DOMINIO.get(type(error), 500)
+    estado = _estado_de_dominio(error)
+    if estado is None:
+        return await _error_no_controlado(request, exc)
     return _problema(estado, error.detalle)
 
 
 async def _error_http(_: Request, exc: Exception) -> JSONResponse:
     error = cast(StarletteHTTPException, exc)
-    response = _problema(error.status_code, str(error.detail))
+    detalle = (
+        error.detail if isinstance(error.detail, str) else _TITULOS.get(error.status_code, "Error")
+    )
+    response = _problema(error.status_code, detalle)
     if error.headers:
         response.headers.update(error.headers)
     return response

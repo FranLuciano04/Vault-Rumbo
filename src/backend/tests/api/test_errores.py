@@ -8,6 +8,7 @@ from pydantic import BaseModel
 from rumbo.main import crear_app
 from rumbo.negocio.errores import (
     Conflicto,
+    ErrorDeDominio,
     NoEncontrado,
     ServicioExterno,
     SinPermiso,
@@ -16,6 +17,10 @@ from rumbo.negocio.errores import (
 from rumbo.presentacion.paginacion import Pagina, ParametrosPagina, parametros_pagina
 
 PROBLEM_JSON = "application/problem+json"
+
+
+class ClienteNoEncontrado(NoEncontrado):
+    pass
 
 
 class Entrada(BaseModel):
@@ -30,6 +35,14 @@ def _app_de_prueba() -> FastAPI:
     @router.get("/no-encontrado")
     async def no_encontrado() -> None:
         raise NoEncontrado("El cliente no existe")
+
+    @router.get("/subclase-no-encontrado")
+    async def subclase_no_encontrado() -> None:
+        raise ClienteNoEncontrado("El cliente no existe")
+
+    @router.get("/dominio-base")
+    async def dominio_base() -> None:
+        raise ErrorDeDominio("secreto")
 
     @router.get("/sin-permiso")
     async def sin_permiso() -> None:
@@ -110,6 +123,30 @@ async def test_rnf06_validacion_pydantic_devuelve_422_problem_json_con_errores_p
     texto = str(cuerpo["errores"])
     assert "nombre" in texto
     assert "monto" in texto
+    assert "no-es-numero" not in r.text
+
+
+async def test_rnf06_subclase_de_no_encontrado_responde_404_problem_json(
+    cliente: AsyncClient,
+) -> None:
+    r = await cliente.get("/api/prueba/subclase-no-encontrado")
+
+    assert r.status_code == 404
+    assert r.headers["content-type"].startswith(PROBLEM_JSON)
+    cuerpo = r.json()
+    assert cuerpo["status"] == 404
+    assert cuerpo["detail"] == "El cliente no existe"
+
+
+async def test_rnf12_error_de_dominio_sin_estado_responde_500_sin_filtrar_mensaje(
+    cliente: AsyncClient,
+) -> None:
+    r = await cliente.get("/api/prueba/dominio-base")
+
+    assert r.status_code == 500
+    assert r.headers["content-type"].startswith(PROBLEM_JSON)
+    assert r.json()["status"] == 500
+    assert "secreto" not in r.text
 
 
 async def test_rnf06_ruta_inexistente_responde_404_problem_json(cliente: AsyncClient) -> None:
@@ -170,7 +207,7 @@ async def test_rnf06_paginacion_acepta_valores_limite(
     ],
 )
 async def test_rnf06_paginacion_invalida_devuelve_422_problem_json(
-    cliente: AsyncClient, params: dict[str, object]
+    cliente: AsyncClient, params: dict[str, int | str]
 ) -> None:
     r = await cliente.get("/api/prueba/listado", params=params)
 
