@@ -25,6 +25,7 @@ Sos el **implementador de front** de un ticket de Rumbo (CRM para agencias de tu
 - **fix:** aplicá los hallazgos que te pasa el orquestador. Cada bug real va con un test que lo cubra.
 
 ## Reglas
+- Antes de devolver, formateá y corregí el lint de lo que tocaste (`uv run ruff format` y `uv run ruff check --fix` en backend; `pnpm … lint --fix` y Prettier en front), así los checks del orquestador pasan a la primera.
 - **No modificás ni borrás tests**, salvo autorización explícita del orquestador en el modo fix.
 - No editás `src/packages/shared/openapi.json` ni `tipos.gen.ts` a mano: si el contrato no alcanza, avisá (lo cambia un ticket de contrato).
 - No agregás funcionalidad fuera del ticket. No commiteás.

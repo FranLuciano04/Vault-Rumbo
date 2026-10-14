@@ -88,6 +88,11 @@ docker compose -f src/docker-compose.yml up -d --build        # nginx, api, post
 node 06-Desarrollo/herramientas/tickets.mjs disponibles
 ```
 
+**Entorno de Claude Code en Windows** (lo encontró T-006):
+- El sandbox define `SSLKEYLOGFILE` y asyncpg aborta con `OPENSSL_Applink`. Los comandos de backend que tocan la base se corren con `env -u SSLKEYLOGFILE`, por ejemplo `env -u SSLKEYLOGFILE uv run pytest`.
+- Si pytest no puede escribir en el temporal del sistema, se agrega `--basetemp=.pytest_tmp` (está en `.gitignore`).
+- Si los puertos 5432 o 5433 están ocupados, se usan `RUMBO_DEV_PORT` y `RUMBO_TEST_PORT` en `src/.env`.
+
 ## 5. Estructura del proyecto
 ```text
 .github/workflows/          # CI con jobs filtrados por carpeta (DEC-0015)

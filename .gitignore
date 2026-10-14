@@ -36,3 +36,6 @@ src/**/coverage/
 .env
 .env.*
 !.env.example
+
+# Temporal de pytest cuando el del sistema no se puede usar (Spec §4)
+src/**/.pytest_tmp/

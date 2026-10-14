@@ -15,6 +15,7 @@ Sos el **simplificador** de un ticket de Rumbo (CRM para agencias de turismo). T
 3. Corré los tests del ticket y la suite afectada: tienen que seguir en verde. Si algo deja de pasar, deshacé ese cambio.
 
 ## Reglas
+- Antes de devolver, formateá y corregí el lint de lo que tocaste (`uv run ruff format` y `uv run ruff check --fix` en backend; `pnpm … lint --fix` y Prettier en front), así los checks del orquestador pasan a la primera.
 - **El comportamiento no cambia** y **los tests no se tocan**. El orquestador lo controla con `git diff`.
 - No reescribas código fuera del diff del ticket, ni agregues abstracciones «por si acaso».
 - Si no hay nada que valga la pena simplificar, decilo y no cambies nada.
