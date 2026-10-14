@@ -30,6 +30,11 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
+## 14/10/26 — Nahuel (Claude Opus 5.5) — T-004: PostgreSQL de desarrollo con Docker Compose
+- **Hecho:** T-004 implementado con el flujo de [[Flujo de implementación|DEC-0014]]. `src/docker-compose.dev.yml` con dos `postgres:18`: dev en 5432, con volumen, y test en 5433, en `tmpfs`. Escuchan solo en 127.0.0.1 y toman las credenciales obligatorias de `src/.env` (plantilla `src/.env.example`). `src/backend/.env.example` trae `DATABASE_URL` y `TEST_DATABASE_URL`. Los puertos se pueden cambiar con `RUMBO_DEV_PORT` y `RUMBO_TEST_PORT`, porque en la PC de Nahuel 5432 y 5433 estaban ocupados. La review con Opus dejó 3 hallazgos menores, todos arreglados (entre ellos, el healthcheck ahora va por TCP). PR [#3](https://github.com/FranLuciano04/Vault-Rumbo/pull/3) mergeado.
+- **Commits:** 0359ee8, 548e127, f7cdbec (merge 5ad0d90).
+- **Pendiente:** verificar el arranque con los puertos por defecto en una PC donde estén libres. Ratificar que un solo Compose con dos servicios cumple DEC-0015 §1, que habla de «otro, aparte, para los tests».
+
 ## 14/10/26 — Nahuel (Claude Opus 5.5) — T-009: errores problem+json y paginación
 - **Hecho:** T-009 implementado con el flujo de [[Flujo de implementación|DEC-0014]]. Manejadores problem+json para las excepciones de dominio, `HTTPException`, la validación 422 (con la lista `errores`) y un 500 genérico que no filtra detalles. Dependencia común de paginación (`pagina`, `por_pagina` ≤ 100, 20 por defecto) y `Pagina[T]`. La review con Opus encontró que las subclases de las excepciones de dominio respondían 500, porque el estado se buscaba por tipo exacto; se corrigió con `isinstance` y tests nuevos. 22 tests, cobertura del backend 97,9 %. PR [#2](https://github.com/FranLuciano04/Vault-Rumbo/pull/2) mergeado.
 - **Commits:** 82cda4c, 1ead4bf, 4eb0557, de5e084 (merge c176046).
