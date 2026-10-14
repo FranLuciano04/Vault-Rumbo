@@ -3,7 +3,7 @@ id: T-001
 titulo: Inicializar el backend con uv y FastAPI
 modulo: M0 — Fundaciones
 capa: infra
-estado: tomado
+estado: hecho
 depende_de: []
 tamaño: S
 riesgo: normal
@@ -51,3 +51,7 @@ No sigue TDD (`infra`). Se verifica ejecutando los comandos de la spec §4 de ba
 
 ## Notas de implementación
 - **Del plan:** Versiones exactas verificadas contra la documentación oficial (`source-driven-development`). Incluye `pydantic-settings` (spec §3).
+- **Implementación:** Python 3.13.13 gestionado por uv; fastapi 0.143.1, ruff 0.17.0, mypy 2.4.0, pytest 9.1.1 (fijadas en `uv.lock`). `GET /api/salud` → `{"estado":"ok"}`; docs en `/api/docs`. `.gitignore` propio en `src/backend`.
+- **Review (hallazgo importante corregido):** en mypy 2.4, `strict = true` dentro de un override se aplica a todo el proyecto; se reemplazó por los flags explícitos y se verificó que `datos/` no queda estricto y `core/` sí. También se sacó `--cov` de `addopts` (correr un archivo suelto no falla por `fail_under`) y se agregó a la spec §4 el comando del umbral de `negocio/` ≥ 80 % para el CI.
+- **Entorno:** en una PC con proxy TLS, `uv` necesita `UV_SYSTEM_CERTS=1`. mypy avisa «unused section(s)» hasta que existan submódulos en `core/` y `negocio/`; no es un error.
+- **Modelos:** implementación Sonnet, review Opus, fix Haiku. Sin escalados.
