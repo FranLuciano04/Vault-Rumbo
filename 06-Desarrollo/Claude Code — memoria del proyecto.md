@@ -39,5 +39,6 @@ Pagos online, publicación automática en redes, integración GDS/mayoristas, fa
 
 ## Vínculo código ↔ decisiones (PC2+)
 - Cómo se implementa: [[Flujo de implementación]] ([[DEC-0014 Flujo de implementación con agentes|DEC-0014]]): tickets con semáforo en Git, TDD con subagentes y review de Codex por módulo. Código en `src/`.
+- Qué se construye y en qué orden: [[Spec de implementación]] (formalizada) y [[Plan de implementación]]: 139 tickets T-001…T-139; prioridad del PC2, el camino de CU-01 (T-108).
 - Commits referencian el ticket y las reglas: `feat(T-031): registrar cobro (RF-070, RN-01)`.
 - Cada `DEC-` que cambia código anota `rama:` y `commits:`.

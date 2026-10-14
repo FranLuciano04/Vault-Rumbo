@@ -1,13 +1,16 @@
 ---
 tipo: referencia
-estado: en-revision
+estado: formalizado
+fecha_aprobacion: 13/10/26
 responsable: equipo
 actualizado: 13/10/26
 ---
 # Spec de implementación
 
-tags:: #tipo/referencia #estado/en-revision #pc/pc2
+tags:: #tipo/referencia #estado/formalizado #pc/pc2
 
+> ✅ **Aprobada por el equipo completo el 13/10/26.** El corte en tickets está en el [[Plan de implementación]].
+>
 > Qué se construye, con qué, dónde y cómo se sabe que está bien. **Enlaza** al diseño del PC1 en vez de copiarlo: los subagentes leen esta spec y solo las notas que enlaza su ticket. Proceso en [[Flujo de implementación]] ([[DEC-0014 Flujo de implementación con agentes|DEC-0014]]); decisiones técnicas del grill en [[DEC-0015 Decisiones de implementación|DEC-0015]], con la autenticación reemplazada por [[DEC-0016 Autenticación con Firebase|DEC-0016]].
 
 ## 1. Objetivo
@@ -37,7 +40,7 @@ Si una fuente contradice a otra, se aplica el orden de autoridad de `CLAUDE.md`,
 
 ## 3. Stack y versiones
 Lo fija [[DEC-0001 Stack tecnológico|DEC-0001]], con los ajustes de [[DEC-0015 Decisiones de implementación|DEC-0015]] y [[DEC-0016 Autenticación con Firebase|DEC-0016]]:
-- **Backend:** Python 3.13 · uv · FastAPI · Pydantic v2 · SQLAlchemy 2.0 async (asyncpg) · Alembic · `firebase-admin` · LangChain + `langchain-anthropic` (`claude-sonnet-5-5`) · WeasyPrint · openpyxl.
+- **Backend:** Python 3.13 · uv · FastAPI · Pydantic v2 (+ `pydantic-settings` para la configuración) · SQLAlchemy 2.0 async (asyncpg) · Alembic · `firebase-admin` · LangChain + `langchain-anthropic` (`claude-sonnet-5-5`) · WeasyPrint · openpyxl.
 - **Autenticación:** Firebase Authentication (email y contraseña + Google; registro abierto deshabilitado). Firebase Auth Emulator (`firebase-tools`, con Java) para el desarrollo local y los e2e.
 - **Base:** PostgreSQL 18.
 - **Front:** Node 22 LTS · pnpm (workspace en `src/`) · TypeScript estricto · TanStack Query · Axios · zod · openapi-typescript · MSW.
