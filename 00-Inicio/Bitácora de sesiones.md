@@ -30,6 +30,11 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
+## 14/10/26 — Nahuel (Claude Opus 5.5) — T-001: backend con uv y FastAPI
+- **Hecho:** primer ticket implementado con el flujo de [[Flujo de implementación|DEC-0014]]. `src/backend` con Python 3.13, uv, FastAPI (`GET /api/salud`), las capas de ARQ, ruff, mypy, pytest y cobertura ≥ 70 %. La review con Opus encontró que `strict = true` en un override de mypy 2.4 se aplica a todo el proyecto; se corrigió con flags explícitos. Se agregó a la spec §4 el comando de cobertura de `negocio/` ≥ 80 %. PR [#1](https://github.com/FranLuciano04/Vault-Rumbo/pull/1) mergeado.
+- **Commits:** 64fe1c2, be65483, 3a5aa0c (merge 7dc0615).
+- **Pendiente:** en PCs con proxy TLS, `uv` necesita `UV_SYSTEM_CERTS=1`. No se midió el uso de tokens de forma exacta.
+
 ## 14/10/26 — Nahuel (Claude Opus 5.5) — precarga de skills de los reviewers
 - **Hecho:** se probó la precarga de skills de `reviewer-ticket` y `reviewer-seguridad`: sin abrir archivos, cada uno citó textualmente las skills de su frontmatter `skills:` (2 y 3) y las citas coinciden con los `SKILL.md`. Resuelve el pendiente de confirmar la precarga. Se corrigió el bloque «Adaptación Rumbo» de `security-and-hardening`, que todavía hablaba de autenticación propia: ahora remite a [[DEC-0016 Autenticación con Firebase|DEC-0016]] (verificación del *ID token*, `firebase_uid`, `401` si el usuario no existe o está inactivo, cuenta de servicio en el `.env`). Catálogo en [[Skills compartidas]] actualizado.
 - **Pendiente:** implementar el primer ticket en una sesión limpia y medir su uso de tokens.
