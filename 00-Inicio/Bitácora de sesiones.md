@@ -30,6 +30,19 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
+## 14/10/26 — Nahuel (Claude Opus 5.5) — T-006: sesión async de la base y configuración
+- **Hecho:** T-006 implementado con el flujo de [[Flujo de implementación|DEC-0014]].
+  - `core.config.Settings` exige `DATABASE_URL` con `postgresql+asyncpg://`; sin eso, la app no arranca.
+  - `core.db` da una sesión por pedido con una sola transacción. Los routers la piden **solo con `SesionDep`** (`scope="function"`).
+  - La review con Opus encontró un bloqueante: con el scope por defecto de FastAPI, el commit corría después de enviar la respuesta y un commit fallido devolvía 200. Se arregló y lo cubre un test con una FK diferida.
+  - `conftest.py` tiene una sesión por test con rollback y un `AsyncClient`. Hay 32 tests y la cobertura del backend es 97,2 %.
+  - PR [#4](https://github.com/FranLuciano04/Vault-Rumbo/pull/4) mergeado.
+- **Commits:** 7ddd318, 95d4705, eaec44c, 0024964 (merge 605c86c).
+- **Entorno:** el sandbox de Claude Code define `SSLKEYLOGFILE` y, en Windows, asyncpg aborta con `OPENSSL_Applink`. Se evita corriendo los tests con `env -u SSLKEYLOGFILE`. En la PC de Nahuel, Rumbo usa los puertos 5434 y 5435, porque 5433 lo ocupa otro proyecto.
+- **Pendiente:** dos menores anotados en el ticket:
+  - el test de aislamiento depende del orden de ejecución;
+  - no hay `motor.dispose()` al apagar. Queda para el lifespan.
+
 ## 14/10/26 — Nahuel (Claude Opus 5.5) — T-004: PostgreSQL de desarrollo con Docker Compose
 - **Hecho:** T-004 implementado con el flujo de [[Flujo de implementación|DEC-0014]]. `src/docker-compose.dev.yml` con dos `postgres:18`: dev en 5432, con volumen, y test en 5433, en `tmpfs`. Escuchan solo en 127.0.0.1 y toman las credenciales obligatorias de `src/.env` (plantilla `src/.env.example`). `src/backend/.env.example` trae `DATABASE_URL` y `TEST_DATABASE_URL`. Los puertos se pueden cambiar con `RUMBO_DEV_PORT` y `RUMBO_TEST_PORT`, porque en la PC de Nahuel 5432 y 5433 estaban ocupados. La review con Opus dejó 3 hallazgos menores, todos arreglados (entre ellos, el healthcheck ahora va por TCP). PR [#3](https://github.com/FranLuciano04/Vault-Rumbo/pull/3) mergeado.
 - **Commits:** 0359ee8, 548e127, f7cdbec (merge 5ad0d90).
