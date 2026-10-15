@@ -17,6 +17,7 @@ from sqlalchemy import (
     text,
 )
 from sqlalchemy.dialects.postgresql import ARRAY, JSONB
+from sqlalchemy.ext.mutable import MutableList
 from sqlalchemy.orm import Mapped, mapped_column
 
 from rumbo.datos.modelos.base import AuditoriaMixin, Base, IdMixin
@@ -43,7 +44,9 @@ class Cliente(IdMixin, AuditoriaMixin, Base):
     nombre: Mapped[str] = mapped_column(String(120))
     contacto: Mapped[str] = mapped_column(String(200))  # whatsapp, instagram o email
     segmento: Mapped[SegmentoCliente]
-    etiquetas: Mapped[list[str]] = mapped_column(ARRAY(Text), server_default=text("'{}'"))
+    etiquetas: Mapped[list[str]] = mapped_column(
+        MutableList.as_mutable(ARRAY(Text)), server_default=text("'{}'")
+    )
     preferencias: Mapped[str | None] = mapped_column(Text)
     no_recontactar: Mapped[bool] = mapped_column(server_default=text("false"))  # opt-out del CRM
 
@@ -79,7 +82,7 @@ class Cotizacion(IdMixin, AuditoriaMixin, Base):
     oportunidad_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("oportunidad.id"))
     fecha: Mapped[date]
     moneda: Mapped[Moneda]
-    items: Mapped[Any] = mapped_column(JSONB)  # conceptos y precios
+    items: Mapped[Any] = mapped_column(MutableList.as_mutable(JSONB))  # conceptos y precios
     total: Mapped[Decimal]
     validez_hasta: Mapped[date]  # default fecha + 1 mes, configurable (lo calcula la API)
     estado: Mapped[EstadoCotizacion] = mapped_column(server_default=text("'borrador'"))
@@ -124,7 +127,9 @@ class Viaje(IdMixin, AuditoriaMixin, Base):
     moneda: Mapped[Moneda]  # moneda de referencia del viaje (DEC-0007)
     precio_venta: Mapped[Decimal]
     costo: Mapped[Decimal]  # del operador
-    ganancia: Mapped[Decimal] = mapped_column(Computed("precio_venta - costo", persisted=True))
+    ganancia: Mapped[Decimal | None] = mapped_column(
+        Computed("precio_venta - costo", persisted=True)
+    )
     margen: Mapped[Decimal | None] = mapped_column(
         Numeric(7, 4),
         Computed(

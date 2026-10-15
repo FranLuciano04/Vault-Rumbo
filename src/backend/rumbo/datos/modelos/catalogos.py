@@ -4,7 +4,7 @@ RequisitoDestino, Operador y Hotel."""
 import uuid
 from decimal import Decimal
 
-from sqlalchemy import CheckConstraint, ForeignKey, String, Text, text
+from sqlalchemy import CheckConstraint, ForeignKey, SmallInteger, String, Text, text
 from sqlalchemy.orm import Mapped, mapped_column
 
 from rumbo.datos.modelos.base import AuditoriaMixin, Base, IdMixin
@@ -44,7 +44,9 @@ class Configuracion(AuditoriaMixin, Base):
         CheckConstraint("recontacto_meses >= 1"),
     )
 
-    id: Mapped[int] = mapped_column(primary_key=True, default=1, server_default=text("1"))
+    id: Mapped[int] = mapped_column(
+        SmallInteger, primary_key=True, default=1, server_default=text("1"), sort_order=-10
+    )
     vigencia_cotizacion_meses: Mapped[int] = mapped_column(server_default=text("1"))
     anticipacion_salida_dias: Mapped[int] = mapped_column(server_default=text("7"))
     recontacto_meses: Mapped[int] = mapped_column(server_default=text("6"))

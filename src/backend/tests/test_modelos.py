@@ -7,10 +7,10 @@ Requisitos: DEC-0013, DEC-0016, RNF-07.
 
 from datetime import UTC, date, datetime
 from decimal import Decimal
-from typing import Any
+from typing import Any, cast
 
 import pytest
-from sqlalchemy import select
+from sqlalchemy import DateTime, SmallInteger, delete, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -77,8 +77,15 @@ TABLAS: dict[str, tuple[str, set[str]]] = {
     "usuario": (
         "Usuario",
         {
-            "id", "nombre", "email", "firebase_uid", "rol", "activo", "acceso_redes",
-            "comision_default_tipo", "comision_default_valor",
+            "id",
+            "nombre",
+            "email",
+            "firebase_uid",
+            "rol",
+            "activo",
+            "acceso_redes",
+            "comision_default_tipo",
+            "comision_default_valor",
         },
     ),
     "configuracion": (
@@ -88,8 +95,16 @@ TABLAS: dict[str, tuple[str, set[str]]] = {
     "destino": ("Destino", {"id", "nombre", "pais", "region", "activo", "notas"}),
     "requisito_destino": (
         "RequisitoDestino",
-        {"id", "destino_id", "nombre", "tipo", "obligatorio", "descripcion",
-         "anticipacion_dias", "activo"},
+        {
+            "id",
+            "destino_id",
+            "nombre",
+            "tipo",
+            "obligatorio",
+            "descripcion",
+            "anticipacion_dias",
+            "activo",
+        },
     ),
     "operador": ("Operador", {"id", "nombre", "contacto", "activo"}),
     "hotel": (
@@ -98,14 +113,33 @@ TABLAS: dict[str, tuple[str, set[str]]] = {
     ),
     "cliente": (
         "Cliente",
-        {"id", "asesor_asignado_id", "nombre", "contacto", "segmento", "etiquetas",
-         "preferencias", "no_recontactar"},
+        {
+            "id",
+            "asesor_asignado_id",
+            "nombre",
+            "contacto",
+            "segmento",
+            "etiquetas",
+            "preferencias",
+            "no_recontactar",
+        },
     ),
     "oportunidad": (
         "Oportunidad",
-        {"id", "cliente_id", "responsable_id", "canal", "destino_consultado",
-         "fecha_desde_tentativa", "fecha_hasta_tentativa", "pasajeros", "estado",
-         "motivo_perdida", "motivo_perdida_detalle", "notas"},
+        {
+            "id",
+            "cliente_id",
+            "responsable_id",
+            "canal",
+            "destino_consultado",
+            "fecha_desde_tentativa",
+            "fecha_hasta_tentativa",
+            "pasajeros",
+            "estado",
+            "motivo_perdida",
+            "motivo_perdida_detalle",
+            "notas",
+        },
     ),
     "cotizacion": (
         "Cotizacion",
@@ -113,31 +147,90 @@ TABLAS: dict[str, tuple[str, set[str]]] = {
     ),
     "viaje": (
         "Viaje",
-        {"id", "cliente_id", "oportunidad_id", "destino_id", "operador_id", "responsable_id",
-         "vendedor_id", "fecha_salida", "fecha_regreso", "categoria", "estado", "estado_previo",
-         "motivo_cancelacion", "fecha_cancelacion", "moneda", "precio_venta", "costo",
-         "ganancia", "margen", "comision_tipo", "comision_vendedor"},
+        {
+            "id",
+            "cliente_id",
+            "oportunidad_id",
+            "destino_id",
+            "operador_id",
+            "responsable_id",
+            "vendedor_id",
+            "fecha_salida",
+            "fecha_regreso",
+            "categoria",
+            "estado",
+            "estado_previo",
+            "motivo_cancelacion",
+            "fecha_cancelacion",
+            "moneda",
+            "precio_venta",
+            "costo",
+            "ganancia",
+            "margen",
+            "comision_tipo",
+            "comision_vendedor",
+        },
     ),
     "pago": (
         "Pago",
-        {"id", "viaje_id", "monto", "tipo", "vencimiento", "estado", "forma_pago",
-         "moneda_pago", "tipo_cambio", "monto_cobrado", "fecha_cobro"},
+        {
+            "id",
+            "viaje_id",
+            "monto",
+            "tipo",
+            "vencimiento",
+            "estado",
+            "forma_pago",
+            "moneda_pago",
+            "tipo_cambio",
+            "monto_cobrado",
+            "fecha_cobro",
+        },
     ),
     "viaje_hotel": (
         "ViajeHotel",
-        {"id", "viaje_id", "hotel_id", "check_in", "check_out", "orden",
-         "vencimiento_pago_proveedor", "pago_proveedor_realizado"},
+        {
+            "id",
+            "viaje_id",
+            "hotel_id",
+            "check_in",
+            "check_out",
+            "orden",
+            "vencimiento_pago_proveedor",
+            "pago_proveedor_realizado",
+        },
     ),
     "resena": (
         "Resena",
-        {"id", "cliente_id", "hotel_id", "viaje_id", "puntaje", "comentario", "fecha",
-         "estado", "motivo_baja"},
+        {
+            "id",
+            "cliente_id",
+            "hotel_id",
+            "viaje_id",
+            "puntaje",
+            "comentario",
+            "fecha",
+            "estado",
+            "motivo_baja",
+        },
     ),
     "alerta": (
         "Alerta",
-        {"id", "propietario_id", "viaje_id", "pago_id", "oportunidad_id", "cliente_id",
-         "viaje_hotel_id", "tipo", "descripcion", "fecha", "estado", "resuelta_en",
-         "cerrada_por_cancelacion"},
+        {
+            "id",
+            "propietario_id",
+            "viaje_id",
+            "pago_id",
+            "oportunidad_id",
+            "cliente_id",
+            "viaje_hotel_id",
+            "tipo",
+            "descripcion",
+            "fecha",
+            "estado",
+            "resuelta_en",
+            "cerrada_por_cancelacion",
+        },
     ),
     "contenido_red": (
         "ContenidoRed",
@@ -182,8 +275,14 @@ async def _cadena(bd: AsyncSession) -> dict[str, Any]:
     pago = await f.crear(bd, f.PagoFactory, viaje_id=viaje.id)
     tramo = await f.crear(bd, f.ViajeHotelFactory, viaje_id=viaje.id, hotel_id=hotel.id)
     return {
-        "usuario": usuario, "destino": destino, "operador": operador, "hotel": hotel,
-        "cliente": cliente, "oportunidad": oportunidad, "viaje": viaje, "pago": pago,
+        "usuario": usuario,
+        "destino": destino,
+        "operador": operador,
+        "hotel": hotel,
+        "cliente": cliente,
+        "oportunidad": oportunidad,
+        "viaje": viaje,
+        "pago": pago,
         "tramo": tramo,
     }
 
@@ -202,7 +301,6 @@ def test_rnf07_cada_enum_python_tiene_los_valores_de_rumbo_sql(nombre: str) -> N
     assert [miembro.value for miembro in enum_python] == ENUMS[nombre]
 
 
-
 @pytest.mark.parametrize("tabla", TABLAS)
 def test_rnf07_cada_tabla_tiene_las_columnas_de_rumbo_sql(tabla: str) -> None:
     clase, propias = TABLAS[tabla]
@@ -214,18 +312,31 @@ def test_rnf07_cada_tabla_tiene_las_columnas_de_rumbo_sql(tabla: str) -> None:
 
 def test_rnf07_importes_numeric_y_fechas_con_zona_en_la_metadata() -> None:
     tablas = m.Base.metadata.tables
-    for tabla, col in [
-        ("viaje", "precio_venta"), ("viaje", "costo"), ("viaje", "comision_vendedor"),
-        ("pago", "monto"), ("cotizacion", "total"), ("hotel", "precio_referencia"),
+    for nombre_tabla, col in [
+        ("viaje", "precio_venta"),
+        ("viaje", "costo"),
+        ("viaje", "comision_vendedor"),
+        ("pago", "monto"),
+        ("cotizacion", "total"),
+        ("hotel", "precio_referencia"),
         ("usuario", "comision_default_valor"),
     ]:
-        assert tablas[tabla].columns[col].type.python_type is Decimal, (tabla, col)
-    for nombre, tabla in tablas.items():
-        if nombre == "viaje_hotel":
+        assert tablas[nombre_tabla].columns[col].type.python_type is Decimal, (nombre_tabla, col)
+    for nombre_tabla, tabla in tablas.items():
+        if nombre_tabla == "viaje_hotel":
             continue
-        assert tabla.columns["created_at"].type.timezone is True, nombre
-        assert tabla.columns["updated_at"].type.timezone is True, nombre
-    assert tablas["alerta"].columns["resuelta_en"].type.timezone is True
+        assert cast(DateTime, tabla.columns["created_at"].type).timezone is True, nombre_tabla
+        assert cast(DateTime, tabla.columns["updated_at"].type).timezone is True, nombre_tabla
+    assert cast(DateTime, tablas["alerta"].columns["resuelta_en"].type).timezone is True
+
+
+def test_rnf07_tipo_y_nulos_de_columnas_que_difieren_con_facilidad() -> None:
+    tablas = m.Base.metadata.tables
+    assert isinstance(tablas["configuracion"].columns["id"].type, SmallInteger)
+    assert tablas["viaje"].columns["ganancia"].nullable is True
+    assert tablas["viaje"].columns["margen"].nullable is True
+    assert tablas["viaje"].columns["ganancia"].computed is not None
+    assert tablas["viaje"].columns["margen"].computed is not None
 
 
 # --- Fábricas: cada una persiste una fila válida ------------------------------------------
@@ -500,3 +611,31 @@ async def test_rnf07_configuracion_admite_una_sola_fila(bd: AsyncSession) -> Non
     await _rechaza(bd, f.ConfiguracionFactory, id=2)
     cantidad = (await bd.execute(select(m.Configuracion))).scalars().all()
     assert len(cantidad) == 1
+
+
+# --- Lecturas tras un UPDATE y baja de tramo -----------------------------------------------
+
+
+async def test_rnf07_leer_updated_at_y_columnas_generadas_tras_un_update(
+    bd: AsyncSession,
+) -> None:
+    filas = await _cadena(bd)
+    viaje = filas["viaje"]
+    viaje.precio_venta = Decimal("2000000.00")
+    await bd.flush()
+    assert viaje.updated_at.tzinfo is not None
+    assert viaje.ganancia == Decimal("1250000.00")
+    assert viaje.margen == Decimal("0.6250")
+
+
+async def test_dec0013_borrar_el_tramo_deja_la_alerta_sin_viaje_hotel(bd: AsyncSession) -> None:
+    filas = await _cadena(bd)
+    alerta = await f.crear(
+        bd,
+        f.AlertaFactory,
+        propietario_id=filas["usuario"].id,
+        viaje_hotel_id=filas["tramo"].id,
+    )
+    await bd.execute(delete(m.ViajeHotel).where(m.ViajeHotel.id == filas["tramo"].id))
+    await bd.refresh(alerta)
+    assert alerta.viaje_hotel_id is None

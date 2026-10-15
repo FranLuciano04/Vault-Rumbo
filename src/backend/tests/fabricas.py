@@ -20,7 +20,7 @@ def _enum(clase: type[Enum], valor: str) -> Any:
     return factory.LazyFunction(lambda: clase(valor))
 
 
-class UsuarioFactory(factory.Factory):
+class UsuarioFactory(factory.Factory[m.Usuario]):
     class Meta:
         model = m.Usuario
 
@@ -30,12 +30,12 @@ class UsuarioFactory(factory.Factory):
     rol = _enum(m.RolUsuario, "empleado")
 
 
-class ConfiguracionFactory(factory.Factory):
+class ConfiguracionFactory(factory.Factory[m.Configuracion]):
     class Meta:
         model = m.Configuracion
 
 
-class DestinoFactory(factory.Factory):
+class DestinoFactory(factory.Factory[m.Destino]):
     class Meta:
         model = m.Destino
 
@@ -43,7 +43,7 @@ class DestinoFactory(factory.Factory):
     pais = factory.Faker("country")
 
 
-class RequisitoDestinoFactory(factory.Factory):
+class RequisitoDestinoFactory(factory.Factory[m.RequisitoDestino]):
     class Meta:
         model = m.RequisitoDestino
 
@@ -53,14 +53,14 @@ class RequisitoDestinoFactory(factory.Factory):
     anticipacion_dias = 30
 
 
-class OperadorFactory(factory.Factory):
+class OperadorFactory(factory.Factory[m.Operador]):
     class Meta:
         model = m.Operador
 
     nombre = factory.Faker("company")
 
 
-class HotelFactory(factory.Factory):
+class HotelFactory(factory.Factory[m.Hotel]):
     class Meta:
         model = m.Hotel
 
@@ -70,7 +70,7 @@ class HotelFactory(factory.Factory):
     servicios = "wifi, desayuno"
 
 
-class ClienteFactory(factory.Factory):
+class ClienteFactory(factory.Factory[m.Cliente]):
     class Meta:
         model = m.Cliente
 
@@ -79,7 +79,7 @@ class ClienteFactory(factory.Factory):
     segmento = _enum(m.SegmentoCliente, "familia")
 
 
-class OportunidadFactory(factory.Factory):
+class OportunidadFactory(factory.Factory[m.Oportunidad]):
     class Meta:
         model = m.Oportunidad
 
@@ -88,7 +88,7 @@ class OportunidadFactory(factory.Factory):
     pasajeros = 2
 
 
-class CotizacionFactory(factory.Factory):
+class CotizacionFactory(factory.Factory[m.Cotizacion]):
     class Meta:
         model = m.Cotizacion
 
@@ -99,7 +99,7 @@ class CotizacionFactory(factory.Factory):
     validez_hasta = date(2026, 11, 1)
 
 
-class ViajeFactory(factory.Factory):
+class ViajeFactory(factory.Factory[m.Viaje]):
     class Meta:
         model = m.Viaje
 
@@ -113,7 +113,7 @@ class ViajeFactory(factory.Factory):
     comision_vendedor = factory.LazyFunction(lambda: Decimal("10.00"))
 
 
-class PagoFactory(factory.Factory):
+class PagoFactory(factory.Factory[m.Pago]):
     class Meta:
         model = m.Pago
 
@@ -122,7 +122,7 @@ class PagoFactory(factory.Factory):
     vencimiento = date(2026, 12, 1)
 
 
-class ViajeHotelFactory(factory.Factory):
+class ViajeHotelFactory(factory.Factory[m.ViajeHotel]):
     class Meta:
         model = m.ViajeHotel
 
@@ -131,7 +131,7 @@ class ViajeHotelFactory(factory.Factory):
     orden = 1
 
 
-class ResenaFactory(factory.Factory):
+class ResenaFactory(factory.Factory[m.Resena]):
     class Meta:
         model = m.Resena
 
@@ -140,7 +140,7 @@ class ResenaFactory(factory.Factory):
     fecha = date(2027, 2, 1)
 
 
-class AlertaFactory(factory.Factory):
+class AlertaFactory(factory.Factory[m.Alerta]):
     class Meta:
         model = m.Alerta
 
@@ -149,7 +149,7 @@ class AlertaFactory(factory.Factory):
     fecha = date(2026, 10, 20)
 
 
-class ContenidoRedFactory(factory.Factory):
+class ContenidoRedFactory(factory.Factory[m.ContenidoRed]):
     class Meta:
         model = m.ContenidoRed
 
@@ -158,10 +158,10 @@ class ContenidoRedFactory(factory.Factory):
     fecha_publicacion = date(2026, 11, 5)
 
 
-async def crear[T](sesion: AsyncSession, fabrica: type[factory.Factory], **campos: Any) -> T:
+async def crear[T](sesion: AsyncSession, fabrica: type[factory.Factory[T]], **campos: Any) -> T:
     """Construye con la fábrica, persiste (flush) y recarga la fila de la base."""
     objeto = fabrica.build(**campos)
     sesion.add(objeto)
     await sesion.flush()
     await sesion.refresh(objeto)
-    return objeto  # type: ignore[no-any-return]
+    return objeto

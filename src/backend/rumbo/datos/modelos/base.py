@@ -26,6 +26,10 @@ _ENUMS = [
 
 
 class Base(DeclarativeBase):
+    # Tras un INSERT/UPDATE se releen los valores que genera la base (`updated_at`, columnas
+    # generadas): sin esto, leerlos en una sesión async lanza MissingGreenlet.
+    __mapper_args__ = {"eager_defaults": True}
+
     type_annotation_map = {
         **{clase: _enum_pg(clase) for clase in _ENUMS},
         Decimal: Numeric(14, 2),
@@ -39,16 +43,22 @@ class AuditoriaMixin:
     @declared_attr
     @classmethod
     def created_by(cls) -> Mapped[uuid.UUID | None]:
-        return mapped_column(ForeignKey("usuario.id"))
+        return mapped_column(ForeignKey("usuario.id"), sort_order=10)
 
     @declared_attr
     @classmethod
     def updated_by(cls) -> Mapped[uuid.UUID | None]:
-        return mapped_column(ForeignKey("usuario.id"))
+        return mapped_column(ForeignKey("usuario.id"), sort_order=10)
 
-    created_at: Mapped[datetime] = mapped_column(server_default=func.now())
-    updated_at: Mapped[datetime] = mapped_column(server_default=func.now(), onupdate=func.now())
+    created_at: Mapped[datetime] = mapped_column(server_default=func.now(), sort_order=10)
+    # `onupdate` es un desvío de rumbo.sql (que no tiene trigger): solo cubre los UPDATE hechos
+    # por SQLAlchemy, no los de SQL directo.
+    updated_at: Mapped[datetime] = mapped_column(
+        server_default=func.now(), onupdate=func.now(), sort_order=10
+    )
 
 
 class IdMixin:
-    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, server_default=func.gen_random_uuid())
+    id: Mapped[uuid.UUID] = mapped_column(
+        primary_key=True, server_default=func.gen_random_uuid(), sort_order=-10
+    )
