@@ -7,6 +7,11 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, create_async_engine
 from sqlalchemy.pool import NullPool
 
+# T-140 (RNF-15): el sandbox de Claude Code define SSLKEYLOGFILE y, en Windows, asyncpg
+# aborta al conectarse con «OPENSSL_Uplink … no OPENSSL_Applink». Los tests no necesitan
+# el log de claves TLS, así que se quita antes de cualquier conexión.
+os.environ.pop("SSLKEYLOGFILE", None)
+
 
 class _EntornoTests(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")

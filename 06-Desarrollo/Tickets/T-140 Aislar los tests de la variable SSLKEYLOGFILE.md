@@ -3,7 +3,7 @@ id: T-140
 titulo: Aislar los tests de la variable SSLKEYLOGFILE
 modulo: M0 — Fundaciones
 capa: backend
-estado: tomado
+estado: hecho
 depende_de: [T-006]
 tamaño: XS
 riesgo: normal
@@ -49,3 +49,9 @@ tags:: #tipo/ticket
 - Cambiar cómo se conecta la app fuera de los tests: a quien corre el servidor en su terminal no le pasa.
 
 ## Notas de implementación
+- `tests/conftest.py` hace `os.environ.pop("SSLKEYLOGFILE", None)` a nivel de módulo, antes de cualquier fixture o conexión. La spec §4 ya no pide `env -u`.
+- **Desvío de proceso:** `fase verde` rechazó el cambio porque trata `conftest.py` como archivo de test. El commit `feat` se hizo a mano con «Tests-autorizados: sí», con autorización de Nahuel. `test_entorno.py` siguió intacto desde el rojo.
+- No hubo refactor: el diff tiene 5 líneas. La review (opus) aprobó sin hallazgos.
+- Verificación: `SSLKEYLOGFILE=/tmp/x uv run pytest --basetemp=.pytest_tmp` da 33 passed, con cobertura del 97 %. `--basetemp` sigue haciendo falta por el temporal del sistema, que no depende de este ticket.
+- Quedan con el consejo viejo de `env -u` las notas de T-006 y una entrada vieja de la bitácora. Son registros históricos y no se tocaron.
+- Modelos usados: tests con sonnet, implementación con haiku y review con opus. No hubo escalados.

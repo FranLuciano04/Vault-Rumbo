@@ -89,7 +89,7 @@ node 06-Desarrollo/herramientas/tickets.mjs disponibles
 ```
 
 **Entorno de Claude Code en Windows** (lo encontró T-006):
-- El sandbox define `SSLKEYLOGFILE` y asyncpg aborta con `OPENSSL_Applink`. Los comandos de backend que tocan la base se corren con `env -u SSLKEYLOGFILE`, por ejemplo `env -u SSLKEYLOGFILE uv run pytest`.
+- El sandbox define `SSLKEYLOGFILE` y asyncpg aborta con `OPENSSL_Applink`. `tests/conftest.py` la quita del entorno antes de cualquier conexión (T-140, RNF-15), así que `uv run pytest` corre sin `env -u`.
 - Si pytest no puede escribir en el temporal del sistema, se agrega `--basetemp=.pytest_tmp` (está en `.gitignore`).
 - Si los puertos 5432 o 5433 están ocupados, se usan `RUMBO_DEV_PORT` y `RUMBO_TEST_PORT` en `src/.env`.
 
