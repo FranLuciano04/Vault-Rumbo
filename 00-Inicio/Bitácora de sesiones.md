@@ -30,6 +30,15 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
+## 14/10/26 — Nahuel (Claude Opus 5.5) — T-140: tests aislados de SSLKEYLOGFILE
+- **Hecho:** T-140 implementado con el flujo de [[Flujo de implementación|DEC-0014]].
+  - `tests/conftest.py` quita `SSLKEYLOGFILE` antes de cualquier conexión. Ya no hace falta correr `env -u SSLKEYLOGFILE`; la spec §4 está actualizada, así que el consejo de la entrada de T-006 quedó obsoleto.
+  - Hay 33 tests, la cobertura del backend es 97 % y la review con Opus no dejó hallazgos.
+  - PR [#5](https://github.com/FranLuciano04/Vault-Rumbo/pull/5) mergeado.
+- **Commits:** ffe2a50, ca5a1be, 7ea62a6 (merge 8de2a1d).
+- **Desvío:** `tickets.mjs fase verde` trata `conftest.py` como test y rechazó el cambio. El `feat` se commiteó a mano, con la autorización de Nahuel y el trailer «Tests-autorizados: sí».
+- **Pendiente:** decidir si `fase verde` debe aceptar cambios en `conftest.py` cuando el ticket lo pide.
+
 ## 14/10/26 — Nahuel (Claude Opus 5.5) — T-006: sesión async de la base y configuración
 - **Hecho:** T-006 implementado con el flujo de [[Flujo de implementación|DEC-0014]].
   - `core.config.Settings` exige `DATABASE_URL` con `postgresql+asyncpg://`; sin eso, la app no arranca.
