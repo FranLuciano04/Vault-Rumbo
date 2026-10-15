@@ -3,7 +3,7 @@ id: T-140
 titulo: Aislar los tests de la variable SSLKEYLOGFILE
 modulo: M0 — Fundaciones
 capa: backend
-estado: libre
+estado: tomado
 depende_de: [T-006]
 tamaño: XS
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: haiku
 modelo_review: opus
 trazabilidad: [DEC-0015, RNF-15]
 origen: hallazgo T-006
-asignado:
-tomado_el:
-rama:
+asignado: Nahuel Viniegra
+tomado_el: 14/10/26 21:52
+rama: feature/T-140-aislar-los-tests-de-la-variable-sslkeylo
 pr:
 ---
 # T-140 Aislar los tests de la variable SSLKEYLOGFILE

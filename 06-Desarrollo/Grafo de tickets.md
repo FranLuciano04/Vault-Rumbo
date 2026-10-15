@@ -14,7 +14,7 @@ tags:: #tipo/referencia
 
 | Módulo | Tickets | Hechos | Tomados | Disponibles | Esperando | Bloqueados | Estado del módulo |
 |---|---|---|---|---|---|---|---|
-| M0 — Fundaciones | 26 | 4 | 0 | 5 | 17 | 0 | 🛠️ en curso |
+| M0 — Fundaciones | 26 | 4 | 1 | 4 | 17 | 0 | 🛠️ en curso |
 | M1 — Usuarios y configuración | 13 | 0 | 0 | 0 | 13 | 0 | 🛠️ en curso |
 | M2 — Clientes | 11 | 0 | 0 | 0 | 11 | 0 | 🛠️ en curso |
 | M3 — Alertas | 11 | 0 | 0 | 0 | 11 | 0 | 🛠️ en curso |
@@ -58,7 +58,7 @@ flowchart LR
     T023["T-023 · Iniciar sesión en la app mobile con email o Google<br/><small>mobile · ⚠️ riesgo alto</small>"]:::esperando
     T024["T-024 · Armar el Compose de producción local para las demos<br/><small>infra</small>"]:::esperando
     T025["T-025 · Probar de punta a punta el inicio de sesión web<br/><small>e2e</small>"]:::esperando
-    T140["T-140 · Aislar los tests de la variable SSLKEYLOGFILE<br/><small>backend</small>"]:::disponible
+    T140["T-140 · Aislar los tests de la variable SSLKEYLOGFILE<br/><small>backend</small><br/>👤 Nahuel Viniegra"]:::tomado
   end
   subgraph M1["M1 — Usuarios y configuración"]
     T026["T-026 · Publicar el contrato de usuarios y configuración<br/><small>contrato</small>"]:::esperando
