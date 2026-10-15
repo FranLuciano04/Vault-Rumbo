@@ -17,6 +17,7 @@ const servidor = crearServidor(
       { status: 409, headers: { "content-type": "application/problem+json" } },
     ),
   ),
+  http.get(`${BASE}/caido`, () => new HttpResponse("Bad Gateway", { status: 502 })),
   http.post(`${BASE}/clientes`, () =>
     HttpResponse.json(
       {
@@ -84,5 +85,15 @@ describe("cliente HTTP", () => {
     expect(error).toBeInstanceOf(ErrorApi);
     expect(error.status).toBe(422);
     expect(error.errores).toEqual([{ campo: "email", mensaje: "formato inválido" }]);
+  });
+
+  it("RNF-04 traduce un error sin problem+json (502 texto plano) a ErrorApi", async () => {
+    const cliente = crearCliente({ baseURL: BASE, obtenerToken: () => "t" });
+
+    const error = (await cliente.get("/caido").catch((e: unknown) => e)) as ErrorApi;
+
+    expect(error).toBeInstanceOf(ErrorApi);
+    expect(error.name).toBe("ErrorApi");
+    expect(error.status).toBe(502);
   });
 });

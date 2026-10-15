@@ -21,7 +21,9 @@ describe("RNF-04 utilidades MSW de @rumbo/shared", () => {
   });
 
   it("un test puede sobreescribir un handler con servidor.use", async () => {
-    servidor.use(http.get("http://localhost/api/auth/yo", () => HttpResponse.json({ email: "x@y.z" })));
+    servidor.use(
+      http.get("http://localhost/api/auth/yo", () => HttpResponse.json({ email: "x@y.z" })),
+    );
 
     const res = await fetch("http://localhost/api/auth/yo");
 

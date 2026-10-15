@@ -23,7 +23,7 @@
       "Usuario": {
         "type": "object",
         "required": ["email", "rol"],
-        "properties": { "email": { "type": "string" }, "rol": { "type": "string" } }
+        "properties": { "email": { "type": "string" }, "rol": { "type": "string", "enum": ["admin", "dueno", "empleado", "freelance"] } }
       },
       "ErrorCampo": {
         "type": "object",
