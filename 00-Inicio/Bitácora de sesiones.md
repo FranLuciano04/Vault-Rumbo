@@ -30,6 +30,17 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
+## 15/10/26 — Nahuel (Claude Opus 5.5) — T-007: modelos SQLAlchemy del ER
+- **Hecho:** T-007 implementado con el flujo de [[Flujo de implementación|DEC-0014]].
+  - Los 15 modelos y los 20 enums viven en `rumbo/datos/modelos/` y tienen sus fábricas en `tests/fabricas.py`.
+  - Hay 96 tests y la cobertura del backend es 99 %.
+  - La review con Opus dejó 3 hallazgos importantes y 5 menores; todos se arreglaron en el fix.
+  - PR [#6](https://github.com/FranLuciano04/Vault-Rumbo/pull/6) mergeado a mano por Nahuel: el sandbox bloqueó el merge automático sin review.
+- **Commits:** 333a8ce, 79c9860, 1ad7d12, 38f9d3a (merge 952e7de).
+- **Desvío:** `updated_at` usa `onupdate=func.now()` porque el SQL no tiene trigger. Está anotado en el ticket.
+- **Entorno:** en el sandbox, pytest necesita `--basetemp` dentro del scratchpad porque `%TEMP%\pytest-of-*` da acceso denegado.
+- **Pendiente:** las migraciones de Alembic, que son el ticket siguiente y deben partir de esta metadata.
+
 ## 14/10/26 — Nahuel (Claude Opus 5.5) — T-140: tests aislados de SSLKEYLOGFILE
 - **Hecho:** T-140 implementado con el flujo de [[Flujo de implementación|DEC-0014]].
   - `tests/conftest.py` quita `SSLKEYLOGFILE` antes de cualquier conexión. Ya no hace falta correr `env -u SSLKEYLOGFILE`; la spec §4 está actualizada, así que el consejo de la entrada de T-006 quedó obsoleto.
