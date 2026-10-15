@@ -78,10 +78,10 @@ pnpm install
 pnpm --filter @rumbo/shared generar                           # tipos desde openapi.json
 pnpm --filter @rumbo/web dev
 pnpm --filter @rumbo/web lint && pnpm --filter @rumbo/web typecheck
-pnpm --filter @rumbo/web test -- --coverage
+pnpm --filter @rumbo/web test:cobertura
 pnpm --filter @rumbo/web e2e                                  # Playwright contra el Compose con datos de demo
 pnpm --filter @rumbo/mobile start
-pnpm --filter @rumbo/mobile test -- --coverage
+pnpm --filter @rumbo/mobile test --coverage
 
 # Producción local (demos) y tickets
 docker compose -f src/docker-compose.yml up -d --build        # nginx, api, postgres, scheduler

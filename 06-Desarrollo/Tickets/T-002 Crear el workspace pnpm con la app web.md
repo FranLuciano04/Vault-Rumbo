@@ -3,7 +3,7 @@ id: T-002
 titulo: Crear el workspace pnpm con la app web
 modulo: M0 — Fundaciones
 capa: infra
-estado: tomado
+estado: hecho
 depende_de: []
 tamaño: S
 riesgo: normal
@@ -48,3 +48,10 @@ No sigue TDD (`infra`). Se verifica corriendo los scripts del workspace.
 - Pantallas, tokens del Figma y Playwright (tickets propios).
 
 ## Notas de implementación
+- **pnpm vía corepack:** pnpm no estaba en el PATH; se usó `corepack pnpm` (fijado `packageManager: pnpm@12.11.2`). Cada integrante necesita `corepack enable`. En Windows, `tickets.mjs fase --test` hay que correrlo desde Git Bash: desde PowerShell, `bash` resuelve al de WSL y falla.
+- **TypeScript `~6.0.3`:** typescript-eslint 8.71 exige `<6.1`.
+- **shadcn/ui inicializado a mano** (`components.json` new-york, `cn`, set completo de variables neutral con `.dark`), porque el CLI no encuentra pnpm en el PATH. Todavía no hay `components/ui/`. Ojo: el CLI intenta instalar un paquete `cn`, así que hay que revisar `package.json` después de cada `shadcn add`.
+- **Cobertura:** `test -- --coverage` no medía nada; se agregó el script `test:cobertura` y se corrigió la Spec §4 (web y mobile).
+- **React Router:** se usa `react-router` (v8), no `react-router-dom`.
+- **Menores que quedaron abiertos:** `minimumReleaseAgeExclude` en `pnpm-workspace.yaml` (vitest y jsdom recién publicados) es temporal y hay que sacarlo cuando superen la antigüedad mínima. `@testing-library/user-event` se instaló sin usar, a propósito para los tickets de web.
+- **Modelos:** implementación y fix con sonnet; review con opus (reviewer-ticket). Sin escalados.
