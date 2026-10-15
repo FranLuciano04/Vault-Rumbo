@@ -1,8 +1,12 @@
-import type { RequestHandler } from "msw";
-import type { SetupServer } from "msw/node";
+import { http, HttpResponse, type RequestHandler } from "msw";
+import { setupServer, type SetupServer } from "msw/node";
 
-export const manejadoresEjemplo: RequestHandler[] = [];
+/** Handlers de ejemplo; cada módulo agrega los suyos en su ticket de contrato. */
+export const manejadoresEjemplo: RequestHandler[] = [
+  http.get("*/api/auth/yo", () => HttpResponse.json({ email: "ana@rumbo.test", rol: "vendedor" })),
+];
 
-export function crearServidor(..._extra: RequestHandler[]): SetupServer {
-  throw new Error("no implementado");
+/** Servidor MSW para tests (Vitest y Jest); `extra` se suma a los handlers de ejemplo. */
+export function crearServidor(...extra: RequestHandler[]): SetupServer {
+  return setupServer(...manejadoresEjemplo, ...extra);
 }

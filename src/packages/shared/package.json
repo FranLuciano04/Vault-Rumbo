@@ -5,7 +5,7 @@
   "type": "module",
   "main": "./src/index.ts",
   "scripts": {
-    "generar": "echo no implementado && exit 1",
+    "generar": "openapi-typescript openapi.json -o src/tipos.gen.ts",
     "typecheck": "tsc --noEmit",
     "test": "vitest run"
   },
