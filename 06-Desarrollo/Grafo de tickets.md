@@ -14,7 +14,7 @@ tags:: #tipo/referencia
 
 | Módulo | Tickets | Hechos | Tomados | Disponibles | Esperando | Bloqueados | Estado del módulo |
 |---|---|---|---|---|---|---|---|
-| M0 — Fundaciones | 26 | 6 | 1 | 4 | 15 | 0 | 🛠️ en curso |
+| M0 — Fundaciones | 26 | 7 | 0 | 6 | 13 | 0 | 🛠️ en curso |
 | M1 — Usuarios y configuración | 13 | 0 | 0 | 0 | 13 | 0 | 🛠️ en curso |
 | M2 — Clientes | 11 | 0 | 0 | 0 | 11 | 0 | 🛠️ en curso |
 | M3 — Alertas | 11 | 0 | 0 | 0 | 11 | 0 | 🛠️ en curso |
@@ -34,8 +34,8 @@ Leyenda: 🟩 hecho · 🟨 tomado · 🟦 disponible (libre y con sus dependenc
 flowchart LR
   subgraph M0["M0 — Fundaciones"]
     T001["T-001 · Inicializar el backend con uv y FastAPI<br/><small>infra</small>"]:::hecho
-    T002["T-002 · Crear el workspace pnpm con la app web<br/><small>infra</small><br/>👤 Nahuel Viniegra"]:::tomado
-    T003["T-003 · Crear la app mobile con Expo development build<br/><small>infra</small>"]:::esperando
+    T002["T-002 · Crear el workspace pnpm con la app web<br/><small>infra</small>"]:::hecho
+    T003["T-003 · Crear la app mobile con Expo development build<br/><small>infra</small>"]:::disponible
     T004["T-004 · Levantar PostgreSQL de desarrollo con Docker Compose<br/><small>infra</small>"]:::hecho
     T005["T-005 · Configurar el proyecto de Firebase con su emulador<br/><small>infra · ⚠️ riesgo alto</small>"]:::disponible
     T006["T-006 · Configurar la sesión async de la base con su entorno<br/><small>backend</small>"]:::hecho
@@ -46,7 +46,7 @@ flowchart LR
     T011["T-011 · Registrar el autor de cada cambio automáticamente<br/><small>backend</small>"]:::esperando
     T012["T-012 · Aplicar la visibilidad por fila según el rol<br/><small>backend · ⚠️ riesgo alto</small>"]:::disponible
     T013["T-013 · Configurar el cliente de IA con un modelo falso<br/><small>backend</small>"]:::disponible
-    T014["T-014 · Generar los tipos compartidos desde el OpenAPI<br/><small>shared</small>"]:::esperando
+    T014["T-014 · Generar los tipos compartidos desde el OpenAPI<br/><small>shared</small>"]:::disponible
     T015["T-015 · Publicar el contrato base con el usuario de la sesión<br/><small>contrato</small>"]:::esperando
     T016["T-016 · Devolver el usuario de la sesión con su rol<br/><small>backend · ⚠️ riesgo alto</small>"]:::esperando
     T017["T-017 · Crear la dueña inicial con la CLI de datos<br/><small>backend</small>"]:::esperando
