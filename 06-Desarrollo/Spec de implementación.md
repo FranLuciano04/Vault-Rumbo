@@ -143,6 +143,15 @@ async def registrar_cobro(sesion: AsyncSession, actor: Usuario, pago_id: UUID, d
     return pago
 ```
 
+**Código navegable** (lo cumplen los implementadores y lo controla el reviewer). El código lo leen y lo cambian otros agentes que no estuvieron en el ticket, así que cada archivo tiene que poder entenderse solo:
+- **Cada cosa en su lugar:** el archivo va en la capa y el módulo que fija ARQ (`presentacion/routers/<modulo>.py`, `negocio/servicios/<modulo>.py`, …). La lógica de negocio no vive en un router ni en un componente de front, y nadie llega a la base salteándose el servicio y el repositorio.
+- **Antes de escribir, buscar:** si ya existe una función, un esquema, un hook o una fábrica que hace lo mismo, se reutiliza. Nada de copias con cambios mínimos.
+- **Seguir el patrón vecino:** un servicio nuevo se parece a los servicios que ya hay (nombres, firma, manejo de errores, forma de los tests). Si el patrón no sirve, se avisa; no se inventa otro en silencio.
+- **Nombres que explican:** del lenguaje ubicuo y del CU (`registrar_cobro`, `plan_desbalanceado`), nunca `data`, `aux`, `helper`, `utils2` ni `manager`. Sin archivos «cajón» de utilidades sueltas.
+- **Funciones cortas y de un solo propósito.** Cada función pública de un servicio lleva un docstring de una línea que dice qué hace y qué CU o RF realiza. Si una función necesita un comentario para explicar *qué* hace, se parte.
+- **Sin código muerto, sin TODO sueltos, sin parámetros que no se usan.** Lo que queda pendiente va a las notas del ticket, no al código.
+- **Una carpeta nueva** (que no está en §5) se agrega a §5 en el mismo PR.
+
 **Testing:**
 | Nivel | Qué cubre | Dónde | Cómo |
 |---|---|---|---|

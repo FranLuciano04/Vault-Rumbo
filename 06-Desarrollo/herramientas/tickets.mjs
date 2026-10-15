@@ -386,8 +386,8 @@ function fase(id, nombre, resto) {
           ...git(['diff', '--name-only', rojo, 'HEAD']).out.split(/\r?\n/),
           ...git(['status', '--porcelain']).out.split(/\r?\n/).map(l => l.slice(3).replace(/^.* -> /, '')),
         ].filter(f => f && ES_TEST.test(f)));
-        if (cambiados.size && !(nombre === 'fix' && tocarTests)) {
-          console.error(`❌ Cambiaron archivos de test desde el rojo (${rojo.slice(0, 7)}):\n  ${[...cambiados].join('\n  ')}\nRestauralos con «git checkout ${rojo.slice(0, 7)} -- <archivo>». Solo un fix autorizado usa --tocar-tests.`);
+        if (cambiados.size && !(['verde', 'fix'].includes(nombre) && tocarTests)) {
+          console.error(`❌ Cambiaron archivos de test desde el rojo (${rojo.slice(0, 7)}):\n  ${[...cambiados].join('\n  ')}\nRestauralos con «git checkout ${rojo.slice(0, 7)} -- <archivo>». Solo un verde o un fix con autorización explícita usa --tocar-tests.`);
           process.exit(2);
         }
       }

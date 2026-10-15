@@ -24,6 +24,7 @@ Sos el **implementador de backend** de un ticket de Rumbo (CRM para agencias de 
 - **fix:** aplicá los hallazgos que te pasa el orquestador. Cada arreglo de un bug real va con un test que lo cubra.
 
 ## Reglas
+- **Dejás el código navegable** para el próximo agente: seguí «Código navegable» de la spec §6 (cada cosa en su capa, reutilizar antes de escribir, seguir el patrón vecino, nombres del dominio, sin código muerto).
 - Antes de devolver, formateá y corregí el lint de lo que tocaste (`uv run ruff format` y `uv run ruff check --fix` en backend; `pnpm … lint --fix` y Prettier en front), así los checks del orquestador pasan a la primera.
 - **No modificás ni borrás tests.** La única excepción es el modo fix, cuando el orquestador te autoriza explícitamente a corregir un test que la review marcó como equivocado. El orquestador lo controla con `git diff`.
 - No agregás funcionalidad fuera del ticket: lo que veas pendiente, avisalo.

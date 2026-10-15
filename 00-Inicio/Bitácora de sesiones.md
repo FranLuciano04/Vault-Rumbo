@@ -82,7 +82,12 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
   - Los implementadores formatean y corrigen el lint antes de devolver.
   - Ticket nuevo T-140 (hallazgo T-006): que el `conftest` quite `SSLKEYLOGFILE`.
   - Se descartó saltear el refactor en los tickets chicos.
-- **Pendiente:** T-140; reiniciar Claude Code para que cargue las definiciones nuevas.
+- **Código navegable y arquitectura (mismo día):**
+  - La spec §6 suma «Código navegable»: cada cosa en su capa, reutilizar antes de escribir, seguir el patrón vecino, nombres del dominio, funciones cortas con docstring de CU o RF, y nada de código muerto.
+  - Los implementadores y el simplificador lo siguen.
+  - `review-de-ticket` suma el punto «Arquitectura y navegabilidad», clasificado como importante.
+  - `fase verde` acepta `--tocar-tests` con autorización explícita, para archivos de soporte en `tests/` como `conftest.py` (el desvío de T-140).
+- **Pendiente:** reiniciar Claude Code para que cargue las definiciones nuevas.
 
 ## 13/10/26 — Nahuel, con Francisco y Paloma (Claude Opus 5.5) — grill y spec de implementación
 - **Paso 3, plan y tickets (mismo día):** el equipo aprobó la [[Spec de implementación]] (formalizada; se sumó `pydantic-settings` a §3). Con `planning-and-task-breakdown` se escribió el [[Plan de implementación]] (`en-revision`) y se crearon **139 tickets** (T-001 a T-139) en los 11 módulos: contrato primero, backend por CU o flujo, web y mobile por pantalla, un e2e por módulo (dos en M6). El proyecto de Firebase es T-005. Prioridad del PC2: los 79 tickets del camino de CU-01 (T-108). `tickets.mjs validar` da 139 válidos y el [[Grafo de tickets]] quedó regenerado; arrancan disponibles T-001, T-002, T-004 y T-005.

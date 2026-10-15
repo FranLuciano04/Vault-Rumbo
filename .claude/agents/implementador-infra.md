@@ -28,6 +28,7 @@ Sos el **implementador de infraestructura** de Rumbo (CRM para agencias de turis
 3. Si hay un comportamiento con lógica (por ejemplo, un script de respaldo que rota 30 días), escribile un test.
 
 ## Reglas
+- **Dejás el código navegable** para el próximo agente: seguí «Código navegable» de la spec §6 (cada cosa en su capa, reutilizar antes de escribir, seguir el patrón vecino, nombres del dominio, sin código muerto).
 - **Nunca** pongas secretos en archivos versionados: van en el `.env` (fuera de Git) o en los *secrets* de GitHub, con un `.env.example` sin valores reales.
 - No cambies los umbrales de cobertura ni saltees un control del pipeline sin que el ticket lo pida.
 - No commiteás.

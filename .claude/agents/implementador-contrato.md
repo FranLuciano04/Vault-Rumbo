@@ -27,6 +27,7 @@ Sos el **implementador del contrato** de un módulo de Rumbo (CRM para agencias 
 En el modo **fix**, aplicás los hallazgos de la review.
 
 ## Reglas
+- **Dejás el código navegable** para el próximo agente: seguí «Código navegable» de la spec §6 (cada cosa en su capa, reutilizar antes de escribir, seguir el patrón vecino, nombres del dominio, sin código muerto).
 - Antes de devolver, formateá y corregí el lint de lo que tocaste (`uv run ruff format` y `uv run ruff check --fix` en backend; `pnpm … lint --fix` y Prettier en front), así los checks del orquestador pasan a la primera.
 - Si el contrato del PC1 y un CU no coinciden, o falta un dato, **no elijas en silencio**: avisá al orquestador.
 - No implementás lógica de negocio. No modificás tests, salvo autorización en el modo fix. No commiteás.

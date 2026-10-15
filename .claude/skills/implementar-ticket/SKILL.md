@@ -54,7 +54,7 @@ Los implementadores invocan **a demanda** `debugging-and-error-recovery` (cuando
 ## 2. 🟢 Verde
 - Lanzá el implementador de la tabla con `model: <modelo_impl>`, en modo **verde** (en `infra`, el único modo).
 - En `infra`, lo que el implementador reportó como verificado lo volvés a ejecutar vos (pasalo como `--test` si es un comando).
-- `node 06-Desarrollo/herramientas/tickets.mjs fase T-NNN verde "<qué hace>" --test "<cmd>"`: comprueba que los tests y la suite afectada pasen, controla que **estén intactos** desde el rojo, commitea `feat` (`chore` en `infra`) y sube. Si cambió un test, sale con código 2 y lista los archivos: restauralos con el comando que imprime, volvé a correr y devolvéselo al implementador.
+- `node 06-Desarrollo/herramientas/tickets.mjs fase T-NNN verde "<qué hace>" --test "<cmd>"`: comprueba que los tests y la suite afectada pasen, controla que **estén intactos** desde el rojo, commitea `feat` (`chore` en `infra`) y sube. Si cambió un test, sale con código 2 y lista los archivos: restauralos con el comando que imprime, volvé a correr y devolvéselo al implementador. **Excepción:** si el ticket pide cambiar un archivo de soporte que vive en `tests/` (por ejemplo `conftest.py` o `fabricas.py`) y no los tests del rojo, pedile autorización a la persona y usá `--tocar-tests`; anotalo en el ticket.
 
 ## 3. 🔵 Refactor (todas menos `e2e` e `infra`)
 - Lanzá `simplificador` con `model: <modelo_impl>`.

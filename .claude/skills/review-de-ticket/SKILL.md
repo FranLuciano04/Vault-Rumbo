@@ -16,10 +16,11 @@ La ruta del ticket y la rama. Mirá el diff con `git diff main...HEAD`. Leé el 
 2. **Permisos:** autorización por fila y por rol (DEC-0005 y DEC-0008: el `freelance` ve solo lo suyo y recibe `404` en lo ajeno), el usuario activo verificado en cada pedido (DEC-0016) y la auditoría `created_by`/`updated_by`.
 3. **Bugs de código:** casos borde, `None`/`undefined`, async mal esperado, transacciones (RNF-05), fechas y zona horaria de Argentina, redondeo de importes (`Decimal`, nunca `float`).
 4. **Contrato:** respuestas y errores según el OpenAPI del módulo (problem+json, `409` para transiciones inválidas, `422` para validaciones).
-5. **Tests:** ¿prueban de verdad el comportamiento, o pasarían con una implementación incorrecta? ¿Falta algún flujo alternativo? ¿Están nombrados por RF?
-6. Diseño y legibilidad: solo si causa un problema concreto.
+5. **Arquitectura y navegabilidad** (spec §6, «Código navegable», y ARQ): cada archivo en su capa y módulo; ningún router ni componente con lógica de negocio; nada que llegue a la base salteándose servicio y repositorio; el repositorio recibe el filtro de visibilidad; un caso de uso, una transacción; nada duplicado de algo que ya existía; nombres del dominio; sin código muerto. Se clasifica **importante**: aunque hoy no cause un bug, los próximos tickets copian el patrón.
+6. **Tests:** ¿prueban de verdad el comportamiento, o pasarían con una implementación incorrecta? ¿Falta algún flujo alternativo? ¿Están nombrados por RF?
+7. Otros temas de diseño: solo si causan un problema concreto.
 
-**Verificá cada hallazgo** antes de reportarlo: leé el código real y, si podés, demostralo con un comando o un test. No reportes estilo ni gustos.
+**Verificá cada hallazgo** antes de reportarlo: leé el código real y, si podés, demostralo con un comando o un test. No reportes estilo ni gustos (el formato lo controlan ruff, ESLint y Prettier).
 
 ## Formato de salida
 Una lista, del más grave al menos grave. Si no hay nada, decilo.
