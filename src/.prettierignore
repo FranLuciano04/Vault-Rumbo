@@ -5,3 +5,4 @@ pnpm-lock.yaml
 backend
 docker-compose*.yml
 packages/shared/openapi.json
+packages/shared/src/tipos.gen.ts

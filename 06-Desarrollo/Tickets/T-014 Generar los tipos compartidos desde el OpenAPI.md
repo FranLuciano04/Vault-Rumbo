@@ -3,7 +3,7 @@ id: T-014
 titulo: Generar los tipos compartidos desde el OpenAPI
 modulo: M0 — Fundaciones
 capa: shared
-estado: tomado
+estado: hecho
 depende_de: [T-002]
 tamaño: S
 riesgo: normal
@@ -48,3 +48,8 @@ tags:: #tipo/ticket
 - Hooks y esquemas de cada módulo (los agrega su ticket de contrato).
 
 ## Notas de implementación
+- `openapi.json` es **provisorio y a mano** (solo `GET /api/auth/yo`, `Usuario`, `Problema`, `ErrorCampo`): el backend todavía no tiene `exportar-openapi`. Reemplazarlo por el exportado en el primer ticket de contrato y correr `generar`; `generar.test.ts` detecta si `tipos.gen.ts` queda desincronizado.
+- API elegida (el ticket no la fijaba): `crearCliente({baseURL, obtenerToken})` → `AxiosInstance`; `ErrorApi` (`status` del HTTP real, `title`, `detail`, `errores: {campo, mensaje}[]`); `crearServidor(...extra)` y `manejadoresEjemplo` en `@rumbo/shared/mocks`. Formato de `errores` asumido: confirmar en el contrato.
+- `tipos.gen.ts` va en `.prettierignore`; en `eslint.config.js` se relajaron tres reglas solo para `*.test.ts`.
+- Pendiente: los mocks no están probados en Jest (mobile; msw 2 puede necesitar polyfills); el paquete no tiene proveedor de cobertura de Vitest todavía.
+- Modelos: tests sonnet, implementación/fix sonnet, review opus. Sin escalados. Review: 0 bloqueantes, 3 importantes y 5 menores, todos arreglados.
