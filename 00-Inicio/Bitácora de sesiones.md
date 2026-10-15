@@ -30,6 +30,20 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
+## 15/10/26 — Nahuel (Claude Opus 5.5) — T-014: tipos compartidos desde el OpenAPI
+- **Hecho:** T-014 implementado con TDD (capa shared). `@rumbo/shared` incluye:
+  - `generar`: corre openapi-typescript para producir `tipos.gen.ts`.
+  - `crearCliente`: Axios que agrega el ID token de `obtenerToken` y traduce problem+json a `ErrorApi`.
+  - Mocks MSW en `@rumbo/shared/mocks`.
+  - 13 tests. La review con Opus dejó 0 bloqueantes, 3 importantes y 5 menores, todos arreglados.
+  - PR [#8](https://github.com/FranLuciano04/Vault-Rumbo/pull/8) mergeado (sin CI todavía).
+- **Commits:** fdcd8d5, 5e4bf43, feb1b4e, fbfce20 (merge d6ffb25), grafo e6d11db.
+- **Pendiente:**
+  - `openapi.json` es provisorio y está hecho a mano. Hay que reemplazarlo por el que exporte el backend (`exportar-openapi`) en el primer ticket de contrato.
+  - Falta confirmar el formato `errores: {campo, mensaje}[]`.
+  - Falta probar los mocks en Jest (mobile).
+  - `@rumbo/shared` no tiene proveedor de cobertura.
+
 ## 15/10/26 — Nahuel (Claude Opus 5.5) — T-002: workspace pnpm con la app web
 - **Hecho:** T-002 implementado con el flujo de [[Flujo de implementación|DEC-0014]] (infra, sin TDD).
   - El workspace vive en `src/` y contiene `apps/web`: React, Vite, TypeScript estricto, React Router v8, Tailwind v4, shadcn/ui inicializado a mano, y Vitest con Testing Library.
