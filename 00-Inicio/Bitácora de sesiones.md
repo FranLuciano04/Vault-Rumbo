@@ -30,6 +30,16 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
+## 15/10/26 — Nahuel (Claude Opus 5.5) — T-002: workspace pnpm con la app web
+- **Hecho:** T-002 implementado con el flujo de [[Flujo de implementación|DEC-0014]] (infra, sin TDD).
+  - El workspace vive en `src/` y contiene `apps/web`: React, Vite, TypeScript estricto, React Router v8, Tailwind v4, shadcn/ui inicializado a mano, y Vitest con Testing Library.
+  - La review con Opus dejó 2 hallazgos importantes y 3 menores. Los importantes y uno de los menores se arreglaron en el fix; los otros 2 menores quedaron anotados en el ticket.
+  - Se corrigió el comando de cobertura de la Spec §4: ahora es `test:cobertura`, porque `test -- --coverage` no medía nada.
+  - PR [#7](https://github.com/FranLuciano04/Vault-Rumbo/pull/7) mergeado con el OK de Nahuel.
+- **Commits:** 93a7ce2, 52bda16, 2f48b36 (merge 1fe9287), grafo 31cde7e.
+- **Entorno:** pnpm se usa con `corepack pnpm`, así que cada integrante tiene que correr `corepack enable`. En Windows, `tickets.mjs fase --test` hay que correrlo desde Git Bash: en PowerShell, `bash` resuelve al de WSL.
+- **Pendiente:** sacar `minimumReleaseAgeExclude` de `pnpm-workspace.yaml` cuando vitest y jsdom superen la antigüedad mínima. El primer `shadcn add` necesita pnpm en el PATH.
+
 ## 15/10/26 — Nahuel (Claude Opus 5.5) — T-007: modelos SQLAlchemy del ER
 - **Hecho:** T-007 implementado con el flujo de [[Flujo de implementación|DEC-0014]].
   - Los 15 modelos y los 20 enums viven en `rumbo/datos/modelos/` y tienen sus fábricas en `tests/fabricas.py`.
