@@ -3,7 +3,7 @@ id: T-007
 titulo: Mapear las entidades del ER con SQLAlchemy
 modulo: M0 — Fundaciones
 capa: backend
-estado: tomado
+estado: hecho
 depende_de: [T-006]
 tamaño: M
 riesgo: normal
@@ -49,3 +49,8 @@ Cada tabla y enum de `rumbo.sql` tiene su modelo SQLAlchemy 2.0 en `datos/modelo
 - Migraciones (ticket siguiente) y repositorios por módulo.
 
 ## Notas de implementación
+- Modelos en `rumbo/datos/modelos/`, en cinco módulos: `enums`, `base` (`Base`, `IdMixin`, `AuditoriaMixin`), `catalogos`, `comercial` y `posventa`. Se reexportan desde `__init__`. Hasta que haya migraciones, los tests crean el esquema con `Base.metadata.create_all` dentro de la transacción que se revierte.
+- Desvío del SQL: `updated_at` lleva `onupdate=func.now()` porque no hay trigger; solo cubre los UPDATE que pasan por SQLAlchemy. `Base` usa `eager_defaults=True` para no disparar MissingGreenlet al leer `updated_at`, `ganancia` o `margen` después de un UPDATE async.
+- Hallazgos de la review (Opus) arreglados: `eager_defaults`, tipado de las fábricas (`Factory[T]`) para que mypy pase sobre los tests, `configuracion.id` `SmallInteger`, `ganancia` nullable, `sort_order` de id y auditoría, `MutableList` en `etiquetas` e `items`, test de `ON DELETE SET NULL` y formato. El orquestador autorizó tocar los tests del rojo (`--tocar-tests`).
+- Los tests se corren con `--basetemp` dentro del scratchpad: el sandbox no deja escribir en `%TEMP%\pytest-of-*`, y por eso fallaba `test_config.py` (problema del entorno, no del ticket).
+- Modelos: tests con Sonnet; implementación y fix con Sonnet; refactor con Sonnet (sin cambios); review con Opus. No hubo escalado.
