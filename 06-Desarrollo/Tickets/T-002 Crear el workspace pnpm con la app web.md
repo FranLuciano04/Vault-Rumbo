@@ -3,7 +3,7 @@ id: T-002
 titulo: Crear el workspace pnpm con la app web
 modulo: M0 — Fundaciones
 capa: infra
-estado: libre
+estado: tomado
 depende_de: []
 tamaño: S
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [DEC-0001, DEC-0015]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: Nahuel Viniegra
+tomado_el: 15/10/26 17:18
+rama: feature/T-002-crear-el-workspace-pnpm-con-la-app-web
 pr:
 ---
 # T-002 Crear el workspace pnpm con la app web

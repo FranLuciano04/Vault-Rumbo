@@ -14,7 +14,7 @@ tags:: #tipo/referencia
 
 | Módulo | Tickets | Hechos | Tomados | Disponibles | Esperando | Bloqueados | Estado del módulo |
 |---|---|---|---|---|---|---|---|
-| M0 — Fundaciones | 26 | 6 | 0 | 5 | 15 | 0 | 🛠️ en curso |
+| M0 — Fundaciones | 26 | 6 | 1 | 4 | 15 | 0 | 🛠️ en curso |
 | M1 — Usuarios y configuración | 13 | 0 | 0 | 0 | 13 | 0 | 🛠️ en curso |
 | M2 — Clientes | 11 | 0 | 0 | 0 | 11 | 0 | 🛠️ en curso |
 | M3 — Alertas | 11 | 0 | 0 | 0 | 11 | 0 | 🛠️ en curso |
@@ -34,7 +34,7 @@ Leyenda: 🟩 hecho · 🟨 tomado · 🟦 disponible (libre y con sus dependenc
 flowchart LR
   subgraph M0["M0 — Fundaciones"]
     T001["T-001 · Inicializar el backend con uv y FastAPI<br/><small>infra</small>"]:::hecho
-    T002["T-002 · Crear el workspace pnpm con la app web<br/><small>infra</small>"]:::disponible
+    T002["T-002 · Crear el workspace pnpm con la app web<br/><small>infra</small><br/>👤 Nahuel Viniegra"]:::tomado
     T003["T-003 · Crear la app mobile con Expo development build<br/><small>infra</small>"]:::esperando
     T004["T-004 · Levantar PostgreSQL de desarrollo con Docker Compose<br/><small>infra</small>"]:::hecho
     T005["T-005 · Configurar el proyecto de Firebase con su emulador<br/><small>infra · ⚠️ riesgo alto</small>"]:::disponible
