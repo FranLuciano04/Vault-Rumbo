@@ -3,7 +3,7 @@ id: T-007
 titulo: Mapear las entidades del ER con SQLAlchemy
 modulo: M0 — Fundaciones
 capa: backend
-estado: libre
+estado: tomado
 depende_de: [T-006]
 tamaño: M
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [DEC-0013, DEC-0016, RNF-07]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: Nahuel Viniegra
+tomado_el: 15/10/26 15:27
+rama: feature/T-007-mapear-las-entidades-del-er-con-sqlalche
 pr:
 ---
 # T-007 Mapear las entidades del ER con SQLAlchemy
