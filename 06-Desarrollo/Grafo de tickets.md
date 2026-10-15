@@ -14,13 +14,13 @@ tags:: #tipo/referencia
 
 | Módulo | Tickets | Hechos | Tomados | Disponibles | Esperando | Bloqueados | Estado del módulo |
 |---|---|---|---|---|---|---|---|
-| M0 — Fundaciones | 26 | 5 | 1 | 3 | 17 | 0 | 🛠️ en curso |
+| M0 — Fundaciones | 26 | 6 | 0 | 5 | 15 | 0 | 🛠️ en curso |
 | M1 — Usuarios y configuración | 13 | 0 | 0 | 0 | 13 | 0 | 🛠️ en curso |
 | M2 — Clientes | 11 | 0 | 0 | 0 | 11 | 0 | 🛠️ en curso |
 | M3 — Alertas | 11 | 0 | 0 | 0 | 11 | 0 | 🛠️ en curso |
 | M4 — Oportunidades y cotizaciones | 14 | 0 | 0 | 0 | 14 | 0 | 🛠️ en curso |
 | M5 — Hoteles y reseñas | 11 | 0 | 0 | 0 | 11 | 0 | 🛠️ en curso |
-| M6 — Viajes y economía | 24 | 0 | 0 | 0 | 24 | 0 | 🛠️ en curso |
+| M6 — Viajes y economía | 24 | 0 | 0 | 2 | 22 | 0 | 🛠️ en curso |
 | M7 — Proceso diario y CRM proactivo | 9 | 0 | 0 | 0 | 9 | 0 | 🛠️ en curso |
 | M8 — Calendario, dashboard y reportes | 10 | 0 | 0 | 0 | 10 | 0 | 🛠️ en curso |
 | M9 — Redes e IA | 6 | 0 | 0 | 0 | 6 | 0 | 🛠️ en curso |
@@ -39,12 +39,12 @@ flowchart LR
     T004["T-004 · Levantar PostgreSQL de desarrollo con Docker Compose<br/><small>infra</small>"]:::hecho
     T005["T-005 · Configurar el proyecto de Firebase con su emulador<br/><small>infra · ⚠️ riesgo alto</small>"]:::disponible
     T006["T-006 · Configurar la sesión async de la base con su entorno<br/><small>backend</small>"]:::hecho
-    T007["T-007 · Mapear las entidades del ER con SQLAlchemy<br/><small>backend</small><br/>👤 Nahuel Viniegra"]:::tomado
-    T008["T-008 · Crear la migración inicial de Alembic desde rumbo.sql<br/><small>backend</small>"]:::esperando
+    T007["T-007 · Mapear las entidades del ER con SQLAlchemy<br/><small>backend</small>"]:::hecho
+    T008["T-008 · Crear la migración inicial de Alembic desde rumbo.sql<br/><small>backend</small>"]:::disponible
     T009["T-009 · Responder los errores con problem+json<br/><small>backend</small>"]:::hecho
     T010["T-010 · Verificar el token de Firebase para resolver el usuario actual<br/><small>backend · ⚠️ riesgo alto</small>"]:::esperando
     T011["T-011 · Registrar el autor de cada cambio automáticamente<br/><small>backend</small>"]:::esperando
-    T012["T-012 · Aplicar la visibilidad por fila según el rol<br/><small>backend · ⚠️ riesgo alto</small>"]:::esperando
+    T012["T-012 · Aplicar la visibilidad por fila según el rol<br/><small>backend · ⚠️ riesgo alto</small>"]:::disponible
     T013["T-013 · Configurar el cliente de IA con un modelo falso<br/><small>backend</small>"]:::disponible
     T014["T-014 · Generar los tipos compartidos desde el OpenAPI<br/><small>shared</small>"]:::esperando
     T015["T-015 · Publicar el contrato base con el usuario de la sesión<br/><small>contrato</small>"]:::esperando
@@ -132,8 +132,8 @@ flowchart LR
   end
   subgraph M6["M6 — Viajes y economía"]
     T086["T-086 · Publicar el contrato de viajes y economía<br/><small>contrato</small>"]:::esperando
-    T087["T-087 · Implementar la máquina de estados del viaje<br/><small>backend · ⚠️ riesgo alto</small>"]:::esperando
-    T088["T-088 · Implementar los estados del pago<br/><small>backend · ⚠️ riesgo alto</small>"]:::esperando
+    T087["T-087 · Implementar la máquina de estados del viaje<br/><small>backend · ⚠️ riesgo alto</small>"]:::disponible
+    T088["T-088 · Implementar los estados del pago<br/><small>backend · ⚠️ riesgo alto</small>"]:::disponible
     T089["T-089 · Confirmar la reserva creando el viaje<br/><small>backend · ⚠️ riesgo alto</small>"]:::esperando
     T090["T-090 · Registrar la economía del viaje con su comisión<br/><small>backend · ⚠️ riesgo alto</small>"]:::esperando
     T091["T-091 · Listar los viajes con su situación económica<br/><small>backend</small>"]:::esperando
