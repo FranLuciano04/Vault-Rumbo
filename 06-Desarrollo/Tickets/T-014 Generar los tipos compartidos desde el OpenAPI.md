@@ -3,7 +3,7 @@ id: T-014
 titulo: Generar los tipos compartidos desde el OpenAPI
 modulo: M0 — Fundaciones
 capa: shared
-estado: libre
+estado: tomado
 depende_de: [T-002]
 tamaño: S
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [DEC-0001, DEC-0015]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: Nahuel Viniegra
+tomado_el: 15/10/26 17:46
+rama: feature/T-014-generar-los-tipos-compartidos-desde-el-o
 pr:
 ---
 # T-014 Generar los tipos compartidos desde el OpenAPI
