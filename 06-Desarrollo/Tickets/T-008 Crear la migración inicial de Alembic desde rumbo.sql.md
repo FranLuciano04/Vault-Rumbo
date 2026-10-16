@@ -3,7 +3,7 @@ id: T-008
 titulo: Crear la migración inicial de Alembic desde rumbo.sql
 modulo: M0 — Fundaciones
 capa: backend
-estado: tomado
+estado: hecho
 depende_de: [T-007]
 tamaño: S
 riesgo: normal
@@ -49,3 +49,8 @@ Alembic (async) crea el esquema completo de `rumbo.sql`, incluida la fila inicia
 
 ## Notas de implementación
 - **Del plan:** `rumbo.sql` cambió por DEC-0016 y todavía no se corrió contra PostgreSQL: este ticket es el primero que lo verifica. Si el SQL tiene un error, se corrige en `rumbo.sql` también, avisando.
+- **Resultado:** `rumbo.sql` corrió sin errores contra PostgreSQL; no se modificó. La migración `0001` embebe sus 37 sentencias (asyncpg no ejecuta varias por llamada), y un test verifica que sigan iguales a `rumbo.sql`. `env.py` es async y toma la URL de `get_settings()`, así que lee `.env`.
+- **Tests tocados (autorizado por Nahuel):** la fixture `bd` de `test_modelos.py` (T-007) cambió `create_all` por `DELETE FROM configuracion`, porque la base migrada ya trae la fila inicial. En la review se autorizó que `correr_alembic` invoque el script de consola `alembic` y no `python -m alembic`.
+- **Review (opus):** se arreglaron 2 bloqueantes (`prepend_sys_path`, lectura de `.env`) y 3 menores: guarda `_test` antes del `DROP SCHEMA`, fixture de migración no autouse y test de equivalencia con `rumbo.sql`. **Menor pendiente:** `prepend_sys_path = .` depende del cwd, y desde `src/` falla; se podría usar `%(here)s`. El flujo documentado (desde `src/backend`) funciona.
+- **Entorno Windows:** pytest necesita `--basetemp` fuera del temp por defecto (acceso denegado), y `SSLKEYLOGFILE` rompe asyncpg (T-140). Ninguno de los dos viene de este ticket.
+- **Modelos:** tests sonnet, implementación, refactor y fix sonnet, review opus. No hubo escalado.
