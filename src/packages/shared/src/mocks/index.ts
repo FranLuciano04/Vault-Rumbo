@@ -10,3 +10,20 @@ export const manejadoresEjemplo: RequestHandler[] = [
 export function crearServidor(...extra: RequestHandler[]): SetupServer {
   return setupServer(...manejadoresEjemplo, ...extra);
 }
+
+export type RolMock = "admin" | "dueno" | "empleado" | "freelance";
+
+/** T-015: un usuario de la sesión por rol, con la forma del esquema de `GET /api/auth/yo`. */
+export const usuariosPorRol: Record<RolMock, Record<string, unknown>> = new Proxy(
+  {} as Record<RolMock, Record<string, unknown>>,
+  {
+    get() {
+      throw new Error("no implementado");
+    },
+  },
+);
+
+/** T-015: handler MSW de `GET /api/auth/yo` que responde con el usuario del rol indicado. */
+export function manejadorYo(_rol: RolMock): RequestHandler {
+  throw new Error("no implementado");
+}
