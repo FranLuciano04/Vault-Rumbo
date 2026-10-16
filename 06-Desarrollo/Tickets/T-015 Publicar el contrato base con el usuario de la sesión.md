@@ -3,7 +3,7 @@ id: T-015
 titulo: Publicar el contrato base con el usuario de la sesión
 modulo: M0 — Fundaciones
 capa: contrato
-estado: libre
+estado: tomado
 depende_de: [T-009, T-014]
 tamaño: S
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [CU-24, RF-141, DEC-0016]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: Nahuel Viniegra
+tomado_el: 16/10/26 12:54
+rama: feature/T-015-publicar-el-contrato-base-con-el-usuario
 pr:
 ---
 # T-015 Publicar el contrato base con el usuario de la sesión
