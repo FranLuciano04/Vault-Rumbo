@@ -1,44 +1,219 @@
 {
   "openapi": "3.1.0",
-  "info": { "title": "Rumbo API", "version": "0.0.0" },
+  "info": {
+    "title": "Rumbo",
+    "version": "0.1.0"
+  },
   "paths": {
-    "/api/auth/yo": {
+    "/api/salud": {
       "get": {
-        "operationId": "obtener_yo",
+        "summary": "Salud",
+        "operationId": "salud_api_salud_get",
         "responses": {
           "200": {
-            "description": "Usuario autenticado",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Usuario" } } }
-          },
-          "401": {
-            "description": "Sin sesión",
-            "content": { "application/problem+json": { "schema": { "$ref": "#/components/schemas/Problema" } } }
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "type": "object",
+                  "title": "Response Salud Api Salud Get"
+                }
+              }
+            }
           }
         }
+      }
+    },
+    "/api/auth/yo": {
+      "get": {
+        "tags": [
+          "seguridad"
+        ],
+        "summary": "Usuario de la sesión, con su rol y accesos",
+        "description": "**Roles:** admin, dueno, empleado, freelance.\n\n**Casos de uso:** CU-24.",
+        "operationId": "obtener_usuario_actual",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UsuarioActual"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Falta el token o no es válido.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "501": {
+            "description": "No implementado.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
       }
     }
   },
   "components": {
     "schemas": {
-      "Usuario": {
-        "type": "object",
-        "required": ["email", "rol"],
-        "properties": { "email": { "type": "string" }, "rol": { "type": "string", "enum": ["admin", "dueno", "empleado", "freelance"] } }
-      },
       "ErrorCampo": {
-        "type": "object",
-        "required": ["campo", "mensaje"],
-        "properties": { "campo": { "type": "string" }, "mensaje": { "type": "string" } }
+        "properties": {
+          "campo": {
+            "title": "Campo",
+            "type": "string"
+          },
+          "mensaje": {
+            "title": "Mensaje",
+            "type": "string"
+          }
+        },
+        "required": [
+          "campo",
+          "mensaje"
+        ],
+        "title": "ErrorCampo",
+        "type": "object"
       },
       "Problema": {
-        "type": "object",
-        "required": ["title", "status"],
         "properties": {
-          "title": { "type": "string" },
-          "status": { "type": "integer" },
-          "detail": { "type": "string" },
-          "errores": { "type": "array", "items": { "$ref": "#/components/schemas/ErrorCampo" } }
-        }
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "status": {
+            "title": "Status",
+            "type": "integer"
+          },
+          "detail": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Detail"
+          },
+          "errores": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/ErrorCampo"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Errores"
+          }
+        },
+        "required": [
+          "title",
+          "status"
+        ],
+        "type": "object"
+      },
+      "UsuarioActual": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "nombre": {
+            "type": "string",
+            "title": "Nombre"
+          },
+          "email": {
+            "type": "string",
+            "title": "Email"
+          },
+          "rol": {
+            "type": "string",
+            "enum": [
+              "admin",
+              "dueno",
+              "empleado",
+              "freelance"
+            ],
+            "title": "Rol"
+          },
+          "acceso_redes": {
+            "type": "boolean",
+            "title": "Acceso Redes"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "nombre",
+          "email",
+          "rol",
+          "acceso_redes"
+        ],
+        "title": "UsuarioActual",
+        "description": "Usuario de Rumbo de la sesión, con su rol y accesos."
+      },
+      "Pagina": {
+        "properties": {
+          "items": {
+            "items": {},
+            "title": "Items",
+            "type": "array"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          },
+          "pagina": {
+            "title": "Pagina",
+            "type": "integer"
+          },
+          "por_pagina": {
+            "title": "Por Pagina",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "items",
+          "total",
+          "pagina",
+          "por_pagina"
+        ],
+        "type": "object"
+      }
+    },
+    "securitySchemes": {
+      "HTTPBearer": {
+        "type": "http",
+        "description": "ID token de Firebase (DEC-0016)",
+        "scheme": "bearer"
       }
     }
   }

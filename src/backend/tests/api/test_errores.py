@@ -120,9 +120,8 @@ async def test_rnf06_validacion_pydantic_devuelve_422_problem_json_con_errores_p
     assert cuerpo["detail"]
     assert isinstance(cuerpo["errores"], list)
     assert len(cuerpo["errores"]) >= 2
-    texto = str(cuerpo["errores"])
-    assert "nombre" in texto
-    assert "monto" in texto
+    assert all(set(e) == {"campo", "mensaje"} for e in cuerpo["errores"])
+    assert {e["campo"] for e in cuerpo["errores"]} == {"nombre", "monto"}
     assert "no-es-numero" not in r.text
 
 

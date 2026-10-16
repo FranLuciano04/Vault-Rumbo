@@ -15,6 +15,7 @@ from rumbo.negocio.errores import (
     SinPermiso,
     TransicionInvalida,
 )
+from rumbo.presentacion.esquemas.comunes import ErrorCampo
 
 logger = logging.getLogger(__name__)
 
@@ -29,6 +30,7 @@ _TITULOS = {
     409: "Conflicto",
     422: "Datos inválidos",
     500: "Error interno",
+    501: "No implementado",
     502: "Servicio externo no disponible",
 }
 
@@ -72,11 +74,16 @@ async def _error_http(_: Request, exc: Exception) -> JSONResponse:
     return response
 
 
+def _error_campo(error: Any) -> ErrorCampo:
+    """Traduce un error de Pydantic; `loc` empieza con la zona (body, query…), no con un campo."""
+    ubicacion = error["loc"]
+    partes = ubicacion[1:] or ubicacion
+    return ErrorCampo(campo=".".join(str(p) for p in partes), mensaje=error["msg"])
+
+
 async def _error_de_validacion(_: Request, exc: Exception) -> JSONResponse:
-    errores = jsonable_encoder(
-        cast(RequestValidationError, exc).errors(), exclude={"input", "ctx", "url"}
-    )
-    return _problema(422, "Los datos enviados no son válidos.", errores=errores)
+    errores = [_error_campo(e) for e in cast(RequestValidationError, exc).errors()]
+    return _problema(422, "Los datos enviados no son válidos.", errores=jsonable_encoder(errores))
 
 
 async def _error_no_controlado(_: Request, exc: Exception) -> JSONResponse:

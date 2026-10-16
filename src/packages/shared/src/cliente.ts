@@ -10,6 +10,7 @@ export interface OpcionesCliente {
 
 export type Problema = components["schemas"]["Problema"];
 export type ErrorCampo = components["schemas"]["ErrorCampo"];
+export type UsuarioActual = components["schemas"]["UsuarioActual"];
 
 /** Error tipado que traduce un problem+json de la API (ver Contrato de la API, �Errores�). */
 export class ErrorApi extends Error {
