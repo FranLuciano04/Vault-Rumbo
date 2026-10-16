@@ -3,7 +3,7 @@ id: T-015
 titulo: Publicar el contrato base con el usuario de la sesión
 modulo: M0 — Fundaciones
 capa: contrato
-estado: tomado
+estado: hecho
 depende_de: [T-009, T-014]
 tamaño: S
 riesgo: normal
@@ -51,3 +51,10 @@ El backend publica su primer contrato: los esquemas comunes (problema, página) 
 - La lógica de `/auth/yo` (ticket de backend). `/auth/login` y `/auth/logout` ya no existen (DEC-0016).
 
 ## Notas de implementación
+- `GET /api/auth/yo` (`obtener_usuario_actual`, snake_case como el resto de los campos) responde 401 sin Bearer y 501 con Bearer. `exigir_token` solo extrae el token; la verificación con Firebase queda para el ticket de backend.
+- `UsuarioActual`: `id`, `nombre`, `email`, `rol`, `acceso_redes`. `Rol` es un `Literal` para que `presentacion` no importe de `datos`; un test lo mantiene igual a `RolUsuario`.
+- Hook de OpenAPI (`presentacion/openapi.py`): toda respuesta de error se publica como `application/problem+json` → `Problema`, y se quitan `HTTPValidationError`/`ValidationError`.
+- Fix de la review: `_error_de_validacion` devuelve `ErrorCampo {campo, mensaje}` (se ajustó `test_errores.py` con `--tocar-tests`, autorizado en el fix). `useYo` no reintenta ante un 401.
+- `@rumbo/shared` suma `@tanstack/react-query` y `react` (peer y dev), y `@testing-library/react` y `jsdom` (dev).
+- Quedan como menores: el componente `Pagina` genérico no lo va a referenciar ningún listado (cada uno publica `Pagina_X_`) y el test que lo pide es laxo. `cli.py` no tiene cobertura. La operación de salud mantiene un `operationId` automático, así que conviene fijar `generate_unique_id_function`.
+- Modelos: tests sonnet, implementación, refactor y fix sonnet, review opus. No hubo escalados.
