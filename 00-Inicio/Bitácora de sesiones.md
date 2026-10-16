@@ -30,6 +30,19 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
+## 16/10/26 — Nahuel (Claude Opus 5.5) — T-008: migración inicial de Alembic
+- **Hecho:** T-008 implementado con TDD (capa backend).
+  - Alembic async con la migración `0001`, que reproduce `rumbo.sql` (20 enums, 15 tablas y la fila de `configuracion`).
+  - `alembic check` no encuentra diferencias con los modelos, y la base de tests ahora se arma con la migración.
+  - `rumbo.sql` corrió sin errores contra PostgreSQL.
+  - Con autorización se tocó la fixture `bd` de `test_modelos.py`, porque la base migrada ya trae la fila de `configuracion`.
+  - La review con Opus dejó 2 bloqueantes (`prepend_sys_path` y lectura de `.env`) y 4 menores; se arreglaron todos menos uno.
+  - Hay 118 tests en verde, con 96 % de cobertura. PR [#10](https://github.com/FranLuciano04/Vault-Rumbo/pull/10) mergeado (sin CI todavía).
+- **Commits:** d7b99a7, 6d2b3f4, cdb8475, 0ff4980 (merge 61e5486), grafo aa26f30.
+- **Pendiente:**
+  - `prepend_sys_path = .` depende del cwd; se podría usar `%(here)s` (menor).
+  - En Windows, pytest necesita `--basetemp` fuera del temp del sistema (acceso denegado).
+
 ## 16/10/26 — Nahuel (Claude Opus 5.5) — T-015: contrato base con el usuario de la sesión
 - **Hecho:** T-015 implementado con TDD (capa contrato).
   - `GET /api/auth/yo` es un stub: responde 401 problem+json sin Bearer y 501 con Bearer.
