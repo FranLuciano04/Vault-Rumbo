@@ -1,9 +1,14 @@
+import asyncio
 import os
+import subprocess
+import sys
 from collections.abc import AsyncIterator
+from pathlib import Path
 
 import pytest
 from httpx import ASGITransport, AsyncClient
 from pydantic_settings import BaseSettings, SettingsConfigDict
+from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, create_async_engine
 from sqlalchemy.pool import NullPool
 
@@ -26,6 +31,38 @@ os.environ["DATABASE_URL"] = _URL_TESTS
 
 from rumbo.core.db import obtener_sesion  # noqa: E402
 from rumbo.main import app  # noqa: E402
+
+RAIZ_BACKEND = Path(__file__).resolve().parent.parent
+
+
+def correr_alembic(url: str, *args: str) -> subprocess.CompletedProcess[str]:
+    """Corre Alembic como subproceso contra `url` (env.py toma DATABASE_URL del entorno)."""
+    return subprocess.run(  # noqa: S603
+        [sys.executable, "-m", "alembic", *args],
+        cwd=RAIZ_BACKEND,
+        env={**os.environ, "DATABASE_URL": url},
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+
+async def _esquema_vacio(url: str) -> None:
+    motor = create_async_engine(url, poolclass=NullPool)
+    try:
+        async with motor.begin() as conexion:
+            await conexion.execute(text("DROP SCHEMA public CASCADE"))
+            await conexion.execute(text("CREATE SCHEMA public"))
+    finally:
+        await motor.dispose()
+
+
+@pytest.fixture(scope="session", autouse=True)
+def base_de_tests_migrada() -> None:
+    """T-008: la base de tests se prepara con la migración de Alembic, no con create_all."""
+    asyncio.run(_esquema_vacio(_URL_TESTS))
+    resultado = correr_alembic(_URL_TESTS, "upgrade", "head")
+    assert resultado.returncode == 0, resultado.stdout + resultado.stderr
 
 
 @pytest.fixture
