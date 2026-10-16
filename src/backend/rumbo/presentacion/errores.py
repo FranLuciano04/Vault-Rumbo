@@ -29,6 +29,7 @@ _TITULOS = {
     409: "Conflicto",
     422: "Datos inválidos",
     500: "Error interno",
+    501: "No implementado",
     502: "Servicio externo no disponible",
 }
 
