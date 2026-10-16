@@ -10,7 +10,7 @@ from decimal import Decimal
 from typing import Any, cast
 
 import pytest
-from sqlalchemy import DateTime, SmallInteger, delete, select
+from sqlalchemy import DateTime, SmallInteger, delete, select, text
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -241,8 +241,9 @@ TABLAS: dict[str, tuple[str, set[str]]] = {
 
 @pytest.fixture
 async def bd(sesion: AsyncSession) -> AsyncSession:
-    """Sesión de test con el esquema creado desde la metadata de los modelos."""
-    await sesion.run_sync(lambda s: m.Base.metadata.create_all(s.connection()))
+    """Sesión de test sobre la base migrada con Alembic, sin la fila inicial de `configuracion`
+    (se borra dentro de la transacción del test, que se revierte)."""
+    await sesion.execute(text("DELETE FROM configuracion"))
     return sesion
 
 
