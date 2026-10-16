@@ -30,6 +30,22 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
+## 16/10/26 — Nahuel (Claude Opus 5.5) — T-015: contrato base con el usuario de la sesión
+- **Hecho:** T-015 implementado con TDD (capa contrato).
+  - `GET /api/auth/yo` es un stub: responde 401 problem+json sin Bearer y 501 con Bearer.
+  - Esquemas `Problema`, `ErrorCampo`, `UsuarioActual` y `Pagina`.
+  - Las respuestas de error se publican como problem+json → `Problema`.
+  - Comando `exportar-openapi`. El `openapi.json` de shared ya sale del backend y reemplaza al provisorio de T-014.
+  - En shared: `useYo` (TanStack Query, sin reintentos ante un 401) y el mock `usuariosPorRol`/`manejadorYo`.
+  - Queda confirmado el formato `errores: {campo, mensaje}[]`: el handler del 422 ahora lo cumple.
+  - La review con Opus dejó 0 bloqueantes, 2 importantes y 4 menores; se arreglaron todos menos uno. PR [#9](https://github.com/FranLuciano04/Vault-Rumbo/pull/9) mergeado (sin CI todavía).
+- **Commits:** c575756, 56204ef, dc41ea4, 5753968 (merge ec16b40), grafo 0e0d331.
+- **Pendiente:**
+  - El componente `Pagina` genérico queda huérfano (menor).
+  - `cli.py` no tiene cobertura.
+  - La operación de salud usa un `operationId` automático: conviene fijar `generate_unique_id_function`.
+  - Los puertos de Postgres en Docker local (5434/5435) no coinciden con la spec (5432/5433).
+
 ## 15/10/26 — Nahuel (Claude Opus 5.5) — T-014: tipos compartidos desde el OpenAPI
 - **Hecho:** T-014 implementado con TDD (capa shared). `@rumbo/shared` incluye:
   - `generar`: corre openapi-typescript para producir `tipos.gen.ts`.
