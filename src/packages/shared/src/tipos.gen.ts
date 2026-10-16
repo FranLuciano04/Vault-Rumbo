@@ -54,16 +54,21 @@ export interface components {
             /** Mensaje */
             mensaje: string;
         };
-        /** Problema */
         Problema: {
             /** Title */
             title: string;
             /** Status */
             status: number;
-            /** Detail */
-            detail?: string | null;
-            /** Errores */
-            errores?: components["schemas"]["ErrorCampo"][] | null;
+            /**
+             * Detail
+             * @default null
+             */
+            detail: string | null;
+            /**
+             * Errores
+             * @default null
+             */
+            errores: components["schemas"]["ErrorCampo"][] | null;
         };
         /**
          * UsuarioActual

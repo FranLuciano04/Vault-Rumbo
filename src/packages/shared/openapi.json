@@ -80,30 +80,30 @@
       "ErrorCampo": {
         "properties": {
           "campo": {
-            "type": "string",
-            "title": "Campo"
+            "title": "Campo",
+            "type": "string"
           },
           "mensaje": {
-            "type": "string",
-            "title": "Mensaje"
+            "title": "Mensaje",
+            "type": "string"
           }
         },
-        "type": "object",
         "required": [
           "campo",
           "mensaje"
         ],
-        "title": "ErrorCampo"
+        "title": "ErrorCampo",
+        "type": "object"
       },
       "Problema": {
         "properties": {
           "title": {
-            "type": "string",
-            "title": "Title"
+            "title": "Title",
+            "type": "string"
           },
           "status": {
-            "type": "integer",
-            "title": "Status"
+            "title": "Status",
+            "type": "integer"
           },
           "detail": {
             "anyOf": [
@@ -114,6 +114,7 @@
                 "type": "null"
               }
             ],
+            "default": null,
             "title": "Detail"
           },
           "errores": {
@@ -128,15 +129,15 @@
                 "type": "null"
               }
             ],
+            "default": null,
             "title": "Errores"
           }
         },
-        "type": "object",
         "required": [
           "title",
           "status"
         ],
-        "title": "Problema"
+        "type": "object"
       },
       "UsuarioActual": {
         "properties": {
