@@ -14,16 +14,16 @@ tags:: #tipo/referencia
 
 | Módulo | Tickets | Hechos | Tomados | Disponibles | Esperando | Bloqueados | Estado del módulo |
 |---|---|---|---|---|---|---|---|
-| M0 — Fundaciones | 26 | 8 | 1 | 5 | 12 | 0 | 🛠️ en curso |
-| M1 — Usuarios y configuración | 13 | 0 | 0 | 0 | 13 | 0 | 🛠️ en curso |
-| M2 — Clientes | 11 | 0 | 0 | 0 | 11 | 0 | 🛠️ en curso |
-| M3 — Alertas | 11 | 0 | 0 | 0 | 11 | 0 | 🛠️ en curso |
-| M4 — Oportunidades y cotizaciones | 14 | 0 | 0 | 0 | 14 | 0 | 🛠️ en curso |
-| M5 — Hoteles y reseñas | 11 | 0 | 0 | 0 | 11 | 0 | 🛠️ en curso |
-| M6 — Viajes y economía | 24 | 0 | 0 | 2 | 22 | 0 | 🛠️ en curso |
+| M0 — Fundaciones | 26 | 9 | 0 | 6 | 11 | 0 | 🛠️ en curso |
+| M1 — Usuarios y configuración | 13 | 0 | 0 | 1 | 12 | 0 | 🛠️ en curso |
+| M2 — Clientes | 11 | 0 | 0 | 1 | 10 | 0 | 🛠️ en curso |
+| M3 — Alertas | 11 | 0 | 0 | 1 | 10 | 0 | 🛠️ en curso |
+| M4 — Oportunidades y cotizaciones | 14 | 0 | 0 | 1 | 13 | 0 | 🛠️ en curso |
+| M5 — Hoteles y reseñas | 11 | 0 | 0 | 1 | 10 | 0 | 🛠️ en curso |
+| M6 — Viajes y economía | 24 | 0 | 0 | 3 | 21 | 0 | 🛠️ en curso |
 | M7 — Proceso diario y CRM proactivo | 9 | 0 | 0 | 0 | 9 | 0 | 🛠️ en curso |
-| M8 — Calendario, dashboard y reportes | 10 | 0 | 0 | 0 | 10 | 0 | 🛠️ en curso |
-| M9 — Redes e IA | 6 | 0 | 0 | 0 | 6 | 0 | 🛠️ en curso |
+| M8 — Calendario, dashboard y reportes | 10 | 0 | 0 | 1 | 9 | 0 | 🛠️ en curso |
+| M9 — Redes e IA | 6 | 0 | 0 | 1 | 5 | 0 | 🛠️ en curso |
 | M10 — Despliegue on-premise | 5 | 0 | 0 | 0 | 5 | 0 | 🛠️ en curso |
 
 ## Grafo
@@ -47,12 +47,12 @@ flowchart LR
     T012["T-012 · Aplicar la visibilidad por fila según el rol<br/><small>backend · ⚠️ riesgo alto</small>"]:::disponible
     T013["T-013 · Configurar el cliente de IA con un modelo falso<br/><small>backend</small>"]:::disponible
     T014["T-014 · Generar los tipos compartidos desde el OpenAPI<br/><small>shared</small>"]:::hecho
-    T015["T-015 · Publicar el contrato base con el usuario de la sesión<br/><small>contrato</small><br/>👤 Nahuel Viniegra"]:::tomado
+    T015["T-015 · Publicar el contrato base con el usuario de la sesión<br/><small>contrato</small>"]:::hecho
     T016["T-016 · Devolver el usuario de la sesión con su rol<br/><small>backend · ⚠️ riesgo alto</small>"]:::esperando
     T017["T-017 · Crear la dueña inicial con la CLI de datos<br/><small>backend</small>"]:::esperando
     T018["T-018 · Armar el CI con jobs filtrados por carpeta<br/><small>infra</small>"]:::esperando
     T019["T-019 · Sumar los análisis de seguridad al CI<br/><small>infra</small>"]:::esperando
-    T020["T-020 · Armar el shell web con la navegación por rol<br/><small>web</small>"]:::esperando
+    T020["T-020 · Armar el shell web con la navegación por rol<br/><small>web</small>"]:::disponible
     T021["T-021 · Iniciar sesión en la web con email o Google<br/><small>web · ⚠️ riesgo alto</small>"]:::esperando
     T022["T-022 · Armar el shell mobile con sus pestañas<br/><small>mobile</small>"]:::esperando
     T023["T-023 · Iniciar sesión en la app mobile con email o Google<br/><small>mobile · ⚠️ riesgo alto</small>"]:::esperando
@@ -61,7 +61,7 @@ flowchart LR
     T140["T-140 · Aislar los tests de la variable SSLKEYLOGFILE<br/><small>backend</small>"]:::hecho
   end
   subgraph M1["M1 — Usuarios y configuración"]
-    T026["T-026 · Publicar el contrato de usuarios y configuración<br/><small>contrato</small>"]:::esperando
+    T026["T-026 · Publicar el contrato de usuarios y configuración<br/><small>contrato</small>"]:::disponible
     T027["T-027 · Dar de alta usuarios con su cuenta de Firebase<br/><small>backend · ⚠️ riesgo alto</small>"]:::esperando
     T028["T-028 · Editar el rol de un usuario protegiendo al último admin<br/><small>backend · ⚠️ riesgo alto</small>"]:::esperando
     T029["T-029 · Editar los parámetros del negocio<br/><small>backend</small>"]:::esperando
@@ -76,7 +76,7 @@ flowchart LR
     T038["T-038 · Probar de punta a punta la configuración de la agencia<br/><small>e2e</small>"]:::esperando
   end
   subgraph M2["M2 — Clientes"]
-    T039["T-039 · Publicar el contrato de clientes<br/><small>contrato</small>"]:::esperando
+    T039["T-039 · Publicar el contrato de clientes<br/><small>contrato</small>"]:::disponible
     T040["T-040 · Registrar clientes detectando duplicados<br/><small>backend</small>"]:::esperando
     T041["T-041 · Buscar clientes según la visibilidad del rol<br/><small>backend · ⚠️ riesgo alto</small>"]:::esperando
     T042["T-042 · Editar la ficha del cliente<br/><small>backend</small>"]:::esperando
@@ -89,7 +89,7 @@ flowchart LR
     T049["T-049 · Probar de punta a punta la gestión de clientes<br/><small>e2e</small>"]:::esperando
   end
   subgraph M3["M3 — Alertas"]
-    T050["T-050 · Publicar el contrato de alertas<br/><small>contrato</small>"]:::esperando
+    T050["T-050 · Publicar el contrato de alertas<br/><small>contrato</small>"]:::disponible
     T051["T-051 · Crear el servicio de alertas para los demás módulos<br/><small>backend</small>"]:::esperando
     T052["T-052 · Listar la agenda de alertas según el rol<br/><small>backend</small>"]:::esperando
     T053["T-053 · Atender las alertas con el progreso del día<br/><small>backend</small>"]:::esperando
@@ -102,7 +102,7 @@ flowchart LR
     T060["T-060 · Probar de punta a punta la agenda de alertas<br/><small>e2e</small>"]:::esperando
   end
   subgraph M4["M4 — Oportunidades y cotizaciones"]
-    T061["T-061 · Publicar el contrato de oportunidades y cotizaciones<br/><small>contrato</small>"]:::esperando
+    T061["T-061 · Publicar el contrato de oportunidades y cotizaciones<br/><small>contrato</small>"]:::disponible
     T062["T-062 · Registrar una consulta como oportunidad<br/><small>backend</small>"]:::esperando
     T063["T-063 · Listar las oportunidades del embudo<br/><small>backend</small>"]:::esperando
     T064["T-064 · Implementar los estados de la oportunidad<br/><small>backend · ⚠️ riesgo alto</small>"]:::esperando
@@ -118,7 +118,7 @@ flowchart LR
     T074["T-074 · Probar de punta a punta el embudo con cotización<br/><small>e2e</small>"]:::esperando
   end
   subgraph M5["M5 — Hoteles y reseñas"]
-    T075["T-075 · Publicar el contrato de hoteles y reseñas<br/><small>contrato</small>"]:::esperando
+    T075["T-075 · Publicar el contrato de hoteles y reseñas<br/><small>contrato</small>"]:::disponible
     T076["T-076 · Gestionar los hoteles del catálogo<br/><small>backend</small>"]:::esperando
     T077["T-077 · Buscar hoteles ordenados por su puntaje<br/><small>backend</small>"]:::esperando
     T078["T-078 · Registrar las reseñas de un hotel<br/><small>backend</small>"]:::esperando
@@ -131,7 +131,7 @@ flowchart LR
     T085["T-085 · Probar de punta a punta el catálogo de hoteles<br/><small>e2e</small>"]:::esperando
   end
   subgraph M6["M6 — Viajes y economía"]
-    T086["T-086 · Publicar el contrato de viajes y economía<br/><small>contrato</small>"]:::esperando
+    T086["T-086 · Publicar el contrato de viajes y economía<br/><small>contrato</small>"]:::disponible
     T087["T-087 · Implementar la máquina de estados del viaje<br/><small>backend · ⚠️ riesgo alto</small>"]:::disponible
     T088["T-088 · Implementar los estados del pago<br/><small>backend · ⚠️ riesgo alto</small>"]:::disponible
     T089["T-089 · Confirmar la reserva creando el viaje<br/><small>backend · ⚠️ riesgo alto</small>"]:::esperando
@@ -168,7 +168,7 @@ flowchart LR
     T118["T-118 · Probar de punta a punta el proceso diario<br/><small>e2e</small>"]:::esperando
   end
   subgraph M8["M8 — Calendario, dashboard y reportes"]
-    T119["T-119 · Publicar el contrato de calendario, dashboard y reportes<br/><small>contrato</small>"]:::esperando
+    T119["T-119 · Publicar el contrato de calendario, dashboard y reportes<br/><small>contrato</small>"]:::disponible
     T120["T-120 · Consultar el calendario consolidado<br/><small>backend</small>"]:::esperando
     T121["T-121 · Calcular el embudo con los indicadores económicos<br/><small>backend</small>"]:::esperando
     T122["T-122 · Calcular los indicadores operativos del dashboard<br/><small>backend</small>"]:::esperando
@@ -180,7 +180,7 @@ flowchart LR
     T128["T-128 · Probar de punta a punta el tablero de gestión<br/><small>e2e</small>"]:::esperando
   end
   subgraph M9["M9 — Redes e IA"]
-    T129["T-129 · Publicar el contrato de redes<br/><small>contrato</small>"]:::esperando
+    T129["T-129 · Publicar el contrato de redes<br/><small>contrato</small>"]:::disponible
     T130["T-130 · Planificar las piezas de contenido en el tablero<br/><small>backend</small>"]:::esperando
     T131["T-131 · Generar borradores de contenido con IA<br/><small>backend · ⚠️ riesgo alto</small>"]:::esperando
     T132["T-132 · Planificar contenido en el tablero web<br/><small>web</small>"]:::esperando
