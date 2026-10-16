@@ -3,7 +3,7 @@ id: T-008
 titulo: Crear la migración inicial de Alembic desde rumbo.sql
 modulo: M0 — Fundaciones
 capa: backend
-estado: libre
+estado: tomado
 depende_de: [T-007]
 tamaño: S
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [DEC-0015, DEC-0013]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: Nahuel Viniegra
+tomado_el: 16/10/26 14:22
+rama: feature/T-008-crear-la-migracion-inicial-de-alembic-de
 pr:
 ---
 # T-008 Crear la migración inicial de Alembic desde rumbo.sql

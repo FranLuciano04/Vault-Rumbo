@@ -14,7 +14,7 @@ tags:: #tipo/referencia
 
 | Módulo | Tickets | Hechos | Tomados | Disponibles | Esperando | Bloqueados | Estado del módulo |
 |---|---|---|---|---|---|---|---|
-| M0 — Fundaciones | 26 | 9 | 0 | 6 | 11 | 0 | 🛠️ en curso |
+| M0 — Fundaciones | 26 | 9 | 1 | 5 | 11 | 0 | 🛠️ en curso |
 | M1 — Usuarios y configuración | 13 | 0 | 0 | 1 | 12 | 0 | 🛠️ en curso |
 | M2 — Clientes | 11 | 0 | 0 | 1 | 10 | 0 | 🛠️ en curso |
 | M3 — Alertas | 11 | 0 | 0 | 1 | 10 | 0 | 🛠️ en curso |
@@ -40,7 +40,7 @@ flowchart LR
     T005["T-005 · Configurar el proyecto de Firebase con su emulador<br/><small>infra · ⚠️ riesgo alto</small>"]:::disponible
     T006["T-006 · Configurar la sesión async de la base con su entorno<br/><small>backend</small>"]:::hecho
     T007["T-007 · Mapear las entidades del ER con SQLAlchemy<br/><small>backend</small>"]:::hecho
-    T008["T-008 · Crear la migración inicial de Alembic desde rumbo.sql<br/><small>backend</small>"]:::disponible
+    T008["T-008 · Crear la migración inicial de Alembic desde rumbo.sql<br/><small>backend</small><br/>👤 Nahuel Viniegra"]:::tomado
     T009["T-009 · Responder los errores con problem+json<br/><small>backend</small>"]:::hecho
     T010["T-010 · Verificar el token de Firebase para resolver el usuario actual<br/><small>backend · ⚠️ riesgo alto</small>"]:::esperando
     T011["T-011 · Registrar el autor de cada cambio automáticamente<br/><small>backend</small>"]:::esperando
