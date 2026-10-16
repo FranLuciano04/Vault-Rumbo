@@ -6,6 +6,8 @@ como subproceso con `DATABASE_URL` apuntando a esa base (contrato para `alembic/
 Requisitos: DEC-0015, DEC-0013, DEC-0016, RNF-07.
 """
 
+import importlib.util
+import re
 import uuid
 from collections.abc import AsyncIterator
 from typing import Any
@@ -219,3 +221,24 @@ async def test_rnf07_la_base_de_tests_fue_preparada_por_alembic(motor: AsyncEngi
         n = (await c.execute(text("SELECT count(*) FROM configuracion"))).scalar_one()
     assert len(version) == 1
     assert n == 1
+
+
+# --- La migración reproduce rumbo.sql sin desvíos ---------------------------------------------
+
+
+def _sentencias(sql: str) -> list[str]:
+    sin_comentarios = re.sub(r"--[^\n]*", "", sql)
+    crudas = (re.sub(r"\s+", " ", s).strip() for s in sin_comentarios.split(";"))
+    return [s for s in crudas if s and s not in {"BEGIN", "COMMIT"}]
+
+
+def test_rnf07_la_migracion_inicial_reproduce_las_sentencias_de_rumbo_sql() -> None:
+    ruta = next((RAIZ_BACKEND / "alembic" / "versions").glob("0001_*.py"))
+    spec = importlib.util.spec_from_file_location("migracion_0001", ruta)
+    assert spec is not None and spec.loader is not None
+    modulo = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(modulo)
+    rumbo_sql = RAIZ_BACKEND.parent.parent / "05-Diseño" / "Datos" / "rumbo.sql"
+    assert _sentencias("; ".join(modulo._SENTENCIAS)) == _sentencias(
+        rumbo_sql.read_text(encoding="utf-8")
+    )

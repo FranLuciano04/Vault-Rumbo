@@ -9,6 +9,7 @@ import pytest
 from httpx import ASGITransport, AsyncClient
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from sqlalchemy import text
+from sqlalchemy.engine import make_url
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, create_async_engine
 from sqlalchemy.pool import NullPool
 
@@ -35,10 +36,13 @@ from rumbo.main import app  # noqa: E402
 RAIZ_BACKEND = Path(__file__).resolve().parent.parent
 
 
+_ALEMBIC = Path(sys.executable).parent / ("alembic.exe" if os.name == "nt" else "alembic")
+
+
 def correr_alembic(url: str, *args: str) -> subprocess.CompletedProcess[str]:
     """Corre Alembic como subproceso contra `url` (env.py toma DATABASE_URL del entorno)."""
     return subprocess.run(  # noqa: S603
-        [sys.executable, "-m", "alembic", *args],
+        [str(_ALEMBIC), *args],
         cwd=RAIZ_BACKEND,
         env={**os.environ, "DATABASE_URL": url},
         capture_output=True,
@@ -57,9 +61,14 @@ async def _esquema_vacio(url: str) -> None:
         await motor.dispose()
 
 
-@pytest.fixture(scope="session", autouse=True)
+@pytest.fixture(scope="session")
 def base_de_tests_migrada() -> None:
     """T-008: la base de tests se prepara con la migración de Alembic, no con create_all."""
+    nombre = make_url(_URL_TESTS).database or ""
+    assert nombre.endswith("_test"), (
+        f"TEST_DATABASE_URL apunta a «{nombre}»: se niega a borrar el esquema de una base "
+        "cuyo nombre no termina en «_test»"
+    )
     asyncio.run(_esquema_vacio(_URL_TESTS))
     resultado = correr_alembic(_URL_TESTS, "upgrade", "head")
     assert resultado.returncode == 0, resultado.stdout + resultado.stderr
@@ -71,7 +80,7 @@ def url_tests() -> str:
 
 
 @pytest.fixture
-async def motor(url_tests: str) -> AsyncIterator[AsyncEngine]:
+async def motor(url_tests: str, base_de_tests_migrada: None) -> AsyncIterator[AsyncEngine]:
     motor = create_async_engine(url_tests, poolclass=NullPool)
     try:
         yield motor
