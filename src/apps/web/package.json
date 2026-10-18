@@ -13,6 +13,9 @@
     "test:cobertura": "vitest run --coverage"
   },
   "dependencies": {
+    "@rumbo/shared": "workspace:*",
+    "@tanstack/react-query": "^5.104.3",
+    "axios": "^1.13.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^1.57.0",
@@ -34,6 +37,7 @@
     "@vitest/coverage-v8": "^5.0.5",
     "eslint-plugin-react-hooks": "^7.1.1",
     "jsdom": "^30.1.3",
+    "msw": "^2.11.0",
     "tailwindcss": "^4.3.3",
     "vite": "^8.3.4",
     "vitest": "^5.0.5"
