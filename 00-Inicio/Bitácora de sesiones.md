@@ -30,6 +30,22 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
+## 18/10/26 — Francisco (Claude Opus 5.5) — T-020: shell web con la navegación por rol
+- **Hecho:** T-020 implementado con TDD (capa web).
+  - Shell del prototipo: barra lateral y encabezado con nombre y rol.
+  - Rutas protegidas con `/auth/yo`: con 401 van a `/login` y con otro error muestran un alerta.
+  - Navegación según «Vistas por rol», en `app/navegacion.ts`.
+  - Tokens del Figma, y `lib/formato.ts` para importes ARS/USD (sin floats, half-up) y fechas `dd/mm/aa`.
+  - La fuente Plus Jakarta Sans se sirve desde la app con `@fontsource/plus-jakarta-sans`, sin pedidos a Google (RNF-16, DEC-0011). Es una dependencia nueva, aprobada por Francisco.
+  - Con autorización se reemplazó el `App.test.tsx` placeholder de T-002 y se corrigió el lint de dos tests del rojo.
+  - La review con Opus dejó 0 bloqueantes, 2 importantes y 4 menores, y se arreglaron todos.
+  - Hay 35 tests en verde en la web y 24 en shared, con 87 % de cobertura. PR [#11](https://github.com/FranLuciano04/Vault-Rumbo/pull/11) mergeado (sin CI todavía).
+- **Commits:** e424e71, 75c248e, edec81b, a6b61a3, 782c1ca (merge 7f2843f), grafo b9cde4d.
+- **Pendiente:**
+  - Quedan para tickets posteriores los íconos por sección, la barra lateral responsive y cerrar sesión (con el login).
+  - En esta PC `pnpm` no está en el PATH: se usa `corepack pnpm`.
+  - Al instalar sigue el aviso `ERR_PNPM_IGNORED_BUILDS` de msw, que ya venía de antes.
+
 ## 16/10/26 — Nahuel (Claude Opus 5.5) — T-008: migración inicial de Alembic
 - **Hecho:** T-008 implementado con TDD (capa backend).
   - Alembic async con la migración `0001`, que reproduce `rumbo.sql` (20 enums, 15 tablas y la fila de `configuracion`).
