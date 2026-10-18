@@ -3,7 +3,7 @@ id: T-020
 titulo: Armar el shell web con la navegación por rol
 modulo: M0 — Fundaciones
 capa: web
-estado: libre
+estado: tomado
 depende_de: [T-015]
 tamaño: M
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [RNF-11, RNF-14, RNF-16, CU-24]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: FranLucianoo
+tomado_el: 18/10/26 19:32
+rama: feature/T-020-armar-el-shell-web-con-la-navegacion-por
 pr:
 ---
 # T-020 Armar el shell web con la navegación por rol
