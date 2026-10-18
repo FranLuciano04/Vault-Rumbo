@@ -2,7 +2,7 @@
 tipo: referencia
 estado: formalizado
 responsable: equipo
-actualizado: 09/09/26
+actualizado: 18/10/26
 ---
 
 # Trabajo en equipo — Git y memoria
@@ -82,6 +82,18 @@ Si `git status` muestra cambios propios, hay que terminarlos o guardarlos en un 
 - Los diagramas Mermaid tienen un solo editor a la vez y se actualizan desde las notas de entidad o caso de uso.
 - Los documentos originales van en `_adjuntos/Fuentes/`; la información navegable queda en Markdown.
 - Nunca se suben contraseñas, tokens, archivos `.env` ni credenciales.
+
+## Entorno local para probar el código (`.env`)
+
+Cada integrante arma sus propios `.env` en su PC, copiándolos de los ejemplos que están en Git: `src/.env.example` → `src/.env` (las bases de Docker) y `src/backend/.env.example` → `src/backend/.env` (el backend). Que la contraseña o los puertos sean distintos en cada PC **no cambia los resultados**, porque cada `.env` solo conecta el backend con los contenedores de esa PC. Lo que tiene que ser igual para todos ya está versionado: las variables que existen (los `.env.example`), el esquema de la base (las migraciones de Alembic), los datos de prueba (`tests/fabricas.py`) y las versiones de las dependencias (`uv.lock` y `pnpm-lock.yaml`).
+
+> ⚠️ **Para no romperle el entorno a nadie:**
+> 1. **Si agregás una variable** que el código lee, sumala en el mismo PR a su `.env.example`, con un valor de ejemplo y un comentario que diga para qué sirve. Si no, el backend no le arranca al resto después del pull.
+> 2. **Si cambiás o borrás una variable**, avisalo en la descripción del PR y en la [[Bitácora de sesiones]], así cada uno actualiza su `.env`.
+> 3. **Después de un pull**, si algo no arranca, compará tu `.env` con el `.env.example`: lo más probable es que falte una variable nueva.
+> 4. **Los valores que todos necesitan iguales** (por ejemplo, el ID del proyecto de Firebase) van en el `.env.example` solo si no son secretos. Los secretos se pasan por un canal privado del equipo, nunca por Git ni por el chat del vault.
+> 5. **Los tests no dependen de datos cargados a mano** en tu base: todo lo que un test necesita lo crea con `fabricas.py`. Si un test solo pasa en tu PC, es un bug del test.
+> 6. **Si un puerto está ocupado** (por ejemplo, porque tenés PostgreSQL instalado en Windows y usa el 5432), cambiá `RUMBO_DEV_PORT` o `RUMBO_TEST_PORT` en tu `src/.env` y el mismo puerto en las URLs de `src/backend/.env`. Es un ajuste solo de tu PC: no se sube.
 
 ## Cómo mantener la memoria compartida
 
