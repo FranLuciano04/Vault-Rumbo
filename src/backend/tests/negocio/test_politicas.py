@@ -23,11 +23,15 @@ from rumbo.negocio.politicas import exigir_escritura, exigir_rol, visibilidad
 from tests.fabricas import (
     AlertaFactory,
     ClienteFactory,
+    CotizacionFactory,
     DestinoFactory,
     HotelFactory,
     OportunidadFactory,
+    PagoFactory,
+    ResenaFactory,
     UsuarioFactory,
     ViajeFactory,
+    ViajeHotelFactory,
     crear,
 )
 
@@ -52,6 +56,22 @@ class RepoAlertas(RepositorioBase[m.Alerta]):
 
 class RepoHoteles(RepositorioBase[m.Hotel]):
     modelo = m.Hotel
+
+
+class RepoCotizaciones(RepositorioBase[m.Cotizacion]):
+    modelo = m.Cotizacion
+
+
+class RepoPagos(RepositorioBase[m.Pago]):
+    modelo = m.Pago
+
+
+class RepoViajeHoteles(RepositorioBase[m.ViajeHotel]):
+    modelo = m.ViajeHotel
+
+
+class RepoResenas(RepositorioBase[m.Resena]):
+    modelo = m.Resena
 
 
 def _actor(rol: str) -> m.Usuario:
@@ -188,6 +208,103 @@ async def test_rf151_freelance_no_ve_viaje_ajeno(sesion: AsyncSession) -> None:
     assert {v.id for v in vistos} == {e["v_cliente"].id, e["v_resp"].id}
     with pytest.raises(NoEncontrado):
         await RepoViajes().obtener(sesion, e["v_ninguno"].id, visibilidad=vis)
+
+
+# --- Visibilidad del freelance: lo que cuelga de su Oportunidad o su Viaje -------------
+# Cada operación de `_operaciones` tiene un hijo: por cliente propio, por responsable propio
+# (con cliente ajeno) y por ninguno de los dos.
+
+_SUFIJOS = ("cliente", "resp", "ninguno")
+
+
+async def _cotizaciones(sesion: AsyncSession) -> dict[str, Any]:
+    e = await _operaciones(sesion)
+    for sufijo in _SUFIJOS:
+        e[f"c_{sufijo}"] = await crear(
+            sesion, CotizacionFactory, oportunidad_id=e[f"op_{sufijo}"].id
+        )
+    return e
+
+
+async def _pagos(sesion: AsyncSession) -> dict[str, Any]:
+    e = await _operaciones(sesion)
+    for sufijo in _SUFIJOS:
+        e[f"p_{sufijo}"] = await crear(sesion, PagoFactory, viaje_id=e[f"v_{sufijo}"].id)
+    return e
+
+
+async def _viaje_hoteles(sesion: AsyncSession) -> dict[str, Any]:
+    e = await _operaciones(sesion)
+    hotel = await crear(sesion, HotelFactory, destino_id=e["v_cliente"].destino_id)
+    for sufijo in _SUFIJOS:
+        e[f"vh_{sufijo}"] = await crear(
+            sesion, ViajeHotelFactory, viaje_id=e[f"v_{sufijo}"].id, hotel_id=hotel.id
+        )
+    return e
+
+
+@pytest.mark.parametrize(
+    ("escenario", "repo", "prefijo"),
+    [
+        (_cotizaciones, RepoCotizaciones, "c"),
+        (_pagos, RepoPagos, "p"),
+        (_viaje_hoteles, RepoViajeHoteles, "vh"),
+    ],
+    ids=["cotizacion", "pago", "viaje_hotel"],
+)
+async def test_rf151_freelance_ve_solo_lo_que_cuelga_de_lo_propio(
+    sesion: AsyncSession, escenario: Any, repo: Any, prefijo: str
+) -> None:
+    e = await escenario(sesion)
+    vis = visibilidad(e["free_a"])
+    vistos = await repo().listar(sesion, visibilidad=vis)
+    assert {x.id for x in vistos} == {e[f"{prefijo}_cliente"].id, e[f"{prefijo}_resp"].id}
+    with pytest.raises(NoEncontrado):
+        await repo().obtener(sesion, e[f"{prefijo}_ninguno"].id, visibilidad=vis)
+
+
+# --- Visibilidad: reseñas ocultas solo para admin y dueño (CU-29) -----------------------
+
+
+async def _resenas(sesion: AsyncSession) -> dict[str, Any]:
+    destino = await crear(sesion, DestinoFactory)
+    hotel = await crear(sesion, HotelFactory, destino_id=destino.id)
+    cliente = await crear(sesion, ClienteFactory)
+    kw = {"cliente_id": cliente.id, "hotel_id": hotel.id}
+    publicada = await crear(sesion, ResenaFactory, **kw)
+    oculta = await crear(
+        sesion,
+        ResenaFactory,
+        estado=m.EstadoResena.oculta,
+        motivo_baja="Contenido ofensivo",
+        **kw,
+    )
+    return {"publicada": publicada, "oculta": oculta}
+
+
+@pytest.mark.parametrize("rol", ["admin", "dueno"])
+async def test_rf151_admin_y_dueno_ven_resenas_ocultas(sesion: AsyncSession, rol: str) -> None:
+    r = await _resenas(sesion)
+    jefe = await crear(sesion, UsuarioFactory, rol=m.RolUsuario(rol))
+    vis = visibilidad(jefe)
+    vistas = await RepoResenas().listar(sesion, visibilidad=vis)
+    assert {r["publicada"].id, r["oculta"].id} <= {x.id for x in vistas}
+    fila = await RepoResenas().obtener(sesion, r["oculta"].id, visibilidad=vis)
+    assert fila.id == r["oculta"].id
+
+
+@pytest.mark.parametrize("rol", ["empleado", "freelance"])
+async def test_rf151_empleado_y_freelance_solo_ven_resenas_publicadas(
+    sesion: AsyncSession, rol: str
+) -> None:
+    r = await _resenas(sesion)
+    actor = await crear(sesion, UsuarioFactory, rol=m.RolUsuario(rol))
+    vis = visibilidad(actor)
+    ids = {x.id for x in await RepoResenas().listar(sesion, visibilidad=vis)}
+    assert r["publicada"].id in ids
+    assert r["oculta"].id not in ids
+    with pytest.raises(NoEncontrado):
+        await RepoResenas().obtener(sesion, r["oculta"].id, visibilidad=vis)
 
 
 # --- Visibilidad: alertas propias salvo admin y dueño (DEC-0005) ------------------------

@@ -1,8 +1,14 @@
 """Visibilidad por fila y permisos por rol (DEC-0005 §2, DEC-0008 §3; RF-150, RF-151).
 
-Las dos políticas son **cerradas por defecto**: un modelo que no figura acá queda invisible para
-el `freelance` y un registro de tipo desconocido no lo escribe nadie. Sumar una entidad nueva
-obliga a decidir su regla en este archivo.
+Lectura: para `empleado`, `admin` y `dueno` es **global** (toda la agencia, DEC-0005), salvo las
+`Alerta` ajenas y las `Resena` ocultas, que solo ven `admin` y `dueno`. Para el `freelance` es
+**cerrada por defecto**: ve el catálogo y lo propio, y un modelo que no figura acá le queda
+invisible. Escritura: un registro de tipo desconocido no lo escribe nadie. Sumar una entidad
+nueva obliga a decidir su regla en este archivo.
+
+La visibilidad por fila **no protege** lo que la lectura global deja abierto: los servicios de
+`Usuario`, `Configuracion` y redes (`ContenidoRed`) deben llamar a `exigir_rol` (o chequear la
+capacidad `acceso_redes`) antes de leer o escribir.
 """
 
 import uuid
@@ -17,6 +23,7 @@ from rumbo.datos.modelos import (
     Cliente,
     Cotizacion,
     Destino,
+    EstadoResena,
     Hotel,
     Operador,
     Oportunidad,
@@ -33,7 +40,15 @@ from rumbo.negocio.errores import SinPermiso
 _JEFES = (RolUsuario.admin, RolUsuario.dueno)
 
 # Catálogo compartido: lo lee todo rol, también el freelance (DEC-0008 §3, sync 30/09).
+# Las reseñas ocultas no, por la regla de `_RESTRINGIDO_SALVO_JEFES`.
 _CATALOGO: frozenset[type] = frozenset({Hotel, Resena, Destino, RequisitoDestino, Operador})
+
+# Filas que solo admin y dueño ven completas; el resto de los roles, incluido el empleado, ve esto.
+_RESTRINGIDO_SALVO_JEFES: dict[type, Callable[[uuid.UUID], ColumnElement[bool]]] = {
+    Alerta: lambda actor_id: Alerta.propietario_id == actor_id,  # agenda propia (DEC-0005)
+    # La reseña oculta deja de mostrarse en el catálogo (CU-29).
+    Resena: lambda _: Resena.estado == EstadoResena.publicada,
+}
 
 
 def _clientes_propios(actor_id: uuid.UUID) -> Select[uuid.UUID]:
@@ -86,8 +101,9 @@ class FiltroVisibilidad:
     def _condicion(self, modelo: type) -> ColumnElement[bool] | None:
         if self.rol in _JEFES:
             return None
-        if modelo is Alerta:  # privadas para todo rol que no sea jefe, incluido el empleado
-            return Alerta.propietario_id == self.actor_id
+        restringido = _RESTRINGIDO_SALVO_JEFES.get(modelo)
+        if restringido is not None:
+            return restringido(self.actor_id)
         if self.rol is RolUsuario.empleado:
             return None
         if modelo in _CATALOGO:
@@ -120,7 +136,11 @@ def _escribe_alerta(actor: Usuario, alerta: Alerta) -> bool:
 
 
 def exigir_escritura(actor: Usuario, registro: object) -> None:
-    """`SinPermiso` si el actor no puede modificar `registro` según DEC-0005 §2 (RF-150)."""
+    """`SinPermiso` si el actor no puede modificar `registro` según DEC-0005 §2 (RF-150).
+
+    Para `Pago`, `ViajeHotel` y `Cotizacion` el servicio pasa el `Viaje` o la `Oportunidad` padre.
+    Que el freelance cree un `Cliente` como suyo (`asesor_asignado` = él) lo resuelve el servicio.
+    """
     if isinstance(registro, Cliente):
         permitido = _escribe_cliente(actor, registro)
     elif isinstance(registro, Oportunidad | Viaje):
