@@ -30,6 +30,23 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
+## 18/10/26 — Francisco (Claude Opus 5.5) — T-012: visibilidad por fila según el rol
+- **Hecho:** T-012 implementado con TDD (capa backend, ⚠️ riesgo alto).
+  - `negocio/politicas.py` decide qué ve y qué escribe cada rol.
+  - `RepositorioBase` exige la visibilidad como parámetro obligatorio y responde 404 tanto si la fila no existe como si no se puede ver.
+  - Para el `freelance` todo está cerrado por defecto. Ve sus clientes, las operaciones donde el cliente es suyo o él es el responsable (DEC-0008 §3), y lo que cuelga de ellas.
+  - Las reseñas `oculta` las ven solo `admin` y `dueño` (CU-29). Lo decidió Francisco.
+  - Los errores de dominio pasaron a `core/errores.py`, y `negocio/` los reexporta.
+  - La review de seguridad (Sonnet) dejó 0 bloqueantes y 3 importantes, todos arreglados.
+  - Hay 191 tests en verde y 97 % de cobertura.
+  - PR [#12](https://github.com/FranLuciano04/Vault-Rumbo/pull/12) abierto, **sin mergear**: espera la aprobación de Nahuel o Paloma.
+- **Entorno:** se armaron los `.env` locales. La base de desarrollo usa el puerto 5434, porque esta PC tiene un PostgreSQL instalado en Windows. También se sumó a [[Trabajo en equipo — Git y memoria]] la sección de avisos sobre el `.env` (commit `44f5cc2`).
+- **Commits:** d6c9cce, 839302c, d1898c5, e4f1ea0, 6f71d15 (en la rama `feature/T-012-…`).
+- **Pendiente:**
+  - **Aprobar el PR #12 (Nahuel o Paloma).** Después, Francisco corre `/implementar-ticket T-012` para mergearlo.
+  - Confirmar en equipo el criterio del responsable cuando se reasigna un cliente.
+  - La paginación de `listar` queda para el primer módulo que lo use.
+
 ## 18/10/26 — Francisco (Claude Opus 5.5) — T-020: shell web con la navegación por rol
 - **Hecho:** T-020 implementado con TDD (capa web).
   - Shell del prototipo: barra lateral y encabezado con nombre y rol.
