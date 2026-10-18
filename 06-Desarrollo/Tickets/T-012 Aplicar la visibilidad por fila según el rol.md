@@ -3,7 +3,7 @@ id: T-012
 titulo: Aplicar la visibilidad por fila según el rol
 modulo: M0 — Fundaciones
 capa: backend
-estado: libre
+estado: tomado
 depende_de: [T-007, T-009]
 tamaño: M
 riesgo: alto
@@ -12,9 +12,9 @@ modelo_impl: opus
 modelo_review: sonnet
 trazabilidad: [RF-151, RF-150, RNF-02, DEC-0005, DEC-0008]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: FranLucianoo
+tomado_el: 18/10/26 20:00
+rama: feature/T-012-aplicar-la-visibilidad-por-fila-segun-el
 pr:
 ---
 # T-012 Aplicar la visibilidad por fila según el rol
