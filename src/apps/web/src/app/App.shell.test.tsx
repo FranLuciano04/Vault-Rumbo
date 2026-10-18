@@ -6,12 +6,16 @@ import { afterAll, afterEach, beforeAll } from "vitest";
 import { App } from "@/app/App";
 
 const servidor = crearServidor();
-beforeAll(() => servidor.listen({ onUnhandledRequest: "error" }));
+beforeAll(() => {
+  servidor.listen({ onUnhandledRequest: "error" });
+});
 afterEach(() => {
   servidor.resetHandlers();
   window.history.pushState({}, "", "/");
 });
-afterAll(() => servidor.close());
+afterAll(() => {
+  servidor.close();
+});
 
 const cliente = crearCliente({ baseURL: "http://localhost", obtenerToken: () => "token" });
 
@@ -21,12 +25,27 @@ function abrir(ruta: string) {
 }
 
 const sinAdmin = [
-  "Agenda", "Calendario", "Clientes", "Oportunidades", "Cotizaciones",
-  "Viajes", "Hoteles", "Dashboard",
+  "Agenda",
+  "Calendario",
+  "Clientes",
+  "Oportunidades",
+  "Cotizaciones",
+  "Viajes",
+  "Hoteles",
+  "Dashboard",
 ];
 const todas = [
-  "Agenda", "Calendario", "Clientes", "Oportunidades", "Cotizaciones",
-  "Viajes", "Hoteles", "Redes", "Dashboard", "Reportes", "Configuración",
+  "Agenda",
+  "Calendario",
+  "Clientes",
+  "Oportunidades",
+  "Cotizaciones",
+  "Viajes",
+  "Hoteles",
+  "Redes",
+  "Dashboard",
+  "Reportes",
+  "Configuración",
 ];
 const etiquetasPorRol: Record<RolMock, string[]> = {
   empleado: sinAdmin,
@@ -53,7 +72,7 @@ describe("RF-141 navegación por rol", () => {
       const menu = await screen.findByRole("navigation", { name: /principal/i });
       const visibles = within(menu)
         .getAllByRole("link")
-        .map((a) => a.textContent?.trim());
+        .map((a) => a.textContent.trim());
       expect(visibles).toEqual(etiquetasPorRol[rol]);
     },
   );
@@ -83,7 +102,9 @@ describe("RF-141 rutas protegidas (CU-24)", () => {
       servidor.use(sinSesion());
       abrir(ruta);
 
-      await vi.waitFor(() => expect(window.location.pathname).toBe("/login"));
+      await vi.waitFor(() => {
+        expect(window.location.pathname).toBe("/login");
+      });
       expect(screen.queryByRole("navigation", { name: /principal/i })).not.toBeInTheDocument();
     },
   );
@@ -94,5 +115,30 @@ describe("RF-141 rutas protegidas (CU-24)", () => {
 
     expect(screen.queryByRole("navigation", { name: /principal/i })).not.toBeInTheDocument();
     expect(window.location.pathname).toBe("/clientes");
+  });
+});
+
+describe("RF-141 error de /auth/yo que no es 401", () => {
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it("RF-141 un 500 muestra un aviso y no la navegación ni el login", async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    servidor.use(
+      http.get("*/api/auth/yo", () =>
+        HttpResponse.json(
+          { title: "Error interno", status: 500 },
+          { status: 500, headers: { "content-type": "application/problem+json" } },
+        ),
+      ),
+    );
+    abrir("/agenda");
+    // useYo reintenta con espera creciente: se adelanta el reloj para llegar al error final.
+    await vi.advanceTimersByTimeAsync(10_000);
+
+    expect(await screen.findByRole("alert")).toBeInTheDocument();
+    expect(screen.queryByRole("navigation", { name: /principal/i })).not.toBeInTheDocument();
+    expect(window.location.pathname).toBe("/agenda");
   });
 });

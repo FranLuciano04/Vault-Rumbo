@@ -1,6 +1,6 @@
 import { formatearFecha, formatearImporte } from "@/lib/formato";
 
-const normalizar = (texto: string) => texto.replace(/[  ]/g, " ");
+const normalizar = (texto: string) => texto.replace(/[\u00a0\u202f]/g, " ");
 
 describe("RF-141 lib/formato (importes ARS/USD y fechas dd/mm/aa)", () => {
   it("formatea un importe en ARS con separador de miles, coma decimal y símbolo $", () => {
@@ -32,5 +32,29 @@ describe("RF-141 lib/formato (importes ARS/USD y fechas dd/mm/aa)", () => {
   it("convierte un timestamptz UTC al día de Buenos Aires (America/Argentina/Buenos_Aires)", () => {
     // 01:30 UTC del 19/10 son las 22:30 del 18/10 en Argentina (UTC-3).
     expect(formatearFecha("2026-10-19T01:30:00Z")).toBe("18/10/26");
+  });
+
+  it("redondea half-up a dos decimales con acarreo", () => {
+    expect(normalizar(formatearImporte("0.999", "ARS"))).toBe("$ 1,00");
+    expect(normalizar(formatearImporte("1234.567", "ARS"))).toBe("$ 1.234,57");
+    expect(normalizar(formatearImporte("999.995", "ARS"))).toBe("$ 1.000,00");
+  });
+
+  it("acepta un importe sin parte entera", () => {
+    expect(normalizar(formatearImporte(".5", "ARS"))).toBe("$ 0,50");
+  });
+
+  it("no muestra signo si el importe redondeado es cero", () => {
+    expect(normalizar(formatearImporte("-0.001", "ARS"))).toBe("$ 0,00");
+  });
+
+  it("rechaza un importe que no es decimal", () => {
+    expect(() => formatearImporte("1e3", "ARS")).toThrow(/importe/i);
+    expect(() => formatearImporte("", "ARS")).toThrow(/importe/i);
+  });
+
+  it("rechaza una fecha vacía o inválida", () => {
+    expect(() => formatearFecha("")).toThrow(/fecha/i);
+    expect(() => formatearFecha("no es fecha")).toThrow(/fecha/i);
   });
 });

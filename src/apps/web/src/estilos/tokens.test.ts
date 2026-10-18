@@ -5,7 +5,7 @@ const leer = (archivo: string) => readFileSync(path.resolve(import.meta.dirname,
 const tokens = leer("tokens.css");
 const index = leer("index.css");
 
-describe("RF-141 tokens de diseño del prototipo (Figma)", () => {
+describe("RNF-11 tokens de diseño del prototipo (Figma)", () => {
   it("define la paleta azul del equipo y el gris", () => {
     for (const color of ["#22506f", "#73a5c4", "#d9d9d9"]) {
       expect(tokens.toLowerCase()).toContain(color);
