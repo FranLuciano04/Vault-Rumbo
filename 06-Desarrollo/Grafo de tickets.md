@@ -14,7 +14,7 @@ tags:: #tipo/referencia
 
 | Módulo | Tickets | Hechos | Tomados | Disponibles | Esperando | Bloqueados | Estado del módulo |
 |---|---|---|---|---|---|---|---|
-| M0 — Fundaciones | 26 | 11 | 0 | 6 | 9 | 0 | 🛠️ en curso |
+| M0 — Fundaciones | 28 | 11 | 0 | 8 | 9 | 0 | 🛠️ en curso |
 | M1 — Usuarios y configuración | 13 | 0 | 0 | 1 | 12 | 0 | 🛠️ en curso |
 | M2 — Clientes | 11 | 0 | 0 | 1 | 10 | 0 | 🛠️ en curso |
 | M3 — Alertas | 11 | 0 | 0 | 1 | 10 | 0 | 🛠️ en curso |
@@ -59,6 +59,8 @@ flowchart LR
     T024["T-024 · Armar el Compose de producción local para las demos<br/><small>infra</small>"]:::disponible
     T025["T-025 · Probar de punta a punta el inicio de sesión web<br/><small>e2e</small>"]:::esperando
     T140["T-140 · Aislar los tests de la variable SSLKEYLOGFILE<br/><small>backend</small>"]:::hecho
+    T141["T-141 · Mostrar los íconos de cada sección en la barra lateral<br/><small>web</small>"]:::disponible
+    T142["T-142 · Adaptar la barra lateral de la web a pantallas angostas<br/><small>web</small>"]:::disponible
   end
   subgraph M1["M1 — Usuarios y configuración"]
     T026["T-026 · Publicar el contrato de usuarios y configuración<br/><small>contrato</small>"]:::disponible
@@ -488,6 +490,8 @@ flowchart LR
   T137 --> T139
   T128 --> T139
   T006 --> T140
+  T020 --> T141
+  T020 --> T142
   classDef hecho fill:#c8e6c9,stroke:#2e7d32,color:#1b5e20
   classDef tomado fill:#fff3cd,stroke:#b8860b,color:#5d4300
   classDef disponible fill:#dbeafe,stroke:#1d4ed8,color:#1e3a8a

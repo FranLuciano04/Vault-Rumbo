@@ -45,6 +45,11 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
   - Quedan para tickets posteriores los íconos por sección, la barra lateral responsive y cerrar sesión (con el login).
   - En esta PC `pnpm` no está en el PATH: se usa `corepack pnpm`.
   - Al instalar sigue el aviso `ERR_PNPM_IGNORED_BUILDS` de msw, que ya venía de antes.
+- **Después del ticket:**
+  - Se puso el tag `pc1` en `8661dd2`, el último commit antes de la entrega del 02/10 (D3).
+  - Se crearon T-141 (íconos de la navegación) y T-142 (barra lateral en pantallas angostas), con `origen: hallazgo T-020`.
+  - El documento general figura como entregado.
+  - C1–C3 quedan anotados como pendientes en el estado del proyecto.
 
 ## 16/10/26 — Nahuel (Claude Opus 5.5) — T-008: migración inicial de Alembic
 - **Hecho:** T-008 implementado con TDD (capa backend).
