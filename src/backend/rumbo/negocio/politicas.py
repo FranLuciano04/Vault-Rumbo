@@ -68,7 +68,6 @@ _PROPIO_DEL_FREELANCE: dict[type, Callable[[uuid.UUID], ColumnElement[bool]]] = 
     Viaje: _viaje_propio,
     Pago: lambda actor_id: Pago.viaje_id.in_(_viajes_propios(actor_id)),
     ViajeHotel: lambda actor_id: ViajeHotel.viaje_id.in_(_viajes_propios(actor_id)),
-    Alerta: lambda actor_id: Alerta.propietario_id == actor_id,
 }
 
 
@@ -87,7 +86,7 @@ class FiltroVisibilidad:
     def _condicion(self, modelo: type) -> ColumnElement[bool] | None:
         if self.rol in _JEFES:
             return None
-        if modelo is Alerta:
+        if modelo is Alerta:  # privadas para todo rol que no sea jefe, incluido el empleado
             return Alerta.propietario_id == self.actor_id
         if self.rol is RolUsuario.empleado:
             return None
