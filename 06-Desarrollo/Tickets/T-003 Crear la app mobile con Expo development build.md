@@ -3,7 +3,7 @@ id: T-003
 titulo: Crear la app mobile con Expo development build
 modulo: M0 — Fundaciones
 capa: infra
-estado: libre
+estado: tomado
 depende_de: [T-002]
 tamaño: M
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [DEC-0001, DEC-0015, DEC-0016]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: palomap2003
+tomado_el: 19/10/26 19:49
+rama: feature/T-003-crear-la-app-mobile-con-expo-development
 pr:
 ---
 # T-003 Crear la app mobile con Expo development build
