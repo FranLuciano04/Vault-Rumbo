@@ -75,8 +75,9 @@ del ticket T-005.
       verifica tokens y crea o desactiva cuentas.
 - [ ] **Restringir la API key web** (Google Cloud → APIs y servicios → Credenciales → la clave
       «Browser key» del proyecto):
-  - Restricción de aplicación: **referentes HTTP**, con `http://localhost:*/*` y el dominio
-    público del servidor cuando exista (M10).
+  - Restricción de aplicación: **Sitios web**, con `http://localhost:5173/*` y
+    `http://127.0.0.1:5173/*` (el puerto de Vite; la consola no acepta un comodín en el puerto)
+    y el dominio público del servidor cuando exista (M10).
   - Restricción de API: solo **Identity Toolkit API** y **Token Service API**.
 - [ ] **Verificar el registro deshabilitado** (con la `apiKey` real; es pública):
 
@@ -91,7 +92,7 @@ del ticket T-005.
   cuenta anónima que se creó (Authentication → Usuarios). Recién con `ADMIN_ONLY_OPERATION` se
   marcan este paso y el de «Acciones del usuario». El `Referer` hace falta porque la clave ya
   está restringida por referente; si responde `API_KEY_HTTP_REFERRER_BLOCKED`, revisar que
-  `http://localhost:*/*` esté en la restricción.
+  `http://localhost:5173/*` esté en la restricción.
 
 Si la clave de la cuenta de servicio se filtra: borrarla en Google Cloud → IAM →
 Cuentas de servicio → Claves, generar otra y actualizar los `.env`.
