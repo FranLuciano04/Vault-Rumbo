@@ -4,6 +4,7 @@ from typing import Annotated
 
 from fastapi import Depends
 from sqlalchemy import event
+from sqlalchemy import inspect as sa_inspect
 from sqlalchemy.ext.asyncio import (
     AsyncEngine,
     AsyncSession,
@@ -14,20 +15,33 @@ from sqlalchemy.orm import Session
 
 from rumbo.core.config import get_settings
 from rumbo.core.seguridad import usuario_auditoria
-from rumbo.datos.modelos.base import AuditoriaMixin
+
+
+def _lleva_auditoria(fila: object) -> bool:
+    """Las filas auditadas son las que tienen las columnas `created_by` y `updated_by`
+    (detectadas por mapeo para que `core` no dependa de la capa de datos)."""
+    columnas = sa_inspect(fila, raiseerr=True).mapper.columns
+    return "created_by" in columnas and "updated_by" in columnas
 
 
 @event.listens_for(Session, "before_flush")
 def _registrar_autor(sesion: Session, *_: object) -> None:
     """Auditoría automática (RF-152, DEC-0008): completa `created_by`/`updated_by` con el
-    usuario del pedido; sin usuario (proceso automático) quedan en `None`."""
+    usuario del pedido; sin usuario (proceso automático) quedan en `None`.
+
+    El autor sale solo de `usuario_auditoria`: para atribuir un cambio fuera de un pedido
+    (seed, importación) hay que setear esa ContextVar.
+
+    Restricción: solo cubre lo que pasa por el flush del ORM. Un `update()` masivo no completa
+    `updated_by`, así que los repositorios modifican vía ORM, no con `update()` masivo.
+    """
     autor = usuario_auditoria.get()
     for fila in sesion.new:
-        if isinstance(fila, AuditoriaMixin):
+        if _lleva_auditoria(fila):
             fila.created_by = autor
             fila.updated_by = autor
     for fila in sesion.dirty:
-        if isinstance(fila, AuditoriaMixin) and sesion.is_modified(fila):
+        if _lleva_auditoria(fila) and sesion.is_modified(fila):
             fila.updated_by = autor
 
 

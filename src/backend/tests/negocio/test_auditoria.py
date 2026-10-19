@@ -23,12 +23,11 @@ def _sin_usuario_actual() -> Iterator[None]:
 
 
 async def _usuario(sesion: AsyncSession) -> m.Usuario:
-    previo = usuario_auditoria.get()
-    usuario_auditoria.set(None)
+    marca = usuario_auditoria.set(None)
     try:
         return await crear(sesion, UsuarioFactory)
     finally:
-        usuario_auditoria.set(previo)
+        usuario_auditoria.reset(marca)
 
 
 async def test_rf152_alta_registra_autor(sesion: AsyncSession) -> None:
