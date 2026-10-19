@@ -32,14 +32,6 @@ La **persona** de cada sesión es quien la corre, identificada por su identidad 
   - También aparecen `FIREBASE_PROJECT_ID`, `GOOGLE_APPLICATION_CREDENTIALS` y `FIREBASE_AUTH_EMULATOR_HOST`, documentadas en `src/backend/.env.example`.
 - **18/10, de Francisco: avisos nuevos sobre el `.env`** en [[Trabajo en equipo — Git y memoria#Entorno local para probar el código (`.env`)|Trabajo en equipo]]. Son seis reglas para no romperle el entorno a nadie, por ejemplo sumar a `.env.example` toda variable nueva.
 
-### Paloma (`palomap2003`)
-- **18/10, de Francisco: variable nueva `ENTORNO`** en `src/backend/.env` (T-010, PR [#13](https://github.com/FranLuciano04/Vault-Rumbo/pull/13)).
-  - **Solo si usás el emulador de Firebase**, agregá `ENTORNO=desarrollo` a tu `src/backend/.env`. Si no, no hace falta nada: los tests no la necesitan.
-  - Fuera de `desarrollo`, el backend no arranca con el emulador configurado, porque el emulador acepta tokens sin firma.
-  - En el servidor, la variable se omite.
-  - También aparecen `FIREBASE_PROJECT_ID`, `GOOGLE_APPLICATION_CREDENTIALS` y `FIREBASE_AUTH_EMULATOR_HOST`, documentadas en `src/backend/.env.example`.
-- **18/10, de Francisco: avisos nuevos sobre el `.env`** en [[Trabajo en equipo — Git y memoria#Entorno local para probar el código (`.env`)|Trabajo en equipo]]. Son seis reglas para no romperle el entorno a nadie, por ejemplo sumar a `.env.example` toda variable nueva.
-
 ## Formato
 Es **obligatorio** nombrar a la persona que hizo la sesión.
 ```
@@ -48,6 +40,11 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Commits:** <hash>, <hash>
 - **Pendiente:** …
 ```
+
+## 19/10/26 — Paloma (Claude Opus 5.5) — entorno local para implementar
+- **Hecho:** Paloma instaló y autenticó el GitHub CLI (`gh`) y armó sus `src/.env` y `src/backend/.env` desde los ejemplos (base de desarrollo en el puerto 5434 porque el 5432 lo ocupa un PostgreSQL de Windows). Leyó los avisos del 18/10 sobre `ENTORNO` y el `.env`; se borraron sus filas.
+- **Commits:** este.
+- **Pendiente:** abrir Docker Desktop y levantar las bases; tomar su primer ticket.
 
 ## 18/10/26 — Francisco (Claude Opus 5.5) — T-010: verificar el token de Firebase
 - **Hecho:** T-010 implementado con TDD (capa backend, ⚠️ riesgo alto).
