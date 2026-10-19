@@ -41,6 +41,19 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
+## 19/10/26 — Paloma (Claude Opus 5.5) — T-005: proyecto de Firebase y emulador
+- **Hecho:** T-005 implementado (capa infra, ⚠️ riesgo alto).
+  - Archivos: `src/firebase.json`, `src/.firebaserc` (`demo-rumbo`), `src/infra/firebase.md` (uso del emulador, checklist de consola endurecido y variables por entorno), `src/apps/web/.env.example` (`VITE_FIREBASE_*`) y `.gitignore` de la cuenta de servicio.
+  - Verificado: el emulador arranca y crea una cuenta por REST; gitleaks no encuentra fugas en el historial.
+  - Review de seguridad (Sonnet): 0 bloqueantes; 2 importantes y 2 menores arreglados.
+  - Desvío del plan: la config pública del SDK web va en `.env` y no se versiona (gitleaks marca `AIza…`). Si el equipo quiere versionarla, hace falta una allowlist de gitleaks.
+  - PR [#14](https://github.com/FranLuciano04/Vault-Rumbo/pull/14) abierto, **sin mergear**.
+- **Commits:** e20c8b4, c82676d, b83efc7 (en la rama `feature/T-005-…`).
+- **Pendiente:**
+  - Paloma: completar el checklist de consola (§2 de `src/infra/firebase.md`), marcarlo en las notas del ticket y confirmar la respuesta real `ADMIN_ONLY_OPERATION`.
+  - Nahuel o Francisco: aprobar el PR #14. Después, Paloma corre `/implementar-ticket T-005` para mergearlo.
+  - Corregir [[Skills compartidas]]: el emulador de Auth anda con Java 8, no necesita Java 17.
+
 ## 19/10/26 — Paloma (Claude Opus 5.5) — entorno local para implementar
 - **Hecho:** Paloma instaló y autenticó el GitHub CLI (`gh`) y armó sus `src/.env` y `src/backend/.env` desde los ejemplos (base de desarrollo en el puerto 5434 porque el 5432 lo ocupa un PostgreSQL de Windows). Leyó los avisos del 18/10 sobre `ENTORNO` y el `.env`; se borraron sus filas.
 - **Commits:** este.

@@ -12,6 +12,8 @@ actualizado: 13/10/26
 ## Fase actual
 > 🚀 **12/10 — arranca la implementación.** El equipo aprobó [[DEC-0014 Flujo de implementación con agentes]]: tickets con semáforo en Git, TDD con subagentes, review de Codex en cada módulo y código en `src/`. ✅ **Paso 1 hecho:** skills (`/tomar-ticket`, `/implementar-ticket`, `/cerrar-modulo` y 13 de Addy Osmani), subagentes, script de tickets, [[Flujo de implementación]], [[Tablero de tickets]] y [[Grafo de tickets]]. ✅ **Paso 2 (13/10):** grill con el equipo → [[DEC-0015 Decisiones de implementación]], y la autenticación pasó a Firebase con [[DEC-0016 Autenticación con Firebase]]. ✅ **Paso 3 (13/10):** [[Spec de implementación]] aprobada y formalizada; [[Plan de implementación]] (aprobado el 14/10) con **139 tickets** en el [[Grafo de tickets]]. ⏭️ **Ahora:** empezar con `/tomar-ticket` (disponibles: T-001, T-002, T-004 y T-005, el proyecto de Firebase). Meta mínima del PC2: M0 a M6; primero los 79 tickets del camino de CU-01 (T-108). Después, hasta donde lleguemos.
 >
+> 👉 **19/10 (Paloma):** **T-005** (proyecto de Firebase y emulador) está hecho. El PR [#14](https://github.com/FranLuciano04/Vault-Rumbo/pull/14) **espera la aprobación de Nahuel o Francisco** y que Paloma complete el checklist de consola antes del merge. T-010 ya está mergeado.
+>
 > 👉 **18/10 (Francisco), implementación:**
 > - **T-012** (visibilidad por fila): hecho y mergeado. Nahuel lo aprobó después del merge.
 > - **T-010** (token de Firebase): hecho. El PR [#13](https://github.com/FranLuciano04/Vault-Rumbo/pull/13) **espera la aprobación de Nahuel o Paloma** antes del merge.
