@@ -30,6 +30,19 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
+## 18/10/26 — Francisco (Claude Opus 5.5) — T-010: verificar el token de Firebase
+- **Hecho:** T-010 implementado con TDD (capa backend, ⚠️ riesgo alto).
+  - `usuario_actual` verifica el ID token con firebase-admin 7.7.0 sin bloquear el servidor. Carga al `Usuario` activo por `firebase_uid` y lo deja en la contextvar de auditoría, que se limpia al terminar cada pedido.
+  - Sin token, con un token inválido, vencido o revocado, con un uid desconocido o con un usuario inactivo responde 401 problem+json. Una falla de Firebase da 502 o 500 sin detalles.
+  - La review de seguridad (Sonnet, en dos rondas) encontró **1 bloqueante**: el emulador de Firebase venía activo en `.env.example` y, si llegaba al servidor, permitía entrar como cualquier usuario con un token sin firma.
+  - Se cerró con la variable `ENTORNO` (decidida por Francisco): el backend no arranca si hay emulador fuera de `desarrollo`.
+  - Hay 227 tests en verde. PR [#13](https://github.com/FranLuciano04/Vault-Rumbo/pull/13) abierto, **sin mergear: espera la aprobación de Nahuel o Paloma antes del merge**.
+- ⚠️ **Variable nueva para el equipo** (ver [[Trabajo en equipo — Git y memoria#Entorno local para probar el código (`.env`)|avisos del `.env`]]): `ENTORNO` (`desarrollo` | `produccion`, `produccion` por defecto). **Solo quien use el emulador de Firebase** tiene que agregar `ENTORNO=desarrollo` a su `src/backend/.env`; los tests no la necesitan. En el servidor se omite. Además se suman `FIREBASE_PROJECT_ID`, `GOOGLE_APPLICATION_CREDENTIALS` y `FIREBASE_AUTH_EMULATOR_HOST`, documentadas en `src/backend/.env.example`.
+- **Commits:** 65499df, 252a6eb, 394fe52, 895eb5c, 75cb779 (en la rama `feature/T-010-…`).
+- **Pendiente:**
+  - Aprobar el PR #13 (Nahuel o Paloma). Después, Francisco corre `/implementar-ticket T-010` para mergearlo.
+  - T-005 tiene que documentar estas variables para el servidor.
+
 ## 18/10/26 — Francisco (Claude Opus 5.5) — T-012: visibilidad por fila según el rol
 - **Hecho:** T-012 implementado con TDD (capa backend, ⚠️ riesgo alto).
   - `negocio/politicas.py` decide qué ve y qué escribe cada rol.
