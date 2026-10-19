@@ -3,7 +3,7 @@ id: T-005
 titulo: Configurar el proyecto de Firebase con su emulador
 modulo: M0 — Fundaciones
 capa: infra
-estado: libre
+estado: tomado
 depende_de: []
 tamaño: S
 riesgo: alto
@@ -12,9 +12,9 @@ modelo_impl: opus
 modelo_review: sonnet
 trazabilidad: [DEC-0016, RNF-03, CU-24]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: palomap2003
+tomado_el: 19/10/26 16:31
+rama: feature/T-005-configurar-el-proyecto-de-firebase-con-s
 pr:
 ---
 # T-005 Configurar el proyecto de Firebase con su emulador
