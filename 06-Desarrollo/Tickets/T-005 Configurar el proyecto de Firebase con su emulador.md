@@ -3,7 +3,7 @@ id: T-005
 titulo: Configurar el proyecto de Firebase con su emulador
 modulo: M0 — Fundaciones
 capa: infra
-estado: tomado
+estado: hecho
 depende_de: []
 tamaño: S
 riesgo: alto
@@ -51,3 +51,12 @@ No sigue TDD (`infra`). Se verifica arrancando el emulador, creando una cuenta d
 
 ## Notas de implementación
 - **Del plan:** Necesita a una persona: el agente no entra a la consola de Firebase. El agente prepara los archivos y el checklist; la persona lo ejecuta y lo marca en estas notas. La config pública del SDK web sí se versiona; la cuenta de servicio, nunca.
+- **19/10 (Paloma):**
+  - **Verificación.** El emulador arranca con `npx firebase-tools@15 emulators:start --only auth --project demo-rumbo --config src/firebase.json`. Se probó crear una cuenta por REST. gitleaks corrió con Docker sobre el historial Git y no encontró fugas; en modo `dir`, solo marcó archivos ignorados (`.venv` y el `.env` local).
+  - **El emulador de Auth no necesita Java 17.** Anduvo con Java 8. Hay que corregir [[Skills compartidas]].
+  - **Spec §4.** El comando lleva `--config src/firebase.json` para poder correrlo desde la raíz.
+  - **Desvío del plan.** La config pública del SDK web **no se versiona**: va en `src/apps/web/.env` porque gitleaks marca las claves `AIza…`. Versionarla exige una allowlist de gitleaks, y eso lo decide el equipo. Los nombres `VITE_FIREBASE_*` quedan como contrato para el login web.
+  - **Review de seguridad (Sonnet).** Sin bloqueantes. Se arreglaron los 2 importantes: endurecer el checklist (rol mínimo de la cuenta de servicio, API key restringida, protección contra enumeración y política de contraseñas) y verificar el registro cerrado con `ADMIN_ONLY_OPERATION`. También 2 menores: el emulador de la web pasa a ser opt-in y se amplió el `.gitignore` de la cuenta de servicio.
+  - **Modelos.** Implementación y fix con Opus; review con Sonnet. Sin escalados.
+  - **Checklist de consola (§2 de `src/infra/firebase.md`):** ⏳ pendiente de Paloma. Hay que confirmar que el texto `ADMIN_ONLY_OPERATION` coincide con la respuesta real.
+  - **Para M10.** Montar la cuenta de servicio en el contenedor, sumar el dominio del túnel a los autorizados y a los referentes de la API key, y dejar `ENTORNO` sin definir.
