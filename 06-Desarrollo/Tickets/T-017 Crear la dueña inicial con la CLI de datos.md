@@ -3,7 +3,7 @@ id: T-017
 titulo: Crear la dueña inicial con la CLI de datos
 modulo: M0 — Fundaciones
 capa: backend
-estado: libre
+estado: tomado
 depende_de: [T-010, T-011]
 tamaño: S
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [DEC-0015, DEC-0016, CU-25]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: Nahuel Viniegra
+tomado_el: 19/10/26 19:36
+rama: feature/T-017-crear-la-duena-inicial-con-la-cli-de-dat
 pr:
 ---
 # T-017 Crear la dueña inicial con la CLI de datos
