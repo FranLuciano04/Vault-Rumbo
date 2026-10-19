@@ -41,6 +41,9 @@ src/**/coverage/
 # servicio (nombre por defecto de la consola). Su lugar es fuera del repo (src/infra/firebase.md).
 *-debug.log
 *-firebase-adminsdk-*.json
+**/serviceAccount*.json
+**/*cuenta-de-servicio*.json
+**/*service-account*.json
 
 # Temporal de pytest cuando el del sistema no se puede usar (Spec §4)
 src/**/.pytest_tmp/
