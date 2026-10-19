@@ -32,6 +32,13 @@ La **persona** de cada sesión es quien la corre, identificada por su identidad 
   - También aparecen `FIREBASE_PROJECT_ID`, `GOOGLE_APPLICATION_CREDENTIALS` y `FIREBASE_AUTH_EMULATOR_HOST`, documentadas en `src/backend/.env.example`.
 - **18/10, de Francisco: avisos nuevos sobre el `.env`** en [[Trabajo en equipo — Git y memoria#Entorno local para probar el código (`.env`)|Trabajo en equipo]]. Son seis reglas para no romperle el entorno a nadie, por ejemplo sumar a `.env.example` toda variable nueva.
 
+### Francisco (`FranLucianoo`) y Nahuel (`Nahuel Viniegra`)
+- **19/10, de Paloma: ya existe el proyecto real de Firebase, `rumbo-9ff17`** (T-005, PR [#14](https://github.com/FranLuciano04/Vault-Rumbo/pull/14), que espera la aprobación de uno de los dos).
+  - Paloma los sumó como miembros: deberían verlo en <https://console.firebase.google.com>.
+  - El JSON de la cuenta de servicio se lo piden a Paloma **por un canal privado**. Guárdenlo fuera del repo y pongan su ruta en `GOOGLE_APPLICATION_CREDENTIALS` de `src/backend/.env`.
+  - Para usar el proyecto real: `FIREBASE_PROJECT_ID=rumbo-9ff17`. Para la web: `VITE_FIREBASE_*` en `src/apps/web/.env`. Los valores se ven en la consola, en Configuración del proyecto → Tus apps. Todo está en `src/infra/firebase.md`.
+  - Si siguen con el emulador, no hace falta cambiar nada.
+
 ## Formato
 Es **obligatorio** nombrar a la persona que hizo la sesión.
 ```
@@ -61,7 +68,7 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
   - PR [#14](https://github.com/FranLuciano04/Vault-Rumbo/pull/14) abierto, **sin mergear**.
 - **Commits:** e20c8b4, c82676d, b83efc7 (en la rama `feature/T-005-…`).
 - **Pendiente:**
-  - Paloma: completar el checklist de consola (§2 de `src/infra/firebase.md`), marcarlo en las notas del ticket y confirmar la respuesta real `ADMIN_ONLY_OPERATION`.
+  - ✅ Checklist de consola hecho por Paloma: proyecto **`rumbo-9ff17`**. `accounts:signUp` responde `ADMIN_ONLY_OPERATION`. La cuenta de servicio `rumbo-backend` tiene solo el rol de Auth y verifica bien (`4f98195`).
   - Nahuel o Francisco: aprobar el PR #14. Después, Paloma corre `/implementar-ticket T-005` para mergearlo.
   - Corregir [[Skills compartidas]]: el emulador de Auth anda con Java 8, no necesita Java 17.
 
