@@ -26,11 +26,12 @@ El development build es una app nativa propia (con `expo-dev-client`) que se con
 
 ### Opción A: build local en un emulador Android (Windows)
 
-Requisitos: Android Studio (trae el JDK 17+ y el SDK), un emulador creado en el Device Manager y NDK/CMake instalados desde el SDK Manager.
+Requisitos: Android Studio (trae el JDK 17+ y el SDK), un emulador creado en el Device Manager y CMake instalado desde el SDK Manager. La NDK **27.1.12297006** (la que fija React Native 0.88, pesa cerca de 1 GB) la descarga Gradle sola la primera vez, siempre que hayas aceptado las licencias (`sdkmanager --licenses`).
 
 1. Definí las variables de entorno (una vez):
    - `ANDROID_HOME` = `%LOCALAPPDATA%\Android\Sdk`
    - `JAVA_HOME` = `C:\Program Files\Android\Android Studio\jbr`
+   - Sumá al `PATH` `%ANDROID_HOME%\platform-tools` (`adb`) y `%ANDROID_HOME%\emulator`. En PowerShell: `[Environment]::SetEnvironmentVariable("Path", $env:Path + ";$env:LOCALAPPDATA\Android\Sdk\platform-tools;$env:LOCALAPPDATA\Android\Sdk\emulator", "User")` y reabrí la terminal.
 2. Abrí el emulador desde Android Studio (o `emulator -avd <nombre>`).
 3. Desde `src/`:
 
@@ -38,15 +39,17 @@ Requisitos: Android Studio (trae el JDK 17+ y el SDK), un emulador creado en el 
    pnpm --filter @rumbo/mobile android
    ```
 
-   La primera vez genera `android/` (`expo prebuild`, está en `.gitignore`), compila con Gradle (varios minutos) e instala la app **Rumbo** en el emulador.
+   La primera vez genera `android/` (`expo prebuild`, está en `.gitignore`), compila con Gradle (varios minutos) e instala la app **Rumbo** en el emulador. Además deja Metro corriendo y la app se conecta sola al dev server.
 
-4. En otra terminal: `pnpm --filter @rumbo/mobile start` y abrí la app Rumbo en el emulador; se conecta sola al dev server.
+4. En las sesiones siguientes, con el build ya instalado, alcanza con `pnpm --filter @rumbo/mobile start` y abrir la app Rumbo en el emulador.
+
+> Windows, rutas largas: si Gradle o Git fallan con «Filename longer than 260 characters», habilitá `LongPathsEnabled` (registro de Windows, `HKLM\SYSTEM\CurrentControlSet\Control\FileSystem`) y corré `git config core.longpaths true`, o cloná el repo en una ruta más corta.
 
 ### Opción B: teléfono Android físico
 
 1. Activá «Opciones de desarrollador» y «Depuración USB», conectá el teléfono por USB y verificá con `adb devices`.
-2. Corré `pnpm --filter @rumbo/mobile android`: instala el build en el teléfono.
-3. Con el teléfono en la misma red Wi-Fi que la PC, ejecutá `pnpm --filter @rumbo/mobile start` y abrí la app; si no encuentra el servidor, escaneá el QR o escribí la URL que muestra la terminal.
+2. Corré `pnpm --filter @rumbo/mobile android`: compila, instala el build en el teléfono y deja Metro corriendo.
+3. En las sesiones siguientes, con el teléfono en la misma red Wi-Fi que la PC, ejecutá `pnpm --filter @rumbo/mobile start` y abrí la app; si no encuentra el servidor, escaneá el QR o escribí la URL que muestra la terminal.
 
 ### Opción C: build en la nube con EAS (requiere cuenta de Expo)
 
