@@ -44,7 +44,8 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 ## 19/10/26 — Paloma (Claude Opus 5.5) — entorno local para implementar
 - **Hecho:** Paloma instaló y autenticó el GitHub CLI (`gh`) y armó sus `src/.env` y `src/backend/.env` desde los ejemplos (base de desarrollo en el puerto 5434 porque el 5432 lo ocupa un PostgreSQL de Windows). Leyó los avisos del 18/10 sobre `ENTORNO` y el `.env`; se borraron sus filas.
 - **Commits:** este.
-- **Pendiente:** abrir Docker Desktop y levantar las bases; tomar su primer ticket.
+- **Hecho (continuación):** Docker Desktop abierto y bases levantadas (`rumbo-postgres-dev` en 5434 y `rumbo-postgres-test` en 5433). La suite del backend da 227 tests en verde en su PC.
+- **Pendiente:** tomar su primer ticket.
 
 ## 18/10/26 — Francisco (Claude Opus 5.5) — T-010: verificar el token de Firebase
 - **Hecho:** T-010 implementado con TDD (capa backend, ⚠️ riesgo alto).
