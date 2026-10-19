@@ -70,7 +70,7 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:**
   - ✅ Checklist de consola hecho por Paloma: proyecto **`rumbo-9ff17`**. `accounts:signUp` responde `ADMIN_ONLY_OPERATION`. La cuenta de servicio `rumbo-backend` tiene solo el rol de Auth y verifica bien (`4f98195`).
   - Nahuel o Francisco: aprobar el PR #14. Después, Paloma corre `/implementar-ticket T-005` para mergearlo.
-  - Corregir [[Skills compartidas]]: el emulador de Auth anda con Java 8, no necesita Java 17.
+  - ✅ [[Skills compartidas]] corregida: el emulador de Auth no necesita Java 17. Siguen diciendo «con Java» la [[Spec de implementación]] §Stack y [[DEC-0016 Autenticación con Firebase|DEC-0016]] §8, que son notas formalizadas: el equipo decide si se ajustan.
 
 ## 19/10/26 — Paloma (Claude Opus 5.5) — entorno local para implementar
 - **Hecho:** Paloma instaló y autenticó el GitHub CLI (`gh`) y armó sus `src/.env` y `src/backend/.env` desde los ejemplos (base de desarrollo en el puerto 5434 porque el 5432 lo ocupa un PostgreSQL de Windows). Leyó los avisos del 18/10 sobre `ENTORNO` y el `.env`; se borraron sus filas.
