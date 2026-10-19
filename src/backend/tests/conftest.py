@@ -2,10 +2,11 @@ import asyncio
 import os
 import subprocess
 import sys
-from collections.abc import AsyncIterator
+from collections.abc import AsyncIterator, Awaitable, Callable, Iterator
 from pathlib import Path
 
 import pytest
+from fastapi import FastAPI
 from httpx import ASGITransport, AsyncClient
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from sqlalchemy import text
@@ -29,9 +30,15 @@ _URL_TESTS = _EntornoTests().test_database_url  # type: ignore[call-arg]
 
 # La app lee DATABASE_URL al importarse; los tests siempre apuntan a la base de tests.
 os.environ["DATABASE_URL"] = _URL_TESTS
+# Los tests nunca usan Firebase ni el Auth Emulator (DEC-0016): la variable vacía en el proceso
+# manda sobre la que tenga el `.env` local.
+os.environ["FIREBASE_AUTH_EMULATOR_HOST"] = ""
 
 from rumbo.core.db import obtener_sesion  # noqa: E402
-from rumbo.main import app  # noqa: E402
+from rumbo.core.seguridad import TokenInvalido, obtener_verificador  # noqa: E402
+from rumbo.datos.modelos import RolUsuario, Usuario  # noqa: E402
+from rumbo.main import app, crear_app  # noqa: E402
+from tests.fabricas import UsuarioFactory, crear  # noqa: E402
 
 RAIZ_BACKEND = Path(__file__).resolve().parent.parent
 
@@ -115,3 +122,82 @@ async def cliente(sesion: AsyncSession) -> AsyncIterator[AsyncClient]:
             yield c
     finally:
         app.dependency_overrides.pop(obtener_sesion, None)
+
+
+class VerificadorFalso:
+    """Verificador de tokens de Firebase para los tests (DEC-0016): nunca toca Firebase real
+    ni el emulador. `emitir(uid)` da un token válido; `vencer(token)` lo vuelve vencido."""
+
+    def __init__(self) -> None:
+        self._uid_por_token: dict[str, str] = {}
+        self._vencidos: set[str] = set()
+
+    def emitir(self, firebase_uid: str) -> str:
+        token = f"token-falso-{firebase_uid}"
+        self._uid_por_token[token] = firebase_uid
+        return token
+
+    def vencer(self, token: str) -> None:
+        self._vencidos.add(token)
+
+    async def verificar(self, token: str) -> str:
+        if token in self._vencidos:
+            raise TokenInvalido("token vencido")
+        try:
+            return self._uid_por_token[token]
+        except KeyError:
+            raise TokenInvalido("token inválido") from None
+
+
+@pytest.fixture
+def verificador_falso() -> VerificadorFalso:
+    return VerificadorFalso()
+
+
+@pytest.fixture
+def app_de_tests(sesion: AsyncSession, verificador_falso: VerificadorFalso) -> Iterator[FastAPI]:
+    """App nueva con la sesión de test y el verificador falso inyectados."""
+    nueva = crear_app()
+
+    async def _sesion_de_test() -> AsyncIterator[AsyncSession]:
+        yield sesion
+
+    nueva.dependency_overrides[obtener_sesion] = _sesion_de_test
+    nueva.dependency_overrides[obtener_verificador] = lambda: verificador_falso
+    yield nueva
+    nueva.dependency_overrides.clear()
+
+
+@pytest.fixture
+async def cliente_sin_sesion(app_de_tests: FastAPI) -> AsyncIterator[AsyncClient]:
+    """Cliente sin `Authorization`, contra `app_de_tests`."""
+    transporte = ASGITransport(app=app_de_tests, raise_app_exceptions=False)
+    async with AsyncClient(transport=transporte, base_url="http://test") as c:
+        yield c
+
+
+@pytest.fixture
+async def cliente_como(
+    app_de_tests: FastAPI, sesion: AsyncSession, verificador_falso: VerificadorFalso
+) -> AsyncIterator[Callable[[str], Awaitable[AsyncClient]]]:
+    """Cliente autenticado por rol: `await cliente_como("admin")` (también `dueno`,
+    `empleado`, `freelance`). Crea el `Usuario` activo del rol y firma sus pedidos con un
+    token del verificador falso. El usuario queda en `cliente.usuario`."""
+    abiertos: list[AsyncClient] = []
+
+    async def _crear(rol: str) -> AsyncClient:
+        usuario: Usuario = await crear(sesion, UsuarioFactory, rol=RolUsuario(rol), activo=True)
+        token = verificador_falso.emitir(usuario.firebase_uid)
+        transporte = ASGITransport(app=app_de_tests, raise_app_exceptions=False)
+        c = AsyncClient(
+            transport=transporte,
+            base_url="http://test",
+            headers={"Authorization": f"Bearer {token}"},
+        )
+        c.usuario = usuario  # type: ignore[attr-defined]
+        abiertos.append(c)
+        return c
+
+    yield _crear
+    for c in abiertos:
+        await c.aclose()
