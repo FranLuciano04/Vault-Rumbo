@@ -3,7 +3,7 @@ id: T-011
 titulo: Registrar el autor de cada cambio automáticamente
 modulo: M0 — Fundaciones
 capa: backend
-estado: tomado
+estado: hecho
 depende_de: [T-008, T-010]
 tamaño: S
 riesgo: normal
@@ -47,3 +47,10 @@ tags:: #tipo/ticket
 - Historial de versiones de cada registro (no está en el alcance).
 
 ## Notas de implementación
+- **Cómo:** listener global `before_flush` sobre `Session` en `core/db.py` (`_registrar_autor`). Lee `usuario_auditoria` (ContextVar de T-010). Detecta las filas auditadas por sus columnas `created_by`/`updated_by`, no por `AuditoriaMixin`, para que `core` no importe la capa de datos (ARQ). Las fechas las sigue poniendo la base (`server_default`/`onupdate`).
+- **Decisiones de la persona:** una modificación sin usuario actual deja `updated_by = None`; alcanza con `updated_at >= created_at` (`now()` de Postgres es por transacción).
+- **Restricción documentada:** un `update()` masivo del ORM no pasa por el flush y no completa `updated_by`, así que los repositorios modifican vía ORM. Seeds e importaciones atribuyen el autor seteando la ContextVar.
+- **Tests:** 5 en `tests/negocio/test_auditoria.py` y uno de punta a punta en `tests/api/test_auditoria_http.py`, que protege el orden entre el commit de `SesionDep` y el reset de la ContextVar. En el fix se autorizó tocar el helper `_usuario` (patrón `set`/`reset`).
+- **Review (opus):** 2 importantes (import de `core` a datos y `update()` masivo) y 3 menores; los 5 se aplicaron. Sin bloqueantes.
+- **Modelos:** tests sonnet, implementación y fix sonnet, review opus. No hizo falta escalar.
+- **Entorno:** en esta PC, pytest necesita `--basetemp` propio porque `%TEMP%\pytest-of-test123` no tiene permisos, y `uv` necesita `--system-certs`.
