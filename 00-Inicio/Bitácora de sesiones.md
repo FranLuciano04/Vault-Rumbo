@@ -39,11 +39,11 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
   - Los errores de dominio pasaron a `core/errores.py`, y `negocio/` los reexporta.
   - La review de seguridad (Sonnet) dejó 0 bloqueantes y 3 importantes, todos arreglados.
   - Hay 191 tests en verde y 97 % de cobertura.
-  - PR [#12](https://github.com/FranLuciano04/Vault-Rumbo/pull/12) abierto, **sin mergear**: espera la aprobación de Nahuel o Paloma.
+  - PR [#12](https://github.com/FranLuciano04/Vault-Rumbo/pull/12) **mergeado por Francisco el 18/10 sin la aprobación de otro integrante**, que es lo que pide DEC-0014 para riesgo alto (merge 8796705, grafo 8d2973d). La review se hace después del merge: ver *Pendiente*.
 - **Entorno:** se armaron los `.env` locales. La base de desarrollo usa el puerto 5434, porque esta PC tiene un PostgreSQL instalado en Windows. También se sumó a [[Trabajo en equipo — Git y memoria]] la sección de avisos sobre el `.env` (commit `44f5cc2`).
 - **Commits:** d6c9cce, 839302c, d1898c5, e4f1ea0, 6f71d15 (en la rama `feature/T-012-…`).
 - **Pendiente:**
-  - **Aprobar el PR #12 (Nahuel o Paloma).** Después, Francisco corre `/implementar-ticket T-012` para mergearlo.
+  - ⏳ **Review posterior del PR #12 (Nahuel o Paloma):** dejarla en GitHub (Approve o Comment). Cuando avisen, Claude la lee con `gh pr view 12 --json reviews,comments`. Si la aprueban, se anota acá. Si piden cambios, se crea un ticket de arreglo con `origen: hallazgo T-012`.
   - Confirmar en equipo el criterio del responsable cuando se reasigna un cliente.
   - La paginación de `listar` queda para el primer módulo que lo use.
 
