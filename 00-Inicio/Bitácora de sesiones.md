@@ -43,7 +43,7 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Entorno:** se armaron los `.env` locales. La base de desarrollo usa el puerto 5434, porque esta PC tiene un PostgreSQL instalado en Windows. También se sumó a [[Trabajo en equipo — Git y memoria]] la sección de avisos sobre el `.env` (commit `44f5cc2`).
 - **Commits:** d6c9cce, 839302c, d1898c5, e4f1ea0, 6f71d15 (en la rama `feature/T-012-…`).
 - **Pendiente:**
-  - ⏳ **Review posterior del PR #12 (Nahuel o Paloma):** dejarla en GitHub (Approve o Comment). Cuando avisen, Claude la lee con `gh pr view 12 --json reviews,comments`. Si la aprueban, se anota acá. Si piden cambios, se crea un ticket de arreglo con `origen: hallazgo T-012`.
+  - ✅ **Review posterior del PR #12:** Nahuel lo aprobó en GitHub el 18/10 a las 21:15 (APPROVED, con el comentario «Its ok.»). No pidió cambios.
   - Confirmar en equipo el criterio del responsable cuando se reasigna un cliente.
   - La paginación de `listar` queda para el primer módulo que lo use.
 
