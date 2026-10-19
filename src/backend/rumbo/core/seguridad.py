@@ -18,7 +18,11 @@ logger = logging.getLogger(__name__)
 
 # Variable que el Admin SDK lee de `os.environ`: con ella apunta al Auth Emulator y deja de
 # validar la firma de los tokens, así que nunca debe llegar a producción.
-_VARIABLE_EMULADOR = "FIREBASE_AUTH_EMULATOR_HOST"
+VARIABLE_EMULADOR = "FIREBASE_AUTH_EMULATOR_HOST"
+
+
+class EmuladorFueraDeDesarrollo(RuntimeError):
+    """El Auth Emulator está configurado y `ENTORNO` no es `desarrollo`."""
 
 
 class TokenInvalido(Exception):
@@ -41,12 +45,31 @@ def _credencial(config: Settings) -> credentials.Base:
     return credentials.ApplicationDefault()
 
 
+def emulador_configurado(config: Settings) -> str | None:
+    """Host del Auth Emulator (de `os.environ` o del `.env`), o `None` si no hay. Fuera de
+    `desarrollo` lanza `EmuladorFueraDeDesarrollo`: con el emulador no se verifica la firma.
+
+    Es el único lugar que escribe la variable en `os.environ`, donde la lee el Admin SDK.
+    """
+    # Si el proceso define la variable (aunque sea vacía), manda sobre el `.env`.
+    host = os.environ.get(VARIABLE_EMULADOR, config.firebase_auth_emulator_host)
+    if not host:
+        return None
+    if config.entorno != "desarrollo":
+        raise EmuladorFueraDeDesarrollo(
+            f"{VARIABLE_EMULADOR} está configurada con ENTORNO={config.entorno}: el Auth "
+            "Emulator solo se admite con ENTORNO=desarrollo."
+        )
+    os.environ[VARIABLE_EMULADOR] = host
+    logger.warning(
+        "Firebase Auth Emulator activo (%s): los tokens no se verifican con firma.", host
+    )
+    return host
+
+
 def _app_firebase(config: Settings) -> firebase_admin.App:
     """App por defecto del Admin SDK; la inicializa una sola vez con la config del entorno."""
-    if config.firebase_auth_emulator_host:
-        os.environ.setdefault(_VARIABLE_EMULADOR, config.firebase_auth_emulator_host)
-    if os.environ.get(_VARIABLE_EMULADOR):
-        logger.warning("Firebase Auth Emulator activo: los tokens no se verifican con firma.")
+    emulador_configurado(config)
     try:
         return firebase_admin.get_app()
     except ValueError:

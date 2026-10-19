@@ -30,6 +30,9 @@ _URL_TESTS = _EntornoTests().test_database_url  # type: ignore[call-arg]
 
 # La app lee DATABASE_URL al importarse; los tests siempre apuntan a la base de tests.
 os.environ["DATABASE_URL"] = _URL_TESTS
+# Los tests nunca usan Firebase ni el Auth Emulator (DEC-0016): la variable vacía en el proceso
+# manda sobre la que tenga el `.env` local.
+os.environ["FIREBASE_AUTH_EMULATOR_HOST"] = ""
 
 from rumbo.core.db import obtener_sesion  # noqa: E402
 from rumbo.core.seguridad import TokenInvalido, obtener_verificador  # noqa: E402

@@ -6,10 +6,11 @@ from typing import Annotated
 import httpx
 import pytest
 from fastapi import APIRouter, Depends, FastAPI
+from firebase_admin import auth
 from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from rumbo.core.seguridad import usuario_auditoria
+from rumbo.core.seguridad import VerificadorFirebase, obtener_verificador, usuario_auditoria
 from rumbo.datos.modelos import RolUsuario, Usuario
 from rumbo.presentacion.dependencias import usuario_actual
 from tests.conftest import VerificadorFalso
@@ -146,8 +147,41 @@ async def test_rf142_uid_desconocido_401(
 
 @pytest.mark.usefixtures("sonda")
 async def test_rf142_rechazo_no_deja_usuario_en_la_contextvar(
-    cliente_sin_sesion: AsyncClient,
+    cliente_como: Callable[[str], Awaitable[AsyncClient]],
 ) -> None:
-    await cliente_sin_sesion.get(RUTA, headers={"Authorization": "Bearer basura"})
+    # ASGITransport corre la app en la tarea del test: sin el reset por pedido, el id del
+    # pedido válido seguiría en la contextvar al hacer el siguiente.
+    admin = await cliente_como("admin")
+    empleado = await cliente_como("empleado")
 
+    valido = await admin.get(RUTA)
+    assert valido.json()["contexto"] == str(admin.usuario.id)  # type: ignore[attr-defined]
     assert usuario_auditoria.get() is None
+
+    _es_401(await admin.get(RUTA, headers={"Authorization": "Bearer basura"}))
+    assert usuario_auditoria.get() is None
+
+    otro = await empleado.get(RUTA)
+    assert otro.json()["contexto"] == str(empleado.usuario.id)  # type: ignore[attr-defined]
+    assert usuario_auditoria.get() is None
+
+
+@pytest.mark.usefixtures("sonda")
+async def test_rf142_falla_de_certificados_de_firebase_502_sin_detalle(
+    app_de_tests: FastAPI,
+    cliente_sin_sesion: AsyncClient,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    def _sin_certificados(*_: object, **__: object) -> dict[str, str]:
+        raise auth.CertificateFetchError("detalle-interno-de-firebase", cause=None)
+
+    monkeypatch.setattr(auth, "verify_id_token", _sin_certificados)
+    app_de_tests.dependency_overrides[obtener_verificador] = lambda: VerificadorFirebase(
+        app=object()
+    )
+
+    r = await cliente_sin_sesion.get(RUTA, headers={"Authorization": "Bearer cualquiera"})
+
+    assert r.status_code == 502
+    assert r.headers["content-type"].startswith(PROBLEM_JSON)
+    assert "detalle-interno-de-firebase" not in r.text

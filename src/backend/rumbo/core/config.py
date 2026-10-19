@@ -1,4 +1,5 @@
 from functools import lru_cache
+from typing import Literal
 
 from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -12,6 +13,9 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
     database_url: str
+    # Cerrado por defecto: solo `desarrollo` admite el Auth Emulator (ver
+    # `core.seguridad.emulador_configurado`). En el servidor va `produccion` o se omite.
+    entorno: Literal["desarrollo", "produccion"] = "produccion"
     # DEC-0016: sin `firebase_project_id` la verificación de tokens falla (500) en el primer
     # pedido autenticado; el resto de la API arranca igual (los tests no usan Firebase).
     firebase_project_id: str | None = None

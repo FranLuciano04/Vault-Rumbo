@@ -1,5 +1,6 @@
 """Dependencias de FastAPI compartidas por los routers."""
 
+from collections.abc import AsyncIterator
 from typing import Annotated
 
 from fastapi import Depends, HTTPException
@@ -31,7 +32,22 @@ async def exigir_token(
     return credenciales.credentials
 
 
+async def _contexto_de_auditoria() -> AsyncIterator[None]:
+    """Acota `usuario_auditoria` al pedido: al terminar vuelve al valor previo.
+
+    Vive aparte de `usuario_actual` porque una dependencia con `yield` es de alcance
+    «request» y FastAPI no la deja depender de `SesionDep` (alcance «function»). Sale después
+    del commit de la sesión, así que la auditoría todavía ve al usuario al guardar.
+    """
+    marca = usuario_auditoria.set(None)
+    try:
+        yield
+    finally:
+        usuario_auditoria.reset(marca)
+
+
 async def usuario_actual(
+    _: Annotated[None, Depends(_contexto_de_auditoria)],
     token: Annotated[str, Depends(exigir_token)],
     verificador: Annotated[VerificadorDeTokens, Depends(obtener_verificador)],
     sesion: SesionDep,
