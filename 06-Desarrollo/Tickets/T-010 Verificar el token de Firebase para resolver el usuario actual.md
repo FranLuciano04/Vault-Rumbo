@@ -3,7 +3,7 @@ id: T-010
 titulo: Verificar el token de Firebase para resolver el usuario actual
 modulo: M0 — Fundaciones
 capa: backend
-estado: libre
+estado: tomado
 depende_de: [T-008, T-009]
 tamaño: M
 riesgo: alto
@@ -12,9 +12,9 @@ modelo_impl: opus
 modelo_review: sonnet
 trazabilidad: [CU-24, RF-140, RF-142, RNF-01, RNF-03, DEC-0016]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: FranLucianoo
+tomado_el: 18/10/26 21:19
+rama: feature/T-010-verificar-el-token-de-firebase-para-reso
 pr:
 ---
 # T-010 Verificar el token de Firebase para resolver el usuario actual
