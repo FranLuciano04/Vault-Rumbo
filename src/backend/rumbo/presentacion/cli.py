@@ -3,8 +3,34 @@
 import argparse
 import json
 from pathlib import Path
+from typing import Protocol
 
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from rumbo.core.config import get_settings
+from rumbo.datos.modelos import Usuario
 from rumbo.main import crear_app
+
+__all__ = ["get_settings"]  # stub T-017: los tests lo reemplazan por monkeypatch
+
+
+class CreadorDeCuentas(Protocol):
+    """Crea (o devuelve, si ya existe) la cuenta de Firebase de un email y da su uid."""
+
+    def __call__(self, email: str, nombre: str) -> str: ...
+
+
+async def datos_iniciales(
+    sesion: AsyncSession,
+    *,
+    nombre: str,
+    email: str,
+    crear_cuenta: CreadorDeCuentas,
+    demo: bool = False,
+) -> Usuario:
+    """Crea la dueña inicial (cuenta de Firebase + `Usuario` dueno), idempotente; con
+    `demo` corre las semillas registradas en `rumbo.datos.semillas.SEMILLAS`."""
+    raise NotImplementedError
 
 
 def exportar_openapi(destino: Path) -> None:
