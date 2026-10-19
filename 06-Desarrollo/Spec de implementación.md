@@ -59,7 +59,7 @@ Lo fija [[DEC-0001 Stack tecnológico|DEC-0001]], con los ajustes de [[DEC-0015 
 ```bash
 # Infraestructura local (PostgreSQL de desarrollo en 5432 y de tests en 5433)
 docker compose -f src/docker-compose.dev.yml up -d
-npx firebase-tools emulators:start --only auth --project demo-rumbo   # Auth Emulator en 9099
+npx firebase-tools emulators:start --only auth --project demo-rumbo --config src/firebase.json   # Auth Emulator en 9099 (src/infra/firebase.md)
 
 # Backend (desde src/backend)
 uv sync
