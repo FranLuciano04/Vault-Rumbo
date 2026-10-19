@@ -41,6 +41,17 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
+## 19/10/26 — Nahuel (Claude Opus 5.5) — T-011: auditoría automática del autor
+- **Hecho:** T-011 implementado con TDD (capa backend, riesgo normal).
+  - Un listener `before_flush` en `core/db.py` completa `created_by`/`updated_by` desde la ContextVar `usuario_auditoria`. Detecta las filas por columnas, así `core` no importa la capa de datos.
+  - Una modificación sin usuario deja `updated_by = None` (decidido en la sesión).
+  - Restricción documentada en el docstring: un `update()` masivo no completa `updated_by`, así que los repositorios modifican vía ORM.
+  - La review con Opus dejó 0 bloqueantes, 2 importantes y 3 menores; se arreglaron todos.
+  - Hay 233 tests en verde, con 96 % de cobertura. PR [#15](https://github.com/FranLuciano04/Vault-Rumbo/pull/15) mergeado (sin CI todavía).
+  - Docker Desktop no arrancaba: había sockets AF_UNIX trabados en `%LOCALAPPDATA%\Docker\run` y en `%LOCALAPPDATA%\docker-secrets-engine`. Se resolvió renombrando esas carpetas a `*.viejo-…`. Pasa cuando Docker se cierra a la fuerza.
+- **Commits:** 3c4fa8a, 04d05b0, 8e2af7c, 77a8d59 (merge 8708fea).
+- **Pendiente:** si un repositorio necesita `update()` masivo, sumar un listener `do_orm_execute` (hallazgo de la review de T-011).
+
 ## 19/10/26 — Paloma (Claude Opus 5.5) — T-005: proyecto de Firebase y emulador
 - **Hecho:** T-005 implementado (capa infra, ⚠️ riesgo alto).
   - Archivos: `src/firebase.json`, `src/.firebaserc` (`demo-rumbo`), `src/infra/firebase.md` (uso del emulador, checklist de consola endurecido y variables por entorno), `src/apps/web/.env.example` (`VITE_FIREBASE_*`) y `.gitignore` de la cuenta de servicio.
