@@ -3,7 +3,7 @@ id: T-011
 titulo: Registrar el autor de cada cambio automáticamente
 modulo: M0 — Fundaciones
 capa: backend
-estado: libre
+estado: tomado
 depende_de: [T-008, T-010]
 tamaño: S
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [RF-152, RNF-04, DEC-0008]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: Nahuel Viniegra
+tomado_el: 19/10/26 15:56
+rama: feature/T-011-registrar-el-autor-de-cada-cambio-automa
 pr:
 ---
 # T-011 Registrar el autor de cada cambio automáticamente
