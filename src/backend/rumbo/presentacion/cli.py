@@ -4,8 +4,8 @@ import argparse
 import asyncio
 import json
 import os
+from collections.abc import Callable
 from pathlib import Path
-from typing import Protocol
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -18,18 +18,12 @@ from rumbo.main import crear_app
 from rumbo.negocio.servicios.seguridad import asegurar_duena
 
 
-class CreadorDeCuentas(Protocol):
-    """Crea (o devuelve, si ya existe) la cuenta de Firebase de un email y da su uid."""
-
-    def __call__(self, email: str, nombre: str) -> str: ...
-
-
 async def datos_iniciales(
     sesion: AsyncSession,
     *,
     nombre: str,
     email: str,
-    crear_cuenta: CreadorDeCuentas,
+    crear_cuenta: Callable[[str, str], str],
     demo: bool = False,
 ) -> Usuario:
     """Crea la dueña inicial (cuenta de Firebase + `Usuario` dueno), idempotente; con
