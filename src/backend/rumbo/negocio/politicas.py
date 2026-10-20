@@ -123,6 +123,12 @@ def exigir_rol(actor: Usuario, *roles: RolUsuario) -> None:
         raise SinPermiso("Tu rol no permite esta acción")
 
 
+def tiene_acceso_redes(actor: Usuario) -> bool:
+    """Si el actor entra al módulo de redes: admin y dueño siempre, por rol; el resto, según
+    su columna `acceso_redes` (DEC-0013)."""
+    return actor.rol in _JEFES or actor.acceso_redes
+
+
 def _escribe_cliente(actor: Usuario, cliente: Cliente) -> bool:
     return actor.rol is not RolUsuario.freelance or cliente.asesor_asignado_id == actor.id
 

@@ -41,13 +41,15 @@ async def test_rf141_yo_con_esquema_distinto_de_bearer_responde_401(
     assert r.headers["content-type"].startswith(PROBLEM_JSON)
 
 
-async def test_rf141_yo_con_token_responde_501_problem_json(cliente: AsyncClient) -> None:
-    r = await cliente.get(RUTA, headers={"Authorization": "Bearer token-de-prueba"})
+async def test_rf141_yo_con_token_invalido_responde_401_problem_json(
+    cliente_sin_sesion: AsyncClient,
+) -> None:
+    r = await cliente_sin_sesion.get(RUTA, headers={"Authorization": "Bearer token-de-prueba"})
 
-    assert r.status_code == 501
+    assert r.status_code == 401
     assert r.headers["content-type"].startswith(PROBLEM_JSON)
     cuerpo = r.json()
-    assert cuerpo["status"] == 501
+    assert cuerpo["status"] == 401
     assert cuerpo["title"]
 
 
