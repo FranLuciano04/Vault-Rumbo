@@ -1,7 +1,9 @@
 # CI de Rumbo (DEC-0015 §8 y §9, T-018): cada PR corre solo los jobs de las carpetas que toca.
 #
 # - Los PR siempre disparan el workflow y el job `cambios` decide qué corre; los jobs omitidos
-#   cuentan como exitosos, así los checks exigidos en la protección de `main` nunca quedan colgados.
+#   cuentan como exitosos, así los checks no quedan colgados.
+# - PROTECCIÓN DE `main`: exigir como único check «CI ok» (job `ci-ok`). Si `cambios` falla, los
+#   demás jobs quedan omitidos y pasarían por verdes; `ci-ok` lo detecta y falla.
 # - Los push a `main` solo disparan el workflow si tocan `src/` o `.github/`, de modo que los push
 #   directos de los claims de tickets (`06-Desarrollo/Tickets/`) no gastan minutos.
 # - Un cambio en este archivo corre los tres jobs, para que su propio PR se verifique.
@@ -22,7 +24,7 @@ permissions:
 
 concurrency:
   group: ci-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   cambios:
@@ -35,17 +37,27 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 2
       - id: filtro
         env:
-          BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
+          EVENTO: ${{ github.event_name }}
+          ANTES: ${{ github.event.before }}
         run: |
           set -euo pipefail
-          # Push inicial o rama nueva (base todo ceros): se corre todo.
-          if [[ -z "$BASE" || "$BASE" =~ ^0+$ ]]; then
-            archivos=.github/workflows/ci.yml  # coincide con la regla de raíz: corre todo
+          # Base de comparación: en PR, el primer padre del merge commit (punta de `main`);
+          # en push, el SHA anterior de `main`, que se trae aparte porque depth 2 no lo garantiza.
+          base=
+          if [[ "$EVENTO" == pull_request ]]; then
+            base=HEAD^1
+          elif [[ ! "$ANTES" =~ ^0*$ ]] && git fetch --depth=1 origin "$ANTES"; then
+            base="$ANTES"
+          fi
+
+          if [[ -z "$base" ]]; then
+            # Push inicial, force-push o base no disponible: se corre todo.
+            archivos=.github/workflows/ci.yml  # coincide con la regla de raíz
           else
-            archivos="$(git diff --name-only "$BASE" "$GITHUB_SHA")"
+            archivos="$(git diff --name-only "$base" HEAD)"
           fi
           echo "Archivos cambiados:"; echo "$archivos"
 
@@ -53,10 +65,11 @@ jobs:
           raiz='^(\.github/workflows/ci\.yml|src/(package\.json|pnpm-lock\.yaml|pnpm-workspace\.yaml|tsconfig\.base\.json|eslint\.config\.base\.js))$'
           hay() { grep -Eq "$1" <<<"$archivos" && echo true || echo false; }
 
+          # Mobile todavía no consume @rumbo/shared: sumar `^src/packages/shared/` cuando lo haga.
           {
             echo "backend=$(hay "$raiz|^src/backend/")"
             echo "web=$(hay "$raiz|^src/apps/web/|^src/packages/shared/")"
-            echo "mobile=$(hay "$raiz|^src/apps/mobile/|^src/packages/shared/")"
+            echo "mobile=$(hay "$raiz|^src/apps/mobile/")"
           } | tee -a "$GITHUB_OUTPUT"
 
   backend:
@@ -168,3 +181,20 @@ jobs:
         run: >-
           pnpm --filter @rumbo/mobile test:cobertura
           --coverageThreshold='{"global":{"statements":70,"branches":70,"functions":70,"lines":70}}'
+
+  # Único check a exigir en la protección de `main`. Falla si algún job falló o se canceló,
+  # incluido `cambios` (sin él, los demás quedarían omitidos y parecerían aprobados).
+  ci-ok:
+    name: CI ok
+    needs: [cambios, backend, web, mobile]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - env:
+          RESULTADOS: ${{ join(needs.*.result, ' ') }}
+        run: |
+          echo "Resultados: $RESULTADOS"
+          if [[ " $RESULTADOS " =~ " failure " || " $RESULTADOS " =~ " cancelled " ]]; then
+            echo "Algún job falló o se canceló."
+            exit 1
+          fi
