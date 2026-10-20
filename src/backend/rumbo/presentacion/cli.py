@@ -68,7 +68,8 @@ async def _correr_datos_iniciales(url: str, nombre: str, email: str, demo: bool)
 def exportar_openapi(destino: Path) -> None:
     """Escribe el contrato OpenAPI de la API en `destino` (lo consume `@rumbo/shared`)."""
     documento = crear_app().openapi()
-    destino.write_text(json.dumps(documento, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    contenido = json.dumps(documento, indent=2, ensure_ascii=False) + "\n"
+    destino.write_text(contenido, encoding="utf-8", newline="\n")
 
 
 def main(argumentos: list[str] | None = None) -> None:
