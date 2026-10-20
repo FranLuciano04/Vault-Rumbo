@@ -39,6 +39,18 @@ La **persona** de cada sesión es quien la corre, identificada por su identidad 
   - Para usar el proyecto real: `FIREBASE_PROJECT_ID=rumbo-9ff17`. Para la web: `VITE_FIREBASE_*` en `src/apps/web/.env`. Los valores se ven en la consola, en Configuración del proyecto → Tus apps. Todo está en `src/infra/firebase.md`.
   - Si siguen con el emulador, no hace falta cambiar nada.
 
+### Francisco (`FranLucianoo`)
+- **20/10, de Nahuel: configurar la protección de `main`** (sos el dueño del repo; T-018, PR [#19](https://github.com/FranLuciano04/Vault-Rumbo/pull/19)).
+  - En Settings → Branches (o Rulesets) de `main`, exigir **solo el check «CI ok»** en los pull requests. No exijas los jobs sueltos: un job omitido cuenta como aprobado.
+  - Los push directos de los claims a `main` no se tienen que bloquear (spec §10).
+
+### Francisco (`FranLucianoo`) y Paloma (`palomap2003`)
+- **20/10, de Nahuel: ya hay CI y Compose de producción local** (T-018, PR [#19](https://github.com/FranLuciano04/Vault-Rumbo/pull/19); T-024, PR [#18](https://github.com/FranLuciano04/Vault-Rumbo/pull/18)).
+  - Cada PR corre solo los jobs de las carpetas que toca: Backend, Web y Mobile.
+  - **Mobile va a fallar** por cobertura (50 % contra 70 %) hasta que se haga T-143. Es esperado: no bajen el umbral.
+  - Después del pull, corran `pnpm install` en `src/`: `pnpm-workspace.yaml` ahora declara `allowBuilds`.
+  - El stack completo se levanta con `docker compose -f src/docker-compose.yml up -d --build`. Necesita `RUMBO_DB_PASSWORD` alfanumérica en `src/.env`.
+
 ## Formato
 Es **obligatorio** nombrar a la persona que hizo la sesión.
 ```
@@ -47,6 +59,23 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Commits:** <hash>, <hash>
 - **Pendiente:** …
 ```
+
+## 20/10/26 — Nahuel (Claude Opus 5.5) — T-018: CI con jobs filtrados por carpeta
+- **Hecho:** T-018 implementado (capa infra, riesgo normal, verificado en GitHub con el propio PR).
+  - `.github/workflows/ci.yml` tiene los jobs `cambios` → Backend, Web y Mobile, y el agregador «CI ok».
+  - Los push de claims no disparan builds.
+  - En el PR #19, Backend, Web y la detección de cambios pasaron. Mobile falló solo por cobertura.
+  - Decidido con Nahuel:
+    - Mobile mantiene el 70 %; el test faltante va en **T-143** (creado, `origen: hallazgo T-018`).
+    - `allowBuilds` en `src/pnpm-workspace.yaml`.
+    - El PR se mergeó con Mobile en rojo, a sabiendas.
+  - La review con Opus dejó 0 bloqueantes, 1 importante y 3 menores; todos se arreglaron.
+  - PR [#19](https://github.com/FranLuciano04/Vault-Rumbo/pull/19) mergeado.
+- **Commits:** 85fd960, 3233b82, 31f76a6 (merge 157c831); ticket 2ff04bc.
+- **Pendiente:**
+  - Francisco configura la protección de `main` con «CI ok» (aviso arriba).
+  - T-143.
+  - `@rumbo/shared` sin umbral de cobertura y sin `format:check` del front en el CI.
 
 ## 19/10/26 — Nahuel (Claude Opus 5.5) — T-024: Compose de producción local
 - **Hecho:** T-024 implementado (capa infra, riesgo normal, sin TDD: se verificó levantando el stack).
