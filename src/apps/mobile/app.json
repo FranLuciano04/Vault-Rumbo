@@ -1,0 +1,20 @@
+{
+  "expo": {
+    "name": "Rumbo",
+    "slug": "rumbo",
+    "scheme": "rumbo",
+    "version": "0.0.0",
+    "orientation": "portrait",
+    "android": {
+      "package": "ar.com.rumbo.mobile"
+    },
+    "ios": {
+      "bundleIdentifier": "ar.com.rumbo.mobile"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-dev-client",
+      ["expo-splash-screen", { "backgroundColor": "#ffffff" }]
+    ]
+  }
+}
