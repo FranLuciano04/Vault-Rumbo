@@ -3,7 +3,7 @@ id: T-018
 titulo: Armar el CI con jobs filtrados por carpeta
 modulo: M0 — Fundaciones
 capa: infra
-estado: libre
+estado: tomado
 depende_de: [T-001, T-002, T-003, T-008]
 tamaño: S
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [DEC-0015, RNF-15]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: Nahuel Viniegra
+tomado_el: 19/10/26 23:01
+rama: feature/T-018-armar-el-ci-con-jobs-filtrados-por-carpe
 pr:
 ---
 # T-018 Armar el CI con jobs filtrados por carpeta

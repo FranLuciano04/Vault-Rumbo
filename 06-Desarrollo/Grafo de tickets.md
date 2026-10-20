@@ -14,7 +14,7 @@ tags:: #tipo/referencia
 
 | Módulo | Tickets | Hechos | Tomados | Disponibles | Esperando | Bloqueados | Estado del módulo |
 |---|---|---|---|---|---|---|---|
-| M0 — Fundaciones | 28 | 18 | 0 | 7 | 3 | 0 | 🛠️ en curso |
+| M0 — Fundaciones | 28 | 18 | 1 | 6 | 3 | 0 | 🛠️ en curso |
 | M1 — Usuarios y configuración | 13 | 0 | 0 | 1 | 12 | 0 | 🛠️ en curso |
 | M2 — Clientes | 11 | 0 | 0 | 1 | 10 | 0 | 🛠️ en curso |
 | M3 — Alertas | 11 | 0 | 0 | 2 | 9 | 0 | 🛠️ en curso |
@@ -50,7 +50,7 @@ flowchart LR
     T015["T-015 · Publicar el contrato base con el usuario de la sesión<br/><small>contrato</small>"]:::hecho
     T016["T-016 · Devolver el usuario de la sesión con su rol<br/><small>backend · ⚠️ riesgo alto</small>"]:::disponible
     T017["T-017 · Crear la dueña inicial con la CLI de datos<br/><small>backend</small>"]:::hecho
-    T018["T-018 · Armar el CI con jobs filtrados por carpeta<br/><small>infra</small>"]:::disponible
+    T018["T-018 · Armar el CI con jobs filtrados por carpeta<br/><small>infra</small><br/>👤 Nahuel Viniegra"]:::tomado
     T019["T-019 · Sumar los análisis de seguridad al CI<br/><small>infra</small>"]:::esperando
     T020["T-020 · Armar el shell web con la navegación por rol<br/><small>web</small>"]:::hecho
     T021["T-021 · Iniciar sesión en la web con email o Google<br/><small>web · ⚠️ riesgo alto</small>"]:::disponible
