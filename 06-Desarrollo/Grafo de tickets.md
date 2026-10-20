@@ -14,7 +14,7 @@ tags:: #tipo/referencia
 
 | Módulo | Tickets | Hechos | Tomados | Disponibles | Esperando | Bloqueados | Estado del módulo |
 |---|---|---|---|---|---|---|---|
-| M0 — Fundaciones | 28 | 16 | 2 | 5 | 5 | 0 | 🛠️ en curso |
+| M0 — Fundaciones | 28 | 17 | 1 | 7 | 3 | 0 | 🛠️ en curso |
 | M1 — Usuarios y configuración | 13 | 0 | 0 | 1 | 12 | 0 | 🛠️ en curso |
 | M2 — Clientes | 11 | 0 | 0 | 1 | 10 | 0 | 🛠️ en curso |
 | M3 — Alertas | 11 | 0 | 0 | 2 | 9 | 0 | 🛠️ en curso |
@@ -35,7 +35,7 @@ flowchart LR
   subgraph M0["M0 — Fundaciones"]
     T001["T-001 · Inicializar el backend con uv y FastAPI<br/><small>infra</small>"]:::hecho
     T002["T-002 · Crear el workspace pnpm con la app web<br/><small>infra</small>"]:::hecho
-    T003["T-003 · Crear la app mobile con Expo development build<br/><small>infra</small><br/>👤 palomap2003"]:::tomado
+    T003["T-003 · Crear la app mobile con Expo development build<br/><small>infra</small>"]:::hecho
     T004["T-004 · Levantar PostgreSQL de desarrollo con Docker Compose<br/><small>infra</small>"]:::hecho
     T005["T-005 · Configurar el proyecto de Firebase con su emulador<br/><small>infra · ⚠️ riesgo alto</small>"]:::hecho
     T006["T-006 · Configurar la sesión async de la base con su entorno<br/><small>backend</small>"]:::hecho
@@ -50,11 +50,11 @@ flowchart LR
     T015["T-015 · Publicar el contrato base con el usuario de la sesión<br/><small>contrato</small>"]:::hecho
     T016["T-016 · Devolver el usuario de la sesión con su rol<br/><small>backend · ⚠️ riesgo alto</small>"]:::disponible
     T017["T-017 · Crear la dueña inicial con la CLI de datos<br/><small>backend</small>"]:::hecho
-    T018["T-018 · Armar el CI con jobs filtrados por carpeta<br/><small>infra</small>"]:::esperando
+    T018["T-018 · Armar el CI con jobs filtrados por carpeta<br/><small>infra</small>"]:::disponible
     T019["T-019 · Sumar los análisis de seguridad al CI<br/><small>infra</small>"]:::esperando
     T020["T-020 · Armar el shell web con la navegación por rol<br/><small>web</small>"]:::hecho
     T021["T-021 · Iniciar sesión en la web con email o Google<br/><small>web · ⚠️ riesgo alto</small>"]:::disponible
-    T022["T-022 · Armar el shell mobile con sus pestañas<br/><small>mobile</small>"]:::esperando
+    T022["T-022 · Armar el shell mobile con sus pestañas<br/><small>mobile</small>"]:::disponible
     T023["T-023 · Iniciar sesión en la app mobile con email o Google<br/><small>mobile · ⚠️ riesgo alto</small>"]:::esperando
     T024["T-024 · Armar el Compose de producción local para las demos<br/><small>infra</small><br/>👤 Nahuel Viniegra"]:::tomado
     T025["T-025 · Probar de punta a punta el inicio de sesión web<br/><small>e2e</small>"]:::esperando
