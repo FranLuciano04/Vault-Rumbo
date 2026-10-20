@@ -69,9 +69,9 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
   - Paloma mergeó el PR [#21](https://github.com/FranLuciano04/Vault-Rumbo/pull/21), aunque en GitHub no quedó registrada una review formal.
 - **Commits:** afd1a76, 174cda8, f67a59e, 1ae2724 (merge 0f12c3d).
 - **Pendiente:**
-  - Hallazgos fuera de alcance, todavía sin ticket:
-    - En Windows, el CLI `exportar-openapi` escribe los archivos con CRLF.
-    - Si Firebase no tiene project ID, `VerificadorFirebase` responde 500 en vez de un error controlado.
+  - Hallazgos fuera de alcance, ya cargados como tickets:
+    - T-144: en Windows, el CLI `exportar-openapi` escribe los archivos con CRLF.
+    - T-145 (riesgo alto): si Firebase no tiene project ID, `VerificadorFirebase` responde 500 en vez de un error controlado. El código propuesto es 502 y hay que confirmarlo al tomar el ticket.
   - Destraba T-021, el login web.
 
 ## 20/10/26 — Nahuel (Claude Opus 5.5) — T-143: tests del layout raíz mobile
