@@ -3,7 +3,7 @@ id: T-016
 titulo: Devolver el usuario de la sesión con su rol
 modulo: M0 — Fundaciones
 capa: backend
-estado: libre
+estado: tomado
 depende_de: [T-015, T-010]
 tamaño: S
 riesgo: alto
@@ -12,9 +12,9 @@ modelo_impl: opus
 modelo_review: sonnet
 trazabilidad: [CU-24, RF-141, DEC-0005, DEC-0013]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: Nahuel Viniegra
+tomado_el: 20/10/26 18:48
+rama: feature/T-016-devolver-el-usuario-de-la-sesion-con-su
 pr:
 ---
 # T-016 Devolver el usuario de la sesión con su rol
