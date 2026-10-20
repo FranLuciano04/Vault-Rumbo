@@ -151,17 +151,8 @@ export interface operations {
                     "application/json": components["schemas"]["UsuarioActual"];
                 };
             };
-            /** @description Falta el token o no es válido. */
+            /** @description Falta el token, no es válido o el usuario no tiene acceso. */
             401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["Problema"];
-                };
-            };
-            /** @description No implementado. */
-            501: {
                 headers: {
                     [name: string]: unknown;
                 };

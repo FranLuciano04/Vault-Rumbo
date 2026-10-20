@@ -47,17 +47,7 @@
             }
           },
           "401": {
-            "description": "Falta el token o no es válido.",
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Problema"
-                }
-              }
-            }
-          },
-          "501": {
-            "description": "No implementado.",
+            "description": "Falta el token, no es válido o el usuario no tiene acceso.",
             "content": {
               "application/problem+json": {
                 "schema": {
