@@ -60,6 +60,20 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
+## 20/10/26 — Nahuel (Claude Opus 5.5) — T-016: usuario de la sesión con su rol
+- **Hecho:** T-016 (capa backend, riesgo alto). Ahora `GET /api/auth/yo` devuelve id, nombre, email, rol y `acceso_redes`, y responde 401 si el usuario está inactivo o el token falta o no es válido.
+  - La regla de `acceso_redes` quedó en `negocio/politicas.py` (`tiene_acceso_redes`): da verdadero siempre para admin y dueño, y para los demás roles sale de la columna (DEC-0013).
+  - Con autorización de Nahuel se adaptó el test de contrato que afirmaba el 501: ahora afirma un 401 con token inválido.
+  - Se regeneraron `openapi.json` y `tipos.gen.ts`.
+  - La review de seguridad (Sonnet) dio aprobable, con 1 menor anotado en el ticket. Pasan los 260 tests de backend. La cobertura es del 97 % en todo el backend y del 95,65 % en `negocio/`.
+  - Paloma mergeó el PR [#21](https://github.com/FranLuciano04/Vault-Rumbo/pull/21), aunque en GitHub no quedó registrada una review formal.
+- **Commits:** afd1a76, 174cda8, f67a59e, 1ae2724 (merge 0f12c3d).
+- **Pendiente:**
+  - Hallazgos fuera de alcance, todavía sin ticket:
+    - En Windows, el CLI `exportar-openapi` escribe los archivos con CRLF.
+    - Si Firebase no tiene project ID, `VerificadorFirebase` responde 500 en vez de un error controlado.
+  - Destraba T-021, el login web.
+
 ## 20/10/26 — Nahuel (Claude Opus 5.5) — T-143: tests del layout raíz mobile
 - **Hecho:** T-143 (capa mobile, riesgo normal, `origen: hallazgo T-018`).
   - Son tests de caracterización de `_layout.tsx` en `__tests__/layout.test.tsx`. No hubo rojo ni verde, porque el código ya existía; en su lugar se hizo una prueba de mutación: con `headerShown: true`, fallan 2 de los 4 tests.
