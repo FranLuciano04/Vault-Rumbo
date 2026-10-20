@@ -3,7 +3,7 @@ id: T-017
 titulo: Crear la dueña inicial con la CLI de datos
 modulo: M0 — Fundaciones
 capa: backend
-estado: tomado
+estado: hecho
 depende_de: [T-010, T-011]
 tamaño: S
 riesgo: normal
@@ -48,3 +48,8 @@ tags:: #tipo/ticket
 - Alta de usuarios desde la API (CU-25, M1).
 
 ## Notas de implementación
+- Interfaz: `datos_iniciales(sesion, *, nombre, email, crear_cuenta, demo, informar)`; la CLI es `datos-iniciales --nombre --email [--demo]`, con `DUENA_NOMBRE` / `DUENA_EMAIL` como alternativa. Las semillas se registran en `rumbo.datos.semillas.SEMILLAS` (vacío en M0).
+- `core.seguridad.crear_cuenta` es idempotente por email (`get_user_by_email` → `create_user` sin contraseña). `asegurar_duena` normaliza el email, busca por `firebase_uid` y luego por email, actualiza un uid desactualizado y corta con `Conflicto` si el email es de un usuario no `dueno` o dado de baja (no lo reactiva).
+- Exige `FIREBASE_PROJECT_ID` también con el emulador (el Admin SDK lo necesita). No se probó contra el Auth Emulator real; `crear_cuenta` tiene tests con `auth` parcheado.
+- Menores pendientes: la orquestación (dueña + semillas) vive en `presentacion/cli.py` y no en `negocio`; el `except ValueError` de `main` envuelve también la parte de la base, así que un `ValueError` de la DB se informaría como error de Firebase.
+- Modelos usados: tests sonnet, implementación/refactor/fix sonnet, review opus. Sin escalados. En esta PC, pytest necesita `--basetemp` fuera de `AppData\Local\Temp\pytest-of-test123` (permisos rotos).

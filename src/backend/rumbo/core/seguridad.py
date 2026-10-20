@@ -97,6 +97,19 @@ class VerificadorFirebase:
         return str(datos["uid"])
 
 
+def crear_cuenta(email: str, nombre: str) -> str:
+    """Uid de la cuenta de Firebase de `email`; la crea si no existe (idempotente por email).
+
+    Rumbo no maneja contraseñas (DEC-0016): la cuenta nace sin ella y la persona la define
+    con «olvidé mi contraseña» o entra con Google.
+    """
+    app = _app_firebase(get_settings())
+    try:
+        return str(auth.get_user_by_email(email, app=app).uid)
+    except auth.UserNotFoundError:
+        return str(auth.create_user(email=email, display_name=nombre, app=app).uid)
+
+
 @lru_cache
 def obtener_verificador() -> VerificadorDeTokens:
     """Dependencia de FastAPI: el verificador real (los tests la sobrescriben)."""
