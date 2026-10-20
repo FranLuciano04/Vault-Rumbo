@@ -3,7 +3,7 @@ id: T-018
 titulo: Armar el CI con jobs filtrados por carpeta
 modulo: M0 — Fundaciones
 capa: infra
-estado: tomado
+estado: hecho
 depende_de: [T-001, T-002, T-003, T-008]
 tamaño: S
 riesgo: normal
@@ -46,3 +46,19 @@ No sigue TDD (`infra`). Se verifica con un PR de prueba que toca solo backend y 
 
 ## Notas de implementación
 - **Del plan:** Al cerrar: avisar al dueño del repo que configure la protección de `main` exigiendo los checks solo en PR, sin bloquear los push de los claims (spec §10).
+- Hecho: `.github/workflows/ci.yml`.
+  - El job `cambios` (con `git diff` propio, sin acciones de terceros) activa backend, web y mobile.
+  - Cambiar `ci.yml` corre los tres jobs.
+  - Los push a `main` filtran por `src/**` y `.github/**`, así los claims no disparan nada.
+  - El agregador **«CI ok»** es el único check que hay que exigir en la protección de `main`, porque un job skipped cuenta como aprobado.
+- Backend: una sola corrida de `pytest --cov=rumbo` (el 70 % lo exige el `fail_under` del pyproject) y después `coverage report --include='rumbo/negocio/*' --fail-under=80`.
+- Web y mobile: el 70 % se pasa por CLI.
+- Decidido con Nahuel:
+  - Mobile mantiene el 70 % aunque hoy tiene 50 %, así que su job queda en rojo hasta el ticket del test de `_layout.tsx`.
+  - Los builds de pnpm se permiten con `allowBuilds` en `src/pnpm-workspace.yaml`.
+- Menores y FYI pendientes:
+  - `@rumbo/shared` no tiene umbral de cobertura (le falta `@vitest/coverage-v8`).
+  - Ningún job corre `format:check` del front.
+  - Mobile no se dispara por `shared` hasta que lo consuma.
+  - El Dockerfile de la web sigue con `--ignore-scripts`.
+- Modelos: implementación y fix con sonnet; review con opus (0 bloqueantes, 1 importante y 3 menores, todos arreglados).
