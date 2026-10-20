@@ -3,7 +3,7 @@ id: T-144
 titulo: Exportar el OpenAPI con finales de línea LF
 modulo: M0 — Fundaciones
 capa: backend
-estado: tomado
+estado: hecho
 depende_de: [T-014]
 tamaño: XS
 riesgo: normal
@@ -46,3 +46,7 @@ Un test de la CLI que llama a `exportar_openapi(tmp_path / "openapi.json")`, lee
 - Los tipos generados de `@rumbo/shared` (`tipos.gen.ts`), salvo que salgan con CRLF por el mismo motivo.
 
 ## Notas de implementación
+- `exportar_openapi` escribe con `write_text(..., newline="\n")`, así que en Windows ya no sale CRLF. El JSON no cambia.
+- Los tests están en un archivo nuevo, `tests/test_cli_openapi.py`, porque no existía un `test_cli.py` de la CLI de OpenAPI (el de `tests/negocio/` es de T-017). Regenerar `openapi.json` no deja diff y el archivo no tiene ningún `\r`.
+- Modelos: tests sonnet, implementación sonnet, refactor sonnet (sin cambios) y review opus (sin hallazgos). No hubo escalados.
+- Checks: ruff y mypy no dan avisos, pasan los 262 tests y la cobertura es del 97 % en todo el backend y del 95,65 % en negocio.
