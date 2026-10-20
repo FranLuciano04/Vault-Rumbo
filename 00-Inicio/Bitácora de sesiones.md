@@ -69,6 +69,18 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Commits:** 3c4fa8a, 04d05b0, 8e2af7c, 77a8d59 (merge 8708fea).
 - **Pendiente:** si un repositorio necesita `update()` masivo, sumar un listener `do_orm_execute` (hallazgo de la review de T-011).
 
+## 20/10/26 — Paloma (Claude Opus 5.5) — T-003: app mobile con Expo development build
+- **Hecho:** T-003 implementado y mergeado (PR [#17](https://github.com/FranLuciano04/Vault-Rumbo/pull/17), capa infra, riesgo normal).
+  - `src/apps/mobile` (`@rumbo/mobile`): Expo SDK 58, RN 0.88, React 19.3.0, Expo Router, NativeWind 4 y Jest.
+  - El development build quedó verificado en el emulador Pixel_7: muestra «Rumbo» con NativeWind aplicado.
+  - Review (Opus): 5 menores, todos arreglados.
+  - Bug encontrado al generar el build: la pantalla salía negra porque faltaba `expo-splash-screen`.
+- ⚠️ **Para compilar mobile en Windows** hay que activar `LongPathsEnabled=1` (como admin) e instalar CMake 3.31.6 con `cmake.dir` en `android/local.properties`, porque las rutas de pnpm superan los 260 caracteres. Está en `src/apps/mobile/README.md`. En la PC de Paloma ya está hecho.
+- **Commits:** 680eb4f, 4a6887e, 2b9a149, ce28359 (merge ef5e74f).
+- **Pendiente:**
+  - Equipo: cuando se arme el CI, decidir `approve-builds` o `allowBuilds` para `ERR_PNPM_IGNORED_BUILDS` (`msw`, `@parcel/watcher` y `unrs-resolver`).
+  - Paloma: tomar el siguiente ticket.
+
 ## 19/10/26 — Paloma (Claude Opus 5.5) — T-005: proyecto de Firebase y emulador
 - **Hecho:** T-005 implementado (capa infra, ⚠️ riesgo alto).
   - Archivos: `src/firebase.json`, `src/.firebaserc` (`demo-rumbo`), `src/infra/firebase.md` (uso del emulador, checklist de consola endurecido y variables por entorno), `src/apps/web/.env.example` (`VITE_FIREBASE_*`) y `.gitignore` de la cuenta de servicio.
