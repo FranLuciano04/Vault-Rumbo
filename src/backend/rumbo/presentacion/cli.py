@@ -7,11 +7,15 @@ import os
 from collections.abc import Callable
 from pathlib import Path
 
+from firebase_admin import exceptions
+from google.auth.exceptions import DefaultCredentialsError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from rumbo.core import seguridad
 from rumbo.core.config import get_settings
 from rumbo.core.db import crear_fabrica_sesiones, crear_motor
+from rumbo.core.errores import ErrorDeDominio
+from rumbo.core.seguridad import EmuladorFueraDeDesarrollo
 from rumbo.datos import semillas
 from rumbo.datos.modelos import Usuario
 from rumbo.main import crear_app
@@ -25,10 +29,19 @@ async def datos_iniciales(
     email: str,
     crear_cuenta: Callable[[str, str], str],
     demo: bool = False,
+    informar: Callable[[str], None] | None = None,
 ) -> Usuario:
     """Crea la dueña inicial (cuenta de Firebase + `Usuario` dueno), idempotente; con
-    `demo` corre las semillas registradas en `rumbo.datos.semillas.SEMILLAS`."""
-    duena = await asegurar_duena(sesion, nombre=nombre, email=email, crear_cuenta=crear_cuenta)
+    `demo` corre las semillas registradas en `rumbo.datos.semillas.SEMILLAS`. `informar`
+    recibe el resumen de lo que hizo."""
+    duena, creada = await asegurar_duena(
+        sesion, nombre=nombre, email=email, crear_cuenta=crear_cuenta
+    )
+    if informar:
+        informar(
+            f"Dueña {'creada' if creada else 'ya existía'}: {duena.email} "
+            f"(firebase_uid {duena.firebase_uid})."
+        )
     if demo:
         for semilla in semillas.SEMILLAS:
             await semilla(sesion)
@@ -40,7 +53,12 @@ async def _correr_datos_iniciales(url: str, nombre: str, email: str, demo: bool)
     try:
         async with crear_fabrica_sesiones(motor)() as sesion:
             await datos_iniciales(
-                sesion, nombre=nombre, email=email, crear_cuenta=seguridad.crear_cuenta, demo=demo
+                sesion,
+                nombre=nombre,
+                email=email,
+                crear_cuenta=seguridad.crear_cuenta,
+                demo=demo,
+                informar=print,
             )
             await sesion.commit()
     finally:
@@ -82,7 +100,19 @@ def main(argumentos: list[str] | None = None) -> None:
         raise SystemExit(
             "Falta FIREBASE_PROJECT_ID: sin él no se puede crear la cuenta de Firebase."
         )
-    asyncio.run(_correr_datos_iniciales(config.database_url, args.nombre, args.email, args.demo))
+    try:
+        asyncio.run(
+            _correr_datos_iniciales(config.database_url, args.nombre, args.email, args.demo)
+        )
+    except (
+        exceptions.FirebaseError,
+        ValueError,
+        DefaultCredentialsError,
+        EmuladorFueraDeDesarrollo,
+    ) as error:
+        raise SystemExit(f"No se pudo crear la cuenta de Firebase: {error}") from error
+    except ErrorDeDominio as error:
+        raise SystemExit(error.detalle) from error
 
 
 if __name__ == "__main__":

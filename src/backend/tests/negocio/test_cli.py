@@ -8,10 +8,12 @@ nombre y email por `--nombre`/`--email` o `DUENA_NOMBRE`/`DUENA_EMAIL`.
 """
 
 import pytest
+from firebase_admin.exceptions import FirebaseError
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from rumbo.core.config import Settings
+from rumbo.core.errores import Conflicto
 from rumbo.datos import semillas
 from rumbo.datos.modelos import RolUsuario, Usuario
 from rumbo.presentacion import cli
@@ -29,6 +31,7 @@ class FirebaseFalso:
 
     def __call__(self, email: str, nombre: str) -> str:
         self.llamadas += 1
+        email = email.lower()  # Firebase normaliza el email a minúsculas
         return self.uid_por_email.setdefault(email, f"uid-falso-{len(self.uid_por_email) + 1}")
 
 
@@ -133,3 +136,79 @@ def test_dec0015_sin_nombre_ni_email_el_error_los_nombra(monkeypatch: pytest.Mon
     mensaje = str(error.value.code)
     assert "DUENA_NOMBRE" in mensaje
     assert "DUENA_EMAIL" in mensaje
+
+
+async def test_dec0015_si_el_uid_de_firebase_cambio_se_actualiza_el_usuario(
+    sesion: AsyncSession,
+) -> None:
+    firebase = FirebaseFalso()
+    await cli.datos_iniciales(sesion, nombre=NOMBRE, email=EMAIL, crear_cuenta=firebase)
+    firebase.uid_por_email[EMAIL] = "uid-nuevo"
+
+    duena = await cli.datos_iniciales(sesion, nombre=NOMBRE, email=EMAIL, crear_cuenta=firebase)
+
+    assert duena.firebase_uid == "uid-nuevo"
+    assert await _contar_usuarios(sesion) == 1
+
+
+@pytest.mark.parametrize("cambio", [{"rol": RolUsuario.admin}, {"activo": False}])
+async def test_dec0015_un_usuario_existente_que_no_es_la_duena_activa_corta_sin_tocarlo(
+    sesion: AsyncSession, cambio: dict[str, object]
+) -> None:
+    firebase = FirebaseFalso()
+    duena = await cli.datos_iniciales(sesion, nombre=NOMBRE, email=EMAIL, crear_cuenta=firebase)
+    for campo, valor in cambio.items():
+        setattr(duena, campo, valor)
+    await sesion.flush()
+
+    with pytest.raises(Conflicto):
+        await cli.datos_iniciales(sesion, nombre=NOMBRE, email=EMAIL, crear_cuenta=firebase)
+
+    for campo, valor in cambio.items():
+        assert getattr(duena, campo) == valor
+
+
+async def test_dec0015_el_email_con_otras_mayusculas_no_duplica(sesion: AsyncSession) -> None:
+    firebase = FirebaseFalso()
+    await cli.datos_iniciales(sesion, nombre=NOMBRE, email=EMAIL, crear_cuenta=firebase)
+
+    duena = await cli.datos_iniciales(
+        sesion, nombre=NOMBRE, email=f"  {EMAIL.upper()} ", crear_cuenta=firebase
+    )
+
+    assert duena.email == EMAIL
+    assert await _contar_usuarios(sesion) == 1
+
+
+async def test_dec0015_informa_si_creo_la_duena_o_ya_existia(sesion: AsyncSession) -> None:
+    mensajes: list[str] = []
+    firebase = FirebaseFalso()
+
+    for _ in range(2):
+        await cli.datos_iniciales(
+            sesion, nombre=NOMBRE, email=EMAIL, crear_cuenta=firebase, informar=mensajes.append
+        )
+
+    assert "creada" in mensajes[0]
+    assert "ya existía" in mensajes[1]
+    assert "uid-falso-1" in mensajes[1]
+
+
+def test_dec0016_un_error_de_firebase_sale_como_mensaje_claro(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    async def falla(*_: object) -> None:
+        raise FirebaseError("unavailable", "Firebase no responde")
+
+    con_firebase = Settings(
+        _env_file=None,  # type: ignore[call-arg]
+        database_url="postgresql+asyncpg://u:p@localhost:5432/x",
+        firebase_project_id="demo-rumbo",
+    )
+    monkeypatch.setattr(cli, "get_settings", lambda: con_firebase)
+    monkeypatch.setattr(cli, "_correr_datos_iniciales", falla)
+
+    with pytest.raises(SystemExit) as error:
+        cli.main(["datos-iniciales", "--nombre", NOMBRE, "--email", EMAIL])
+
+    assert "Firebase no responde" in str(error.value.code)

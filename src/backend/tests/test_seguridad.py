@@ -9,6 +9,7 @@ import subprocess
 import sys
 from collections.abc import Iterator
 from pathlib import Path
+from types import SimpleNamespace
 
 import firebase_admin
 import pytest
@@ -226,3 +227,31 @@ def test_rf140_obtener_verificador_esta_cacheado(monkeypatch: pytest.MonkeyPatch
         assert seguridad.obtener_verificador() is primero
     finally:
         seguridad.obtener_verificador.cache_clear()
+
+
+def test_dec0016_crear_cuenta_devuelve_el_uid_de_la_cuenta_existente(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(seguridad, "_app_firebase", lambda _config: object())
+    monkeypatch.setattr(auth, "get_user_by_email", lambda email, app: SimpleNamespace(uid="u-1"))
+    monkeypatch.setattr(auth, "create_user", lambda **_: pytest.fail("no debía crear"))
+
+    assert seguridad.crear_cuenta("a@rumbo.test", "Ana") == "u-1"
+
+
+def test_dec0016_crear_cuenta_la_crea_si_no_existe(monkeypatch: pytest.MonkeyPatch) -> None:
+    creadas: list[dict[str, object]] = []
+
+    def _no_existe(email: str, app: object) -> object:
+        raise auth.UserNotFoundError("no existe")
+
+    def _crear(**datos: object) -> object:
+        creadas.append(datos)
+        return SimpleNamespace(uid="u-2")
+
+    monkeypatch.setattr(seguridad, "_app_firebase", lambda _config: "app")
+    monkeypatch.setattr(auth, "get_user_by_email", _no_existe)
+    monkeypatch.setattr(auth, "create_user", _crear)
+
+    assert seguridad.crear_cuenta("a@rumbo.test", "Ana") == "u-2"
+    assert creadas == [{"email": "a@rumbo.test", "display_name": "Ana", "app": "app"}]
