@@ -3,7 +3,7 @@ id: T-016
 titulo: Devolver el usuario de la sesión con su rol
 modulo: M0 — Fundaciones
 capa: backend
-estado: tomado
+estado: hecho
 depende_de: [T-015, T-010]
 tamaño: S
 riesgo: alto
@@ -47,3 +47,9 @@ tags:: #tipo/ticket
 - Gestión de usuarios (M1).
 
 ## Notas de implementación
+- `/auth/yo` pasa de `exigir_token` a `usuario_actual`; la regla de `acceso_redes` vive en `negocio/politicas.py` (`tiene_acceso_redes`), no en un servicio, porque no hay acceso a datos y la reutilizarán los módulos de redes (desvío de «Archivos probables», menor de la review, sin cambio).
+- Con autorización de Nahuel (`--tocar-tests`): `tests/api/test_contrato_seguridad.py` — el test del 501 de T-015 pasó a `test_rf141_yo_con_token_invalido_responde_401_problem_json`.
+- Se regeneraron `openapi.json` y `tipos.gen.ts` (sale el 501, cambia la descripción del 401).
+- Hallazgos fuera de alcance: el CLI `exportar-openapi` escribe CRLF en Windows; `VerificadorFirebase` sin project ID deja escapar `ValueError` (500).
+- Modelos: tests sonnet, implementación y refactor opus (refactor sin cambios), review de seguridad sonnet (aprobable, solo un menor). Sin escalados.
+- Checks: ruff y mypy limpios; 260 tests en verde; cobertura total 97 % y negocio 95,65 %.
