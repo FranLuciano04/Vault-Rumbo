@@ -1,0 +1,33 @@
+# Override para los e2e: suma el Auth Emulator y fija la IA falsa. DEC-0015 §7, DEC-0016.
+#   docker compose -f src/docker-compose.yml -f src/docker-compose.e2e.yml up -d --build
+# Las cuentas del emulador viven en memoria: se pierden al bajarlo. Nunca usar en el servidor.
+
+services:
+  auth-emulator:
+    build:
+      context: .
+      dockerfile: infra/auth-emulator/Dockerfile
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:9099:9099"
+
+  api:
+    depends_on:
+      auth-emulator:
+        condition: service_started
+    environment: &entorno-e2e
+      # El emulador solo se admite con ENTORNO=desarrollo (DEC-0016).
+      ENTORNO: desarrollo
+      FIREBASE_PROJECT_ID: demo-rumbo
+      FIREBASE_AUTH_EMULATOR_HOST: auth-emulator:9099
+      IA_MODELO: falso
+
+  scheduler:
+    environment: *entorno-e2e
+
+  nginx:
+    build:
+      args:
+        VITE_FIREBASE_PROJECT_ID: demo-rumbo
+        # El navegador llega al emulador por el puerto publicado en el host.
+        VITE_FIREBASE_AUTH_EMULATOR_URL: http://127.0.0.1:9099

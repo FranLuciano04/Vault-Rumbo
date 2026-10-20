@@ -1,0 +1,78 @@
+# Rumbo completo como en el servidor: nginx (web), api, postgres y scheduler. DEC-0011, DEC-0015 §7.
+# Uso, desde la raíz del repo:
+#   cp src/.env.example src/.env      # una sola vez, y poner una contraseña local
+#   docker compose -f src/docker-compose.yml up -d --build
+#   -> web en http://localhost · API en http://localhost/api (salud: /api/salud)
+# Para los e2e (Auth Emulator + IA falsa), sumar el override:
+#   docker compose -f src/docker-compose.yml -f src/docker-compose.e2e.yml up -d --build
+#
+# Todo sale de src/.env (fuera de Git); las imágenes no llevan secretos.
+# La base no se publica al host: solo la ve la api, dentro de la red del Compose.
+
+name: rumbo
+
+services:
+  postgres:
+    image: postgres:18
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${RUMBO_DB_USER:?Falta RUMBO_DB_USER en src/.env (ver src/.env.example)}
+      POSTGRES_PASSWORD: ${RUMBO_DB_PASSWORD:?Falta RUMBO_DB_PASSWORD en src/.env (ver src/.env.example)}
+      POSTGRES_DB: rumbo
+    # PostgreSQL 18 guarda los datos bajo /var/lib/postgresql/18/docker, por eso se monta la raíz.
+    volumes:
+      - rumbo_pgdata:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U \"$$POSTGRES_USER\" -d \"$$POSTGRES_DB\""]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
+
+  api:
+    build: ./backend
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment: &api-entorno
+      # Usar una clave alfanumérica: va dentro de la URL (ver src/backend/.env.example).
+      DATABASE_URL: postgresql+asyncpg://${RUMBO_DB_USER}:${RUMBO_DB_PASSWORD}@postgres:5432/rumbo
+      ENTORNO: produccion
+      FIREBASE_PROJECT_ID: ${FIREBASE_PROJECT_ID:-demo-rumbo}
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request as u; u.urlopen('http://127.0.0.1:8000/api/salud', timeout=3)"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  # Mismo código que la api. El crontab del proceso diario llega en M7 (src/infra/crontab);
+  # hasta entonces el contenedor queda levantado sin tareas.
+  scheduler:
+    build: ./backend
+    restart: unless-stopped
+    depends_on:
+      api:
+        condition: service_healthy
+    environment: *api-entorno
+    command: ["sleep", "infinity"]
+
+  nginx:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+      args:
+        VITE_FIREBASE_API_KEY: ${VITE_FIREBASE_API_KEY:-demo-key}
+        VITE_FIREBASE_AUTH_DOMAIN: ${VITE_FIREBASE_AUTH_DOMAIN:-demo-rumbo.firebaseapp.com}
+        VITE_FIREBASE_PROJECT_ID: ${VITE_FIREBASE_PROJECT_ID:-demo-rumbo}
+        VITE_FIREBASE_APP_ID: ${VITE_FIREBASE_APP_ID:-demo-app-id}
+    restart: unless-stopped
+    depends_on:
+      api:
+        condition: service_healthy
+    ports:
+      - "${RUMBO_HTTP_PORT:-80}:80"
+
+volumes:
+  rumbo_pgdata:
