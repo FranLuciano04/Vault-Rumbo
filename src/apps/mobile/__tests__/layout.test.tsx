@@ -9,7 +9,10 @@ jest.mock("../global.css", () => ({}));
 
 type Nodo = { type: string; props?: Record<string, unknown>; children?: unknown };
 
-// Recolecta las configuraciones de header nativo (react-native-screens) del árbol renderizado.
+// Recolecta las configuraciones de header nativo del árbol renderizado.
+// Depende del host component `RNSScreenStackHeaderConfig` de react-native-screens (4.30.0)
+// y de su prop `hidden`. La guarda `length > 0` de los tests existe para que un upgrade
+// lo rompa ruidosamente: ante un upgrade hay que revisar ese nombre.
 function configsDeHeader(nodo: unknown, acc: Nodo[] = []): Nodo[] {
   if (Array.isArray(nodo)) nodo.forEach((n) => configsDeHeader(n, acc));
   else if (nodo && typeof nodo === "object") {
@@ -45,7 +48,9 @@ describe("Layout raíz (DEC-0015, RNF-15)", () => {
       otra: () => <Text>otra pantalla</Text>,
     });
     await vista.findByText("contenido de la pantalla");
-    await act(async () => router.push("/otra"));
+    await act(() => {
+      router.push("/otra");
+    });
     expect(await vista.findByText("otra pantalla")).toBeTruthy();
     const headers = configsDeHeader(vista.toJSON());
     expect(headers.length).toBeGreaterThan(1);
