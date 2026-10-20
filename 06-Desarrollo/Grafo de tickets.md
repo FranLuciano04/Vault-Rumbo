@@ -14,7 +14,7 @@ tags:: #tipo/referencia
 
 | Módulo | Tickets | Hechos | Tomados | Disponibles | Esperando | Bloqueados | Estado del módulo |
 |---|---|---|---|---|---|---|---|
-| M0 — Fundaciones | 29 | 21 | 0 | 6 | 2 | 0 | 🛠️ en curso |
+| M0 — Fundaciones | 31 | 21 | 1 | 7 | 2 | 0 | 🛠️ en curso |
 | M1 — Usuarios y configuración | 13 | 0 | 0 | 1 | 12 | 0 | 🛠️ en curso |
 | M2 — Clientes | 11 | 0 | 0 | 1 | 10 | 0 | 🛠️ en curso |
 | M3 — Alertas | 11 | 0 | 0 | 2 | 9 | 0 | 🛠️ en curso |
@@ -62,6 +62,8 @@ flowchart LR
     T141["T-141 · Mostrar los íconos de cada sección en la barra lateral<br/><small>web</small>"]:::disponible
     T142["T-142 · Adaptar la barra lateral de la web a pantallas angostas<br/><small>web</small>"]:::disponible
     T143["T-143 · Cubrir con tests el layout raíz de la app mobile<br/><small>mobile</small>"]:::hecho
+    T144["T-144 · Exportar el OpenAPI con finales de línea LF<br/><small>backend</small><br/>👤 Nahuel Viniegra"]:::tomado
+    T145["T-145 · Responder un error controlado si falta el proyecto de Firebase<br/><small>backend · ⚠️ riesgo alto</small>"]:::disponible
   end
   subgraph M1["M1 — Usuarios y configuración"]
     T026["T-026 · Publicar el contrato de usuarios y configuración<br/><small>contrato</small>"]:::disponible
@@ -494,6 +496,8 @@ flowchart LR
   T020 --> T141
   T020 --> T142
   T003 --> T143
+  T014 --> T144
+  T010 --> T145
   classDef hecho fill:#c8e6c9,stroke:#2e7d32,color:#1b5e20
   classDef tomado fill:#fff3cd,stroke:#b8860b,color:#5d4300
   classDef disponible fill:#dbeafe,stroke:#1d4ed8,color:#1e3a8a

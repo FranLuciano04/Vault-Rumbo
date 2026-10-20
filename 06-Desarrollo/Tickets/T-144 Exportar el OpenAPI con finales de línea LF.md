@@ -3,7 +3,7 @@ id: T-144
 titulo: Exportar el OpenAPI con finales de línea LF
 modulo: M0 — Fundaciones
 capa: backend
-estado: libre
+estado: tomado
 depende_de: [T-014]
 tamaño: XS
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [DEC-0001]
 origen: hallazgo T-016
-asignado:
-tomado_el:
-rama:
+asignado: Nahuel Viniegra
+tomado_el: 20/10/26 20:13
+rama: feature/T-144-exportar-el-openapi-con-finales-de-linea
 pr:
 ---
 # T-144 Exportar el OpenAPI con finales de línea LF
