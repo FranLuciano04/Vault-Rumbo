@@ -48,6 +48,20 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
+## 19/10/26 — Nahuel (Claude Opus 5.5) — T-024: Compose de producción local
+- **Hecho:** T-024 implementado (capa infra, riesgo normal, sin TDD: se verificó levantando el stack).
+  - `docker compose -f src/docker-compose.yml up -d --build` levanta postgres, la API (corre las migraciones al arrancar), el scheduler y nginx con la web. El puerto se cambia con `RUMBO_HTTP_PORT`.
+  - `src/docker-compose.e2e.yml` suma el Auth Emulator y fija `IA_MODELO=falso`.
+  - Al volver de e2e a producción local, usar `--remove-orphans`.
+  - Cada integrante necesita un `src/.env` con `RUMBO_DB_PASSWORD` alfanumérica.
+  - La review con Opus dejó 0 bloqueantes y 5 menores; los 5 se arreglaron.
+  - PR [#18](https://github.com/FranLuciano04/Vault-Rumbo/pull/18) mergeado (sin CI todavía).
+- **Commits:** af54015, 8fe8f2c, 1455b07 (merge d749f04).
+- **Pendiente:**
+  - `auth-emulator` no tiene healthcheck.
+  - El crontab del scheduler es de M7.
+  - La cuenta de servicio de Firebase y el servidor real son de M10.
+
 ## 19/10/26 — Nahuel (Claude Opus 5.5) — T-017: dueña inicial con la CLI de datos
 - **Hecho:** T-017 implementado con TDD (capa backend, riesgo normal).
   - `datos-iniciales --nombre --email [--demo]` (o `DUENA_NOMBRE` / `DUENA_EMAIL`) crea la cuenta de Firebase y el `Usuario` `dueno` de forma idempotente. Normaliza el email, actualiza un `firebase_uid` desactualizado y rechaza emails de no dueños o dados de baja.
