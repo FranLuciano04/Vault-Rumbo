@@ -48,6 +48,16 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
+## 19/10/26 — Nahuel (Claude Opus 5.5) — T-017: dueña inicial con la CLI de datos
+- **Hecho:** T-017 implementado con TDD (capa backend, riesgo normal).
+  - `datos-iniciales --nombre --email [--demo]` (o `DUENA_NOMBRE` / `DUENA_EMAIL`) crea la cuenta de Firebase y el `Usuario` `dueno` de forma idempotente. Normaliza el email, actualiza un `firebase_uid` desactualizado y rechaza emails de no dueños o dados de baja.
+  - Las semillas de demo se registran en `rumbo.datos.semillas.SEMILLAS`; en M0 está vacío.
+  - La review con Opus dejó 0 bloqueantes, 2 importantes y 3 menores. Se arreglaron los importantes y 2 menores; los otros quedaron anotados en el ticket.
+  - Hay 248 tests en verde, con 96,7 % de cobertura. PR [#16](https://github.com/FranLuciano04/Vault-Rumbo/pull/16) mergeado (sin CI todavía).
+  - En esta PC, pytest falla con `PermissionError` en `AppData\Local\Temp\pytest-of-test123`; se corre con `--basetemp=C:/Users/test123/rumbo-pytest-tmp`.
+- **Commits:** e2bd19e, efe547d, 4b21c06, fd13405, d2d4e8d (merge 9df00b9).
+- **Pendiente:** `crear_cuenta` no se probó contra el Auth Emulator real. Mover la orquestación de `datos-iniciales` a `negocio` (menor de la review).
+
 ## 19/10/26 — Nahuel (Claude Opus 5.5) — T-011: auditoría automática del autor
 - **Hecho:** T-011 implementado con TDD (capa backend, riesgo normal).
   - Un listener `before_flush` en `core/db.py` completa `created_by`/`updated_by` desde la ContextVar `usuario_auditoria`. Detecta las filas por columnas, así `core` no importa la capa de datos.
