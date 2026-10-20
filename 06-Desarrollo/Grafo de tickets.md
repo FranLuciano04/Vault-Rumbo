@@ -14,7 +14,7 @@ tags:: #tipo/referencia
 
 | Módulo | Tickets | Hechos | Tomados | Disponibles | Esperando | Bloqueados | Estado del módulo |
 |---|---|---|---|---|---|---|---|
-| M0 — Fundaciones | 28 | 17 | 1 | 7 | 3 | 0 | 🛠️ en curso |
+| M0 — Fundaciones | 28 | 18 | 0 | 7 | 3 | 0 | 🛠️ en curso |
 | M1 — Usuarios y configuración | 13 | 0 | 0 | 1 | 12 | 0 | 🛠️ en curso |
 | M2 — Clientes | 11 | 0 | 0 | 1 | 10 | 0 | 🛠️ en curso |
 | M3 — Alertas | 11 | 0 | 0 | 2 | 9 | 0 | 🛠️ en curso |
@@ -24,7 +24,7 @@ tags:: #tipo/referencia
 | M7 — Proceso diario y CRM proactivo | 9 | 0 | 0 | 0 | 9 | 0 | 🛠️ en curso |
 | M8 — Calendario, dashboard y reportes | 10 | 0 | 0 | 1 | 9 | 0 | 🛠️ en curso |
 | M9 — Redes e IA | 6 | 0 | 0 | 1 | 5 | 0 | 🛠️ en curso |
-| M10 — Despliegue on-premise | 5 | 0 | 0 | 0 | 5 | 0 | 🛠️ en curso |
+| M10 — Despliegue on-premise | 5 | 0 | 0 | 1 | 4 | 0 | 🛠️ en curso |
 
 ## Grafo
 
@@ -56,7 +56,7 @@ flowchart LR
     T021["T-021 · Iniciar sesión en la web con email o Google<br/><small>web · ⚠️ riesgo alto</small>"]:::disponible
     T022["T-022 · Armar el shell mobile con sus pestañas<br/><small>mobile</small>"]:::disponible
     T023["T-023 · Iniciar sesión en la app mobile con email o Google<br/><small>mobile · ⚠️ riesgo alto</small>"]:::esperando
-    T024["T-024 · Armar el Compose de producción local para las demos<br/><small>infra</small><br/>👤 Nahuel Viniegra"]:::tomado
+    T024["T-024 · Armar el Compose de producción local para las demos<br/><small>infra</small>"]:::hecho
     T025["T-025 · Probar de punta a punta el inicio de sesión web<br/><small>e2e</small>"]:::esperando
     T140["T-140 · Aislar los tests de la variable SSLKEYLOGFILE<br/><small>backend</small>"]:::hecho
     T141["T-141 · Mostrar los íconos de cada sección en la barra lateral<br/><small>web</small>"]:::disponible
@@ -190,7 +190,7 @@ flowchart LR
     T134["T-134 · Probar de punta a punta la planificación de redes<br/><small>e2e</small>"]:::esperando
   end
   subgraph M10["M10 — Despliegue on-premise"]
-    T135["T-135 · Preparar el servidor on-premise de la agencia<br/><small>infra</small>"]:::esperando
+    T135["T-135 · Preparar el servidor on-premise de la agencia<br/><small>infra</small>"]:::disponible
     T136["T-136 · Publicar Rumbo con Cloudflare Tunnel<br/><small>infra</small>"]:::esperando
     T137["T-137 · Desplegar desde el CI con el runner del servidor<br/><small>infra</small>"]:::esperando
     T138["T-138 · Respaldar la base a diario con copia externa<br/><small>infra</small>"]:::esperando
