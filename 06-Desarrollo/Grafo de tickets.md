@@ -14,7 +14,7 @@ tags:: #tipo/referencia
 
 | Módulo | Tickets | Hechos | Tomados | Disponibles | Esperando | Bloqueados | Estado del módulo |
 |---|---|---|---|---|---|---|---|
-| M0 — Fundaciones | 28 | 18 | 1 | 6 | 3 | 0 | 🛠️ en curso |
+| M0 — Fundaciones | 29 | 19 | 0 | 8 | 2 | 0 | 🛠️ en curso |
 | M1 — Usuarios y configuración | 13 | 0 | 0 | 1 | 12 | 0 | 🛠️ en curso |
 | M2 — Clientes | 11 | 0 | 0 | 1 | 10 | 0 | 🛠️ en curso |
 | M3 — Alertas | 11 | 0 | 0 | 2 | 9 | 0 | 🛠️ en curso |
@@ -50,8 +50,8 @@ flowchart LR
     T015["T-015 · Publicar el contrato base con el usuario de la sesión<br/><small>contrato</small>"]:::hecho
     T016["T-016 · Devolver el usuario de la sesión con su rol<br/><small>backend · ⚠️ riesgo alto</small>"]:::disponible
     T017["T-017 · Crear la dueña inicial con la CLI de datos<br/><small>backend</small>"]:::hecho
-    T018["T-018 · Armar el CI con jobs filtrados por carpeta<br/><small>infra</small><br/>👤 Nahuel Viniegra"]:::tomado
-    T019["T-019 · Sumar los análisis de seguridad al CI<br/><small>infra</small>"]:::esperando
+    T018["T-018 · Armar el CI con jobs filtrados por carpeta<br/><small>infra</small>"]:::hecho
+    T019["T-019 · Sumar los análisis de seguridad al CI<br/><small>infra</small>"]:::disponible
     T020["T-020 · Armar el shell web con la navegación por rol<br/><small>web</small>"]:::hecho
     T021["T-021 · Iniciar sesión en la web con email o Google<br/><small>web · ⚠️ riesgo alto</small>"]:::disponible
     T022["T-022 · Armar el shell mobile con sus pestañas<br/><small>mobile</small>"]:::disponible
@@ -61,6 +61,7 @@ flowchart LR
     T140["T-140 · Aislar los tests de la variable SSLKEYLOGFILE<br/><small>backend</small>"]:::hecho
     T141["T-141 · Mostrar los íconos de cada sección en la barra lateral<br/><small>web</small>"]:::disponible
     T142["T-142 · Adaptar la barra lateral de la web a pantallas angostas<br/><small>web</small>"]:::disponible
+    T143["T-143 · Cubrir con tests el layout raíz de la app mobile<br/><small>mobile</small>"]:::disponible
   end
   subgraph M1["M1 — Usuarios y configuración"]
     T026["T-026 · Publicar el contrato de usuarios y configuración<br/><small>contrato</small>"]:::disponible
@@ -492,6 +493,7 @@ flowchart LR
   T006 --> T140
   T020 --> T141
   T020 --> T142
+  T003 --> T143
   classDef hecho fill:#c8e6c9,stroke:#2e7d32,color:#1b5e20
   classDef tomado fill:#fff3cd,stroke:#b8860b,color:#5d4300
   classDef disponible fill:#dbeafe,stroke:#1d4ed8,color:#1e3a8a
