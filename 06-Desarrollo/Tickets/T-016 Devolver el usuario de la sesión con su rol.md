@@ -48,7 +48,7 @@ tags:: #tipo/ticket
 
 ## Notas de implementación
 - `/auth/yo` pasa de `exigir_token` a `usuario_actual`; la regla de `acceso_redes` vive en `negocio/politicas.py` (`tiene_acceso_redes`), no en un servicio, porque no hay acceso a datos y la reutilizarán los módulos de redes (desvío de «Archivos probables», menor de la review, sin cambio).
-- Con autorización de Nahuel (`--tocar-tests`): `tests/api/test_contrato_seguridad.py` — el test del 501 de T-015 pasó a `test_rf141_yo_con_token_invalido_responde_401_problem_json`.
+- Con autorización de Nahuel (`--tocar-tests`): `tests/api/test_contrato_seguridad.py` — el test del 501 de un ticket anterior pasó a `test_rf141_yo_con_token_invalido_responde_401_problem_json`.
 - Se regeneraron `openapi.json` y `tipos.gen.ts` (sale el 501, cambia la descripción del 401).
 - Hallazgos fuera de alcance: el CLI `exportar-openapi` escribe CRLF en Windows; `VerificadorFirebase` sin project ID deja escapar `ValueError` (500).
 - Modelos: tests sonnet, implementación y refactor opus (refactor sin cambios), review de seguridad sonnet (aprobable, solo un menor). Sin escalados.
