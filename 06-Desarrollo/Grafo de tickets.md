@@ -14,7 +14,7 @@ tags:: #tipo/referencia
 
 | Módulo | Tickets | Hechos | Tomados | Disponibles | Esperando | Bloqueados | Estado del módulo |
 |---|---|---|---|---|---|---|---|
-| M0 — Fundaciones | 28 | 16 | 1 | 6 | 5 | 0 | 🛠️ en curso |
+| M0 — Fundaciones | 28 | 16 | 2 | 5 | 5 | 0 | 🛠️ en curso |
 | M1 — Usuarios y configuración | 13 | 0 | 0 | 1 | 12 | 0 | 🛠️ en curso |
 | M2 — Clientes | 11 | 0 | 0 | 1 | 10 | 0 | 🛠️ en curso |
 | M3 — Alertas | 11 | 0 | 0 | 2 | 9 | 0 | 🛠️ en curso |
@@ -56,7 +56,7 @@ flowchart LR
     T021["T-021 · Iniciar sesión en la web con email o Google<br/><small>web · ⚠️ riesgo alto</small>"]:::disponible
     T022["T-022 · Armar el shell mobile con sus pestañas<br/><small>mobile</small>"]:::esperando
     T023["T-023 · Iniciar sesión en la app mobile con email o Google<br/><small>mobile · ⚠️ riesgo alto</small>"]:::esperando
-    T024["T-024 · Armar el Compose de producción local para las demos<br/><small>infra</small>"]:::disponible
+    T024["T-024 · Armar el Compose de producción local para las demos<br/><small>infra</small><br/>👤 Nahuel Viniegra"]:::tomado
     T025["T-025 · Probar de punta a punta el inicio de sesión web<br/><small>e2e</small>"]:::esperando
     T140["T-140 · Aislar los tests de la variable SSLKEYLOGFILE<br/><small>backend</small>"]:::hecho
     T141["T-141 · Mostrar los íconos de cada sección en la barra lateral<br/><small>web</small>"]:::disponible

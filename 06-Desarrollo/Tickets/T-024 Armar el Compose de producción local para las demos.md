@@ -3,7 +3,7 @@ id: T-024
 titulo: Armar el Compose de producción local para las demos
 modulo: M0 — Fundaciones
 capa: infra
-estado: libre
+estado: tomado
 depende_de: [T-001, T-002, T-008]
 tamaño: M
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [DEC-0011, DEC-0015]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: Nahuel Viniegra
+tomado_el: 19/10/26 21:33
+rama: feature/T-024-armar-el-compose-de-produccion-local-par
 pr:
 ---
 # T-024 Armar el Compose de producción local para las demos
