@@ -6,6 +6,8 @@
 # Para los e2e (Auth Emulator + IA falsa), sumar el override:
 #   docker compose -f src/docker-compose.yml -f src/docker-compose.e2e.yml up -d --build
 #
+# Al volver de e2e a producción local, sumar --remove-orphans al up (si no, queda el auth-emulator).
+#
 # Todo sale de src/.env (fuera de Git); las imágenes no llevan secretos.
 # La base no se publica al host: solo la ve la api, dentro de la red del Compose.
 
@@ -31,6 +33,7 @@ services:
 
   api:
     build: ./backend
+    image: rumbo-backend
     restart: unless-stopped
     depends_on:
       postgres:
@@ -39,6 +42,7 @@ services:
       # Usar una clave alfanumérica: va dentro de la URL (ver src/backend/.env.example).
       DATABASE_URL: postgresql+asyncpg://${RUMBO_DB_USER}:${RUMBO_DB_PASSWORD}@postgres:5432/rumbo
       ENTORNO: produccion
+      TZ: America/Argentina/Buenos_Aires
       FIREBASE_PROJECT_ID: ${FIREBASE_PROJECT_ID:-demo-rumbo}
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request as u; u.urlopen('http://127.0.0.1:8000/api/salud', timeout=3)"]
@@ -50,7 +54,7 @@ services:
   # Mismo código que la api. El crontab del proceso diario llega en M7 (src/infra/crontab);
   # hasta entonces el contenedor queda levantado sin tareas.
   scheduler:
-    build: ./backend
+    image: rumbo-backend
     restart: unless-stopped
     depends_on:
       api:

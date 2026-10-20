@@ -26,4 +26,4 @@ USER rumbo
 EXPOSE 8000
 
 # Migra y levanta la API (criterio de T-024: las migraciones corren al arrancar).
-CMD ["sh", "-c", "alembic upgrade head && exec uvicorn rumbo.main:app --host 0.0.0.0 --port 8000"]
+CMD ["sh", "-c", "alembic upgrade head && exec uvicorn rumbo.main:app --host 0.0.0.0 --port 8000 --proxy-headers --forwarded-allow-ips='*'"]
