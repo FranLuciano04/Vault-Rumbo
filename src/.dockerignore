@@ -1,0 +1,10 @@
+# Contexto de la imagen de la web: solo el workspace de pnpm, sin secretos ni artefactos.
+**/.env
+**/.env.*
+!**/.env.example
+**/node_modules
+**/dist
+**/coverage
+**/.expo
+backend
+apps/mobile
