@@ -11,6 +11,10 @@
     "ios": {
       "bundleIdentifier": "ar.com.rumbo.mobile"
     },
-    "plugins": ["expo-router", "expo-dev-client"]
+    "plugins": [
+      "expo-router",
+      "expo-dev-client",
+      ["expo-splash-screen", { "backgroundColor": "#ffffff" }]
+    ]
   }
 }

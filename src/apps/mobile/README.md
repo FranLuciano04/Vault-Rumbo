@@ -43,7 +43,11 @@ Requisitos: Android Studio (trae el JDK 17+ y el SDK), un emulador creado en el 
 
 4. En las sesiones siguientes, con el build ya instalado, alcanza con `pnpm --filter @rumbo/mobile start` y abrir la app Rumbo en el emulador.
 
-> Windows, rutas largas: si Gradle o Git fallan con «Filename longer than 260 characters», habilitá `LongPathsEnabled` (registro de Windows, `HKLM\SYSTEM\CurrentControlSet\Control\FileSystem`) y corré `git config core.longpaths true`, o cloná el repo en una ruta más corta.
+> Windows, rutas largas: si Gradle, CMake o Git fallan con «Filename longer than 260 characters» o con `ninja: error: manifest 'build.ninja' still dirty after 100 tries`, las rutas de `.cxx` de `react-native-screens` y `react-native-worklets` superan los 260 caracteres (pnpm resuelve a la ruta real, así que una unidad `subst` no sirve). Solución verificada:
+>
+> 1. Habilitá las rutas largas (PowerShell como administrador, y reiniciá la sesión): `New-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem" -Name LongPathsEnabled -Value 1 -PropertyType DWORD -Force`, y corré `git config core.longpaths true`.
+> 2. Instalá `cmake;3.31.6` desde el SDK Manager (el CMake 3.22.1 trae un ninja 1.10.2 que no soporta rutas largas).
+> 3. Después de cada `expo prebuild` (que regenera `android/`), agregá a `android/local.properties`: `cmake.dir=C\:/Users/<usuario>/AppData/Local/Android/Sdk/cmake/3.31.6`.
 
 ### Opción B: teléfono Android físico
 
