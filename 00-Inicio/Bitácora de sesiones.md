@@ -47,7 +47,7 @@ La **persona** de cada sesión es quien la corre, identificada por su identidad 
 ### Francisco (`FranLucianoo`) y Paloma (`palomap2003`)
 - **20/10, de Nahuel: ya hay CI y Compose de producción local** (T-018, PR [#19](https://github.com/FranLuciano04/Vault-Rumbo/pull/19); T-024, PR [#18](https://github.com/FranLuciano04/Vault-Rumbo/pull/18)).
   - Cada PR corre solo los jobs de las carpetas que toca: Backend, Web y Mobile.
-  - **Mobile va a fallar** por cobertura (50 % contra 70 %) hasta que se haga T-143. Es esperado: no bajen el umbral.
+  - Mobile ya pasa: T-143 (PR [#20](https://github.com/FranLuciano04/Vault-Rumbo/pull/20)) subió la cobertura a 100 %. No bajen el umbral del 70 %.
   - Después del pull, corran `pnpm install` en `src/`: `pnpm-workspace.yaml` ahora declara `allowBuilds`.
   - El stack completo se levanta con `docker compose -f src/docker-compose.yml up -d --build`. Necesita `RUMBO_DB_PASSWORD` alfanumérica en `src/.env`.
 
@@ -59,6 +59,15 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Commits:** <hash>, <hash>
 - **Pendiente:** …
 ```
+
+## 20/10/26 — Nahuel (Claude Opus 5.5) — T-143: tests del layout raíz mobile
+- **Hecho:** T-143 (capa mobile, riesgo normal, `origen: hallazgo T-018`).
+  - Son tests de caracterización de `_layout.tsx` en `__tests__/layout.test.tsx`. No hubo rojo ni verde, porque el código ya existía; en su lugar se hizo una prueba de mutación: con `headerShown: true`, fallan 2 de los 4 tests.
+  - La cobertura de mobile pasó de 50 % a 100 %.
+  - La review con Opus dejó 0 bloqueantes y 2 menores; se arregló uno.
+  - En el PR [#20](https://github.com/FranLuciano04/Vault-Rumbo/pull/20), el CI corrió solo Mobile y se saltó Backend y Web. Eso confirma en un PR real el filtro por carpeta de T-018. El PR está mergeado.
+- **Commits:** 25445c9, 524a544, a63d6c7 (merge d78458b).
+- **Pendiente:** el test depende del host component `RNSScreenStackHeaderConfig`. Ante un upgrade de react-native-screens hay que revisarlo.
 
 ## 20/10/26 — Nahuel (Claude Opus 5.5) — T-018: CI con jobs filtrados por carpeta
 - **Hecho:** T-018 implementado (capa infra, riesgo normal, verificado en GitHub con el propio PR).
