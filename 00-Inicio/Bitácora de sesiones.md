@@ -60,6 +60,15 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
+## 20/10/26 — Nahuel (Claude Opus 5.5) — T-144: OpenAPI exportado con LF
+- **Hecho:** T-144 (capa backend, riesgo normal, `origen: hallazgo T-016`). `exportar_openapi` escribe con `newline="
+"`, así que en Windows ya no sale CRLF.
+  - Los tests nuevos están en `tests/test_cli_openapi.py`. La review con Opus no dejó hallazgos.
+  - Pasan los 262 tests de backend; la cobertura es del 97 %.
+  - El PR [#22](https://github.com/FranLuciano04/Vault-Rumbo/pull/22) se mergeó con `--auto` en el momento, **sin esperar al CI**, porque `main` todavía no exige el check «CI ok». Es el aviso pendiente de Francisco.
+- **Commits:** 4c4c2bb, c01440f, 9c916f4 (merge fcd710a).
+- **Pendiente:** T-145 (error controlado sin proyecto de Firebase).
+
 ## 20/10/26 — Nahuel (Claude Opus 5.5) — T-016: usuario de la sesión con su rol
 - **Hecho:** T-016 (capa backend, riesgo alto). Ahora `GET /api/auth/yo` devuelve id, nombre, email, rol y `acceso_redes`, y responde 401 si el usuario está inactivo o el token falta o no es válido.
   - La regla de `acceso_redes` quedó en `negocio/politicas.py` (`tiene_acceso_redes`): da verdadero siempre para admin y dueño, y para los demás roles sale de la columna (DEC-0013).
