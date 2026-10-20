@@ -185,3 +185,74 @@ async def test_rf142_falla_de_certificados_de_firebase_502_sin_detalle(
     assert r.status_code == 502
     assert r.headers["content-type"].startswith(PROBLEM_JSON)
     assert "detalle-interno-de-firebase" not in r.text
+
+
+# --- T-016: GET /api/auth/yo (CU-24 paso 3, RF-141) ---------------------------------------
+
+RUTA_YO = "/api/auth/yo"
+
+
+@pytest.mark.parametrize("rol", ROLES)
+async def test_rf141_yo_devuelve_rol_y_accesos(
+    cliente_como: Callable[[str], Awaitable[AsyncClient]], rol: str
+) -> None:
+    c = await cliente_como(rol)
+    usuario = c.usuario  # type: ignore[attr-defined]
+
+    r = await c.get(RUTA_YO)
+
+    assert r.status_code == 200
+    assert r.json() == {
+        "id": str(usuario.id),
+        "nombre": usuario.nombre,
+        "email": usuario.email,
+        "rol": rol,
+        "acceso_redes": rol in ("admin", "dueno"),
+    }
+
+
+@pytest.mark.parametrize("rol", ["admin", "dueno"])
+async def test_rf141_admin_tiene_acceso_a_redes(
+    cliente_como: Callable[[str], Awaitable[AsyncClient]], sesion: AsyncSession, rol: str
+) -> None:
+    c = await cliente_como(rol)
+    c.usuario.acceso_redes = False  # type: ignore[attr-defined]
+    await sesion.flush()
+
+    r = await c.get(RUTA_YO)
+
+    assert r.status_code == 200
+    assert r.json()["acceso_redes"] is True
+
+
+@pytest.mark.parametrize("rol", ["empleado", "freelance"])
+@pytest.mark.parametrize("columna", [True, False])
+async def test_rf141_acceso_a_redes_de_empleado_y_freelance_sale_de_la_columna(
+    cliente_como: Callable[[str], Awaitable[AsyncClient]],
+    sesion: AsyncSession,
+    rol: str,
+    columna: bool,
+) -> None:
+    c = await cliente_como(rol)
+    c.usuario.acceso_redes = columna  # type: ignore[attr-defined]
+    await sesion.flush()
+
+    r = await c.get(RUTA_YO)
+
+    assert r.status_code == 200
+    assert r.json()["acceso_redes"] is columna
+
+
+async def test_rf142_inactivo_401(
+    cliente_sin_sesion: AsyncClient,
+    sesion: AsyncSession,
+    verificador_falso: VerificadorFalso,
+) -> None:
+    baja = await crear(sesion, UsuarioFactory, rol=RolUsuario.admin, activo=False)
+    token = verificador_falso.emitir(baja.firebase_uid)
+
+    _es_401(await cliente_sin_sesion.get(RUTA_YO, headers={"Authorization": f"Bearer {token}"}))
+
+
+async def test_rf142_yo_sin_token_401(cliente_sin_sesion: AsyncClient) -> None:
+    _es_401(await cliente_sin_sesion.get(RUTA_YO))
