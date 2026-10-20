@@ -14,7 +14,7 @@ tags:: #tipo/referencia
 
 | Módulo | Tickets | Hechos | Tomados | Disponibles | Esperando | Bloqueados | Estado del módulo |
 |---|---|---|---|---|---|---|---|
-| M0 — Fundaciones | 29 | 19 | 0 | 8 | 2 | 0 | 🛠️ en curso |
+| M0 — Fundaciones | 29 | 19 | 1 | 7 | 2 | 0 | 🛠️ en curso |
 | M1 — Usuarios y configuración | 13 | 0 | 0 | 1 | 12 | 0 | 🛠️ en curso |
 | M2 — Clientes | 11 | 0 | 0 | 1 | 10 | 0 | 🛠️ en curso |
 | M3 — Alertas | 11 | 0 | 0 | 2 | 9 | 0 | 🛠️ en curso |
@@ -61,7 +61,7 @@ flowchart LR
     T140["T-140 · Aislar los tests de la variable SSLKEYLOGFILE<br/><small>backend</small>"]:::hecho
     T141["T-141 · Mostrar los íconos de cada sección en la barra lateral<br/><small>web</small>"]:::disponible
     T142["T-142 · Adaptar la barra lateral de la web a pantallas angostas<br/><small>web</small>"]:::disponible
-    T143["T-143 · Cubrir con tests el layout raíz de la app mobile<br/><small>mobile</small>"]:::disponible
+    T143["T-143 · Cubrir con tests el layout raíz de la app mobile<br/><small>mobile</small><br/>👤 Nahuel Viniegra"]:::tomado
   end
   subgraph M1["M1 — Usuarios y configuración"]
     T026["T-026 · Publicar el contrato de usuarios y configuración<br/><small>contrato</small>"]:::disponible

@@ -3,7 +3,7 @@ id: T-143
 titulo: Cubrir con tests el layout raíz de la app mobile
 modulo: M0 — Fundaciones
 capa: mobile
-estado: libre
+estado: tomado
 depende_de: [T-003]
 tamaño: S
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [DEC-0015, RNF-15]
 origen: hallazgo T-018
-asignado:
-tomado_el:
-rama:
+asignado: Nahuel Viniegra
+tomado_el: 20/10/26 17:11
+rama: feature/T-143-cubrir-con-tests-el-layout-raiz-de-la-ap
 pr:
 ---
 # T-143 Cubrir con tests el layout raíz de la app mobile
