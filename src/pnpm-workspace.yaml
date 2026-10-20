@@ -1,6 +1,10 @@
 packages:
   - "apps/*"
   - "packages/*"
+allowBuilds:
+  "@parcel/watcher": true
+  msw: true
+  unrs-resolver: true
 minimumReleaseAgeExclude:
   - "@asamuzakjp/dom-selector@10.0.3"
   - "@vitest/coverage-v8@5.0.5"

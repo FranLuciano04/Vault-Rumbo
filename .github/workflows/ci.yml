@@ -1,0 +1,170 @@
+# CI de Rumbo (DEC-0015 §8 y §9, T-018): cada PR corre solo los jobs de las carpetas que toca.
+#
+# - Los PR siempre disparan el workflow y el job `cambios` decide qué corre; los jobs omitidos
+#   cuentan como exitosos, así los checks exigidos en la protección de `main` nunca quedan colgados.
+# - Los push a `main` solo disparan el workflow si tocan `src/` o `.github/`, de modo que los push
+#   directos de los claims de tickets (`06-Desarrollo/Tickets/`) no gastan minutos.
+# - Un cambio en este archivo corre los tres jobs, para que su propio PR se verifique.
+# - Seguridad (pip-audit, pnpm audit, bandit, Semgrep, gitleaks) y e2e van en otros tickets.
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+    paths:
+      - "src/**"
+      - ".github/**"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  cambios:
+    name: Qué carpetas cambiaron
+    runs-on: ubuntu-latest
+    outputs:
+      backend: ${{ steps.filtro.outputs.backend }}
+      web: ${{ steps.filtro.outputs.web }}
+      mobile: ${{ steps.filtro.outputs.mobile }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - id: filtro
+        env:
+          BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
+        run: |
+          set -euo pipefail
+          # Push inicial o rama nueva (base todo ceros): se corre todo.
+          if [[ -z "$BASE" || "$BASE" =~ ^0+$ ]]; then
+            archivos=.github/workflows/ci.yml  # coincide con la regla de raíz: corre todo
+          else
+            archivos="$(git diff --name-only "$BASE" "$GITHUB_SHA")"
+          fi
+          echo "Archivos cambiados:"; echo "$archivos"
+
+          # Se declara aparte el cambio de este workflow o del lockfile/config raíz del workspace.
+          raiz='^(\.github/workflows/ci\.yml|src/(package\.json|pnpm-lock\.yaml|pnpm-workspace\.yaml|tsconfig\.base\.json|eslint\.config\.base\.js))$'
+          hay() { grep -Eq "$1" <<<"$archivos" && echo true || echo false; }
+
+          {
+            echo "backend=$(hay "$raiz|^src/backend/")"
+            echo "web=$(hay "$raiz|^src/apps/web/|^src/packages/shared/")"
+            echo "mobile=$(hay "$raiz|^src/apps/mobile/|^src/packages/shared/")"
+          } | tee -a "$GITHUB_OUTPUT"
+
+  backend:
+    name: Backend
+    needs: cambios
+    if: needs.cambios.outputs.backend == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: src/backend
+    env:
+      # Base descartable del servicio de abajo: vive solo durante el job y no es accesible desde afuera.
+      CI_DB_PASSWORD: rumbo-ci-descartable
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_USER: rumbo
+          POSTGRES_PASSWORD: rumbo-ci-descartable
+          POSTGRES_DB: rumbo_test # el nombre debe terminar en «_test» (tests/conftest.py)
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U rumbo -d rumbo_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+          cache-dependency-glob: src/backend/uv.lock
+      - name: Instalar dependencias
+        run: uv sync --locked
+      - name: Lint (ruff)
+        run: uv run ruff check . && uv run ruff format --check .
+      - name: Tipos (mypy)
+        run: uv run mypy rumbo
+      - name: Migraciones (alembic upgrade head)
+        run: uv run alembic upgrade head
+        env:
+          DATABASE_URL: postgresql+asyncpg://rumbo:${{ env.CI_DB_PASSWORD }}@localhost:5432/rumbo_test
+      - name: Tests con cobertura (total >= 70 %, negocio >= 80 %)
+        run: |
+          uv run pytest --cov=rumbo --cov-report=term-missing
+          uv run coverage report --include='rumbo/negocio/*' --fail-under=80
+        env:
+          TEST_DATABASE_URL: postgresql+asyncpg://rumbo:${{ env.CI_DB_PASSWORD }}@localhost:5432/rumbo_test
+
+  web:
+    name: Web
+    needs: cambios
+    if: needs.cambios.outputs.web == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: src
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          package_json_file: src/package.json
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: src/pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+      - name: Lint
+        run: pnpm --filter @rumbo/shared --filter @rumbo/web lint
+      - name: Tipos
+        run: pnpm --filter @rumbo/shared --filter @rumbo/web typecheck
+      - name: Tests de shared
+        run: pnpm --filter @rumbo/shared test
+      - name: Tests de web con cobertura (>= 70 %)
+        run: >-
+          pnpm --filter @rumbo/web test:cobertura
+          --coverage.thresholds.statements=70 --coverage.thresholds.branches=70
+          --coverage.thresholds.functions=70 --coverage.thresholds.lines=70
+
+  mobile:
+    name: Mobile
+    needs: cambios
+    if: needs.cambios.outputs.mobile == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: src
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          package_json_file: src/package.json
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: src/pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+      - name: Lint
+        run: pnpm --filter @rumbo/mobile lint
+      - name: Tipos
+        run: pnpm --filter @rumbo/mobile typecheck
+      - name: Tests con cobertura (>= 70 %)
+        run: >-
+          pnpm --filter @rumbo/mobile test:cobertura
+          --coverageThreshold='{"global":{"statements":70,"branches":70,"functions":70,"lines":70}}'
