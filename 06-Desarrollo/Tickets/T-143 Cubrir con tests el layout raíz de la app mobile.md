@@ -3,7 +3,7 @@ id: T-143
 titulo: Cubrir con tests el layout raíz de la app mobile
 modulo: M0 — Fundaciones
 capa: mobile
-estado: tomado
+estado: hecho
 depende_de: [T-003]
 tamaño: S
 riesgo: normal
@@ -46,3 +46,12 @@ Tests de render con la librería de testing que ya usa mobile. No se cambia el c
 
 ## Notas de implementación
 - **Origen:** lo decidió Nahuel en T-018: el umbral de mobile se mantiene en 70 % y el test faltante va en un ticket aparte.
+- **Desvío del flujo:** el ticket cubre con tests de caracterización un código que ya existía. Por eso no hubo rojo (la fase se corrió sin `--test`, como en e2e) ni verde.
+  - Para que los tests no fueran vacíos, se hizo una prueba de mutación: con `headerShown: true` fallan 2 de los 4 tests.
+  - La primera versión no detectaba el header y se reescribió.
+- Hecho: `__tests__/layout.test.tsx` usa `renderRouter` con el `LayoutRaiz` real.
+  - El header se detecta por la prop `hidden` de `RNSScreenStackHeaderConfig`, de react-native-screens 4.30.0. Ante un upgrade hay que revisar ese nombre.
+  - `global.css` se mockea en el test.
+- Cobertura de mobile: 100 %, antes 50 %. Lint y typecheck pasan.
+- Review con opus: 0 bloqueantes, 0 importantes y 2 menores. Se arregló el comentario sobre la dependencia. Queda como menor que el test de navegación prueba sobre todo a expo-router.
+- Modelos: tests y fix con sonnet; review con opus.
