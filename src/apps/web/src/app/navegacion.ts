@@ -1,17 +1,17 @@
 import type { UsuarioActual } from "@rumbo/shared";
 import {
   Bell,
-  BriefcaseBusiness,
   CalendarDays,
   ChartColumn,
+  FileChartColumn,
   FileText,
+  Funnel,
   Hotel,
-  LayoutDashboard,
   type LucideIcon,
-  Plane,
+  Send,
   Settings,
   Share2,
-  Users,
+  User,
 } from "lucide-react";
 
 export interface Seccion {
@@ -27,14 +27,14 @@ type Visibilidad = "todos" | "redes" | "admin";
 const SECCIONES: { id: string; etiqueta: string; icono: LucideIcon; visible: Visibilidad }[] = [
   { id: "agenda", etiqueta: "Agenda", icono: Bell, visible: "todos" },
   { id: "calendario", etiqueta: "Calendario", icono: CalendarDays, visible: "todos" },
-  { id: "clientes", etiqueta: "Clientes", icono: Users, visible: "todos" },
-  { id: "oportunidades", etiqueta: "Oportunidades", icono: BriefcaseBusiness, visible: "todos" },
+  { id: "clientes", etiqueta: "Clientes", icono: User, visible: "todos" },
+  { id: "oportunidades", etiqueta: "Oportunidades", icono: Funnel, visible: "todos" },
   { id: "cotizaciones", etiqueta: "Cotizaciones", icono: FileText, visible: "todos" },
-  { id: "viajes", etiqueta: "Viajes", icono: Plane, visible: "todos" },
+  { id: "viajes", etiqueta: "Viajes", icono: Send, visible: "todos" },
   { id: "hoteles", etiqueta: "Hoteles", icono: Hotel, visible: "todos" },
   { id: "redes", etiqueta: "Redes", icono: Share2, visible: "redes" },
-  { id: "dashboard", etiqueta: "Dashboard", icono: LayoutDashboard, visible: "todos" },
-  { id: "reportes", etiqueta: "Reportes", icono: ChartColumn, visible: "admin" },
+  { id: "dashboard", etiqueta: "Dashboard", icono: ChartColumn, visible: "todos" },
+  { id: "reportes", etiqueta: "Reportes", icono: FileChartColumn, visible: "admin" },
   { id: "configuracion", etiqueta: "Configuración", icono: Settings, visible: "admin" },
 ];
 

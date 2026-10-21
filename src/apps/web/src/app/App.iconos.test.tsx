@@ -45,22 +45,22 @@ describe("RNF-11 íconos de la navegación", () => {
     expect(menu.getAllByRole("link")).toHaveLength(11);
   });
 
-  it.each(etiquetas)("RNF-11 el enlace «%s» tiene un ícono decorativo con aria-hidden", async (etiqueta) => {
-    const menu = await abrirMenu();
-    const enlace = menu.getByRole("link", { name: etiqueta });
+  it.each(etiquetas)(
+    "RNF-11 el enlace «%s» tiene un ícono decorativo con aria-hidden",
+    async (etiqueta) => {
+      const menu = await abrirMenu();
+      const enlace = menu.getByRole("link", { name: etiqueta });
 
-    const icono = enlace.querySelector("svg");
-    expect(icono).not.toBeNull();
-    expect(icono).toHaveAttribute("aria-hidden", "true");
-  });
+      const icono = enlace.querySelector("svg");
+      expect(icono).not.toBeNull();
+      expect(icono).toHaveAttribute("aria-hidden", "true");
+    },
+  );
 
   it("RNF-11 el ícono no altera el nombre accesible: sigue siendo la etiqueta", async () => {
     const menu = await abrirMenu();
     for (const etiqueta of etiquetas) {
-      // Coincidencia exacta: el nombre accesible es solo la etiqueta, sin texto del ícono.
-      expect(menu.getByRole("link", { name: etiqueta })).toHaveTextContent(
-        new RegExp(`^\\s*${etiqueta}\\s*$`),
-      );
+      expect(menu.getByRole("link", { name: etiqueta })).toHaveAccessibleName(etiqueta);
     }
   });
 
@@ -75,7 +75,9 @@ describe("RNF-11 íconos de la navegación", () => {
 
   it("RNF-11 el ítem activo se marca con aria-current=page y solo ese", async () => {
     const menu = await abrirMenu("/clientes");
-    const activos = menu.getAllByRole("link").filter((a) => a.getAttribute("aria-current") === "page");
+    const activos = menu
+      .getAllByRole("link")
+      .filter((a) => a.getAttribute("aria-current") === "page");
     expect(activos).toHaveLength(1);
     expect(activos[0]).toHaveAccessibleName("Clientes");
   });
