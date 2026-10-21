@@ -55,6 +55,18 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
+## 21/10/26 — Paloma (Claude Opus 5.5) — T-141: íconos de la barra lateral web
+- **Hecho:** T-141 (capa web, riesgo normal, `origen: hallazgo T-020`).
+  - Cada sección de la barra lateral muestra su ícono de `lucide-react`, tomado de las pantallas 3 y 28 del prototipo. Los íconos son decorativos (`aria-hidden`), así que el nombre accesible sigue siendo la etiqueta.
+  - El ítem activo suma `font-semibold` como señal no cromática (WCAG AA).
+  - La review (Opus) dejó 0 bloqueantes, 0 importantes y 3 menores. Además, el orquestador corrigió 5 íconos que no coincidían con el prototipo.
+  - Pasan los 62 tests de web, con 80,8 % de cobertura. El PR [#27](https://github.com/FranLuciano04/Vault-Rumbo/pull/27) se mergeó con el CI en verde.
+- **Commits:** 21825d0, e463b9f, 9add5e1, 7285a76 (merge 3c58187).
+- **Para el equipo:** si `pnpm` no está en el PATH, se usa `npx pnpm …`, que respeta la versión fijada en `src/package.json`.
+- **Pendiente:** dos menores anotados en el ticket.
+  - Los enlaces de la barra no tienen un estilo de foco propio. Conviene hacerlo con T-142.
+  - El test de `aria-hidden` depende del valor por defecto de `lucide-react`.
+
 ## 21/10/26 — Francisco (Claude Opus 5.5) — T-021: login web con email o Google
 - **Hecho:** T-021 (capa web, riesgo alto).
   - El login funciona con email y con Google, con `/auth/yo` y el aviso «usuario no habilitado» (A1). Están «olvidé mi contraseña», con un mensaje neutro (A4), y el cierre de sesión, que limpia la caché (A3).
