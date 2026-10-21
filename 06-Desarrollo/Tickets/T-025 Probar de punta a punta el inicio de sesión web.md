@@ -3,7 +3,7 @@ id: T-025
 titulo: Probar de punta a punta el inicio de sesión web
 modulo: M0 — Fundaciones
 capa: e2e
-estado: libre
+estado: tomado
 depende_de: [T-021, T-016, T-017, T-024, T-018]
 tamaño: S
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [CU-24, RF-140, RF-142, RF-143]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: FranLucianoo
+tomado_el: 21/10/26 16:30
+rama: feature/T-025-probar-de-punta-a-punta-el-inicio-de-ses
 pr:
 ---
 # T-025 Probar de punta a punta el inicio de sesión web

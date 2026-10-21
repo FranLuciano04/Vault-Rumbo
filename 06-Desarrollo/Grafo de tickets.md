@@ -14,7 +14,7 @@ tags:: #tipo/referencia
 
 | Módulo | Tickets | Hechos | Tomados | Disponibles | Esperando | Bloqueados | Estado del módulo |
 |---|---|---|---|---|---|---|---|
-| M0 — Fundaciones | 31 | 23 | 0 | 7 | 1 | 0 | 🛠️ en curso |
+| M0 — Fundaciones | 31 | 23 | 1 | 6 | 1 | 0 | 🛠️ en curso |
 | M1 — Usuarios y configuración | 13 | 0 | 0 | 1 | 12 | 0 | 🛠️ en curso |
 | M2 — Clientes | 11 | 0 | 0 | 1 | 10 | 0 | 🛠️ en curso |
 | M3 — Alertas | 11 | 0 | 0 | 2 | 9 | 0 | 🛠️ en curso |
@@ -57,7 +57,7 @@ flowchart LR
     T022["T-022 · Armar el shell mobile con sus pestañas<br/><small>mobile</small>"]:::disponible
     T023["T-023 · Iniciar sesión en la app mobile con email o Google<br/><small>mobile · ⚠️ riesgo alto</small>"]:::esperando
     T024["T-024 · Armar el Compose de producción local para las demos<br/><small>infra</small>"]:::hecho
-    T025["T-025 · Probar de punta a punta el inicio de sesión web<br/><small>e2e</small>"]:::disponible
+    T025["T-025 · Probar de punta a punta el inicio de sesión web<br/><small>e2e</small><br/>👤 FranLucianoo"]:::tomado
     T140["T-140 · Aislar los tests de la variable SSLKEYLOGFILE<br/><small>backend</small>"]:::hecho
     T141["T-141 · Mostrar los íconos de cada sección en la barra lateral<br/><small>web</small>"]:::disponible
     T142["T-142 · Adaptar la barra lateral de la web a pantallas angostas<br/><small>web</small>"]:::disponible
