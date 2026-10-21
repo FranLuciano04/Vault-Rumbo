@@ -67,6 +67,16 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
   - En la consola de `rumbo-9ff17`, confirmar que el registro de cuentas esté deshabilitado.
   - La protección de `main` no se puede configurar: GitHub la pide con Pro para los repos privados.
 
+## 21/10/26 — Francisco (Claude Opus 5.5) — T-025: e2e del inicio de sesión web
+- **Hecho:** T-025 (capa e2e, riesgo normal).
+  - Playwright corre 4 e2e contra el Compose real con el Auth Emulator: login de la dueña, credenciales inválidas, usuario no habilitado y cierre de sesión.
+  - Los e2e usan su propio proyecto Compose (`rumbo-e2e`, puerto 8081, `down -v` al terminar), así que no tocan la demo local.
+  - Se sumó al CI el job «E2e web», que entra en «CI ok». En el PR [#24](https://github.com/FranLuciano04/Vault-Rumbo/pull/24) pasó en 2 min 47 s.
+  - La review (Opus) dejó 0 bloqueantes, 2 importantes y 2 menores, todos arreglados. El PR se mergeó con el CI en verde.
+- **Commits:** 99a7828, 692941d y el de `tickets: T-025 hecho`.
+- **Para el equipo:** los e2e se corren con `npx pnpm e2e` en `src/apps/web` y necesitan Docker. Con `E2E_MANTENER=1` el stack queda levantado para depurar.
+- **Pendiente:** nada.
+
 ## 21/10/26 — Francisco (Claude Opus 5.5) — C1 a C3: reglas, trazabilidad y glosario
 - **Hecho:** los tres recomendados que quedaron del PC1, todos en `borrador` y derivados de notas formalizadas:
   - **C1:** RN-02 a RN-10 (plan de pagos, pago indivisible, baja lógica, ciclo del viaje, cancelación, vigencia de la cotización, alertas automáticas, último administrador y visibilidad).
