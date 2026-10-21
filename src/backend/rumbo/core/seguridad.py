@@ -94,6 +94,13 @@ class VerificadorFirebase:
         except auth.CertificateFetchError as error:
             logger.warning("No se pudieron bajar los certificados de Firebase", exc_info=error)
             raise ServicioExterno("No se pudo verificar la sesión con Firebase.") from error
+        except ValueError as error:  # el Admin SDK no pudo determinar el proyecto
+            logger.error(
+                "Falta configurar FIREBASE_PROJECT_ID (o credenciales que definan el proyecto)"
+                " para verificar los tokens de Firebase",
+                exc_info=error,
+            )
+            raise ServicioExterno("No se pudo verificar la sesión con Firebase.") from error
         return str(datos["uid"])
 
 
