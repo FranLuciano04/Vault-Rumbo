@@ -15,6 +15,17 @@ export default tseslint.config(
     extends: [reactHooks.configs.flat.recommended],
   },
   {
+    // Los tests leen `tailwind.config.js` (CommonJS sin tipos) y mockean módulos con `require`.
+    files: ["__tests__/**/*.{ts,tsx}"],
+    rules: {
+      "@typescript-eslint/no-require-imports": "off",
+      "@typescript-eslint/no-unsafe-assignment": "off",
+      "@typescript-eslint/no-unsafe-call": "off",
+      "@typescript-eslint/no-unsafe-member-access": "off",
+      "@typescript-eslint/no-unnecessary-condition": "off",
+    },
+  },
+  {
     files: ["**/*.{js,mjs}"],
     languageOptions: { globals: globals.node },
     extends: [tseslint.configs.disableTypeChecked],
