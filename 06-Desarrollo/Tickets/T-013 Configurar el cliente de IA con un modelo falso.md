@@ -3,7 +3,7 @@ id: T-013
 titulo: Configurar el cliente de IA con un modelo falso
 modulo: M0 — Fundaciones
 capa: backend
-estado: libre
+estado: tomado
 depende_de: [T-006]
 tamaño: S
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [DEC-0012, RNF-16]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: Nahuel Viniegra
+tomado_el: 21/10/26 20:17
+rama: feature/T-013-configurar-el-cliente-de-ia-con-un-model
 pr:
 ---
 # T-013 Configurar el cliente de IA con un modelo falso
