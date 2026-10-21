@@ -1,5 +1,6 @@
 """T-010: el ID token de Firebase resuelve al `Usuario` actual (CU-24, RF-140, RF-142)."""
 
+import logging
 from collections.abc import Awaitable, Callable
 from typing import Annotated
 
@@ -185,6 +186,51 @@ async def test_rf142_falla_de_certificados_de_firebase_502_sin_detalle(
     assert r.status_code == 502
     assert r.headers["content-type"].startswith(PROBLEM_JSON)
     assert "detalle-interno-de-firebase" not in r.text
+
+
+@pytest.mark.usefixtures("sonda")
+async def test_rf142_sin_proyecto_firebase_error_controlado(
+    app_de_tests: FastAPI,
+    cliente_sin_sesion: AsyncClient,
+    monkeypatch: pytest.MonkeyPatch,
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    def _sin_proyecto(*_: object, **__: object) -> dict[str, str]:
+        raise ValueError("detalle-interno: Failed to determine project ID")
+
+    monkeypatch.setattr(auth, "verify_id_token", _sin_proyecto)
+    app_de_tests.dependency_overrides[obtener_verificador] = lambda: VerificadorFirebase(
+        app=object()
+    )
+
+    with caplog.at_level(logging.ERROR):
+        r = await cliente_sin_sesion.get(RUTA, headers={"Authorization": "Bearer cualquiera"})
+
+    assert r.status_code == 502
+    assert r.headers["content-type"].startswith(PROBLEM_JSON)
+    assert r.json()["status"] == 502
+    assert "detalle-interno" not in r.text
+    assert "project ID" not in r.text
+    assert "FIREBASE_PROJECT_ID" in caplog.text
+
+
+@pytest.mark.usefixtures("sonda")
+async def test_rf142_token_invalido_con_proyecto_configurado_sigue_dando_401(
+    app_de_tests: FastAPI,
+    cliente_sin_sesion: AsyncClient,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    def _rechaza(*_: object, **__: object) -> dict[str, str]:
+        raise auth.InvalidIdTokenError("firma inválida")
+
+    monkeypatch.setattr(auth, "verify_id_token", _rechaza)
+    app_de_tests.dependency_overrides[obtener_verificador] = lambda: VerificadorFirebase(
+        app=object()
+    )
+
+    r = await cliente_sin_sesion.get(RUTA, headers={"Authorization": "Bearer basura"})
+
+    _es_401(r)
 
 
 # --- T-016: GET /api/auth/yo (CU-24 paso 3, RF-141) ---------------------------------------

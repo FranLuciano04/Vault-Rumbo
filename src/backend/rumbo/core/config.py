@@ -16,8 +16,9 @@ class Settings(BaseSettings):
     # Cerrado por defecto: solo `desarrollo` admite el Auth Emulator (ver
     # `core.seguridad.emulador_configurado`). En el servidor va `produccion` o se omite.
     entorno: Literal["desarrollo", "produccion"] = "produccion"
-    # DEC-0016: sin `firebase_project_id` la verificación de tokens falla (500) en el primer
-    # pedido autenticado; el resto de la API arranca igual (los tests no usan Firebase).
+    # DEC-0016: sin `firebase_project_id` cada pedido autenticado responde 502
+    # (`ServicioExterno`) y se loguea qué falta; el resto de la API arranca igual (los tests
+    # no usan Firebase).
     firebase_project_id: str | None = None
     google_application_credentials: str | None = None
     firebase_auth_emulator_host: str | None = None
