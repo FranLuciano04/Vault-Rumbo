@@ -1,11 +1,15 @@
 // Mismos tokens que la web (src/apps/web/src/estilos/tokens.css), expuestos en theme.extend.
-const config = require("../tailwind.config.js");
+/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-require-imports, @typescript-eslint/no-unsafe-member-access */
+const config = require("../tailwind.config.js") as {
+  theme?: { extend?: { colors?: Record<string, any>; fontFamily?: { sans?: string[] } } };
+};
 
 const extend = config.theme?.extend ?? {};
 const colores = extend.colors ?? {};
-const valor = (c: unknown) => (typeof c === "string" ? c : (c as { DEFAULT?: string })?.DEFAULT)?.toLowerCase();
+const valor = (c: unknown) =>
+  (typeof c === "string" ? c : (c as { DEFAULT?: string } | undefined)?.DEFAULT)?.toLowerCase();
 
-describe("RNF-11 tema de NativeWind con los tokens del sistema de diseño", () => {
+describe("RNF-14 tema de NativeWind con los tokens del sistema de diseño", () => {
   it("el color primario es el azul del equipo #22506f", () => {
     expect(valor(colores.primary)).toBe("#22506f");
   });

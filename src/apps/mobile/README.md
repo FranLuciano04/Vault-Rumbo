@@ -20,6 +20,10 @@ pnpm --filter @rumbo/mobile typecheck
 pnpm --filter @rumbo/mobile lint
 ```
 
+## Variables de entorno
+
+`EXPO_PUBLIC_API_URL`: URL base de la API (por defecto `http://localhost:8000`). Copiá `.env.example` a `.env` para cambiarla. En el emulador de Android, `localhost` es el propio emulador: usá `http://10.0.2.2:8000` para llegar a la PC; en un teléfono físico, la IP de la PC en la red.
+
 ## Generar e instalar el development build
 
 El development build es una app nativa propia (con `expo-dev-client`) que se conecta al dev server de Metro. Se compila una vez y solo se vuelve a compilar si cambian dependencias nativas o `app.json`; el código JS se recarga solo.

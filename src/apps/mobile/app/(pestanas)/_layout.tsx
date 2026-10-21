@@ -1,6 +1,7 @@
 import { ErrorApi } from "@rumbo/shared";
 import { useYo } from "@rumbo/shared/hooks";
 import { Redirect, Tabs } from "expo-router";
+import { Text, View } from "react-native";
 import { crearBotonPestana } from "../../src/componentes/BotonPestana";
 import { cliente } from "../../src/cliente";
 
@@ -11,9 +12,20 @@ const PESTANAS = [
 ];
 
 export default function LayoutPestanas() {
-  const yo = useYo(cliente);
-  if (yo.isPending) return null;
-  if (yo.error instanceof ErrorApi && yo.error.status === 401) return <Redirect href="/login" />;
+  const { data: usuario, error, isPending } = useYo(cliente);
+  if (isPending)
+    return (
+      <View accessible role="status" className="flex-1 items-center justify-center bg-white">
+        <Text>Cargando…</Text>
+      </View>
+    );
+  if (error instanceof ErrorApi && error.status === 401) return <Redirect href="/login" />;
+  if (!usuario)
+    return (
+      <View accessible role="alert" className="flex-1 items-center justify-center bg-white p-6">
+        <Text>No pudimos verificar tu sesión. Probá de nuevo en unos minutos.</Text>
+      </View>
+    );
 
   return (
     <Tabs
