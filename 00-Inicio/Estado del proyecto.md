@@ -127,6 +127,11 @@ Los tres tomamos **los tres roles** (Coordinador de vault · Guardián del domin
 
 ### C · Recomendados — refuerzan el modelo
 > ⏳ **Pendientes (18/10, Francisco):** no entraron en el PC1 y quedan anotados para retomarlos cuando haya tiempo, por ejemplo para el documento del PC2.
+>
+> ✅ **21/10 (Francisco): los tres están en borrador y esperan la aprobación del equipo.** Todo sale de notas ya formalizadas, sin datos nuevos del negocio.
+> - **C1:** nueve reglas nuevas, de RN-02 a RN-10, en `02-Analisis/Reglas de negocio/`.
+> - **C2:** [[Matriz de trazabilidad]]. Tiene 2 asignaciones `#accion/decidir`: a qué objetivo pertenecen los CU de redes y si los de seguridad quedan como transversales.
+> - **C3:** [[Glosario]].
 
 - [ ] **C1. Catálogo de reglas de negocio.** Hoy solo existe [[RN-01 Comisión automática]]. Candidatas que ya están decididas y dispersas en los CU: **RN-02** `Σ montos = precioVenta` ([[CU-11 Definir plan de cuotas|CU-11]]), **RN-03** el Pago es indivisible (RF-072), **RN-04** baja lógica en todo el sistema (RF-153), **RN-05** el primer cobro pasa el viaje a `vendido` y la secuencia del viaje es estricta ([[EST-Viaje]]).
 - [ ] **C2. Matriz de trazabilidad completa.** Ya está CU → RF en [[Requisitos funcionales]]. Faltan los tramos **objetivo → CU** (desde [[Objetivos del sistema]]) y **CU → entidad/regla**.

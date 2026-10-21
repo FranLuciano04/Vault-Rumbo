@@ -67,6 +67,16 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
   - En la consola de `rumbo-9ff17`, confirmar que el registro de cuentas esté deshabilitado.
   - La protección de `main` no se puede configurar: GitHub la pide con Pro para los repos privados.
 
+## 21/10/26 — Francisco (Claude Opus 5.5) — C1 a C3: reglas, trazabilidad y glosario
+- **Hecho:** los tres recomendados que quedaron del PC1, todos en `borrador` y derivados de notas formalizadas:
+  - **C1:** RN-02 a RN-10 (plan de pagos, pago indivisible, baja lógica, ciclo del viaje, cancelación, vigencia de la cotización, alertas automáticas, último administrador y visibilidad).
+  - **C2:** [[Matriz de trazabilidad]], con objetivo → CU y CU → entidades y reglas. La parte CU → entidad sale de cruzar los 155 RF.
+  - **C3:** [[Glosario]].
+  - Se sumaron al [[MOC — Casos de uso]].
+- **Pendiente:**
+  - Que el equipo apruebe los tres.
+  - Decidir los 2 `#accion/decidir` de la matriz: a qué objetivo van los CU de redes (CU-19 y CU-20) y si CU-24 y CU-25 quedan como transversales.
+
 ## 20/10/26 — Nahuel (Claude Opus 5.5) — T-144: OpenAPI exportado con LF
 - **Hecho:** T-144 (capa backend, riesgo normal, `origen: hallazgo T-016`). `exportar_openapi` escribe con `newline="
 "`, así que en Windows ya no sale CRLF.

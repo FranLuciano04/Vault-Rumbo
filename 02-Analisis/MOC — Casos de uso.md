@@ -86,6 +86,20 @@ Los **155 requisitos funcionales** y los **16 no funcionales** del sistema está
 
 ## Reglas de negocio
 - [[RN-01 Comisión automática]] → [[DEC-0007 Modelo económico — ganancia, margen y comisión de vendedor]] (supersede a [[DEC-0004 Comisión configurable por porcentaje]])
+- ⏳ **Borradores del 21/10/26 (C1), a aprobar por el equipo.** Consolidan reglas que ya estaban en los RF formalizados:
+  - [[RN-02 Plan de pagos igual al precio de venta]]
+  - [[RN-03 Pago indivisible]]
+  - [[RN-04 Baja lógica]]
+  - [[RN-05 Ciclo de vida del viaje]]
+  - [[RN-06 Efectos de la cancelación del viaje]]
+  - [[RN-07 Vigencia de la cotización]]
+  - [[RN-08 Alertas automáticas y su anticipación]]
+  - [[RN-09 Protección del último administrador]]
+  - [[RN-10 Visibilidad por propiedad y rol]]
+
+## Trazabilidad y glosario
+- ⏳ [[Matriz de trazabilidad]] (C2, borrador): objetivo → CU y CU → entidades y reglas. El tramo CU → RF sigue en [[Requisitos funcionales]].
+- ⏳ [[Glosario]] (C3, borrador): las 13 entidades, los roles y los términos del negocio.
 
 ## Estado (Dataview — requiere plugin)
 ```dataview
