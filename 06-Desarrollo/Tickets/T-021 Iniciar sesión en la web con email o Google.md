@@ -3,7 +3,7 @@ id: T-021
 titulo: Iniciar sesión en la web con email o Google
 modulo: M0 — Fundaciones
 capa: web
-estado: libre
+estado: tomado
 depende_de: [T-020, T-005]
 tamaño: M
 riesgo: alto
@@ -12,9 +12,9 @@ modelo_impl: opus
 modelo_review: sonnet
 trazabilidad: [CU-24, RF-140, RF-142, RF-143, DEC-0016]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: FranLucianoo
+tomado_el: 21/10/26 15:30
+rama: feature/T-021-iniciar-sesion-en-la-web-con-email-o-goo
 pr:
 ---
 # T-021 Iniciar sesión en la web con email o Google
