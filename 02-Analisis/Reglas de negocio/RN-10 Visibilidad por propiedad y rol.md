@@ -10,20 +10,21 @@ actualizado: 21/10/26
 
 tags:: #tipo/regla #estado/borrador #pc/pc2
 
-> Borrador del 21/10/26 (C1). Enuncia como regla el RF-151 y el RF-150, que vienen de [[DEC-0005 Autenticación y modelo de roles]] y [[DEC-0008 Autenticación propia y rol de vendedor freelance]]. La matriz completa sigue en esas decisiones; esta nota no la copia. Falta la aprobación del equipo.
-
 ## Enunciado
-Qué registros ve y modifica cada [[Usuario]] depende de su **rol** y de **quién es el dueño** del registro, y se controla en cada fila, en todos los módulos.
+Los registros que cada [[Usuario]] puede ver y modificar dependen de su rol y del responsable de cada registro. El control se aplica registro por registro, en todos los módulos.
 
 ## Criterios
-- **Lectura global para colaborar:** `empleado`, `admin` y `dueño` ven toda la agencia.
-- **Propiedad para la responsabilidad:** cada registro tiene un responsable, que sirve para la vista personal y el filtro «lo mío».
-- **Escritura mayormente abierta:** salvo configuración y moderación, que quedan en `admin` y `dueño`.
-- **La [[Alerta]] es personal** por defecto; `admin` y `dueño` pueden ver la agenda de toda la empresa (RF-078).
-- **El `freelance` es la excepción:** solo ve lo suyo. Los [[Cliente|Clientes]] que crea quedan asignados a él (RF-150). Ve el catálogo compartido sin modificarlo.
+- **Lectura global para colaborar:** los roles `empleado`, `admin` y `dueño` ven toda la agencia.
+- **Propiedad para la responsabilidad:** cada registro tiene un responsable, que define la vista personal de cada usuario.
+- **Escritura mayormente abierta:** la configuración y la moderación quedan reservadas a `admin` y `dueño`.
+- **Alertas personales:** cada [[Alerta]] pertenece a un usuario; `admin` y `dueño` pueden consultar la agenda de toda la empresa (RF-078).
+- **Excepción del `freelance`:** solo ve lo propio. Los [[Cliente|Clientes]] que crea quedan asignados a él (RF-150). Consulta el catálogo compartido sin modificarlo.
 
 ## Aplica en
-- Transversal: todos los casos de uso. En especial [[CU-24 Iniciar sesión]] y [[CU-25 Gestionar usuarios y roles]].
+- Alcance transversal: todos los casos de uso, en particular [[CU-24 Iniciar sesión]] y [[CU-25 Gestionar usuarios y roles]].
 
 ## Origen
-RF-150 y RF-151 de [[Requisitos funcionales]]; [[DEC-0005 Autenticación y modelo de roles|DEC-0005]] y [[DEC-0008 Autenticación propia y rol de vendedor freelance|DEC-0008]]. Implementado en el backend con T-012.
+RF-150 y RF-151 de [[Requisitos funcionales]]. Los roles se describen en [[Actores]].
+
+## 🔎 Revisión
+> Borrador del 21/10/26 (Francisco, recomendado C1 del PC1). Enuncia como regla RF-150 y RF-151, que vienen de [[DEC-0005 Autenticación y modelo de roles|DEC-0005]] y [[DEC-0008 Autenticación propia y rol de vendedor freelance|DEC-0008]]; la matriz completa de visibilidad sigue en esas decisiones. En el backend se implementó con T-012. Falta la aprobación del equipo.

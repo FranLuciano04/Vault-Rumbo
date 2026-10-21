@@ -9,9 +9,9 @@ actualizado: 21/10/26
 
 tags:: #tipo/referencia #estado/borrador #pc/pc2
 
-> Borrador del 21/10/26 (C3). Es el **lenguaje ubicuo** de Rumbo: los nombres que se usan igual en el análisis, el código y las pantallas. Cada definición resume su nota fuente, que manda si hay diferencias. Falta la aprobación del equipo.
->
-> **Convención:** en el código, el ER, el SQL y el OpenAPI, los valores de los enum van en ASCII (`dueno`, `sena`, `resena`, `en_gestion`). En el análisis y las pantallas van en castellano. Criterio en [[DGM-ER]].
+Este glosario reúne el lenguaje común de Rumbo: los términos que se usan con el mismo significado en el análisis, en el sistema y en las pantallas. Cada definición resume la nota que describe el término en detalle.
+
+En el modelo de datos y en la interfaz de programación, los valores con tilde o eñe se escriben sin ellos (por ejemplo, `dueno`, `sena`, `resena`, `en_gestion`). En el análisis y en las pantallas se escriben en castellano.
 
 ## Entidades del dominio
 | Término | Definición | Nota |
@@ -68,3 +68,6 @@ Detalle en [[Actores]] y [[RN-10 Visibilidad por propiedad y rol]].
 | **Seña** | Pago inicial, opcional, del plan de cuotas. Tipo de Pago `seña`. Su cobro, o el del primer pago si no hay seña, pasa el viaje a `vendido`. | [[RN-05 Ciclo de vida del viaje]] |
 | **Vigencia de la cotización** | Hasta cuándo se sostienen los precios de una cotización: un mes por defecto. | [[RN-07 Vigencia de la cotización]] |
 | **Vista personal** | Filtro «lo mío» de cada usuario sobre lo que ve de toda la agencia. | [[RN-10 Visibilidad por propiedad y rol]] |
+
+## 🔎 Revisión
+> Borrador del 21/10/26 (Francisco, recomendado C3 del PC1). Las definiciones salen de las notas de entidades, [[Actores]], las reglas y los CU, todos formalizados; no agregan datos del negocio. El criterio de los enum en ASCII está en la tabla de convenciones de [[DGM-ER]]. Falta la aprobación del equipo.

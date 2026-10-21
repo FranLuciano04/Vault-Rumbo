@@ -9,14 +9,14 @@ actualizado: 21/10/26
 
 tags:: #tipo/analisis #estado/borrador #pc/pc2
 
-> Borrador del 21/10/26 (C2). Completa la cadena **objetivo → caso de uso → requisito → entidad y regla**. El tramo CU → RF ya estaba formalizado y **no se copia**: vive en la *Matriz de trazabilidad* de [[Requisitos funcionales]]. Falta la aprobación del equipo.
+La matriz de trazabilidad vincula los objetivos del sistema con los casos de uso que los realizan, y cada caso de uso con las entidades que utiliza y las reglas de negocio que aplica. El vínculo entre casos de uso y requisitos funcionales se presenta en la matriz de [[Requisitos funcionales]], y no se repite aquí.
 
-## Cómo se armó
-- **Objetivo → CU:** se asignó cada CU a los [[Objetivos del sistema]] que realiza, según lo que resuelve en el negocio. Hay dos asignaciones a decidir, marcadas abajo.
-- **CU → entidad:** se calculó cruzando los 155 RF: las entidades de un CU son las que nombran los RF que realiza. RF-151, RF-152 y RF-153 son transversales y no se cuentan, porque tocarían casi todas las entidades. CU-01 toma las entidades de sus RF de flujo integrador.
-- **CU → regla:** sale de la sección *Aplica en* de cada regla de `02-Analisis/Reglas de negocio/`.
+## Criterios
+- **Objetivo → caso de uso:** cada caso de uso se asigna a los [[Objetivos del sistema]] que contribuye a cumplir.
+- **Caso de uso → entidades:** las entidades de un caso de uso son las que intervienen en los requisitos funcionales que ese caso de uso realiza. No se consideran los requisitos transversales de control de acceso, auditoría y baja lógica (RF-151, RF-152 y RF-153), que alcanzan a casi todas las entidades.
+- **Caso de uso → reglas:** surge del apartado «Aplica en» de cada regla de negocio.
 
-## 1. Objetivo → casos de uso
+## 1. Objetivos y casos de uso
 | Objetivo | Casos de uso que lo realizan |
 |---|---|
 | **O1. Digitalizar y centralizar** | [[CU-02 Registrar cliente\|CU-02]], [[CU-03 Gestionar ficha del cliente\|CU-03]], [[CU-07 Confirmar reserva\|CU-07]], [[CU-08 Gestionar estado del viaje\|CU-08]], [[CU-09 Armar itinerario de hoteles\|CU-09]], [[CU-16 Gestionar hotel en catálogo\|CU-16]], [[CU-26 Gestionar destinos\|CU-26]], [[CU-31 Gestionar operadores\|CU-31]] |
@@ -26,13 +26,7 @@ tags:: #tipo/analisis #estado/borrador #pc/pc2
 | **O5. No perder vencimientos ni tareas** | [[CU-09 Armar itinerario de hoteles\|CU-09]] (pago a proveedor), [[CU-11 Definir plan de cuotas\|CU-11]] (vencimientos), [[CU-14 Ver y atender alertas del día\|CU-14]], [[CU-15 Configurar recordatorios por destino\|CU-15]], [[CU-23 Ver calendario de viajes y vencimientos\|CU-23]], [[CU-28 Crear recordatorio manual\|CU-28]] |
 | **O6. Decidir con datos** | [[CU-21 Ver dashboard y embudo\|CU-21]], [[CU-22 Generar reportes y estadísticas\|CU-22]], [[CU-23 Ver calendario de viajes y vencimientos\|CU-23]] |
 
-### A decidir #accion/decidir
-- **Redes ([[CU-19 Planificar contenido en redes|CU-19]] y [[CU-20 Generar propuesta de contenido con IA|CU-20]]):** ningún objetivo de [[Objetivos del sistema]] habla de redes. Propuesta: asociarlos a **O2. Fidelizar clientes** o sumar un séptimo objetivo de comunicación. Cualquiera de las dos cambia una nota formalizada.
-- **Seguridad ([[CU-24 Iniciar sesión|CU-24]] y [[CU-25 Gestionar usuarios y roles|CU-25]]):** son soporte de todos los objetivos y no realizan uno en particular. Propuesta: dejarlos como **transversales**, igual que RF-151 y RF-152.
-
-Con esas dos decisiones, los 31 CU quedan cubiertos: cada uno realiza al menos un objetivo.
-
-## 2. Caso de uso → entidades y reglas
+## 2. Casos de uso, entidades y reglas
 | Caso de uso | Entidades | Reglas |
 |---|---|---|
 | [[CU-01 De la consulta a la venta\|CU-01]] | Cliente · Usuario · Oportunidad · Cotización · Viaje · Destino · Alerta · RequisitoDestino · Operador · Pago · Reseña · Hotel | RN-01, RN-02, RN-05 |
@@ -67,15 +61,15 @@ Con esas dos decisiones, los 31 CU quedan cubiertos: cada uno realiza al menos u
 | [[CU-30 Sugerir recontacto de clientes\|CU-30]] | Cliente · Viaje · Alerta · Oportunidad | RN-08 |
 | [[CU-31 Gestionar operadores\|CU-31]] | Operador · Viaje | RN-04 |
 
-**Transversal:** [[RN-10 Visibilidad por propiedad y rol]] rige en todos los CU, igual que RF-151 y RF-152.
+La regla [[RN-10 Visibilidad por propiedad y rol]] es transversal: se aplica en todos los casos de uso.
 
-## 3. Reglas de negocio
+## 3. Reglas de negocio y requisitos de origen
 | Regla | Requisitos de origen |
 |---|---|
 | [[RN-01 Comisión automática]] | RF-054 a RF-057 |
 | [[RN-02 Plan de pagos igual al precio de venta]] | RF-059, RF-061, RF-066, RF-072 |
 | [[RN-03 Pago indivisible]] | RF-068, RF-072 |
-| [[RN-04 Baja lógica]] | RF-153 y las bajas de cada módulo |
+| [[RN-04 Baja lógica]] | RF-153 y los requisitos de baja de cada módulo |
 | [[RN-05 Ciclo de vida del viaje]] | RF-038, RF-039, RF-042, RF-049, RF-070 |
 | [[RN-06 Efectos de la cancelación del viaje]] | RF-048 a RF-053 |
 | [[RN-07 Vigencia de la cotización]] | RF-022, RF-026 |
@@ -84,6 +78,13 @@ Con esas dos decisiones, los 31 CU quedan cubiertos: cada uno realiza al menos u
 | [[RN-10 Visibilidad por propiedad y rol]] | RF-150, RF-151 |
 
 ## Lectura de la matriz
-- Las entidades más usadas son [[Viaje]] (21 CU), [[Alerta]] (14) y [[Usuario]] (14). El Viaje es el núcleo operativo y la Alerta, el mecanismo que evita olvidos (O5).
-- Las 13 entidades aparecen en al menos un CU: no hay entidades huérfanas.
-- Los CU sin reglas propias son sobre todo de consulta (dashboard, reportes, calendario, búsqueda de hoteles) o altas simples.
+- Las entidades con mayor participación son [[Viaje]] (21 casos de uso), [[Alerta]] (14) y [[Usuario]] (14). El Viaje es el núcleo operativo del sistema, y la Alerta es el mecanismo que evita olvidos de vencimientos y tareas (O5).
+- Las 13 entidades del dominio intervienen en al menos un caso de uso.
+- Los casos de uso sin reglas propias son, en su mayoría, consultas (dashboard, reportes, calendario y búsqueda de hoteles) o altas simples.
+
+## 🔎 Revisión
+> Borrador del 21/10/26 (Francisco, recomendado C2 del PC1). El tramo CU → entidad se calculó con un script que cruza los 155 RF (los RF de cada CU y las entidades que nombra cada RF); CU-01 toma las entidades de sus RF de flujo integrador. Falta la aprobación del equipo.
+
+> [!warning] **A decidir con el equipo** #accion/decidir — hasta resolverlo, la tabla de objetivos no incluye estos cuatro CU:
+> - **Redes (CU-19 y CU-20):** ningún objetivo de [[Objetivos del sistema]] habla de redes. Propuesta: asociarlos a **O2. Fidelizar clientes** o sumar un séptimo objetivo de comunicación. Cualquiera de las dos cambia una nota formalizada.
+> - **Seguridad (CU-24 y CU-25):** dan soporte a todos los objetivos y no realizan uno en particular. Propuesta: agregar en la tabla una fila **«Soporte transversal»**, como se hace con RF-151 y RF-152.
