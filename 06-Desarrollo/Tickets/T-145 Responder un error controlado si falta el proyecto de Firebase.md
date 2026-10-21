@@ -3,7 +3,7 @@ id: T-145
 titulo: Responder un error controlado si falta el proyecto de Firebase
 modulo: M0 — Fundaciones
 capa: backend
-estado: libre
+estado: tomado
 depende_de: [T-010]
 tamaño: S
 riesgo: alto
@@ -12,9 +12,9 @@ modelo_impl: opus
 modelo_review: sonnet
 trazabilidad: [CU-24, RF-142, DEC-0016]
 origen: hallazgo T-016
-asignado:
-tomado_el:
-rama:
+asignado: Nahuel Viniegra
+tomado_el: 21/10/26 17:38
+rama: feature/T-145-responder-un-error-controlado-si-falta-e
 pr:
 ---
 # T-145 Responder un error controlado si falta el proyecto de Firebase
