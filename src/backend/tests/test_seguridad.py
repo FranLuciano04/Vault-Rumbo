@@ -173,6 +173,34 @@ async def test_rf142_falla_de_certificados_da_servicio_externo(
     assert "sin red" not in capturado.value.detalle
 
 
+async def test_rf142_sin_proyecto_firebase_da_servicio_externo(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    error = ValueError("detalle-interno: Failed to determine project ID")
+    monkeypatch.setattr(auth, "verify_id_token", _verify_que_lanza(error))
+
+    with pytest.raises(ServicioExterno) as capturado:
+        await VerificadorFirebase(app=object()).verificar("token")
+
+    assert "detalle-interno" not in capturado.value.detalle
+    assert "project ID" not in capturado.value.detalle
+
+
+async def test_rf142_sin_proyecto_firebase_loguea_la_variable_que_falta(
+    monkeypatch: pytest.MonkeyPatch, caplog: pytest.LogCaptureFixture
+) -> None:
+    error = ValueError("Failed to determine project ID")
+    monkeypatch.setattr(auth, "verify_id_token", _verify_que_lanza(error))
+
+    with caplog.at_level(logging.ERROR, logger=seguridad.__name__):
+        with pytest.raises(ServicioExterno):
+            await VerificadorFirebase(app=object()).verificar("token")
+
+    registros = [r for r in caplog.records if r.levelno >= logging.ERROR]
+    assert registros
+    assert "FIREBASE_PROJECT_ID" in registros[0].getMessage()
+
+
 async def test_rf140_token_valido_devuelve_el_uid(monkeypatch: pytest.MonkeyPatch) -> None:
     app = object()
     llamadas: list[tuple[str, object]] = []
