@@ -81,6 +81,16 @@ def base_de_tests_migrada() -> None:
     assert resultado.returncode == 0, resultado.stdout + resultado.stderr
 
 
+@pytest.fixture(autouse=True)
+def _sin_cliente_real_de_claude(monkeypatch: pytest.MonkeyPatch) -> None:
+    """T-013 (RNF-16): ningún test puede construir el cliente real de Claude."""
+
+    def _prohibido(api_key: str) -> None:
+        raise AssertionError("los tests no pueden construir el cliente real de Claude")
+
+    monkeypatch.setattr("rumbo.core.ia._construir_cliente_claude", _prohibido)
+
+
 @pytest.fixture
 def url_tests() -> str:
     return _URL_TESTS

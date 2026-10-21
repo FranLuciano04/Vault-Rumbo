@@ -22,6 +22,9 @@ class Settings(BaseSettings):
     firebase_project_id: str | None = None
     google_application_credentials: str | None = None
     firebase_auth_emulator_host: str | None = None
+    # DEC-0012 / RNF-16: por defecto el modelo falso; `claude` exige `anthropic_api_key`.
+    ia_modelo: Literal["falso", "claude"] = "falso"
+    anthropic_api_key: str | None = None
 
     @field_validator("database_url")
     @classmethod
