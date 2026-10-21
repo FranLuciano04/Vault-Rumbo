@@ -6,12 +6,12 @@ import { crearCliente } from "@rumbo/shared";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { App } from "@/app/App";
+import { obtenerTokenId } from "@/lib/firebase";
 import "@/estilos/index.css";
 
-// El token de Firebase lo aporta el ticket del login; hasta entonces no hay sesión.
 const cliente = crearCliente({
   baseURL: (import.meta.env.VITE_API_URL as string | undefined) ?? "",
-  obtenerToken: () => null,
+  obtenerToken: obtenerTokenId,
 });
 
 const raiz = document.getElementById("root");

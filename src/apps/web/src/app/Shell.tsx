@@ -1,6 +1,7 @@
 import type { UsuarioActual } from "@rumbo/shared";
 import type { ReactNode } from "react";
 import { NavLink } from "react-router";
+import { BotonCerrarSesion } from "@/features/seguridad/BotonCerrarSesion";
 import { cn } from "@/lib/utils";
 import { seccionesVisibles } from "./navegacion";
 
@@ -41,6 +42,7 @@ export function Shell({ usuario, children }: { usuario: UsuarioActual; children:
           <span className="rounded-full bg-secondary px-2 py-0.5 text-xs font-medium text-secondary-foreground">
             {ETIQUETA_ROL[usuario.rol]}
           </span>
+          <BotonCerrarSesion />
         </header>
         <main className="flex-1 p-6">{children}</main>
       </div>
