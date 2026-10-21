@@ -59,8 +59,13 @@ export function PaginaLogin({ cliente }: { cliente: AxiosInstance }) {
     } catch (falla) {
       // Autenticado en Firebase pero sin Usuario activo en Rumbo: no queda sesión abierta (A1).
       setError(falla instanceof ErrorApi && falla.status === 401 ? NO_HABILITADO : SIN_VERIFICAR);
-      setOcupado(false);
-      await cerrarSesion();
+      try {
+        await cerrarSesion();
+      } catch {
+        // Si signOut falla igual se muestra el aviso; el próximo intento vuelve a pasar por /auth/yo.
+      } finally {
+        setOcupado(false);
+      }
     }
   }
 

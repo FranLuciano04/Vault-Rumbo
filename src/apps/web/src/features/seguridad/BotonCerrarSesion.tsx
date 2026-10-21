@@ -10,9 +10,15 @@ export function BotonCerrarSesion() {
   const navigate = useNavigate();
 
   async function salir() {
-    await cerrarSesion();
-    void navigate("/login", { replace: true });
-    queryClient.clear();
+    try {
+      await cerrarSesion();
+    } catch {
+      // Se traga para no dejar una promesa rechazada sin manejar: el cierre local sigue igual.
+    } finally {
+      // Aunque signOut falle, los datos de la persona no quedan en pantalla ni en caché.
+      void navigate("/login", { replace: true });
+      queryClient.clear();
+    }
   }
 
   return (

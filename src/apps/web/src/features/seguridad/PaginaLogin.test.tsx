@@ -157,7 +157,54 @@ describe("RF-143 cierre de sesión", () => {
     );
     await userEvent.setup().click(screen.getByRole("button", { name: /cerrar sesión/i }));
 
-    await waitFor(() => expect(firebase.cerrarSesion).toHaveBeenCalledTimes(1));
-    await waitFor(() => expect(queryClient.getQueryCache().getAll()).toHaveLength(0));
+    await waitFor(() => {
+      expect(firebase.cerrarSesion).toHaveBeenCalledTimes(1);
+    });
+    await waitFor(() => {
+      expect(queryClient.getQueryCache().getAll()).toHaveLength(0);
+    });
+  });
+
+  it("si signOut falla igual limpia la caché y vuelve al login", async () => {
+    vi.mocked(firebase.cerrarSesion).mockRejectedValue(new Error("sin red"));
+    const queryClient = new QueryClient();
+    queryClient.setQueryData(["auth", "yo"], { nombre: "Ana" });
+    render(
+      <QueryClientProvider client={queryClient}>
+        <MemoryRouter initialEntries={["/agenda"]}>
+          <Routes>
+            <Route path="/agenda" element={<BotonCerrarSesion />} />
+            <Route path="/login" element={<p>Pantalla de login</p>} />
+          </Routes>
+        </MemoryRouter>
+      </QueryClientProvider>,
+    );
+    await userEvent.setup().click(screen.getByRole("button", { name: /cerrar sesión/i }));
+
+    expect(await screen.findByText("Pantalla de login")).toBeInTheDocument();
+    expect(queryClient.getQueryCache().getAll()).toHaveLength(0);
+  });
+});
+
+describe("RF-140 A1 con signOut fallido", () => {
+  it("muestra el aviso y rehabilita los botones recién después del intento de signOut", async () => {
+    servidor.use(http.get("*/api/auth/yo", () => HttpResponse.json({}, { status: 401 })));
+    let rechazar: (motivo: unknown) => void = () => undefined;
+    vi.mocked(firebase.cerrarSesion).mockReturnValue(
+      new Promise((_, r) => {
+        rechazar = r;
+      }),
+    );
+    renderLogin();
+    await completarEmail();
+
+    expect(await screen.findByRole("alert")).toHaveTextContent(/usuario no habilitado/i);
+    expect(screen.getByRole("button", { name: /^ingresar$/i })).toBeDisabled();
+
+    rechazar(new Error("sin red"));
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /^ingresar$/i })).toBeEnabled();
+    });
+    expect(screen.getByRole("alert")).toHaveTextContent(/usuario no habilitado/i);
   });
 });
