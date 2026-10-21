@@ -1,14 +1,15 @@
 ---
 tipo: regla
-estado: borrador
+estado: formalizado
 modulo: [viajes, economia, configuracion, hoteles, redes, seguridad]
 responsable: Francisco
 pc: pc2
 actualizado: 21/10/26
+fecha_aprobacion: 21/10/26
 ---
 # RN-04 Baja lógica
 
-tags:: #tipo/regla #estado/borrador #pc/pc2
+tags:: #tipo/regla #estado/formalizado #pc/pc2
 
 ## Enunciado
 Ninguna baja del sistema elimina información. Dar de baja un registro consiste en cambiar su estado; el registro se conserva con su historial y su trazabilidad.
@@ -39,4 +40,4 @@ La eliminación física es excepcional y solo procede si no compromete la integr
 RF-153, de alcance transversal, y los requisitos de baja de cada módulo, en [[Requisitos funcionales]].
 
 ## 🔎 Revisión
-> Borrador del 21/10/26 (Francisco, recomendado C1 del PC1). Sube a regla el RF-153, que el vault aplicaba en ocho entidades sin tenerlo escrito en un solo lugar; la revisión de [[Requisitos funcionales]] sugería darle una RN propia. Falta la aprobación del equipo.
+> ✅ **Aprobado y formalizado en la sync del 21/10/26.** Redactado el 21/10/26 (Francisco, recomendado C1 del PC1). Sube a regla el RF-153, que el vault aplicaba en ocho entidades sin tenerlo escrito en un solo lugar; la revisión de [[Requisitos funcionales]] sugería darle una RN propia.

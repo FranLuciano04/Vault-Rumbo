@@ -1,13 +1,14 @@
 ---
 tipo: analisis
-estado: borrador
+estado: formalizado
 responsable: Francisco
 pc: pc2
 actualizado: 21/10/26
+fecha_aprobacion: 21/10/26
 ---
 # Matriz de trazabilidad
 
-tags:: #tipo/analisis #estado/borrador #pc/pc2
+tags:: #tipo/analisis #estado/formalizado #pc/pc2
 
 La matriz de trazabilidad vincula los objetivos del sistema con los casos de uso que los realizan, y cada caso de uso con las entidades que utiliza y las reglas de negocio que aplica. El vínculo entre casos de uso y requisitos funcionales se presenta en la matriz de [[Requisitos funcionales]], y no se repite aquí.
 
@@ -20,11 +21,14 @@ La matriz de trazabilidad vincula los objetivos del sistema con los casos de uso
 | Objetivo | Casos de uso que lo realizan |
 |---|---|
 | **O1. Digitalizar y centralizar** | [[CU-02 Registrar cliente\|CU-02]], [[CU-03 Gestionar ficha del cliente\|CU-03]], [[CU-07 Confirmar reserva\|CU-07]], [[CU-08 Gestionar estado del viaje\|CU-08]], [[CU-09 Armar itinerario de hoteles\|CU-09]], [[CU-16 Gestionar hotel en catálogo\|CU-16]], [[CU-26 Gestionar destinos\|CU-26]], [[CU-31 Gestionar operadores\|CU-31]] |
-| **O2. Fidelizar clientes** | [[CU-02 Registrar cliente\|CU-02]], [[CU-03 Gestionar ficha del cliente\|CU-03]], [[CU-08 Gestionar estado del viaje\|CU-08]] (reseña post-viaje), [[CU-17 Registrar reseña de hotel\|CU-17]], [[CU-18 Buscar y recomendar hoteles\|CU-18]], [[CU-29 Eliminar reseña\|CU-29]], [[CU-30 Sugerir recontacto de clientes\|CU-30]] |
+| **O2. Fidelizar clientes** | [[CU-02 Registrar cliente\|CU-02]], [[CU-03 Gestionar ficha del cliente\|CU-03]], [[CU-08 Gestionar estado del viaje\|CU-08]] (reseña post-viaje), [[CU-17 Registrar reseña de hotel\|CU-17]], [[CU-18 Buscar y recomendar hoteles\|CU-18]], [[CU-29 Eliminar reseña\|CU-29]], [[CU-30 Sugerir recontacto de clientes\|CU-30]], [[CU-19 Planificar contenido en redes\|CU-19]] y [[CU-20 Generar propuesta de contenido con IA\|CU-20]] (contenido en redes) |
 | **O3. Ordenar el circuito de venta** | [[CU-01 De la consulta a la venta\|CU-01]], [[CU-04 Registrar consulta\|CU-04]], [[CU-05 Seguir oportunidad\|CU-05]], [[CU-06 Emitir cotización\|CU-06]], [[CU-07 Confirmar reserva\|CU-07]] |
 | **O4. Controlar la economía** | [[CU-10 Registrar economía del viaje\|CU-10]], [[CU-11 Definir plan de cuotas\|CU-11]], [[CU-12 Registrar cobro de un pago\|CU-12]], [[CU-13 Configurar porcentaje de comisión\|CU-13]], [[CU-27 Cancelar viaje\|CU-27]], [[CU-31 Gestionar operadores\|CU-31]] |
 | **O5. No perder vencimientos ni tareas** | [[CU-09 Armar itinerario de hoteles\|CU-09]] (pago a proveedor), [[CU-11 Definir plan de cuotas\|CU-11]] (vencimientos), [[CU-14 Ver y atender alertas del día\|CU-14]], [[CU-15 Configurar recordatorios por destino\|CU-15]], [[CU-23 Ver calendario de viajes y vencimientos\|CU-23]], [[CU-28 Crear recordatorio manual\|CU-28]] |
 | **O6. Decidir con datos** | [[CU-21 Ver dashboard y embudo\|CU-21]], [[CU-22 Generar reportes y estadísticas\|CU-22]], [[CU-23 Ver calendario de viajes y vencimientos\|CU-23]] |
+| **Soporte transversal** | [[CU-24 Iniciar sesión\|CU-24]] y [[CU-25 Gestionar usuarios y roles\|CU-25]]: dan acceso individual y por rol a todos los demás casos de uso |
+
+Los 31 casos de uso realizan al menos un objetivo o forman parte del soporte transversal.
 
 ## 2. Casos de uso, entidades y reglas
 | Caso de uso | Entidades | Reglas |
@@ -83,8 +87,8 @@ La regla [[RN-10 Visibilidad por propiedad y rol]] es transversal: se aplica en 
 - Los casos de uso sin reglas propias son, en su mayoría, consultas (dashboard, reportes, calendario y búsqueda de hoteles) o altas simples.
 
 ## 🔎 Revisión
-> Borrador del 21/10/26 (Francisco, recomendado C2 del PC1). El tramo CU → entidad se calculó con un script que cruza los 155 RF (los RF de cada CU y las entidades que nombra cada RF); CU-01 toma las entidades de sus RF de flujo integrador. Falta la aprobación del equipo.
+> ✅ **Aprobado y formalizado en la sync del 21/10/26.** Redactado el 21/10/26 (Francisco, recomendado C2 del PC1). El tramo CU → entidad se calculó con un script que cruza los 155 RF (los RF de cada CU y las entidades que nombra cada RF); CU-01 toma las entidades de sus RF de flujo integrador.
 
-> [!warning] **A decidir con el equipo** #accion/decidir — hasta resolverlo, la tabla de objetivos no incluye estos cuatro CU:
-> - **Redes (CU-19 y CU-20):** ningún objetivo de [[Objetivos del sistema]] habla de redes. Propuesta: asociarlos a **O2. Fidelizar clientes** o sumar un séptimo objetivo de comunicación. Cualquiera de las dos cambia una nota formalizada.
-> - **Seguridad (CU-24 y CU-25):** dan soporte a todos los objetivos y no realizan uno en particular. Propuesta: agregar en la tabla una fila **«Soporte transversal»**, como se hace con RF-151 y RF-152.
+> [!success] **Decidido en la sync del 21/10/26:**
+> - Los CU de redes (CU-19 y CU-20) se asocian a **O2. Fidelizar clientes**, sin sumar un objetivo nuevo. [[Objetivos del sistema]] no cambia.
+> - CU-24 y CU-25 van en una fila de **soporte transversal**, igual que RF-151 y RF-152 en la matriz de requisitos.

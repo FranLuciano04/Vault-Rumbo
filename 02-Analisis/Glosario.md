@@ -1,13 +1,14 @@
 ---
 tipo: referencia
-estado: borrador
+estado: formalizado
 responsable: Francisco
 pc: pc2
 actualizado: 21/10/26
+fecha_aprobacion: 21/10/26
 ---
 # Glosario
 
-tags:: #tipo/referencia #estado/borrador #pc/pc2
+tags:: #tipo/referencia #estado/formalizado #pc/pc2
 
 Este glosario reúne el lenguaje común de Rumbo: los términos que se usan con el mismo significado en el análisis, en el sistema y en las pantallas. Cada definición resume la nota que describe el término en detalle.
 
@@ -70,4 +71,4 @@ Detalle en [[Actores]] y [[RN-10 Visibilidad por propiedad y rol]].
 | **Vista personal** | Filtro «lo mío» de cada usuario sobre lo que ve de toda la agencia. | [[RN-10 Visibilidad por propiedad y rol]] |
 
 ## 🔎 Revisión
-> Borrador del 21/10/26 (Francisco, recomendado C3 del PC1). Las definiciones salen de las notas de entidades, [[Actores]], las reglas y los CU, todos formalizados; no agregan datos del negocio. El criterio de los enum en ASCII está en la tabla de convenciones de [[DGM-ER]]. Falta la aprobación del equipo.
+> ✅ **Aprobado y formalizado en la sync del 21/10/26.** Redactado el 21/10/26 (Francisco, recomendado C3 del PC1). Las definiciones salen de las notas de entidades, [[Actores]], las reglas y los CU, todos formalizados; no agregan datos del negocio. El criterio de los enum en ASCII está en la tabla de convenciones de [[DGM-ER]].

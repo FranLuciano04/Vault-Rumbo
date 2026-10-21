@@ -1,14 +1,15 @@
 ---
 tipo: regla
-estado: borrador
+estado: formalizado
 modulo: [economia]
 responsable: Francisco
 pc: pc2
 actualizado: 21/10/26
+fecha_aprobacion: 21/10/26
 ---
 # RN-03 Pago indivisible
 
-tags:: #tipo/regla #estado/borrador #pc/pc2
+tags:: #tipo/regla #estado/formalizado #pc/pc2
 
 ## Enunciado
 Cada [[Pago]] se cobra completo: no existen los cobros parciales. Un pago pasa de `pendiente` o `vencido` a `pagado` en un único cobro.
@@ -27,4 +28,4 @@ El cobro puede realizarse en una moneda distinta de la del viaje (ARS o USD), co
 RF-072 y RF-068 de [[Requisitos funcionales]].
 
 ## 🔎 Revisión
-> Borrador del 21/10/26 (Francisco, recomendado C1 del PC1). Sube a regla el RF-072, que surgió de una nota de revisión de CU-12 y se ratificó el 29/09; la revisión de [[Requisitos funcionales]] sugería llevarlo a las reglas. Falta la aprobación del equipo.
+> ✅ **Aprobado y formalizado en la sync del 21/10/26.** Redactado el 21/10/26 (Francisco, recomendado C1 del PC1). Sube a regla el RF-072, que surgió de una nota de revisión de CU-12 y se ratificó el 29/09; la revisión de [[Requisitos funcionales]] sugería llevarlo a las reglas.

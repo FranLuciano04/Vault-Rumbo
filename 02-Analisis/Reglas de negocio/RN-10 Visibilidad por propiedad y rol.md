@@ -1,14 +1,15 @@
 ---
 tipo: regla
-estado: borrador
+estado: formalizado
 modulo: [seguridad]
 responsable: Francisco
 pc: pc2
 actualizado: 21/10/26
+fecha_aprobacion: 21/10/26
 ---
 # RN-10 Visibilidad por propiedad y rol
 
-tags:: #tipo/regla #estado/borrador #pc/pc2
+tags:: #tipo/regla #estado/formalizado #pc/pc2
 
 ## Enunciado
 Los registros que cada [[Usuario]] puede ver y modificar dependen de su rol y del responsable de cada registro. El control se aplica registro por registro, en todos los módulos.
@@ -27,4 +28,4 @@ Los registros que cada [[Usuario]] puede ver y modificar dependen de su rol y de
 RF-150 y RF-151 de [[Requisitos funcionales]]. Los roles se describen en [[Actores]].
 
 ## 🔎 Revisión
-> Borrador del 21/10/26 (Francisco, recomendado C1 del PC1). Enuncia como regla RF-150 y RF-151, que vienen de [[DEC-0005 Autenticación y modelo de roles|DEC-0005]] y [[DEC-0008 Autenticación propia y rol de vendedor freelance|DEC-0008]]; la matriz completa de visibilidad sigue en esas decisiones. En el backend se implementó con T-012. Falta la aprobación del equipo.
+> ✅ **Aprobado y formalizado en la sync del 21/10/26.** Redactado el 21/10/26 (Francisco, recomendado C1 del PC1). Enuncia como regla RF-150 y RF-151, que vienen de [[DEC-0005 Autenticación y modelo de roles|DEC-0005]] y [[DEC-0008 Autenticación propia y rol de vendedor freelance|DEC-0008]]; la matriz completa de visibilidad sigue en esas decisiones. En el backend se implementó con T-012.

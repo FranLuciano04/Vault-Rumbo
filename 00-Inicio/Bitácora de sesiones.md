@@ -74,9 +74,10 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
   - **C3:** [[Glosario]].
   - Se sumaron al [[MOC — Casos de uso]].
   - El cuerpo de las 11 notas queda escrito como documentación, sin referencias internas. Lo interno (origen, `DEC-`, tickets y pendientes) va en `## 🔎 Revisión`, que el `filtrar()` de los entregables recorta. Se verificó pasándolas por ese filtro.
-- **Pendiente:**
-  - Que el equipo apruebe los tres.
-  - Decidir los 2 `#accion/decidir` de la matriz: a qué objetivo van los CU de redes (CU-19 y CU-20) y si CU-24 y CU-25 quedan como transversales.
+- **Sync del 21/10:** el equipo aprobó los tres y quedaron `formalizado`.
+  - En la matriz, los CU de redes (CU-19 y CU-20) van con **O2. Fidelizar clientes**.
+  - CU-24 y CU-25 quedan como **soporte transversal**.
+- **Pendiente:** nada.
 
 ## 20/10/26 — Nahuel (Claude Opus 5.5) — T-144: OpenAPI exportado con LF
 - **Hecho:** T-144 (capa backend, riesgo normal, `origen: hallazgo T-016`). `exportar_openapi` escribe con `newline="

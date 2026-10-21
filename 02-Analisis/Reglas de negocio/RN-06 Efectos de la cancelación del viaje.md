@@ -1,14 +1,15 @@
 ---
 tipo: regla
-estado: borrador
+estado: formalizado
 modulo: [viajes, economia, alertas]
 responsable: Francisco
 pc: pc2
 actualizado: 21/10/26
+fecha_aprobacion: 21/10/26
 ---
 # RN-06 Efectos de la cancelación del viaje
 
-tags:: #tipo/regla #estado/borrador #pc/pc2
+tags:: #tipo/regla #estado/formalizado #pc/pc2
 
 ## Enunciado
 Cancelar un [[Viaje]] lo pasa al estado `cancelado`, con motivo y fecha, y produce efectos fijos sobre sus pagos, sus alertas y la comisión del vendedor. El viaje nunca se elimina ([[RN-04 Baja lógica]]).
@@ -36,4 +37,4 @@ Si la cancelación fue un error, el viaje puede reactivarse (RF-053):
 RF-048 a RF-053 de [[Requisitos funcionales]]. El flujo está en [[DGM-ACT — Cancelar viaje]].
 
 ## 🔎 Revisión
-> Borrador del 21/10/26 (Francisco, recomendado C1 del PC1). Reúne lo que ya fijaban RF-048 a RF-053, formalizados el 29/09. Falta la aprobación del equipo.
+> ✅ **Aprobado y formalizado en la sync del 21/10/26.** Redactado el 21/10/26 (Francisco, recomendado C1 del PC1). Reúne lo que ya fijaban RF-048 a RF-053, formalizados el 29/09.

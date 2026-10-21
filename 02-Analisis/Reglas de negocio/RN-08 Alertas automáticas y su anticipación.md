@@ -1,14 +1,15 @@
 ---
 tipo: regla
-estado: borrador
+estado: formalizado
 modulo: [alertas, viajes, economia, cotizaciones]
 responsable: Francisco
 pc: pc2
 actualizado: 21/10/26
+fecha_aprobacion: 21/10/26
 ---
 # RN-08 Alertas automáticas y su anticipación
 
-tags:: #tipo/regla #estado/borrador #pc/pc2
+tags:: #tipo/regla #estado/formalizado #pc/pc2
 
 ## Enunciado
 El sistema genera [[Alerta|Alertas]] sin intervención de una persona ante determinados hechos, con una anticipación fija o configurable. Las alertas de tipo `insistencia` y `manual` no se incluyen, porque las crea una persona (RF-015, RF-080).
@@ -36,4 +37,4 @@ El sistema genera [[Alerta|Alertas]] sin intervención de una persona ante deter
 RF-027, RF-028, RF-034, RF-035, RF-039, RF-041, RF-045 y RF-063 de [[Requisitos funcionales]]. El proceso diario está en [[DGM-ACT — Proceso automático diario]].
 
 ## 🔎 Revisión
-> Borrador del 21/10/26 (Francisco, recomendado C1 del PC1). Reúne en una tabla las alertas automáticas que ya fijaban esos RF, formalizados el 29/09. Falta la aprobación del equipo.
+> ✅ **Aprobado y formalizado en la sync del 21/10/26.** Redactado el 21/10/26 (Francisco, recomendado C1 del PC1). Reúne en una tabla las alertas automáticas que ya fijaban esos RF, formalizados el 29/09.

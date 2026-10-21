@@ -1,14 +1,15 @@
 ---
 tipo: regla
-estado: borrador
+estado: formalizado
 modulo: [viajes, economia]
 responsable: Francisco
 pc: pc2
 actualizado: 21/10/26
+fecha_aprobacion: 21/10/26
 ---
 # RN-05 Ciclo de vida del viaje
 
-tags:: #tipo/regla #estado/borrador #pc/pc2
+tags:: #tipo/regla #estado/formalizado #pc/pc2
 
 ## Enunciado
 El [[Viaje]] recorre una secuencia estricta de estados: `reservado → vendido → confirmado → en curso → finalizado`, además de `cancelado`. Ningún estado de la secuencia se omite.
@@ -37,4 +38,4 @@ El [[Viaje]] recorre una secuencia estricta de estados: `reservado → vendido �
 RF-038, RF-039, RF-042, RF-049 y RF-070 de [[Requisitos funcionales]]. El diagrama de estados está en [[EST-Viaje]].
 
 ## 🔎 Revisión
-> Borrador del 21/10/26 (Francisco, recomendado C1 del PC1). Reúne en una regla las transiciones que ya fijaban esos RF, formalizados el 29/09. Falta la aprobación del equipo.
+> ✅ **Aprobado y formalizado en la sync del 21/10/26.** Redactado el 21/10/26 (Francisco, recomendado C1 del PC1). Reúne en una regla las transiciones que ya fijaban esos RF, formalizados el 29/09.

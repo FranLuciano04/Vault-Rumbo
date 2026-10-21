@@ -23,7 +23,7 @@ actualizado: 13/10/26
 > - **T-010** (token de Firebase): hecho. El PR [#13](https://github.com/FranLuciano04/Vault-Rumbo/pull/13) **espera la aprobación de Nahuel o Paloma** antes del merge.
 > - Se agregó la variable nueva `ENTORNO`. Hay avisos para el equipo en la bitácora, en *Avisos pendientes por persona*.
 >
-> 👉 **18/10 (Francisco):** **T-020** (shell web con la navegación por rol) está hecho y mergeado. Se crearon T-141 (íconos de la navegación) y T-142 (barra lateral en pantallas angostas), que salieron de T-020. Se puso el tag **`pc1`** en `8661dd2`, el último commit antes de la entrega del 02/10, y con eso D3 queda cerrado. ⏳ **Pendiente sin fecha:** los recomendados **C1–C3** (reglas de negocio, matriz de trazabilidad completa y glosario), que no entraron en el PC1.
+> 👉 **18/10 (Francisco):** **T-020** (shell web con la navegación por rol) está hecho y mergeado. Se crearon T-141 (íconos de la navegación) y T-142 (barra lateral en pantallas angostas), que salieron de T-020. Se puso el tag **`pc1`** en `8661dd2`, el último commit antes de la entrega del 02/10, y con eso D3 queda cerrado. ✅ Los recomendados **C1–C3** (reglas de negocio, matriz de trazabilidad completa y glosario), que no entraron en el PC1, se formalizaron en la sync del 21/10.
 >
 > 👉 **08/10:** se generó el **documento general** para los profesores (`07-Entregables/General/`, build `build-general.sh`). ✅ Ya se entregó. **01/10:** documento, deck y carpeta del Drive listos; D1 hecho. Para el viernes 02/10 quedan **D3** (tag `pc1`) y la **entrega a las 20 hs**. **Cierre del PC1 (30/09 a la noche):** casi todo está hecho y formalizado. Las tareas que faltan, **por persona**, están en [[Cierre del PC1 — tareas pendientes]]. Leerla antes de empezar.
 
@@ -53,9 +53,9 @@ Los tres tomamos **los tres roles** (Coordinador de vault · Guardián del domin
 ### Recomendado (buenas prácticas — refuerzan el modelo)
 - [x] Diagramas de **secuencia** de CU clave (consulta→cotización→reserva, registrar pago) — ✅ el de negocio ya estaba: [[DGM-SEC — De la consulta a la venta]] (22/09, Figura 1 del relevamiento, se conserva tal cual). **25/09 (Nahuel):** se sumaron los **3** diagramas de secuencia de análisis acordados (boundary-control-entity completo: `Interfaz` entre el actor y el control `Sistema Rumbo`, entidades del CU, y **Base de Datos** para cada búsqueda/guardado), en `03-Dominio/Diagramas/Secuencia/`: [[DGM-SEC — Confirmar reserva|CU-07]], [[DGM-SEC — Registrar cobro de un pago|CU-12]] y [[DGM-SEC — Cancelar viaje|CU-27]]. La notación quedó cerrada en [[DEC-0010 Notación de los diagramas de actividad y de secuencia|DEC-0010]]. ✅ Formalizados el 29/09
 - [x] Diagramas de **estado**: `Viaje`, `Oportunidad`, `Pago` (+ `Cotización`, `Alerta`, `ContenidoRed`) — ✅ **los 6 especificados y dibujados** el 21/09 en `03-Dominio/Diagramas/Estados/` (ver tabla en [[MOC — Modelo de dominio]]). ✅ Formalizados el 29/09, con `Cotización.vencida` y `ContenidoRed.descartado`
-- [ ] **Matriz de trazabilidad** (objetivo → CU → entidad → regla) — ⏳ **medio hecha**: la matriz **CU → RF** (los 31 CU) ya está en [[Requisitos funcionales]]; falta el tramo **objetivo → CU** y **CU → entidad/regla**
-- [ ] Catálogo de **reglas de negocio** ampliado (hoy solo [[RN-01 Comisión automática]])
-- [ ] **Glosario** del lenguaje ubicuo (entidades + términos del negocio) → nueva nota, p. ej. `02-Analisis/Glosario.md`
+- [x] **Matriz de trazabilidad** (objetivo → CU → entidad → regla) — ✅ **completa** el 21/10 en [[Matriz de trazabilidad]]; antes estaba **medio hecha**: la matriz **CU → RF** (los 31 CU) ya está en [[Requisitos funcionales]]; falta el tramo **objetivo → CU** y **CU → entidad/regla**
+- [x] Catálogo de **reglas de negocio** ampliado — ✅ 21/10: RN-01 a RN-10
+- [x] **Glosario** del lenguaje ubicuo — ✅ 21/10: [[Glosario]]
 - [x] **Requisitos funcionales y no funcionales** documentados — ✅ **[[Requisitos funcionales]]**: **155 RF** (RF-154 y RF-155 sumados el 29/09 con las propuestas de CU-14) + **16 RNF**, con justificación, alcance, matriz de trazabilidad y entregable DOCX (regenerado 29/09). **Formalizado el 29/09**: el equipo fijó los valores de los RNF (respaldo, rendimiento, disponibilidad 24/7 y compatibilidad).
 
 > Cierre PC1: la consulta `#pc/pc1 AND #estado/borrador` debe dar **cero** en lo obligatorio de arriba.
@@ -128,14 +128,14 @@ Los tres tomamos **los tres roles** (Coordinador de vault · Guardián del domin
 ### C · Recomendados — refuerzan el modelo
 > ⏳ **Pendientes (18/10, Francisco):** no entraron en el PC1 y quedan anotados para retomarlos cuando haya tiempo, por ejemplo para el documento del PC2.
 >
-> ✅ **21/10 (Francisco): los tres están en borrador y esperan la aprobación del equipo.** Todo sale de notas ya formalizadas, sin datos nuevos del negocio.
+> ✅ **21/10: los tres quedaron aprobados y formalizados en la sync.** Todo sale de notas ya formalizadas, sin datos nuevos del negocio.
 > - **C1:** nueve reglas nuevas, de RN-02 a RN-10, en `02-Analisis/Reglas de negocio/`.
-> - **C2:** [[Matriz de trazabilidad]]. Tiene 2 asignaciones `#accion/decidir`: a qué objetivo pertenecen los CU de redes y si los de seguridad quedan como transversales.
+> - **C2:** [[Matriz de trazabilidad]]. Los CU de redes van con O2 y CU-24 y CU-25 quedan como soporte transversal.
 > - **C3:** [[Glosario]].
 
-- [ ] **C1. Catálogo de reglas de negocio.** Hoy solo existe [[RN-01 Comisión automática]]. Candidatas que ya están decididas y dispersas en los CU: **RN-02** `Σ montos = precioVenta` ([[CU-11 Definir plan de cuotas|CU-11]]), **RN-03** el Pago es indivisible (RF-072), **RN-04** baja lógica en todo el sistema (RF-153), **RN-05** el primer cobro pasa el viaje a `vendido` y la secuencia del viaje es estricta ([[EST-Viaje]]).
-- [ ] **C2. Matriz de trazabilidad completa.** Ya está CU → RF en [[Requisitos funcionales]]. Faltan los tramos **objetivo → CU** (desde [[Objetivos del sistema]]) y **CU → entidad/regla**.
-- [ ] **C3. Glosario** del lenguaje ubicuo en `02-Analisis/Glosario.md`: las 13 entidades más los términos del negocio (seña, operador, salida grupal, recontacto…).
+- [x] **C1. Catálogo de reglas de negocio.** Hoy solo existe [[RN-01 Comisión automática]]. Candidatas que ya están decididas y dispersas en los CU: **RN-02** `Σ montos = precioVenta` ([[CU-11 Definir plan de cuotas|CU-11]]), **RN-03** el Pago es indivisible (RF-072), **RN-04** baja lógica en todo el sistema (RF-153), **RN-05** el primer cobro pasa el viaje a `vendido` y la secuencia del viaje es estricta ([[EST-Viaje]]).
+- [x] **C2. Matriz de trazabilidad completa.** Ya está CU → RF en [[Requisitos funcionales]]. Faltan los tramos **objetivo → CU** (desde [[Objetivos del sistema]]) y **CU → entidad/regla**.
+- [x] **C3. Glosario** del lenguaje ubicuo en `02-Analisis/Glosario.md`: las 13 entidades más los términos del negocio (seña, operador, salida grupal, recontacto…).
 
 ### E · IA del producto y agentes — obligatorio (lámina del PC1: «Modelos de IA utilizados y justificación» y «Agentes IA implementados»)
 - [x] **E1. Elegir el modelo de IA del producto** con una `DEC-0012`. Hoy la única función con IA es [[CU-20 Generar propuesta de contenido con IA|CU-20]] (borradores de posteos a partir del tema, el canal y el tono). La DEC compara al menos un modelo rápido y barato (Haiku 4.5) con uno de más calidad (Sonnet 5.5), según costo por borrador, latencia y calidad del texto en español, y fija los parámetros (temperatura, largo máximo).
