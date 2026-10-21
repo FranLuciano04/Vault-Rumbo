@@ -340,11 +340,25 @@ function hecho(id) {
 const ES_TEST = /(^|\/)(tests?|__tests__|e2e)\/|\.(test|spec)\.[jt]sx?$|(^|\/)test_[^/]*\.py$/;
 const FASES = { rojo: 'test', verde: 'feat', refactor: 'refactor', fix: 'fix', hecho: 'tickets' };
 
+// En Windows, el `bash` del PATH puede ser el de WSL (System32), que falla sin correr nada y hacía pasar
+// un rojo falso (hallazgo T-021). Se usa el bash de Git for Windows, que se deduce de `git --exec-path`.
+function bashParaTests() {
+  if (process.platform === 'win32') {
+    const deGit = path.resolve(gitOk(['--exec-path']), '..', '..', '..', 'bin', 'bash.exe');
+    if (fs.existsSync(deGit)) return deGit;
+  }
+  return 'bash';
+}
+
 // Corre los tests desde la raíz del repo (con bash, para que anden `env -u` y `cd … &&` también en Windows).
 // En el rojo tienen que fallar; en las demás fases, pasar. Si no, sale sin commitear.
 function correrTests(comando, nombre) {
-  let r = spawnSync('bash', ['-c', comando], { cwd: ROOT, encoding: 'utf8' });
-  if (r.error) r = spawnSync(comando, { cwd: ROOT, encoding: 'utf8', shell: true });
+  const bash = bashParaTests();
+  // Si bash no arranca, su código de salida no dice nada de los tests: se cae a la shell del sistema.
+  const sonda = spawnSync(bash, ['-c', 'true'], { cwd: ROOT, encoding: 'utf8' });
+  const r = sonda.status === 0
+    ? spawnSync(bash, ['-c', comando], { cwd: ROOT, encoding: 'utf8' })
+    : spawnSync(comando, { cwd: ROOT, encoding: 'utf8', shell: true });
   const salida = `${r.stdout || ''}${r.stderr || ''}`.trimEnd().split(/\r?\n/);
   const cola = salida.slice(-25).join('\n');
   const pasan = r.status === 0;

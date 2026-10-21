@@ -68,7 +68,7 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
   - El PR [#23](https://github.com/FranLuciano04/Vault-Rumbo/pull/23) **espera la aprobación de Nahuel o Paloma**.
 - **Commits:** 1fc29b5, e031caf, a99f480, 940c517.
 - **Pendiente:**
-  - En Windows con WSL, `tickets.mjs fase --test` usa el `bash` de WSL. El comando falla, así que un rojo pasa sin que corran los tests. Se puede evitar poniendo Git Bash primero en el PATH. Falta crear el ticket del arreglo.
+  - ✅ Arreglado en la misma sesión: en Windows con WSL, `tickets.mjs fase --test` usaba el `bash` de WSL, que falla sin correr nada, y así un rojo pasaba sin tests. Ahora usa el bash de Git (lo deduce de `git --exec-path`) y, si bash no arranca, cae a la shell del sistema.
   - En la consola de `rumbo-9ff17`, confirmar que el registro de cuentas esté deshabilitado.
   - La protección de `main` no se puede configurar: GitHub la pide con Pro para los repos privados.
 
