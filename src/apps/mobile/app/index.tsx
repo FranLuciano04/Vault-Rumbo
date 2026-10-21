@@ -1,9 +1,6 @@
-import { Text, View } from "react-native";
+import { Redirect } from "expo-router";
 
+// La guarda de `(pestanas)` manda al login si no hay sesión.
 export default function Inicio() {
-  return (
-    <View className="flex-1 items-center justify-center bg-white">
-      <Text className="text-xl font-bold">Rumbo</Text>
-    </View>
-  );
+  return <Redirect href="/agenda" />;
 }
