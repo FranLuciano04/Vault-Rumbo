@@ -3,7 +3,7 @@ id: T-141
 titulo: Mostrar los íconos de cada sección en la barra lateral
 modulo: M0 — Fundaciones
 capa: web
-estado: libre
+estado: tomado
 depende_de: [T-020]
 tamaño: S
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [RNF-11, CU-24]
 origen: hallazgo T-020
-asignado:
-tomado_el:
-rama:
+asignado: palomap2003
+tomado_el: 21/10/26 20:32
+rama: feature/T-141-mostrar-los-iconos-de-cada-seccion-en-la
 pr:
 ---
 # T-141 Mostrar los íconos de cada sección en la barra lateral
