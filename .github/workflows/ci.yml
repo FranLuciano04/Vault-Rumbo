@@ -198,6 +198,8 @@ jobs:
       # Sin src/.env en el runner, el setup de e2e usa esta base descartable (apps/web/e2e/compose.ts).
       RUMBO_DB_USER: rumbo
       RUMBO_DB_PASSWORD: rumbo-e2e-descartable
+      # Deja el stack arriba al terminar los tests para poder leer los logs si fallan; se baja al final.
+      E2E_MANTENER: "1"
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -224,7 +226,10 @@ jobs:
           retention-days: 7
       - name: Logs del Compose
         if: failure()
-        run: docker compose -f docker-compose.yml -f docker-compose.e2e.yml logs --no-color --tail=200
+        run: docker compose -p rumbo-e2e -f docker-compose.yml -f docker-compose.e2e.yml logs --no-color --tail=200
+      - name: Bajar el Compose de e2e
+        if: always()
+        run: docker compose -p rumbo-e2e -f docker-compose.yml -f docker-compose.e2e.yml down -v --remove-orphans
 
   # Único check a exigir en la protección de `main`. Falla si algún job falló o se canceló,
   # incluido `cambios` (sin él, los demás quedarían omitidos y parecerían aprobados).

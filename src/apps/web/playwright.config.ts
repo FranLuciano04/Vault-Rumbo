@@ -1,8 +1,8 @@
 import { defineConfig, devices } from "@playwright/test";
+import { URL_BASE } from "./e2e/compose";
 
 // E2e web (T-025): el navegador entra por nginx del Compose de e2e (web + API + Postgres +
 // Auth Emulator). El setup global lo levanta y la baja al terminar (ver e2e/compose.ts).
-export const URL_BASE = `http://localhost:${process.env.RUMBO_HTTP_PORT ?? "80"}`;
 
 export default defineConfig({
   testDir: "./e2e",

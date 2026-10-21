@@ -5,6 +5,13 @@ import path from "node:path";
 /** Raíz del workspace (`src/`): ahí viven los archivos del Compose. */
 export const RAIZ_SRC = path.resolve(import.meta.dirname, "../../..");
 
+/** Proyecto Compose propio: volumen e imágenes separados de la demo local (`rumbo`). */
+export const PROYECTO = "rumbo-e2e";
+
+/** Puerto HTTP de nginx en los e2e; distinto del 80 de la demo. Se pisa con `E2E_HTTP_PORT`. */
+export const PUERTO_HTTP = process.env.E2E_HTTP_PORT ?? "8081";
+export const URL_BASE = `http://localhost:${PUERTO_HTTP}`;
+
 export const EMULADOR = "http://127.0.0.1:9099";
 
 /** Credenciales de las cuentas de prueba (solo existen en el emulador, en memoria). */
@@ -17,7 +24,7 @@ export const NO_HABILITADO = { email: "sin-alta@rumbo.test", password: "Clave-de
 
 /** Variables del Compose: sin `src/.env` (por ejemplo, en el CI) se usan credenciales descartables. */
 function entornoCompose(): NodeJS.ProcessEnv {
-  const entorno = { ...process.env };
+  const entorno: NodeJS.ProcessEnv = { ...process.env, RUMBO_HTTP_PORT: PUERTO_HTTP };
   if (!existsSync(path.join(RAIZ_SRC, ".env"))) {
     entorno.RUMBO_DB_USER ??= "rumbo";
     entorno.RUMBO_DB_PASSWORD ??= "rumbo-e2e-descartable";
@@ -28,7 +35,16 @@ function entornoCompose(): NodeJS.ProcessEnv {
 export function compose(argumentos: string[]): string {
   const resultado = spawnSync(
     "docker",
-    ["compose", "-f", "docker-compose.yml", "-f", "docker-compose.e2e.yml", ...argumentos],
+    [
+      "compose",
+      "-p",
+      PROYECTO,
+      "-f",
+      "docker-compose.yml",
+      "-f",
+      "docker-compose.e2e.yml",
+      ...argumentos,
+    ],
     { cwd: RAIZ_SRC, env: entornoCompose(), encoding: "utf-8", maxBuffer: 64 * 1024 * 1024 },
   );
   const salida = resultado.stdout + resultado.stderr;

@@ -8,3 +8,5 @@
 **/.expo
 backend
 apps/mobile
+**/playwright-report
+**/test-results
