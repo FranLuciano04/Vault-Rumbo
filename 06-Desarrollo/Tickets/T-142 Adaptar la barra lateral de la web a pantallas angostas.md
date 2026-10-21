@@ -3,7 +3,7 @@ id: T-142
 titulo: Adaptar la barra lateral de la web a pantallas angostas
 modulo: M0 — Fundaciones
 capa: web
-estado: libre
+estado: tomado
 depende_de: [T-020]
 tamaño: S
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [RNF-11, RNF-14]
 origen: hallazgo T-020
-asignado:
-tomado_el:
-rama:
+asignado: palomap2003
+tomado_el: 21/10/26 20:57
+rama: feature/T-142-adaptar-la-barra-lateral-de-la-web-a-pan
 pr:
 ---
 # T-142 Adaptar la barra lateral de la web a pantallas angostas
