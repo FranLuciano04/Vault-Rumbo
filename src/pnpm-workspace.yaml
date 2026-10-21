@@ -2,8 +2,10 @@ packages:
   - "apps/*"
   - "packages/*"
 allowBuilds:
+  "@firebase/util": false
   "@parcel/watcher": true
   msw: true
+  protobufjs: false
   unrs-resolver: true
 minimumReleaseAgeExclude:
   - "@asamuzakjp/dom-selector@10.0.3"

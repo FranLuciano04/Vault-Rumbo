@@ -2,6 +2,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import type { AxiosInstance } from "axios";
 import { useState } from "react";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router";
+import { PaginaLogin } from "@/features/seguridad/PaginaLogin";
 import { RutaProtegida } from "./RutaProtegida";
 import { SeccionPendiente } from "./SeccionPendiente";
 
@@ -11,8 +12,7 @@ export function App({ cliente }: { cliente: AxiosInstance }) {
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
         <Routes>
-          {/* El login es del ticket siguiente. */}
-          <Route path="/login" element={<p className="p-6">Iniciar sesión</p>} />
+          <Route path="/login" element={<PaginaLogin cliente={cliente} />} />
           <Route element={<RutaProtegida cliente={cliente} />}>
             <Route index element={<Navigate to="/agenda" replace />} />
             <Route path=":seccion" element={<SeccionPendiente />} />
