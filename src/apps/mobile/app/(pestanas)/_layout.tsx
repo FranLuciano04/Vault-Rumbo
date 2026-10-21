@@ -4,6 +4,12 @@ import { Redirect, Tabs } from "expo-router";
 import { crearBotonPestana } from "../../src/componentes/BotonPestana";
 import { cliente } from "../../src/cliente";
 
+const PESTANAS = [
+  { name: "agenda", titulo: "Agenda" },
+  { name: "clientes", titulo: "Clientes" },
+  { name: "mas", titulo: "Más" },
+];
+
 export default function LayoutPestanas() {
   const yo = useYo(cliente);
   if (yo.isPending) return null;
@@ -16,15 +22,13 @@ export default function LayoutPestanas() {
         tabBarStyle: { borderTopColor: "#d9d9d9" },
       }}
     >
-      <Tabs.Screen
-        name="agenda"
-        options={{ title: "Agenda", tabBarButton: crearBotonPestana("Agenda") }}
-      />
-      <Tabs.Screen
-        name="clientes"
-        options={{ title: "Clientes", tabBarButton: crearBotonPestana("Clientes") }}
-      />
-      <Tabs.Screen name="mas" options={{ title: "Más", tabBarButton: crearBotonPestana("Más") }} />
+      {PESTANAS.map(({ name, titulo }) => (
+        <Tabs.Screen
+          key={name}
+          name={name}
+          options={{ title: titulo, tabBarButton: crearBotonPestana(titulo) }}
+        />
+      ))}
     </Tabs>
   );
 }
