@@ -19,18 +19,19 @@ export function Shell({ usuario, children }: { usuario: UsuarioActual; children:
       <aside className="flex w-60 shrink-0 flex-col gap-6 border-r border-sidebar-border bg-sidebar p-4">
         <span className="px-3 text-xl font-bold text-sidebar-primary">Rumbo</span>
         <nav aria-label="Navegación principal" className="flex flex-col gap-1">
-          {seccionesVisibles(usuario).map(({ id, etiqueta, ruta }) => (
+          {seccionesVisibles(usuario).map(({ id, etiqueta, ruta, icono: Icono }) => (
             <NavLink
               key={id}
               to={ruta}
               className={({ isActive }) =>
                 cn(
-                  "rounded-md px-3 py-2 text-sm font-medium text-sidebar-foreground hover:bg-sidebar-accent",
+                  "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-sidebar-foreground hover:bg-sidebar-accent",
                   isActive &&
-                    "bg-sidebar-primary text-sidebar-primary-foreground hover:bg-sidebar-primary",
+                    "bg-sidebar-primary font-semibold text-sidebar-primary-foreground hover:bg-sidebar-primary",
                 )
               }
             >
+              <Icono aria-hidden="true" className="size-4 shrink-0" />
               {etiqueta}
             </NavLink>
           ))}
