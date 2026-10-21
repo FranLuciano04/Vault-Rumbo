@@ -60,6 +60,18 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
+## 21/10/26 — Francisco (Claude Opus 5.5) — T-021: login web con email o Google
+- **Hecho:** T-021 (capa web, riesgo alto).
+  - El login funciona con email y con Google, con `/auth/yo` y el aviso «usuario no habilitado» (A1). Están «olvidé mi contraseña», con un mensaje neutro (A4), y el cierre de sesión, que limpia la caché (A3).
+  - La review de seguridad (Sonnet) dejó 0 bloqueantes y 2 menores, los dos arreglados. Pasan los 46 tests de web y los 24 de shared. La cobertura de la web es del 80,8 %.
+  - Se sumaron las dependencias `firebase`, `react-hook-form`, `@hookform/resolvers` y `zod`. Después del pull hay que correr `pnpm install` en `src/`.
+  - El PR [#23](https://github.com/FranLuciano04/Vault-Rumbo/pull/23) **espera la aprobación de Nahuel o Paloma**.
+- **Commits:** 1fc29b5, e031caf, a99f480, 940c517.
+- **Pendiente:**
+  - En Windows con WSL, `tickets.mjs fase --test` usa el `bash` de WSL. El comando falla, así que un rojo pasa sin que corran los tests. Se puede evitar poniendo Git Bash primero en el PATH. Falta crear el ticket del arreglo.
+  - En la consola de `rumbo-9ff17`, confirmar que el registro de cuentas esté deshabilitado.
+  - La protección de `main` no se puede configurar: GitHub la pide con Pro para los repos privados.
+
 ## 20/10/26 — Nahuel (Claude Opus 5.5) — T-144: OpenAPI exportado con LF
 - **Hecho:** T-144 (capa backend, riesgo normal, `origen: hallazgo T-016`). `exportar_openapi` escribe con `newline="
 "`, así que en Windows ya no sale CRLF.
