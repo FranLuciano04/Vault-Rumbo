@@ -12,6 +12,8 @@ actualizado: 13/10/26
 ## Fase actual
 > 🚀 **12/10 — arranca la implementación.** El equipo aprobó [[DEC-0014 Flujo de implementación con agentes]]: tickets con semáforo en Git, TDD con subagentes, review de Codex en cada módulo y código en `src/`. ✅ **Paso 1 hecho:** skills (`/tomar-ticket`, `/implementar-ticket`, `/cerrar-modulo` y 13 de Addy Osmani), subagentes, script de tickets, [[Flujo de implementación]], [[Tablero de tickets]] y [[Grafo de tickets]]. ✅ **Paso 2 (13/10):** grill con el equipo → [[DEC-0015 Decisiones de implementación]], y la autenticación pasó a Firebase con [[DEC-0016 Autenticación con Firebase]]. ✅ **Paso 3 (13/10):** [[Spec de implementación]] aprobada y formalizada; [[Plan de implementación]] (aprobado el 14/10) con **139 tickets** en el [[Grafo de tickets]]. ⏭️ **Ahora:** empezar con `/tomar-ticket` (disponibles: T-001, T-002, T-004 y T-005, el proyecto de Firebase). Meta mínima del PC2: M0 a M6; primero los 79 tickets del camino de CU-01 (T-108). Después, hasta donde lleguemos.
 >
+> 👉 **21/10 (Francisco):** **T-022** (shell mobile con las pestañas Agenda, Clientes y Más y la guarda de sesión) está hecho y mergeado (PR [#25](https://github.com/FranLuciano04/Vault-Rumbo/pull/25)). Destraba 7 tickets. Después del pull, `pnpm install` en `src/`.
+>
 > 👉 **21/10 (Francisco):** **T-025** (e2e del login web con Playwright y el job «E2e web» en el CI) está hecho y mergeado (PR [#24](https://github.com/FranLuciano04/Vault-Rumbo/pull/24)). Destraba 11 tickets.
 >
 > 👉 **21/10 (Francisco):** **T-021** (login web con email o Google) está hecho y **mergeado**: Paloma aprobó el PR [#23](https://github.com/FranLuciano04/Vault-Rumbo/pull/23). Destraba 12 tickets.

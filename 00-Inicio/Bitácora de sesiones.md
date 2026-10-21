@@ -67,6 +67,21 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
   - En la consola de `rumbo-9ff17`, confirmar que el registro de cuentas esté deshabilitado.
   - La protección de `main` no se puede configurar: GitHub la pide con Pro para los repos privados.
 
+## 21/10/26 — Francisco (Claude Opus 5.5) — T-022: shell mobile con pestañas
+- **Hecho:** T-022 (capa mobile, riesgo normal).
+  - Expo Router con login y las pestañas Agenda, Clientes y Más, con placeholders.
+  - Guarda de sesión con `useYo`: muestra «Cargando…»; con un 401 va al login; con otro error muestra un aviso y no entra.
+  - El tema usa los tokens de la web y Plus Jakarta Sans.
+  - `EXPO_PUBLIC_API_URL` está documentada en `src/apps/mobile/README.md` y en `.env.example`. En el emulador de Android es `10.0.2.2`.
+  - La review (Opus) dejó 0 bloqueantes, 2 importantes y 5 menores, todos arreglados. Pasan los 13 tests, con 82,6 % de cobertura. El bundle de Android se genera con `expo export`.
+  - El PR [#25](https://github.com/FranLuciano04/Vault-Rumbo/pull/25) se mergeó con el CI en verde.
+- **Commits:** 7c66f7a, 615c290, efc7604, 9991159, eb130b1 y el de `tickets: T-022 hecho`.
+- **Para el equipo:**
+  - Después del pull hay que correr `pnpm install` en `src/`, porque mobile suma `@rumbo/shared` y `@tanstack/react-query`.
+  - Se borró `inicio.test.tsx` (humo de T-003), que quedó obsoleto: el caso lo cubre `navegacion.test.tsx`.
+- **Incidente:** `tickets.mjs fase` hace `git add -A` y se coló un cambio local de `.obsidian/app.json`, que había hecho Obsidian. Se restauró en la rama con `eb130b1`.
+- **Pendiente:** conviene que `fase` no agregue `.obsidian/` o que se trabaje con Obsidian cerrado. Queda a decidir.
+
 ## 21/10/26 — Francisco (Claude Opus 5.5) — Limpieza de pendientes viejos
 - **Hecho:** a pedido de Francisco se cerraron todos los pendientes que ya no aplicaban:
   - [[Elección del proyecto]] pasó a `formalizado` sin cambios, porque ya se había entregado en el documento general.
