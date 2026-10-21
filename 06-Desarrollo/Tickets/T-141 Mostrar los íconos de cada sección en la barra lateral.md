@@ -3,7 +3,7 @@ id: T-141
 titulo: Mostrar los íconos de cada sección en la barra lateral
 modulo: M0 — Fundaciones
 capa: web
-estado: tomado
+estado: hecho
 depende_de: [T-020]
 tamaño: S
 riesgo: normal
@@ -45,3 +45,23 @@ Cada ítem de la barra lateral de la web muestra el ícono de su sección, como 
 - La barra lateral responsive (T-142) y el contenido de cada sección.
 
 ## Notas de implementación
+- El ícono de cada sección vive en `SECCIONES` (`navegacion.ts`), junto a la visibilidad por rol, y `Shell.tsx` solo lo renderiza con `aria-hidden`. Los íconos se tomaron de las pantallas 3 y 28 del prototipo:
+  - Agenda: `Bell`.
+  - Calendario: `CalendarDays`.
+  - Clientes: `User`.
+  - Oportunidades: `Funnel`.
+  - Cotizaciones: `FileText`.
+  - Viajes: `Send`.
+  - Hoteles: `Hotel`.
+  - Redes: `Share2`.
+  - Dashboard: `ChartColumn`.
+  - Reportes: `FileChartColumn`, para no repetir el de Cotizaciones.
+  - Configuración: `Settings`.
+- Señal no cromática del ítem activo: `font-semibold`, además del fondo de alto contraste y de `aria-current="page"`.
+- Hallazgos de la review:
+  - Con 0 bloqueantes, 0 importantes y 3 menores, la review aprobó la rama una vez alineados los íconos con el prototipo.
+  - Se arregló el nombre accesible, que ahora se verifica con `toHaveAccessibleName`.
+  - Quedan dos menores sin arreglar:
+    - El test de `aria-hidden` pasaría aunque se borre el atributo de `Shell.tsx`, porque `lucide-react` 1.x ya lo pone por defecto.
+    - Los enlaces de la barra no tienen un estilo de foco propio (`focus-visible:ring`). No lo agregó este ticket y conviene resolverlo junto con T-142.
+- Modelos: tests con Sonnet, implementación y fix con Sonnet, review con Opus. No hubo escalado. El refactor no hizo cambios.
