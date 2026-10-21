@@ -3,7 +3,7 @@ id: T-022
 titulo: Armar el shell mobile con sus pestañas
 modulo: M0 — Fundaciones
 capa: mobile
-estado: libre
+estado: tomado
 depende_de: [T-015, T-003]
 tamaño: M
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [RNF-14, CU-24]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: FranLucianoo
+tomado_el: 21/10/26 17:28
+rama: feature/T-022-armar-el-shell-mobile-con-sus-pestanas
 pr:
 ---
 # T-022 Armar el shell mobile con sus pestañas
