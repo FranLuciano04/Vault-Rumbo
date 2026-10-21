@@ -1,6 +1,10 @@
 """T-013 (DEC-0012, RNF-16): cliente de IA con modelo falso. Nunca se llama a la API de Claude."""
 
+import anthropic
+import httpx
 import pytest
+from langchain_core.messages import AIMessage
+from pydantic import SecretStr
 
 from rumbo.core import ia
 from rumbo.core.config import Settings
@@ -60,8 +64,8 @@ async def test_rnf16_ia_modelo_claude_con_clave_usa_el_cliente_real_con_la_clave
 ) -> None:
     recibidas: list[str] = []
 
-    def construir(api_key: str) -> _ClienteSentinela:
-        recibidas.append(api_key)
+    def construir(api_key: SecretStr) -> _ClienteSentinela:
+        recibidas.append(api_key.get_secret_value())
         return _ClienteSentinela()
 
     monkeypatch.setattr(ia, "_construir_cliente_claude", construir)
@@ -76,7 +80,7 @@ async def test_rnf16_ia_modelo_claude_con_clave_usa_el_cliente_real_con_la_clave
 async def test_rnf16_ia_modelo_claude_sin_clave_falla_con_servicio_externo(
     monkeypatch: pytest.MonkeyPatch, clave: str | None
 ) -> None:
-    def no_debe_construirse(api_key: str) -> _ClienteSentinela:
+    def no_debe_construirse(api_key: SecretStr) -> _ClienteSentinela:
         raise AssertionError("no debe construirse el cliente sin clave")
 
     monkeypatch.setattr(ia, "_construir_cliente_claude", no_debe_construirse)
@@ -98,3 +102,32 @@ def test_rnf16_en_los_tests_construir_el_cliente_real_falla(
     """Guardia (autouse en conftest): ningún test puede construir el cliente real de Claude."""
     with pytest.raises(AssertionError, match="Claude"):
         ia._construir_cliente_claude("clave-de-prueba")
+
+
+class _ChatQueFalla:
+    async def ainvoke(self, prompt: str) -> AIMessage:
+        pedido = httpx.Request("POST", "https://api.anthropic.com/v1/messages")
+        raise anthropic.APIConnectionError(request=pedido)
+
+
+class _ChatConBloques:
+    async def ainvoke(self, prompt: str) -> AIMessage:
+        return AIMessage(
+            content=[
+                {"type": "text", "text": "Hola "},
+                {"type": "text", "text": "mundo"},
+            ]
+        )
+
+
+async def test_rnf16_un_error_de_la_api_de_claude_se_traduce_a_servicio_externo() -> None:
+    cliente = ia._ClienteClaude(_ChatQueFalla())  # type: ignore[arg-type]
+
+    with pytest.raises(ServicioExterno):
+        await cliente.generar("tema")
+
+
+async def test_rnf16_una_respuesta_con_varios_bloques_devuelve_solo_el_texto() -> None:
+    cliente = ia._ClienteClaude(_ChatConBloques())  # type: ignore[arg-type]
+
+    assert await cliente.generar("tema") == "Hola mundo"

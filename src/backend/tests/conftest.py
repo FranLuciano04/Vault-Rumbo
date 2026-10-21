@@ -85,7 +85,7 @@ def base_de_tests_migrada() -> None:
 def _sin_cliente_real_de_claude(monkeypatch: pytest.MonkeyPatch) -> None:
     """T-013 (RNF-16): ningún test puede construir el cliente real de Claude."""
 
-    def _prohibido(api_key: str) -> None:
+    def _prohibido(api_key: object) -> None:
         raise AssertionError("los tests no pueden construir el cliente real de Claude")
 
     monkeypatch.setattr("rumbo.core.ia._construir_cliente_claude", _prohibido)
