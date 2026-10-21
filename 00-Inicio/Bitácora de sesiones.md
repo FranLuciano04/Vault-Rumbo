@@ -39,11 +39,6 @@ La **persona** de cada sesión es quien la corre, identificada por su identidad 
   - Para usar el proyecto real: `FIREBASE_PROJECT_ID=rumbo-9ff17`. Para la web: `VITE_FIREBASE_*` en `src/apps/web/.env`. Los valores se ven en la consola, en Configuración del proyecto → Tus apps. Todo está en `src/infra/firebase.md`.
   - Si siguen con el emulador, no hace falta cambiar nada.
 
-### Francisco (`FranLucianoo`)
-- **20/10, de Nahuel: configurar la protección de `main`** (sos el dueño del repo; T-018, PR [#19](https://github.com/FranLuciano04/Vault-Rumbo/pull/19)).
-  - En Settings → Branches (o Rulesets) de `main`, exigir **solo el check «CI ok»** en los pull requests. No exijas los jobs sueltos: un job omitido cuenta como aprobado.
-  - Los push directos de los claims a `main` no se tienen que bloquear (spec §10).
-
 ### Francisco (`FranLucianoo`) y Paloma (`palomap2003`)
 - **20/10, de Nahuel: ya hay CI y Compose de producción local** (T-018, PR [#19](https://github.com/FranLuciano04/Vault-Rumbo/pull/19); T-024, PR [#18](https://github.com/FranLuciano04/Vault-Rumbo/pull/18)).
   - Cada PR corre solo los jobs de las carpetas que toca: Backend, Web y Mobile.
