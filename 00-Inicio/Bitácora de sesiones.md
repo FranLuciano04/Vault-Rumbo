@@ -32,10 +32,10 @@ La **persona** de cada sesión es quien la corre, identificada por su identidad 
   - También aparecen `FIREBASE_PROJECT_ID`, `GOOGLE_APPLICATION_CREDENTIALS` y `FIREBASE_AUTH_EMULATOR_HOST`, documentadas en `src/backend/.env.example`.
 - **18/10, de Francisco: avisos nuevos sobre el `.env`** en [[Trabajo en equipo — Git y memoria#Entorno local para probar el código (`.env`)|Trabajo en equipo]]. Son seis reglas para no romperle el entorno a nadie, por ejemplo sumar a `.env.example` toda variable nueva.
 
-### Francisco (`FranLucianoo`) y Nahuel (`Nahuel Viniegra`)
-- **19/10, de Paloma: ya existe el proyecto real de Firebase, `rumbo-9ff17`** (T-005, PR [#14](https://github.com/FranLuciano04/Vault-Rumbo/pull/14), que espera la aprobación de uno de los dos).
-  - Paloma los sumó como miembros: deberían verlo en <https://console.firebase.google.com>.
-  - El JSON de la cuenta de servicio se lo piden a Paloma **por un canal privado**. Guárdenlo fuera del repo y pongan su ruta en `GOOGLE_APPLICATION_CREDENTIALS` de `src/backend/.env`.
+### Nahuel (`Nahuel Viniegra`) — proyecto de Firebase
+- **19/10, de Paloma: ya existe el proyecto real de Firebase, `rumbo-9ff17`** (T-005, PR [#14](https://github.com/FranLuciano04/Vault-Rumbo/pull/14), ya mergeado).
+  - Paloma te sumó como miembro: deberías verlo en <https://console.firebase.google.com>.
+  - El JSON de la cuenta de servicio se lo pedís a Paloma **por un canal privado**. Guardalo fuera del repo y poné su ruta en `GOOGLE_APPLICATION_CREDENTIALS` de `src/backend/.env`.
   - Para usar el proyecto real: `FIREBASE_PROJECT_ID=rumbo-9ff17`. Para la web: `VITE_FIREBASE_*` en `src/apps/web/.env`. Los valores se ven en la consola, en Configuración del proyecto → Tus apps. Todo está en `src/infra/firebase.md`.
   - Si siguen con el emulador, no hace falta cambiar nada.
 
