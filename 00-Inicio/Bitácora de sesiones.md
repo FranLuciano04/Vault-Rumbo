@@ -114,6 +114,16 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
   - CU-24 y CU-25 quedan como **soporte transversal**.
 - **Pendiente:** nada.
 
+## 21/10/26 — Nahuel (Claude Opus 5.5) — T-145: error controlado sin proyecto de Firebase
+- **Hecho:** T-145 (capa backend, riesgo alto, `origen: hallazgo T-016`). Si falta `FIREBASE_PROJECT_ID`, un pedido autenticado ahora responde un 502 `ServicioExterno` en `problem+json` (antes era un 500 sin formato) y deja un log de error, sin traza, que nombra la variable. El código 502 lo confirmó Nahuel antes del rojo.
+  - La review de seguridad (Sonnet) dio aprobable: confirmó que ningún caso que debe dar 401 pasa a dar 502. Se arregló 1 menor (sacar la traza del log, que podía llevar el token).
+  - Pasan los 266 tests de backend; la cobertura es del 97 %.
+  - Francisco mergeó el PR [#26](https://github.com/FranLuciano04/Vault-Rumbo/pull/26) con el CI en verde, aunque en GitHub no quedó registrada una review formal.
+- **Commits:** 159b492, 3d79306, a3cd3f9, 1534123 (merge 403f7d1).
+- **Pendiente:**
+  - Dos menores anotados en el ticket: el log se repite en cada pedido mientras falte la variable, y falta un test de que `Bearer ` vacío da 401.
+  - Con `projectId` configurado pero sin credenciales, `DefaultCredentialsError` daría 500. Todavía no tiene ticket.
+
 ## 20/10/26 — Nahuel (Claude Opus 5.5) — T-144: OpenAPI exportado con LF
 - **Hecho:** T-144 (capa backend, riesgo normal, `origen: hallazgo T-016`). `exportar_openapi` escribe con `newline="
 "`, así que en Windows ya no sale CRLF.
