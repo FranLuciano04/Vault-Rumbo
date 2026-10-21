@@ -53,7 +53,7 @@ El relevamiento de la agencia ([[Relevamiento — respuestas de la agencia (17-0
 - **Mecanismo:** autenticación **propia con usuario y contraseña individual** (para auditar quién hizo cada acción, con `created_by`/`updated_by`). Google OAuth queda opcional/futuro.
 - **Nuevo rol `freelance`** (vendedor externo) con **visibilidad restringida** (solo lo suyo): es la **excepción** al patrón *lectura global* de esta DEC, que sigue vigente para `empleado`/`admin`/`dueño`.
 
-## Pendiente `#accion/decidir`
+## Pendientes (resueltos)
 - **Mecanismo de autenticación:** ✅ **resuelto** en [[DEC-0008 Autenticación propia y rol de vendedor freelance]] (usuario/contraseña individual, sellado 17/09).
 - **Infraestructura de despliegue:** ✅ **resuelta** en [[DEC-0011 Infraestructura de despliegue on-premise]] (29/09/26).
 
@@ -61,4 +61,4 @@ El relevamiento de la agencia ([[Relevamiento — respuestas de la agencia (17-0
 - Afecta: [[Usuario]] (enum `rol`), [[Cliente]] (`asesor_asignado`), [[Oportunidad]] (`responsable`), [[Viaje]] (`responsable`), [[Alerta]] (`propietario`), [[Actores]], [[ARQ — Vista general]] y, transversalmente, casi todos los casos de uso (filtros por propiedad, no por bloqueo).
 
 ## Decisores y fecha
-- Decisores: Francisco (10/09/26; modelo de visibilidad ampliado 11/09/26) — **Aprobada: 11/09/26** (sync; Francisco y Nahuel presentes, Paloma notificada por Git). Se aprueba el **modelo de roles y visibilidad**; el **mecanismo de autenticación** sigue `#accion/decidir` (no bloquea el sello del resto).
+- Decisores: Francisco (10/09/26; modelo de visibilidad ampliado 11/09/26) — **Aprobada: 11/09/26** (sync; Francisco y Nahuel presentes, Paloma notificada por Git). Se aprueba el **modelo de roles y visibilidad**; el **mecanismo de autenticación** sigue «a decidir» (ya resuelto) (no bloquea el sello del resto).

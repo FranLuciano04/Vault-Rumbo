@@ -244,7 +244,7 @@ erDiagram
 - La RESENA lleva FK `cliente_id`, `hotel_id` y `viaje_id` **nullable** (trazabilidad opcional).
 
 ## Resuelto 21/09 (Nahuel, a ratificar en sync)
-- **`VIAJE_HOTEL` usa `id` propio, no PK compuesta `(viaje_id, hotel_id)`.** Motivo: un mismo `HOTEL` puede aparecer en **más de un tramo** del mismo `VIAJE` (ej. Buenos Aires → Bariloche → Buenos Aires, con el mismo hotel porteño en ida y vuelta), y cada tramo puede llevar su propio `vencimiento_pago_proveedor` — la PK compuesta lo impedía. Detalle y justificación completa en [[DEC-0003 Relación Viaje–Hotel y Reseña]] (refinamiento sobre el `#accion/decidir` que esa DEC había dejado abierto).
+- **`VIAJE_HOTEL` usa `id` propio, no PK compuesta `(viaje_id, hotel_id)`.** Motivo: un mismo `HOTEL` puede aparecer en **más de un tramo** del mismo `VIAJE` (ej. Buenos Aires → Bariloche → Buenos Aires, con el mismo hotel porteño en ida y vuelta), y cada tramo puede llevar su propio `vencimiento_pago_proveedor` — la PK compuesta lo impedía. Detalle y justificación completa en [[DEC-0003 Relación Viaje–Hotel y Reseña]] (refinamiento sobre el «a decidir» (ya resuelto) que esa DEC había dejado abierto).
 - **ER completado:** se agregaron los **atributos de las 14 tablas** y las **4 relaciones que faltaban** (`USUARIO`–`ALERTA` propietario, `USUARIO`–`CLIENTE` asesor asignado, `USUARIO`–`OPORTUNIDAD` responsable y `DESTINO`–`REQUISITO_DESTINO`), se corrigió `VIAJE`–`PAGO` a `||--|{`, se sumaron los 4 orígenes de `ALERTA` y se eliminó una línea `CLIENTE`–`RESENA` duplicada. El diagrama pasó al motor **ELK**.
 
 ## Sobre el tamaño del diagrama

@@ -13,10 +13,10 @@ tags:: #tipo/decision #estado/formalizado #pc/pc1
 
 > ⚠️ **13/10/26:** el **§1 (autenticación propia)** quedó reemplazado por [[DEC-0016 Autenticación con Firebase|DEC-0016]]: el login es con Firebase Authentication. Los §2 a §4 (auditoría, rol `freelance` y visibilidad) siguen vigentes.
 
-> ✅ **Ratificada en la sync del 17/09/26** (Francisco, Nahuel y Paloma). **Amplía** (no supersede) a [[DEC-0005 Autenticación y modelo de roles]]: resuelve el mecanismo que quedó `#accion/decidir` y agrega un rol. Origen: [[Relevamiento — respuestas de la agencia (17-09)]] (bloque 6).
+> ✅ **Ratificada en la sync del 17/09/26** (Francisco, Nahuel y Paloma). **Amplía** (no supersede) a [[DEC-0005 Autenticación y modelo de roles]]: resuelve el mecanismo que quedó «a decidir» (ya resuelto) y agrega un rol. Origen: [[Relevamiento — respuestas de la agencia (17-09)]] (bloque 6).
 
 ## Contexto
-[[DEC-0005 Autenticación y modelo de roles]] selló el **modelo de roles y visibilidad** (*lectura global + propiedad*) pero dejó el **mecanismo de autenticación** explícitamente `#accion/decidir` (propia y/o Google OAuth). La agencia respondió y, además, sumó un actor que **no** encaja en el modelo de lectura global: el **vendedor freelance**.
+[[DEC-0005 Autenticación y modelo de roles]] selló el **modelo de roles y visibilidad** (*lectura global + propiedad*) pero dejó el **mecanismo de autenticación** explícitamente «a decidir» (ya resuelto) (propia y/o Google OAuth). La agencia respondió y, además, sumó un actor que **no** encaja en el modelo de lectura global: el **vendedor freelance**.
 
 ## Decisión
 
@@ -24,7 +24,7 @@ tags:: #tipo/decision #estado/formalizado #pc/pc1
 - **Usuario y contraseña individual** por persona (sin cuentas compartidas).
 - Motivo del negocio: **identificar quién realizó cada acción** dentro del CRM (**auditoría**).
 - Google OAuth queda como **conveniencia opcional/futura**, no requerida.
-- → Cierra el `#accion/decidir` de **mecanismo de autenticación** de [[DEC-0005 Autenticación y modelo de roles]].
+- → Cierra el «a decidir» (ya resuelto) de **mecanismo de autenticación** de [[DEC-0005 Autenticación y modelo de roles]].
 
 ### 2. Auditoría / trazabilidad
 - Para PC1 alcanza con registrar **autor y fecha** de alta/modificación (`created_by` / `updated_by`) en los registros. *(Sync 17/09.)*

@@ -1,13 +1,14 @@
 ---
 tipo: referencia
-estado: en-revision
+estado: formalizado
 responsable: Nahuel
 pc: pc1
-actualizado: 08/10/26
+actualizado: 21/10/26
+fecha_aprobacion: 21/10/26
 ---
 # Elección del proyecto
 
-tags:: #tipo/referencia #estado/en-revision #pc/pc1
+tags:: #tipo/referencia #estado/formalizado #pc/pc1
 
 Antes de definir el proyecto integrador, el equipo presentó **tres propuestas**. Las tres compartían la misma base técnica: aplicación web y mobile, backend con API REST y base de datos relacional. Se diferenciaban por el problema que atacaban y por el usuario al que apuntaban.
 
@@ -27,3 +28,5 @@ Se eligió la **propuesta 3, Rumbo**. El motivo decisivo fue contar con un **cli
 
 ## 🔎 Revisión
 > [!note] Nahuel (08/10) — nota creada a pedido de los profesores, que pidieron incluir en el documento general las propuestas iniciales y cuál se eligió. Fuente: el PDF «Propuestas trabajo de campo» (la versión PPTX está en el índice de adjuntos). El motivo de la elección lo indicó Nahuel en la sesión del 08/10; **a ratificar por el equipo** por si hay otros motivos que sumar.
+>
+> [!success] **Cerrado el 21/10/26 (Francisco):** la nota ya se entregó tal cual en el documento general y queda formalizada sin cambios.
