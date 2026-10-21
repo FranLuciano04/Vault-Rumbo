@@ -7,7 +7,8 @@
 # - Los push a `main` solo disparan el workflow si tocan `src/` o `.github/`, de modo que los push
 #   directos de los claims de tickets (`06-Desarrollo/Tickets/`) no gastan minutos.
 # - Un cambio en este archivo corre los tres jobs, para que su propio PR se verifique.
-# - Seguridad (pip-audit, pnpm audit, bandit, Semgrep, gitleaks) y e2e van en otros tickets.
+# - El job `e2e` (T-025) corre cuando cambia cualquier cosa bajo `src/`: levanta el Compose de e2e.
+# - Seguridad (pip-audit, pnpm audit, bandit, Semgrep, gitleaks) va en otro ticket.
 name: CI
 
 on:
@@ -34,6 +35,7 @@ jobs:
       backend: ${{ steps.filtro.outputs.backend }}
       web: ${{ steps.filtro.outputs.web }}
       mobile: ${{ steps.filtro.outputs.mobile }}
+      src: ${{ steps.filtro.outputs.src }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -70,6 +72,7 @@ jobs:
             echo "backend=$(hay "$raiz|^src/backend/")"
             echo "web=$(hay "$raiz|^src/apps/web/|^src/packages/shared/")"
             echo "mobile=$(hay "$raiz|^src/apps/mobile/")"
+            echo "src=$(hay "$raiz|^src/")"
           } | tee -a "$GITHUB_OUTPUT"
 
   backend:
@@ -182,11 +185,57 @@ jobs:
           pnpm --filter @rumbo/mobile test:cobertura
           --coverageThreshold='{"global":{"statements":70,"branches":70,"functions":70,"lines":70}}'
 
+  e2e:
+    name: E2e web
+    needs: cambios
+    if: needs.cambios.outputs.src == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: src
+    env:
+      # Sin src/.env en el runner, el setup de e2e usa esta base descartable (apps/web/e2e/compose.ts).
+      RUMBO_DB_USER: rumbo
+      RUMBO_DB_PASSWORD: rumbo-e2e-descartable
+      # Deja el stack arriba al terminar los tests para poder leer los logs si fallan; se baja al final.
+      E2E_MANTENER: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          package_json_file: src/package.json
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: src/pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+      - name: Instalar Chromium de Playwright
+        run: pnpm --filter @rumbo/web exec playwright install --with-deps chromium
+      - name: E2e (Compose + datos-iniciales + Playwright)
+        run: pnpm --filter @rumbo/web e2e
+      - name: Informe de Playwright
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: |
+            src/apps/web/playwright-report/
+            src/apps/web/test-results/
+          retention-days: 7
+      - name: Logs del Compose
+        if: failure()
+        run: docker compose -p rumbo-e2e -f docker-compose.yml -f docker-compose.e2e.yml logs --no-color --tail=200
+      - name: Bajar el Compose de e2e
+        if: always()
+        run: docker compose -p rumbo-e2e -f docker-compose.yml -f docker-compose.e2e.yml down -v --remove-orphans
+
   # Único check a exigir en la protección de `main`. Falla si algún job falló o se canceló,
   # incluido `cambios` (sin él, los demás quedarían omitidos y parecerían aprobados).
   ci-ok:
     name: CI ok
-    needs: [cambios, backend, web, mobile]
+    needs: [cambios, backend, web, mobile, e2e]
     if: always()
     runs-on: ubuntu-latest
     steps:
