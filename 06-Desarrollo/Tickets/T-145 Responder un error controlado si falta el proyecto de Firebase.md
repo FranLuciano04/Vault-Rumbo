@@ -3,7 +3,7 @@ id: T-145
 titulo: Responder un error controlado si falta el proyecto de Firebase
 modulo: M0 — Fundaciones
 capa: backend
-estado: tomado
+estado: hecho
 depende_de: [T-010]
 tamaño: S
 riesgo: alto
@@ -51,3 +51,14 @@ Cuando el backend corre sin `FIREBASE_PROJECT_ID` (ni credenciales que lo defina
 - Las otras rutas que usan Firebase fuera del pedido HTTP, como `crear_cuenta` en la CLI, que ya valida la variable.
 
 ## Notas de implementación
+- Nahuel confirmó el código antes del rojo: 502 `ServicioExterno`, igual que con `CertificateFetchError`.
+- `VerificadorFirebase.verificar` captura `ValueError` en el último `except`, así que `InvalidIdTokenError` sigue dando 401. Registra un `logger.error` que nombra `FIREBASE_PROJECT_ID`, sin traza, porque algunos `ValueError` del Admin SDK interpolan el token. Se actualizó el comentario de `core/config.py`.
+- La review de seguridad (Sonnet) dio aprobable y verificó contra firebase-admin que ningún caso que debe dar 401 termina en 502: `HTTPBearer` frena antes el `Bearer` vacío. Dejó 3 menores:
+  - Se arregló sacar `exc_info` del log (fix).
+  - Quedan como pendientes:
+    - Un log de error por cada pedido mientras falte la variable.
+    - Un test que fije que `Bearer ` vacío da 401.
+    - Un test que verifique que el token no aparece en el log.
+- Fuera de alcance: con `projectId` configurado pero sin credenciales, `DefaultCredentialsError` daría 500.
+- Modelos: tests sonnet, implementación y fix opus, refactor opus (sin cambios) y review sonnet. No hubo escalados.
+- Checks: ruff y mypy no dan avisos, pasan los 266 tests y la cobertura es del 97 % en todo el backend, del 95,65 % en negocio y del 100 % en `core/seguridad.py`.
