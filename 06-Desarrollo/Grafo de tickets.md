@@ -15,7 +15,7 @@ tags:: #tipo/referencia
 | Módulo | Tickets | Hechos | Tomados | Disponibles | Esperando | Bloqueados | Estado del módulo |
 |---|---|---|---|---|---|---|---|
 | M0 — Fundaciones | 32 | 31 | 1 | 0 | 0 | 0 | 🛠️ en curso |
-| M1 — Usuarios y configuración | 16 | 4 | 1 | 6 | 5 | 0 | 🛠️ en curso |
+| M1 — Usuarios y configuración | 16 | 5 | 0 | 6 | 5 | 0 | 🛠️ en curso |
 | M2 — Clientes | 12 | 2 | 1 | 3 | 6 | 0 | 🛠️ en curso |
 | M3 — Alertas | 11 | 0 | 0 | 2 | 9 | 0 | 🛠️ en curso |
 | M4 — Oportunidades y cotizaciones | 14 | 0 | 0 | 1 | 13 | 0 | 🛠️ en curso |
@@ -73,7 +73,7 @@ flowchart LR
     T029["T-029 · Editar los parámetros del negocio<br/><small>backend</small>"]:::hecho
     T030["T-030 · Configurar la comisión por defecto de un vendedor<br/><small>backend · ⚠️ riesgo alto</small>"]:::hecho
     T031["T-031 · Gestionar el catálogo de destinos<br/><small>backend</small>"]:::hecho
-    T032["T-032 · Configurar los requisitos de cada destino<br/><small>backend</small><br/>👤 palomap2003"]:::tomado
+    T032["T-032 · Configurar los requisitos de cada destino<br/><small>backend</small>"]:::hecho
     T033["T-033 · Gestionar el catálogo de operadores<br/><small>backend</small>"]:::disponible
     T034["T-034 · Configurar los parámetros del negocio en la web<br/><small>web</small>"]:::disponible
     T035["T-035 · Gestionar usuarios y roles en la web<br/><small>web</small>"]:::esperando
