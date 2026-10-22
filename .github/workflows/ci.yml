@@ -121,6 +121,9 @@ jobs:
         run: >-
           uv run python -m rumbo.presentacion.cli exportar-openapi ../packages/shared/openapi.json
           && git diff --exit-code -- ../packages/shared/openapi.json
+        env:
+          # Importar la app exige DATABASE_URL, aunque exportar el contrato no se conecta a la base.
+          DATABASE_URL: postgresql+asyncpg://rumbo:${{ env.CI_DB_PASSWORD }}@localhost:5432/rumbo_test
       - name: Migraciones (alembic upgrade head)
         run: uv run alembic upgrade head
         env:
