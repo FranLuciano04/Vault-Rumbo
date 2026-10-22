@@ -9,6 +9,7 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from rumbo.negocio.errores import (
     Conflicto,
+    DatosInvalidos,
     ErrorDeDominio,
     NoEncontrado,
     ServicioExterno,
@@ -39,6 +40,7 @@ _ESTADO_POR_DOMINIO: dict[type[ErrorDeDominio], int] = {
     SinPermiso: 403,
     TransicionInvalida: 409,
     Conflicto: 409,
+    DatosInvalidos: 422,
     ServicioExterno: 502,
 }
 
@@ -65,7 +67,7 @@ async def _error_de_dominio(request: Request, exc: Exception) -> JSONResponse:
     estado = _estado_de_dominio(error)
     if estado is None:
         return await _error_no_controlado(request, exc)
-    return _problema(estado, error.detalle)
+    return _problema(estado, error.detalle, **jsonable_encoder(error.extra))
 
 
 async def _error_http(_: Request, exc: Exception) -> JSONResponse:

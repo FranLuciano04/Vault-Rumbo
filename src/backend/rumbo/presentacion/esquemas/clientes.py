@@ -4,10 +4,10 @@ import uuid
 from datetime import date
 from typing import Annotated, Any
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 from rumbo.datos.modelos import EstadoOportunidad, EstadoResena, EstadoViaje, SegmentoCliente
-from rumbo.presentacion.esquemas.comunes import Auditoria, Problema
+from rumbo.presentacion.esquemas.comunes import Auditoria, Entrada, Problema
 
 Nombre = Annotated[str, Field(min_length=1, max_length=120)]
 Contacto = Annotated[str, Field(min_length=1, max_length=200)]
@@ -26,8 +26,10 @@ class Cliente(Auditoria):
     no_recontactar: bool
     asesor_asignado_id: uuid.UUID | None
 
+    model_config = ConfigDict(from_attributes=True)
 
-class ClienteCrear(BaseModel):
+
+class ClienteCrear(Entrada):
     """Alta de un cliente (CU-02). `confirmar_duplicado` reintenta tras el aviso del 409 (A1)."""
 
     nombre: Nombre
