@@ -2712,6 +2712,18 @@
             "minLength": 1,
             "title": "Contacto"
           },
+          "instagram": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[a-z0-9._]{1,30}$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Instagram"
+          },
           "segmento": {
             "$ref": "#/components/schemas/SegmentoCliente"
           },
@@ -2782,6 +2794,18 @@
             "minLength": 1,
             "title": "Contacto"
           },
+          "instagram": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[a-z0-9._]{1,30}$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Instagram"
+          },
           "segmento": {
             "$ref": "#/components/schemas/SegmentoCliente"
           },
@@ -2844,6 +2868,18 @@
             "maxLength": 200,
             "minLength": 1,
             "title": "Contacto"
+          },
+          "instagram": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[a-z0-9._]{1,30}$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Instagram"
           },
           "segmento": {
             "$ref": "#/components/schemas/SegmentoCliente"

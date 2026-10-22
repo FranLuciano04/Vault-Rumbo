@@ -43,6 +43,7 @@ class Cliente(IdMixin, AuditoriaMixin, Base):
     asesor_asignado_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("usuario.id"))
     nombre: Mapped[str] = mapped_column(String(120))
     contacto: Mapped[str] = mapped_column(String(200))  # whatsapp, instagram o email
+    instagram: Mapped[str | None] = mapped_column(String(30))  # usuario normalizado (DEC-0017)
     segmento: Mapped[SegmentoCliente]
     etiquetas: Mapped[list[str]] = mapped_column(
         MutableList.as_mutable(ARRAY(Text)), server_default=text("'{}'")

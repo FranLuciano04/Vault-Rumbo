@@ -4,13 +4,27 @@ import uuid
 from datetime import date
 from typing import Annotated, Any
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, BeforeValidator, ConfigDict, Field
 
 from rumbo.datos.modelos import EstadoOportunidad, EstadoResena, EstadoViaje, SegmentoCliente
 from rumbo.presentacion.esquemas.comunes import Auditoria, Entrada, Problema
 
 Nombre = Annotated[str, Field(min_length=1, max_length=120)]
 Contacto = Annotated[str, Field(min_length=1, max_length=200)]
+
+
+def _normalizar_instagram(valor: Any) -> Any:
+    """Quita espacios y un `@` inicial y pasa a minúsculas; lo que queda vacío es `None`."""
+    if not isinstance(valor, str):
+        return valor
+    return valor.strip().removeprefix("@").lower() or None
+
+
+# Usuario de Instagram (DEC-0017): dato extra opcional, no cuenta como contacto mínimo.
+Instagram = Annotated[
+    Annotated[str, Field(pattern=r"^[a-z0-9._]{1,30}$")] | None,
+    BeforeValidator(_normalizar_instagram),
+]
 _OMITIDO: Any = None  # valor por defecto de un campo que no admite `null` pero puede omitirse
 
 
@@ -20,6 +34,7 @@ class Cliente(Auditoria):
     id: uuid.UUID
     nombre: Nombre
     contacto: Contacto
+    instagram: Instagram = None
     segmento: SegmentoCliente
     etiquetas: list[str]
     preferencias: str | None
@@ -34,6 +49,7 @@ class ClienteCrear(Entrada):
 
     nombre: Nombre
     contacto: Contacto
+    instagram: Instagram = None
     segmento: SegmentoCliente
     etiquetas: list[str] = []
     preferencias: str | None = None
@@ -48,6 +64,7 @@ class ClienteEditar(BaseModel):
     # (CU-03 A2: la ficha no puede quedar sin nombre ni contacto).
     nombre: Nombre = _OMITIDO
     contacto: Contacto = _OMITIDO
+    instagram: Instagram = None
     segmento: SegmentoCliente = _OMITIDO
     etiquetas: list[str] = _OMITIDO
     preferencias: str | None = None
