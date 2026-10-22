@@ -3,7 +3,7 @@ id: T-150
 titulo: Correr las auditorías de dependencias cada semana
 modulo: M0 — Fundaciones
 capa: infra
-estado: tomado
+estado: hecho
 depende_de: [T-019]
 tamaño: XS
 riesgo: normal
@@ -53,3 +53,5 @@ No sigue TDD (`infra`). Se verifica con `actionlint` y con una corrida manual (`
 - **Pendiente en GitHub:** `workflow_dispatch` solo aparece en la pestaña Actions cuando el archivo está en `main`, así que la corrida manual se hace después del merge.
 - **Quién mira el aviso:** Nahuel Viniegra, responsable fijo. Qué hacer ante una corrida en rojo y cómo se cambia el responsable: ver [[Flujo de implementación#Auditoría semanal de dependencias (T-150)]].
 - **Notificación:** GitHub avisa de una corrida programada fallida a quien modificó por última vez la sintaxis `cron` ([documentación de GitHub Actions, evento `schedule`](https://docs.github.com/actions/reference/workflows-and-actions/events-that-trigger-workflows#schedule)). Coincide con Nahuel, que es quien edita el `cron`.
+- **Review (sonnet):** sin bloqueantes. El importante (criterio 3, documentar quién mira el aviso) se arregló en el fix, con la decisión de Nahuel. Menores: el comentario del workflow ahora apunta al vault; `concurrency` no se agregó, porque para una corrida semanal no hace falta.
+- **Modelos:** implementación y fix con haiku; review con sonnet. No hubo escalados.
