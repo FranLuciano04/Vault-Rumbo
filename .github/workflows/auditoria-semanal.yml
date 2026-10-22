@@ -8,7 +8,8 @@
 # - Las excepciones de pnpm están en `audit.ignore` de `src/pnpm-workspace.yaml`, igual que en el
 #   CI de los PR. pip-audit no tiene excepciones.
 # - GitHub notifica la falla de una corrida programada a quien modificó por última vez la sintaxis
-#   `cron` de este archivo. Quién mira el aviso se define en el vault (T-150).
+#   `cron` de este archivo. Quién mira el aviso y qué hacer ante una falla: vault,
+#   06-Desarrollo/Flujo de implementación.md, sección «Auditoría semanal de dependencias (T-150)».
 name: Auditoría semanal
 
 on:
