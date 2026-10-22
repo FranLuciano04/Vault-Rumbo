@@ -3,7 +3,7 @@ id: T-019
 titulo: Sumar los análisis de seguridad al CI
 modulo: M0 — Fundaciones
 capa: infra
-estado: libre
+estado: tomado
 depende_de: [T-018]
 tamaño: S
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: haiku
 modelo_review: opus
 trazabilidad: [DEC-0001, RNF-03]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: Nahuel Viniegra
+tomado_el: 21/10/26 22:06
+rama: feature/T-019-sumar-los-analisis-de-seguridad-al-ci
 pr:
 ---
 # T-019 Sumar los análisis de seguridad al CI
