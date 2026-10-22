@@ -24,19 +24,6 @@ La **persona** de cada sesión es quien la corre, identificada por su identidad 
 ## Avisos pendientes por persona
 > Claude los lee al identificar a la persona (paso 1 de `CLAUDE.md`) y se los cuenta **apenas la saluda**, antes de cualquier otra tarea. Cuando la persona confirme que lo leyó o que lo hizo, **Claude borra su fila** en esa misma sesión, con un commit. Cuando no quede ninguna fila de alguien, se borra también su sección.
 
-### Nahuel (`Nahuel Viniegra`) — T-030
-- **22/10, de Francisco: PR [#33](https://github.com/FranLuciano04/Vault-Rumbo/pull/33)** (T-030, comisión por defecto, ⚠️ riesgo alto).
-  - ✅ Paloma lo aprobó y Francisco ya lo **mergeó** (22/10). Destraba 17 tickets.
-  - **Decidido por Francisco (22/10):** un usuario dado de baja puede tener comisión por defecto, y también el propio admin y la dueña. Está anotado en la Revisión de CU-13 y se fija con tests en T-147.
-  - **Nuevo en los tests:** las rutas de M1 que se implementan pasan a `IMPLEMENTADAS` en `tests/api/test_contrato_m1.py`, así dejan de esperar el 501.
-
-### Nahuel (`Nahuel Viniegra`) — `localhost` en el `.env`
-- **22/10, de Paloma: tests de backend lentos en Windows por `localhost`** (T-039, PR [#31](https://github.com/FranLuciano04/Vault-Rumbo/pull/31)).
-  - Con `localhost` en `TEST_DATABASE_URL` y en `DATABASE_URL`, cada conexión a Postgres tardaba 2 s, porque Windows prueba IPv6 primero. La suite de backend pasaba de unos 65 s a 31 min, con algún timeout.
-  - En tu `src/backend/.env`, cambiá `@localhost:` por `@127.0.0.1:`.
-  - `src/backend/.env.example` ya está corregido, entró con T-026 (PR [#32](https://github.com/FranLuciano04/Vault-Rumbo/pull/32)). Francisco ya lo aplicó en su `.env`.
-
-### Nahuel (`Nahuel Viniegra`) y Paloma (`palomap2003`) — decisiones del 22/10
 - **22/10, de Francisco: [[DEC-0017 Contacto mínimo del cliente]] quedó formalizada, con un agregado a la propuesta de Paloma.**
   - El contacto mínimo sigue siendo teléfono/WhatsApp o email.
   - El cliente puede tener además su **usuario de Instagram como dato opcional**. No cuenta como contacto mínimo.
