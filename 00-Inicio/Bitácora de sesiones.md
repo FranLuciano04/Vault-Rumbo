@@ -24,6 +24,20 @@ La **persona** de cada sesión es quien la corre, identificada por su identidad 
 ## Avisos pendientes por persona
 > Claude los lee al identificar a la persona (paso 1 de `CLAUDE.md`) y se los cuenta **apenas la saluda**, antes de cualquier otra tarea. Cuando la persona confirme que lo leyó o que lo hizo, **Claude borra su fila** en esa misma sesión, con un commit. Cuando no quede ninguna fila de alguien, se borra también su sección.
 
+### Francisco (`FranLucianoo`)
+- **22/10, de Nahuel: el CI ahora corre análisis de seguridad** (T-019, PR [#30](https://github.com/FranLuciano04/Vault-Rumbo/pull/30)).
+  - **Qué se agregó:** gitleaks corre en cada PR y en cada push a `main`, incluido el vault. También se sumaron Semgrep, pip-audit y bandit (backend) y `pnpm audit` (web).
+  - **Después del pull:** corré `uv sync` en `src/backend` (dependencias nuevas de T-013 y T-019) y `pnpm install` en `src/`.
+  - **Si un push del vault falla en `Secretos`:** se subió algo con forma de secreto. Hay que rotarlo y avisar.
+  - **Las excepciones** van comentadas en `.gitleaks.toml`, en `audit.ignore` de `src/pnpm-workspace.yaml` o con `nosemgrep` y su motivo.
+
+### Paloma (`palomap2003`)
+- **22/10, de Nahuel: el CI ahora corre análisis de seguridad** (T-019, PR [#30](https://github.com/FranLuciano04/Vault-Rumbo/pull/30)).
+  - **Qué se agregó:** gitleaks corre en cada PR y en cada push a `main`, incluido el vault. También se sumaron Semgrep, pip-audit y bandit (backend) y `pnpm audit` (web).
+  - **Después del pull:** corré `uv sync` en `src/backend` (dependencias nuevas de T-013 y T-019) y `pnpm install` en `src/`.
+  - **Si un push del vault falla en `Secretos`:** se subió algo con forma de secreto. Hay que rotarlo y avisar.
+  - **Las excepciones** van comentadas en `.gitleaks.toml`, en `audit.ignore` de `src/pnpm-workspace.yaml` o con `nosemgrep` y su motivo.
+
 ## Formato
 Es **obligatorio** nombrar a la persona que hizo la sesión.
 ```
@@ -32,6 +46,26 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Commits:** <hash>, <hash>
 - **Pendiente:** …
 ```
+
+## 22/10/26 — Nahuel (Claude Opus 5.5) — T-019: análisis de seguridad en el CI
+- **Hecho:** T-019 (capa infra, riesgo normal, DEC-0001, RNF-03).
+  - **Jobs nuevos:**
+    - `secretos`: gitleaks, en `secretos.yml`. Corre en cada PR y en cada push a `main`, y recorre `HEAD`, no todas las ramas.
+    - `sast`: Semgrep.
+    - pip-audit y bandit en el job backend, y `pnpm audit` en el job web.
+  - **Hallazgos reales resueltos:**
+    - Se actualizó `certifi`.
+    - Override de `@grpc/grpc-js`.
+    - El emulador ya no corre como root.
+  - **Riesgo aceptado** de 2 altas sin parche que vienen de herramientas de build: node-forge y braces.
+  - **Review (Opus):** 1 importante y 4 menores. Se arreglaron el importante y 2 menores.
+  - **CI en GitHub:** todo en verde. gitleaks recorrió 424 commits sin encontrar secretos. El PR [#30](https://github.com/FranLuciano04/Vault-Rumbo/pull/30) quedó mergeado, y `Secretos` también pasó en el push a `main`.
+- **Commits:** 81708b0, 5769ccc, más el cierre del ticket.
+- **Para el equipo:** ver los avisos de arriba. Los 5 `PermissionError` de los tests que lanzan subprocesos en la PC de Nahuel se resuelven con `pytest --basetemp=.pytest_tmp`.
+- **Pendiente:**
+  - M0 queda con un solo ticket: T-023, el login mobile, de riesgo alto.
+  - Posible ticket nuevo: un `schedule` semanal para las auditorías.
+  - Fijar Semgrep y las acciones por digest o SHA.
 
 ## 21/10/26 — Nahuel (Claude Opus 5.5) — T-013: cliente de IA con modelo falso
 - **Hecho:** T-013 (capa backend, riesgo normal, DEC-0012, RNF-16).
