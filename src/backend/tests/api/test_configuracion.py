@@ -187,3 +187,27 @@ async def test_rf022_falta_un_campo_422(cliente_como: Fabrica, campo: str) -> No
     r = await c.put(URL, json=cuerpo)
 
     assert r.status_code == 422
+
+
+@pytest.mark.parametrize(
+    "campo", ["vigencia_cotizacion_meses", "anticipacion_salida_dias", "recontacto_meses"]
+)
+async def test_rf022_entero_fuera_del_rango_de_la_base_da_422_y_no_cambia_lo_previo(
+    cliente_como: Fabrica, sesion: AsyncSession, campo: str
+) -> None:
+    c = await cliente_como("admin")
+    await _fijar(sesion, 3, 15, 12)
+    cuerpo = {"vigencia_cotizacion_meses": 2, "anticipacion_salida_dias": 5, "recontacto_meses": 3}
+    cuerpo[campo] = 10_000_000_000
+
+    r = await c.put(URL, json=cuerpo)
+
+    assert r.status_code == 422
+    assert r.headers["content-type"].startswith(PROBLEM_JSON)
+    assert r.json()["status"] == 422
+    fila = await _fila(sesion)
+    assert (
+        fila.vigencia_cotizacion_meses,
+        fila.anticipacion_salida_dias,
+        fila.recontacto_meses,
+    ) == (3, 15, 12)

@@ -451,3 +451,36 @@ async def test_rf034_editar_deja_updated_by(cliente_como: Fabrica, sesion: Async
     assert r.json()["updated_by"] == str(c.usuario.id)  # type: ignore[attr-defined]
     await sesion.refresh(req)
     assert req.updated_by == c.usuario.id  # type: ignore[attr-defined]
+
+
+FUERA_DE_RANGO = 10_000_000_000  # no entra en un INTEGER de Postgres (T-151)
+
+
+async def test_rf086_anticipacion_fuera_de_rango_da_422(
+    cliente_como: Fabrica, sesion: AsyncSession
+) -> None:
+    destino = await _destino(sesion, nombre="Miami")
+    c = await cliente_como("admin")
+
+    r = await c.post(_lista(destino.id), json={**CUERPO, "anticipacion_dias": FUERA_DE_RANGO})
+
+    assert r.status_code == 422
+    assert r.headers["content-type"].startswith(PROBLEM_JSON)
+    assert r.json()["status"] == 422
+    assert await _cantidad(sesion) == 0
+
+
+async def test_rf087_editar_anticipacion_fuera_de_rango_da_422(
+    cliente_como: Fabrica, sesion: AsyncSession
+) -> None:
+    destino = await _destino(sesion, nombre="Miami")
+    req = await _requisito(sesion, destino.id)
+    c = await cliente_como("admin")
+
+    r = await c.patch(_url(req.id), json={"anticipacion_dias": FUERA_DE_RANGO})
+
+    assert r.status_code == 422
+    assert r.headers["content-type"].startswith(PROBLEM_JSON)
+    assert r.json()["status"] == 422
+    await sesion.refresh(req)
+    assert req.anticipacion_dias == 30
