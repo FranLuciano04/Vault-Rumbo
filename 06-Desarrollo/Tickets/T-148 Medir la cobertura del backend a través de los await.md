@@ -3,7 +3,7 @@ id: T-148
 titulo: Medir la cobertura del backend a través de los await
 modulo: M1 — Usuarios y configuración
 capa: infra
-estado: tomado
+estado: hecho
 depende_de: []
 tamaño: XS
 riesgo: normal
@@ -43,4 +43,6 @@ No sigue TDD: se verifica corriendo `uv run pytest --cov` antes y después y com
 ## Fuera de alcance
 - Cambiar tests o umbrales.
 
-## Notas de implementación
+## Notas de implementación- **Adelantado en T-032 (PR [#39](https://github.com/FranLuciano04/Vault-Rumbo/pull/39), commit `483ff3b`), con la autorización de Paloma:** `concurrency = ["greenlet", "thread"]` en `[tool.coverage.run]`. Sin eso, `negocio/` daba 79,93 % con T-032 y el CI fallaba.
+- **Verificación (22/10/26, sobre `main`):** `uv run pytest --cov=rumbo` da 678 pasan. `negocio/servicios/configuracion.py` da 98 %: la única línea sin cubrir, la 225, es el re-`raise` de un `IntegrityError` ajeno al nombre, no una línea después de un `await`. `seguridad.py` da 100 %. `negocio/` da 99 % y el backend 99 %; antes daban 79,93 % y 93 %. El job Backend del CI pasó en el PR #39.
+- Sin código nuevo, así que no hubo implementación ni review: el diff de este ticket son solo estas notas. No se cambiaron tests ni umbrales.
