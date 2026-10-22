@@ -2,10 +2,11 @@
 
 import uuid
 from decimal import Decimal
+from typing import Any
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from rumbo.datos.modelos import RolUsuario, TipoComision, Usuario
+from rumbo.datos.modelos import Destino, RolUsuario, TipoComision, Usuario
 from rumbo.datos.repositorios.seguridad import RepositorioUsuarios
 from rumbo.negocio.politicas import exigir_rol, visibilidad
 
@@ -30,3 +31,32 @@ async def configurar_comision_por_defecto(
     usuario.comision_default_valor = valor
     await sesion.flush()
     return usuario
+
+
+# Stubs de T-031 (catálogo de destinos): la lógica llega en el paso verde.
+async def crear_destino(
+    sesion: AsyncSession,
+    actor: Usuario,
+    *,
+    nombre: str,
+    pais: str,
+    region: str | None = None,
+    notas: str | None = None,
+) -> Destino:
+    raise NotImplementedError
+
+
+async def editar_destino(
+    sesion: AsyncSession, actor: Usuario, destino_id: uuid.UUID, cambios: dict[str, Any]
+) -> Destino:
+    raise NotImplementedError
+
+
+async def dar_de_baja_destino(
+    sesion: AsyncSession, actor: Usuario, destino_id: uuid.UUID
+) -> Destino:
+    raise NotImplementedError
+
+
+async def reactivar_destino(sesion: AsyncSession, actor: Usuario, destino_id: uuid.UUID) -> Destino:
+    raise NotImplementedError
