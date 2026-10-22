@@ -3,7 +3,7 @@ id: T-149
 titulo: Guardar el usuario de Instagram del cliente
 modulo: M2 — Clientes
 capa: backend
-estado: libre
+estado: tomado
 depende_de: [T-040]
 tamaño: S
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [CU-02, CU-03, RF-001, DEC-0017]
 origen: plan (DEC-0017, 22/10/26)
-asignado:
-tomado_el:
-rama:
+asignado: FranLucianoo
+tomado_el: 22/10/26 18:50
+rama: feature/T-149-guardar-el-usuario-de-instagram-del-clie
 pr:
 ---
 # T-149 Guardar el usuario de Instagram del cliente
