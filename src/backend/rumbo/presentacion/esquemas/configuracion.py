@@ -5,7 +5,7 @@ import uuid
 from decimal import Decimal
 from typing import Literal, Self
 
-from pydantic import Field, model_validator
+from pydantic import ConfigDict, Field, model_validator
 
 from rumbo.presentacion.esquemas.comunes import Auditoria, Edicion, Entrada, TipoComision, omitible
 
@@ -21,7 +21,7 @@ class ConfiguracionEditar(Entrada):
 
 
 class Configuracion(ConfiguracionEditar, Auditoria):
-    pass
+    model_config = ConfigDict(from_attributes=True)
 
 
 class ComisionPorDefecto(Entrada):

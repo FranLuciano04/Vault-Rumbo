@@ -7,7 +7,7 @@ from fastapi import APIRouter, Depends
 
 from rumbo.core.db import SesionDep
 from rumbo.datos import modelos
-from rumbo.negocio.servicios import configuracion
+from rumbo.negocio.servicios import configuracion, parametros
 from rumbo.presentacion.contrato import GESTION, TODOS, no_implementado, operacion
 from rumbo.presentacion.dependencias import usuario_actual
 from rumbo.presentacion.esquemas.configuracion import (
@@ -38,8 +38,8 @@ PaginaDep = Annotated[ParametrosPagina, Depends(parametros_pagina)]
     summary="Ver los parámetros del negocio",
     **operacion(GESTION, "CU-06, CU-07, CU-30"),
 )
-async def obtener_configuracion() -> Configuracion:
-    raise no_implementado()
+async def obtener_configuracion(sesion: SesionDep) -> Configuracion:
+    return Configuracion.model_validate(await parametros.obtener(sesion))
 
 
 @router.put(
@@ -48,8 +48,13 @@ async def obtener_configuracion() -> Configuracion:
     summary="Editar los parámetros del negocio",
     **operacion(GESTION, "CU-06, CU-07, CU-30", 422),
 )
-async def editar_configuracion(datos: ConfiguracionEditar) -> Configuracion:
-    raise no_implementado()
+async def editar_configuracion(
+    datos: ConfiguracionEditar,
+    actor: Annotated[modelos.Usuario, Depends(usuario_actual)],
+    sesion: SesionDep,
+) -> Configuracion:
+    parametros_editados = await parametros.editar(sesion, actor, **datos.model_dump())
+    return Configuracion.model_validate(parametros_editados)
 
 
 @router.put(
