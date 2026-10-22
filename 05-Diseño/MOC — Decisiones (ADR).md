@@ -27,6 +27,7 @@ tags:: #tipo/modulo #estado/formalizado
 - [[DEC-0014 Flujo de implementación con agentes]] (formalizada el 12/10/26; ajusta la estructura de DEC-0001 a `src/`)
 - [[DEC-0015 Decisiones de implementación]] (formalizada el 13/10/26; grill de la fase 0: sesión, contraseñas, UI, contrato por módulo, CI y calidad; sus §2 y §3 los reemplaza DEC-0016)
 - [[DEC-0016 Autenticación con Firebase]] (formalizada el 13/10/26; reemplaza DEC-0008 §1 y DEC-0015 §2 y §3)
+- [[DEC-0017 Contacto mínimo del cliente]] (en revisión desde el 22/10/26; contacto válido: teléfono/WhatsApp o email, sin Instagram; a ratificar en la sync)
 
 ## Todas (Dataview)
 ```dataview
