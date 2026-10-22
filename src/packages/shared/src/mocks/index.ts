@@ -50,3 +50,4 @@ export function manejadorYo(rol: RolMock): RequestHandler {
 }
 
 export * from "./clientes";
+export * from "./m1";
