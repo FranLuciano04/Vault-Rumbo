@@ -7,14 +7,23 @@ from typing import Any
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from rumbo.datos.modelos import Destino, RolUsuario, TipoComision, Usuario
+from rumbo.datos.modelos import (
+    Destino,
+    RequisitoDestino,
+    RolUsuario,
+    TipoComision,
+    TipoRequisito,
+    Usuario,
+)
 from rumbo.datos.modelos.catalogos import INDICE_NOMBRE_DESTINO
 from rumbo.datos.repositorios.destinos import RepositorioDestinos
+from rumbo.datos.repositorios.requisitos import RepositorioRequisitos
 from rumbo.datos.repositorios.seguridad import RepositorioUsuarios
 from rumbo.negocio.errores import Conflicto
 from rumbo.negocio.politicas import exigir_rol, visibilidad
 
 _destinos = RepositorioDestinos()
+_requisitos = RepositorioRequisitos()
 _usuarios = RepositorioUsuarios()
 
 
@@ -105,6 +114,79 @@ async def dar_de_baja_destino(
 async def reactivar_destino(sesion: AsyncSession, actor: Usuario, destino_id: uuid.UUID) -> Destino:
     """Vuelve a dejar activo un `Destino` de baja; idempotente (CU-26, RF-092)."""
     return await _fijar_activo(sesion, actor, destino_id, activo=True)
+
+
+async def listar_requisitos(
+    sesion: AsyncSession,
+    actor: Usuario,
+    destino_id: uuid.UUID,
+    *,
+    desplazamiento: int,
+    limite: int,
+) -> tuple[list[RequisitoDestino], int]:
+    """Página de los requisitos activos de un destino, activo o no (CU-15, RF-086)."""
+    await obtener_destino(sesion, actor, destino_id)
+    return await _requisitos.paginar_activos(
+        sesion,
+        destino_id,
+        desplazamiento=desplazamiento,
+        limite=limite,
+        visibilidad=visibilidad(actor),
+    )
+
+
+async def crear_requisito(
+    sesion: AsyncSession,
+    actor: Usuario,
+    destino_id: uuid.UUID,
+    *,
+    nombre: str,
+    tipo: str,
+    obligatorio: bool,
+    anticipacion_dias: int,
+    descripcion: str | None = None,
+) -> RequisitoDestino:
+    """Agrega un requisito a un destino (CU-15, RF-086)."""
+    exigir_rol(actor, RolUsuario.admin, RolUsuario.dueno)
+    destino = await obtener_destino(sesion, actor, destino_id)
+    requisito = RequisitoDestino(
+        destino_id=destino.id,
+        nombre=nombre,
+        tipo=TipoRequisito(tipo),
+        obligatorio=obligatorio,
+        descripcion=descripcion,
+        anticipacion_dias=anticipacion_dias,
+    )
+    sesion.add(requisito)
+    await sesion.flush()
+    return requisito
+
+
+async def editar_requisito(
+    sesion: AsyncSession, actor: Usuario, requisito_id: uuid.UUID, cambios: dict[str, Any]
+) -> RequisitoDestino:
+    """Aplica solo los campos enviados (CU-15, RF-087). Las `Alerta` ya emitidas no se tocan:
+    guardan su propio texto y fecha."""
+    exigir_rol(actor, RolUsuario.admin, RolUsuario.dueno)
+    requisito = await _requisitos.obtener(sesion, requisito_id, visibilidad=visibilidad(actor))
+    if "tipo" in cambios:
+        cambios = {**cambios, "tipo": TipoRequisito(cambios["tipo"])}
+    for campo, valor in cambios.items():
+        setattr(requisito, campo, valor)
+    await sesion.flush()
+    return requisito
+
+
+async def dar_de_baja_requisito(
+    sesion: AsyncSession, actor: Usuario, requisito_id: uuid.UUID
+) -> RequisitoDestino:
+    """Baja lógica; idempotente (CU-15, RF-088)."""
+    exigir_rol(actor, RolUsuario.admin, RolUsuario.dueno)
+    requisito = await _requisitos.obtener(sesion, requisito_id, visibilidad=visibilidad(actor))
+    if requisito.activo:
+        requisito.activo = False
+        await sesion.flush()
+    return requisito
 
 
 async def _fijar_activo(

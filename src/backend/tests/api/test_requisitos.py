@@ -55,7 +55,9 @@ async def _destino(sesion: AsyncSession, **campos: Any) -> Any:
     return await crear(sesion, DestinoFactory, activo=True, **campos)
 
 
-async def _requisito(sesion: AsyncSession, destino_id: uuid.UUID, **campos: Any) -> RequisitoDestino:
+async def _requisito(
+    sesion: AsyncSession, destino_id: uuid.UUID, **campos: Any
+) -> RequisitoDestino:
     campos.setdefault("activo", True)
     return await crear(sesion, RequisitoDestinoFactory, destino_id=destino_id, **campos)
 
@@ -109,7 +111,9 @@ async def test_rf086_agregar_sin_descripcion_y_con_anticipacion_cero(
     assert r.json()["anticipacion_dias"] == 0
 
 
-@pytest.mark.parametrize("tipo", ["visa", "vacunacion", "documentacion", "seguro", "formulario", "otro"])
+@pytest.mark.parametrize(
+    "tipo", ["visa", "vacunacion", "documentacion", "seguro", "formulario", "otro"]
+)
 async def test_rf086_acepta_todos_los_tipos(
     cliente_como: Fabrica, sesion: AsyncSession, tipo: str
 ) -> None:
@@ -317,9 +321,7 @@ async def test_rf087_editar_no_toca_alertas_emitidas(
     )
     c = await cliente_como("admin")
 
-    r = await c.patch(
-        _url(req.id), json={"nombre": "Visa Estados Unidos", "anticipacion_dias": 90}
-    )
+    r = await c.patch(_url(req.id), json={"nombre": "Visa Estados Unidos", "anticipacion_dias": 90})
 
     assert r.status_code == 200
     assert r.json()["anticipacion_dias"] == 90

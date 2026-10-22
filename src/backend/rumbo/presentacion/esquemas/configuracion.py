@@ -1,11 +1,12 @@
 """Esquemas de parámetros, destinos, requisitos de destino y operadores (CU-06, CU-07, CU-13,
 CU-15, CU-26, CU-30, CU-31, DEC-0013)."""
 
+import enum
 import uuid
 from decimal import Decimal
 from typing import Literal, Self
 
-from pydantic import ConfigDict, Field, model_validator
+from pydantic import ConfigDict, Field, field_validator, model_validator
 
 from rumbo.presentacion.esquemas.comunes import Auditoria, Edicion, Entrada, TipoComision, omitible
 
@@ -68,6 +69,8 @@ class DestinoEditar(Edicion):
 
 
 class RequisitoDestino(Auditoria):
+    model_config = ConfigDict(from_attributes=True)
+
     id: uuid.UUID
     destino_id: uuid.UUID
     nombre: str
@@ -76,6 +79,12 @@ class RequisitoDestino(Auditoria):
     descripcion: str | None
     anticipacion_dias: int
     activo: bool
+
+    @field_validator("tipo", mode="before")
+    @classmethod
+    def _valor_del_enum(cls, valor: object) -> object:
+        """El modelo guarda el enum de la base; el contrato publica su valor en texto."""
+        return valor.value if isinstance(valor, enum.Enum) else valor
 
 
 class RequisitoDestinoCrear(Entrada):

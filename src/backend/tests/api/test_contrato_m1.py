@@ -84,6 +84,10 @@ IMPLEMENTADAS = {
     ("PATCH", "/api/destinos/{destino_id}"),  # T-031
     ("POST", "/api/destinos/{destino_id}/baja"),  # T-031
     ("POST", "/api/destinos/{destino_id}/reactivar"),  # T-031
+    ("GET", "/api/destinos/{destino_id}/requisitos"),  # T-032
+    ("POST", "/api/destinos/{destino_id}/requisitos"),  # T-032
+    ("PATCH", "/api/requisitos-destino/{requisito_id}"),  # T-032
+    ("POST", "/api/requisitos-destino/{requisito_id}/baja"),  # T-032
 }
 CASOS_501 = [
     (m, r, rol) for m, r, roles, *_ in RUTAS for rol in roles if (m, r) not in IMPLEMENTADAS
