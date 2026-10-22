@@ -8,7 +8,7 @@ from rumbo.datos.modelos import RolUsuario
 from rumbo.presentacion.dependencias import exigir_roles, usuario_actual
 from rumbo.presentacion.esquemas.comunes import Problema
 
-TODOS = tuple(RolUsuario)
+TODOS = (RolUsuario.admin, RolUsuario.dueno, RolUsuario.empleado, RolUsuario.freelance)
 GESTION = (RolUsuario.admin, RolUsuario.dueno)
 
 _ERRORES = {
@@ -29,6 +29,10 @@ def operacion(roles: tuple[RolUsuario, ...], casos_de_uso: str, *errores: int) -
         "description": (
             f"**Roles:** {', '.join(r.value for r in roles)}.\n\n**Casos de uso:** {casos_de_uso}."
         ),
+        "openapi_extra": {
+            "x-roles": [r.value for r in roles],
+            "x-casos-de-uso": casos_de_uso.split(", "),
+        },
         "responses": {c: {"model": Problema, "description": _ERRORES[c]} for c in codigos},
     }
 

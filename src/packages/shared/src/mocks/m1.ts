@@ -8,8 +8,13 @@ import type {
   Usuario,
 } from "../modelos";
 
-const creado = "2026-09-01T12:00:00Z";
-const actualizado = "2026-10-15T09:30:00Z";
+/** Columnas de auditoría de ejemplo (DEC-0008): las creó y editó la admin de ejemplo. */
+const auditoria = {
+  created_by: "0b8f7a52-4c1e-4f0a-9a57-1d2f6c3b7a01",
+  updated_by: "0b8f7a52-4c1e-4f0a-9a57-1d2f6c3b7a01",
+  created_at: "2026-09-01T12:00:00Z",
+  updated_at: "2026-10-15T09:30:00Z",
+};
 
 export const usuariosMock: [Usuario, Usuario, Usuario] = [
   {
@@ -21,8 +26,7 @@ export const usuariosMock: [Usuario, Usuario, Usuario] = [
     acceso_redes: true,
     comision_default_tipo: null,
     comision_default_valor: null,
-    created_at: creado,
-    updated_at: actualizado,
+    ...auditoria,
   },
   {
     id: "a1c4e7f0-3d58-4b92-b6a3-8f0e2d1c4b03",
@@ -33,8 +37,7 @@ export const usuariosMock: [Usuario, Usuario, Usuario] = [
     acceso_redes: false,
     comision_default_tipo: "porcentaje",
     comision_default_valor: "10.00",
-    created_at: creado,
-    updated_at: actualizado,
+    ...auditoria,
   },
   {
     id: "e7b20d94-6a3f-4c15-9d8e-0b5a3f7c2e04",
@@ -45,8 +48,7 @@ export const usuariosMock: [Usuario, Usuario, Usuario] = [
     acceso_redes: false,
     comision_default_tipo: "importe",
     comision_default_valor: "15000.00",
-    created_at: creado,
-    updated_at: actualizado,
+    ...auditoria,
   },
 ];
 
@@ -54,7 +56,7 @@ export const configuracionMock: Configuracion = {
   vigencia_cotizacion_meses: 1,
   anticipacion_salida_dias: 7,
   recontacto_meses: 6,
-  updated_at: actualizado,
+  ...auditoria,
 };
 
 export const destinosMock: [Destino, Destino, Destino] = [
@@ -65,8 +67,7 @@ export const destinosMock: [Destino, Destino, Destino] = [
     region: "Patagonia",
     notas: "Temporada alta de julio a agosto.",
     activo: true,
-    created_at: creado,
-    updated_at: actualizado,
+    ...auditoria,
   },
   {
     id: "9c2d4e61-1a7f-4b38-8d05-6e3f1a2b4c22",
@@ -75,8 +76,7 @@ export const destinosMock: [Destino, Destino, Destino] = [
     region: "Quintana Roo",
     notas: null,
     activo: true,
-    created_at: creado,
-    updated_at: actualizado,
+    ...auditoria,
   },
   {
     id: "d4b81f93-5c2e-4a60-b7d9-0f8e6c1a3d33",
@@ -85,8 +85,7 @@ export const destinosMock: [Destino, Destino, Destino] = [
     region: null,
     notas: "Pide seguro de viaje.",
     activo: false,
-    created_at: creado,
-    updated_at: actualizado,
+    ...auditoria,
   },
 ];
 
@@ -100,8 +99,7 @@ export const requisitosMock: [RequisitoDestino, RequisitoDestino] = [
     descripcion: "Con al menos seis meses de vigencia.",
     anticipacion_dias: 30,
     activo: true,
-    created_at: creado,
-    updated_at: actualizado,
+    ...auditoria,
   },
   {
     id: "b7a3c9e5-6f02-4d18-8e4b-2c9d0a6f5b55",
@@ -112,8 +110,7 @@ export const requisitosMock: [RequisitoDestino, RequisitoDestino] = [
     descripcion: null,
     anticipacion_dias: 7,
     activo: true,
-    created_at: creado,
-    updated_at: actualizado,
+    ...auditoria,
   },
 ];
 
@@ -123,24 +120,21 @@ export const operadoresMock: [Operador, Operador, Operador] = [
     nombre: "Despegar Mayorista",
     contacto: "ventas@despegar.test",
     activo: true,
-    created_at: creado,
-    updated_at: actualizado,
+    ...auditoria,
   },
   {
     id: "6a9f2d38-4c71-4e85-b0a3-7d1e5f9c2b77",
     nombre: "Sol y Playa Operadora",
     contacto: "+54 11 5555-0102",
     activo: true,
-    created_at: creado,
-    updated_at: actualizado,
+    ...auditoria,
   },
   {
     id: "e2c7b04d-8a16-4f39-95e1-4b0c6d8a3f88",
     nombre: "Andes Travel",
     contacto: null,
     activo: false,
-    created_at: creado,
-    updated_at: actualizado,
+    ...auditoria,
   },
 ];
 
@@ -154,7 +148,10 @@ async function recurso<T extends { id: string }>(
   id: string | readonly string[] | undefined,
   pedido?: Request,
 ): Promise<T> {
-  const cuerpo: unknown = pedido ? await pedido.json().catch(() => ({})) : {};
+  const cuerpo = (pedido ? await pedido.json().catch(() => ({})) : {}) as Record<string, unknown>;
+  // Los importes viajan como texto decimal aunque el cuerpo de entrada los admita como número.
+  const valor = cuerpo["comision_default_valor"];
+  if (typeof valor === "number") cuerpo["comision_default_valor"] = valor.toFixed(2);
   return { ...ejemplo, ...(cuerpo as Partial<T>), id: typeof id === "string" ? id : ejemplo.id };
 }
 

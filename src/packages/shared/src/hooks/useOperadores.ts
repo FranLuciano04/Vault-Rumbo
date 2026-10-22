@@ -18,6 +18,7 @@ export function useOperadores(cliente: AxiosInstance, filtros: FiltrosListado = 
 export function useOperador(cliente: AxiosInstance, operadorId: string) {
   return useQuery({
     queryKey: [...claveOperadores, operadorId],
+    enabled: Boolean(operadorId),
     queryFn: async () => (await cliente.get<Operador>(`/api/operadores/${operadorId}`)).data,
   });
 }

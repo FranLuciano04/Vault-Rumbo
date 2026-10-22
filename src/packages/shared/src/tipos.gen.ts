@@ -180,7 +180,7 @@ export interface paths {
         };
         /**
          * Listar destinos
-         * @description **Roles:** admin, empleado, dueno, freelance.
+         * @description **Roles:** admin, dueno, empleado, freelance.
          *
          *     **Casos de uso:** CU-26.
          */
@@ -208,7 +208,7 @@ export interface paths {
         };
         /**
          * Ver un destino
-         * @description **Roles:** admin, empleado, dueno, freelance.
+         * @description **Roles:** admin, dueno, empleado, freelance.
          *
          *     **Casos de uso:** CU-26.
          */
@@ -280,7 +280,7 @@ export interface paths {
         };
         /**
          * Listar los requisitos de un destino
-         * @description **Roles:** admin, empleado, dueno, freelance.
+         * @description **Roles:** admin, dueno, empleado, freelance.
          *
          *     **Casos de uso:** CU-15.
          */
@@ -352,7 +352,7 @@ export interface paths {
         };
         /**
          * Listar operadores
-         * @description **Roles:** admin, empleado, dueno, freelance.
+         * @description **Roles:** admin, dueno, empleado, freelance.
          *
          *     **Casos de uso:** CU-31.
          */
@@ -380,7 +380,7 @@ export interface paths {
         };
         /**
          * Ver un operador
-         * @description **Roles:** admin, empleado, dueno, freelance.
+         * @description **Roles:** admin, dueno, empleado, freelance.
          *
          *     **Casos de uso:** CU-31.
          */
@@ -460,17 +460,26 @@ export interface components {
         };
         /** Configuracion */
         Configuracion: {
+            /** Created By */
+            readonly created_by: string | null;
+            /** Updated By */
+            readonly updated_by: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            readonly created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            readonly updated_at: string;
             /** Vigencia Cotizacion Meses */
             vigencia_cotizacion_meses: number;
             /** Anticipacion Salida Dias */
             anticipacion_salida_dias: number;
             /** Recontacto Meses */
             recontacto_meses: number;
-            /**
-             * Updated At
-             * Format: date-time
-             */
-            updated_at: string;
         };
         /**
          * ConfiguracionEditar
@@ -486,6 +495,20 @@ export interface components {
         };
         /** Destino */
         Destino: {
+            /** Created By */
+            readonly created_by: string | null;
+            /** Updated By */
+            readonly updated_by: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            readonly created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            readonly updated_at: string;
             /**
              * Id
              * Format: uuid
@@ -501,16 +524,6 @@ export interface components {
             notas: string | null;
             /** Activo */
             activo: boolean;
-            /**
-             * Created At
-             * Format: date-time
-             */
-            created_at: string;
-            /**
-             * Updated At
-             * Format: date-time
-             */
-            updated_at: string;
         };
         /** DestinoCrear */
         DestinoCrear: {
@@ -526,9 +539,9 @@ export interface components {
         /** DestinoEditar */
         DestinoEditar: {
             /** Nombre */
-            nombre?: string | null;
+            nombre?: string;
             /** Pais */
-            pais?: string | null;
+            pais?: string;
             /** Region */
             region?: string | null;
             /** Notas */
@@ -543,6 +556,20 @@ export interface components {
         };
         /** Operador */
         Operador: {
+            /** Created By */
+            readonly created_by: string | null;
+            /** Updated By */
+            readonly updated_by: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            readonly created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            readonly updated_at: string;
             /**
              * Id
              * Format: uuid
@@ -554,16 +581,6 @@ export interface components {
             contacto: string | null;
             /** Activo */
             activo: boolean;
-            /**
-             * Created At
-             * Format: date-time
-             */
-            created_at: string;
-            /**
-             * Updated At
-             * Format: date-time
-             */
-            updated_at: string;
         };
         /** OperadorCrear */
         OperadorCrear: {
@@ -575,7 +592,7 @@ export interface components {
         /** OperadorEditar */
         OperadorEditar: {
             /** Nombre */
-            nombre?: string | null;
+            nombre?: string;
             /** Contacto */
             contacto?: string | null;
         };
@@ -641,6 +658,20 @@ export interface components {
         };
         /** RequisitoDestino */
         RequisitoDestino: {
+            /** Created By */
+            readonly created_by: string | null;
+            /** Updated By */
+            readonly updated_by: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            readonly created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            readonly updated_at: string;
             /**
              * Id
              * Format: uuid
@@ -666,16 +697,6 @@ export interface components {
             anticipacion_dias: number;
             /** Activo */
             activo: boolean;
-            /**
-             * Created At
-             * Format: date-time
-             */
-            created_at: string;
-            /**
-             * Updated At
-             * Format: date-time
-             */
-            updated_at: string;
         };
         /** RequisitoDestinoCrear */
         RequisitoDestinoCrear: {
@@ -696,18 +717,35 @@ export interface components {
         /** RequisitoDestinoEditar */
         RequisitoDestinoEditar: {
             /** Nombre */
-            nombre?: string | null;
-            /** Tipo */
-            tipo?: ("visa" | "vacunacion" | "documentacion" | "seguro" | "formulario" | "otro") | null;
+            nombre?: string;
+            /**
+             * Tipo
+             * @enum {string}
+             */
+            tipo?: "visa" | "vacunacion" | "documentacion" | "seguro" | "formulario" | "otro";
             /** Obligatorio */
-            obligatorio?: boolean | null;
+            obligatorio?: boolean;
             /** Descripcion */
             descripcion?: string | null;
             /** Anticipacion Dias */
-            anticipacion_dias?: number | null;
+            anticipacion_dias?: number;
         };
         /** Usuario */
         Usuario: {
+            /** Created By */
+            readonly created_by: string | null;
+            /** Updated By */
+            readonly updated_by: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            readonly created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            readonly updated_at: string;
             /**
              * Id
              * Format: uuid
@@ -730,16 +768,6 @@ export interface components {
             comision_default_tipo: ("importe" | "porcentaje") | null;
             /** Comision Default Valor */
             comision_default_valor: string | null;
-            /**
-             * Created At
-             * Format: date-time
-             */
-            created_at: string;
-            /**
-             * Updated At
-             * Format: date-time
-             */
-            updated_at: string;
         };
         /**
          * UsuarioActual
@@ -771,7 +799,10 @@ export interface components {
         UsuarioCrear: {
             /** Nombre */
             nombre: string;
-            /** Email */
+            /**
+             * Email
+             * Format: email
+             */
             email: string;
             /**
              * Rol
@@ -786,13 +817,16 @@ export interface components {
         };
         /**
          * UsuarioEditar
-         * @description Cambio de rol o de acceso a redes; lo no enviado no cambia (CU-25 A2).
+         * @description Cambio de rol o de acceso a redes (CU-25 A2).
          */
         UsuarioEditar: {
-            /** Rol */
-            rol?: ("admin" | "dueno" | "empleado" | "freelance") | null;
+            /**
+             * Rol
+             * @enum {string}
+             */
+            rol?: "admin" | "dueno" | "empleado" | "freelance";
             /** Acceso Redes */
-            acceso_redes?: boolean | null;
+            acceso_redes?: boolean;
         };
         Pagina: {
             /** Items */

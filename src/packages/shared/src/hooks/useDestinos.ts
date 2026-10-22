@@ -27,6 +27,7 @@ export function useDestinos(cliente: AxiosInstance, filtros: FiltrosListado = {}
 export function useDestino(cliente: AxiosInstance, destinoId: string) {
   return useQuery({
     queryKey: [...claveDestinos, destinoId],
+    enabled: Boolean(destinoId),
     queryFn: async () => (await cliente.get<Destino>(`/api/destinos/${destinoId}`)).data,
   });
 }

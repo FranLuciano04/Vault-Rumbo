@@ -9,6 +9,7 @@ import type {
   UsuarioEditar,
 } from "../modelos";
 import { useAccion } from "./useAccion";
+import { claveYo } from "./useYo";
 
 export const claveUsuarios = ["usuarios"] as const;
 
@@ -25,6 +26,7 @@ export function useUsuarios(cliente: AxiosInstance, filtros: Omit<FiltrosListado
 export function useUsuario(cliente: AxiosInstance, usuarioId: string) {
   return useQuery({
     queryKey: [...claveUsuarios, usuarioId],
+    enabled: Boolean(usuarioId),
     queryFn: async () => (await cliente.get<Usuario>(`/api/usuarios/${usuarioId}`)).data,
   });
 }
@@ -43,6 +45,7 @@ export function useEditarUsuario(cliente: AxiosInstance) {
     claveUsuarios,
     async ({ usuarioId, datos }: { usuarioId: string; datos: UsuarioEditar }) =>
       (await cliente.patch<Usuario>(`/api/usuarios/${usuarioId}`, datos)).data,
+    [claveYo], // si edita al propio usuario, cambia su rol o sus accesos
   );
 }
 
@@ -61,5 +64,6 @@ export function useConfigurarComisionPorDefecto(cliente: AxiosInstance) {
     claveUsuarios,
     async ({ usuarioId, datos }: { usuarioId: string; datos: ComisionPorDefecto }) =>
       (await cliente.put<Usuario>(`/api/usuarios/${usuarioId}/comision-por-defecto`, datos)).data,
+    [claveYo],
   );
 }

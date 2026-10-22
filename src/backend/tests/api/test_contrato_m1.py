@@ -11,6 +11,8 @@ from uuid import uuid4
 import pytest
 from httpx import AsyncClient, Response
 
+from rumbo.main import crear_app
+
 PROBLEM_JSON = "application/problem+json"
 TODOS = ("admin", "dueno", "empleado", "freelance")
 GESTION = ("admin", "dueno")
@@ -139,11 +141,10 @@ async def _pedir(c: AsyncClient, contrato: dict[str, Any], metodo: str, ruta: st
     return await c.request(metodo, _url(ruta), **kwargs)
 
 
-@pytest.fixture
-async def contrato(cliente_sin_sesion: AsyncClient) -> dict[str, Any]:
-    r = await cliente_sin_sesion.get("/api/openapi.json")
-    assert r.status_code == 200
-    return r.json()
+@pytest.fixture(scope="module")
+def contrato() -> dict[str, Any]:
+    """El OpenAPI de la app, generado una vez por módulo y sin tocar la base."""
+    return crear_app().openapi()
 
 
 @pytest.mark.parametrize(("metodo", "ruta", "roles", "modulo", "cu"), RUTAS, ids=IDS)
@@ -167,6 +168,8 @@ async def test_rf151_contrato_publica_la_ruta_con_seguridad_roles_y_errores(
     for rol in roles:
         assert rol in operacion["description"], f"la descripción debe nombrar el rol {rol}"
     assert cu in operacion["description"]
+    assert sorted(operacion["x-roles"]) == sorted(roles)
+    assert cu in operacion["x-casos-de-uso"]
 
 
 async def test_rf151_el_contrato_no_publica_restablecer_password_dec0016(
@@ -247,3 +250,119 @@ async def test_rf151_rol_del_contrato_responde_501_problem_json(
     assert r.status_code == 501
     assert r.headers["content-type"].startswith(PROBLEM_JSON)
     assert r.json()["status"] == 501
+
+
+# Campos NOT NULL de la base en cada PATCH: omitirlos vale, un null explícito es 422.
+NULOS_EN_OBLIGATORIOS = [
+    ("/api/usuarios/{usuario_id}", "rol"),
+    ("/api/usuarios/{usuario_id}", "acceso_redes"),
+    ("/api/destinos/{destino_id}", "nombre"),
+    ("/api/destinos/{destino_id}", "pais"),
+    ("/api/requisitos-destino/{requisito_id}", "nombre"),
+    ("/api/requisitos-destino/{requisito_id}", "tipo"),
+    ("/api/requisitos-destino/{requisito_id}", "obligatorio"),
+    ("/api/requisitos-destino/{requisito_id}", "anticipacion_dias"),
+    ("/api/operadores/{operador_id}", "nombre"),
+]
+# Los anulables sí aceptan null (vaciar el dato).
+NULOS_EN_ANULABLES = [
+    ("/api/destinos/{destino_id}", "region"),
+    ("/api/destinos/{destino_id}", "notas"),
+    ("/api/requisitos-destino/{requisito_id}", "descripcion"),
+    ("/api/operadores/{operador_id}", "contacto"),
+]
+
+
+@pytest.mark.parametrize(("ruta", "campo"), NULOS_EN_OBLIGATORIOS)
+async def test_rf151_patch_con_null_en_campo_obligatorio_responde_422(
+    cliente_como: Fabrica, ruta: str, campo: str
+) -> None:
+    c = await cliente_como("admin")
+
+    r = await c.patch(_url(ruta), json={campo: None})
+
+    assert r.status_code == 422
+    assert r.headers["content-type"].startswith(PROBLEM_JSON)
+
+
+@pytest.mark.parametrize(("ruta", "campo"), NULOS_EN_OBLIGATORIOS)
+async def test_rf151_el_contrato_no_publica_null_en_campo_obligatorio_del_patch(
+    contrato: dict[str, Any], ruta: str, campo: str
+) -> None:
+    cuerpo = _operacion(contrato, "PATCH", ruta)["requestBody"]["content"]["application/json"]
+    esquema = _resolver_ref(contrato, cuerpo["schema"])["properties"][campo]
+
+    assert "anyOf" not in esquema
+    assert "default" not in esquema
+
+
+@pytest.mark.parametrize(("ruta", "campo"), NULOS_EN_ANULABLES)
+async def test_rf151_patch_con_null_en_campo_anulable_llega_al_501(
+    cliente_como: Fabrica, ruta: str, campo: str
+) -> None:
+    c = await cliente_como("admin")
+
+    r = await c.patch(_url(ruta), json={campo: None})
+
+    assert r.status_code == 501
+
+
+COMISIONES_INCOHERENTES = [
+    {"comision_default_tipo": "importe", "comision_default_valor": None},
+    {"comision_default_tipo": None, "comision_default_valor": "10.00"},
+    {"comision_default_tipo": "porcentaje", "comision_default_valor": "100.01"},
+    {"comision_default_tipo": "importe", "comision_default_valor": "-1"},
+    {"comision_default_tipo": "importe", "comision_default_valor": "10.123"},
+    {"comision_default_tipo": "otro", "comision_default_valor": "10"},
+]
+
+
+@pytest.mark.parametrize("cuerpo", COMISIONES_INCOHERENTES)
+async def test_rf083_comision_por_defecto_incoherente_responde_422(
+    cliente_como: Fabrica, cuerpo: dict[str, Any]
+) -> None:
+    c = await cliente_como("admin")
+
+    r = await c.put(_url("/api/usuarios/{usuario_id}/comision-por-defecto"), json=cuerpo)
+
+    assert r.status_code == 422
+    assert r.headers["content-type"].startswith(PROBLEM_JSON)
+
+
+@pytest.mark.parametrize(
+    "cuerpo",
+    [
+        {"comision_default_tipo": None, "comision_default_valor": None},
+        {"comision_default_tipo": "porcentaje", "comision_default_valor": "100"},
+        {"comision_default_tipo": "importe", "comision_default_valor": "15000.50"},
+    ],
+)
+async def test_rf083_comision_por_defecto_coherente_llega_al_501(
+    cliente_como: Fabrica, cuerpo: dict[str, Any]
+) -> None:
+    c = await cliente_como("admin")
+
+    r = await c.put(_url("/api/usuarios/{usuario_id}/comision-por-defecto"), json=cuerpo)
+
+    assert r.status_code == 501
+
+
+@pytest.mark.parametrize(
+    ("ruta", "cuerpo"),
+    [
+        ("/api/destinos", {"nombre": "   ", "pais": "Italia"}),
+        ("/api/destinos", {"nombre": "Roma", "pais": " "}),
+        ("/api/operadores", {"nombre": "	"}),
+        ("/api/usuarios", {"nombre": "Ana", "email": "sin-arroba", "rol": "empleado"}),
+        ("/api/usuarios", {"nombre": "Ana", "email": "a b@rumbo.test", "rol": "empleado"}),
+        ("/api/usuarios", {"nombre": "  ", "email": "ana@rumbo.test", "rol": "empleado"}),
+    ],
+)
+async def test_rf144_textos_vacios_o_email_mal_formado_responden_422(
+    cliente_como: Fabrica, ruta: str, cuerpo: dict[str, Any]
+) -> None:
+    c = await cliente_como("admin")
+
+    r = await c.post(ruta, json=cuerpo)
+
+    assert r.status_code == 422
