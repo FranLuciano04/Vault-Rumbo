@@ -43,16 +43,240 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/clientes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Buscar clientes
+         * @description **Roles:** admin, dueno, empleado, freelance.
+         *
+         *     **Casos de uso:** CU-03.
+         */
+        get: operations["buscar_clientes"];
+        put?: never;
+        /**
+         * Registrar un cliente
+         * @description **Roles:** admin, dueno, empleado, freelance.
+         *
+         *     **Casos de uso:** CU-02.
+         *
+         *     Si hay un posible duplicado responde `409` con los clientes parecidos; se reintenta con `confirmar_duplicado: true` (CU-02 A1).
+         */
+        post: operations["registrar_cliente"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/clientes/{cliente_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Ver la ficha de un cliente
+         * @description **Roles:** admin, dueno, empleado, freelance.
+         *
+         *     **Casos de uso:** CU-03.
+         */
+        get: operations["obtener_cliente"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Editar la ficha de un cliente
+         * @description **Roles:** admin, dueno, empleado, freelance.
+         *
+         *     **Casos de uso:** CU-03, CU-30.
+         */
+        patch: operations["editar_cliente"];
+        trace?: never;
+    };
+    "/api/clientes/{cliente_id}/historial": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Historial del cliente: oportunidades, viajes y reseñas
+         * @description **Roles:** admin, dueno, empleado, freelance.
+         *
+         *     **Casos de uso:** CU-03.
+         */
+        get: operations["obtener_historial_cliente"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /**
+         * Cliente
+         * @description Ficha del cliente: contacto, segmento, etiquetas y preferencias.
+         */
+        Cliente: {
+            /**
+             * Created By
+             * @description Usuario que creó el registro; vacío si lo hizo el proceso automático.
+             */
+            readonly created_by: string | null;
+            /**
+             * Updated By
+             * @description Usuario que lo modificó por última vez; vacío si fue el proceso automático.
+             */
+            readonly updated_by: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            readonly created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            readonly updated_at: string;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Nombre */
+            nombre: string;
+            /** Contacto */
+            contacto: string;
+            segmento: components["schemas"]["SegmentoCliente"];
+            /** Etiquetas */
+            etiquetas: string[];
+            /** Preferencias */
+            preferencias: string | null;
+            /** No Recontactar */
+            no_recontactar: boolean;
+            /** Asesor Asignado Id */
+            asesor_asignado_id: string | null;
+        };
+        /**
+         * ClienteCrear
+         * @description Alta de un cliente (CU-02). `confirmar_duplicado` reintenta tras el aviso del 409 (A1).
+         */
+        ClienteCrear: {
+            /** Nombre */
+            nombre: string;
+            /** Contacto */
+            contacto: string;
+            segmento: components["schemas"]["SegmentoCliente"];
+            /**
+             * Etiquetas
+             * @default []
+             */
+            etiquetas: string[];
+            /** Preferencias */
+            preferencias?: string | null;
+            /** Asesor Asignado Id */
+            asesor_asignado_id?: string | null;
+            /**
+             * Confirmar Duplicado
+             * @default false
+             */
+            confirmar_duplicado: boolean;
+        };
+        /**
+         * ClienteEditar
+         * @description Edición parcial de la ficha (CU-03, CU-30): solo cambian los campos enviados.
+         */
+        ClienteEditar: {
+            /** Nombre */
+            nombre?: string;
+            /** Contacto */
+            contacto?: string;
+            segmento?: components["schemas"]["SegmentoCliente"];
+            /** Etiquetas */
+            etiquetas?: string[];
+            /** Preferencias */
+            preferencias?: string | null;
+            /** No Recontactar */
+            no_recontactar?: boolean;
+            /** Asesor Asignado Id */
+            asesor_asignado_id?: string | null;
+        };
         /** ErrorCampo */
         ErrorCampo: {
             /** Campo */
             campo: string;
             /** Mensaje */
             mensaje: string;
+        };
+        /**
+         * EstadoOportunidad
+         * @enum {string}
+         */
+        EstadoOportunidad: "nueva" | "en_gestion" | "cotizada" | "ganada" | "perdida";
+        /**
+         * EstadoResena
+         * @enum {string}
+         */
+        EstadoResena: "publicada" | "oculta";
+        /**
+         * EstadoViaje
+         * @enum {string}
+         */
+        EstadoViaje: "reservado" | "vendido" | "confirmado" | "en_curso" | "finalizado" | "cancelado";
+        /**
+         * HistorialCliente
+         * @description Memoria del cliente (CU-03): sus oportunidades, viajes y reseñas.
+         */
+        HistorialCliente: {
+            /** Oportunidades */
+            oportunidades: components["schemas"]["OportunidadDelCliente"][];
+            /** Viajes */
+            viajes: components["schemas"]["ViajeDelCliente"][];
+            /** Resenas */
+            resenas: components["schemas"]["ResenaDelCliente"][];
+        };
+        /**
+         * OportunidadDelCliente
+         * @description Consulta del cliente, tal como aparece en su historial.
+         */
+        OportunidadDelCliente: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Destino Consultado */
+            destino_consultado: string;
+            estado: components["schemas"]["EstadoOportunidad"];
+            /** Fecha Desde Tentativa */
+            fecha_desde_tentativa: string | null;
+            /** Fecha Hasta Tentativa */
+            fecha_hasta_tentativa: string | null;
+        };
+        /** Pagina[Cliente] */
+        Pagina_Cliente_: {
+            /** Items */
+            items: components["schemas"]["Cliente"][];
+            /** Total */
+            total: number;
+            /** Pagina */
+            pagina: number;
+            /** Por Pagina */
+            por_pagina: number;
         };
         Problema: {
             /** Title */
@@ -70,6 +294,53 @@ export interface components {
              */
             errores: components["schemas"]["ErrorCampo"][] | null;
         };
+        /**
+         * ProblemaDuplicado
+         * @description 409 del alta (CU-02 A1): trae los clientes que podrían ser el mismo.
+         */
+        ProblemaDuplicado: {
+            /** Title */
+            title: string;
+            /** Status */
+            status: number;
+            /** Detail */
+            detail?: string | null;
+            /** Errores */
+            errores?: components["schemas"]["ErrorCampo"][] | null;
+            /** Duplicados */
+            duplicados: components["schemas"]["Cliente"][];
+        };
+        /**
+         * ResenaDelCliente
+         * @description Reseña que dejó el cliente, tal como aparece en su historial.
+         */
+        ResenaDelCliente: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Hotel Id
+             * Format: uuid
+             */
+            hotel_id: string;
+            /** Puntaje */
+            puntaje: number;
+            /** Comentario */
+            comentario: string;
+            /**
+             * Fecha
+             * Format: date
+             */
+            fecha: string;
+            estado: components["schemas"]["EstadoResena"];
+        };
+        /**
+         * SegmentoCliente
+         * @enum {string}
+         */
+        SegmentoCliente: "familia" | "amigos" | "individual" | "pareja";
         /**
          * UsuarioActual
          * @description Usuario de Rumbo de la sesión, con su rol y accesos.
@@ -91,6 +362,33 @@ export interface components {
             rol: "admin" | "dueno" | "empleado" | "freelance";
             /** Acceso Redes */
             acceso_redes: boolean;
+        };
+        /**
+         * ViajeDelCliente
+         * @description Viaje del cliente, tal como aparece en su historial.
+         */
+        ViajeDelCliente: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Destino Id
+             * Format: uuid
+             */
+            destino_id: string;
+            estado: components["schemas"]["EstadoViaje"];
+            /**
+             * Fecha Salida
+             * Format: date
+             */
+            fecha_salida: string;
+            /**
+             * Fecha Regreso
+             * Format: date
+             */
+            fecha_regreso: string;
         };
         Pagina: {
             /** Items */
@@ -153,6 +451,257 @@ export interface operations {
             };
             /** @description Falta el token, no es válido o el usuario no tiene acceso. */
             401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+        };
+    };
+    buscar_clientes: {
+        parameters: {
+            query?: {
+                /** @description Texto en el nombre o el contacto. */
+                buscar?: string | null;
+                /** @description Etiqueta exacta del cliente. */
+                etiqueta?: string | null;
+                /** @description Segmento del cliente. */
+                segmento?: components["schemas"]["SegmentoCliente"] | null;
+                /** @description Solo los clientes que tengo asignados. */
+                mios?: boolean;
+                pagina?: number;
+                por_pagina?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Pagina_Cliente_"];
+                };
+            };
+            /** @description Falta el token, no es válido o el usuario no tiene acceso. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+        };
+    };
+    registrar_cliente: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ClienteCrear"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Cliente"];
+                };
+            };
+            /** @description Falta el token, no es válido o el usuario no tiene acceso. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Posible cliente duplicado (CU-02 A1). */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemaDuplicado"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+        };
+    };
+    obtener_cliente: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                cliente_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Cliente"];
+                };
+            };
+            /** @description Falta el token, no es válido o el usuario no tiene acceso. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description El cliente no existe o no lo podés ver. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+        };
+    };
+    editar_cliente: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                cliente_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ClienteEditar"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Cliente"];
+                };
+            };
+            /** @description Falta el token, no es válido o el usuario no tiene acceso. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description El cliente no existe o no lo podés ver. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+        };
+    };
+    obtener_historial_cliente: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                cliente_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HistorialCliente"];
+                };
+            };
+            /** @description Falta el token, no es válido o el usuario no tiene acceso. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description El cliente no existe o no lo podés ver. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
                 headers: {
                     [name: string]: unknown;
                 };

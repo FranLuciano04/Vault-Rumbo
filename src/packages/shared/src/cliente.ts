@@ -11,6 +11,16 @@ export interface OpcionesCliente {
 export type Problema = components["schemas"]["Problema"];
 export type ErrorCampo = components["schemas"]["ErrorCampo"];
 export type UsuarioActual = components["schemas"]["UsuarioActual"];
+export type Cliente = components["schemas"]["Cliente"];
+type AltaGenerada = components["schemas"]["ClienteCrear"];
+/** El generador marca como obligatorios los campos con valor por defecto; en el alta son opcionales. */
+export type ClienteCrear = Omit<AltaGenerada, "etiquetas" | "confirmar_duplicado"> &
+  Partial<Pick<AltaGenerada, "etiquetas" | "confirmar_duplicado">>;
+export type ClienteEditar = components["schemas"]["ClienteEditar"];
+export type HistorialCliente = components["schemas"]["HistorialCliente"];
+export type PaginaClientes = components["schemas"]["Pagina_Cliente_"];
+export type ProblemaDuplicado = components["schemas"]["ProblemaDuplicado"];
+export type SegmentoCliente = components["schemas"]["SegmentoCliente"];
 
 /** Error tipado que traduce un problem+json de la API (ver Contrato de la API, �Errores�). */
 export class ErrorApi extends Error {
@@ -19,6 +29,8 @@ export class ErrorApi extends Error {
   title = "";
   detail = "";
   errores: ErrorCampo[] = [];
+  /** Posibles duplicados que trae el 409 del alta (CU-02 A1). */
+  duplicados?: Cliente[];
 }
 
 export function crearCliente({ baseURL, obtenerToken }: OpcionesCliente): AxiosInstance {
@@ -33,12 +45,14 @@ export function crearCliente({ baseURL, obtenerToken }: OpcionesCliente): AxiosI
   cliente.interceptors.response.use(undefined, (error: unknown) => {
     if (!isAxiosError(error) || !error.response) throw error;
     const data: unknown = error.response.data;
-    const problema: Partial<Problema> = data && typeof data === "object" ? data : {};
+    const problema: Partial<Problema & Pick<ProblemaDuplicado, "duplicados">> =
+      data && typeof data === "object" ? data : {};
     const errorApi = new ErrorApi(problema.title ?? error.message);
     errorApi.status = error.response.status;
     errorApi.title = problema.title ?? "";
     errorApi.detail = problema.detail ?? "";
     errorApi.errores = problema.errores ?? [];
+    if (problema.duplicados) errorApi.duplicados = problema.duplicados;
     throw errorApi;
   });
 

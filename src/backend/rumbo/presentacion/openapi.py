@@ -10,6 +10,7 @@ from rumbo.presentacion.esquemas.comunes import Problema
 from rumbo.presentacion.paginacion import Pagina
 
 _REF_PROBLEMA = "#/components/schemas/Problema"
+_REF_VALIDACION = "#/components/schemas/HTTPValidationError"
 
 
 def _es_error(estado: str) -> bool:
@@ -17,13 +18,18 @@ def _es_error(estado: str) -> bool:
 
 
 def _errores_como_problem_json(documento: dict[str, Any]) -> None:
-    """Toda respuesta de error del contrato es un `Problema` en `application/problem+json`."""
+    """Toda respuesta de error del contrato va en `application/problem+json`: con `Problema`,
+    o con el esquema que lo extiende si la operación declaró uno (p. ej. `ProblemaDuplicado`);
+    el 422 automático de FastAPI (`HTTPValidationError`) pasa a `Problema`."""
     for operaciones in documento["paths"].values():
         for operacion in operaciones.values():
             for estado, respuesta in operacion["responses"].items():
                 contenido = respuesta.get("content")
                 if _es_error(estado) and contenido:
-                    respuesta["content"] = {PROBLEM_JSON: {"schema": {"$ref": _REF_PROBLEMA}}}
+                    esquema = next(iter(contenido.values())).get("schema", {"$ref": _REF_PROBLEMA})
+                    if esquema.get("$ref") == _REF_VALIDACION:
+                        esquema = {"$ref": _REF_PROBLEMA}
+                    respuesta["content"] = {PROBLEM_JSON: {"schema": esquema}}
 
 
 def _publicar_problema(documento: dict[str, Any]) -> None:
