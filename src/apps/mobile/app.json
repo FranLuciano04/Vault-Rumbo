@@ -14,7 +14,13 @@
     "plugins": [
       "expo-router",
       "expo-dev-client",
-      ["expo-splash-screen", { "backgroundColor": "#ffffff" }]
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#ffffff"
+        }
+      ],
+      "@react-native-google-signin/google-signin"
     ]
   }
 }

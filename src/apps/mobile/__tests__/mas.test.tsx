@@ -19,11 +19,11 @@ const queryClient = new QueryClient();
 // MSW no carga bajo jest-expo (sus dependencias ESM, p. ej. `rettime`, no se transforman) y la
 // config de Jest no es de este ticket: se usa el cliente real de `@rumbo/shared` (interceptores
 // incluidos, o sea el 401 llega como ErrorApi) con un adaptador HTTP falso para GET /api/auth/yo.
-const mockYo = jest.fn();
+const mockYo = jest.fn<Promise<unknown>, [unknown]>();
 jest.mock("../src/cliente", () => {
-  const { crearCliente } = require("@rumbo/shared");
+  const { crearCliente } = jest.requireActual<typeof import("@rumbo/shared")>("@rumbo/shared");
   const cliente = crearCliente({ baseURL: "http://localhost", obtenerToken: () => null });
-  cliente.defaults.adapter = (config: unknown) => mockYo(config);
+  cliente.defaults.adapter = ((config: unknown) => mockYo(config)) as never;
   return { cliente };
 });
 
@@ -81,7 +81,7 @@ describe("RF-143 pestaña Más", () => {
   it("cerrar sesión hace signOut, limpia la caché de TanStack Query y vuelve al login", async () => {
     const vista = await renderMas();
     await vista.findByText(usuario.nombre);
-    fireEvent.press(vista.getByRole("button", { name: /cerrar sesión/i }));
+    await fireEvent.press(vista.getByRole("button", { name: /cerrar sesión/i }));
 
     await vista.findByText("Pantalla de login");
     expect(firebase.cerrarSesion).toHaveBeenCalledTimes(1);
@@ -92,9 +92,11 @@ describe("RF-143 pestaña Más", () => {
     jest.mocked(firebase.cerrarSesion).mockRejectedValue(new Error("sin red"));
     const vista = await renderMas();
     await vista.findByText(usuario.nombre);
-    fireEvent.press(vista.getByRole("button", { name: /cerrar sesión/i }));
+    await fireEvent.press(vista.getByRole("button", { name: /cerrar sesión/i }));
 
     await vista.findByText("Pantalla de login");
-    await waitFor(() => expect(queryClient.getQueryCache().getAll()).toHaveLength(0));
+    await waitFor(() => {
+      expect(queryClient.getQueryCache().getAll()).toHaveLength(0);
+    });
   });
 });
