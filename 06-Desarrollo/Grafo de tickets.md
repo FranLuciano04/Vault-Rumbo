@@ -14,8 +14,8 @@ tags:: #tipo/referencia
 
 | Módulo | Tickets | Hechos | Tomados | Disponibles | Esperando | Bloqueados | Estado del módulo |
 |---|---|---|---|---|---|---|---|
-| M0 — Fundaciones | 31 | 30 | 0 | 1 | 0 | 0 | 🛠️ en curso |
-| M1 — Usuarios y configuración | 16 | 2 | 1 | 6 | 7 | 0 | 🛠️ en curso |
+| M0 — Fundaciones | 32 | 30 | 0 | 2 | 0 | 0 | 🛠️ en curso |
+| M1 — Usuarios y configuración | 16 | 3 | 0 | 6 | 7 | 0 | 🛠️ en curso |
 | M2 — Clientes | 12 | 2 | 0 | 4 | 6 | 0 | 🛠️ en curso |
 | M3 — Alertas | 11 | 0 | 0 | 2 | 9 | 0 | 🛠️ en curso |
 | M4 — Oportunidades y cotizaciones | 14 | 0 | 0 | 1 | 13 | 0 | 🛠️ en curso |
@@ -64,12 +64,13 @@ flowchart LR
     T143["T-143 · Cubrir con tests el layout raíz de la app mobile<br/><small>mobile</small>"]:::hecho
     T144["T-144 · Exportar el OpenAPI con finales de línea LF<br/><small>backend</small>"]:::hecho
     T145["T-145 · Responder un error controlado si falta el proyecto de Firebase<br/><small>backend · ⚠️ riesgo alto</small>"]:::hecho
+    T150["T-150 · Correr las auditorías de dependencias cada semana<br/><small>infra</small>"]:::disponible
   end
   subgraph M1["M1 — Usuarios y configuración"]
     T026["T-026 · Publicar el contrato de usuarios y configuración<br/><small>contrato</small>"]:::hecho
     T027["T-027 · Dar de alta usuarios con su cuenta de Firebase<br/><small>backend · ⚠️ riesgo alto</small>"]:::disponible
     T028["T-028 · Editar el rol de un usuario protegiendo al último admin<br/><small>backend · ⚠️ riesgo alto</small>"]:::esperando
-    T029["T-029 · Editar los parámetros del negocio<br/><small>backend</small><br/>👤 FranLucianoo"]:::tomado
+    T029["T-029 · Editar los parámetros del negocio<br/><small>backend</small>"]:::hecho
     T030["T-030 · Configurar la comisión por defecto de un vendedor<br/><small>backend · ⚠️ riesgo alto</small>"]:::hecho
     T031["T-031 · Gestionar el catálogo de destinos<br/><small>backend</small>"]:::disponible
     T032["T-032 · Configurar los requisitos de cada destino<br/><small>backend</small>"]:::esperando
@@ -508,6 +509,7 @@ flowchart LR
   T010 --> T145
   T030 --> T147
   T040 --> T149
+  T019 --> T150
   classDef hecho fill:#c8e6c9,stroke:#2e7d32,color:#1b5e20
   classDef tomado fill:#fff3cd,stroke:#b8860b,color:#5d4300
   classDef disponible fill:#dbeafe,stroke:#1d4ed8,color:#1e3a8a
