@@ -9,7 +9,7 @@ from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from rumbo.datos.modelos import Cliente, SegmentoCliente
-from tests.fabricas import ClienteFactory, crear
+from tests.fabricas import ClienteFactory, UsuarioFactory, crear
 
 PROBLEM_JSON = "application/problem+json"
 ROLES = ["admin", "dueno", "empleado", "freelance"]
@@ -139,10 +139,97 @@ async def test_rf150_freelance_queda_asignado(
     cliente_como: FabricaCliente, sesion: AsyncSession
 ) -> None:
     c = await cliente_como("freelance")
+    otro = await crear(sesion, UsuarioFactory)
 
-    r = await c.post("/api/clientes", json=CUERPO)
+    r = await c.post("/api/clientes", json={**CUERPO, "asesor_asignado_id": str(otro.id)})
 
     assert r.status_code == 201
     assert r.json()["asesor_asignado_id"] == str(c.usuario.id)  # type: ignore[attr-defined]
     fila = (await sesion.execute(select(Cliente))).scalar_one()
     assert fila.asesor_asignado_id == c.usuario.id  # type: ignore[attr-defined]
+
+
+async def test_rf001_asesor_inexistente_422(
+    cliente_como: FabricaCliente, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("empleado")
+
+    r = await c.post(
+        "/api/clientes",
+        json={**CUERPO, "asesor_asignado_id": "0b8f7a52-4c1e-4f0a-9a57-1d2f6c3b7a01"},
+    )
+
+    assert r.status_code == 422
+    assert r.headers["content-type"].startswith(PROBLEM_JSON)
+    assert r.json()["errores"][0]["campo"] == "asesor_asignado_id"
+    assert await _cantidad(sesion) == 0
+
+
+async def test_rf001_asesor_inactivo_422(
+    cliente_como: FabricaCliente, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("empleado")
+    baja = await crear(sesion, UsuarioFactory, activo=False)
+
+    r = await c.post("/api/clientes", json={**CUERPO, "asesor_asignado_id": str(baja.id)})
+
+    assert r.status_code == 422
+    assert r.json()["errores"][0]["campo"] == "asesor_asignado_id"
+    assert await _cantidad(sesion) == 0
+
+
+async def test_rf001_asesor_activo_queda_asignado(
+    cliente_como: FabricaCliente, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("empleado")
+    asesor = await crear(sesion, UsuarioFactory)
+
+    r = await c.post("/api/clientes", json={**CUERPO, "asesor_asignado_id": str(asesor.id)})
+
+    assert r.status_code == 201
+    assert r.json()["asesor_asignado_id"] == str(asesor.id)
+
+
+async def test_rf003_freelance_no_ve_duplicados_ajenos(
+    cliente_como: FabricaCliente, sesion: AsyncSession
+) -> None:
+    ajeno = await crear(sesion, UsuarioFactory)
+    await crear(
+        sesion,
+        ClienteFactory,
+        nombre="Ana Pérez",
+        contacto="ana@mail.test",
+        asesor_asignado_id=ajeno.id,
+    )
+    c = await cliente_como("freelance")
+
+    r = await c.post("/api/clientes", json=CUERPO)
+
+    assert r.status_code == 201
+    assert "duplicados" not in r.json()
+    assert await _cantidad(sesion) == 2
+
+
+async def test_rf003_duplicado_por_nombre_sin_tildes_ni_espacios_de_mas(
+    cliente_como: FabricaCliente, sesion: AsyncSession
+) -> None:
+    existente = await crear(sesion, ClienteFactory, nombre="ana  perez", contacto="+5491155550000")
+    c = await cliente_como("empleado")
+
+    r = await c.post("/api/clientes", json=CUERPO)
+
+    assert r.status_code == 409
+    assert [d["id"] for d in r.json()["duplicados"]] == [str(existente.id)]
+
+
+async def test_rf003_el_409_trae_hasta_10_candidatos(
+    cliente_como: FabricaCliente, sesion: AsyncSession
+) -> None:
+    for _ in range(12):
+        await crear(sesion, ClienteFactory, nombre="Ana Pérez")
+    c = await cliente_como("empleado")
+
+    r = await c.post("/api/clientes", json=CUERPO)
+
+    assert r.status_code == 409
+    assert len(r.json()["duplicados"]) == 10

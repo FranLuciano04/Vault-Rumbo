@@ -6,10 +6,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from rumbo.datos.modelos import Cliente, RolUsuario, SegmentoCliente, Usuario
 from rumbo.datos.repositorios.clientes import RepositorioClientes
-from rumbo.negocio.errores import PosibleDuplicado
+from rumbo.datos.repositorios.seguridad import RepositorioUsuarios
+from rumbo.negocio.errores import DatosInvalidos, NoEncontrado, PosibleDuplicado
 from rumbo.negocio.politicas import visibilidad
 
 _clientes = RepositorioClientes()
+_usuarios = RepositorioUsuarios()
 
 
 async def registrar_cliente(
@@ -30,6 +32,10 @@ async def registrar_cliente(
     `PosibleDuplicado` (A1) salvo que `confirmar_duplicado` sea verdadero. El `freelance` queda
     como asesor asignado de lo que da de alta, sin importar lo que envíe.
     """
+    if actor.rol is RolUsuario.freelance:
+        asesor_asignado_id = actor.id
+    elif asesor_asignado_id is not None:
+        await _exigir_asesor_activo(sesion, actor, asesor_asignado_id)
     if not confirmar_duplicado:
         parecidos = await _clientes.buscar_parecidos(
             sesion, nombre=nombre, contacto=contacto, visibilidad=visibilidad(actor)
@@ -42,8 +48,18 @@ async def registrar_cliente(
         segmento=segmento,
         etiquetas=etiquetas,
         preferencias=preferencias,
-        asesor_asignado_id=actor.id if actor.rol is RolUsuario.freelance else asesor_asignado_id,
+        asesor_asignado_id=asesor_asignado_id,
     )
     sesion.add(cliente)
     await sesion.flush()
     return cliente
+
+
+async def _exigir_asesor_activo(sesion: AsyncSession, actor: Usuario, asesor_id: uuid.UUID) -> None:
+    """El asesor asignado tiene que ser un `Usuario` activo; si no, 422 sobre ese campo."""
+    try:
+        asesor = await _usuarios.obtener(sesion, asesor_id, visibilidad=visibilidad(actor))
+    except NoEncontrado:
+        asesor = None
+    if asesor is None or not asesor.activo:
+        raise DatosInvalidos("asesor_asignado_id", "El asesor asignado no existe o está de baja.")

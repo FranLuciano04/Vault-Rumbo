@@ -8,6 +8,7 @@ from fastapi import APIRouter, Depends, Query
 from rumbo.core.db import SesionDep
 from rumbo.datos import modelos
 from rumbo.datos.modelos import SegmentoCliente
+from rumbo.negocio.errores import PosibleDuplicado
 from rumbo.negocio.servicios import clientes
 from rumbo.presentacion.dependencias import usuario_actual
 from rumbo.presentacion.errores import no_implementado
@@ -73,7 +74,11 @@ async def registrar_cliente(
     actor: Annotated[modelos.Usuario, Depends(usuario_actual)],
     sesion: SesionDep,
 ) -> Cliente:
-    cliente = await clientes.registrar_cliente(sesion, actor, **datos.model_dump())
+    try:
+        cliente = await clientes.registrar_cliente(sesion, actor, **datos.model_dump())
+    except PosibleDuplicado as error:
+        error.extra = {"duplicados": [Cliente.model_validate(c) for c in error.duplicados]}
+        raise
     return Cliente.model_validate(cliente)
 
 

@@ -2,6 +2,7 @@
 
 from rumbo.core.errores import (
     Conflicto,
+    DatosInvalidos,
     ErrorDeDominio,
     NoEncontrado,
     ServicioExterno,
@@ -16,11 +17,12 @@ class PosibleDuplicado(Conflicto):
 
     def __init__(self, duplicados: list[Cliente]) -> None:
         super().__init__("Ya hay clientes con el mismo contacto o nombre. Confirmá para crearlo.")
-        self.duplicados = duplicados
+        self.duplicados = duplicados  # la presentación los vuelca en `extra` como esquema
 
 
 __all__ = [
     "Conflicto",
+    "DatosInvalidos",
     "ErrorDeDominio",
     "NoEncontrado",
     "PosibleDuplicado",
