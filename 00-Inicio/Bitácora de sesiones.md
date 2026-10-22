@@ -156,9 +156,9 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Tests de T-026:** con autorización de Francisco, `test_contrato_m1.py` pasa esa ruta a `IMPLEMENTADAS`, fuera de los casos que esperan 501. Los próximos tickets de M1 suman su ruta ahí.
 - **Review de seguridad (Sonnet): aprobable,** con 0 bloqueantes y 0 importantes. De los 2 menores, uno se arregló: el test del rol exigido por el servicio. El otro queda a decidir (ver abajo).
 - **Verificación:** 564 tests en verde, con 97,4 % de cobertura total y 94 % en `negocio/`.
-- **Commits:** 5e4ea83, 487b5fe, d28cd1e y 6357ee8. El PR [#33](https://github.com/FranLuciano04/Vault-Rumbo/pull/33) **espera la aprobación de Nahuel o Paloma**.
+- **Commits:** 5e4ea83, 487b5fe, d28cd1e, 6357ee8 y el merge de main 26b8644, que trajo T-040 sin conflictos (582 tests en verde). Paloma aprobó el PR [#33](https://github.com/FranLuciano04/Vault-Rumbo/pull/33) y está **mergeado**.
+- **Incidente:** el primer `gh pr merge --merge --delete-branch` falló porque `main` había cambiado (merge de T-040), pero borró igual la rama remota y eso cerró el PR. Se recreó la rama, se reabrió el PR (la aprobación siguió en pie) y se mergeó sin `--delete-branch`; la rama se borró después.
 - **Pendiente:**
-  - Que alguien apruebe el PR #33.
   - Decidir si un usuario dado de baja puede tener comisión por defecto. Hoy se permite, y también al propio admin y a la dueña.
   - Hallazgo: el código usa RF-150 para el permiso por rol (desde T-012), pero en el catálogo RF-150 es otro requisito y el permiso por rol es RF-151. Falta un ticket que lo alinee.
 
