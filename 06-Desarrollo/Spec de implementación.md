@@ -45,7 +45,7 @@ Lo fija [[DEC-0001 Stack tecnológico|DEC-0001]], con los ajustes de [[DEC-0015 
 - **Base:** PostgreSQL 18.
 - **Front:** Node 22 LTS · pnpm (workspace en `src/`) · TypeScript estricto · TanStack Query · Axios · zod · openapi-typescript · MSW.
   - Web: React · Vite · React Router · Tailwind CSS · shadcn/ui · react-hook-form · SDK web de Firebase (`firebase/auth`).
-  - Mobile: React Native · Expo con **development build** (no Expo Go, por el login con Google) · Expo Router · NativeWind · SDK de Firebase.
+  - Mobile: React Native · Expo con **development build** (no Expo Go, por el login con Google) · Expo Router · NativeWind · SDK de Firebase · `@react-native-google-signin/google-signin` para el login con Google (aprobado por Nahuel el 22/10/26, T-023).
 - **Calidad:**
   - Backend: ruff · mypy · pytest · pytest-asyncio · httpx `AsyncClient` · pytest-cov · factory-boy · faker.
   - Web: ESLint · Prettier · Vitest · Testing Library · Playwright.
