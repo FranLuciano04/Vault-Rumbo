@@ -55,6 +55,21 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
+## 21/10/26 — Nahuel (Claude Opus 5.5) — T-013: cliente de IA con modelo falso
+- **Hecho:** T-013 (capa backend, riesgo normal, DEC-0012, RNF-16).
+  - `core.ia` ofrece `ModeloIA.generar`, con un modelo falso determinista y el cliente real de `claude-sonnet-5-5`. La implementación se elige con `IA_MODELO=falso|claude`, que por defecto es `falso`.
+  - Sin `ANTHROPIC_API_KEY`, o si la API falla, se lanza `ServicioExterno`.
+  - Una guardia autouse en `tests/conftest.py` impide construir el cliente real en los tests.
+  - La review (Opus) dejó 0 bloqueantes, 2 importantes y 3 menores, todos arreglados.
+  - El PR [#29](https://github.com/FranLuciano04/Vault-Rumbo/pull/29) quedó mergeado.
+- **Commits:** 006fede, 83ac2cb, e446fd3, ce06f40.
+- **Para el equipo:**
+  - Hay una dependencia nueva, `langchain-anthropic`: corran `uv sync` en `src/backend`.
+  - `src/backend/.env.example` suma `IA_MODELO` y `ANTHROPIC_API_KEY`, que son opcionales: sin ellas se usa el modelo falso.
+- **Pendiente:**
+  - En la PC de Nahuel, 5 tests que lanzan subprocesos (`test_cli_openapi`, `test_config` y `test_seguridad`) dan `PermissionError` en el setup de `pytest_asyncio`. Los 3 de `test_config` y `test_seguridad` fallan igual sin los cambios del ticket; los 2 de `test_cli_openapi`, no lo comprobé. Es un tema de entorno, a revisar.
+  - Para M9: la guardia solo intercepta `_construir_cliente_claude`.
+
 ## 21/10/26 — Paloma (Claude Opus 5.5) — T-141: íconos de la barra lateral web
 - **Hecho:** T-141 (capa web, riesgo normal, `origen: hallazgo T-020`).
   - Cada sección de la barra lateral muestra su ícono de `lucide-react`, tomado de las pantallas 3 y 28 del prototipo. Los íconos son decorativos (`aria-hidden`), así que el nombre accesible sigue siendo la etiqueta.
