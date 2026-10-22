@@ -15,7 +15,7 @@ from rumbo.datos.repositorios.base import (
 
 
 def _escapar_like(texto: str) -> str:
-    return texto.replace("\\", "\\\\").replace("%", "\%").replace("_", "\_")
+    return texto.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
 
 
 class RepositorioDestinos(RepositorioBase[Destino]):
