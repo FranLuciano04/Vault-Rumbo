@@ -339,6 +339,9 @@ function hecho(id) {
 // Una fase del TDD en una sola llamada: verificar que los tests sigan intactos, commitear y subir la rama.
 const ES_TEST = /(^|\/)(tests?|__tests__|e2e)\/|\.(test|spec)\.[jt]sx?$|(^|\/)test_[^/]*\.py$/;
 const FASES = { rojo: 'test', verde: 'feat', refactor: 'refactor', fix: 'fix', hecho: 'tickets' };
+// Lo que se commitea en cada fase: todo, menos la configuración local de Obsidian, que el editor
+// reescribe solo y no es parte de ningún ticket (hallazgo T-022).
+const AGREGAR = ['add', '-A', '--', '.', ':(exclude).obsidian'];
 
 // En Windows, el `bash` del PATH puede ser el de WSL (System32), que falla sin correr nada y hacía pasar
 // un rojo falso (hallazgo T-021). Se usa el bash de Git for Windows, que se deduce de `git --exec-path`.
@@ -387,7 +390,7 @@ function fase(id, nombre, resto) {
 
   if (nombre === 'hecho') {
     fs.writeFileSync(t.archivo, setCampo(fs.readFileSync(t.archivo, 'utf8'), 'estado', 'hecho'));
-    gitOk(['add', '-A']);
+    gitOk(AGREGAR);
     gitOk(['commit', '-m', `tickets: ${id} hecho`]);
   } else {
     if (!mensaje) throw new Error('Falta el mensaje del commit.');
@@ -406,7 +409,7 @@ function fase(id, nombre, resto) {
         }
       }
     }
-    gitOk(['add', '-A']);
+    gitOk(AGREGAR);
     if (!git(['diff', '--cached', '--quiet']).code) { console.log(`Sin cambios en la fase ${nombre}: no hay commit.`); return; }
     const tipo = nombre === 'verde' && t.capa === 'infra' ? 'chore' : FASES[nombre];
     gitOk(['commit', '-m', `${tipo}(${id}): ${mensaje}`, ...(tocarTests ? ['-m', 'Tests-autorizados: sí'] : [])]);
