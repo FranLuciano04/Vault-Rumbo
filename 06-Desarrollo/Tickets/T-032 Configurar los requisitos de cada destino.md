@@ -3,7 +3,7 @@ id: T-032
 titulo: Configurar los requisitos de cada destino
 modulo: M1 — Usuarios y configuración
 capa: backend
-estado: libre
+estado: tomado
 depende_de: [T-031]
 tamaño: S
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [CU-15, RF-086, RF-087, RF-088, RF-034]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: palomap2003
+tomado_el: 22/10/26 18:56
+rama: feature/T-032-configurar-los-requisitos-de-cada-destin
 pr:
 ---
 # T-032 Configurar los requisitos de cada destino
