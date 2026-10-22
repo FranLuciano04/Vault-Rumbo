@@ -3,7 +3,7 @@ id: T-040
 titulo: Registrar clientes detectando duplicados
 modulo: M2 — Clientes
 capa: backend
-estado: tomado
+estado: hecho
 depende_de: [T-039, T-012, T-011]
 tamaño: M
 riesgo: normal
@@ -49,3 +49,10 @@ Cualquier rol registra un cliente con sus datos mínimos; si parece repetido, el
 - Alta rápida desde una consulta (CU-04, M4).
 
 ## Notas de implementación
+- **Duplicado (RF-003, CU-02 A1):** mismo contacto (sin distinguir mayúsculas) o mismo nombre sin distinguir mayúsculas ni tildes y con espacios colapsados (`translate` + `regexp_replace`, sin extensiones). El 409 trae hasta 10 candidatos (`ProblemaDuplicado`); `confirmar_duplicado: true` da el alta igual.
+- **Visibilidad:** la búsqueda de parecidos respeta la visibilidad por fila: un `freelance` no ve duplicados de otros asesores (sin fuga, con test). Costo: puede duplicar un cliente ajeno sin enterarse → **decisión de negocio pendiente** para la sync.
+- **Asesor:** el `freelance` siempre queda como asesor aunque mande otro (RF-150). Para el resto, un `asesor_asignado_id` inexistente o inactivo da 422 (antes explotaba la FK con 500).
+- **Errores:** `ErrorDeDominio` lleva un `extra` serializable que el manejador genérico vuelca en el problem+json; se sumó `DatosInvalidos` (422 sobre un campo). El módulo común de errores no conoce módulos.
+- **Tests de soporte:** con autorización de Paloma, `tests/api/test_contrato_m2.py` suma `IMPLEMENTADAS = {("post", "/api/clientes")}` (commit verde, `--tocar-tests`). En el fix, autorizado por el orquestador, se completó `test_rf150_freelance_queda_asignado` y se sumaron tests de asesor inválido, no-fuga, tildes/espacios y tope.
+- **Pendientes (menores, fuera del ticket):** normalizar el formato del teléfono, validar que el contacto sea un teléfono o email válido y la similitud difusa de nombres. Dependen de [[DEC-0017 Contacto mínimo del cliente]] (en revisión).
+- **Modelos:** tests sonnet, implementación/refactor/fix sonnet, review opus. Sin escalados.
