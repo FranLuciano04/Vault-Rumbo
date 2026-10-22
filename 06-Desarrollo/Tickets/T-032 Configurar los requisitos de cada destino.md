@@ -3,7 +3,7 @@ id: T-032
 titulo: Configurar los requisitos de cada destino
 modulo: M1 — Usuarios y configuración
 capa: backend
-estado: tomado
+estado: hecho
 depende_de: [T-031]
 tamaño: S
 riesgo: normal
@@ -48,3 +48,10 @@ Admin y dueña definen los requisitos de cada destino (visa, vacunación, docume
 
 ## Notas de implementación
 - **Sumado el 22/10/26 (hallazgo T-031):** seguir el patrón de destinos de T-031 (repositorio, servicio y router con `ActorDep`) y sumar las rutas de requisitos a `IMPLEMENTADAS` en `test_contrato_m1.py` (la convención autorizada).
+- **Hecho:** `RepositorioRequisitos` (activos de un destino, ordenados por nombre normalizado, paginados), servicio en `configuracion.py` y las 4 rutas con `ActorDep`. Escritura solo `admin`/`dueno` (403 antes de leer); lectura para todos los roles. Destino inexistente → 404; crear y listar funcionan con el destino de baja. Baja idempotente. `descripcion: null` vacía el campo; un `null` en un campo obligatorio da 422. RF-087: `Alerta` no tiene referencia a `RequisitoDestino`, así que editar o dar de baja no puede tocar alertas emitidas (con test).
+- **Esquema:** `RequisitoDestino` con `from_attributes` y un validador `before` que pasa el enum `TipoRequisito` a texto (sin cambios en el contrato).
+- **Tests de soporte (`--tocar-tests`):** las 4 rutas en `IMPLEMENTADAS` de `test_contrato_m1.py` y `ruff format` de `test_requisitos.py` (solo saltos de línea; lo pedía el lint del CI).
+- **Desvío, autorizado por Paloma:** `concurrency = ["greenlet", "thread"]` en `[tool.coverage.run]` de `pyproject.toml`, que adelanta T-148. Sin eso, la cobertura de `negocio/` daba 79,93 % y el CI fallaba; con eso da 99 %. T-148 queda por cerrar solo verificando.
+- **Hallazgo importante, a un ticket aparte (decisión de Paloma):** un `anticipacion_dias` fuera del rango de INTEGER da 500 en vez de 422. Pasa lo mismo en `ConfiguracionEditar`. Ticket transversal: traducir el `DataError` de Postgres a 422.
+- **Menor, pendiente:** se puede editar un requisito dado de baja (200). No lo contradice CU-15, y no hay ruta para reactivarlo.
+- **Modelos:** tests sonnet, implementación/refactor/fix sonnet, review opus. Sin escalados.

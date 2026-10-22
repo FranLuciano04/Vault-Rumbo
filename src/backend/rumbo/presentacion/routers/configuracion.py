@@ -177,9 +177,18 @@ async def reactivar_destino(destino_id: uuid.UUID, actor: ActorDep, sesion: Sesi
     **operacion(TODOS, "CU-15", 404, 422),
 )
 async def listar_requisitos_destino(
-    destino_id: uuid.UUID, pagina: PaginaDep
+    destino_id: uuid.UUID, pagina: PaginaDep, actor: ActorDep, sesion: SesionDep
 ) -> Pagina[RequisitoDestino]:
-    raise no_implementado()
+    """Solo los requisitos activos, ordenados por nombre."""
+    items, total = await configuracion.listar_requisitos(
+        sesion, actor, destino_id, desplazamiento=pagina.desplazamiento, limite=pagina.por_pagina
+    )
+    return Pagina(
+        items=[RequisitoDestino.model_validate(r) for r in items],
+        total=total,
+        pagina=pagina.pagina,
+        por_pagina=pagina.por_pagina,
+    )
 
 
 @router.post(
@@ -190,9 +199,10 @@ async def listar_requisitos_destino(
     **operacion(GESTION, "CU-15", 404, 422),
 )
 async def crear_requisito_destino(
-    destino_id: uuid.UUID, datos: RequisitoDestinoCrear
+    destino_id: uuid.UUID, datos: RequisitoDestinoCrear, actor: ActorDep, sesion: SesionDep
 ) -> RequisitoDestino:
-    raise no_implementado()
+    requisito = await configuracion.crear_requisito(sesion, actor, destino_id, **datos.model_dump())
+    return RequisitoDestino.model_validate(requisito)
 
 
 @router.patch(
@@ -202,9 +212,12 @@ async def crear_requisito_destino(
     **operacion(GESTION, "CU-15", 404, 422),
 )
 async def editar_requisito_destino(
-    requisito_id: uuid.UUID, datos: RequisitoDestinoEditar
+    requisito_id: uuid.UUID, datos: RequisitoDestinoEditar, actor: ActorDep, sesion: SesionDep
 ) -> RequisitoDestino:
-    raise no_implementado()
+    """No modifica las alertas ya emitidas (RF-087)."""
+    cambios = datos.model_dump(exclude_unset=True)
+    requisito = await configuracion.editar_requisito(sesion, actor, requisito_id, cambios)
+    return RequisitoDestino.model_validate(requisito)
 
 
 @router.post(
@@ -213,8 +226,11 @@ async def editar_requisito_destino(
     summary="Quitar un requisito (baja lógica)",
     **operacion(GESTION, "CU-15", 404),
 )
-async def dar_de_baja_requisito_destino(requisito_id: uuid.UUID) -> RequisitoDestino:
-    raise no_implementado()
+async def dar_de_baja_requisito_destino(
+    requisito_id: uuid.UUID, actor: ActorDep, sesion: SesionDep
+) -> RequisitoDestino:
+    requisito = await configuracion.dar_de_baja_requisito(sesion, actor, requisito_id)
+    return RequisitoDestino.model_validate(requisito)
 
 
 @router.get(
