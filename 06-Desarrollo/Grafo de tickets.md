@@ -16,7 +16,7 @@ tags:: #tipo/referencia
 |---|---|---|---|---|---|---|---|
 | M0 — Fundaciones | 31 | 30 | 0 | 1 | 0 | 0 | 🛠️ en curso |
 | M1 — Usuarios y configuración | 13 | 1 | 1 | 4 | 7 | 0 | 🛠️ en curso |
-| M2 — Clientes | 11 | 1 | 1 | 3 | 6 | 0 | 🛠️ en curso |
+| M2 — Clientes | 11 | 2 | 0 | 3 | 6 | 0 | 🛠️ en curso |
 | M3 — Alertas | 11 | 0 | 0 | 2 | 9 | 0 | 🛠️ en curso |
 | M4 — Oportunidades y cotizaciones | 14 | 0 | 0 | 1 | 13 | 0 | 🛠️ en curso |
 | M5 — Hoteles y reseñas | 11 | 0 | 0 | 1 | 10 | 0 | 🛠️ en curso |
@@ -82,7 +82,7 @@ flowchart LR
   end
   subgraph M2["M2 — Clientes"]
     T039["T-039 · Publicar el contrato de clientes<br/><small>contrato</small>"]:::hecho
-    T040["T-040 · Registrar clientes detectando duplicados<br/><small>backend</small><br/>👤 palomap2003"]:::tomado
+    T040["T-040 · Registrar clientes detectando duplicados<br/><small>backend</small>"]:::hecho
     T041["T-041 · Buscar clientes según la visibilidad del rol<br/><small>backend · ⚠️ riesgo alto</small>"]:::disponible
     T042["T-042 · Editar la ficha del cliente<br/><small>backend</small>"]:::esperando
     T043["T-043 · Mostrar el historial del cliente<br/><small>backend</small>"]:::esperando
