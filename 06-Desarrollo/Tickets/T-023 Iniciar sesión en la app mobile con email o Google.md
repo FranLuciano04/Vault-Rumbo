@@ -3,7 +3,7 @@ id: T-023
 titulo: Iniciar sesión en la app mobile con email o Google
 modulo: M0 — Fundaciones
 capa: mobile
-estado: libre
+estado: tomado
 depende_de: [T-022, T-005]
 tamaño: M
 riesgo: alto
@@ -12,9 +12,9 @@ modelo_impl: opus
 modelo_review: sonnet
 trazabilidad: [CU-24, RF-140, RF-142, RF-143, DEC-0016]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: Nahuel Viniegra
+tomado_el: 22/10/26 18:38
+rama: feature/T-023-iniciar-sesion-en-la-app-mobile-con-emai
 pr:
 ---
 # T-023 Iniciar sesión en la app mobile con email o Google

@@ -14,7 +14,7 @@ tags:: #tipo/referencia
 
 | Módulo | Tickets | Hechos | Tomados | Disponibles | Esperando | Bloqueados | Estado del módulo |
 |---|---|---|---|---|---|---|---|
-| M0 — Fundaciones | 32 | 31 | 0 | 1 | 0 | 0 | 🛠️ en curso |
+| M0 — Fundaciones | 32 | 31 | 1 | 0 | 0 | 0 | 🛠️ en curso |
 | M1 — Usuarios y configuración | 16 | 3 | 1 | 5 | 7 | 0 | 🛠️ en curso |
 | M2 — Clientes | 12 | 2 | 0 | 4 | 6 | 0 | 🛠️ en curso |
 | M3 — Alertas | 11 | 0 | 0 | 2 | 9 | 0 | 🛠️ en curso |
@@ -55,7 +55,7 @@ flowchart LR
     T020["T-020 · Armar el shell web con la navegación por rol<br/><small>web</small>"]:::hecho
     T021["T-021 · Iniciar sesión en la web con email o Google<br/><small>web · ⚠️ riesgo alto</small>"]:::hecho
     T022["T-022 · Armar el shell mobile con sus pestañas<br/><small>mobile</small>"]:::hecho
-    T023["T-023 · Iniciar sesión en la app mobile con email o Google<br/><small>mobile · ⚠️ riesgo alto</small>"]:::disponible
+    T023["T-023 · Iniciar sesión en la app mobile con email o Google<br/><small>mobile · ⚠️ riesgo alto</small><br/>👤 Nahuel Viniegra"]:::tomado
     T024["T-024 · Armar el Compose de producción local para las demos<br/><small>infra</small>"]:::hecho
     T025["T-025 · Probar de punta a punta el inicio de sesión web<br/><small>e2e</small>"]:::hecho
     T140["T-140 · Aislar los tests de la variable SSLKEYLOGFILE<br/><small>backend</small>"]:::hecho
