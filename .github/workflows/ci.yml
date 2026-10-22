@@ -8,7 +8,10 @@
 #   directos de los claims de tickets (`06-Desarrollo/Tickets/`) no gastan minutos.
 # - Un cambio en este archivo corre los tres jobs, para que su propio PR se verifique.
 # - El job `e2e` (T-025) corre cuando cambia cualquier cosa bajo `src/`: levanta el Compose de e2e.
-# - Seguridad (pip-audit, pnpm audit, bandit, Semgrep, gitleaks) va en otro ticket.
+# - Seguridad (T-019): `secretos` (gitleaks) corre en todo PR, sin filtro, porque revisa el vault
+#   también. `sast` (Semgrep) corre con los cambios de `src/`. pip-audit y bandit van en `backend`, y
+#   pnpm audit en `web`. Falla ante un secreto o una vulnerabilidad de severidad alta. Falsos
+#   positivos: `.gitleaks.toml` (gitleaks) o `# nosemgrep` / `# nosec` con su motivo en el código.
 name: CI
 
 on:
@@ -123,6 +126,13 @@ jobs:
           uv run coverage report --include='rumbo/negocio/*' --fail-under=80
         env:
           TEST_DATABASE_URL: postgresql+asyncpg://rumbo:${{ env.CI_DB_PASSWORD }}@localhost:5432/rumbo_test
+      # pip-audit no filtra por severidad: falla ante cualquier vulnerabilidad conocida del lock.
+      # Un falso positivo se silencia con `--ignore-vuln <ID>` aquí, con un comentario que diga por qué.
+      - name: Auditoría de dependencias (pip-audit)
+        run: uv run pip-audit --progress-spinner=off
+      - name: Análisis estático (bandit, severidad alta)
+        # Un falso positivo se silencia con `# nosec <ID>` en la línea, con el motivo al lado.
+        run: uv run bandit -r rumbo --severity-level high
 
   web:
     name: Web
@@ -155,6 +165,9 @@ jobs:
           pnpm --filter @rumbo/web test:cobertura
           --coverage.thresholds.statements=70 --coverage.thresholds.branches=70
           --coverage.thresholds.functions=70 --coverage.thresholds.lines=70
+      # Audita el lockfile del workspace entero (web y mobile). Falla con severidad alta o crítica.
+      - name: Auditoría de dependencias (pnpm audit)
+        run: pnpm audit --audit-level=high
 
   mobile:
     name: Mobile
@@ -231,11 +244,50 @@ jobs:
         if: always()
         run: docker compose -p rumbo-e2e -f docker-compose.yml -f docker-compose.e2e.yml down -v --remove-orphans
 
+  # Sin filtro de carpetas: un secreto puede estar en el vault (`06-Desarrollo/`, `05-Diseño/`, …).
+  # Revisa todos los commits del PR (el checkout de un PR es el merge, así que incluye todo `main`).
+  secretos:
+    name: Secretos (gitleaks)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # gitleaks recorre el historial completo, no solo el último commit
+      - name: Instalar gitleaks (versión y sha256 fijos)
+        env:
+          GITLEAKS_VERSION: "8.30.1"
+          GITLEAKS_SHA256: "551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb"
+        run: |
+          set -euo pipefail
+          curl -sSfL -o gitleaks.tar.gz "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz"
+          echo "${GITLEAKS_SHA256}  gitleaks.tar.gz" | sha256sum --check --strict
+          tar -xzf gitleaks.tar.gz gitleaks
+          sudo install gitleaks /usr/local/bin/gitleaks
+      - name: Escanear el repo completo, vault incluido
+        run: gitleaks git --config .gitleaks.toml --redact --no-banner --verbose .
+
+  # Semgrep corre en la imagen con la versión fijada (no se instala en el runner). Solo falla con
+  # severidad ERROR (alta). Un falso positivo se silencia con `# nosemgrep: <regla>` y su motivo.
+  sast:
+    name: Análisis estático (Semgrep)
+    needs: cambios
+    if: needs.cambios.outputs.src == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Semgrep (reglas Python, TypeScript y OWASP Top Ten)
+        run: >-
+          docker run --rm -v "$GITHUB_WORKSPACE:/src" -w /src semgrep/semgrep:1.182.0
+          semgrep scan --config p/python --config p/typescript --config p/owasp-top-ten
+          --severity ERROR --error --metrics=off src
+
   # Único check a exigir en la protección de `main`. Falla si algún job falló o se canceló,
   # incluido `cambios` (sin él, los demás quedarían omitidos y parecerían aprobados).
   ci-ok:
     name: CI ok
-    needs: [cambios, backend, web, mobile, e2e]
+    needs: [cambios, backend, web, mobile, e2e, secretos, sast]
     if: always()
     runs-on: ubuntu-latest
     steps:
