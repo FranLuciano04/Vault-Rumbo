@@ -15,7 +15,7 @@ tags:: #tipo/referencia
 | Módulo | Tickets | Hechos | Tomados | Disponibles | Esperando | Bloqueados | Estado del módulo |
 |---|---|---|---|---|---|---|---|
 | M0 — Fundaciones | 31 | 30 | 0 | 1 | 0 | 0 | 🛠️ en curso |
-| M1 — Usuarios y configuración | 13 | 0 | 1 | 0 | 12 | 0 | 🛠️ en curso |
+| M1 — Usuarios y configuración | 13 | 1 | 0 | 5 | 7 | 0 | 🛠️ en curso |
 | M2 — Clientes | 11 | 1 | 0 | 4 | 6 | 0 | 🛠️ en curso |
 | M3 — Alertas | 11 | 0 | 0 | 2 | 9 | 0 | 🛠️ en curso |
 | M4 — Oportunidades y cotizaciones | 14 | 0 | 0 | 1 | 13 | 0 | 🛠️ en curso |
@@ -66,15 +66,15 @@ flowchart LR
     T145["T-145 · Responder un error controlado si falta el proyecto de Firebase<br/><small>backend · ⚠️ riesgo alto</small>"]:::hecho
   end
   subgraph M1["M1 — Usuarios y configuración"]
-    T026["T-026 · Publicar el contrato de usuarios y configuración<br/><small>contrato</small><br/>👤 FranLucianoo"]:::tomado
-    T027["T-027 · Dar de alta usuarios con su cuenta de Firebase<br/><small>backend · ⚠️ riesgo alto</small>"]:::esperando
+    T026["T-026 · Publicar el contrato de usuarios y configuración<br/><small>contrato</small>"]:::hecho
+    T027["T-027 · Dar de alta usuarios con su cuenta de Firebase<br/><small>backend · ⚠️ riesgo alto</small>"]:::disponible
     T028["T-028 · Editar el rol de un usuario protegiendo al último admin<br/><small>backend · ⚠️ riesgo alto</small>"]:::esperando
-    T029["T-029 · Editar los parámetros del negocio<br/><small>backend</small>"]:::esperando
-    T030["T-030 · Configurar la comisión por defecto de un vendedor<br/><small>backend · ⚠️ riesgo alto</small>"]:::esperando
-    T031["T-031 · Gestionar el catálogo de destinos<br/><small>backend</small>"]:::esperando
+    T029["T-029 · Editar los parámetros del negocio<br/><small>backend</small>"]:::disponible
+    T030["T-030 · Configurar la comisión por defecto de un vendedor<br/><small>backend · ⚠️ riesgo alto</small>"]:::disponible
+    T031["T-031 · Gestionar el catálogo de destinos<br/><small>backend</small>"]:::disponible
     T032["T-032 · Configurar los requisitos de cada destino<br/><small>backend</small>"]:::esperando
     T033["T-033 · Gestionar el catálogo de operadores<br/><small>backend</small>"]:::esperando
-    T034["T-034 · Configurar los parámetros del negocio en la web<br/><small>web</small>"]:::esperando
+    T034["T-034 · Configurar los parámetros del negocio en la web<br/><small>web</small>"]:::disponible
     T035["T-035 · Gestionar usuarios y roles en la web<br/><small>web</small>"]:::esperando
     T036["T-036 · Gestionar destinos con sus requisitos en la web<br/><small>web</small>"]:::esperando
     T037["T-037 · Gestionar operadores en la web<br/><small>web</small>"]:::esperando
