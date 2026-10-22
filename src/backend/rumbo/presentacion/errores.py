@@ -106,17 +106,16 @@ def _es_numero_fuera_de_rango(error: DBAPIError) -> bool:
     envuelve en un `DBAPIError` genérico, y el original queda en `orig.__cause__`.
     """
     original = error.orig
-    origen = original.__cause__ if original is not None else None
     if getattr(original, "sqlstate", None) == _SQLSTATE_NUMERO_FUERA_DE_RANGO:
         return True
+    origen = getattr(original, "__cause__", None)
     return isinstance(origen, DataErrorDeAsyncpg) and isinstance(origen.__cause__, OverflowError)
 
 
 async def _error_de_base(request: Request, exc: Exception) -> JSONResponse:
-    error = cast(DBAPIError, exc)
-    if not _es_numero_fuera_de_rango(error):
-        return await _error_no_controlado(request, exc)
-    return _problema(422, "Hay un número fuera del rango admitido.")
+    if _es_numero_fuera_de_rango(cast(DBAPIError, exc)):
+        return _problema(422, "Hay un número fuera del rango admitido.")
+    return await _error_no_controlado(request, exc)
 
 
 async def _error_no_controlado(_: Request, exc: Exception) -> JSONResponse:
