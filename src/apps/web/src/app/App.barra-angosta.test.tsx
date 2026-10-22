@@ -1,6 +1,6 @@
 import { crearCliente } from "@rumbo/shared";
 import { crearServidor, manejadorYo } from "@rumbo/shared/mocks";
-import { render, screen, within } from "@testing-library/react";
+import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterAll, afterEach, beforeAll } from "vitest";
 import { App } from "@/app/App";
@@ -95,6 +95,19 @@ describe("RNF-14 barra lateral en pantallas angostas", () => {
     expect(window.location.pathname).toBe("/clientes");
     expect(boton).toHaveAttribute("aria-expanded", "false");
     expect(estaOculto(panelDe(boton))).toBe(true);
+  });
+
+  it("RNF-14 Escape cierra el menú abierto y devuelve el foco al botón", async () => {
+    const usuario = userEvent.setup();
+    const { boton, menu } = await montar();
+
+    await usuario.click(boton);
+    within(menu).getByRole("link", { name: "Clientes" }).focus();
+    await usuario.keyboard("{Escape}");
+
+    await waitFor(() => expect(boton).toHaveAttribute("aria-expanded", "false"));
+    expect(estaOculto(panelDe(boton))).toBe(true);
+    expect(boton).toHaveFocus();
   });
 
   it("RNF-14 la navegación por rol de T-020 no cambia: el admin sigue viendo las 11 secciones", async () => {
