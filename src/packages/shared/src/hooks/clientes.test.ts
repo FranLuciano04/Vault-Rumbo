@@ -88,6 +88,7 @@ describe("RF-031 hooks de clientes", () => {
       });
     });
 
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
     expect(result.current.data).toMatchObject({ nombre: "Nuevo Cliente" });
   });
 
@@ -118,6 +119,7 @@ describe("RF-031 hooks de clientes", () => {
       });
     });
 
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
     expect(result.current.data).toMatchObject({ no_recontactar: true });
   });
 });
