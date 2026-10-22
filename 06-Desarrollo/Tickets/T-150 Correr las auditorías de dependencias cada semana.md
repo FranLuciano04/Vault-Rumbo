@@ -3,7 +3,7 @@ id: T-150
 titulo: Correr las auditorías de dependencias cada semana
 modulo: M0 — Fundaciones
 capa: infra
-estado: tomado
+estado: hecho
 depende_de: [T-019]
 tamaño: XS
 riesgo: normal
@@ -47,3 +47,11 @@ No sigue TDD (`infra`). Se verifica con `actionlint` y con una corrida manual (`
 - Abrir issues o PR automáticos (Dependabot o Renovate).
 
 ## Notas de implementación
+- **Qué se agregó:** `.github/workflows/auditoria-semanal.yml`, con `schedule` semanal (lunes 09:00 UTC, 06:00 en Buenos Aires) y `workflow_dispatch`. Dos jobs independientes: `pip-audit` (`uv sync --locked` y `uv run pip-audit`, en `src/backend`) y `pnpm-audit` (`pnpm audit --audit-level=high`, en `src`). No corren lint, tests ni e2e. No se toca `ci.yml`: los comandos son los mismos, pero no se reutilizaron con `workflow_call` para no cambiar el CI de los PR dentro de este ticket.
+- **Verificación local:** actionlint 1.7.12 (imagen Docker `rhysd/actionlint`) sin hallazgos en los tres workflows; yamllint sin errores; `uv sync --locked` correcto; `pnpm audit --audit-level=high` sale en 0 (2 altas ignoradas por `audit.ignore`, 2 moderadas no cuentan).
+- **Pendiente de verificación:** `pip-audit` no pudo correr en esta PC. El Python que maneja uv falla al cargar `ssl` y el de sistema da error de certificado contra pypi.org (problema del entorno local, no del workflow). Lo verifica la primera corrida manual en GitHub.
+- **Pendiente en GitHub:** `workflow_dispatch` solo aparece en la pestaña Actions cuando el archivo está en `main`, así que la corrida manual se hace después del merge.
+- **Quién mira el aviso:** Nahuel Viniegra, responsable fijo. Qué hacer ante una corrida en rojo y cómo se cambia el responsable: ver [[Flujo de implementación#Auditoría semanal de dependencias (T-150)]].
+- **Notificación:** GitHub avisa de una corrida programada fallida a quien modificó por última vez la sintaxis `cron` ([documentación de GitHub Actions, evento `schedule`](https://docs.github.com/actions/reference/workflows-and-actions/events-that-trigger-workflows#schedule)). Coincide con Nahuel, que es quien edita el `cron`.
+- **Review (sonnet):** sin bloqueantes. El importante (criterio 3, documentar quién mira el aviso) se arregló en el fix, con la decisión de Nahuel. Menores: el comentario del workflow ahora apunta al vault; `concurrency` no se agregó, porque para una corrida semanal no hace falta.
+- **Modelos:** implementación y fix con haiku; review con sonnet. No hubo escalados.

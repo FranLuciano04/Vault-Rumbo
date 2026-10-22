@@ -72,6 +72,13 @@ node 06-Desarrollo/herramientas/tickets.mjs publicar-grafo
 node 06-Desarrollo/herramientas/tickets.mjs modulo MN
 ```
 
+## Auditoría semanal de dependencias (T-150)
+- **Quién mira el aviso:** Nahuel Viniegra. Es quien edita el `cron` de `.github/workflows/auditoria-semanal.yml`, y por eso quien recibe la notificación de GitHub: la regla de GitHub para workflows programados la envía a quien modificó por última vez la sintaxis `cron` ([documentación de GitHub Actions, evento `schedule`](https://docs.github.com/actions/reference/workflows-and-actions/events-that-trigger-workflows#schedule)).
+- **Si la corrida falla:** revisar el job (`pip-audit` o `pnpm-audit`) en la pestaña Actions y decidir:
+  - Vulnerabilidad real: crear un ticket con `origen: hallazgo T-150` y actualizar la dependencia en el lockfile.
+  - Falso positivo o riesgo aceptado: agregar la excepción comentada, con su motivo: `audit.ignore` en `src/pnpm-workspace.yaml` (pnpm) o `--ignore-vuln <ID>` en el workflow (pip-audit).
+- **Cambio de responsable:** si otra persona edita el `cron`, pasa a recibir el aviso de GitHub. Debe actualizar esta sección y avisar al equipo.
+
 ## Dónde queda cada cosa
 | Qué | Dónde |
 |---|---|

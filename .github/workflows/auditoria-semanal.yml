@@ -1,0 +1,60 @@
+# Auditoría semanal de dependencias (T-150, DEC-0001). Corre las mismas auditorías que el CI de los
+# PR (T-019), pero sin mirar qué cambió: una vulnerabilidad publicada después de fijar un lockfile
+# aparece igual.
+#
+# - Solo audita: no corre lint, tests ni e2e.
+# - Cada auditoría es un job. Si alguna encuentra una vulnerabilidad de severidad alta (pip-audit,
+#   sin filtro de severidad, como en ci.yml), la corrida queda en rojo en la pestaña Actions.
+# - Las excepciones de pnpm están en `audit.ignore` de `src/pnpm-workspace.yaml`, igual que en el
+#   CI de los PR. pip-audit no tiene excepciones.
+# - GitHub notifica la falla de una corrida programada a quien modificó por última vez la sintaxis
+#   `cron` de este archivo. Quién mira el aviso y qué hacer ante una falla: vault,
+#   06-Desarrollo/Flujo de implementación.md, sección «Auditoría semanal de dependencias (T-150)».
+name: Auditoría semanal
+
+on:
+  schedule:
+    - cron: "0 9 * * 1"  # lunes 06:00 en Buenos Aires (UTC-3)
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  pip-audit:
+    name: Auditoría de dependencias Python (pip-audit)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: src/backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+          cache-dependency-glob: src/backend/uv.lock
+      - name: Instalar las versiones exactas del lock
+        run: uv sync --locked
+      - name: Auditoría (pip-audit)
+        run: uv run pip-audit --progress-spinner=off
+
+  pnpm-audit:
+    name: Auditoría de dependencias Node (pnpm audit)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: src
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          package_json_file: src/package.json
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: src/pnpm-lock.yaml
+      - name: Auditoría (pnpm audit, severidad alta o crítica)
+        run: pnpm audit --audit-level=high
