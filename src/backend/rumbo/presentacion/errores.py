@@ -1,10 +1,12 @@
 import logging
 from typing import Any, cast
 
+from asyncpg.exceptions import DataError as DataErrorDeAsyncpg  # type: ignore[import-untyped]
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.encoders import jsonable_encoder
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
+from sqlalchemy.exc import DBAPIError
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from rumbo.negocio.errores import (
@@ -93,6 +95,30 @@ async def _error_de_validacion(_: Request, exc: Exception) -> JSONResponse:
     return _problema(422, "Los datos enviados no son válidos.", errores=jsonable_encoder(errores))
 
 
+_SQLSTATE_NUMERO_FUERA_DE_RANGO = "22003"
+
+
+def _es_numero_fuera_de_rango(error: DBAPIError) -> bool:
+    """Distingue un número que no entra en la columna de cualquier otro error de la base.
+
+    asyncpg rechaza un entero fuera de rango al codificar el parámetro (`DataError` con
+    `OverflowError` de causa); Postgres lo rechaza con SQLSTATE 22003. SQLAlchemy los
+    envuelve en un `DBAPIError` genérico, y el original queda en `orig.__cause__`.
+    """
+    original = error.orig
+    origen = original.__cause__ if original is not None else None
+    if getattr(original, "sqlstate", None) == _SQLSTATE_NUMERO_FUERA_DE_RANGO:
+        return True
+    return isinstance(origen, DataErrorDeAsyncpg) and isinstance(origen.__cause__, OverflowError)
+
+
+async def _error_de_base(request: Request, exc: Exception) -> JSONResponse:
+    error = cast(DBAPIError, exc)
+    if not _es_numero_fuera_de_rango(error):
+        return await _error_no_controlado(request, exc)
+    return _problema(422, "Hay un número fuera del rango admitido.")
+
+
 async def _error_no_controlado(_: Request, exc: Exception) -> JSONResponse:
     logger.error("Error no controlado", exc_info=exc)
     return _problema(500, "Ocurrió un error inesperado.")
@@ -102,4 +128,5 @@ def registrar_manejadores(app: FastAPI) -> None:
     app.add_exception_handler(ErrorDeDominio, _error_de_dominio)
     app.add_exception_handler(StarletteHTTPException, _error_http)
     app.add_exception_handler(RequestValidationError, _error_de_validacion)
+    app.add_exception_handler(DBAPIError, _error_de_base)
     app.add_exception_handler(Exception, _error_no_controlado)
