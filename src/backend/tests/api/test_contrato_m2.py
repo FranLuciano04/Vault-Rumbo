@@ -259,3 +259,61 @@ async def test_rf031_ver_con_id_que_no_es_uuid_responde_422(
     r = await c.get("/api/clientes/no-es-uuid")
 
     assert r.status_code == 422
+
+
+@pytest.mark.parametrize("campo", ["nombre", "contacto", "segmento", "etiquetas", "no_recontactar"])
+async def test_cu03_a2_editar_con_null_explicito_responde_422(
+    cliente_como: FabricaCliente, campo: str
+) -> None:
+    c = await cliente_como("empleado")
+
+    r = await c.patch(f"/api/clientes/{ID}", json={campo: None})
+
+    assert r.status_code == 422
+    assert r.headers["content-type"].startswith(PROBLEM_JSON)
+
+
+async def test_cu03_editar_acepta_null_en_preferencias_y_asesor(
+    cliente_como: FabricaCliente,
+) -> None:
+    c = await cliente_como("empleado")
+
+    r = await c.patch(
+        f"/api/clientes/{ID}", json={"preferencias": None, "asesor_asignado_id": None}
+    )
+
+    assert r.status_code == 501
+
+
+async def test_cu03_a2_el_contrato_no_publica_como_nullable_lo_que_no_admite_null(
+    contrato: dict[str, Any],
+) -> None:
+    propiedades = _cuerpo(contrato, "patch", "/api/clientes/{cliente_id}")["properties"]
+
+    for campo in ("nombre", "contacto", "etiquetas", "no_recontactar"):
+        assert "anyOf" not in propiedades[campo], campo
+    assert "anyOf" in propiedades["preferencias"]
+
+
+async def test_rf031_buscar_filtra_por_segmento(
+    cliente_como: FabricaCliente, contrato: dict[str, Any]
+) -> None:
+    parametros = {p["name"] for p in contrato["paths"]["/api/clientes"]["get"]["parameters"]}
+    c = await cliente_como("empleado")
+
+    r = await c.get("/api/clientes", params={"segmento": "pareja"})
+    invalido = await c.get("/api/clientes", params={"segmento": "otro"})
+
+    assert "segmento" in parametros
+    assert r.status_code == 501
+    assert invalido.status_code == 422
+
+
+async def test_rf031_cliente_publica_la_auditoria_de_solo_lectura(
+    contrato: dict[str, Any],
+) -> None:
+    cliente = contrato["components"]["schemas"]["Cliente"]
+
+    for campo in ("created_by", "updated_by", "created_at", "updated_at"):
+        assert cliente["properties"][campo]["readOnly"] is True
+    assert {"created_at", "updated_at"} <= set(cliente["required"])

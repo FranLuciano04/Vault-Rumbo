@@ -26,7 +26,7 @@ def _errores_como_problem_json(documento: dict[str, Any]) -> None:
             for estado, respuesta in operacion["responses"].items():
                 contenido = respuesta.get("content")
                 if _es_error(estado) and contenido:
-                    esquema = next(iter(contenido.values()))["schema"]
+                    esquema = next(iter(contenido.values())).get("schema", {"$ref": _REF_PROBLEMA})
                     if esquema.get("$ref") == _REF_VALIDACION:
                         esquema = {"$ref": _REF_PROBLEMA}
                     respuesta["content"] = {PROBLEM_JSON: {"schema": esquema}}

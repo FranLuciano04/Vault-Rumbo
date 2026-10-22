@@ -115,6 +115,24 @@
             "description": "Etiqueta exacta del cliente."
           },
           {
+            "name": "segmento",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/SegmentoCliente"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Segmento del cliente.",
+              "title": "Segmento"
+            },
+            "description": "Segmento del cliente."
+          },
+          {
             "name": "mios",
             "in": "query",
             "required": false,
@@ -296,7 +314,7 @@
             }
           },
           "404": {
-            "description": "El cliente no existe.",
+            "description": "El cliente no existe o no lo podés ver.",
             "content": {
               "application/problem+json": {
                 "schema": {
@@ -373,7 +391,7 @@
             }
           },
           "404": {
-            "description": "El cliente no existe.",
+            "description": "El cliente no existe o no lo podés ver.",
             "content": {
               "application/problem+json": {
                 "schema": {
@@ -442,7 +460,7 @@
             }
           },
           "404": {
-            "description": "El cliente no existe.",
+            "description": "El cliente no existe o no lo podés ver.",
             "content": {
               "application/problem+json": {
                 "schema": {
@@ -469,6 +487,46 @@
     "schemas": {
       "Cliente": {
         "properties": {
+          "created_by": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created By",
+            "description": "Usuario que creó el registro; vacío si lo hizo el proceso automático.",
+            "readOnly": true
+          },
+          "updated_by": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Updated By",
+            "description": "Usuario que lo modificó por última vez; vacío si fue el proceso automático.",
+            "readOnly": true
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At",
+            "readOnly": true
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At",
+            "readOnly": true
+          },
           "id": {
             "type": "string",
             "format": "uuid",
@@ -526,6 +584,10 @@
         },
         "type": "object",
         "required": [
+          "created_by",
+          "updated_by",
+          "created_at",
+          "updated_at",
           "id",
           "nombre",
           "contacto",
@@ -604,53 +666,25 @@
       "ClienteEditar": {
         "properties": {
           "nombre": {
-            "anyOf": [
-              {
-                "type": "string",
-                "maxLength": 120,
-                "minLength": 1
-              },
-              {
-                "type": "null"
-              }
-            ],
+            "type": "string",
+            "maxLength": 120,
+            "minLength": 1,
             "title": "Nombre"
           },
           "contacto": {
-            "anyOf": [
-              {
-                "type": "string",
-                "maxLength": 200,
-                "minLength": 1
-              },
-              {
-                "type": "null"
-              }
-            ],
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 1,
             "title": "Contacto"
           },
           "segmento": {
-            "anyOf": [
-              {
-                "$ref": "#/components/schemas/SegmentoCliente"
-              },
-              {
-                "type": "null"
-              }
-            ]
+            "$ref": "#/components/schemas/SegmentoCliente"
           },
           "etiquetas": {
-            "anyOf": [
-              {
-                "items": {
-                  "type": "string"
-                },
-                "type": "array"
-              },
-              {
-                "type": "null"
-              }
-            ],
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
             "title": "Etiquetas"
           },
           "preferencias": {
@@ -665,14 +699,7 @@
             "title": "Preferencias"
           },
           "no_recontactar": {
-            "anyOf": [
-              {
-                "type": "boolean"
-              },
-              {
-                "type": "null"
-              }
-            ],
+            "type": "boolean",
             "title": "No Recontactar"
           },
           "asesor_asignado_id": {

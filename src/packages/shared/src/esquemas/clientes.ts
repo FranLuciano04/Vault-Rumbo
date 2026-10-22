@@ -18,8 +18,8 @@ export const esquemaAltaCliente = z.object({
     .refine(esContactoValido, "Ingresá un teléfono o un email válido."),
   segmento: z.enum(SEGMENTOS),
   etiquetas: z.array(z.string()).optional(),
-  preferencias: z.string().optional(),
-  asesor_asignado_id: z.uuid().optional(),
+  preferencias: z.string().nullable().optional(),
+  asesor_asignado_id: z.uuid().nullable().optional(),
   confirmar_duplicado: z.boolean().optional(),
 });
 

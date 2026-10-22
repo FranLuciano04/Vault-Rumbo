@@ -5,6 +5,7 @@ from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends, Query
 
+from rumbo.datos.modelos import SegmentoCliente
 from rumbo.presentacion.dependencias import usuario_actual
 from rumbo.presentacion.errores import no_implementado
 from rumbo.presentacion.esquemas.clientes import (
@@ -31,7 +32,7 @@ router = APIRouter(
 
 _ROLES = "**Roles:** admin, dueno, empleado, freelance."
 _NO_ENCONTRADO: dict[int | str, dict[str, Any]] = {
-    404: {"model": Problema, "description": "El cliente no existe."}
+    404: {"model": Problema, "description": "El cliente no existe o no lo podés ver."}
 }
 
 
@@ -45,6 +46,7 @@ async def buscar_clientes(
     paginacion: Annotated[ParametrosPagina, Depends(parametros_pagina)],
     buscar: Annotated[str | None, Query(description="Texto en el nombre o el contacto.")] = None,
     etiqueta: Annotated[str | None, Query(description="Etiqueta exacta del cliente.")] = None,
+    segmento: Annotated[SegmentoCliente | None, Query(description="Segmento del cliente.")] = None,
     mios: Annotated[bool, Query(description="Solo los clientes que tengo asignados.")] = False,
 ) -> Pagina[Cliente]:
     raise no_implementado()

@@ -133,6 +133,26 @@ export interface components {
          */
         Cliente: {
             /**
+             * Created By
+             * @description Usuario que creó el registro; vacío si lo hizo el proceso automático.
+             */
+            readonly created_by: string | null;
+            /**
+             * Updated By
+             * @description Usuario que lo modificó por última vez; vacío si fue el proceso automático.
+             */
+            readonly updated_by: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            readonly created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            readonly updated_at: string;
+            /**
              * Id
              * Format: uuid
              */
@@ -182,16 +202,16 @@ export interface components {
          */
         ClienteEditar: {
             /** Nombre */
-            nombre?: string | null;
+            nombre?: string;
             /** Contacto */
-            contacto?: string | null;
-            segmento?: components["schemas"]["SegmentoCliente"] | null;
+            contacto?: string;
+            segmento?: components["schemas"]["SegmentoCliente"];
             /** Etiquetas */
-            etiquetas?: string[] | null;
+            etiquetas?: string[];
             /** Preferencias */
             preferencias?: string | null;
             /** No Recontactar */
-            no_recontactar?: boolean | null;
+            no_recontactar?: boolean;
             /** Asesor Asignado Id */
             asesor_asignado_id?: string | null;
         };
@@ -447,6 +467,8 @@ export interface operations {
                 buscar?: string | null;
                 /** @description Etiqueta exacta del cliente. */
                 etiqueta?: string | null;
+                /** @description Segmento del cliente. */
+                segmento?: components["schemas"]["SegmentoCliente"] | null;
                 /** @description Solo los clientes que tengo asignados. */
                 mios?: boolean;
                 pagina?: number;
@@ -567,7 +589,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problema"];
                 };
             };
-            /** @description El cliente no existe. */
+            /** @description El cliente no existe o no lo podés ver. */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -620,7 +642,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problema"];
                 };
             };
-            /** @description El cliente no existe. */
+            /** @description El cliente no existe o no lo podés ver. */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -669,7 +691,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problema"];
                 };
             };
-            /** @description El cliente no existe. */
+            /** @description El cliente no existe o no lo podés ver. */
             404: {
                 headers: {
                     [name: string]: unknown;

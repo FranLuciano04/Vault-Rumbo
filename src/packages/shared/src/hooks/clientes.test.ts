@@ -107,6 +107,7 @@ describe("RF-031 hooks de clientes", () => {
 
     await waitFor(() => expect(result.current.isError).toBe(true));
     expect(result.current.error).toMatchObject({ status: 409 });
+    expect(result.current.error).toHaveProperty("duplicados", [clientesMock[0]]);
   });
 
   it("RF-031 useEditarCliente edita la ficha", async () => {
@@ -121,5 +122,28 @@ describe("RF-031 hooks de clientes", () => {
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
     expect(result.current.data).toMatchObject({ no_recontactar: true });
+  });
+
+  it("RF-031 useClientes manda el filtro segmento", async () => {
+    const { result } = renderHook(() => useClientes(cliente, { segmento: "familia" }), {
+      wrapper: envoltorio,
+    });
+
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+    expect(result.current.data?.items.map((c) => c.segmento)).toEqual(["familia"]);
+  });
+
+  it("RF-031 useCliente no consulta mientras no hay id", () => {
+    const { result } = renderHook(() => useCliente(cliente, ""), { wrapper: envoltorio });
+
+    expect(result.current.fetchStatus).toBe("idle");
+  });
+
+  it("RF-031 useHistorialCliente no consulta mientras no hay id", () => {
+    const { result } = renderHook(() => useHistorialCliente(cliente, ""), {
+      wrapper: envoltorio,
+    });
+
+    expect(result.current.fetchStatus).toBe("idle");
   });
 });

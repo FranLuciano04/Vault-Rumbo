@@ -2,18 +2,19 @@
 
 import uuid
 from datetime import date
-from typing import Annotated
+from typing import Annotated, Any
 
 from pydantic import BaseModel, Field
 
 from rumbo.datos.modelos import EstadoOportunidad, EstadoResena, EstadoViaje, SegmentoCliente
-from rumbo.presentacion.esquemas.comunes import Problema
+from rumbo.presentacion.esquemas.comunes import Auditoria, Problema
 
 Nombre = Annotated[str, Field(min_length=1, max_length=120)]
 Contacto = Annotated[str, Field(min_length=1, max_length=200)]
+_OMITIDO: Any = None  # valor por defecto de un campo que no admite `null` pero puede omitirse
 
 
-class Cliente(BaseModel):
+class Cliente(Auditoria):
     """Ficha del cliente: contacto, segmento, etiquetas y preferencias."""
 
     id: uuid.UUID
@@ -41,12 +42,14 @@ class ClienteCrear(BaseModel):
 class ClienteEditar(BaseModel):
     """Edición parcial de la ficha (CU-03, CU-30): solo cambian los campos enviados."""
 
-    nombre: Nombre | None = None
-    contacto: Contacto | None = None
-    segmento: SegmentoCliente | None = None
-    etiquetas: list[str] | None = None
+    # Sin `None` en el tipo: omitir el campo lo deja igual, pero un `null` explícito es 422
+    # (CU-03 A2: la ficha no puede quedar sin nombre ni contacto).
+    nombre: Nombre = _OMITIDO
+    contacto: Contacto = _OMITIDO
+    segmento: SegmentoCliente = _OMITIDO
+    etiquetas: list[str] = _OMITIDO
     preferencias: str | None = None
-    no_recontactar: bool | None = None
+    no_recontactar: bool = _OMITIDO
     asesor_asignado_id: uuid.UUID | None = None
 
 

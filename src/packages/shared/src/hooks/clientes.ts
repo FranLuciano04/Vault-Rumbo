@@ -6,11 +6,13 @@ import type {
   ClienteEditar,
   HistorialCliente,
   PaginaClientes,
+  SegmentoCliente,
 } from "../cliente";
 
 export interface FiltrosClientes {
   buscar?: string;
   etiqueta?: string;
+  segmento?: SegmentoCliente;
   mios?: boolean;
   pagina?: number;
   por_pagina?: number;
@@ -31,6 +33,7 @@ export function useClientes(cliente: AxiosInstance, filtros?: FiltrosClientes) {
 export function useCliente(cliente: AxiosInstance, id: string) {
   return useQuery({
     queryKey: [...claveClientes, id],
+    enabled: Boolean(id),
     queryFn: async () => (await cliente.get<Cliente>(`/api/clientes/${id}`)).data,
   });
 }
@@ -39,6 +42,7 @@ export function useCliente(cliente: AxiosInstance, id: string) {
 export function useHistorialCliente(cliente: AxiosInstance, id: string) {
   return useQuery({
     queryKey: [...claveClientes, id, "historial"],
+    enabled: Boolean(id),
     queryFn: async () =>
       (await cliente.get<HistorialCliente>(`/api/clientes/${id}/historial`)).data,
   });

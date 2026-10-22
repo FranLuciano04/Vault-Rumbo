@@ -29,6 +29,8 @@ export class ErrorApi extends Error {
   title = "";
   detail = "";
   errores: ErrorCampo[] = [];
+  /** Posibles duplicados que trae el 409 del alta (CU-02 A1). */
+  duplicados?: Cliente[];
 }
 
 export function crearCliente({ baseURL, obtenerToken }: OpcionesCliente): AxiosInstance {
@@ -43,12 +45,14 @@ export function crearCliente({ baseURL, obtenerToken }: OpcionesCliente): AxiosI
   cliente.interceptors.response.use(undefined, (error: unknown) => {
     if (!isAxiosError(error) || !error.response) throw error;
     const data: unknown = error.response.data;
-    const problema: Partial<Problema> = data && typeof data === "object" ? data : {};
+    const problema: Partial<Problema & Pick<ProblemaDuplicado, "duplicados">> =
+      data && typeof data === "object" ? data : {};
     const errorApi = new ErrorApi(problema.title ?? error.message);
     errorApi.status = error.response.status;
     errorApi.title = problema.title ?? "";
     errorApi.detail = problema.detail ?? "";
     errorApi.errores = problema.errores ?? [];
+    if (problema.duplicados) errorApi.duplicados = problema.duplicados;
     throw errorApi;
   });
 

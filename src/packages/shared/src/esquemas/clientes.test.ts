@@ -39,4 +39,14 @@ describe("RF-031 esquema zod del alta de cliente (CU-02)", () => {
 
     expect(r.success).toBe(true);
   });
+
+  it("RF-031 admite preferencias y asesor asignado en null", () => {
+    const r = esquemaAltaCliente.safeParse({
+      ...valido,
+      preferencias: null,
+      asesor_asignado_id: null,
+    });
+
+    expect(r.success).toBe(true);
+  });
 });

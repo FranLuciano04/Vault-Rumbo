@@ -1,5 +1,6 @@
 import { http, HttpResponse, type RequestHandler } from "msw";
 import type { Cliente, ClienteCrear, ClienteEditar, HistorialCliente } from "../cliente";
+import { usuariosPorRol } from "./index";
 import { respuestaProblema } from "./problema";
 
 /** Clientes ficticios que respetan el esquema `Cliente`. */
@@ -13,6 +14,10 @@ export const clientesMock: Cliente[] = [
     preferencias: "Hoteles todo incluido, vuelos directos.",
     no_recontactar: false,
     asesor_asignado_id: "a1c4e7f0-3d58-4b92-b6a3-8f0e2d1c4b03",
+    created_by: "5d3e9c18-7b24-4a6f-8e10-2c4a9b6d5f02",
+    updated_by: "a1c4e7f0-3d58-4b92-b6a3-8f0e2d1c4b03",
+    created_at: "2026-01-12T14:30:00Z",
+    updated_at: "2026-03-02T10:15:00Z",
   },
   {
     id: "9e5b0a74-1c3d-4f68-a2b9-5c8d7e0f1a22",
@@ -23,6 +28,10 @@ export const clientesMock: Cliente[] = [
     preferencias: null,
     no_recontactar: false,
     asesor_asignado_id: null,
+    created_by: "5d3e9c18-7b24-4a6f-8e10-2c4a9b6d5f02",
+    updated_by: "a1c4e7f0-3d58-4b92-b6a3-8f0e2d1c4b03",
+    created_at: "2026-01-12T14:30:00Z",
+    updated_at: "2026-03-02T10:15:00Z",
   },
   {
     id: "d4a8c6e2-5f19-4073-8b3a-2e1c9d7f0b33",
@@ -33,6 +42,10 @@ export const clientesMock: Cliente[] = [
     preferencias: "Viaja solo, prefiere escapadas cortas.",
     no_recontactar: true,
     asesor_asignado_id: "e7b20d94-6a3f-4c15-9d8e-0b5a3f7c2e04",
+    created_by: "5d3e9c18-7b24-4a6f-8e10-2c4a9b6d5f02",
+    updated_by: "a1c4e7f0-3d58-4b92-b6a3-8f0e2d1c4b03",
+    created_at: "2026-01-12T14:30:00Z",
+    updated_at: "2026-03-02T10:15:00Z",
   },
 ];
 
@@ -73,7 +86,9 @@ const SIN_HISTORIAL: HistorialCliente = { oportunidades: [], viajes: [], resenas
 const BASE = "*/api/clientes";
 
 function noEncontrado() {
-  return respuestaProblema(404, "No encontrado", { detail: "El cliente no existe." });
+  return respuestaProblema(404, "No encontrado", {
+    detail: "El cliente no existe o no lo podés ver.",
+  });
 }
 
 /** Handlers MSW de las cinco rutas de `/api/clientes` (CU-02, CU-03). */
@@ -82,6 +97,7 @@ export const manejadoresClientes: RequestHandler[] = [
     const url = new URL(request.url);
     const buscar = url.searchParams.get("buscar")?.toLowerCase();
     const etiqueta = url.searchParams.get("etiqueta");
+    const segmento = url.searchParams.get("segmento");
     const mios = url.searchParams.get("mios") === "true";
     const pagina = Number(url.searchParams.get("pagina") ?? 1);
     const porPagina = Number(url.searchParams.get("por_pagina") ?? 20);
@@ -91,7 +107,8 @@ export const manejadoresClientes: RequestHandler[] = [
           c.nombre.toLowerCase().includes(buscar) ||
           c.contacto.toLowerCase().includes(buscar)) &&
         (!etiqueta || c.etiquetas.includes(etiqueta)) &&
-        (!mios || c.asesor_asignado_id !== null),
+        (!segmento || c.segmento === segmento) &&
+        (!mios || c.asesor_asignado_id === usuariosPorRol.empleado.id),
     );
     const desde = (pagina - 1) * porPagina;
     return HttpResponse.json({
@@ -111,6 +128,7 @@ export const manejadoresClientes: RequestHandler[] = [
         duplicados,
       });
     }
+    const ahora = new Date().toISOString();
     const nuevo: Cliente = {
       id: crypto.randomUUID(),
       nombre: datos.nombre,
@@ -120,6 +138,10 @@ export const manejadoresClientes: RequestHandler[] = [
       preferencias: datos.preferencias ?? null,
       no_recontactar: false,
       asesor_asignado_id: datos.asesor_asignado_id ?? null,
+      created_by: usuariosPorRol.empleado.id,
+      updated_by: usuariosPorRol.empleado.id,
+      created_at: ahora,
+      updated_at: ahora,
     };
     return HttpResponse.json(nuevo, { status: 201 });
   }),

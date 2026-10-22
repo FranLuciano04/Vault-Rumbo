@@ -155,3 +155,38 @@ describe("RF-031 handlers MSW de /api/clientes", () => {
     expect(Array.isArray(cuerpo["resenas"])).toBe(true);
   });
 });
+
+describe("RF-031 filtros y auditoría de los mocks", () => {
+  it("RF-031 GET /api/clientes filtra por segmento", async () => {
+    const res = await fetch(`${BASE}?segmento=pareja`);
+
+    const items = ((await res.json()) as { items: { segmento: string }[] }).items;
+    expect(items.length).toBeGreaterThan(0);
+    expect(items.every((c) => c.segmento === "pareja")).toBe(true);
+  });
+
+  it("RF-031 GET /api/clientes con mios devuelve solo los del usuario de la sesión", async () => {
+    const res = await fetch(`${BASE}?mios=true`);
+
+    const items = ((await res.json()) as { items: { asesor_asignado_id: string | null }[] }).items;
+    expect(items.length).toBeGreaterThan(0);
+    expect(items.length).toBeLessThan(clientesMock.length);
+    expect(new Set(items.map((c) => c.asesor_asignado_id)).size).toBe(1);
+  });
+
+  it("RF-031 cada cliente mock trae la auditoría de solo lectura", () => {
+    for (const c of clientesMock) {
+      for (const campo of ["created_by", "updated_by", "created_at", "updated_at"]) {
+        expect(c).toHaveProperty(campo);
+      }
+    }
+  });
+
+  it("RF-031 el 404 explica que el cliente no existe o no se puede ver", async () => {
+    const res = await fetch(`${BASE}/00000000-0000-4000-8000-000000000000`);
+
+    expect(((await res.json()) as { detail: string }).detail).toBe(
+      "El cliente no existe o no lo podés ver.",
+    );
+  });
+});
