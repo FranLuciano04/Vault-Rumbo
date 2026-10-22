@@ -73,11 +73,7 @@ async def registrar_cliente(
     actor: Annotated[modelos.Usuario, Depends(usuario_actual)],
     sesion: SesionDep,
 ) -> Cliente:
-    cliente = await clientes.registrar_cliente(
-        sesion,
-        actor,
-        **datos.model_dump(),
-    )
+    cliente = await clientes.registrar_cliente(sesion, actor, **datos.model_dump())
     return Cliente.model_validate(cliente)
 
 
