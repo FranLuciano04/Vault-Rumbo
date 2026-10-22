@@ -1,0 +1,18 @@
+# gitleaks de Rumbo (DEC-0001, seguridad; T-019). El job «Secretos» del CI escanea el historial
+# completo del repo, vault incluido, en cada PR. Cualquier hallazgo falla el job.
+#
+# Se usan las reglas por defecto de gitleaks y no se agregan reglas propias.
+#
+# FALSOS POSITIVOS: agregar una entrada en [allowlist] con un motivo en `description` y acotarla
+# (por `regexes` o `paths`) para no silenciar más de lo necesario. Nunca dejar un secreto real
+# en el archivo ni en el historial para «silenciarlo»: hay que rotarlo.
+# Ejemplo, desactivado (sintaxis vigente: `[[allowlists]]`, un bloque por excepción):
+# [[allowlists]]
+# description = "Contraseña descartable de la base de tests del CI (ci.yml)"
+# regexes = ['''rumbo-ci-descartable''']
+# paths = ['''^\.github/workflows/ci\.yml$''']
+
+title = "Rumbo: gitleaks"
+
+[extend]
+useDefault = true

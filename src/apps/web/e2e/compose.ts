@@ -71,6 +71,8 @@ async function reintentar(pedir: () => Promise<Response>): Promise<Response> {
 /** Crea una cuenta con contraseña en el Auth Emulator (el registro está abierto solo ahí). */
 export async function crearCuentaEnEmulador(email: string, password: string): Promise<void> {
   const respuesta = await reintentar(() =>
+    // HTTP a propósito: el emulador escucha solo en 127.0.0.1 (docker-compose.e2e.yml), sin tráfico externo.
+    // nosemgrep: typescript.react.security.react-insecure-request.react-insecure-request
     fetch(`${EMULADOR}/identitytoolkit.googleapis.com/v1/accounts:signUp?key=demo-key`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
