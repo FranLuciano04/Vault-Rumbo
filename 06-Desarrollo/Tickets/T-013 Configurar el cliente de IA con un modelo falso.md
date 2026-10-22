@@ -3,7 +3,7 @@ id: T-013
 titulo: Configurar el cliente de IA con un modelo falso
 modulo: M0 — Fundaciones
 capa: backend
-estado: tomado
+estado: hecho
 depende_de: [T-006]
 tamaño: S
 riesgo: normal
@@ -47,3 +47,9 @@ tags:: #tipo/ticket
 - El prompt de CU-20 y el endpoint de propuestas (M9).
 
 ## Notas de implementación
+- Interfaz: `ModeloIA` (Protocol con `async generar(prompt) -> str`), `ModeloFalso`, `obtener_modelo_ia(settings)` y `_construir_cliente_claude(api_key)`, que es el único punto donde se construye el cliente real. Configuración: `IA_MODELO=falso|claude` (por defecto `falso`) y `ANTHROPIC_API_KEY` (`SecretStr`), documentadas en `src/backend/.env.example`.
+- Modelo real: `claude-sonnet-5-5` (DEC-0012), con `timeout=60` s y `max_retries=1`. Los errores de la API se traducen a `ServicioExterno`.
+- Con autorización de Nahuel (21/10/26): se tocó `tests/conftest.py` para agregar un fixture autouse que hace fallar cualquier construcción del cliente real, y se sumó la dependencia `langchain-anthropic` (`uv add --native-tls`, por un error de TLS en la PC).
+- La review (opus) marcó 2 hallazgos importantes y 3 menores, todos arreglados en el fix con 2 tests nuevos. La guardia solo intercepta `_construir_cliente_claude`: tenerlo en cuenta en M9.
+- Fuera del ticket: 5 tests que lanzan subprocesos (`test_cli_openapi`, `test_config`, `test_seguridad`) dan `PermissionError` en el setup en esta PC. También pasa sin los cambios del ticket.
+- Modelos: tests sonnet, implementación y refactor sonnet, review opus. No hubo escalados.
