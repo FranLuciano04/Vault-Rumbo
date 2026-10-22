@@ -29,6 +29,7 @@ from rumbo.presentacion.paginacion import Pagina, ParametrosPagina, parametros_p
 
 router = APIRouter(tags=["configuracion"])
 
+ActorDep = Annotated[modelos.Usuario, Depends(usuario_actual)]
 PaginaDep = Annotated[ParametrosPagina, Depends(parametros_pagina)]
 
 
@@ -38,9 +39,7 @@ PaginaDep = Annotated[ParametrosPagina, Depends(parametros_pagina)]
     summary="Ver los parámetros del negocio",
     **operacion(GESTION, "CU-06, CU-07, CU-30"),
 )
-async def obtener_configuracion(
-    actor: Annotated[modelos.Usuario, Depends(usuario_actual)], sesion: SesionDep
-) -> Configuracion:
+async def obtener_configuracion(actor: ActorDep, sesion: SesionDep) -> Configuracion:
     return Configuracion.model_validate(await parametros.ver(sesion, actor))
 
 
@@ -52,7 +51,7 @@ async def obtener_configuracion(
 )
 async def editar_configuracion(
     datos: ConfiguracionEditar,
-    actor: Annotated[modelos.Usuario, Depends(usuario_actual)],
+    actor: ActorDep,
     sesion: SesionDep,
 ) -> Configuracion:
     parametros_editados = await parametros.editar(sesion, actor, **datos.model_dump())
@@ -68,7 +67,7 @@ async def editar_configuracion(
 async def configurar_comision_por_defecto(
     usuario_id: uuid.UUID,
     datos: ComisionPorDefecto,
-    actor: Annotated[modelos.Usuario, Depends(usuario_actual)],
+    actor: ActorDep,
     sesion: SesionDep,
 ) -> Usuario:
     """CU-13 (RF-083): no recalcula los viajes ya registrados (DEC-0013)."""
@@ -90,9 +89,27 @@ async def configurar_comision_por_defecto(
     **operacion(TODOS, "CU-26", 422),
 )
 async def listar_destinos(
-    pagina: PaginaDep, activo: bool | None = None, buscar: str | None = None
+    pagina: PaginaDep,
+    actor: ActorDep,
+    sesion: SesionDep,
+    activo: bool | None = True,
+    buscar: str | None = None,
 ) -> Pagina[Destino]:
-    raise no_implementado()
+    """Por defecto solo los activos; `activo=false` trae los de baja."""
+    items, total = await configuracion.listar_destinos(
+        sesion,
+        actor,
+        activo=activo,
+        buscar=buscar,
+        desplazamiento=pagina.desplazamiento,
+        limite=pagina.por_pagina,
+    )
+    return Pagina(
+        items=[Destino.model_validate(d) for d in items],
+        total=total,
+        pagina=pagina.pagina,
+        por_pagina=pagina.por_pagina,
+    )
 
 
 @router.post(
@@ -102,8 +119,9 @@ async def listar_destinos(
     summary="Dar de alta un destino",
     **operacion(GESTION, "CU-26", 409, 422),
 )
-async def crear_destino(datos: DestinoCrear) -> Destino:
-    raise no_implementado()
+async def crear_destino(datos: DestinoCrear, actor: ActorDep, sesion: SesionDep) -> Destino:
+    destino = await configuracion.crear_destino(sesion, actor, **datos.model_dump())
+    return Destino.model_validate(destino)
 
 
 @router.get(
@@ -112,8 +130,8 @@ async def crear_destino(datos: DestinoCrear) -> Destino:
     summary="Ver un destino",
     **operacion(TODOS, "CU-26", 404),
 )
-async def obtener_destino(destino_id: uuid.UUID) -> Destino:
-    raise no_implementado()
+async def obtener_destino(destino_id: uuid.UUID, actor: ActorDep, sesion: SesionDep) -> Destino:
+    return Destino.model_validate(await configuracion.obtener_destino(sesion, actor, destino_id))
 
 
 @router.patch(
@@ -122,8 +140,12 @@ async def obtener_destino(destino_id: uuid.UUID) -> Destino:
     summary="Editar un destino",
     **operacion(GESTION, "CU-26", 404, 409, 422),
 )
-async def editar_destino(destino_id: uuid.UUID, datos: DestinoEditar) -> Destino:
-    raise no_implementado()
+async def editar_destino(
+    destino_id: uuid.UUID, datos: DestinoEditar, actor: ActorDep, sesion: SesionDep
+) -> Destino:
+    cambios = datos.model_dump(exclude_unset=True)
+    destino = await configuracion.editar_destino(sesion, actor, destino_id, cambios)
+    return Destino.model_validate(destino)
 
 
 @router.post(
@@ -132,8 +154,9 @@ async def editar_destino(destino_id: uuid.UUID, datos: DestinoEditar) -> Destino
     summary="Dar de baja un destino (baja lógica)",
     **operacion(GESTION, "CU-26", 404),
 )
-async def dar_de_baja_destino(destino_id: uuid.UUID) -> Destino:
-    raise no_implementado()
+async def dar_de_baja_destino(destino_id: uuid.UUID, actor: ActorDep, sesion: SesionDep) -> Destino:
+    destino = await configuracion.dar_de_baja_destino(sesion, actor, destino_id)
+    return Destino.model_validate(destino)
 
 
 @router.post(
@@ -142,8 +165,9 @@ async def dar_de_baja_destino(destino_id: uuid.UUID) -> Destino:
     summary="Reactivar un destino",
     **operacion(GESTION, "CU-26", 404),
 )
-async def reactivar_destino(destino_id: uuid.UUID) -> Destino:
-    raise no_implementado()
+async def reactivar_destino(destino_id: uuid.UUID, actor: ActorDep, sesion: SesionDep) -> Destino:
+    destino = await configuracion.reactivar_destino(sesion, actor, destino_id)
+    return Destino.model_validate(destino)
 
 
 @router.get(

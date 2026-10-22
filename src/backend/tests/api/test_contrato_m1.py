@@ -78,6 +78,12 @@ IMPLEMENTADAS = {
     ("PUT", "/api/usuarios/{usuario_id}/comision-por-defecto"),  # T-030
     ("GET", "/api/configuracion"),  # T-029
     ("PUT", "/api/configuracion"),  # T-029
+    ("GET", "/api/destinos"),  # T-031
+    ("POST", "/api/destinos"),  # T-031
+    ("GET", "/api/destinos/{destino_id}"),  # T-031
+    ("PATCH", "/api/destinos/{destino_id}"),  # T-031
+    ("POST", "/api/destinos/{destino_id}/baja"),  # T-031
+    ("POST", "/api/destinos/{destino_id}/reactivar"),  # T-031
 }
 CASOS_501 = [
     (m, r, rol) for m, r, roles, *_ in RUTAS for rol in roles if (m, r) not in IMPLEMENTADAS
@@ -272,11 +278,14 @@ NULOS_EN_OBLIGATORIOS = [
     ("/api/operadores/{operador_id}", "nombre"),
 ]
 # Los anulables sí aceptan null (vaciar el dato).
-NULOS_EN_ANULABLES = [
+_NULOS_EN_ANULABLES = [
     ("/api/destinos/{destino_id}", "region"),
     ("/api/destinos/{destino_id}", "notas"),
     ("/api/requisitos-destino/{requisito_id}", "descripcion"),
     ("/api/operadores/{operador_id}", "contacto"),
+]
+NULOS_EN_ANULABLES = [
+    (ruta, campo) for ruta, campo in _NULOS_EN_ANULABLES if ("PATCH", ruta) not in IMPLEMENTADAS
 ]
 
 
