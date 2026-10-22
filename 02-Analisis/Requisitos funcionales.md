@@ -57,7 +57,7 @@ Cada requisito funcional está identificado, es verificable y se realiza en uno 
 > Casos de uso que los realizan: [[CU-02 Registrar cliente]] y [[CU-03 Gestionar ficha del cliente]]. El [[Cliente]] es la memoria del negocio: no es un [[Usuario]] y no opera el sistema.
 
 #### RF-001 — Registrar un cliente nuevo
-- **Descripción:** el sistema permite dar de alta un [[Cliente]] con nombre, datos de contacto (teléfono/WhatsApp, Instagram, email), segmento (familia · amigos · individual · pareja), preferencias y, opcionalmente, un asesor asignado.
+- **Descripción:** el sistema permite dar de alta un [[Cliente]] con nombre, datos de contacto (teléfono/WhatsApp o email) y, opcionalmente, su usuario de Instagram, segmento (familia · amigos · individual · pareja), preferencias y, opcionalmente, un asesor asignado.
 - **Actor:** empleado · **Tipo:** alta · **Prioridad:** alta
 - **Casos de uso:** [[CU-02 Registrar cliente]]
 - **Entidades:** [[Cliente]] · [[Usuario]]

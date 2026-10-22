@@ -4,7 +4,7 @@ titulo: Editar la ficha del cliente
 modulo: M2 — Clientes
 capa: backend
 estado: libre
-depende_de: [T-040, T-041]
+depende_de: [T-040, T-041, T-149]
 tamaño: S
 riesgo: normal
 modelo_tests: sonnet
@@ -46,3 +46,4 @@ Quien puede ver a un cliente edita su ficha (contacto, segmento, etiquetas, pref
 - El opt-out desde la sugerencia de recontacto (M7).
 
 ## Notas de implementación
+- **Sumado el 22/10/26 (DEC-0017):** incluir el usuario de Instagram del cliente como campo **opcional**. No cuenta como contacto mínimo. El contrato lo expone desde T-149.

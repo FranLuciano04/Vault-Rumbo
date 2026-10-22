@@ -80,12 +80,18 @@ Corré lint, type-check y tests de las partes tocadas, con la cobertura, usando 
 2. `node 06-Desarrollo/herramientas/tickets.mjs fase T-NNN hecho`: marca el ticket, commitea `tickets: T-NNN hecho` (con las notas) y sube.
 3. **Abrí el PR con la skill `pr`**, que arma la descripción con el formato del proyecto a partir del ticket, los commits, los tests y la review.
 4. **Merge:**
-   - **riesgo normal:**
-     - Si el repo tiene CI con checks requeridos, `gh pr merge --merge --auto --delete-branch`: se mergea solo cuando el CI pasa.
-     - Si todavía no hay CI (antes de que lo cree el módulo de fundaciones), mergeá con `gh pr merge --merge --delete-branch` después de los checks locales del paso 6.
-     - Siempre `--merge`, nunca squash: los commits rojo, verde y refactor quedan como evidencia para el PC3.
-   - **riesgo alto:** no mergees. Pedile a la persona que otro integrante apruebe el PR en GitHub. Cuando esté aprobado (`gh pr view --json reviewDecision` da `APPROVED`), volvé a correr `/implementar-ticket T-NNN` y mergeá.
-5. Después del merge: `git checkout main && git pull --ff-only origin main && node 06-Desarrollo/herramientas/tickets.mjs publicar-grafo` y borrá la rama local. Si el merge quedó en `--auto`, el grafo se actualiza solo con el próximo claim de cualquiera.
+   - **Esperá el CI en verde** con `gh pr checks <PR> --watch`. Corrélo en segundo plano, porque puede tardar más de 10 minutos.
+     - `main` no exige checks: el plan gratuito de GitHub no protege ramas en repos privados. Por eso **no uses `--auto`**, porque mergea en el acto, sin esperar al CI.
+     - Si el PR tiene conflictos con `main`, el CI no corre. En ese caso, traé `main` a la rama con `git merge origin/main`, nunca con rebase ni `--force`. Resolvé conservando ambos aportes; los archivos generados (`openapi.json`, `tipos.gen.ts`) se regeneran, no se mezclan a mano. Volvé a correr los checks del paso 6.
+   - **riesgo normal:** con el CI en verde, `gh pr merge <PR> --merge`.
+   - **riesgo alto:** no mergees. Pedile a la persona que otro integrante apruebe el PR en GitHub. Cuando esté aprobado (`gh pr view --json reviewDecision` da `APPROVED`) y el CI esté en verde, volvé a correr `/implementar-ticket T-NNN` y mergeá con `gh pr merge <PR> --merge`.
+   - Siempre `--merge`, nunca squash: los commits rojo, verde y refactor quedan como evidencia para el PC3.
+   - **No uses `--delete-branch` en el merge.** Si el merge falla (por ejemplo, «Base branch was modified» porque `main` cambió en ese momento), `gh` igual borra la rama remota, y eso **cierra el PR sin mergear**. Pasó con T-030. Si te pasa, recreá la rama con `git push origin HEAD` y reabrí el PR con `gh pr reopen <PR>`: la aprobación se conserva.
+5. **Después del merge:**
+   1. Confirmá que `gh pr view <PR> --json state` dé `MERGED`.
+   2. Recién entonces borrá la rama remota: `git push origin --delete <rama>`.
+   3. Corré `git checkout main && git pull --ff-only origin main && node 06-Desarrollo/herramientas/tickets.mjs publicar-grafo`.
+   4. Borrá la rama local con `git branch -D <rama>`.
 
 ## Cuando algo falla
 1. **Primero, depurar con método.** Si un implementador devuelve un verde fallido, pedile (con `SendMessage`) que invoque `debugging-and-error-recovery` y aplique el ciclo reproducir → localizar → reducir → arreglar → proteger antes de reintentar.

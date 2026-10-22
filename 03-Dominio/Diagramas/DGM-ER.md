@@ -43,7 +43,8 @@ erDiagram
         uuid id PK
         uuid asesor_asignado_id FK "nullable, USUARIO"
         varchar nombre
-        varchar contacto "whatsapp, instagram o email"
+        varchar contacto "telefono, whatsapp o email"
+        varchar instagram "nullable, DEC-0017"
         enum segmento "familia, amigos, individual, pareja"
         text_array etiquetas "segmentacion comercial libre"
         text preferencias "nullable"

@@ -47,6 +47,8 @@ Definir la **comisión por defecto de cada vendedor/freelancer**: el valor (**im
 - [[DGM — Casos de uso]] · [[MOC — Modelo de dominio]]
 
 ## 🔎 Revisión
+> [!success] Decidido el 22/10/26 (Francisco, a partir de la review de T-030): se puede configurar la comisión por defecto de **cualquier** [[Usuario]], incluido uno dado de baja (`activo = false`), el propio admin y la dueña. La baja es lógica y conserva el historial: si el usuario se reactiva, ya tiene su comisión. No otorga permisos, así que no hay escalada.
+
 > [!note] Sync 30/09/26 (Francisco, Nahuel y Paloma): la `dueño` también realiza este caso de uso. Se alinea con DEC-0005 («el dueño tiene todo, más la visión del negocio»), con el relevamiento («Administrador / Dueña: configura comisiones, gestiona usuarios») y con el [[Contrato de la API (OpenAPI)]], que ya lo permitía.
 
 > [!success] Sync 17/09 — **reencuadrado**: ya no es un `%` de comisión de empresa, sino la **comisión por defecto de cada vendedor/freelancer** (importe o %, el % sobre la ganancia), con override por viaje. La rentabilidad de la agencia (ganancia/margen) no usa este parámetro. Ver [[DEC-0007 Modelo económico — ganancia, margen y comisión de vendedor]] (supersede a [[DEC-0004 Comisión configurable por porcentaje]]). Se mantiene: cambiar el default **no recalcula** viajes ya registrados (Nahuel, 10/09).

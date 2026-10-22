@@ -15,8 +15,8 @@ tags:: #tipo/referencia
 | Módulo | Tickets | Hechos | Tomados | Disponibles | Esperando | Bloqueados | Estado del módulo |
 |---|---|---|---|---|---|---|---|
 | M0 — Fundaciones | 31 | 30 | 0 | 1 | 0 | 0 | 🛠️ en curso |
-| M1 — Usuarios y configuración | 13 | 2 | 0 | 4 | 7 | 0 | 🛠️ en curso |
-| M2 — Clientes | 11 | 2 | 0 | 3 | 6 | 0 | 🛠️ en curso |
+| M1 — Usuarios y configuración | 16 | 2 | 0 | 7 | 7 | 0 | 🛠️ en curso |
+| M2 — Clientes | 12 | 2 | 0 | 4 | 6 | 0 | 🛠️ en curso |
 | M3 — Alertas | 11 | 0 | 0 | 2 | 9 | 0 | 🛠️ en curso |
 | M4 — Oportunidades y cotizaciones | 14 | 0 | 0 | 1 | 13 | 0 | 🛠️ en curso |
 | M5 — Hoteles y reseñas | 11 | 0 | 0 | 1 | 10 | 0 | 🛠️ en curso |
@@ -79,6 +79,9 @@ flowchart LR
     T036["T-036 · Gestionar destinos con sus requisitos en la web<br/><small>web</small>"]:::esperando
     T037["T-037 · Gestionar operadores en la web<br/><small>web</small>"]:::esperando
     T038["T-038 · Probar de punta a punta la configuración de la agencia<br/><small>e2e</small>"]:::esperando
+    T146["T-146 · Alinear las referencias de RF del permiso por rol<br/><small>backend</small>"]:::disponible
+    T147["T-147 · Fijar con un test la comisión de un usuario dado de baja<br/><small>backend</small>"]:::disponible
+    T148["T-148 · Medir la cobertura del backend a través de los await<br/><small>infra</small>"]:::disponible
   end
   subgraph M2["M2 — Clientes"]
     T039["T-039 · Publicar el contrato de clientes<br/><small>contrato</small>"]:::hecho
@@ -92,6 +95,7 @@ flowchart LR
     T047["T-047 · Consultar clientes desde la app mobile<br/><small>mobile</small>"]:::disponible
     T048["T-048 · Registrar un cliente desde la app mobile<br/><small>mobile</small>"]:::esperando
     T049["T-049 · Probar de punta a punta la gestión de clientes<br/><small>e2e</small>"]:::esperando
+    T149["T-149 · Guardar el usuario de Instagram del cliente<br/><small>backend</small>"]:::disponible
   end
   subgraph M3["M3 — Alertas"]
     T050["T-050 · Publicar el contrato de alertas<br/><small>contrato</small>"]:::disponible
@@ -278,14 +282,18 @@ flowchart LR
   T012 --> T041
   T040 --> T042
   T041 --> T042
+  T149 --> T042
   T041 --> T043
   T039 --> T044
   T020 --> T044
   T044 --> T045
+  T149 --> T045
   T044 --> T046
+  T149 --> T046
   T039 --> T047
   T022 --> T047
   T047 --> T048
+  T149 --> T048
   T040 --> T049
   T041 --> T049
   T042 --> T049
@@ -498,6 +506,8 @@ flowchart LR
   T003 --> T143
   T014 --> T144
   T010 --> T145
+  T030 --> T147
+  T040 --> T149
   classDef hecho fill:#c8e6c9,stroke:#2e7d32,color:#1b5e20
   classDef tomado fill:#fff3cd,stroke:#b8860b,color:#5d4300
   classDef disponible fill:#dbeafe,stroke:#1d4ed8,color:#1e3a8a

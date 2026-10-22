@@ -52,6 +52,7 @@ classDiagram
         +UUID id
         +String nombre
         +String contacto
+        +String instagram
         +SegmentoCliente segmento
         +String[] etiquetas
         +String preferencias

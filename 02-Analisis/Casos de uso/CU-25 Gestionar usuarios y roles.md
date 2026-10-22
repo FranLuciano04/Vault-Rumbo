@@ -32,7 +32,7 @@ Alta, baja y edición de [[Usuario|Usuarios]], asignación de su `rol` y de la c
 
 ## Flujos alternativos
 - **A1 — Email duplicado:** el `email` ya existe → el sistema rechaza el alta.
-- **A2 — Editar rol o accesos:** el admin cambia el `rol` o la capacidad de redes de un [[Usuario]]; aplica en su próximo inicio de sesión.
+- **A2 — Editar rol o accesos:** el admin cambia el `rol` o la capacidad de redes de un [[Usuario]]; aplica en su próximo inicio de sesión. También puede corregir su `nombre` (decidido el 22/10/26). El email no se edita, porque identifica la cuenta de Firebase ([[DEC-0016 Autenticación con Firebase|DEC-0016]]).
 - **A3 — Baja de usuario:** baja **lógica** (se desactiva y conserva el historial de lo gestionado); no se elimina físicamente.
 - **A4 — Último admin:** el sistema impide quitar el rol `admin` o dar de baja al último [[Usuario]] `admin` para no dejar la empresa sin administración.
 

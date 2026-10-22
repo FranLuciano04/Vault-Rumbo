@@ -27,7 +27,7 @@ La **persona** de cada sesión es quien la corre, identificada por su identidad 
 ### Nahuel (`Nahuel Viniegra`) — T-030
 - **22/10, de Francisco: PR [#33](https://github.com/FranLuciano04/Vault-Rumbo/pull/33)** (T-030, comisión por defecto, ⚠️ riesgo alto).
   - ✅ Paloma lo aprobó y Francisco ya lo **mergeó** (22/10). Destraba 17 tickets.
-  - **Decisión pendiente:** ¿un usuario dado de baja puede tener comisión por defecto? Hoy se permite, y también al propio admin y a la dueña.
+  - **Decidido por Francisco (22/10):** un usuario dado de baja puede tener comisión por defecto, y también el propio admin y la dueña. Está anotado en la Revisión de CU-13 y se fija con tests en T-147.
   - **Nuevo en los tests:** las rutas de M1 que se implementan pasan a `IMPLEMENTADAS` en `tests/api/test_contrato_m1.py`, así dejan de esperar el 501.
 
 ### Nahuel (`Nahuel Viniegra`) — `localhost` en el `.env`
@@ -36,8 +36,21 @@ La **persona** de cada sesión es quien la corre, identificada por su identidad 
   - En tu `src/backend/.env`, cambiá `@localhost:` por `@127.0.0.1:`.
   - `src/backend/.env.example` ya está corregido, entró con T-026 (PR [#32](https://github.com/FranLuciano04/Vault-Rumbo/pull/32)). Francisco ya lo aplicó en su `.env`.
 
-### Francisco (`FranLucianoo`) y Nahuel (`Nahuel Viniegra`)
-- **22/10, de Paloma: [[DEC-0017 Contacto mínimo del cliente]] en revisión.** El contacto válido del `Cliente` es solo teléfono/WhatsApp o email, sin Instagram. Hay que ratificarlo en la sync y después alinear CU-02, CU-03, `Cliente`, RF-001 y DGM-ER.
+### Nahuel (`Nahuel Viniegra`) y Paloma (`palomap2003`) — decisiones del 22/10
+- **22/10, de Francisco: [[DEC-0017 Contacto mínimo del cliente]] quedó formalizada, con un agregado a la propuesta de Paloma.**
+  - El contacto mínimo sigue siendo teléfono/WhatsApp o email.
+  - El cliente puede tener además su **usuario de Instagram como dato opcional**. No cuenta como contacto mínimo.
+  - Ya se alinearon CU-02, CU-03, `Cliente`, RF-001, DGM-ER y el diagrama de clases.
+  - El código entra con **T-149**, del que ahora dependen T-042, T-045, T-046 y T-048.
+- **22/10, de Francisco: al editar un usuario se puede corregir el nombre** (CU-25 A2). El email no, porque identifica la cuenta de Firebase. Se sumó a **T-028**.
+- **22/10, de Francisco: tickets nuevos de hallazgos de T-030:**
+  - **T-146:** alinear RF-150 y RF-151 en el código del permiso por rol.
+  - **T-147:** tests de la comisión de un usuario dado de baja.
+  - **T-148:** que la cobertura cuente las líneas después de un `await`.
+- **22/10, de Francisco: `/implementar-ticket` 1.1.0.**
+  - Ya no se usa `--auto`, porque `main` no exige checks.
+  - Hay que esperar el CI en verde y mergear **sin** `--delete-branch`. Si el merge falla, `gh` borra igual la rama y el PR queda cerrado (pasó con T-030).
+  - La rama se borra recién cuando el PR está en `MERGED`.
 
 ## Formato
 Es **obligatorio** nombrar a la persona que hizo la sesión.
@@ -145,6 +158,25 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
   - En la consola de `rumbo-9ff17`, confirmar que el registro de cuentas esté deshabilitado.
   - La protección de `main` no se puede configurar: GitHub la pide con Pro para los repos privados.
 
+## 22/10/26 — Francisco (Claude Opus 5.5) — Cierre de pendientes
+- **Decisiones de Francisco:**
+  - **Comisión de usuarios dados de baja:** se permite, y también al propio admin y a la dueña. Queda anotado en la Revisión de CU-13 y se fija con tests en T-147.
+  - **Editar usuarios:** se puede corregir el nombre (CU-25 A2), pero no el email, que identifica la cuenta de Firebase. Se sumó a T-028.
+  - **[[DEC-0017 Contacto mínimo del cliente]]:** quedó formalizada. El contacto mínimo es teléfono/WhatsApp o email, y el **Instagram es opcional**. Se alinearon CU-02, CU-03, `Cliente`, RF-001, DGM-ER y el diagrama de clases, y se regeneraron los PNG. También se actualizó el MOC de decisiones.
+- **Tickets nuevos:**
+  - **T-146:** RF-150 y RF-151 en el código.
+  - **T-147:** tests de la comisión de un usuario dado de baja.
+  - **T-148:** cobertura a través de los `await`.
+  - **T-149:** Instagram del cliente. Ahora T-042, T-045, T-046 y T-048 dependen de él.
+  - `tickets.mjs validar` da 149 tickets válidos.
+- **Skill:** `/implementar-ticket` pasó a 1.1.0 por `/gestionar-skills`, y se actualizó el catálogo. Cambia el cierre del ticket:
+  - se espera el CI sin `--auto`;
+  - si hay conflictos, se trae `main` con un merge;
+  - se mergea sin `--delete-branch`;
+  - la rama se borra recién con el PR en `MERGED`.
+- **Avisos:** les quedaron a Nahuel y Paloma.
+- **Pendiente:** nada.
+
 ## 22/10/26 — Francisco (Claude Opus 5.5) — T-030: comisión por defecto del vendedor
 - **Hecho:** T-030 (capa backend, ⚠️ riesgo alto). `PUT /api/usuarios/{id}/comision-por-defecto` ya guarda la comisión o la quita.
   - Solo admin y dueña.
@@ -157,9 +189,7 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Verificación:** 564 tests en verde, con 97,4 % de cobertura total y 94 % en `negocio/`.
 - **Commits:** 5e4ea83, 487b5fe, d28cd1e, 6357ee8 y el merge de main 26b8644, que trajo T-040 sin conflictos (582 tests en verde). Paloma aprobó el PR [#33](https://github.com/FranLuciano04/Vault-Rumbo/pull/33) y está **mergeado**.
 - **Incidente:** el primer `gh pr merge --merge --delete-branch` falló porque `main` había cambiado (merge de T-040), pero borró igual la rama remota y eso cerró el PR. Se recreó la rama, se reabrió el PR (la aprobación siguió en pie) y se mergeó sin `--delete-branch`; la rama se borró después.
-- **Pendiente:**
-  - Decidir si un usuario dado de baja puede tener comisión por defecto. Hoy se permite, y también al propio admin y a la dueña.
-  - Hallazgo: el código usa RF-150 para el permiso por rol (desde T-012), pero en el catálogo RF-150 es otro requisito y el permiso por rol es RF-151. Falta un ticket que lo alinee.
+- **Pendiente:** ✅ cerrado el 22/10. La comisión de un usuario dado de baja se permite (se fija con tests en T-147), y la alineación de RF-150 y RF-151 quedó como T-146.
 
 ## 22/10/26 — Francisco (Claude Opus 5.5) — T-026: contrato de usuarios y configuración
 - **Hecho:** T-026 (capa contrato, riesgo normal). Abre M1 y destraba 36 tickets.

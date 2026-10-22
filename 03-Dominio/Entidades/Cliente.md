@@ -19,7 +19,8 @@ Persona (o grupo) que consulta y viaja con la agencia. Concentra ficha, preferen
 |---|---|---|
 | id | UUID | Identificador |
 | nombre | String | Nombre y apellido / grupo |
-| contacto | String | WhatsApp / Instagram / email |
+| contacto | String | Teléfono/WhatsApp o email: el contacto mínimo, obligatorio ([[DEC-0017 Contacto mínimo del cliente\|DEC-0017]]) |
+| instagram | String (opcional) | Usuario de Instagram. Dato extra: no cuenta como contacto mínimo ([[DEC-0017 Contacto mínimo del cliente\|DEC-0017]]) |
 | segmento | Enum | familia · amigos · individual · pareja |
 | etiquetas | Lista de strings (opcional) | **Segmentación comercial** para acciones dirigidas: **etiquetas libres, múltiples y combinables** (por destino/producto: Brasil, Caribe, Europa, cruceros, nacionales…). El perfil (familia/pareja/…) va en `segmento`. Ratificado como **etiquetas libres** en la sync 17/09 — ver [[CU-30 Sugerir recontacto de clientes]] y [[Relevamiento — respuestas de la agencia (17-09)]], bloque 4 |
 | preferencias | Texto | Destinos, estilo de viaje, notas |

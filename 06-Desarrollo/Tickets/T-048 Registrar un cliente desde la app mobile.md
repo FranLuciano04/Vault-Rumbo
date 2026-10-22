@@ -4,7 +4,7 @@ titulo: Registrar un cliente desde la app mobile
 modulo: M2 — Clientes
 capa: mobile
 estado: libre
-depende_de: [T-047]
+depende_de: [T-047, T-149]
 tamaño: S
 riesgo: normal
 modelo_tests: sonnet
@@ -45,3 +45,4 @@ Se registra un cliente desde el teléfono, con el mismo aviso de posible duplica
 - —
 
 ## Notas de implementación
+- **Sumado el 22/10/26 (DEC-0017):** incluir el usuario de Instagram del cliente como campo **opcional**. No cuenta como contacto mínimo. El contrato lo expone desde T-149.

@@ -4,7 +4,7 @@ titulo: Registrar un cliente en la web
 modulo: M2 — Clientes
 capa: web
 estado: libre
-depende_de: [T-044]
+depende_de: [T-044, T-149]
 tamaño: S
 riesgo: normal
 modelo_tests: sonnet
@@ -45,3 +45,4 @@ Se registra un cliente desde la web; si el servidor avisa un posible duplicado, 
 - Alta rápida desde una consulta (M4).
 
 ## Notas de implementación
+- **Sumado el 22/10/26 (DEC-0017):** incluir el usuario de Instagram del cliente como campo **opcional**. No cuenta como contacto mínimo. El contrato lo expone desde T-149.

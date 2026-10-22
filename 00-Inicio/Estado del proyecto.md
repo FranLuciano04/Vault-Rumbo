@@ -20,7 +20,9 @@ actualizado: 13/10/26
 >
 > 👉 **21/10 (Paloma):** **T-141** (íconos de la barra lateral web, como en el prototipo) está hecho y mergeado (PR [#27](https://github.com/FranLuciano04/Vault-Rumbo/pull/27)).
 >
-> 👉 **22/10 (Francisco):** **T-030** (comisión por defecto del vendedor) está hecho y **mergeado**: Paloma aprobó el PR [#33](https://github.com/FranLuciano04/Vault-Rumbo/pull/33). Destraba 17 tickets. Queda a decidir si un usuario dado de baja puede tener comisión por defecto.
+> 👉 **22/10 (Francisco), cierre de pendientes:** [[DEC-0017 Contacto mínimo del cliente]] quedó formalizada (Instagram opcional; código en T-149). Al editar un usuario se puede corregir el nombre (T-028). Tickets nuevos de hallazgos: T-146 a T-148. `/implementar-ticket` 1.1.0: se mergea sin `--delete-branch` y sin `--auto`.
+>
+> 👉 **22/10 (Francisco):** **T-030** (comisión por defecto del vendedor) está hecho y **mergeado**: Paloma aprobó el PR [#33](https://github.com/FranLuciano04/Vault-Rumbo/pull/33). Destraba 17 tickets.
 >
 > 👉 **22/10 (Francisco):** **T-026** (contrato de M1: usuarios y configuración) está hecho y mergeado (PR [#32](https://github.com/FranLuciano04/Vault-Rumbo/pull/32)). Destraba 36 tickets. ⚡ Pasen `localhost` a `127.0.0.1` en `src/backend/.env`: la suite de backend baja de unos 14 min a unos 80 s.
 >
