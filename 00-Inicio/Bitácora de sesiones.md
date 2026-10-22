@@ -49,6 +49,19 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
+## 22/10/26 — Paloma (Claude Opus 5.5) — T-040: registrar clientes detectando duplicados
+- **Hecho:** aprobó el PR [#33](https://github.com/FranLuciano04/Vault-Rumbo/pull/33) (T-030). Tomó e implementó **T-040** (M2, backend, riesgo normal; CU-02, RF-001/002/003/150).
+  - `POST /api/clientes`: 422 si faltan los datos mínimos, 409 con hasta 10 candidatos ante un posible duplicado (mismo contacto, o mismo nombre sin distinguir mayúsculas, tildes ni espacios de más) y alta con `confirmar_duplicado: true`. El `freelance` siempre queda como asesor.
+  - `ErrorDeDominio` ahora lleva un `extra` genérico para el problem+json, y se sumó `DatosInvalidos` (422 sobre un campo).
+  - `tests/api/test_contrato_m2.py` suma `IMPLEMENTADAS`, con la autorización de Paloma.
+  - **Review (Opus):** 0 bloqueantes, 4 importantes y 2 menores. Se arreglaron los 4 importantes y el tope de candidatos.
+  - **CI:** todo en verde. El PR [#34](https://github.com/FranLuciano04/Vault-Rumbo/pull/34) quedó mergeado. Con eso se destraban 11 tickets.
+- **Commits:** ced7d99, cbcc7a7, e2f774c, daebb28, ac1f359 (merge 5b2ddc8).
+- **Pendiente:**
+  - Decidir en la sync si al `freelance` hay que avisarle de duplicados de otros asesores. Hoy no los ve, por visibilidad.
+  - Validar el formato del contacto, normalizar teléfonos y aplicar similitud difusa de nombres. Dependen de [[DEC-0017 Contacto mínimo del cliente]].
+  - ⚠️ `main` no tiene checks obligatorios. `gh pr merge --auto` mergea al instante, sin esperar el CI. Esta vez el CI pasó después del merge.
+
 ## 22/10/26 — Nahuel (Claude Opus 5.5) — T-019: análisis de seguridad en el CI
 - **Hecho:** T-019 (capa infra, riesgo normal, DEC-0001, RNF-03).
   - **Jobs nuevos:**
