@@ -15,7 +15,7 @@ tags:: #tipo/referencia
 | Módulo | Tickets | Hechos | Tomados | Disponibles | Esperando | Bloqueados | Estado del módulo |
 |---|---|---|---|---|---|---|---|
 | M0 — Fundaciones | 32 | 31 | 1 | 0 | 0 | 0 | 🛠️ en curso |
-| M1 — Usuarios y configuración | 17 | 5 | 0 | 7 | 5 | 0 | 🛠️ en curso |
+| M1 — Usuarios y configuración | 17 | 5 | 1 | 6 | 5 | 0 | 🛠️ en curso |
 | M2 — Clientes | 12 | 2 | 1 | 3 | 6 | 0 | 🛠️ en curso |
 | M3 — Alertas | 11 | 0 | 0 | 2 | 9 | 0 | 🛠️ en curso |
 | M4 — Oportunidades y cotizaciones | 14 | 0 | 0 | 1 | 13 | 0 | 🛠️ en curso |
@@ -82,7 +82,7 @@ flowchart LR
     T038["T-038 · Probar de punta a punta la configuración de la agencia<br/><small>e2e</small>"]:::esperando
     T146["T-146 · Alinear las referencias de RF del permiso por rol<br/><small>backend</small>"]:::disponible
     T147["T-147 · Fijar con un test la comisión de un usuario dado de baja<br/><small>backend</small>"]:::disponible
-    T148["T-148 · Medir la cobertura del backend a través de los await<br/><small>infra</small>"]:::disponible
+    T148["T-148 · Medir la cobertura del backend a través de los await<br/><small>infra</small><br/>👤 palomap2003"]:::tomado
     T151["T-151 · Responder 422 ante un número fuera del rango de la base<br/><small>backend</small>"]:::disponible
   end
   subgraph M2["M2 — Clientes"]

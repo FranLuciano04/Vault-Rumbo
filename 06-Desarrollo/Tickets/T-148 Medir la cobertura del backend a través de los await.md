@@ -3,7 +3,7 @@ id: T-148
 titulo: Medir la cobertura del backend a través de los await
 modulo: M1 — Usuarios y configuración
 capa: infra
-estado: libre
+estado: tomado
 depende_de: []
 tamaño: XS
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [RNF-15, DEC-0001]
 origen: hallazgo T-030
-asignado:
-tomado_el:
-rama:
+asignado: palomap2003
+tomado_el: 22/10/26 20:12
+rama: feature/T-148-medir-la-cobertura-del-backend-a-traves
 pr:
 ---
 # T-148 Medir la cobertura del backend a través de los await
