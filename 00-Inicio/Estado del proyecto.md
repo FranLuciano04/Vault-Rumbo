@@ -18,6 +18,8 @@ actualizado: 13/10/26
 >
 > 👉 **21/10 (Paloma):** **T-141** (íconos de la barra lateral web, como en el prototipo) está hecho y mergeado (PR [#27](https://github.com/FranLuciano04/Vault-Rumbo/pull/27)).
 >
+> 👉 **22/10 (Francisco):** **T-026** (contrato de M1: usuarios y configuración) está hecho y mergeado (PR [#32](https://github.com/FranLuciano04/Vault-Rumbo/pull/32)). Destraba 36 tickets. ⚡ Pasen `localhost` a `127.0.0.1` en `src/backend/.env`: la suite de backend baja de unos 14 min a unos 80 s.
+>
 > 👉 **21/10 (Francisco):** **T-022** (shell mobile con las pestañas Agenda, Clientes y Más y la guarda de sesión) está hecho y mergeado (PR [#25](https://github.com/FranLuciano04/Vault-Rumbo/pull/25)). Destraba 7 tickets. Después del pull, `pnpm install` en `src/`.
 >
 > 👉 **21/10 (Francisco):** **T-025** (e2e del login web con Playwright y el job «E2e web» en el CI) está hecho y mergeado (PR [#24](https://github.com/FranLuciano04/Vault-Rumbo/pull/24)). Destraba 11 tickets.

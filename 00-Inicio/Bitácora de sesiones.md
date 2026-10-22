@@ -31,11 +31,13 @@ La **persona** de cada sesión es quien la corre, identificada por su identidad 
   - **Si un push del vault falla en `Secretos`:** se subió algo con forma de secreto. Hay que rotarlo y avisar.
   - **Las excepciones** van comentadas en `.gitleaks.toml`, en `audit.ignore` de `src/pnpm-workspace.yaml` o con `nosemgrep` y su motivo.
 
-### Francisco (`FranLucianoo`) y Nahuel (`Nahuel Viniegra`)
+### Nahuel (`Nahuel Viniegra`) — `localhost` en el `.env`
 - **22/10, de Paloma: tests de backend lentos en Windows por `localhost`** (T-039, PR [#31](https://github.com/FranLuciano04/Vault-Rumbo/pull/31)).
   - Con `localhost` en `TEST_DATABASE_URL` y en `DATABASE_URL`, cada conexión a Postgres tardaba 2 s, porque Windows prueba IPv6 primero. La suite de backend pasaba de unos 65 s a 31 min, con algún timeout.
   - En tu `src/backend/.env`, cambiá `@localhost:` por `@127.0.0.1:`.
-  - Conviene cambiarlo también en `src/backend/.env.example`, pero eso entra por PR. Queda a decidir quién lo hace.
+  - `src/backend/.env.example` ya está corregido, entró con T-026 (PR [#32](https://github.com/FranLuciano04/Vault-Rumbo/pull/32)). Francisco ya lo aplicó en su `.env`.
+
+### Francisco (`FranLucianoo`) y Nahuel (`Nahuel Viniegra`)
 - **22/10, de Paloma: [[DEC-0017 Contacto mínimo del cliente]] en revisión.** El contacto válido del `Cliente` es solo teléfono/WhatsApp o email, sin Instagram. Hay que ratificarlo en la sync y después alinear CU-02, CU-03, `Cliente`, RF-001 y DGM-ER.
 
 ## Formato
@@ -130,6 +132,22 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
   - ✅ Arreglado en la misma sesión: en Windows con WSL, `tickets.mjs fase --test` usaba el `bash` de WSL, que falla sin correr nada, y así un rojo pasaba sin tests. Ahora usa el bash de Git (lo deduce de `git --exec-path`) y, si bash no arranca, cae a la shell del sistema.
   - En la consola de `rumbo-9ff17`, confirmar que el registro de cuentas esté deshabilitado.
   - La protección de `main` no se puede configurar: GitHub la pide con Pro para los repos privados.
+
+## 22/10/26 — Francisco (Claude Opus 5.5) — T-026: contrato de usuarios y configuración
+- **Hecho:** T-026 (capa contrato, riesgo normal). Abre M1 y destraba 36 tickets.
+  - Son 24 operaciones de usuarios, parámetros, comisión por defecto, destinos, requisitos y operadores. Responden 501, exigen token y rol, y sus `x-roles` coinciden con el PC1. En shared quedaron los tipos, 24 hooks y 24 mocks (`manejadoresM1`).
+  - Bases comunes nuevas en `esquemas/comunes.py`:
+    - `Entrada` recorta los espacios;
+    - `Edicion` y `omitible()` hacen que un `null` en un campo obligatorio de un PATCH dé 422;
+    - `Auditoria` reúne las columnas de auditoría.
+  - La review (Opus) dejó 0 bloqueantes, 3 importantes y 6 menores, todos arreglados.
+  - El PR [#32](https://github.com/FranLuciano04/Vault-Rumbo/pull/32) tuvo conflictos de unión con T-039 y T-019. Se resolvieron con un merge de `main` (`a15900c`) que conserva los dos aportes, y `openapi.json` y los tipos se regeneraron. Se mergeó con el CI en verde, incluidos Semgrep y gitleaks.
+- **Commits:** f3e996d, 710dcda, 8446885, 0421720 y a15900c.
+- **Para el equipo:**
+  - **Pasen `localhost` a `127.0.0.1` en su `src/backend/.env`** (`DATABASE_URL` y `TEST_DATABASE_URL`). En Windows, `localhost` prueba primero IPv6 y pierde unos 2 s por conexión: la suite de backend baja de unos 14 min a unos 80 s. Ya está en `.env.example`.
+  - Corran una sola corrida de pytest a la vez. Dos en paralelo se pisan la base de tests, y una de esas corridas se colgó 15 h.
+  - Hay que decidir si `UsuarioEditar` permite corregir el nombre. Hoy solo cambia el rol y `acceso_redes`, según CU-25 A2.
+- **Pendiente:** esa decisión sobre `UsuarioEditar`.
 
 ## 21/10/26 — Francisco (Claude Opus 5.5) — T-022: shell mobile con pestañas
 - **Hecho:** T-022 (capa mobile, riesgo normal).
