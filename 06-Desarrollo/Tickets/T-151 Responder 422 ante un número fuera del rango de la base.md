@@ -3,7 +3,7 @@ id: T-151
 titulo: Responder 422 ante un número fuera del rango de la base
 modulo: M1 — Usuarios y configuración
 capa: backend
-estado: libre
+estado: tomado
 depende_de: []
 tamaño: XS
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [CU-15, RF-086, RF-087, DEC-0001]
 origen: hallazgo T-032
-asignado:
-tomado_el:
-rama:
+asignado: palomap2003
+tomado_el: 22/10/26 20:18
+rama: feature/T-151-responder-422-ante-un-numero-fuera-del-r
 pr:
 ---
 # T-151 Responder 422 ante un número fuera del rango de la base
