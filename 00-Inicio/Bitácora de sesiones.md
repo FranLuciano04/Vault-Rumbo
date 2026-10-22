@@ -96,7 +96,7 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
   - Después del pull hay que correr `pnpm install` en `src/`, porque mobile suma `@rumbo/shared` y `@tanstack/react-query`.
   - Se borró `inicio.test.tsx` (humo de T-003), que quedó obsoleto: el caso lo cubre `navegacion.test.tsx`.
 - **Incidente:** `tickets.mjs fase` hace `git add -A` y se coló un cambio local de `.obsidian/app.json`, que había hecho Obsidian. Se restauró en la rama con `eb130b1`.
-- **Pendiente:** conviene que `fase` no agregue `.obsidian/` o que se trabaje con Obsidian cerrado. Queda a decidir.
+- **Pendiente:** ✅ resuelto en `aad4d42`: `fase` ya no agrega `.obsidian/` a los commits.
 
 ## 21/10/26 — Francisco (Claude Opus 5.5) — Limpieza de pendientes viejos
 - **Hecho:** a pedido de Francisco se cerraron todos los pendientes que ya no aplicaban:
