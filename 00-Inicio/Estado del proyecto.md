@@ -18,7 +18,7 @@ actualizado: 13/10/26
 >
 > 👉 **21/10 (Paloma):** **T-141** (íconos de la barra lateral web, como en el prototipo) está hecho y mergeado (PR [#27](https://github.com/FranLuciano04/Vault-Rumbo/pull/27)).
 >
-> 👉 **22/10 (Francisco):** **T-030** (comisión por defecto del vendedor) está hecho. Es de ⚠️ riesgo alto: el PR [#33](https://github.com/FranLuciano04/Vault-Rumbo/pull/33) **espera la aprobación de Nahuel o Paloma**. Con el merge se destraban 17 tickets.
+> 👉 **22/10 (Francisco):** **T-030** (comisión por defecto del vendedor) está hecho. Es de ⚠️ riesgo alto: el PR [#33](https://github.com/FranLuciano04/Vault-Rumbo/pull/33) ya está **aprobado por Paloma** y espera el merge de Francisco. Con el merge se destraban 17 tickets.
 >
 > 👉 **22/10 (Francisco):** **T-026** (contrato de M1: usuarios y configuración) está hecho y mergeado (PR [#32](https://github.com/FranLuciano04/Vault-Rumbo/pull/32)). Destraba 36 tickets. ⚡ Pasen `localhost` a `127.0.0.1` en `src/backend/.env`: la suite de backend baja de unos 14 min a unos 80 s.
 >

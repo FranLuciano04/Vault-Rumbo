@@ -24,9 +24,9 @@ La **persona** de cada sesión es quien la corre, identificada por su identidad 
 ## Avisos pendientes por persona
 > Claude los lee al identificar a la persona (paso 1 de `CLAUDE.md`) y se los cuenta **apenas la saluda**, antes de cualquier otra tarea. Cuando la persona confirme que lo leyó o que lo hizo, **Claude borra su fila** en esa misma sesión, con un commit. Cuando no quede ninguna fila de alguien, se borra también su sección.
 
-### Nahuel (`Nahuel Viniegra`) y Paloma (`palomap2003`) — T-030
-- **22/10, de Francisco: aprobar el PR [#33](https://github.com/FranLuciano04/Vault-Rumbo/pull/33)** (T-030, comisión por defecto, ⚠️ riesgo alto).
-  - Alcanza con que lo apruebe uno de los dos en GitHub; después Francisco lo mergea.
+### Nahuel (`Nahuel Viniegra`) — T-030
+- **22/10, de Francisco: PR [#33](https://github.com/FranLuciano04/Vault-Rumbo/pull/33)** (T-030, comisión por defecto, ⚠️ riesgo alto).
+  - ✅ Paloma ya lo aprobó (22/10): no hace falta tu aprobación; Francisco lo mergea.
   - La review de seguridad lo dio aprobable. Con el merge se destraban 17 tickets.
   - **Decisión pendiente:** ¿un usuario dado de baja puede tener comisión por defecto? Hoy se permite, y también al propio admin y a la dueña.
   - **Nuevo en los tests:** las rutas de M1 que se implementan pasan a `IMPLEMENTADAS` en `tests/api/test_contrato_m1.py`, así dejan de esperar el 501.
