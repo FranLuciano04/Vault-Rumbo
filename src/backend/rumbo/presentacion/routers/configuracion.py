@@ -38,8 +38,10 @@ PaginaDep = Annotated[ParametrosPagina, Depends(parametros_pagina)]
     summary="Ver los parámetros del negocio",
     **operacion(GESTION, "CU-06, CU-07, CU-30"),
 )
-async def obtener_configuracion(sesion: SesionDep) -> Configuracion:
-    return Configuracion.model_validate(await parametros.obtener(sesion))
+async def obtener_configuracion(
+    actor: Annotated[modelos.Usuario, Depends(usuario_actual)], sesion: SesionDep
+) -> Configuracion:
+    return Configuracion.model_validate(await parametros.ver(sesion, actor))
 
 
 @router.put(

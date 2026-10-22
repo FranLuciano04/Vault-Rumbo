@@ -34,9 +34,7 @@ async def _fijar(sesion: AsyncSession, vigencia: int, anticipacion: int, reconta
 
 
 @pytest.mark.parametrize("rol", ["admin", "dueno"])
-async def test_rf022_lee_los_parametros_con_sus_defaults(
-    cliente_como: Fabrica, rol: str
-) -> None:
+async def test_rf022_lee_los_parametros_con_sus_defaults(cliente_como: Fabrica, rol: str) -> None:
     c = await cliente_como(rol)
 
     r = await c.get(URL)
@@ -48,9 +46,7 @@ async def test_rf022_lee_los_parametros_con_sus_defaults(
     assert cuerpo["recontacto_meses"] == 6
 
 
-async def test_rf022_lee_los_valores_vigentes(
-    cliente_como: Fabrica, sesion: AsyncSession
-) -> None:
+async def test_rf022_lee_los_valores_vigentes(cliente_como: Fabrica, sesion: AsyncSession) -> None:
     c = await cliente_como("admin")
     await _fijar(sesion, 3, 15, 12)
 
@@ -176,7 +172,9 @@ async def test_rf022_valor_fuera_de_rango_422_y_no_cambia_lo_previo(
     ) == (3, 15, 12)
 
 
-@pytest.mark.parametrize("campo", ["vigencia_cotizacion_meses", "anticipacion_salida_dias"])
+@pytest.mark.parametrize(
+    "campo", ["vigencia_cotizacion_meses", "anticipacion_salida_dias", "recontacto_meses"]
+)
 async def test_rf022_falta_un_campo_422(cliente_como: Fabrica, campo: str) -> None:
     c = await cliente_como("admin")
     cuerpo = {

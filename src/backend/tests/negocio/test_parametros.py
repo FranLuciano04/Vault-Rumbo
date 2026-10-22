@@ -34,9 +34,7 @@ async def test_rf035_obtener_devuelve_los_valores_vigentes(sesion: AsyncSession)
 
 
 @pytest.mark.parametrize("rol", ["empleado", "freelance"])
-async def test_rf151_editar_parametros_exige_rol_de_gestion(
-    sesion: AsyncSession, rol: str
-) -> None:
+async def test_rf151_editar_parametros_exige_rol_de_gestion(sesion: AsyncSession, rol: str) -> None:
     actor = await crear(sesion, UsuarioFactory, rol=RolUsuario(rol), activo=True)
 
     with pytest.raises(SinPermiso):
@@ -47,3 +45,11 @@ async def test_rf151_editar_parametros_exige_rol_de_gestion(
     await sesion.refresh(fila)
     assert (fila.vigencia_cotizacion_meses, fila.anticipacion_salida_dias) == (1, 7)
     assert fila.recontacto_meses == 6
+
+
+@pytest.mark.parametrize("rol", ["empleado", "freelance"])
+async def test_rf151_ver_parametros_exige_rol_de_gestion(sesion: AsyncSession, rol: str) -> None:
+    actor = await crear(sesion, UsuarioFactory, rol=RolUsuario(rol), activo=True)
+
+    with pytest.raises(SinPermiso):
+        await parametros.ver(sesion, actor)
