@@ -102,11 +102,12 @@ describe("RNF-14 barra lateral en pantallas angostas", () => {
     expect(within(menu).getAllByRole("link")).toHaveLength(11);
   });
 
-  it("RNF-14 la navegación por rol de T-020 no cambia: el empleado no ve Dashboard, Reportes ni Configuración", async () => {
+  it("RNF-14 la navegación por rol de T-020 no cambia: el empleado no ve Reportes ni Configuración, y sí ve Clientes y Dashboard", async () => {
     const { menu } = await montar("empleado");
-    for (const etiqueta of ["Dashboard", "Reportes", "Configuración"]) {
+    for (const etiqueta of ["Reportes", "Configuración"]) {
       expect(within(menu).queryByRole("link", { name: etiqueta })).toBeNull();
     }
     expect(within(menu).getByRole("link", { name: "Clientes" })).toBeInTheDocument();
+    expect(within(menu).getByRole("link", { name: "Dashboard" })).toBeInTheDocument();
   });
 });
