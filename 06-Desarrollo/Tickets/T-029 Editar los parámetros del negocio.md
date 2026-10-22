@@ -3,7 +3,7 @@ id: T-029
 titulo: Editar los parámetros del negocio
 modulo: M1 — Usuarios y configuración
 capa: backend
-estado: libre
+estado: tomado
 depende_de: [T-026, T-012, T-011]
 tamaño: S
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [DEC-0013, CU-06, CU-07, CU-30]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: FranLucianoo
+tomado_el: 22/10/26 17:43
+rama: feature/T-029-editar-los-parametros-del-negocio
 pr:
 ---
 # T-029 Editar los parámetros del negocio
