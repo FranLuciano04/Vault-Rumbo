@@ -2237,10 +2237,662 @@
           "CU-31"
         ]
       }
+    },
+    "/api/clientes": {
+      "get": {
+        "tags": [
+          "clientes"
+        ],
+        "summary": "Buscar clientes",
+        "description": "**Roles:** admin, dueno, empleado, freelance.\n\n**Casos de uso:** CU-03.",
+        "operationId": "buscar_clientes",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "buscar",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Texto en el nombre o el contacto.",
+              "title": "Buscar"
+            },
+            "description": "Texto en el nombre o el contacto."
+          },
+          {
+            "name": "etiqueta",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Etiqueta exacta del cliente.",
+              "title": "Etiqueta"
+            },
+            "description": "Etiqueta exacta del cliente."
+          },
+          {
+            "name": "segmento",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/SegmentoCliente"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Segmento del cliente.",
+              "title": "Segmento"
+            },
+            "description": "Segmento del cliente."
+          },
+          {
+            "name": "mios",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "Solo los clientes que tengo asignados.",
+              "default": false,
+              "title": "Mios"
+            },
+            "description": "Solo los clientes que tengo asignados."
+          },
+          {
+            "name": "pagina",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1,
+              "title": "Pagina"
+            }
+          },
+          {
+            "name": "por_pagina",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "default": 20,
+              "title": "Por Pagina"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pagina_Cliente_"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Falta el token, no es válido o el usuario no tiene acceso.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "clientes"
+        ],
+        "summary": "Registrar un cliente",
+        "description": "**Roles:** admin, dueno, empleado, freelance.\n\n**Casos de uso:** CU-02.\n\nSi hay un posible duplicado responde `409` con los clientes parecidos; se reintenta con `confirmar_duplicado: true` (CU-02 A1).",
+        "operationId": "registrar_cliente",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ClienteCrear"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Cliente"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Falta el token, no es válido o el usuario no tiene acceso.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Posible cliente duplicado (CU-02 A1).",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemaDuplicado"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/clientes/{cliente_id}": {
+      "get": {
+        "tags": [
+          "clientes"
+        ],
+        "summary": "Ver la ficha de un cliente",
+        "description": "**Roles:** admin, dueno, empleado, freelance.\n\n**Casos de uso:** CU-03.",
+        "operationId": "obtener_cliente",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "cliente_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Cliente Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Cliente"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Falta el token, no es válido o el usuario no tiene acceso.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "El cliente no existe o no lo podés ver.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "clientes"
+        ],
+        "summary": "Editar la ficha de un cliente",
+        "description": "**Roles:** admin, dueno, empleado, freelance.\n\n**Casos de uso:** CU-03, CU-30.",
+        "operationId": "editar_cliente",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "cliente_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Cliente Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ClienteEditar"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Cliente"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Falta el token, no es válido o el usuario no tiene acceso.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "El cliente no existe o no lo podés ver.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/clientes/{cliente_id}/historial": {
+      "get": {
+        "tags": [
+          "clientes"
+        ],
+        "summary": "Historial del cliente: oportunidades, viajes y reseñas",
+        "description": "**Roles:** admin, dueno, empleado, freelance.\n\n**Casos de uso:** CU-03.",
+        "operationId": "obtener_historial_cliente",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "cliente_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Cliente Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HistorialCliente"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Falta el token, no es válido o el usuario no tiene acceso.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "El cliente no existe o no lo podés ver.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
     "schemas": {
+      "Cliente": {
+        "properties": {
+          "created_by": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created By",
+            "description": "Usuario que creó el registro; vacío si lo hizo el proceso automático.",
+            "readOnly": true
+          },
+          "updated_by": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Updated By",
+            "description": "Usuario que lo modificó por última vez; vacío si fue el proceso automático.",
+            "readOnly": true
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At",
+            "readOnly": true
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At",
+            "readOnly": true
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "nombre": {
+            "type": "string",
+            "maxLength": 120,
+            "minLength": 1,
+            "title": "Nombre"
+          },
+          "contacto": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Contacto"
+          },
+          "segmento": {
+            "$ref": "#/components/schemas/SegmentoCliente"
+          },
+          "etiquetas": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Etiquetas"
+          },
+          "preferencias": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Preferencias"
+          },
+          "no_recontactar": {
+            "type": "boolean",
+            "title": "No Recontactar"
+          },
+          "asesor_asignado_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Asesor Asignado Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "created_by",
+          "updated_by",
+          "created_at",
+          "updated_at",
+          "id",
+          "nombre",
+          "contacto",
+          "segmento",
+          "etiquetas",
+          "preferencias",
+          "no_recontactar",
+          "asesor_asignado_id"
+        ],
+        "title": "Cliente",
+        "description": "Ficha del cliente: contacto, segmento, etiquetas y preferencias."
+      },
+      "ClienteCrear": {
+        "properties": {
+          "nombre": {
+            "type": "string",
+            "maxLength": 120,
+            "minLength": 1,
+            "title": "Nombre"
+          },
+          "contacto": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Contacto"
+          },
+          "segmento": {
+            "$ref": "#/components/schemas/SegmentoCliente"
+          },
+          "etiquetas": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Etiquetas",
+            "default": []
+          },
+          "preferencias": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Preferencias"
+          },
+          "asesor_asignado_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Asesor Asignado Id"
+          },
+          "confirmar_duplicado": {
+            "type": "boolean",
+            "title": "Confirmar Duplicado",
+            "default": false
+          }
+        },
+        "type": "object",
+        "required": [
+          "nombre",
+          "contacto",
+          "segmento"
+        ],
+        "title": "ClienteCrear",
+        "description": "Alta de un cliente (CU-02). `confirmar_duplicado` reintenta tras el aviso del 409 (A1)."
+      },
+      "ClienteEditar": {
+        "properties": {
+          "nombre": {
+            "type": "string",
+            "maxLength": 120,
+            "minLength": 1,
+            "title": "Nombre"
+          },
+          "contacto": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Contacto"
+          },
+          "segmento": {
+            "$ref": "#/components/schemas/SegmentoCliente"
+          },
+          "etiquetas": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Etiquetas"
+          },
+          "preferencias": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Preferencias"
+          },
+          "no_recontactar": {
+            "type": "boolean",
+            "title": "No Recontactar"
+          },
+          "asesor_asignado_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Asesor Asignado Id"
+          }
+        },
+        "type": "object",
+        "title": "ClienteEditar",
+        "description": "Edición parcial de la ficha (CU-03, CU-30): solo cambian los campos enviados."
+      },
       "ComisionPorDefecto": {
         "properties": {
           "comision_default_tipo": {
@@ -2295,6 +2947,7 @@
               }
             ],
             "title": "Created By",
+            "description": "Usuario que creó el registro; vacío si lo hizo el proceso automático.",
             "readOnly": true
           },
           "updated_by": {
@@ -2308,6 +2961,7 @@
               }
             ],
             "title": "Updated By",
+            "description": "Usuario que lo modificó por última vez; vacío si fue el proceso automático.",
             "readOnly": true
           },
           "created_at": {
@@ -2390,6 +3044,7 @@
               }
             ],
             "title": "Created By",
+            "description": "Usuario que creó el registro; vacío si lo hizo el proceso automático.",
             "readOnly": true
           },
           "updated_by": {
@@ -2403,6 +3058,7 @@
               }
             ],
             "title": "Updated By",
+            "description": "Usuario que lo modificó por última vez; vacío si fue el proceso automático.",
             "readOnly": true
           },
           "created_at": {
@@ -2576,6 +3232,70 @@
         "title": "ErrorCampo",
         "type": "object"
       },
+      "EstadoOportunidad": {
+        "type": "string",
+        "enum": [
+          "nueva",
+          "en_gestion",
+          "cotizada",
+          "ganada",
+          "perdida"
+        ],
+        "title": "EstadoOportunidad"
+      },
+      "EstadoResena": {
+        "type": "string",
+        "enum": [
+          "publicada",
+          "oculta"
+        ],
+        "title": "EstadoResena"
+      },
+      "EstadoViaje": {
+        "type": "string",
+        "enum": [
+          "reservado",
+          "vendido",
+          "confirmado",
+          "en_curso",
+          "finalizado",
+          "cancelado"
+        ],
+        "title": "EstadoViaje"
+      },
+      "HistorialCliente": {
+        "properties": {
+          "oportunidades": {
+            "items": {
+              "$ref": "#/components/schemas/OportunidadDelCliente"
+            },
+            "type": "array",
+            "title": "Oportunidades"
+          },
+          "viajes": {
+            "items": {
+              "$ref": "#/components/schemas/ViajeDelCliente"
+            },
+            "type": "array",
+            "title": "Viajes"
+          },
+          "resenas": {
+            "items": {
+              "$ref": "#/components/schemas/ResenaDelCliente"
+            },
+            "type": "array",
+            "title": "Resenas"
+          }
+        },
+        "type": "object",
+        "required": [
+          "oportunidades",
+          "viajes",
+          "resenas"
+        ],
+        "title": "HistorialCliente",
+        "description": "Memoria del cliente (CU-03): sus oportunidades, viajes y reseñas."
+      },
       "Operador": {
         "properties": {
           "created_by": {
@@ -2589,6 +3309,7 @@
               }
             ],
             "title": "Created By",
+            "description": "Usuario que creó el registro; vacío si lo hizo el proceso automático.",
             "readOnly": true
           },
           "updated_by": {
@@ -2602,6 +3323,7 @@
               }
             ],
             "title": "Updated By",
+            "description": "Usuario que lo modificó por última vez; vacío si fue el proceso automático.",
             "readOnly": true
           },
           "created_at": {
@@ -2704,6 +3426,87 @@
         },
         "type": "object",
         "title": "OperadorEditar"
+      },
+      "OportunidadDelCliente": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "destino_consultado": {
+            "type": "string",
+            "title": "Destino Consultado"
+          },
+          "estado": {
+            "$ref": "#/components/schemas/EstadoOportunidad"
+          },
+          "fecha_desde_tentativa": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fecha Desde Tentativa"
+          },
+          "fecha_hasta_tentativa": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fecha Hasta Tentativa"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "destino_consultado",
+          "estado",
+          "fecha_desde_tentativa",
+          "fecha_hasta_tentativa"
+        ],
+        "title": "OportunidadDelCliente",
+        "description": "Consulta del cliente, tal como aparece en su historial."
+      },
+      "Pagina_Cliente_": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/Cliente"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          },
+          "pagina": {
+            "type": "integer",
+            "title": "Pagina"
+          },
+          "por_pagina": {
+            "type": "integer",
+            "title": "Por Pagina"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items",
+          "total",
+          "pagina",
+          "por_pagina"
+        ],
+        "title": "Pagina[Cliente]"
       },
       "Pagina_Destino_": {
         "properties": {
@@ -2873,6 +3676,58 @@
         ],
         "type": "object"
       },
+      "ProblemaDuplicado": {
+        "properties": {
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "status": {
+            "type": "integer",
+            "title": "Status"
+          },
+          "detail": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Detail"
+          },
+          "errores": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/ErrorCampo"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Errores"
+          },
+          "duplicados": {
+            "items": {
+              "$ref": "#/components/schemas/Cliente"
+            },
+            "type": "array",
+            "title": "Duplicados"
+          }
+        },
+        "type": "object",
+        "required": [
+          "title",
+          "status",
+          "duplicados"
+        ],
+        "title": "ProblemaDuplicado",
+        "description": "409 del alta (CU-02 A1): trae los clientes que podrían ser el mismo."
+      },
       "RequisitoDestino": {
         "properties": {
           "created_by": {
@@ -2886,6 +3741,7 @@
               }
             ],
             "title": "Created By",
+            "description": "Usuario que creó el registro; vacío si lo hizo el proceso automático.",
             "readOnly": true
           },
           "updated_by": {
@@ -2899,6 +3755,7 @@
               }
             ],
             "title": "Updated By",
+            "description": "Usuario que lo modificó por última vez; vacío si fue el proceso automático.",
             "readOnly": true
           },
           "created_at": {
@@ -3074,6 +3931,57 @@
         "type": "object",
         "title": "RequisitoDestinoEditar"
       },
+      "ResenaDelCliente": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "hotel_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Hotel Id"
+          },
+          "puntaje": {
+            "type": "integer",
+            "title": "Puntaje"
+          },
+          "comentario": {
+            "type": "string",
+            "title": "Comentario"
+          },
+          "fecha": {
+            "type": "string",
+            "format": "date",
+            "title": "Fecha"
+          },
+          "estado": {
+            "$ref": "#/components/schemas/EstadoResena"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "hotel_id",
+          "puntaje",
+          "comentario",
+          "fecha",
+          "estado"
+        ],
+        "title": "ResenaDelCliente",
+        "description": "Reseña que dejó el cliente, tal como aparece en su historial."
+      },
+      "SegmentoCliente": {
+        "type": "string",
+        "enum": [
+          "familia",
+          "amigos",
+          "individual",
+          "pareja"
+        ],
+        "title": "SegmentoCliente"
+      },
       "Usuario": {
         "properties": {
           "created_by": {
@@ -3087,6 +3995,7 @@
               }
             ],
             "title": "Created By",
+            "description": "Usuario que creó el registro; vacío si lo hizo el proceso automático.",
             "readOnly": true
           },
           "updated_by": {
@@ -3100,6 +4009,7 @@
               }
             ],
             "title": "Updated By",
+            "description": "Usuario que lo modificó por última vez; vacío si fue el proceso automático.",
             "readOnly": true
           },
           "created_at": {
@@ -3290,6 +4200,43 @@
         "type": "object",
         "title": "UsuarioEditar",
         "description": "Cambio de rol o de acceso a redes (CU-25 A2)."
+      },
+      "ViajeDelCliente": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "destino_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Destino Id"
+          },
+          "estado": {
+            "$ref": "#/components/schemas/EstadoViaje"
+          },
+          "fecha_salida": {
+            "type": "string",
+            "format": "date",
+            "title": "Fecha Salida"
+          },
+          "fecha_regreso": {
+            "type": "string",
+            "format": "date",
+            "title": "Fecha Regreso"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "destino_id",
+          "estado",
+          "fecha_salida",
+          "fecha_regreso"
+        ],
+        "title": "ViajeDelCliente",
+        "description": "Viaje del cliente, tal como aparece en su historial."
       },
       "Pagina": {
         "properties": {

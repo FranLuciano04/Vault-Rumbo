@@ -1,7 +1,7 @@
 import logging
 from typing import Any, cast
 
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.encoders import jsonable_encoder
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
@@ -41,6 +41,11 @@ _ESTADO_POR_DOMINIO: dict[type[ErrorDeDominio], int] = {
     Conflicto: 409,
     ServicioExterno: 502,
 }
+
+
+def no_implementado() -> HTTPException:
+    """Cuerpo de los stubs del contrato: la ruta existe pero su lógica llega en otro ticket."""
+    return HTTPException(status_code=501, detail="La operación todavía no está implementada.")
 
 
 def _problema(estado: int, detalle: str, **extra: Any) -> JSONResponse:

@@ -48,9 +48,15 @@ class Edicion(Entrada):
 
 
 class Auditoria(BaseModel):
-    """Columnas de auditoría de toda salida (DEC-0008); las completa el servidor."""
+    """Columnas de auditoría (DEC-0008): las completa el servidor, el cliente no las envía."""
 
-    created_by: uuid.UUID | None = Field(json_schema_extra={"readOnly": True})
-    updated_by: uuid.UUID | None = Field(json_schema_extra={"readOnly": True})
+    created_by: uuid.UUID | None = Field(
+        json_schema_extra={"readOnly": True},
+        description="Usuario que creó el registro; vacío si lo hizo el proceso automático.",
+    )
+    updated_by: uuid.UUID | None = Field(
+        json_schema_extra={"readOnly": True},
+        description="Usuario que lo modificó por última vez; vacío si fue el proceso automático.",
+    )
     created_at: datetime = Field(json_schema_extra={"readOnly": True})
     updated_at: datetime = Field(json_schema_extra={"readOnly": True})

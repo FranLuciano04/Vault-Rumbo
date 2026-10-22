@@ -24,6 +24,20 @@ La **persona** de cada sesión es quien la corre, identificada por su identidad 
 ## Avisos pendientes por persona
 > Claude los lee al identificar a la persona (paso 1 de `CLAUDE.md`) y se los cuenta **apenas la saluda**, antes de cualquier otra tarea. Cuando la persona confirme que lo leyó o que lo hizo, **Claude borra su fila** en esa misma sesión, con un commit. Cuando no quede ninguna fila de alguien, se borra también su sección.
 
+### Francisco (`FranLucianoo`)
+- **22/10, de Nahuel: el CI ahora corre análisis de seguridad** (T-019, PR [#30](https://github.com/FranLuciano04/Vault-Rumbo/pull/30)).
+  - **Qué se agregó:** gitleaks corre en cada PR y en cada push a `main`, incluido el vault. También se sumaron Semgrep, pip-audit y bandit (backend) y `pnpm audit` (web).
+  - **Después del pull:** corré `uv sync` en `src/backend` (dependencias nuevas de T-013 y T-019) y `pnpm install` en `src/`.
+  - **Si un push del vault falla en `Secretos`:** se subió algo con forma de secreto. Hay que rotarlo y avisar.
+  - **Las excepciones** van comentadas en `.gitleaks.toml`, en `audit.ignore` de `src/pnpm-workspace.yaml` o con `nosemgrep` y su motivo.
+
+### Francisco (`FranLucianoo`) y Nahuel (`Nahuel Viniegra`)
+- **22/10, de Paloma: tests de backend lentos en Windows por `localhost`** (T-039, PR [#31](https://github.com/FranLuciano04/Vault-Rumbo/pull/31)).
+  - Con `localhost` en `TEST_DATABASE_URL` y en `DATABASE_URL`, cada conexión a Postgres tardaba 2 s, porque Windows prueba IPv6 primero. La suite de backend pasaba de unos 65 s a 31 min, con algún timeout.
+  - En tu `src/backend/.env`, cambiá `@localhost:` por `@127.0.0.1:`.
+  - Conviene cambiarlo también en `src/backend/.env.example`, pero eso entra por PR. Queda a decidir quién lo hace.
+- **22/10, de Paloma: [[DEC-0017 Contacto mínimo del cliente]] en revisión.** El contacto válido del `Cliente` es solo teléfono/WhatsApp o email, sin Instagram. Hay que ratificarlo en la sync y después alinear CU-02, CU-03, `Cliente`, RF-001 y DGM-ER.
+
 ## Formato
 Es **obligatorio** nombrar a la persona que hizo la sesión.
 ```
@@ -32,6 +46,26 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Commits:** <hash>, <hash>
 - **Pendiente:** …
 ```
+
+## 22/10/26 — Nahuel (Claude Opus 5.5) — T-019: análisis de seguridad en el CI
+- **Hecho:** T-019 (capa infra, riesgo normal, DEC-0001, RNF-03).
+  - **Jobs nuevos:**
+    - `secretos`: gitleaks, en `secretos.yml`. Corre en cada PR y en cada push a `main`, y recorre `HEAD`, no todas las ramas.
+    - `sast`: Semgrep.
+    - pip-audit y bandit en el job backend, y `pnpm audit` en el job web.
+  - **Hallazgos reales resueltos:**
+    - Se actualizó `certifi`.
+    - Override de `@grpc/grpc-js`.
+    - El emulador ya no corre como root.
+  - **Riesgo aceptado** de 2 altas sin parche que vienen de herramientas de build: node-forge y braces.
+  - **Review (Opus):** 1 importante y 4 menores. Se arreglaron el importante y 2 menores.
+  - **CI en GitHub:** todo en verde. gitleaks recorrió 424 commits sin encontrar secretos. El PR [#30](https://github.com/FranLuciano04/Vault-Rumbo/pull/30) quedó mergeado, y `Secretos` también pasó en el push a `main`.
+- **Commits:** 81708b0, 5769ccc, más el cierre del ticket.
+- **Para el equipo:** ver los avisos de arriba. Los 5 `PermissionError` de los tests que lanzan subprocesos en la PC de Nahuel se resuelven con `pytest --basetemp=.pytest_tmp`.
+- **Pendiente:**
+  - M0 queda con un solo ticket: T-023, el login mobile, de riesgo alto.
+  - Posible ticket nuevo: un `schedule` semanal para las auditorías.
+  - Fijar Semgrep y las acciones por digest o SHA.
 
 ## 21/10/26 — Nahuel (Claude Opus 5.5) — T-013: cliente de IA con modelo falso
 - **Hecho:** T-013 (capa backend, riesgo normal, DEC-0012, RNF-16).
@@ -47,6 +81,20 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:**
   - En la PC de Nahuel, 5 tests que lanzan subprocesos (`test_cli_openapi`, `test_config` y `test_seguridad`) dan `PermissionError` en el setup de `pytest_asyncio`. Los 3 de `test_config` y `test_seguridad` fallan igual sin los cambios del ticket; los 2 de `test_cli_openapi`, no lo comprobé. Es un tema de entorno, a revisar.
   - Para M9: la guardia solo intercepta `_construir_cliente_claude`.
+
+## 21-22/10/26 — Paloma (Claude Opus 5.5) — T-039: contrato de clientes
+- **Hecho:** T-039 (capa contrato, riesgo normal).
+  - Cinco rutas `/api/clientes` con stubs `501`, con filtros, el 409 de duplicado de CU-02 A1 (`duplicados` y `confirmar_duplicado`), la auditoría readOnly y el PATCH sin null en los campos obligatorios (CU-03 A2).
+  - En `@rumbo/shared`: tipos, zod del alta, cinco hooks y mocks MSW. `ErrorApi` expone `duplicados`.
+  - La review (Opus) dejó 0 bloqueantes y 5 importantes. Se arreglaron 4, y el quinto lo decidió Paloma: Instagram no vale como contacto.
+  - Pasan 340 tests de backend (97 % de cobertura), 60 de shared y 72 de web. El PR [#31](https://github.com/FranLuciano04/Vault-Rumbo/pull/31) se mergeó con el CI en verde.
+- **Commits:** af80fca, 62e9a7d, 2e294dc, 634690f (merge 7c0e5bb).
+- **Decisión:** [[DEC-0017 Contacto mínimo del cliente]] queda en revisión, porque alinear las cinco notas formalizadas que nombran Instagram necesita la ratificación del equipo.
+- **Incidente de entorno:** la suite de backend tardaba 31 min y una vez cortó por timeout. La causa era `localhost` en la URL de la base, que en Windows suma 2 s por conexión. Se resolvió con `127.0.0.1` en el `.env` local de Paloma, y hay un aviso para el equipo.
+- **Pendiente:**
+  - Ratificar DEC-0017.
+  - Resolver el choque de DEC-0008 con CU-02 y DEC-0005 sobre si el freelance ve todos los clientes. Le toca al ticket de backend de clientes.
+  - Ciclo de imports en `mocks/clientes.ts`.
 
 ## 21/10/26 — Paloma (Claude Opus 5.5) — T-142: barra lateral web en pantallas angostas
 - **Hecho:** T-142 (capa web, riesgo normal, `origen: hallazgo T-020`).

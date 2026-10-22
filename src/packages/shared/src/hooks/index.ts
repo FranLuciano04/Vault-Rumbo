@@ -4,3 +4,4 @@ export * from "./useDestinos";
 export * from "./useOperadores";
 export * from "./useUsuarios";
 export * from "./useYo";
+export * from "./clientes";
