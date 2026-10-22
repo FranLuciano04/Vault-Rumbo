@@ -3,7 +3,7 @@ id: T-026
 titulo: Publicar el contrato de usuarios y configuración
 modulo: M1 — Usuarios y configuración
 capa: contrato
-estado: tomado
+estado: hecho
 depende_de: [T-015]
 tamaño: M
 riesgo: normal
@@ -49,3 +49,24 @@ Existen los esquemas y routers stub (`501`) de usuarios, parámetros, comisión 
 - La lógica de cada endpoint.
 
 ## Notas de implementación
+- **Implementación (21-22/10/26, Francisco):**
+  - Son 24 operaciones con prefijo `/api`, con los mismos métodos, rutas, tags y `x-roles` que el contrato del PC1. No están `login`, `logout` ni `restablecer-password` (DEC-0016).
+  - `presentacion/contrato.py` tiene `operacion()`, que arma la guarda `exigir_roles`, la descripción, los errores y `x-roles`/`x-casos-de-uso`, y `no_implementado()`, que responde 501. El 403 sale antes que el 422, salvo con un cuerpo que no es JSON.
+  - Esquemas nuevos en `esquemas/usuarios.py` y `esquemas/configuracion.py`, armados desde el ER y DEC-0013, porque en el PC1 eran `SinDetallar`. Las bases comunes `Entrada`, `Edicion`, `omitible()` y `Auditoria` están en `esquemas/comunes.py`.
+  - En shared hay 24 hooks de TanStack Query y 24 mocks MSW (`manejadoresM1`, que se suman a pedido con `crearServidor(...manejadoresM1)`).
+- **Decisiones de diseño a confirmar con el equipo:**
+  - `UsuarioEditar` solo cambia `rol` y `acceso_redes` (CU-25 A2). Si se quiere corregir el nombre, hay que sumarlo.
+  - Los `Decimal` salen como texto y entran como número o texto.
+- **Review (Opus):** 0 bloqueantes, 3 importantes y 6 menores, todos arreglados en el fix:
+  - un `null` en un campo obligatorio de una edición da 422;
+  - la comisión por defecto se valida igual que el CHECK de la base;
+  - la auditoría aparece en todas las respuestas;
+  - los mocks devuelven los importes como texto;
+  - se publican `x-roles` y `x-casos-de-uso`;
+  - se valida el formato del email y no se aceptan textos vacíos;
+  - `claveYo` se invalida cuando el admin se edita a sí mismo;
+  - se aclaró el docstring;
+  - `127.0.0.1` en `.env.example`.
+- **Velocidad de la suite:** en Windows, `localhost` probaba primero IPv6 y perdía unos 2 s por conexión. Con `127.0.0.1` la suite pasa de unos 14 minutos a 80-90 segundos. Cada uno tiene que cambiarlo en su `src/backend/.env`.
+- **Verificación:** pasan 484 tests de backend (97,5 %) y 51 de shared. Lint, ruff, mypy y typecheck de shared y web, sin errores.
+- **Modelos:** tests, verde y fix con Sonnet; review con Opus. No hubo escalados.
