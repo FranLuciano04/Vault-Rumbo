@@ -3,7 +3,7 @@ id: T-029
 titulo: Editar los parámetros del negocio
 modulo: M1 — Usuarios y configuración
 capa: backend
-estado: tomado
+estado: hecho
 depende_de: [T-026, T-012, T-011]
 tamaño: S
 riesgo: normal
@@ -47,3 +47,20 @@ Admin y dueña ven y editan los parámetros de la agencia (vigencia de la cotiza
 - Comisión por defecto (ticket propio).
 
 ## Notas de implementación
+- **Implementación (22/10/26, Francisco):**
+  - `negocio/servicios/parametros.py` tiene tres funciones:
+    - `obtener(sesion)` es de uso interno, sin rol, y la usan los demás módulos;
+    - `ver(sesion, actor)` exige admin o dueño y la usa `GET /configuracion`;
+    - `editar(sesion, actor, …)` exige admin o dueño y la usa `PUT /configuracion`.
+  - Las tres pasan por `RepositorioConfiguracion`, que lee la fila única `id=1` sembrada por la migración 0001. Si falta, lanza `NoEncontrado`.
+  - El 422 por rango sale del esquema `ConfiguracionEditar` y lo respaldan los CHECK de la tabla.
+  - `test_contrato_m1.py` suma `GET` y `PUT /api/configuracion` a `IMPLEMENTADAS`, según la convención autorizada en T-030.
+- **Desvío del flujo:** se salteó el paso de refactor porque el diff era chico. La review revisó la duplicación con el servicio de T-030 y recomendó **no** unificarlos: son entidades distintas.
+- **Review (Opus):** 0 bloqueantes, 2 importantes y 3 menores, todos arreglados:
+  - repositorio en lugar de leer la sesión directo;
+  - `ver()` con rol para el `GET`, con el docstring de `politicas.py` alineado;
+  - error claro si falta la fila;
+  - el caso de `recontacto_meses` faltante;
+  - `ruff format` de los tests del rojo, que habrían roto el CI.
+- **Verificación:** 598 tests en verde; ruff check, ruff format --check y mypy limpios.
+- **Modelos:** tests, verde y fix con Sonnet; review con Opus. No hubo escalados.
