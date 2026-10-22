@@ -8,7 +8,8 @@ nueva obliga a decidir su regla en este archivo.
 
 La visibilidad por fila **no protege** lo que la lectura global deja abierto: los servicios de
 `Usuario`, `Configuracion` y redes (`ContenidoRed`) deben llamar a `exigir_rol` (o chequear la
-capacidad `acceso_redes`) antes de leer o escribir.
+capacidad `acceso_redes`) antes de leer o escribir. `Configuracion` se lee sin rol para uso
+interno (`parametros.obtener`); lo que se expone por API pasa por `parametros.ver` y `editar`.
 """
 
 import uuid

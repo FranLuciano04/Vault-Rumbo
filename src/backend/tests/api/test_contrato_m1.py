@@ -74,7 +74,11 @@ RF_POR_RUTA = {
 IDS = [f"{RF_POR_RUTA[(m, r)]} {m} {r}" for m, r, *_ in RUTAS]
 METODO_Y_RUTA = [(m, r) for m, r, *_ in RUTAS]
 CASOS_403 = [(m, r, rol) for m, r, roles, *_ in RUTAS for rol in TODOS if rol not in roles]
-IMPLEMENTADAS = {("PUT", "/api/usuarios/{usuario_id}/comision-por-defecto")}  # T-030
+IMPLEMENTADAS = {
+    ("PUT", "/api/usuarios/{usuario_id}/comision-por-defecto"),  # T-030
+    ("GET", "/api/configuracion"),  # T-029
+    ("PUT", "/api/configuracion"),  # T-029
+}
 CASOS_501 = [
     (m, r, rol) for m, r, roles, *_ in RUTAS for rol in roles if (m, r) not in IMPLEMENTADAS
 ]
