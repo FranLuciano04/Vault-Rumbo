@@ -22,6 +22,8 @@ actualizado: 13/10/26
 >
 > 👉 **21/10 (Paloma):** **T-141** (íconos de la barra lateral web, como en el prototipo) está hecho y mergeado (PR [#27](https://github.com/FranLuciano04/Vault-Rumbo/pull/27)).
 >
+> 👉 **22/10 (Francisco):** **T-031** (catálogo de destinos, el patrón de ABM que copian T-032 y T-033) está hecho y mergeado (PR [#37](https://github.com/FranLuciano04/Vault-Rumbo/pull/37)). El CI ahora falla si `openapi.json` o `tipos.gen.ts` no están al día. ⚠️ Corran `uv run alembic upgrade head` (migración 0002).
+>
 > 👉 **22/10 (Francisco):** **T-029** (parámetros del negocio) está hecho y mergeado (PR [#35](https://github.com/FranLuciano04/Vault-Rumbo/pull/35)). Destraba 15 tickets. Los módulos que necesiten la vigencia, la anticipación o el recontacto usan `parametros.obtener(sesion)`.
 >
 > 👉 **22/10 (Francisco), cierre de pendientes:** [[DEC-0017 Contacto mínimo del cliente]] quedó formalizada (Instagram opcional; código en T-149). Al editar un usuario se puede corregir el nombre (T-028). Tickets nuevos de hallazgos: T-146 a T-148. `/implementar-ticket` 1.1.0: se mergea sin `--delete-branch` y sin `--auto`.

@@ -157,6 +157,23 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
   - En la consola de `rumbo-9ff17`, confirmar que el registro de cuentas esté deshabilitado.
   - La protección de `main` no se puede configurar: GitHub la pide con Pro para los repos privados.
 
+## 22/10/26 — Francisco (Claude Opus 5.5) — T-031: catálogo de destinos y control del contrato en el CI
+- **Hecho:** T-031 (capa backend, riesgo normal). Es el ABM de destinos y el **patrón que copian T-032 y T-033**:
+  - un repositorio, un servicio y un router con `ActorDep`;
+  - nombre duplicado → 409, controlado por el servicio y por un **índice único funcional** (migración 0002);
+  - búsqueda sin tildes ni mayúsculas, con orden por nombre normalizado;
+  - baja y reactivación idempotentes.
+  - La normalización de nombres ahora la comparten clientes y destinos.
+  - La review (Opus) dejó 0 bloqueantes, 2 importantes y 4 menores, todos arreglados. Pasan 643 tests.
+  - El PR [#37](https://github.com/FranLuciano04/Vault-Rumbo/pull/37) se mergeó con el CI en verde.
+- **CI nuevo (pedido por Francisco):** el job Backend regenera `openapi.json` y falla si difiere del commiteado, y el job Web hace lo mismo con `tipos.gen.ts`. Salió de un hallazgo de la review: el contrato había quedado desfasado sin que nada avisara.
+- **Convención de tests autorizada por Francisco:** las rutas implementadas pasan a `IMPLEMENTADAS` en `test_contrato_m1.py`. Eso las saca de `CASOS_501` y de `NULOS_EN_ANULABLES`.
+- **Para el equipo:**
+  - Corran `uv run alembic upgrade head` en sus bases de desarrollo, por la migración 0002.
+  - Si cambian el contrato, regeneren `openapi.json` y los tipos; si no, el CI ahora falla.
+- **Pendiente:** la migración 0002 da un `SyntaxWarning` por `'\s+'` escrito sin string crudo. No rompe nada y se corrige en T-033, que ya lo tiene anotado.
+- **Commits:** dc410e4, 8be6f09, a0748e7, b9ca8bc, b77e572, d28e16d y cb6c56d.
+
 ## 22/10/26 — Francisco (Claude Opus 5.5) — T-029: parámetros del negocio
 - **Hecho:** T-029 (capa backend, riesgo normal). `GET` y `PUT /api/configuracion` ya funcionan, solo para admin y dueña.
   - Los parámetros son la vigencia de la cotización, la anticipación de la alerta de salida y los meses para el recontacto.

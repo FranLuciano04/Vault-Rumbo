@@ -47,3 +47,4 @@ Admin y dueña definen los requisitos de cada destino (visa, vacunación, docume
 - Generar las alertas al confirmar la reserva (M6).
 
 ## Notas de implementación
+- **Sumado el 22/10/26 (hallazgo T-031):** seguir el patrón de destinos de T-031 (repositorio, servicio y router con `ActorDep`) y sumar las rutas de requisitos a `IMPLEMENTADAS` en `test_contrato_m1.py` (la convención autorizada).

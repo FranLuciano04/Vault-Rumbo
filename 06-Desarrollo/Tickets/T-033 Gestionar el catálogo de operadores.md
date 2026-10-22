@@ -48,3 +48,4 @@ Admin y dueña mantienen el catálogo de operadores igual que el de destinos: al
 - Pagos a proveedores (M6).
 
 ## Notas de implementación
+- **Sumado el 22/10/26 (hallazgo T-031):** copiar el patrón de destinos de T-031: repositorio con `buscar_por_nombre` y `paginar`, servicio con `_exigir_nombre_libre`, `_guardar_con_nombre_unico` y `_fijar_activo`, router con `ActorDep`, e índice único funcional sobre `nombre_normalizado` con su migración. De paso, corregir en `alembic/versions/0002_destino_nombre_unico.py` el `'\s+'` sin string crudo, que da `SyntaxWarning: invalid escape sequence`; en el modelo ya está bien. Sumar las rutas de operadores a `IMPLEMENTADAS` en `test_contrato_m1.py` (la convención autorizada).
