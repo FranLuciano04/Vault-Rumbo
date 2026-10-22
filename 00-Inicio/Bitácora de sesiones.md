@@ -72,6 +72,15 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
   - Decidir en la sync si al `freelance` hay que avisarle de duplicados de otros asesores. Hoy no los ve, por visibilidad.
   - Validar el formato del contacto, normalizar teléfonos y aplicar similitud difusa de nombres. Dependen de [[DEC-0017 Contacto mínimo del cliente]].
   - ⚠️ `main` no tiene checks obligatorios. `gh pr merge --auto` mergea al instante, sin esperar el CI. Esta vez el CI pasó después del merge.
+- **Hecho (2):** **T-032** (M1, backend, riesgo normal; CU-15, RF-086/087/088/034). Requisitos por destino: listar los activos, agregar, editar y dar de baja de forma lógica. Solo `admin` y `dueno` escriben; leen todos los roles. Editar o dar de baja no toca las alertas emitidas.
+  - **Review (Opus):** 0 bloqueantes, 1 importante y 2 menores. El importante (500 con un entero fuera de rango) pasó a **T-151**, nuevo, por decisión de Paloma.
+  - **Desvío autorizado:** `concurrency = ["greenlet", "thread"]` en la cobertura. Adelanta **T-148**: sin eso, `negocio/` daba 79,93 % y fallaba el CI; ahora da 99 %.
+  - **CI:** todo en verde antes del merge. El PR [#39](https://github.com/FranLuciano04/Vault-Rumbo/pull/39) quedó mergeado y destraba 7 tickets.
+- **Commits (2):** 194ab4f, 8fa63f9, 5e4b10d, 483ff3b, 6833514.
+- **Pendiente (2):**
+  - Cerrar T-148 solo verificando: ya está hecho en `pyproject.toml`.
+  - Tomar T-151.
+  - Decidir si se puede editar un requisito dado de baja: hoy responde 200.
 
 ## 22/10/26 — Nahuel (Claude Opus 5.5) — T-019: análisis de seguridad en el CI
 - **Hecho:** T-019 (capa infra, riesgo normal, DEC-0001, RNF-03).

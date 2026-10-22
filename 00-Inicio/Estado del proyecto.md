@@ -14,6 +14,8 @@ actualizado: 13/10/26
 >
 > 👉 **22/10 (Nahuel):** **T-150** está hecho y mergeado (PR [#36](https://github.com/FranLuciano04/Vault-Rumbo/pull/36)): las auditorías de dependencias ahora también corren todos los lunes. La primera corrida manual dio verde. Nahuel mira los avisos. **A M0 le falta solo T-023** (login mobile) para pasar a la review de Codex.
 >
+> 👉 **22/10 (Paloma):** **T-032** (requisitos de cada destino) está hecho y mergeado (PR [#39](https://github.com/FranLuciano04/Vault-Rumbo/pull/39)). Destraba 7 tickets. Adelantó **T-148**: la cobertura ya sigue los `await`. Ese ticket queda por cerrar solo verificando. Se creó **T-151** (422 ante un entero fuera de rango).
+>
 > 👉 **22/10 (Paloma):** **T-040** (alta de clientes con detección de duplicados) está hecho y mergeado (PR [#34](https://github.com/FranLuciano04/Vault-Rumbo/pull/34)). Destraba 11 tickets. Para la sync: ¿al `freelance` hay que avisarle de duplicados de otros asesores? ⚠️ `main` no tiene checks obligatorios, así que `--auto` mergea sin esperar el CI.
 >
 > 👉 **22/10 (Paloma):** **T-039** (contrato de clientes) está hecho y mergeado (PR [#31](https://github.com/FranLuciano04/Vault-Rumbo/pull/31)). Destraba 21 tickets de M2. Queda en revisión [[DEC-0017 Contacto mínimo del cliente]], para ratificar en la sync.
