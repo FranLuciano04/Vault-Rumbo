@@ -59,7 +59,7 @@ Una persona dada de alta entra a la app con email y contraseña o con Google, pu
   - En RNTL 14 `fireEvent` es async: los tests del rojo no tenían `await` y se corrigieron en el verde con `--tocar-tests`, con autorización de Nahuel.
   - `testTimeout: 20000` en mobile: con caché fría, el primer `renderRouter` (expo-router + Firebase) tarda entre 6 y 10 s. En main ya estaba cerca de los 5 s.
   - `mensajesInicioSesion.ts` está duplicado con la web; conviene llevarlo a `@rumbo/shared`.
-- **Review (Sonnet, seguridad):** 0 bloqueantes, 0 importantes y 2 menores. Se arregló el mensaje para `PLAY_SERVICES_NOT_AVAILABLE` (sin test que lo cubra). Queda fuera del ticket: `(pestanas)/_layout.tsx` (de T-022) no redirige al login si un refetch da 401 con el usuario en caché.
+- **Review (Sonnet, seguridad):** 0 bloqueantes, 0 importantes y 2 menores. Se arregló el mensaje para `PLAY_SERVICES_NOT_AVAILABLE` (sin test que lo cubra). El otro menor (que `(pestanas)/_layout.tsx` no redirigiría con un 401 si hay usuario en caché) era un falso positivo: la guarda del 401 va antes que la de `!usuario` y no depende de `data`. Se descartó.
 - **Pendiente manual:** probar en el development build; Android necesita `EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID` y el SHA-1 en Firebase; iOS, `GoogleService-Info.plist`. Confirmar que el registro abierto siga deshabilitado en Firebase.
 - **Verificación:** 34/34 tests de mobile en frío (cobertura 97 %); eslint y tsc sin errores.
 - **Modelos:** tests con Sonnet; verde, refactor y fix con Opus; review con Sonnet. Sin escalados.
