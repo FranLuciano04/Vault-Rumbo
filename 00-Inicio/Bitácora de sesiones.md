@@ -61,6 +61,17 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
+## 22/10/26 — Nahuel (Claude Opus 5.5) — T-150: auditorías de dependencias semanales
+- **Hecho:** tomó e implementó **T-150** (M0, infra, riesgo normal, DEC-0001, RNF-03; hallazgo de T-019).
+  - Workflow nuevo `.github/workflows/auditoria-semanal.yml`: corre `pip-audit` y `pnpm audit --audit-level=high` los lunes a las 06:00 (hora de Buenos Aires), y también a mano con `workflow_dispatch`. Solo audita.
+  - **Responsable del aviso:** Nahuel, por decisión propia. Está escrito en [[Flujo de implementación#Auditoría semanal de dependencias (T-150)]], junto con qué hacer ante una falla.
+  - **Review (Sonnet):** 0 bloqueantes, 1 importante (el responsable del aviso, arreglado) y 2 menores.
+  - **CI:** en verde. El PR [#36](https://github.com/FranLuciano04/Vault-Rumbo/pull/36) quedó mergeado. La primera corrida manual en `main` pasó los dos jobs, y con eso `pip-audit` quedó verificado en el runner.
+- **Commits:** 80b5f90, ee17786, 4db8d9e (merge a631efd).
+- **Pendiente:**
+  - M0 queda con un solo ticket: T-023, el login mobile, de riesgo alto. Después vienen la review de Codex y el tag `mod-0`.
+  - Fijar Semgrep y las acciones por digest o SHA (menor de T-019).
+
 ## 22/10/26 — Paloma (Claude Opus 5.5) — T-040: registrar clientes detectando duplicados
 - **Hecho:** aprobó el PR [#33](https://github.com/FranLuciano04/Vault-Rumbo/pull/33) (T-030). Tomó e implementó **T-040** (M2, backend, riesgo normal; CU-02, RF-001/002/003/150).
   - `POST /api/clientes`: 422 si faltan los datos mínimos, 409 con hasta 10 candidatos ante un posible duplicado (mismo contacto, o mismo nombre sin distinguir mayúsculas, tildes ni espacios de más) y alta con `confirmar_duplicado: true`. El `freelance` siempre queda como asesor.
