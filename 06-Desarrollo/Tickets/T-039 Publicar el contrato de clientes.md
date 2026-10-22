@@ -3,7 +3,7 @@ id: T-039
 titulo: Publicar el contrato de clientes
 modulo: M2 — Clientes
 capa: contrato
-estado: libre
+estado: tomado
 depende_de: [T-015]
 tamaño: S
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [CU-02, CU-03, RF-031]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: palomap2003
+tomado_el: 21/10/26 21:30
+rama: feature/T-039-publicar-el-contrato-de-clientes
 pr:
 ---
 # T-039 Publicar el contrato de clientes
