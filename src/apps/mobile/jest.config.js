@@ -4,6 +4,10 @@ const UNA_SOLA_COPIA = ["react", "@tanstack/react-query"];
 
 module.exports = {
   preset: "jest-expo",
+  // El primer `renderRouter("./app")` de cada archivo carga dentro del test la entrada completa de
+  // expo-router (~4 s con la caché fría) más el SDK de Firebase de `src/lib/firebase.ts` (~1,5 s):
+  // en CI, que corre en frío, el primer test de navegación tarda 6-10 s y excedía los 5 s por defecto.
+  testTimeout: 20000,
   setupFiles: [
     "./jest.setup.js",
     // Mock oficial del módulo nativo de Google Sign-In.
