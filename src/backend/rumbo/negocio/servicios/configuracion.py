@@ -4,9 +4,11 @@ import uuid
 from decimal import Decimal
 from typing import Any
 
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from rumbo.datos.modelos import Destino, RolUsuario, TipoComision, Usuario
+from rumbo.datos.modelos.catalogos import INDICE_NOMBRE_DESTINO
 from rumbo.datos.repositorios.destinos import RepositorioDestinos
 from rumbo.datos.repositorios.seguridad import RepositorioUsuarios
 from rumbo.negocio.errores import Conflicto
@@ -40,7 +42,7 @@ async def listar_destinos(
     sesion: AsyncSession,
     actor: Usuario,
     *,
-    activo: bool | None,
+    activo: bool,
     buscar: str | None,
     desplazamiento: int,
     limite: int,
@@ -75,7 +77,7 @@ async def crear_destino(
     await _exigir_nombre_libre(sesion, actor, nombre)
     destino = Destino(nombre=nombre, pais=pais, region=region, notas=notas)
     sesion.add(destino)
-    await sesion.flush()
+    await _guardar_con_nombre_unico(sesion)
     return destino
 
 
@@ -89,7 +91,7 @@ async def editar_destino(
         await _exigir_nombre_libre(sesion, actor, cambios["nombre"], excluir_id=destino.id)
     for campo, valor in cambios.items():
         setattr(destino, campo, valor)
-    await sesion.flush()
+    await _guardar_con_nombre_unico(sesion)
     return destino
 
 
@@ -125,3 +127,16 @@ async def _exigir_nombre_libre(
     )
     if repetido is not None:
         raise Conflicto(f"Ya existe un destino llamado «{repetido.nombre}».")
+
+
+async def _guardar_con_nombre_unico(sesion: AsyncSession) -> None:
+    """Flush que traduce el choque con el índice único del nombre a 409: cubre la carrera entre
+    dos altas que pasaron `_exigir_nombre_libre` a la vez. Corre en un savepoint para que la
+    sesión siga usable."""
+    try:
+        async with sesion.begin_nested():
+            await sesion.flush()
+    except IntegrityError as error:
+        if INDICE_NOMBRE_DESTINO not in str(error.orig):
+            raise
+        raise Conflicto("Ya existe un destino con ese nombre.") from error

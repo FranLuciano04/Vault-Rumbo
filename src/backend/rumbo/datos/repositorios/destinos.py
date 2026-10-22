@@ -6,12 +6,8 @@ from sqlalchemy import func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from rumbo.datos.modelos import Destino
-from rumbo.datos.repositorios.base import (
-    RepositorioBase,
-    Visibilidad,
-    nombre_normalizado,
-    normalizar,
-)
+from rumbo.datos.modelos.base import nombre_normalizado
+from rumbo.datos.repositorios.base import RepositorioBase, Visibilidad, normalizar
 
 
 def _escapar_like(texto: str) -> str:
@@ -41,26 +37,25 @@ class RepositorioDestinos(RepositorioBase[Destino]):
         self,
         sesion: AsyncSession,
         *,
-        activo: bool | None,
+        activo: bool,
         buscar: str | None,
         desplazamiento: int,
         limite: int,
         visibilidad: Visibilidad,
     ) -> tuple[list[Destino], int]:
         """Página de destinos ordenada por nombre y el total que cumple los filtros.
-        `buscar` mira nombre y país sin distinguir mayúsculas."""
+        `buscar` mira nombre y país sin distinguir mayúsculas, tildes ni espacios de más."""
         consulta = visibilidad.aplicar(select(Destino), Destino)
-        if activo is not None:
-            consulta = consulta.where(Destino.activo == activo)
+        consulta = consulta.where(Destino.activo == activo)
         if buscar:
-            patron = f"%{_escapar_like(buscar)}%"
+            patron = f"%{_escapar_like(normalizar(buscar))}%"
             consulta = consulta.where(
                 or_(
-                    Destino.nombre.ilike(patron, escape="\\"),
-                    Destino.pais.ilike(patron, escape="\\"),
+                    nombre_normalizado(Destino.nombre).like(patron, escape="\\"),
+                    nombre_normalizado(Destino.pais).like(patron, escape="\\"),
                 )
             )
         total = await sesion.scalar(select(func.count()).select_from(consulta.subquery()))
-        pagina = consulta.order_by(func.lower(Destino.nombre), Destino.id)
+        pagina = consulta.order_by(nombre_normalizado(Destino.nombre), Destino.id)
         filas = await sesion.scalars(pagina.offset(desplazamiento).limit(limite))
         return list(filas), total or 0

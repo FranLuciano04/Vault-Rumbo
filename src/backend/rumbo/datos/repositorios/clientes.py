@@ -4,12 +4,8 @@ from sqlalchemy import func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from rumbo.datos.modelos import Cliente
-from rumbo.datos.repositorios.base import (
-    RepositorioBase,
-    Visibilidad,
-    nombre_normalizado,
-    normalizar,
-)
+from rumbo.datos.modelos.base import nombre_normalizado
+from rumbo.datos.repositorios.base import RepositorioBase, Visibilidad, normalizar
 
 MAX_PARECIDOS = 10
 

@@ -92,7 +92,7 @@ async def listar_destinos(
     pagina: PaginaDep,
     actor: ActorDep,
     sesion: SesionDep,
-    activo: bool | None = True,
+    activo: bool = True,
     buscar: str | None = None,
 ) -> Pagina[Destino]:
     """Por defecto solo los activos; `activo=false` trae los de baja."""

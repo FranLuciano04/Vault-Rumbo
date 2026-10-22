@@ -4,10 +4,10 @@ RequisitoDestino, Operador y Hotel."""
 import uuid
 from decimal import Decimal
 
-from sqlalchemy import CheckConstraint, ForeignKey, SmallInteger, String, Text, text
+from sqlalchemy import CheckConstraint, ForeignKey, Index, SmallInteger, String, Text, text
 from sqlalchemy.orm import Mapped, mapped_column
 
-from rumbo.datos.modelos.base import AuditoriaMixin, Base, IdMixin
+from rumbo.datos.modelos.base import AuditoriaMixin, Base, IdMixin, nombre_normalizado
 from rumbo.datos.modelos.enums import EstadoHotel, RolUsuario, TipoComision, TipoRequisito
 
 
@@ -60,6 +60,11 @@ class Destino(IdMixin, AuditoriaMixin, Base):
     region: Mapped[str | None] = mapped_column(String(80))
     activo: Mapped[bool] = mapped_column(server_default=text("true"))
     notas: Mapped[str | None] = mapped_column(Text)
+
+
+INDICE_NOMBRE_DESTINO = "destino_nombre_normalizado_uq"
+# Dos destinos no pueden llamarse igual sin importar tildes, mayúsculas ni espacios (RF-090).
+Index(INDICE_NOMBRE_DESTINO, nombre_normalizado(Destino.nombre), unique=True)
 
 
 class RequisitoDestino(IdMixin, AuditoriaMixin, Base):

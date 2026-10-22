@@ -3,25 +3,16 @@
 import uuid
 from typing import Any, ClassVar, Protocol
 
-from sqlalchemy import ColumnElement, Select, func, select
+from sqlalchemy import Select, select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import InstrumentedAttribute
 
 from rumbo.core.errores import NoEncontrado
-
-_CON_TILDE = "áéíóúüÁÉÍÓÚÜ"
-_SIN_TILDE = "aeiouuaeiouu"
+from rumbo.datos.modelos.base import CON_TILDE, SIN_TILDE
 
 
 def normalizar(texto: str) -> str:
     """Minúsculas, sin tildes y con los espacios colapsados; igual a `nombre_normalizado`."""
-    return " ".join(texto.lower().translate(str.maketrans(_CON_TILDE, _SIN_TILDE)).split())
-
-
-def nombre_normalizado(columna: InstrumentedAttribute[str]) -> ColumnElement[str]:
-    """Lo mismo que `normalizar`, evaluado en la base sobre una columna."""
-    sin_tildes = func.translate(func.lower(columna), _CON_TILDE.lower(), _SIN_TILDE)
-    return func.regexp_replace(func.btrim(sin_tildes), r"\s+", " ", "g")
+    return " ".join(texto.translate(str.maketrans(CON_TILDE, SIN_TILDE)).lower().split())
 
 
 class Visibilidad(Protocol):
