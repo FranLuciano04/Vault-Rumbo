@@ -29,33 +29,39 @@ export function Shell({ usuario, children }: { usuario: UsuarioActual; children:
             aria-label="Menú"
             aria-expanded={abierto}
             aria-controls={idMenu}
-            onClick={() => { setAbierto((v) => !v); }}
+            onClick={() => {
+              setAbierto((v) => !v);
+            }}
             className="rounded-md p-2 text-sidebar-foreground hover:bg-sidebar-accent md:hidden"
           >
             <IconoMenu aria-hidden="true" className="size-5" />
           </button>
         </div>
-        <div id={idMenu} className={cn("flex-col", abierto ? "flex" : "hidden md:flex")}>
-          <nav aria-label="Navegación principal" className="flex flex-col gap-1">
-            {seccionesVisibles(usuario).map(({ id, etiqueta, ruta, icono: Icono }) => (
-              <NavLink
-                key={id}
-                to={ruta}
-                onClick={() => { setAbierto(false); }}
-                className={({ isActive }) =>
-                  cn(
-                    "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-sidebar-foreground hover:bg-sidebar-accent",
-                    isActive &&
-                      "bg-sidebar-primary font-semibold text-sidebar-primary-foreground hover:bg-sidebar-primary",
-                  )
-                }
-              >
-                <Icono aria-hidden="true" className="size-4 shrink-0" />
-                {etiqueta}
-              </NavLink>
-            ))}
-          </nav>
-        </div>
+        <nav
+          id={idMenu}
+          aria-label="Navegación principal"
+          className={cn("flex-col gap-1", abierto ? "flex" : "hidden md:flex")}
+        >
+          {seccionesVisibles(usuario).map(({ id, etiqueta, ruta, icono: Icono }) => (
+            <NavLink
+              key={id}
+              to={ruta}
+              onClick={() => {
+                setAbierto(false);
+              }}
+              className={({ isActive }) =>
+                cn(
+                  "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-sidebar-foreground hover:bg-sidebar-accent",
+                  isActive &&
+                    "bg-sidebar-primary font-semibold text-sidebar-primary-foreground hover:bg-sidebar-primary",
+                )
+              }
+            >
+              <Icono aria-hidden="true" className="size-4 shrink-0" />
+              {etiqueta}
+            </NavLink>
+          ))}
+        </nav>
       </aside>
       <div className="flex min-w-0 flex-1 flex-col">
         <header className="flex items-center justify-end gap-3 border-b border-border px-6 py-3">
