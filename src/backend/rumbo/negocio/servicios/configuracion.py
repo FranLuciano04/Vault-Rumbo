@@ -124,7 +124,9 @@ async def listar_requisitos(
     desplazamiento: int,
     limite: int,
 ) -> tuple[list[RequisitoDestino], int]:
-    """Página de los requisitos activos de un destino, activo o no (CU-15, RF-086)."""
+    """Página de los requisitos activos de un destino (el destino puede estar de baja).
+
+    CU-15, RF-086."""
     await obtener_destino(sesion, actor, destino_id)
     return await _requisitos.paginar_activos(
         sesion,
