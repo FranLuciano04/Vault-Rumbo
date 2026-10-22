@@ -74,7 +74,10 @@ RF_POR_RUTA = {
 IDS = [f"{RF_POR_RUTA[(m, r)]} {m} {r}" for m, r, *_ in RUTAS]
 METODO_Y_RUTA = [(m, r) for m, r, *_ in RUTAS]
 CASOS_403 = [(m, r, rol) for m, r, roles, *_ in RUTAS for rol in TODOS if rol not in roles]
-CASOS_501 = [(m, r, rol) for m, r, roles, *_ in RUTAS for rol in roles]
+IMPLEMENTADAS = {("PUT", "/api/usuarios/{usuario_id}/comision-por-defecto")}  # T-030
+CASOS_501 = [
+    (m, r, rol) for m, r, roles, *_ in RUTAS for rol in roles if (m, r) not in IMPLEMENTADAS
+]
 
 Fabrica = Callable[[str], Awaitable[AsyncClient]]
 
@@ -337,14 +340,14 @@ async def test_rf083_comision_por_defecto_incoherente_responde_422(
         {"comision_default_tipo": "importe", "comision_default_valor": "15000.50"},
     ],
 )
-async def test_rf083_comision_por_defecto_coherente_llega_al_501(
+async def test_rf083_comision_por_defecto_coherente_pasa_la_validacion(
     cliente_como: Fabrica, cuerpo: dict[str, Any]
 ) -> None:
     c = await cliente_como("admin")
 
     r = await c.put(_url("/api/usuarios/{usuario_id}/comision-por-defecto"), json=cuerpo)
 
-    assert r.status_code == 501
+    assert r.status_code == 404  # pasó la validación (no es 422) y el usuario no existe
 
 
 @pytest.mark.parametrize(

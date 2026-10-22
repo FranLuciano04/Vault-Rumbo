@@ -5,7 +5,11 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends
 
+from rumbo.core.db import SesionDep
+from rumbo.datos import modelos
+from rumbo.negocio.servicios import configuracion
 from rumbo.presentacion.contrato import GESTION, TODOS, no_implementado, operacion
+from rumbo.presentacion.dependencias import usuario_actual
 from rumbo.presentacion.esquemas.configuracion import (
     ComisionPorDefecto,
     Configuracion,
@@ -55,10 +59,21 @@ async def editar_configuracion(datos: ConfiguracionEditar) -> Configuracion:
     **operacion(GESTION, "CU-13", 404, 422),
 )
 async def configurar_comision_por_defecto(
-    usuario_id: uuid.UUID, datos: ComisionPorDefecto
+    usuario_id: uuid.UUID,
+    datos: ComisionPorDefecto,
+    actor: Annotated[modelos.Usuario, Depends(usuario_actual)],
+    sesion: SesionDep,
 ) -> Usuario:
     """CU-13 (RF-083): no recalcula los viajes ya registrados (DEC-0013)."""
-    raise no_implementado()
+    tipo = datos.comision_default_tipo
+    usuario = await configuracion.configurar_comision_por_defecto(
+        sesion,
+        actor,
+        usuario_id,
+        tipo=None if tipo is None else modelos.TipoComision(tipo),
+        valor=datos.comision_default_valor,
+    )
+    return Usuario.model_validate(usuario)
 
 
 @router.get(

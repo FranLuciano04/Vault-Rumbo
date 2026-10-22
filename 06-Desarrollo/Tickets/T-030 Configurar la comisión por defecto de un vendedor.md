@@ -3,7 +3,7 @@ id: T-030
 titulo: Configurar la comisión por defecto de un vendedor
 modulo: M1 — Usuarios y configuración
 capa: backend
-estado: tomado
+estado: hecho
 depende_de: [T-026, T-012, T-011]
 tamaño: S
 riesgo: alto
@@ -49,3 +49,20 @@ Admin y dueña fijan la comisión por defecto de cada vendedor, como importe o c
 - Aplicar la comisión a un viaje (economía, M6).
 
 ## Notas de implementación
+- **Implementación (22/10/26, Francisco):**
+  - `negocio/servicios/configuracion.py` tiene `configurar_comision_por_defecto`:
+    - exige el rol admin o dueño con `exigir_rol`, además de la guardia de la ruta;
+    - busca con `visibilidad(actor)` y responde 404 si el usuario no existe;
+    - guarda el tipo y el valor como `Decimal`, o los dos en `None` para quitar la comisión;
+    - `updated_by` lo completa la auditoría de T-011;
+    - no toca viajes (RF-085).
+  - El router llama al servicio y devuelve `Usuario`. Ese esquema ahora tiene `from_attributes` y un validador que pasa los enums a texto. El OpenAPI no cambia.
+  - La validación (porcentaje entre 0 y 100, tipo y valor juntos, 2 decimales) sigue en el esquema `ComisionPorDefecto` (T-026) y en el CHECK de la base. No se duplica en negocio.
+- **Tests de otro ticket, con autorización de Francisco:** en `test_contrato_m1.py` (T-026), la ruta pasa a `IMPLEMENTADAS` y sale de `CASOS_501`. El test del cuerpo coherente ahora espera 404 en lugar de 501. Los tests de 401, 403 y contrato publicado no cambian.
+- **Review de seguridad (Sonnet): aprobable.** 0 bloqueantes, 0 importantes y 2 menores:
+  - Arreglado: el test del rol exigido por el servicio, en `tests/negocio/test_configuracion.py`. Se comprobó que falla si se quita `exigir_rol`.
+  - Pendiente #accion/decidir: hoy se puede fijar la comisión de un usuario inactivo, la del propio admin y la de la dueña. Es coherente con DEC-0005 y no da permisos de más. Falta que el equipo decida si un usuario dado de baja puede tener comisión.
+- **Hallazgo fuera de alcance:** el código (`politicas.py` y `dependencias.py`, desde T-012) usa RF-150 para el permiso por rol. En el catálogo, RF-150 es «asignar al freelance los clientes que crea» y el control por rol es RF-151. Conviene alinear las referencias en un ticket aparte.
+- **Medición de cobertura:** coverage no cuenta las líneas que siguen a un `await` en los servicios. Probablemente se arregla con `concurrency = ["greenlet", "thread"]` en `[tool.coverage.run]`. No afecta el umbral.
+- **Verificación:** 564 tests en verde; 97,4 % de cobertura total y 94 % en `negocio/`. Ruff y mypy pasan.
+- **Modelos:** tests con Sonnet; verde, refactor y fix con Opus; review con Sonnet. No hubo escalados.
