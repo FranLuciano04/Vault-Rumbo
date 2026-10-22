@@ -158,6 +158,18 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
   - En la consola de `rumbo-9ff17`, confirmar que el registro de cuentas esté deshabilitado.
   - La protección de `main` no se puede configurar: GitHub la pide con Pro para los repos privados.
 
+## 22/10/26 — Francisco (Claude Opus 5.5) — T-029: parámetros del negocio
+- **Hecho:** T-029 (capa backend, riesgo normal). `GET` y `PUT /api/configuracion` ya funcionan, solo para admin y dueña.
+  - Los parámetros son la vigencia de la cotización, la anticipación de la alerta de salida y los meses para el recontacto.
+  - `negocio/servicios/parametros.py` tiene tres funciones:
+    - `obtener(sesion)`: de uso interno y sin rol. **Es la que deben usar los demás módulos.**
+    - `ver(sesion, actor)` y `editar(sesion, actor, …)`: exigen rol.
+  - Las tres pasan por `RepositorioConfiguracion`, que lee la fila única sembrada por la migración 0001.
+  - La review (Opus) dejó 0 bloqueantes, 2 importantes y 3 menores, todos arreglados. Se salteó el paso de refactor porque el diff era chico.
+  - Pasan 598 tests y el PR [#35](https://github.com/FranLuciano04/Vault-Rumbo/pull/35) se mergeó con el CI en verde, con el procedimiento nuevo de `/implementar-ticket` 1.1.0.
+- **Commits:** 6dbf3cf, 5aaca35, d80c82d y 1228077.
+- **Pendiente:** nada.
+
 ## 22/10/26 — Francisco (Claude Opus 5.5) — Cierre de pendientes
 - **Decisiones de Francisco:**
   - **Comisión de usuarios dados de baja:** se permite, y también al propio admin y a la dueña. Queda anotado en la Revisión de CU-13 y se fija con tests en T-147.
