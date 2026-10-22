@@ -1,9 +1,10 @@
 """Esquemas de usuarios (CU-25, RF-144, RF-147, RF-148, DEC-0013, DEC-0016)."""
 
+import enum
 import uuid
 from decimal import Decimal
 
-from pydantic import Field
+from pydantic import ConfigDict, Field, field_validator
 
 from rumbo.presentacion.esquemas.comunes import Auditoria, Edicion, Entrada, TipoComision, omitible
 from rumbo.presentacion.esquemas.seguridad import Rol
@@ -21,6 +22,14 @@ class Usuario(Auditoria):
     acceso_redes: bool
     comision_default_tipo: TipoComision | None
     comision_default_valor: Decimal | None
+
+    model_config = ConfigDict(from_attributes=True)
+
+    @field_validator("rol", "comision_default_tipo", mode="before")
+    @classmethod
+    def _valor_del_enum(cls, valor: object) -> object:
+        """El modelo guarda los enums de la base; el contrato publica su valor en texto."""
+        return valor.value if isinstance(valor, enum.Enum) else valor
 
 
 class UsuarioCrear(Entrada):
