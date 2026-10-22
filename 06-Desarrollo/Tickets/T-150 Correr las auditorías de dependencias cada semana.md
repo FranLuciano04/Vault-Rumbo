@@ -3,7 +3,7 @@ id: T-150
 titulo: Correr las auditorías de dependencias cada semana
 modulo: M0 — Fundaciones
 capa: infra
-estado: libre
+estado: tomado
 depende_de: [T-019]
 tamaño: XS
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: haiku
 modelo_review: sonnet
 trazabilidad: [DEC-0001, RNF-03]
 origen: hallazgo T-019
-asignado:
-tomado_el:
-rama:
+asignado: Nahuel Viniegra
+tomado_el: 22/10/26 18:04
+rama: feature/T-150-correr-las-auditorias-de-dependencias-ca
 pr:
 ---
 # T-150 Correr las auditorías de dependencias cada semana
