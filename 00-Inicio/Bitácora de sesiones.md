@@ -49,6 +49,20 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
+## 22/10/26 — Nahuel (Claude Opus 5.5) — T-023: login mobile con email o Google
+- **Hecho:** tomó e implementó **T-023** (M0, mobile, riesgo alto; CU-24, RF-140/142/143, DEC-0016). Es el último ticket de M0.
+  - **Dependencia aprobada por Nahuel:** `@react-native-google-signin/google-signin`, sumada a la spec §3. También se agregaron `firebase` y AsyncStorage.
+  - Pantallas de login (52) y Más (59): email, Google, «olvidé mi contraseña» con mensaje neutro, `/auth/yo` con 401 → «usuario no habilitado» y cierre de sesión que vacía la caché.
+  - Se arregló un bug de T-022: había dos copias de React entre la app y `@rumbo/shared`, y por eso `useYo` real daba «Invalid hook call».
+  - **Desvíos:** los tests corrigieron la falta de `await` en `fireEvent` (RNTL 14), con autorización de Nahuel. No usan MSW, porque no carga bajo jest-expo. Mobile pasa a tener `testTimeout` de 20 s por la caché fría.
+  - **Review (Sonnet, seguridad):** 0 bloqueantes, 0 importantes y 2 menores; uno arreglado y el otro anotado en el ticket.
+  - **CI:** en verde. El PR [#40](https://github.com/FranLuciano04/Vault-Rumbo/pull/40) espera la aprobación de otro integrante (riesgo alto).
+- **Commits:** f74a33b, 15a3db1, 4c148a5, c8d35f8, f9b4dfe, 5955b0d.
+- **Pendiente:**
+  - Que otro integrante apruebe el PR #40; después, `/implementar-ticket T-023` para mergear.
+  - Probar en el development build. Falta configurar `EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID` y el SHA-1 (Android) y `GoogleService-Info.plist` (iOS).
+  - Menor de la review: `(pestanas)/_layout.tsx` no redirige si un refetch da 401 con el usuario en caché.
+
 ## 22/10/26 — Nahuel (Claude Opus 5.5) — T-150: auditorías de dependencias semanales
 - **Hecho:** tomó e implementó **T-150** (M0, infra, riesgo normal, DEC-0001, RNF-03; hallazgo de T-019).
   - Workflow nuevo `.github/workflows/auditoria-semanal.yml`: corre `pip-audit` y `pnpm audit --audit-level=high` los lunes a las 06:00 (hora de Buenos Aires), y también a mano con `workflow_dispatch`. Solo audita.
