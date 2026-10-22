@@ -3,7 +3,7 @@ id: T-149
 titulo: Guardar el usuario de Instagram del cliente
 modulo: M2 — Clientes
 capa: backend
-estado: tomado
+estado: hecho
 depende_de: [T-040]
 tamaño: S
 riesgo: normal
@@ -50,3 +50,25 @@ La ficha del [[Cliente]] guarda, de forma opcional, su usuario de Instagram ([[D
 - Buscar clientes por Instagram.
 
 ## Notas de implementación
+- **Implementación (22/10/26, Francisco):**
+  - Columna `cliente.instagram` (`varchar(30)`, nullable) con la migración 0003, reversible.
+  - Tipo reutilizable `Instagram` en `esquemas/clientes.py`: quita solo los espacios ASCII de los extremos y un `@` inicial, pasa a minúsculas, y lo que queda vacío o en «@» pasa a `null`. Después aplica la regex `^[a-z0-9._]{1,30}$`.
+  - En la salida (`Cliente`) el campo es requerido y anulable, como `preferencias`. En `ClienteCrear` y `ClienteEditar` es opcional.
+  - `registrar_cliente` lo guarda. Con `exclude_unset`, un PATCH sin `instagram` no lo borra: es lo que tiene que hacer T-042.
+  - En shared, `normalizarInstagram` (exportada) aplica la misma regla en el zod del alta y en los mocks. `openapi.json` y `tipos.gen.ts` están regenerados.
+- **Tests:**
+  - Quedaron en archivos aparte para no tocar los de T-040: `tests/api/test_clientes_instagram.py` y `src/esquemas/clientes-instagram.test.ts`.
+  - Con autorización de Francisco se sumó `instagram` a las columnas de `cliente` en `tests/test_modelos.py`. Las columnas posteriores a `rumbo.sql` vienen de migraciones nuevas, y el criterio vale para las próximas.
+- **Review (Opus): aprobable.** 0 bloqueantes, 0 importantes y 4 menores. Tres se arreglaron en el fix:
+  - el mismo conjunto de espacios en Pydantic y en zod, con el caso del BOM;
+  - `instagram` requerido en la salida (el test del rojo se corrigió con autorización);
+  - mocks normalizados.
+  - El cuarto (tests en un archivo aparte) queda anotado acá.
+- **Desvío del flujo:** se salteó el paso de refactor porque el diff era chico. La review no encontró simplificaciones que valieran la pena.
+- **Verificación:**
+  - backend: 668 tests, ruff y mypy limpios;
+  - shared: 107 tests, lint y typecheck;
+  - web: typecheck;
+  - el contrato y los tipos coinciden con lo generado.
+- **Para el equipo:** correr `uv run alembic upgrade head` (migración 0003).
+- **Modelos:** tests, verde y fix con Sonnet; review con Opus. No hubo escalados.
