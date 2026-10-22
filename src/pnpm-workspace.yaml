@@ -29,7 +29,7 @@ minimumReleaseAgeExclude:
 # Seguridad (T-019): `pnpm audit --audit-level=high` corre en el CI del job `web`.
 overrides:
   # GHSA-m9gg-hp2v-232j (alta, con parche): @grpc/grpc-js < 1.13.6 llega a la web por Firebase Firestore.
-  "@grpc/grpc-js": ">=1.13.6"
+  "@grpc/grpc-js": "^1.13.6"
 audit:
   ignore:
     # GHSA-86w9-cpqp-85rv (alta, sin parche en ninguna versión): node-forge entra por el CLI de Expo,

@@ -163,7 +163,7 @@ settings:
   excludeLinksFromLockfile: false
 
 overrides:
-  '@grpc/grpc-js': '>=1.13.6'
+  '@grpc/grpc-js': ^1.13.6
 
 importers:
 

@@ -244,28 +244,10 @@ jobs:
         if: always()
         run: docker compose -p rumbo-e2e -f docker-compose.yml -f docker-compose.e2e.yml down -v --remove-orphans
 
-  # Sin filtro de carpetas: un secreto puede estar en el vault (`06-Desarrollo/`, `05-Diseño/`, …).
-  # Revisa todos los commits del PR (el checkout de un PR es el merge, así que incluye todo `main`).
+  # Sin filtro de carpetas: un secreto puede estar en el vault. El job vive en `secretos.yml`, que
+  # también corre en push a `main`; aquí se llama para que `ci-ok` lo exija en cada PR.
   secretos:
-    name: Secretos (gitleaks)
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0 # gitleaks recorre el historial completo, no solo el último commit
-      - name: Instalar gitleaks (versión y sha256 fijos)
-        env:
-          GITLEAKS_VERSION: "8.30.1"
-          GITLEAKS_SHA256: "551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb"
-        run: |
-          set -euo pipefail
-          curl -sSfL -o gitleaks.tar.gz "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz"
-          echo "${GITLEAKS_SHA256}  gitleaks.tar.gz" | sha256sum --check --strict
-          tar -xzf gitleaks.tar.gz gitleaks
-          sudo install gitleaks /usr/local/bin/gitleaks
-      - name: Escanear el repo completo, vault incluido
-        run: gitleaks git --config .gitleaks.toml --redact --no-banner --verbose .
+    uses: ./.github/workflows/secretos.yml
 
   # Semgrep corre en la imagen con la versión fijada (no se instala en el runner). Solo falla con
   # severidad ERROR (alta). Un falso positivo se silencia con `# nosemgrep: <regla>` y su motivo.

@@ -6,8 +6,8 @@
 # FALSOS POSITIVOS: agregar una entrada en [allowlist] con un motivo en `description` y acotarla
 # (por `regexes` o `paths`) para no silenciar más de lo necesario. Nunca dejar un secreto real
 # en el archivo ni en el historial para «silenciarlo»: hay que rotarlo.
-# Ejemplo, desactivado:
-# [allowlist]
+# Ejemplo, desactivado (sintaxis vigente: `[[allowlists]]`, un bloque por excepción):
+# [[allowlists]]
 # description = "Contraseña descartable de la base de tests del CI (ci.yml)"
 # regexes = ['''rumbo-ci-descartable''']
 # paths = ['''^\.github/workflows/ci\.yml$''']
