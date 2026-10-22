@@ -12,11 +12,15 @@ actualizado: 13/10/26
 ## Fase actual
 > 🚀 **12/10 — arranca la implementación.** El equipo aprobó [[DEC-0014 Flujo de implementación con agentes]]: tickets con semáforo en Git, TDD con subagentes, review de Codex en cada módulo y código en `src/`. ✅ **Paso 1 hecho:** skills (`/tomar-ticket`, `/implementar-ticket`, `/cerrar-modulo` y 13 de Addy Osmani), subagentes, script de tickets, [[Flujo de implementación]], [[Tablero de tickets]] y [[Grafo de tickets]]. ✅ **Paso 2 (13/10):** grill con el equipo → [[DEC-0015 Decisiones de implementación]], y la autenticación pasó a Firebase con [[DEC-0016 Autenticación con Firebase]]. ✅ **Paso 3 (13/10):** [[Spec de implementación]] aprobada y formalizada; [[Plan de implementación]] (aprobado el 14/10) con **139 tickets** en el [[Grafo de tickets]]. ⏭️ **Ahora:** empezar con `/tomar-ticket` (disponibles: T-001, T-002, T-004 y T-005, el proyecto de Firebase). Meta mínima del PC2: M0 a M6; primero los 79 tickets del camino de CU-01 (T-108). Después, hasta donde lleguemos.
 >
+> 👉 **22/10 (Paloma):** **T-040** (alta de clientes con detección de duplicados) está hecho y mergeado (PR [#34](https://github.com/FranLuciano04/Vault-Rumbo/pull/34)). Destraba 11 tickets. Para la sync: ¿al `freelance` hay que avisarle de duplicados de otros asesores? ⚠️ `main` no tiene checks obligatorios, así que `--auto` mergea sin esperar el CI.
+>
 > 👉 **22/10 (Paloma):** **T-039** (contrato de clientes) está hecho y mergeado (PR [#31](https://github.com/FranLuciano04/Vault-Rumbo/pull/31)). Destraba 21 tickets de M2. Queda en revisión [[DEC-0017 Contacto mínimo del cliente]], para ratificar en la sync.
 >
 > 👉 **21/10 (Paloma):** **T-142** (barra lateral web colapsable en pantallas angostas, con foco visible) está hecho y mergeado (PR [#28](https://github.com/FranLuciano04/Vault-Rumbo/pull/28)).
 >
 > 👉 **21/10 (Paloma):** **T-141** (íconos de la barra lateral web, como en el prototipo) está hecho y mergeado (PR [#27](https://github.com/FranLuciano04/Vault-Rumbo/pull/27)).
+>
+> 👉 **22/10 (Francisco):** **T-030** (comisión por defecto del vendedor) está hecho. Es de ⚠️ riesgo alto: el PR [#33](https://github.com/FranLuciano04/Vault-Rumbo/pull/33) ya está **aprobado por Paloma** y espera el merge de Francisco. Con el merge se destraban 17 tickets.
 >
 > 👉 **22/10 (Francisco):** **T-026** (contrato de M1: usuarios y configuración) está hecho y mergeado (PR [#32](https://github.com/FranLuciano04/Vault-Rumbo/pull/32)). Destraba 36 tickets. ⚡ Pasen `localhost` a `127.0.0.1` en `src/backend/.env`: la suite de backend baja de unos 14 min a unos 80 s.
 >

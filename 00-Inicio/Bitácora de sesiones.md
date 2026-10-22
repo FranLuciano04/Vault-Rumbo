@@ -24,6 +24,13 @@ La **persona** de cada sesión es quien la corre, identificada por su identidad 
 ## Avisos pendientes por persona
 > Claude los lee al identificar a la persona (paso 1 de `CLAUDE.md`) y se los cuenta **apenas la saluda**, antes de cualquier otra tarea. Cuando la persona confirme que lo leyó o que lo hizo, **Claude borra su fila** en esa misma sesión, con un commit. Cuando no quede ninguna fila de alguien, se borra también su sección.
 
+### Nahuel (`Nahuel Viniegra`) — T-030
+- **22/10, de Francisco: PR [#33](https://github.com/FranLuciano04/Vault-Rumbo/pull/33)** (T-030, comisión por defecto, ⚠️ riesgo alto).
+  - ✅ Paloma ya lo aprobó (22/10): no hace falta tu aprobación; Francisco lo mergea.
+  - La review de seguridad lo dio aprobable. Con el merge se destraban 17 tickets.
+  - **Decisión pendiente:** ¿un usuario dado de baja puede tener comisión por defecto? Hoy se permite, y también al propio admin y a la dueña.
+  - **Nuevo en los tests:** las rutas de M1 que se implementan pasan a `IMPLEMENTADAS` en `tests/api/test_contrato_m1.py`, así dejan de esperar el 501.
+
 ### Nahuel (`Nahuel Viniegra`) — `localhost` en el `.env`
 - **22/10, de Paloma: tests de backend lentos en Windows por `localhost`** (T-039, PR [#31](https://github.com/FranLuciano04/Vault-Rumbo/pull/31)).
   - Con `localhost` en `TEST_DATABASE_URL` y en `DATABASE_URL`, cada conexión a Postgres tardaba 2 s, porque Windows prueba IPv6 primero. La suite de backend pasaba de unos 65 s a 31 min, con algún timeout.
@@ -41,6 +48,19 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Commits:** <hash>, <hash>
 - **Pendiente:** …
 ```
+
+## 22/10/26 — Paloma (Claude Opus 5.5) — T-040: registrar clientes detectando duplicados
+- **Hecho:** aprobó el PR [#33](https://github.com/FranLuciano04/Vault-Rumbo/pull/33) (T-030). Tomó e implementó **T-040** (M2, backend, riesgo normal; CU-02, RF-001/002/003/150).
+  - `POST /api/clientes`: 422 si faltan los datos mínimos, 409 con hasta 10 candidatos ante un posible duplicado (mismo contacto, o mismo nombre sin distinguir mayúsculas, tildes ni espacios de más) y alta con `confirmar_duplicado: true`. El `freelance` siempre queda como asesor.
+  - `ErrorDeDominio` ahora lleva un `extra` genérico para el problem+json, y se sumó `DatosInvalidos` (422 sobre un campo).
+  - `tests/api/test_contrato_m2.py` suma `IMPLEMENTADAS`, con la autorización de Paloma.
+  - **Review (Opus):** 0 bloqueantes, 4 importantes y 2 menores. Se arreglaron los 4 importantes y el tope de candidatos.
+  - **CI:** todo en verde. El PR [#34](https://github.com/FranLuciano04/Vault-Rumbo/pull/34) quedó mergeado. Con eso se destraban 11 tickets.
+- **Commits:** ced7d99, cbcc7a7, e2f774c, daebb28, ac1f359 (merge 5b2ddc8).
+- **Pendiente:**
+  - Decidir en la sync si al `freelance` hay que avisarle de duplicados de otros asesores. Hoy no los ve, por visibilidad.
+  - Validar el formato del contacto, normalizar teléfonos y aplicar similitud difusa de nombres. Dependen de [[DEC-0017 Contacto mínimo del cliente]].
+  - ⚠️ `main` no tiene checks obligatorios. `gh pr merge --auto` mergea al instante, sin esperar el CI. Esta vez el CI pasó después del merge.
 
 ## 22/10/26 — Nahuel (Claude Opus 5.5) — T-019: análisis de seguridad en el CI
 - **Hecho:** T-019 (capa infra, riesgo normal, DEC-0001, RNF-03).
@@ -125,6 +145,22 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
   - ✅ Arreglado en la misma sesión: en Windows con WSL, `tickets.mjs fase --test` usaba el `bash` de WSL, que falla sin correr nada, y así un rojo pasaba sin tests. Ahora usa el bash de Git (lo deduce de `git --exec-path`) y, si bash no arranca, cae a la shell del sistema.
   - En la consola de `rumbo-9ff17`, confirmar que el registro de cuentas esté deshabilitado.
   - La protección de `main` no se puede configurar: GitHub la pide con Pro para los repos privados.
+
+## 22/10/26 — Francisco (Claude Opus 5.5) — T-030: comisión por defecto del vendedor
+- **Hecho:** T-030 (capa backend, ⚠️ riesgo alto). `PUT /api/usuarios/{id}/comision-por-defecto` ya guarda la comisión o la quita.
+  - Solo admin y dueña.
+  - El valor se guarda como `Decimal` exacto.
+  - Un usuario inexistente da 404.
+  - `updated_by` queda con el autor del cambio.
+  - No toca los viajes existentes (RF-085).
+- **Tests de T-026:** con autorización de Francisco, `test_contrato_m1.py` pasa esa ruta a `IMPLEMENTADAS`, fuera de los casos que esperan 501. Los próximos tickets de M1 suman su ruta ahí.
+- **Review de seguridad (Sonnet): aprobable,** con 0 bloqueantes y 0 importantes. De los 2 menores, uno se arregló: el test del rol exigido por el servicio. El otro queda a decidir (ver abajo).
+- **Verificación:** 564 tests en verde, con 97,4 % de cobertura total y 94 % en `negocio/`.
+- **Commits:** 5e4ea83, 487b5fe, d28cd1e y 6357ee8. El PR [#33](https://github.com/FranLuciano04/Vault-Rumbo/pull/33) **espera la aprobación de Nahuel o Paloma**.
+- **Pendiente:**
+  - Que alguien apruebe el PR #33.
+  - Decidir si un usuario dado de baja puede tener comisión por defecto. Hoy se permite, y también al propio admin y a la dueña.
+  - Hallazgo: el código usa RF-150 para el permiso por rol (desde T-012), pero en el catálogo RF-150 es otro requisito y el permiso por rol es RF-151. Falta un ticket que lo alinee.
 
 ## 22/10/26 — Francisco (Claude Opus 5.5) — T-026: contrato de usuarios y configuración
 - **Hecho:** T-026 (capa contrato, riesgo normal). Abre M1 y destraba 36 tickets.
