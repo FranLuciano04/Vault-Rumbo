@@ -3,7 +3,7 @@ id: T-040
 titulo: Registrar clientes detectando duplicados
 modulo: M2 — Clientes
 capa: backend
-estado: libre
+estado: tomado
 depende_de: [T-039, T-012, T-011]
 tamaño: M
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [CU-02, RF-001, RF-002, RF-003, RF-150]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: palomap2003
+tomado_el: 22/10/26 16:27
+rama: feature/T-040-registrar-clientes-detectando-duplicados
 pr:
 ---
 # T-040 Registrar clientes detectando duplicados
