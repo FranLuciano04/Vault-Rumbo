@@ -5,7 +5,10 @@ from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends, Query
 
+from rumbo.core.db import SesionDep
+from rumbo.datos import modelos
 from rumbo.datos.modelos import SegmentoCliente
+from rumbo.negocio.servicios import clientes
 from rumbo.presentacion.dependencias import usuario_actual
 from rumbo.presentacion.errores import no_implementado
 from rumbo.presentacion.esquemas.clientes import (
@@ -65,8 +68,17 @@ async def buscar_clientes(
         409: {"model": ProblemaDuplicado, "description": "Posible cliente duplicado (CU-02 A1)."}
     },
 )
-async def registrar_cliente(datos: ClienteCrear) -> Cliente:
-    raise no_implementado()
+async def registrar_cliente(
+    datos: ClienteCrear,
+    actor: Annotated[modelos.Usuario, Depends(usuario_actual)],
+    sesion: SesionDep,
+) -> Cliente:
+    cliente = await clientes.registrar_cliente(
+        sesion,
+        actor,
+        **datos.model_dump(),
+    )
+    return Cliente.model_validate(cliente)
 
 
 @router.get(

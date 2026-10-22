@@ -184,8 +184,12 @@ async def test_rf031_sin_token_responde_401_problem_json(
     assert r.headers["content-type"].startswith(PROBLEM_JSON)
 
 
+IMPLEMENTADAS = {("post", "/api/clientes")}  # T-040
+OPERACIONES_501 = [op for op in OPERACIONES if op[:2] not in IMPLEMENTADAS]
+
+
 @pytest.mark.parametrize("rol", ROLES)
-@pytest.mark.parametrize(("metodo", "ruta", "cuerpo"), OPERACIONES)
+@pytest.mark.parametrize(("metodo", "ruta", "cuerpo"), OPERACIONES_501)
 async def test_rf031_con_token_de_cualquier_rol_responde_501_problem_json(
     cliente_como: FabricaCliente,
     rol: str,

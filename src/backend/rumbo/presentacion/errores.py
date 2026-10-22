@@ -11,10 +11,12 @@ from rumbo.negocio.errores import (
     Conflicto,
     ErrorDeDominio,
     NoEncontrado,
+    PosibleDuplicado,
     ServicioExterno,
     SinPermiso,
     TransicionInvalida,
 )
+from rumbo.presentacion.esquemas.clientes import Cliente
 from rumbo.presentacion.esquemas.comunes import ErrorCampo
 
 logger = logging.getLogger(__name__)
@@ -68,6 +70,12 @@ async def _error_de_dominio(request: Request, exc: Exception) -> JSONResponse:
     return _problema(estado, error.detalle)
 
 
+async def _posible_duplicado(_: Request, exc: Exception) -> JSONResponse:
+    error = cast(PosibleDuplicado, exc)
+    duplicados = [Cliente.model_validate(c) for c in error.duplicados]
+    return _problema(409, error.detalle, duplicados=jsonable_encoder(duplicados))
+
+
 async def _error_http(_: Request, exc: Exception) -> JSONResponse:
     error = cast(StarletteHTTPException, exc)
     detalle = (
@@ -98,6 +106,7 @@ async def _error_no_controlado(_: Request, exc: Exception) -> JSONResponse:
 
 def registrar_manejadores(app: FastAPI) -> None:
     app.add_exception_handler(ErrorDeDominio, _error_de_dominio)
+    app.add_exception_handler(PosibleDuplicado, _posible_duplicado)
     app.add_exception_handler(StarletteHTTPException, _error_http)
     app.add_exception_handler(RequestValidationError, _error_de_validacion)
     app.add_exception_handler(Exception, _error_no_controlado)
