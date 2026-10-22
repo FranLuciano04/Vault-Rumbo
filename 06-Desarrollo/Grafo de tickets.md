@@ -15,7 +15,7 @@ tags:: #tipo/referencia
 | Módulo | Tickets | Hechos | Tomados | Disponibles | Esperando | Bloqueados | Estado del módulo |
 |---|---|---|---|---|---|---|---|
 | M0 — Fundaciones | 32 | 30 | 1 | 1 | 0 | 0 | 🛠️ en curso |
-| M1 — Usuarios y configuración | 16 | 3 | 0 | 6 | 7 | 0 | 🛠️ en curso |
+| M1 — Usuarios y configuración | 16 | 3 | 1 | 5 | 7 | 0 | 🛠️ en curso |
 | M2 — Clientes | 12 | 2 | 0 | 4 | 6 | 0 | 🛠️ en curso |
 | M3 — Alertas | 11 | 0 | 0 | 2 | 9 | 0 | 🛠️ en curso |
 | M4 — Oportunidades y cotizaciones | 14 | 0 | 0 | 1 | 13 | 0 | 🛠️ en curso |
@@ -72,7 +72,7 @@ flowchart LR
     T028["T-028 · Editar el rol de un usuario protegiendo al último admin<br/><small>backend · ⚠️ riesgo alto</small>"]:::esperando
     T029["T-029 · Editar los parámetros del negocio<br/><small>backend</small>"]:::hecho
     T030["T-030 · Configurar la comisión por defecto de un vendedor<br/><small>backend · ⚠️ riesgo alto</small>"]:::hecho
-    T031["T-031 · Gestionar el catálogo de destinos<br/><small>backend</small>"]:::disponible
+    T031["T-031 · Gestionar el catálogo de destinos<br/><small>backend</small><br/>👤 FranLucianoo"]:::tomado
     T032["T-032 · Configurar los requisitos de cada destino<br/><small>backend</small>"]:::esperando
     T033["T-033 · Gestionar el catálogo de operadores<br/><small>backend</small>"]:::esperando
     T034["T-034 · Configurar los parámetros del negocio en la web<br/><small>web</small>"]:::disponible

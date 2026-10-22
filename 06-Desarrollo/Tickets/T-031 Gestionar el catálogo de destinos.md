@@ -3,7 +3,7 @@ id: T-031
 titulo: Gestionar el catálogo de destinos
 modulo: M1 — Usuarios y configuración
 capa: backend
-estado: libre
+estado: tomado
 depende_de: [T-026, T-012, T-011]
 tamaño: M
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [CU-26, RF-089, RF-090, RF-091, RF-092, RF-153, DEC-0006]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: FranLucianoo
+tomado_el: 22/10/26 18:07
+rama: feature/T-031-gestionar-el-catalogo-de-destinos
 pr:
 ---
 # T-031 Gestionar el catálogo de destinos
