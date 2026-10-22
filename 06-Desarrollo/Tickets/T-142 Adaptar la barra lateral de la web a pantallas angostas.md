@@ -3,7 +3,7 @@ id: T-142
 titulo: Adaptar la barra lateral de la web a pantallas angostas
 modulo: M0 — Fundaciones
 capa: web
-estado: tomado
+estado: hecho
 depende_de: [T-020]
 tamaño: S
 riesgo: normal
@@ -45,3 +45,12 @@ El shell web se puede usar en una ventana angosta o en una tablet. La barra late
 - Los íconos de la navegación (T-141).
 
 ## Notas de implementación
+- Debajo de `md`, la barra se apila arriba con el logo y un botón «Menú». El botón lleva `md:hidden`, `aria-expanded` y `aria-controls`, que apunta al `id` de la `nav`. La `nav` usa `hidden md:flex` cuando está cerrada, y elegir una sección la cierra. Desde `md` se ve como en T-020 y T-141.
+- **Corrección del rojo:** un test afirmaba que el empleado no ve Dashboard, pero eso contradice `navegacion.ts` y `App.shell.test.tsx` de T-020: solo Reportes y Configuración son de admin. Lo corrigió el `test-writer` en el commit del verde, con `--tocar-tests` autorizado por el orquestador.
+- **Fuera de los criterios, con aprobación de Paloma:** foco visible (`focus-visible:ring-sidebar-ring`) en los enlaces y en el botón. Era un menor pendiente de T-141.
+- Review (Opus): 0 bloqueantes, 0 importantes y 4 menores.
+  - Arreglados: Escape cierra el menú y devuelve el foco al botón (con su test), y el header suma `flex-wrap` y `px-4 md:px-6` para los 320 px.
+  - Pendientes:
+    - Si se abre el menú, se agranda la ventana a `md` o más y se vuelve a achicar, el menú reaparece abierto.
+    - Ningún test cubre el ancho y el borde desde `md` (`md:w-60`, `md:border-r`), porque jsdom no aplica media queries. Se verifica mirando el navegador.
+- Modelos: tests con Sonnet, implementación, refactor y fix con Sonnet, review con Opus. No hubo escalado.
