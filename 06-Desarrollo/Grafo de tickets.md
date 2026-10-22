@@ -15,7 +15,7 @@ tags:: #tipo/referencia
 | Módulo | Tickets | Hechos | Tomados | Disponibles | Esperando | Bloqueados | Estado del módulo |
 |---|---|---|---|---|---|---|---|
 | M0 — Fundaciones | 31 | 29 | 1 | 1 | 0 | 0 | 🛠️ en curso |
-| M1 — Usuarios y configuración | 13 | 0 | 0 | 1 | 12 | 0 | 🛠️ en curso |
+| M1 — Usuarios y configuración | 13 | 0 | 1 | 0 | 12 | 0 | 🛠️ en curso |
 | M2 — Clientes | 11 | 0 | 1 | 0 | 10 | 0 | 🛠️ en curso |
 | M3 — Alertas | 11 | 0 | 0 | 2 | 9 | 0 | 🛠️ en curso |
 | M4 — Oportunidades y cotizaciones | 14 | 0 | 0 | 1 | 13 | 0 | 🛠️ en curso |
@@ -66,7 +66,7 @@ flowchart LR
     T145["T-145 · Responder un error controlado si falta el proyecto de Firebase<br/><small>backend · ⚠️ riesgo alto</small>"]:::hecho
   end
   subgraph M1["M1 — Usuarios y configuración"]
-    T026["T-026 · Publicar el contrato de usuarios y configuración<br/><small>contrato</small>"]:::disponible
+    T026["T-026 · Publicar el contrato de usuarios y configuración<br/><small>contrato</small><br/>👤 FranLucianoo"]:::tomado
     T027["T-027 · Dar de alta usuarios con su cuenta de Firebase<br/><small>backend · ⚠️ riesgo alto</small>"]:::esperando
     T028["T-028 · Editar el rol de un usuario protegiendo al último admin<br/><small>backend · ⚠️ riesgo alto</small>"]:::esperando
     T029["T-029 · Editar los parámetros del negocio<br/><small>backend</small>"]:::esperando

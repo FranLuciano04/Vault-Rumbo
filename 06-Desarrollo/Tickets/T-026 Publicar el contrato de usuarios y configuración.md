@@ -3,7 +3,7 @@ id: T-026
 titulo: Publicar el contrato de usuarios y configuración
 modulo: M1 — Usuarios y configuración
 capa: contrato
-estado: libre
+estado: tomado
 depende_de: [T-015]
 tamaño: M
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [CU-25, CU-13, CU-26, CU-15, CU-31, DEC-0013, DEC-0016]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: FranLucianoo
+tomado_el: 21/10/26 22:09
+rama: feature/T-026-publicar-el-contrato-de-usuarios-y-confi
 pr:
 ---
 # T-026 Publicar el contrato de usuarios y configuración
