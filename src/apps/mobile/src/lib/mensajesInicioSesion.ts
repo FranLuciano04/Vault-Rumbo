@@ -20,6 +20,10 @@ const porCodigo: Record<string, string | null> = {
   "auth/admin-restricted-operation": NO_HABILITADO,
   "auth/too-many-requests": "Demasiados intentos. Esperá unos minutos y volvé a probar.",
   "auth/network-request-failed": "No hay conexión. Revisá tu internet y volvé a probar.",
+  // `statusCodes.PLAY_SERVICES_NOT_AVAILABLE` de google-signin (el valor nativo es el mismo texto):
+  // se usa el literal para no cargar el módulo nativo desde acá.
+  PLAY_SERVICES_NOT_AVAILABLE:
+    "Este teléfono no tiene los servicios de Google Play necesarios para entrar con Google.",
   // La persona cerró el selector de cuentas de Google: no es un error que haya que mostrar.
   SIGN_IN_CANCELLED: null,
 };
