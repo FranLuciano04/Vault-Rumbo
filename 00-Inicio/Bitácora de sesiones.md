@@ -91,8 +91,8 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
   - **Desvío autorizado:** `concurrency = ["greenlet", "thread"]` en la cobertura. Adelanta **T-148**: sin eso, `negocio/` daba 79,93 % y fallaba el CI; ahora da 99 %.
   - **CI:** todo en verde antes del merge. El PR [#39](https://github.com/FranLuciano04/Vault-Rumbo/pull/39) quedó mergeado y destraba 7 tickets.
 - **Commits (2):** 194ab4f, 8fa63f9, 5e4b10d, 483ff3b, 6833514.
+- **Hecho (3):** **T-148** cerrado verificando. Se confirmó que la cobertura ya sigue los `await`: `negocio/` da 99 % y el backend 99 %. El PR [#41](https://github.com/FranLuciano04/Vault-Rumbo/pull/41) quedó mergeado; solo trae las notas del ticket.
 - **Pendiente (2):**
-  - Cerrar T-148 solo verificando: ya está hecho en `pyproject.toml`.
   - Tomar T-151.
   - Decidir si se puede editar un requisito dado de baja: hoy responde 200.
 
