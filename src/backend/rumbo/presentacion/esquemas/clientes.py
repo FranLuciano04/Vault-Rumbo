@@ -13,11 +13,15 @@ Nombre = Annotated[str, Field(min_length=1, max_length=120)]
 Contacto = Annotated[str, Field(min_length=1, max_length=200)]
 
 
+# Solo espacios ASCII, el mismo conjunto que quita el esquema zod del alta.
+_ESPACIOS = " \t\n\r\f\v"
+
+
 def _normalizar_instagram(valor: Any) -> Any:
     """Quita espacios y un `@` inicial y pasa a minúsculas; lo que queda vacío es `None`."""
     if not isinstance(valor, str):
         return valor
-    return valor.strip().removeprefix("@").lower() or None
+    return valor.strip(_ESPACIOS).removeprefix("@").lower() or None
 
 
 # Usuario de Instagram (DEC-0017): dato extra opcional, no cuenta como contacto mínimo.
@@ -34,7 +38,7 @@ class Cliente(Auditoria):
     id: uuid.UUID
     nombre: Nombre
     contacto: Contacto
-    instagram: Instagram = None
+    instagram: Instagram
     segmento: SegmentoCliente
     etiquetas: list[str]
     preferencias: str | None

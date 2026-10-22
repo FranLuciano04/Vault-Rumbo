@@ -9,9 +9,16 @@ const esContactoValido = (contacto: string) =>
   z.email().safeParse(contacto).success || TELEFONO.test(contacto);
 
 /** Usuario de Instagram (DEC-0017): sin `@` inicial ni espacios, en minúsculas; vacío es `null`. */
+export const normalizarInstagram = (valor: unknown) =>
+  typeof valor === "string"
+    ? valor
+        .replace(/^[ \t\n\r\f\v]+|[ \t\n\r\f\v]+$/g, "")
+        .replace(/^@/, "")
+        .toLowerCase() || null
+    : valor;
+
 const instagram = z.preprocess(
-  (valor) =>
-    typeof valor === "string" ? valor.trim().replace(/^@/, "").toLowerCase() || null : valor,
+  normalizarInstagram,
   z
     .string()
     .regex(/^[a-z0-9._]{1,30}$/, "Usá letras, números, puntos o guiones bajos (hasta 30).")

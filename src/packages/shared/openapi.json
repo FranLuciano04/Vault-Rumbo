@@ -2771,6 +2771,7 @@
           "id",
           "nombre",
           "contacto",
+          "instagram",
           "segmento",
           "etiquetas",
           "preferencias",

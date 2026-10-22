@@ -1,5 +1,6 @@
 import { http, HttpResponse, type RequestHandler } from "msw";
 import type { Cliente, ClienteCrear, ClienteEditar, HistorialCliente } from "../cliente";
+import { normalizarInstagram } from "../esquemas/clientes";
 import { usuariosPorRol } from "./index";
 import { respuestaProblema } from "./problema";
 
@@ -136,7 +137,7 @@ export const manejadoresClientes: RequestHandler[] = [
       id: crypto.randomUUID(),
       nombre: datos.nombre,
       contacto: datos.contacto,
-      instagram: datos.instagram ?? null,
+      instagram: (normalizarInstagram(datos.instagram) as string | null | undefined) ?? null,
       segmento: datos.segmento,
       etiquetas: datos.etiquetas ?? [],
       preferencias: datos.preferencias ?? null,
@@ -159,7 +160,11 @@ export const manejadoresClientes: RequestHandler[] = [
     const cliente = clientesMock.find((c) => c.id === params["id"]);
     if (!cliente) return noEncontrado();
     const cambios = (await request.json()) as ClienteEditar;
-    return HttpResponse.json({ ...cliente, ...cambios });
+    const normalizados =
+      "instagram" in cambios
+        ? { ...cambios, instagram: normalizarInstagram(cambios.instagram) as string | null }
+        : cambios;
+    return HttpResponse.json({ ...cliente, ...normalizados });
   }),
 
   http.get(`${BASE}/:id/historial`, ({ params }) => {

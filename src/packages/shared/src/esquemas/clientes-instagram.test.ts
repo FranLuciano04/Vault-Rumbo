@@ -36,12 +36,18 @@ describe("RF-001 instagram del cliente en el esquema zod del alta (T-149, DEC-00
     expect(r.data).toHaveProperty("instagram", null);
   });
 
-  it.each(["viajes ana", "ana-01", "ana!", "ñandú", "@@ana", "ana@mail.test", "a".repeat(31)])(
-    "RF-001 rechaza el formato inválido %j",
-    (crudo) => {
-      expect(esquemaAltaCliente.safeParse({ ...valido, instagram: crudo }).success).toBe(false);
-    },
-  );
+  it.each([
+    "viajes ana",
+    "ana-01",
+    "ana!",
+    "ñandú",
+    "@@ana",
+    "ana@mail.test",
+    "a".repeat(31),
+    "\uFEFFana",
+  ])("RF-001 rechaza el formato inválido %j", (crudo) => {
+    expect(esquemaAltaCliente.safeParse({ ...valido, instagram: crudo }).success).toBe(false);
+  });
 
   it("RF-002 el instagram solo no alcanza como contacto mínimo", () => {
     const sinContacto = { nombre: "Ana Pérez", segmento: "pareja", instagram: "ana_01" };

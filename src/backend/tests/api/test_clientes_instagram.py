@@ -81,7 +81,7 @@ async def test_rf001_instagram_se_normaliza(
 
 @pytest.mark.parametrize(
     "crudo",
-    ["viajes ana", "ana-01", "ana!", "ñandú", "@@ana", "ana@mail.test", "a" * 31],
+    ["viajes ana", "ana-01", "ana!", "ñandú", "@@ana", "ana@mail.test", "a" * 31, "\ufeffana"],
 )
 async def test_rf001_instagram_con_formato_invalido_422(
     cliente_como: FabricaCliente, sesion: AsyncSession, crudo: str
@@ -138,7 +138,8 @@ async def test_rf001_contrato_publica_instagram_opcional_y_anulable(
 
     propiedad = definicion["properties"].get("instagram")
     assert propiedad is not None, f"{esquema} no publica `instagram`"
-    assert "instagram" not in definicion.get("required", [])
+    # En la salida (`Cliente`) siempre viene; en las entradas es opcional.
+    assert ("instagram" in definicion.get("required", [])) == (esquema == "Cliente")
     tipos = [t.get("type") for t in propiedad.get("anyOf", [])] + [propiedad.get("type")]
     assert "string" in tipos
     assert "null" in tipos

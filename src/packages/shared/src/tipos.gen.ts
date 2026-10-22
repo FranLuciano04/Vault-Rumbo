@@ -562,7 +562,7 @@ export interface components {
             /** Contacto */
             contacto: string;
             /** Instagram */
-            instagram?: string | null;
+            instagram: string | null;
             segmento: components["schemas"]["SegmentoCliente"];
             /** Etiquetas */
             etiquetas: string[];
