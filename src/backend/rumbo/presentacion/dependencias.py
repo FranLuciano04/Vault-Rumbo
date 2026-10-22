@@ -1,6 +1,6 @@
 """Dependencias de FastAPI compartidas por los routers."""
 
-from collections.abc import AsyncIterator
+from collections.abc import AsyncIterator, Awaitable, Callable
 from typing import Annotated
 
 from fastapi import Depends, HTTPException
@@ -13,7 +13,8 @@ from rumbo.core.seguridad import (
     obtener_verificador,
     usuario_auditoria,
 )
-from rumbo.datos.modelos import Usuario
+from rumbo.datos.modelos import RolUsuario, Usuario
+from rumbo.negocio.politicas import exigir_rol
 from rumbo.negocio.servicios import seguridad
 
 _esquema_bearer = HTTPBearer(auto_error=False, description="ID token de Firebase (DEC-0016)")
@@ -63,3 +64,14 @@ async def usuario_actual(
         raise _no_autenticado("El usuario no tiene acceso a Rumbo.")
     usuario_auditoria.set(usuario.id)
     return usuario
+
+
+def exigir_roles(*roles: RolUsuario) -> Callable[..., Awaitable[Usuario]]:
+    """Dependencia que deja pasar solo a esos roles (403 al resto, RF-150). Es dependencia de
+    FastAPI para que el 401 y el 403 salgan antes que el 422 de un cuerpo inválido."""
+
+    async def guardia(actor: Annotated[Usuario, Depends(usuario_actual)]) -> Usuario:
+        exigir_rol(actor, *roles)
+        return actor
+
+    return guardia

@@ -1,6 +1,10 @@
 """Esquemas comunes del contrato: el error problem+json (RFC 9457) y su detalle por campo."""
 
+from typing import Literal
+
 from pydantic import BaseModel
+
+TipoComision = Literal["importe", "porcentaje"]  # el porcentaje es sobre la ganancia (DEC-0007)
 
 
 class ErrorCampo(BaseModel):
