@@ -1687,7 +1687,7 @@ export interface operations {
     listar_destinos: {
         parameters: {
             query?: {
-                activo?: boolean | null;
+                activo?: boolean;
                 buscar?: string | null;
                 pagina?: number;
                 por_pagina?: number;

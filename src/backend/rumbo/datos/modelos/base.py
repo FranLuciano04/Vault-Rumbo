@@ -6,10 +6,27 @@ import uuid
 from datetime import datetime
 from decimal import Decimal
 
-from sqlalchemy import DateTime, Enum, ForeignKey, Numeric, func
-from sqlalchemy.orm import DeclarativeBase, Mapped, declared_attr, mapped_column
+from sqlalchemy import ColumnElement, DateTime, Enum, ForeignKey, Numeric, func
+from sqlalchemy.orm import (
+    DeclarativeBase,
+    InstrumentedAttribute,
+    Mapped,
+    declared_attr,
+    mapped_column,
+)
 
 from rumbo.datos.modelos import enums
+
+CON_TILDE = "áéíóúüÁÉÍÓÚÜ"
+SIN_TILDE = "aeiouuaeiouu"
+
+
+def nombre_normalizado(columna: InstrumentedAttribute[str]) -> ColumnElement[str]:
+    """Nombre sin tildes, en minúsculas y con los espacios colapsados, calculado en la base.
+    Es la clave de unicidad de los catálogos; solo usa funciones inmutables de PostgreSQL, así
+    que sirve para un índice. `normalizar` (repositorios) lo reproduce en Python."""
+    sin_tildes = func.lower(func.translate(columna, CON_TILDE, SIN_TILDE))
+    return func.regexp_replace(func.btrim(sin_tildes), r"\s+", " ", "g")
 
 
 def _enum_pg(clase: type[enum.Enum]) -> Enum:

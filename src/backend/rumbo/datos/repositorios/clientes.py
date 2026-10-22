@@ -1,25 +1,13 @@
 """Repositorio del módulo clientes: `Cliente` (CU-02, CU-03)."""
 
-from sqlalchemy import ColumnElement, func, or_, select
+from sqlalchemy import func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import InstrumentedAttribute
 
 from rumbo.datos.modelos import Cliente
-from rumbo.datos.repositorios.base import RepositorioBase, Visibilidad
+from rumbo.datos.modelos.base import nombre_normalizado
+from rumbo.datos.repositorios.base import RepositorioBase, Visibilidad, normalizar
 
 MAX_PARECIDOS = 10
-_CON_TILDE = "áéíóúüÁÉÍÓÚÜ"
-_SIN_TILDE = "aeiouuaeiouu"
-
-
-def _normalizar(texto: str) -> str:
-    """Minúsculas, sin tildes y con los espacios colapsados; igual a `_nombre_normalizado`."""
-    return " ".join(texto.lower().translate(str.maketrans(_CON_TILDE, _SIN_TILDE)).split())
-
-
-def _nombre_normalizado(columna: InstrumentedAttribute[str]) -> ColumnElement[str]:
-    sin_tildes = func.translate(func.lower(columna), _CON_TILDE.lower(), _SIN_TILDE)
-    return func.regexp_replace(func.btrim(sin_tildes), r"\s+", " ", "g")
 
 
 class RepositorioClientes(RepositorioBase[Cliente]):
@@ -33,7 +21,7 @@ class RepositorioClientes(RepositorioBase[Cliente]):
         consulta = select(Cliente).where(
             or_(
                 func.lower(Cliente.contacto) == contacto.lower(),
-                _nombre_normalizado(Cliente.nombre) == _normalizar(nombre),
+                nombre_normalizado(Cliente.nombre) == normalizar(nombre),
             )
         )
         consulta = visibilidad.aplicar(consulta, Cliente)

@@ -116,6 +116,14 @@ jobs:
         run: uv run ruff check . && uv run ruff format --check .
       - name: Tipos (mypy)
         run: uv run mypy rumbo
+      # El contrato publicado en shared tiene que coincidir con el que genera el código (hallazgo T-031).
+      - name: Contrato al día (openapi.json)
+        run: >-
+          uv run python -m rumbo.presentacion.cli exportar-openapi ../packages/shared/openapi.json
+          && git diff --exit-code -- ../packages/shared/openapi.json
+        env:
+          # Importar la app exige DATABASE_URL, aunque exportar el contrato no se conecta a la base.
+          DATABASE_URL: postgresql+asyncpg://rumbo:${{ env.CI_DB_PASSWORD }}@localhost:5432/rumbo_test
       - name: Migraciones (alembic upgrade head)
         run: uv run alembic upgrade head
         env:
@@ -154,6 +162,9 @@ jobs:
           cache: pnpm
           cache-dependency-path: src/pnpm-lock.yaml
       - run: pnpm install --frozen-lockfile
+      # Los tipos de shared tienen que salir del openapi.json commiteado (hallazgo T-031).
+      - name: Tipos generados al día (tipos.gen.ts)
+        run: pnpm --filter @rumbo/shared generar && git diff --exit-code -- packages/shared/src/tipos.gen.ts
       - name: Lint
         run: pnpm --filter @rumbo/shared --filter @rumbo/web lint
       - name: Tipos

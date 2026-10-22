@@ -7,6 +7,12 @@ from sqlalchemy import Select, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from rumbo.core.errores import NoEncontrado
+from rumbo.datos.modelos.base import CON_TILDE, SIN_TILDE
+
+
+def normalizar(texto: str) -> str:
+    """Minúsculas, sin tildes y con los espacios colapsados; igual a `nombre_normalizado`."""
+    return " ".join(texto.translate(str.maketrans(CON_TILDE, SIN_TILDE)).lower().split())
 
 
 class Visibilidad(Protocol):

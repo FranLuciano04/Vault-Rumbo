@@ -43,6 +43,8 @@ class ComisionPorDefecto(Entrada):
 
 
 class Destino(Auditoria):
+    model_config = ConfigDict(from_attributes=True)
+
     id: uuid.UUID
     nombre: str
     pais: str
