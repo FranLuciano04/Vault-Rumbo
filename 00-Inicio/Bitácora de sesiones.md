@@ -31,13 +31,6 @@ La **persona** de cada sesión es quien la corre, identificada por su identidad 
   - **Si un push del vault falla en `Secretos`:** se subió algo con forma de secreto. Hay que rotarlo y avisar.
   - **Las excepciones** van comentadas en `.gitleaks.toml`, en `audit.ignore` de `src/pnpm-workspace.yaml` o con `nosemgrep` y su motivo.
 
-### Paloma (`palomap2003`)
-- **22/10, de Nahuel: el CI ahora corre análisis de seguridad** (T-019, PR [#30](https://github.com/FranLuciano04/Vault-Rumbo/pull/30)).
-  - **Qué se agregó:** gitleaks corre en cada PR y en cada push a `main`, incluido el vault. También se sumaron Semgrep, pip-audit y bandit (backend) y `pnpm audit` (web).
-  - **Después del pull:** corré `uv sync` en `src/backend` (dependencias nuevas de T-013 y T-019) y `pnpm install` en `src/`.
-  - **Si un push del vault falla en `Secretos`:** se subió algo con forma de secreto. Hay que rotarlo y avisar.
-  - **Las excepciones** van comentadas en `.gitleaks.toml`, en `audit.ignore` de `src/pnpm-workspace.yaml` o con `nosemgrep` y su motivo.
-
 ### Francisco (`FranLucianoo`) y Nahuel (`Nahuel Viniegra`)
 - **22/10, de Paloma: tests de backend lentos en Windows por `localhost`** (T-039, PR [#31](https://github.com/FranLuciano04/Vault-Rumbo/pull/31)).
   - Con `localhost` en `TEST_DATABASE_URL` y en `DATABASE_URL`, cada conexión a Postgres tardaba 2 s, porque Windows prueba IPv6 primero. La suite de backend pasaba de unos 65 s a 31 min, con algún timeout.
