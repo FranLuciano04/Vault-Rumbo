@@ -70,6 +70,17 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
   - En la PC de Nahuel, 5 tests que lanzan subprocesos (`test_cli_openapi`, `test_config` y `test_seguridad`) dan `PermissionError` en el setup de `pytest_asyncio`. Los 3 de `test_config` y `test_seguridad` fallan igual sin los cambios del ticket; los 2 de `test_cli_openapi`, no lo comprobé. Es un tema de entorno, a revisar.
   - Para M9: la guardia solo intercepta `_construir_cliente_claude`.
 
+## 21/10/26 — Paloma (Claude Opus 5.5) — T-142: barra lateral web en pantallas angostas
+- **Hecho:** T-142 (capa web, riesgo normal, `origen: hallazgo T-020`).
+  - Debajo de `md`, la barra lateral se colapsa y se abre con un botón «Menú» que tiene `aria-expanded` y `aria-controls`. Elegir una sección o apretar Escape la cierra. Desde `md` se ve como antes.
+  - Con aprobación de Paloma, se sumó el foco visible en los enlaces y en el botón. Era el menor que había quedado de T-141.
+  - Se corrigió con autorización una aserción del rojo que decía que el empleado no ve Dashboard. En realidad sí lo ve, como fija T-020.
+  - La review (Opus) dejó 0 bloqueantes, 0 importantes y 4 menores, de los que se arreglaron 2. Pasan los 72 tests de web, con 84 % de cobertura. El PR [#28](https://github.com/FranLuciano04/Vault-Rumbo/pull/28) se mergeó con el CI en verde.
+- **Commits:** 97ec1a9, d642b0e, 6b4af38, 694eb98, 86fe4e4, 24a0b55.
+- **Pendiente:** dos menores anotados en el ticket.
+  - El menú abierto reaparece si se agranda la ventana y se vuelve a achicar.
+  - El ancho y el borde desde `md` se verifican a mano.
+
 ## 21/10/26 — Paloma (Claude Opus 5.5) — T-141: íconos de la barra lateral web
 - **Hecho:** T-141 (capa web, riesgo normal, `origen: hallazgo T-020`).
   - Cada sección de la barra lateral muestra su ícono de `lucide-react`, tomado de las pantallas 3 y 28 del prototipo. Los íconos son decorativos (`aria-hidden`), así que el nombre accesible sigue siendo la etiqueta.
