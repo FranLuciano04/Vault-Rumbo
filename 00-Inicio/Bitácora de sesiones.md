@@ -24,13 +24,6 @@ La **persona** de cada sesión es quien la corre, identificada por su identidad 
 ## Avisos pendientes por persona
 > Claude los lee al identificar a la persona (paso 1 de `CLAUDE.md`) y se los cuenta **apenas la saluda**, antes de cualquier otra tarea. Cuando la persona confirme que lo leyó o que lo hizo, **Claude borra su fila** en esa misma sesión, con un commit. Cuando no quede ninguna fila de alguien, se borra también su sección.
 
-### Paloma (`palomap2003`)
-- **20/10, de Nahuel: ya hay CI y Compose de producción local** (T-018, PR [#19](https://github.com/FranLuciano04/Vault-Rumbo/pull/19); T-024, PR [#18](https://github.com/FranLuciano04/Vault-Rumbo/pull/18)).
-  - Cada PR corre solo los jobs de las carpetas que toca: Backend, Web y Mobile.
-  - Mobile ya pasa: T-143 (PR [#20](https://github.com/FranLuciano04/Vault-Rumbo/pull/20)) subió la cobertura a 100 %. No bajen el umbral del 70 %.
-  - Después del pull, corran `pnpm install` en `src/`: `pnpm-workspace.yaml` ahora declara `allowBuilds`.
-  - El stack completo se levanta con `docker compose -f src/docker-compose.yml up -d --build`. Necesita `RUMBO_DB_PASSWORD` alfanumérica en `src/.env`.
-
 ## Formato
 Es **obligatorio** nombrar a la persona que hizo la sesión.
 ```
