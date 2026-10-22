@@ -24,21 +24,6 @@ La **persona** de cada sesión es quien la corre, identificada por su identidad 
 ## Avisos pendientes por persona
 > Claude los lee al identificar a la persona (paso 1 de `CLAUDE.md`) y se los cuenta **apenas la saluda**, antes de cualquier otra tarea. Cuando la persona confirme que lo leyó o que lo hizo, **Claude borra su fila** en esa misma sesión, con un commit. Cuando no quede ninguna fila de alguien, se borra también su sección.
 
-### Nahuel (`Nahuel Viniegra`)
-- **18/10, de Francisco: variable nueva `ENTORNO`** en `src/backend/.env` (T-010, PR [#13](https://github.com/FranLuciano04/Vault-Rumbo/pull/13)).
-  - **Solo si usás el emulador de Firebase**, agregá `ENTORNO=desarrollo` a tu `src/backend/.env`. Si no, no hace falta nada: los tests no la necesitan.
-  - Fuera de `desarrollo`, el backend no arranca con el emulador configurado, porque el emulador acepta tokens sin firma.
-  - En el servidor, la variable se omite.
-  - También aparecen `FIREBASE_PROJECT_ID`, `GOOGLE_APPLICATION_CREDENTIALS` y `FIREBASE_AUTH_EMULATOR_HOST`, documentadas en `src/backend/.env.example`.
-- **18/10, de Francisco: avisos nuevos sobre el `.env`** en [[Trabajo en equipo — Git y memoria#Entorno local para probar el código (`.env`)|Trabajo en equipo]]. Son seis reglas para no romperle el entorno a nadie, por ejemplo sumar a `.env.example` toda variable nueva.
-
-### Nahuel (`Nahuel Viniegra`) — proyecto de Firebase
-- **19/10, de Paloma: ya existe el proyecto real de Firebase, `rumbo-9ff17`** (T-005, PR [#14](https://github.com/FranLuciano04/Vault-Rumbo/pull/14), ya mergeado).
-  - Paloma te sumó como miembro: deberías verlo en <https://console.firebase.google.com>.
-  - El JSON de la cuenta de servicio se lo pedís a Paloma **por un canal privado**. Guardalo fuera del repo y poné su ruta en `GOOGLE_APPLICATION_CREDENTIALS` de `src/backend/.env`.
-  - Para usar el proyecto real: `FIREBASE_PROJECT_ID=rumbo-9ff17`. Para la web: `VITE_FIREBASE_*` en `src/apps/web/.env`. Los valores se ven en la consola, en Configuración del proyecto → Tus apps. Todo está en `src/infra/firebase.md`.
-  - Si siguen con el emulador, no hace falta cambiar nada.
-
 ### Paloma (`palomap2003`)
 - **20/10, de Nahuel: ya hay CI y Compose de producción local** (T-018, PR [#19](https://github.com/FranLuciano04/Vault-Rumbo/pull/19); T-024, PR [#18](https://github.com/FranLuciano04/Vault-Rumbo/pull/18)).
   - Cada PR corre solo los jobs de las carpetas que toca: Backend, Web y Mobile.
