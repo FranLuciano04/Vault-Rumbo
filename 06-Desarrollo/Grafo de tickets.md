@@ -14,7 +14,7 @@ tags:: #tipo/referencia
 
 | Módulo | Tickets | Hechos | Tomados | Disponibles | Esperando | Bloqueados | Estado del módulo |
 |---|---|---|---|---|---|---|---|
-| M0 — Fundaciones | 31 | 27 | 2 | 2 | 0 | 0 | 🛠️ en curso |
+| M0 — Fundaciones | 31 | 28 | 1 | 2 | 0 | 0 | 🛠️ en curso |
 | M1 — Usuarios y configuración | 13 | 0 | 0 | 1 | 12 | 0 | 🛠️ en curso |
 | M2 — Clientes | 11 | 0 | 0 | 1 | 10 | 0 | 🛠️ en curso |
 | M3 — Alertas | 11 | 0 | 0 | 2 | 9 | 0 | 🛠️ en curso |
@@ -45,7 +45,7 @@ flowchart LR
     T010["T-010 · Verificar el token de Firebase para resolver el usuario actual<br/><small>backend · ⚠️ riesgo alto</small>"]:::hecho
     T011["T-011 · Registrar el autor de cada cambio automáticamente<br/><small>backend</small>"]:::hecho
     T012["T-012 · Aplicar la visibilidad por fila según el rol<br/><small>backend · ⚠️ riesgo alto</small>"]:::hecho
-    T013["T-013 · Configurar el cliente de IA con un modelo falso<br/><small>backend</small><br/>👤 Nahuel Viniegra"]:::tomado
+    T013["T-013 · Configurar el cliente de IA con un modelo falso<br/><small>backend</small>"]:::hecho
     T014["T-014 · Generar los tipos compartidos desde el OpenAPI<br/><small>shared</small>"]:::hecho
     T015["T-015 · Publicar el contrato base con el usuario de la sesión<br/><small>contrato</small>"]:::hecho
     T016["T-016 · Devolver el usuario de la sesión con su rol<br/><small>backend · ⚠️ riesgo alto</small>"]:::hecho
