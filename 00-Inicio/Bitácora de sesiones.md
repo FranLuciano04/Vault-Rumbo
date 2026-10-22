@@ -24,6 +24,7 @@ La **persona** de cada sesión es quien la corre, identificada por su identidad 
 ## Avisos pendientes por persona
 > Claude los lee al identificar a la persona (paso 1 de `CLAUDE.md`) y se los cuenta **apenas la saluda**, antes de cualquier otra tarea. Cuando la persona confirme que lo leyó o que lo hizo, **Claude borra su fila** en esa misma sesión, con un commit. Cuando no quede ninguna fila de alguien, se borra también su sección.
 
+### Paloma (`palomap2003`) — decisiones del 22/10
 - **22/10, de Francisco: [[DEC-0017 Contacto mínimo del cliente]] quedó formalizada, con un agregado a la propuesta de Paloma.**
   - El contacto mínimo sigue siendo teléfono/WhatsApp o email.
   - El cliente puede tener además su **usuario de Instagram como dato opcional**. No cuenta como contacto mínimo.
