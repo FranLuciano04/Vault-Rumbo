@@ -3,7 +3,7 @@ id: T-036
 titulo: Gestionar destinos con sus requisitos en la web
 modulo: M1 — Usuarios y configuración
 capa: web
-estado: tomado
+estado: hecho
 depende_de: [T-034]
 tamaño: M
 riesgo: normal
@@ -46,3 +46,10 @@ Admin y dueña gestionan el catálogo de destinos y, dentro de cada uno, sus req
 - Operadores (ticket propio).
 
 ## Notas de implementación
+- `PestanaDestinos` (tabla + formulario en línea) con `FormularioDestino`, `RequisitosDestino` y `FormularioRequisito`; la pestaña «Destinos y requisitos» queda habilitada en `PaginaConfiguracion`.
+- «Ver inactivos» manda `activo=false`, que en el backend devuelve **solo** los inactivos. Quitar requisito = baja lógica (`POST /requisitos-destino/{id}/baja`) con confirmación, porque no se puede reactivar desde la UI; la baja de destino no confirma (se revierte con «Reactivar»).
+- `errores.ts` (compartido): un 409 ahora muestra su `detail` en todos los formularios de Configuración; nuevo `mensajeDeError`.
+- Sin componente de paginación en `apps/web`: los listados avisan «Mostramos N de M» cuando `total > items.length`. Si se crea un paginador, adoptarlo acá.
+- Review (Opus): 0 bloqueantes, 3 importantes y 5 menores, todos arreglados. Tests corregidos con autorización (`--tocar-tests`): confirmación al quitar requisito y `detail` del mock del 409.
+- **Pendiente del equipo:** el prototipo (pantalla 32) es maestro-detalle (lista a la izquierda, detalle a la derecha); lo implementado es tabla con panel de requisitos debajo. No se cambió sin decisión.
+- Modelos: tests sonnet, impl/refactor/fix sonnet, review opus. Sin escalados.
