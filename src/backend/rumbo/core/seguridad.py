@@ -1,4 +1,4 @@
-"""Verificación del ID token de Firebase (DEC-0016)."""
+"""Verificación del ID token y gestión de cuentas de Firebase (DEC-0016)."""
 
 import asyncio
 import logging
@@ -9,7 +9,12 @@ from functools import lru_cache
 from typing import Protocol
 
 import firebase_admin
-from firebase_admin import auth, credentials
+import requests
+from firebase_admin import auth, credentials, exceptions
+from google.auth.credentials import Credentials as GoogleCredentials
+from google.auth.exceptions import DefaultCredentialsError
+from google.auth.transport.requests import AuthorizedSession
+from google.oauth2.credentials import Credentials as OAuthCredentials
 
 from rumbo.core.config import Settings, get_settings
 from rumbo.core.errores import ServicioExterno
@@ -19,6 +24,9 @@ logger = logging.getLogger(__name__)
 # Variable que el Admin SDK lee de `os.environ`: con ella apunta al Auth Emulator y deja de
 # validar la firma de los tokens, así que nunca debe llegar a producción.
 VARIABLE_EMULADOR = "FIREBASE_AUTH_EMULATOR_HOST"
+
+_URL_ENVIAR_CODIGO = "https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode"
+_TIMEOUT_SEGUNDOS = 10
 
 
 class EmuladorFueraDeDesarrollo(RuntimeError):
@@ -145,6 +153,71 @@ class GestorDeCuentas(Protocol):
         ...
 
 
+class GestorFirebase:
+    """Cuentas de Firebase con el Admin SDK; el mail de restablecimiento lo manda Firebase con
+    la API REST `accounts:sendOobCode`, autorizada con la misma credencial del Admin SDK.
+
+    La app del Admin SDK se inicializa recién al usarlo: resolver la dependencia (también en
+    un pedido que termina en 422) no toca Firebase."""
+
+    def __init__(self, config: Settings) -> None:
+        self._config = config
+
+    def _app(self) -> firebase_admin.App:
+        return _app_firebase(self._config)
+
+    async def crear_cuenta(self, email: str, nombre: str) -> str:
+        try:
+            usuario = await asyncio.to_thread(
+                auth.create_user, email=email, display_name=nombre, app=self._app()
+            )
+        except auth.EmailAlreadyExistsError as error:
+            raise CuentaYaExiste(email) from error
+        except (exceptions.FirebaseError, ValueError, DefaultCredentialsError) as error:
+            logger.error("Firebase no pudo crear la cuenta (%s)", type(error).__name__)
+            raise ServicioExterno("No se pudo crear la cuenta en Firebase.") from error
+        return str(usuario.uid)
+
+    async def borrar_cuenta(self, firebase_uid: str) -> None:
+        try:
+            await asyncio.to_thread(auth.delete_user, firebase_uid, app=self._app())
+        except auth.UserNotFoundError:
+            return
+        except (exceptions.FirebaseError, ValueError, DefaultCredentialsError) as error:
+            raise ServicioExterno("No se pudo borrar la cuenta en Firebase.") from error
+
+    async def enviar_mail_restablecimiento(self, email: str) -> None:
+        try:
+            respuesta = await asyncio.to_thread(self._pedir_mail_restablecimiento, email)
+        except (requests.RequestException, DefaultCredentialsError, ValueError) as error:
+            logger.error("No se pudo pedir el mail a Firebase (%s)", type(error).__name__)
+            raise ServicioExterno("Firebase no pudo enviar el mail de contraseña.") from error
+        if not respuesta.ok:
+            logger.error("Firebase rechazó el envío del mail (HTTP %s)", respuesta.status_code)
+            raise ServicioExterno("Firebase no pudo enviar el mail de contraseña.")
+
+    def _pedir_mail_restablecimiento(self, email: str) -> requests.Response:
+        # Con credencial OAuth 2.0 se indica el proyecto en `targetProjectId` (permiso
+        # `firebaseauth.users.sendEmail`), sin API key web. Fuente:
+        # https://cloud.google.com/identity-platform/docs/reference/rest/v1/accounts/sendOobCode
+        app = self._app()  # deja escrita la variable del emulador, si corresponde
+        host = os.environ.get(VARIABLE_EMULADOR)
+        if host:  # El emulador acepta el token de administrador `owner`.
+            url = f"http://{host}/identitytoolkit.googleapis.com/v1/accounts:sendOobCode"
+            credencial: GoogleCredentials = OAuthCredentials(token="owner")  # type: ignore[no-untyped-call]  # noqa: S106
+        else:
+            url = _URL_ENVIAR_CODIGO
+            credencial = app.credential.get_credential()
+        cuerpo = {
+            "requestType": "PASSWORD_RESET",
+            "email": email,
+            "targetProjectId": app.project_id,
+        }
+        with AuthorizedSession(credencial) as sesion_http:  # type: ignore[no-untyped-call]
+            return sesion_http.post(url, json=cuerpo, timeout=_TIMEOUT_SEGUNDOS)
+
+
+@lru_cache
 def obtener_gestor_de_cuentas() -> GestorDeCuentas:
-    """Dependencia de FastAPI: el gestor real (los tests la sobrescriben). Stub de T-027."""
-    raise NotImplementedError("T-027: gestor de cuentas de Firebase no implementado")
+    """Dependencia de FastAPI: el gestor real (los tests la sobrescriben)."""
+    return GestorFirebase(get_settings())
