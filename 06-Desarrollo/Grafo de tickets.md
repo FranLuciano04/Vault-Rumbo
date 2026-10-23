@@ -14,7 +14,7 @@ tags:: #tipo/referencia
 
 | Módulo | Tickets | Hechos | Tomados | Disponibles | Esperando | Bloqueados | Estado del módulo |
 |---|---|---|---|---|---|---|---|
-| M0 — Fundaciones | 37 | 35 | 1 | 1 | 0 | 0 | 🛠️ en curso |
+| M0 — Fundaciones | 38 | 35 | 1 | 2 | 0 | 0 | 🛠️ en curso |
 | M1 — Usuarios y configuración | 18 | 11 | 0 | 6 | 1 | 0 | 🛠️ en curso |
 | M2 — Clientes | 16 | 5 | 1 | 7 | 3 | 0 | 🛠️ en curso |
 | M3 — Alertas | 11 | 0 | 0 | 2 | 9 | 0 | 🛠️ en curso |
@@ -70,6 +70,7 @@ flowchart LR
     T158["T-158 · Leer la configuración de Firebase de mobile con accesos directos a process.env<br/><small>mobile · ⚠️ riesgo alto</small>"]:::hecho
     T159["T-159 · Alinear la verificación del token con la ventana de revocación aceptada<br/><small>backend</small><br/>👤 Nahuel Viniegra"]:::tomado
     T160["T-160 · Correr los checks de mobile cuando cambia el paquete compartido<br/><small>infra</small>"]:::disponible
+    T162["T-162 · Aceptar el riesgo de zod en el CLI de Expo<br/><small>infra</small>"]:::disponible
   end
   subgraph M1["M1 — Usuarios y configuración"]
     T026["T-026 · Publicar el contrato de usuarios y configuración<br/><small>contrato</small>"]:::hecho
