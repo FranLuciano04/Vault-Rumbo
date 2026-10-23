@@ -15,8 +15,8 @@ tags:: #tipo/referencia
 | Módulo | Tickets | Hechos | Tomados | Disponibles | Esperando | Bloqueados | Estado del módulo |
 |---|---|---|---|---|---|---|---|
 | M0 — Fundaciones | 34 | 33 | 0 | 1 | 0 | 0 | 🛠️ en curso |
-| M1 — Usuarios y configuración | 18 | 9 | 1 | 4 | 4 | 0 | 🛠️ en curso |
-| M2 — Clientes | 12 | 3 | 0 | 3 | 6 | 0 | 🛠️ en curso |
+| M1 — Usuarios y configuración | 18 | 10 | 0 | 6 | 2 | 0 | 🛠️ en curso |
+| M2 — Clientes | 12 | 3 | 1 | 2 | 6 | 0 | 🛠️ en curso |
 | M3 — Alertas | 11 | 0 | 0 | 2 | 9 | 0 | 🛠️ en curso |
 | M4 — Oportunidades y cotizaciones | 14 | 0 | 0 | 1 | 13 | 0 | 🛠️ en curso |
 | M5 — Hoteles y reseñas | 11 | 0 | 0 | 1 | 10 | 0 | 🛠️ en curso |
@@ -70,8 +70,8 @@ flowchart LR
   end
   subgraph M1["M1 — Usuarios y configuración"]
     T026["T-026 · Publicar el contrato de usuarios y configuración<br/><small>contrato</small>"]:::hecho
-    T027["T-027 · Dar de alta usuarios con su cuenta de Firebase<br/><small>backend · ⚠️ riesgo alto</small><br/>👤 palomap2003"]:::tomado
-    T028["T-028 · Editar el rol de un usuario protegiendo al último admin<br/><small>backend · ⚠️ riesgo alto</small>"]:::esperando
+    T027["T-027 · Dar de alta usuarios con su cuenta de Firebase<br/><small>backend · ⚠️ riesgo alto</small>"]:::hecho
+    T028["T-028 · Editar el rol de un usuario protegiendo al último admin<br/><small>backend · ⚠️ riesgo alto</small>"]:::disponible
     T029["T-029 · Editar los parámetros del negocio<br/><small>backend</small>"]:::hecho
     T030["T-030 · Configurar la comisión por defecto de un vendedor<br/><small>backend · ⚠️ riesgo alto</small>"]:::hecho
     T031["T-031 · Gestionar el catálogo de destinos<br/><small>backend</small>"]:::hecho
@@ -86,7 +86,7 @@ flowchart LR
     T147["T-147 · Fijar con un test la comisión de un usuario dado de baja<br/><small>backend</small>"]:::disponible
     T148["T-148 · Medir la cobertura del backend a través de los await<br/><small>infra</small>"]:::hecho
     T151["T-151 · Responder 422 ante un número fuera del rango de la base<br/><small>backend</small>"]:::hecho
-    T153["T-153 · Recuperar las cuentas de Firebase que quedaron sin usuario<br/><small>backend · ⚠️ riesgo alto</small>"]:::esperando
+    T153["T-153 · Recuperar las cuentas de Firebase que quedaron sin usuario<br/><small>backend · ⚠️ riesgo alto</small>"]:::disponible
   end
   subgraph M2["M2 — Clientes"]
     T039["T-039 · Publicar el contrato de clientes<br/><small>contrato</small>"]:::hecho
@@ -94,7 +94,7 @@ flowchart LR
     T041["T-041 · Buscar clientes según la visibilidad del rol<br/><small>backend · ⚠️ riesgo alto</small>"]:::disponible
     T042["T-042 · Editar la ficha del cliente<br/><small>backend</small>"]:::esperando
     T043["T-043 · Mostrar el historial del cliente<br/><small>backend</small>"]:::esperando
-    T044["T-044 · Listar clientes en la web<br/><small>web</small>"]:::disponible
+    T044["T-044 · Listar clientes en la web<br/><small>web</small><br/>👤 FranLucianoo"]:::tomado
     T045["T-045 · Registrar un cliente en la web<br/><small>web</small>"]:::esperando
     T046["T-046 · Mostrar la ficha editable del cliente en la web<br/><small>web</small>"]:::esperando
     T047["T-047 · Consultar clientes desde la app mobile<br/><small>mobile</small>"]:::disponible

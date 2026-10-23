@@ -3,7 +3,7 @@ id: T-044
 titulo: Listar clientes en la web
 modulo: M2 — Clientes
 capa: web
-estado: libre
+estado: tomado
 depende_de: [T-039, T-020]
 tamaño: S
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [CU-03, RF-005, RF-009, RF-031]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: FranLucianoo
+tomado_el: 23/10/26 10:46
+rama: feature/T-044-listar-clientes-en-la-web
 pr:
 ---
 # T-044 Listar clientes en la web
