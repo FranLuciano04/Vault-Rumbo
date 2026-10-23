@@ -101,13 +101,19 @@ class RepositorioClientes(RepositorioBase[Cliente]):
         return list(filas), total or 0
 
     async def resumir(
-        self, sesion: AsyncSession, clientes: list[Cliente], *, visibilidad: Visibilidad
+        self,
+        sesion: AsyncSession,
+        clientes: list[Cliente],
+        *,
+        hoy: date,
+        visibilidad: Visibilidad,
     ) -> dict[uuid.UUID, ResumenCliente]:
         """Resumen de cada `Cliente` de `clientes` en tres consultas, sin importar cuántos sean.
         Viajes y oportunidades salen filtrados por `visibilidad` por convención, para que siga
         valiendo si cambia la regla de `politicas` (hoy, para el freelance, un cliente propio
         cuenta todo y el resultado es el mismo). El asesor es un dato del cliente, que el actor
-        ya ve."""
+        ya ve. El último viaje es el no cancelado de mayor `fecha_salida` que ya salió
+        (`<= hoy`)."""
         ids = [c.id for c in clientes]
         asesores = {
             a.id: a
@@ -122,7 +128,11 @@ class RepositorioClientes(RepositorioBase[Cliente]):
             .with_only_columns(Viaje.cliente_id, Viaje.fecha_salida, Destino.nombre)
             .ext(distinct_on(Viaje.cliente_id))
             .join(Destino, Destino.id == Viaje.destino_id)
-            .where(Viaje.cliente_id.in_(ids), Viaje.estado != EstadoViaje.cancelado)
+            .where(
+                Viaje.cliente_id.in_(ids),
+                Viaje.estado != EstadoViaje.cancelado,
+                Viaje.fecha_salida <= hoy,
+            )
             .order_by(Viaje.cliente_id, Viaje.fecha_salida.desc(), Viaje.id)
         )
         abiertas = (

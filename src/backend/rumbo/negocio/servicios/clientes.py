@@ -4,6 +4,7 @@ import uuid
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from rumbo.core.fechas import hoy
 from rumbo.datos.modelos import Cliente, RolUsuario, SegmentoCliente, Usuario
 from rumbo.datos.repositorios.clientes import RepositorioClientes, ResumenCliente
 from rumbo.datos.repositorios.seguridad import RepositorioUsuarios
@@ -85,7 +86,7 @@ async def buscar_clientes(
         limite=limite,
         visibilidad=vista,
     )
-    resumenes = await _clientes.resumir(sesion, pagina, visibilidad=vista)
+    resumenes = await _clientes.resumir(sesion, pagina, hoy=hoy(), visibilidad=vista)
     return [(c, resumenes[c.id]) for c in pagina], total
 
 

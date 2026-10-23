@@ -7,13 +7,14 @@ mayor `fecha_salida` entre los no cancelados.
 """
 
 from collections.abc import Awaitable, Callable
-from datetime import date
+from datetime import date, timedelta
 from typing import Any
 
 from httpx import AsyncClient
 from sqlalchemy import event
 from sqlalchemy.ext.asyncio import AsyncConnection, AsyncSession
 
+from rumbo.core.fechas import hoy
 from rumbo.datos.modelos import Cliente, EstadoOportunidad, EstadoViaje, MotivoPerdida
 from tests.fabricas import (
     ClienteFactory,
@@ -25,6 +26,11 @@ from tests.fabricas import (
 )
 
 FabricaCliente = Callable[[str], Awaitable[AsyncClient]]
+
+
+def _hace(dias: int) -> date:
+    """Fecha de salida ya pasada, relativa a hoy para no depender de cuándo corre el test."""
+    return hoy() - timedelta(days=dias)
 
 
 def _item(r: Any, cliente: Cliente) -> dict[str, Any]:
@@ -86,16 +92,16 @@ async def test_rf005_listado_trae_asesor_ultimo_viaje_y_oportunidades(
         cliente,
         asesor,
         viejo,
-        fecha_salida=date(2026, 1, 10),
-        fecha_regreso=date(2026, 1, 20),
+        fecha_salida=_hace(300),
+        fecha_regreso=_hace(290),
     )
     await _viaje(
         sesion,
         cliente,
         asesor,
         nuevo,
-        fecha_salida=date(2027, 3, 1),
-        fecha_regreso=date(2027, 3, 9),
+        fecha_salida=_hace(30),
+        fecha_regreso=_hace(22),
     )
     for estado in ("nueva", "en_gestion", "cotizada", "ganada"):
         await _oportunidad(sesion, cliente, asesor, estado)
@@ -105,7 +111,7 @@ async def test_rf005_listado_trae_asesor_ultimo_viaje_y_oportunidades(
     item = _item(await c.get("/api/clientes"), cliente)
 
     assert item["asesor"] == {"id": str(asesor.id), "nombre": "Laura Asesora"}
-    assert item["ultimo_viaje"] == {"fecha_salida": "2027-03-01", "destino": "Salvador"}
+    assert item["ultimo_viaje"] == {"fecha_salida": _hace(30).isoformat(), "destino": "Salvador"}
     assert item["oportunidades_abiertas"] == 3
 
 
@@ -134,22 +140,62 @@ async def test_rf005_ultimo_viaje_ignora_cancelados(
         cliente,
         asesor,
         vigente,
-        fecha_salida=date(2026, 5, 1),
-        fecha_regreso=date(2026, 5, 8),
+        fecha_salida=_hace(100),
+        fecha_regreso=_hace(92),
     )
     await _cancelado(
         sesion,
         cliente,
         asesor,
         cancelado,
-        fecha_salida=date(2027, 8, 1),
-        fecha_regreso=date(2027, 8, 8),
+        fecha_salida=_hace(10),
+        fecha_regreso=_hace(3),
     )
     c = await cliente_como("admin")
 
     item = _item(await c.get("/api/clientes"), cliente)
 
-    assert item["ultimo_viaje"] == {"fecha_salida": "2026-05-01", "destino": "Mendoza"}
+    assert item["ultimo_viaje"] == {"fecha_salida": _hace(100).isoformat(), "destino": "Mendoza"}
+
+
+async def test_rf005_ultimo_viaje_ignora_los_que_todavia_no_salieron(
+    cliente_como: FabricaCliente, sesion: AsyncSession
+) -> None:
+    asesor = await crear(sesion, UsuarioFactory)
+    cliente = await crear(sesion, ClienteFactory, nombre="Ana", asesor_asignado_id=asesor.id)
+    solo_futuros = await crear(sesion, ClienteFactory, nombre="Beto", asesor_asignado_id=asesor.id)
+    hecho = await crear(sesion, DestinoFactory, nombre="Mendoza", pais="Argentina")
+    por_hacer = await crear(sesion, DestinoFactory, nombre="Tokio", pais="Japón")
+    await _viaje(sesion, cliente, asesor, hecho, fecha_salida=_hace(40), fecha_regreso=_hace(33))
+    await _viaje(
+        sesion, cliente, asesor, por_hacer, fecha_salida=_hace(-30), fecha_regreso=_hace(-40)
+    )
+    await _viaje(
+        sesion, solo_futuros, asesor, por_hacer, fecha_salida=_hace(-5), fecha_regreso=_hace(-12)
+    )
+    c = await cliente_como("admin")
+
+    r = await c.get("/api/clientes")
+
+    assert _item(r, cliente)["ultimo_viaje"] == {
+        "fecha_salida": _hace(40).isoformat(),
+        "destino": "Mendoza",
+    }
+    assert _item(r, solo_futuros)["ultimo_viaje"] is None
+
+
+async def test_rf005_el_viaje_que_sale_hoy_cuenta_como_ultimo(
+    cliente_como: FabricaCliente, sesion: AsyncSession
+) -> None:
+    asesor = await crear(sesion, UsuarioFactory)
+    cliente = await crear(sesion, ClienteFactory, nombre="Ana", asesor_asignado_id=asesor.id)
+    destino = await crear(sesion, DestinoFactory, nombre="Salta", pais="Argentina")
+    await _viaje(sesion, cliente, asesor, destino, fecha_salida=hoy(), fecha_regreso=_hace(-7))
+    c = await cliente_como("admin")
+
+    item = _item(await c.get("/api/clientes"), cliente)
+
+    assert item["ultimo_viaje"] == {"fecha_salida": hoy().isoformat(), "destino": "Salta"}
 
 
 async def test_rf005_cliente_con_solo_viajes_cancelados_no_tiene_ultimo_viaje(
@@ -177,16 +223,14 @@ async def test_rf151_freelance_ve_el_resumen_completo_de_sus_clientes(
     cliente = await crear(sesion, ClienteFactory, nombre="Ana", asesor_asignado_id=yo.id)
     propio = await crear(sesion, DestinoFactory, nombre="Ushuaia", pais="Argentina")
     ajeno = await crear(sesion, DestinoFactory, nombre="Lima", pais="Perú")
-    await _viaje(
-        sesion, cliente, yo, propio, fecha_salida=date(2026, 6, 1), fecha_regreso=date(2026, 6, 8)
-    )
+    await _viaje(sesion, cliente, yo, propio, fecha_salida=_hace(200), fecha_regreso=_hace(192))
     await _viaje(
         sesion,
         cliente,
         empleado,
         ajeno,
-        fecha_salida=date(2027, 6, 1),
-        fecha_regreso=date(2027, 6, 8),
+        fecha_salida=_hace(5),
+        fecha_regreso=_hace(1),
     )
     await _oportunidad(sesion, cliente, yo, "nueva")
     await _oportunidad(sesion, cliente, empleado, "en_gestion")
@@ -194,7 +238,7 @@ async def test_rf151_freelance_ve_el_resumen_completo_de_sus_clientes(
 
     item = _item(await c.get("/api/clientes"), cliente)
 
-    assert item["ultimo_viaje"] == {"fecha_salida": "2027-06-01", "destino": "Lima"}
+    assert item["ultimo_viaje"] == {"fecha_salida": _hace(5).isoformat(), "destino": "Lima"}
     assert item["oportunidades_abiertas"] == 3
 
 
@@ -215,14 +259,14 @@ async def test_rf151_freelance_cuenta_lo_del_cliente_aunque_nada_sea_suyo_por_re
         cliente,
         empleado,
         destino,
-        fecha_salida=date(2027, 6, 1),
-        fecha_regreso=date(2027, 6, 8),
+        fecha_salida=_hace(5),
+        fecha_regreso=_hace(1),
     )
     await _oportunidad(sesion, cliente, empleado, "nueva")
 
     item = _item(await c.get("/api/clientes"), cliente)
 
-    assert item["ultimo_viaje"] == {"fecha_salida": "2027-06-01", "destino": "Lima"}
+    assert item["ultimo_viaje"] == {"fecha_salida": _hace(5).isoformat(), "destino": "Lima"}
     assert item["oportunidades_abiertas"] == 1
 
 
@@ -239,7 +283,7 @@ async def test_rf151_el_resumen_es_igual_para_el_freelance_y_para_la_agencia(
         asesor_asignado_id=libre.usuario.id,  # type: ignore[attr-defined]
     )
     destino = await crear(sesion, DestinoFactory, nombre="Lima", pais="Perú")
-    await _viaje(sesion, cliente, empleado, destino)
+    await _viaje(sesion, cliente, empleado, destino, fecha_salida=_hace(5), fecha_regreso=_hace(1))
     await _oportunidad(sesion, cliente, empleado, "cotizada")
 
     para_libre = _item(await libre.get("/api/clientes"), cliente)
@@ -274,7 +318,7 @@ async def _poblar(sesion: AsyncSession, cantidad: int, prefijo: str) -> None:
         cli = await crear(
             sesion, ClienteFactory, nombre=f"{prefijo} {i:02d}", asesor_asignado_id=asesor.id
         )
-        await _viaje(sesion, cli, asesor, destino)
+        await _viaje(sesion, cli, asesor, destino, fecha_salida=_hace(5), fecha_regreso=_hace(1))
         await _oportunidad(sesion, cli, asesor, "nueva")
 
 

@@ -1120,7 +1120,7 @@ export interface components {
         SegmentoCliente: "familia" | "amigos" | "individual" | "pareja";
         /**
          * UltimoViajeDelCliente
-         * @description Viaje no cancelado de salida más reciente.
+         * @description Viaje no cancelado de salida más reciente entre los que ya salieron (hasta hoy).
          */
         UltimoViajeDelCliente: {
             /**

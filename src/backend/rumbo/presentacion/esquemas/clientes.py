@@ -40,7 +40,7 @@ class AsesorDelCliente(BaseModel):
 
 
 class UltimoViajeDelCliente(BaseModel):
-    """Viaje no cancelado de salida más reciente."""
+    """Viaje no cancelado de salida más reciente entre los que ya salieron (hasta hoy)."""
 
     fecha_salida: date
     destino: str = Field(description="Nombre del `Destino`.")
