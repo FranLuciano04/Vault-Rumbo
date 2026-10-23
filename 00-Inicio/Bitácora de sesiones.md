@@ -25,9 +25,7 @@ La **persona** de cada sesión es quien la corre, identificada por su identidad 
 > Claude los lee al identificar a la persona (paso 1 de `CLAUDE.md`) y se los cuenta **apenas la saluda**, antes de cualquier otra tarea. Cuando la persona confirme que lo leyó o que lo hizo, **Claude borra su fila** en esa misma sesión, con un commit. Cuando no quede ninguna fila de alguien, se borra también su sección.
 
 ### Francisco (`FranLucianoo`) y Nahuel (`Nahuel Viniegra`) — T-027
-- **22/10, de Paloma: aprobar el PR [#45](https://github.com/FranLuciano04/Vault-Rumbo/pull/45)** (T-027, alta de usuarios con su cuenta de Firebase, ⚠️ riesgo alto).
-  - Alcanza con que lo apruebe uno de los dos en GitHub. Después Paloma lo mergea con `/implementar-ticket T-027`.
-  - La review de seguridad no encontró bloqueantes.
+- **22/10, de Paloma: PR [#45](https://github.com/FranLuciano04/Vault-Rumbo/pull/45)** (T-027, alta de usuarios con su cuenta de Firebase, ⚠️ riesgo alto). ✅ **Francisco lo mergeó el 23/10.** Quedan:
   - **Falta probar a mano** el envío real del mail (`accounts:sendOobCode`) con el emulador y con `rumbo-9ff17`. La cuenta de servicio necesita el permiso `firebaseauth.users.sendEmail`.
   - **Para la sync:** si un `admin` puede crear una `dueno`, y **T-153** (reutilizar cuentas de Firebase sin `Usuario`).
 
