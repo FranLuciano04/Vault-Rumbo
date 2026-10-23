@@ -23,3 +23,9 @@ def test_t154_cada_worker_tiene_su_base_y_conserva_el_sufijo_test(worker: str) -
     url = url_de_tests(BASE.format(host="localhost"), worker)
     assert url.endswith(f"/rumbo_{worker}_test")
     assert "@127.0.0.1:5435/" in url
+
+
+@pytest.mark.parametrize("worker", [None, "gw0"])
+def test_t154_rechaza_una_base_sin_sufijo_test_con_o_sin_worker(worker: str | None) -> None:
+    with pytest.raises(ValueError, match="_test"):
+        url_de_tests("postgresql+asyncpg://rumbo:clave@127.0.0.1:5435/rumbo", worker)

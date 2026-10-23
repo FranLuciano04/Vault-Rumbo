@@ -91,6 +91,7 @@ node 06-Desarrollo/herramientas/tickets.mjs disponibles
 
 **Entorno de Claude Code en Windows** (lo encontró T-006):
 - El sandbox define `SSLKEYLOGFILE` y asyncpg aborta con `OPENSSL_Applink`. `tests/conftest.py` la quita del entorno antes de cualquier conexión (T-140, RNF-15), así que `uv run pytest` corre sin `env -u`.
+- Las bases `rumbo_gwN_test` que crea `-n auto` quedan en el servidor de tests; se pueden borrar a mano.
 - En `TEST_DATABASE_URL` y `DATABASE_URL` del `.env` usar `127.0.0.1`, no `localhost`: en Windows `localhost` resuelve primero a `::1`, falla contra el puerto de Docker y cada conexión tarda ~2 s en vez de 0,02 s. `tests/conftest.py` lo normaliza para los tests (T-154).
 - Si pytest no puede escribir en el temporal del sistema, se agrega `--basetemp=.pytest_tmp` (está en `.gitignore`).
 - Si los puertos 5432 o 5433 están ocupados, se usan `RUMBO_DEV_PORT` y `RUMBO_TEST_PORT` en `src/.env`.

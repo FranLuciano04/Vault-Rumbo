@@ -1,5 +1,6 @@
 import asyncio
 import os
+import re
 import subprocess
 import sys
 from collections.abc import AsyncIterator, Awaitable, Callable, Iterator
@@ -35,6 +36,12 @@ def url_de_tests(url: str, worker: str | None) -> str:
       se pisen: `rumbo_test` pasa a `rumbo_gw0_test`. Conserva el sufijo `_test` de la guarda.
     """
     destino = make_url(url)
+    # La guarda mira el nombre ORIGINAL: el sufijo que se agrega por worker no la puede burlar.
+    if not (destino.database or "").endswith("_test"):
+        raise ValueError(
+            f"TEST_DATABASE_URL apunta a «{destino.database}»: el nombre de la base de tests "
+            "tiene que terminar en «_test»"
+        )
     if destino.host == "localhost":
         destino = destino.set(host="127.0.0.1")
     if worker and destino.database:
@@ -81,6 +88,12 @@ def correr_alembic(url: str, *args: str) -> subprocess.CompletedProcess[str]:
 async def _crear_base_si_falta(url: str) -> None:
     """Un worker de xdist estrena su base la primera vez (la base común ya existe)."""
     destino = make_url(url)
+    nombre = destino.database or ""
+    if not re.fullmatch(r"[a-z0-9_]{1,63}", nombre):
+        raise ValueError(
+            f"nombre de base de tests inválido «{nombre}»: solo minúsculas, dígitos y «_» "
+            "(hasta 63 caracteres)"
+        )
     admin = create_async_engine(
         destino.set(database="postgres"), poolclass=NullPool, isolation_level="AUTOCOMMIT"
     )
