@@ -14,9 +14,9 @@ tags:: #tipo/referencia
 
 | Módulo | Tickets | Hechos | Tomados | Disponibles | Esperando | Bloqueados | Estado del módulo |
 |---|---|---|---|---|---|---|---|
-| M0 — Fundaciones | 32 | 31 | 1 | 0 | 0 | 0 | 🛠️ en curso |
+| M0 — Fundaciones | 32 | 32 | 0 | 0 | 0 | 0 | 🔍 listo para la review |
 | M1 — Usuarios y configuración | 17 | 6 | 1 | 5 | 5 | 0 | 🛠️ en curso |
-| M2 — Clientes | 12 | 2 | 1 | 3 | 6 | 0 | 🛠️ en curso |
+| M2 — Clientes | 12 | 3 | 0 | 3 | 6 | 0 | 🛠️ en curso |
 | M3 — Alertas | 11 | 0 | 0 | 2 | 9 | 0 | 🛠️ en curso |
 | M4 — Oportunidades y cotizaciones | 14 | 0 | 0 | 1 | 13 | 0 | 🛠️ en curso |
 | M5 — Hoteles y reseñas | 11 | 0 | 0 | 1 | 10 | 0 | 🛠️ en curso |
@@ -55,7 +55,7 @@ flowchart LR
     T020["T-020 · Armar el shell web con la navegación por rol<br/><small>web</small>"]:::hecho
     T021["T-021 · Iniciar sesión en la web con email o Google<br/><small>web · ⚠️ riesgo alto</small>"]:::hecho
     T022["T-022 · Armar el shell mobile con sus pestañas<br/><small>mobile</small>"]:::hecho
-    T023["T-023 · Iniciar sesión en la app mobile con email o Google<br/><small>mobile · ⚠️ riesgo alto</small><br/>👤 Nahuel Viniegra"]:::tomado
+    T023["T-023 · Iniciar sesión en la app mobile con email o Google<br/><small>mobile · ⚠️ riesgo alto</small>"]:::hecho
     T024["T-024 · Armar el Compose de producción local para las demos<br/><small>infra</small>"]:::hecho
     T025["T-025 · Probar de punta a punta el inicio de sesión web<br/><small>e2e</small>"]:::hecho
     T140["T-140 · Aislar los tests de la variable SSLKEYLOGFILE<br/><small>backend</small>"]:::hecho
@@ -97,7 +97,7 @@ flowchart LR
     T047["T-047 · Consultar clientes desde la app mobile<br/><small>mobile</small>"]:::disponible
     T048["T-048 · Registrar un cliente desde la app mobile<br/><small>mobile</small>"]:::esperando
     T049["T-049 · Probar de punta a punta la gestión de clientes<br/><small>e2e</small>"]:::esperando
-    T149["T-149 · Guardar el usuario de Instagram del cliente<br/><small>backend</small><br/>👤 FranLucianoo"]:::tomado
+    T149["T-149 · Guardar el usuario de Instagram del cliente<br/><small>backend</small>"]:::hecho
   end
   subgraph M3["M3 — Alertas"]
     T050["T-050 · Publicar el contrato de alertas<br/><small>contrato</small>"]:::disponible
