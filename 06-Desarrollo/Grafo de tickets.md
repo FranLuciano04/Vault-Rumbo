@@ -15,7 +15,7 @@ tags:: #tipo/referencia
 | Módulo | Tickets | Hechos | Tomados | Disponibles | Esperando | Bloqueados | Estado del módulo |
 |---|---|---|---|---|---|---|---|
 | M0 — Fundaciones | 34 | 33 | 0 | 1 | 0 | 0 | 🛠️ en curso |
-| M1 — Usuarios y configuración | 18 | 8 | 2 | 4 | 4 | 0 | 🛠️ en curso |
+| M1 — Usuarios y configuración | 18 | 9 | 1 | 4 | 4 | 0 | 🛠️ en curso |
 | M2 — Clientes | 12 | 3 | 0 | 3 | 6 | 0 | 🛠️ en curso |
 | M3 — Alertas | 11 | 0 | 0 | 2 | 9 | 0 | 🛠️ en curso |
 | M4 — Oportunidades y cotizaciones | 14 | 0 | 0 | 1 | 13 | 0 | 🛠️ en curso |
@@ -76,7 +76,7 @@ flowchart LR
     T030["T-030 · Configurar la comisión por defecto de un vendedor<br/><small>backend · ⚠️ riesgo alto</small>"]:::hecho
     T031["T-031 · Gestionar el catálogo de destinos<br/><small>backend</small>"]:::hecho
     T032["T-032 · Configurar los requisitos de cada destino<br/><small>backend</small>"]:::hecho
-    T033["T-033 · Gestionar el catálogo de operadores<br/><small>backend</small><br/>👤 Nahuel Viniegra"]:::tomado
+    T033["T-033 · Gestionar el catálogo de operadores<br/><small>backend</small>"]:::hecho
     T034["T-034 · Configurar los parámetros del negocio en la web<br/><small>web</small>"]:::hecho
     T035["T-035 · Gestionar usuarios y roles en la web<br/><small>web</small>"]:::disponible
     T036["T-036 · Gestionar destinos con sus requisitos en la web<br/><small>web</small>"]:::disponible
