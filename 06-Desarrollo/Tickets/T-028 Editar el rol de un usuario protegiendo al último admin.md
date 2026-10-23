@@ -30,9 +30,10 @@ Admin y dueña cambian el rol y los accesos de un usuario o lo dan de baja (lóg
 - [ ] `PATCH /usuarios/{id}` cambia `nombre`, rol y `acceso_redes` (sumar `nombre` a `UsuarioEditar` en el contrato y regenerar tipos y mocks; decidido el 22/10/26, CU-25 A2); `POST /usuarios/{id}/baja` pone `activo = false` y deshabilita la cuenta en Firebase.
 - [ ] Bajar o cambiar de rol al último `admin` activo → 409 (A4).
 - [ ] Tras la baja, el siguiente pedido de ese usuario responde 401.
+- [ ] Solo un `dueno` puede dar de alta a un `dueno` (`POST /usuarios`, código de T-027) o asignar ese rol (`PATCH`). Si lo intenta un `admin` → 403 (CU-25, decidido el 23/10/26).
 
 ## Tests esperados
-`tests/api/test_usuarios.py`: `test_rf147_editar_rol`, `test_rf147_corregir_nombre`, `test_rf148_baja_logica_deshabilita_cuenta`, `test_rf148_baja_corta_el_acceso`, `test_rf149_ultimo_admin_409`.
+`tests/api/test_usuarios.py`: `test_rf147_editar_rol`, `test_rf147_corregir_nombre`, `test_rf148_baja_logica_deshabilita_cuenta`, `test_rf148_baja_corta_el_acceso`, `test_rf149_ultimo_admin_409`, `test_rf147_admin_no_puede_crear_ni_asignar_dueno_403`.
 
 ## Contexto (leer solo esto)
 - [[CU-25 Gestionar usuarios y roles]] — A2, A3 y A4
