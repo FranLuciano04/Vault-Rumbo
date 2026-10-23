@@ -31,7 +31,7 @@ Alta, baja y edición de [[Usuario|Usuarios]], asignación de su `rol` y de la c
 5. El sistema valida y guarda el [[Usuario]]. Si el rol es `freelance`, queda con **visibilidad restringida** (solo lo suyo, [[DEC-0008 Autenticación propia y rol de vendedor freelance]]); los [[Cliente|Clientes]] que cree quedan con él como `asesor_asignado`.
 
 ## Flujos alternativos
-- **A1 — Email duplicado:** el `email` ya existe → el sistema rechaza el alta.
+- **A1 — Email duplicado:** el `email` ya tiene un [[Usuario]] en Rumbo → el sistema rechaza el alta. Si el email tiene cuenta en Firebase pero **ningún** `Usuario` (un alta anterior quedó a medias), el sistema **reutiliza esa cuenta** y completa el alta en lugar de rechazarla (decidido el 23/10/26, Francisco; T-153). El email sigue siendo único.
 - **Restricción del rol `dueño` (decidida el 23/10/26, Francisco):** solo un usuario con rol `dueño` puede dar de alta a otro `dueño` o asignarle ese rol a alguien. Un `admin` que lo intente recibe 403.
 - **A2 — Editar rol o accesos:** el admin cambia el `rol` o la capacidad de redes de un [[Usuario]]; aplica en su próximo inicio de sesión. También puede corregir su `nombre` (decidido el 22/10/26). El email no se edita, porque identifica la cuenta de Firebase ([[DEC-0016 Autenticación con Firebase|DEC-0016]]).
 - **A3 — Baja de usuario:** baja **lógica** (se desactiva y conserva el historial de lo gestionado); no se elimina físicamente.

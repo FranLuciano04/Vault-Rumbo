@@ -35,7 +35,7 @@ La **persona** de cada sesión es quien la corre, identificada por su identidad 
 ### Francisco (`FranLucianoo`) y Nahuel (`Nahuel Viniegra`) — T-027
 - **22/10, de Paloma: PR [#45](https://github.com/FranLuciano04/Vault-Rumbo/pull/45)** (T-027, alta de usuarios con su cuenta de Firebase, ⚠️ riesgo alto). ✅ **Francisco lo mergeó el 23/10.** Quedan:
   - **Falta probar a mano** el envío real del mail (`accounts:sendOobCode`) con el emulador y con `rumbo-9ff17`. La cuenta de servicio necesita el permiso `firebaseauth.users.sendEmail`.
-  - **Para la sync:** ~~si un `admin` puede crear una `dueno`~~ ✅ decidido el 23/10 por Francisco: **no**, solo la dueña crea o asigna `dueño` (CU-25; va en T-028), y **T-153** (reutilizar cuentas de Firebase sin `Usuario`).
+  - **Para la sync:** ~~si un `admin` puede crear una `dueno`~~ ✅ decidido el 23/10 por Francisco: **no**, solo la dueña crea o asigna `dueño` (CU-25; va en T-028), y ~~**T-153**~~ ✅ decidido el 23/10 por Francisco: se reutiliza la cuenta de Firebase sin `Usuario` (CU-25 A1).
 
 ## Formato
 Es **obligatorio** nombrar a la persona que hizo la sesión.

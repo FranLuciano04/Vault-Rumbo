@@ -26,7 +26,7 @@ tags:: #tipo/ticket
 ## Objetivo
 Si un alta de usuario deja una cuenta de Firebase sin `Usuario` en Rumbo, el admin puede volver a darlo de alta sin recibir un 409. Pasa si el commit final del pedido falla después del mail, o si llega una cancelación mientras se crea la cuenta. Hoy reintentar da 409 «Ya existe un usuario con ese email». Lo encontró la review de seguridad de T-027. Paloma decidió tratarlo como riesgo conocido y resolverlo aparte (22/10/26).
 
-> ⚠️ **Decisión pendiente antes de tomarlo (`#accion/decidir`):** la propuesta cambia el criterio A1 de CU-25 («email duplicado en Firebase → 409»). Como el registro de Firebase está cerrado y solo Rumbo crea cuentas, una cuenta existente sin `Usuario` sería una huérfana de Rumbo y podría reutilizarse, igual que hace la CLI `crear_cuenta`. Ratificarlo en la sync (y en una `DEC-` si corresponde).
+> ✅ **Decidido el 23/10/26 (Francisco):** se reutiliza la cuenta de Firebase sin `Usuario` y se completa el alta. El email sigue siendo único: si ya tiene `Usuario`, da 409. CU-25 A1 ya está actualizado. El ticket se puede tomar.
 
 ## Criterios de aceptación
 - [ ] Alta con un email que ya tiene cuenta en Firebase pero ningún `Usuario` en Rumbo → se reutiliza la cuenta (su uid), se crea el `Usuario` y Firebase manda el mail. No da 409.
