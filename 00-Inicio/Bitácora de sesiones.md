@@ -46,6 +46,14 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
+## 23/10/26 — Nahuel (Claude Opus 5.5) — T-158: config de Firebase en el bundle mobile
+- **Hecho:** tomó e implementó **T-158** (M0, mobile, S, ⚠️ riesgo alto; hallazgo H-01 de Codex). Paloma aprobó el PR [#51](https://github.com/FranLuciano04/Vault-Rumbo/pull/51), que se mergeó con el CI en verde (8/8).
+  - `src/lib/firebase.ts` lee las seis `EXPO_PUBLIC_*` como `process.env.X` literales. `"expo/types"` en el `tsconfig` tipa `process.env`, que era la razón del alias.
+  - Test nuevo que pasa el módulo por `babel-preset-expo` y comprueba que Expo incorpore las variables. Mobile: 43 tests, cobertura 96,6 %.
+  - Review (Sonnet, seguridad): sin fallas de seguridad. 2 importantes de lint y 2 menores, todos arreglados.
+- **Commits:** b5b8a15, c3d91d6, cd1cf16, 0498036; merge 7b5ac69.
+- **Pendiente:** probar el inicio de sesión en el development build con un `.env` real. Quedan T-159 (decidir antes `check_revoked`) y T-160 para cerrar M0.
+
 ## 23/10/26 — Nahuel (Claude Opus 5.5) — M0: triage de la review de Codex
 - **Hecho:** `/cerrar-modulo M0`, fase B. Codex dejó 3 hallazgos en [[M0 — review Codex]] y los 3 se confirmaron en el código: la config de Firebase de mobile no llega al bundle por leerse con un alias de `process.env`, el backend acepta tokens revocados y el CI no corre mobile cuando cambia `shared`. Se crearon **T-158**, **T-159** y **T-160** (M0, `origen: review-codex M0`).
 - **Commits:** el de este triage (`review: hallazgos de Codex en M0 → T-158, T-159, T-160`).
