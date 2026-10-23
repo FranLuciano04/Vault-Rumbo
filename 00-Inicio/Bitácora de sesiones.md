@@ -40,6 +40,13 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
+## 23/10/26 — Nahuel (Claude Opus 5.5) — T-033: catálogo de operadores
+- **Hecho:** tomó e implementó **T-033** (M1, backend, S, riesgo normal) con TDD: rojo sonnet, verde/refactor/fix haiku, review opus. PR #46 mergeado con CI en verde.
+  - Operadores siguen el patrón de destinos; búsqueda y paginación quedan en `RepositorioCatalogo[T]` compartido. Migración `0004` con índice único normalizado; corregido el `'\s+'` de `0002`.
+  - Fix de review: `activo: bool = True` en el listado de operadores y contrato regenerado.
+- **Commits:** 10d4e52, 70ea28d, d2cc6da, 2775ce3, 584049b (merge db80d47).
+- **Pendiente:** menor anotado en T-033 (`etiqueta` del 409 en la capa de datos, a decidir). `listar_usuarios` también publica `activo: boolean | null` (sin ticket todavía).
+
 ## 22/10/26 — Nahuel (Claude Opus 5.5) — T-152: falso rojo de `fase`
 - **Hecho:** creó e implementó **T-152** (M0, infra, XS; hallazgo de T-034, DEC-0014).
   - `tickets.mjs fase` sale con **5** y no commitea cuando el comando de `--test` no arrancó (código 126, 127 o 9009) o no terminó (una señal o ENOBUFS).
