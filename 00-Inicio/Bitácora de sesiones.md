@@ -46,6 +46,11 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
+## 23/10/26 — Nahuel (Claude Opus 5.5) — M0: triage de la review de Codex
+- **Hecho:** `/cerrar-modulo M0`, fase B. Codex dejó 3 hallazgos en [[M0 — review Codex]] y los 3 se confirmaron en el código: la config de Firebase de mobile no llega al bundle por leerse con un alias de `process.env`, el backend acepta tokens revocados y el CI no corre mobile cuando cambia `shared`. Se crearon **T-158**, **T-159** y **T-160** (M0, `origen: review-codex M0`).
+- **Commits:** el de este triage (`review: hallazgos de Codex en M0 → T-158, T-159, T-160`).
+- **Pendiente:** decidir en equipo T-159 (`check_revoked` en cada pedido o una `DEC-` que acepte la ventana de 1 h). Implementar los tres tickets. Después, la aprobación del equipo y el tag `mod-0`.
+
 ## 23/10/26 — Nahuel (Claude Opus 5.5) — M0: pedido de review para Codex
 - **Hecho:** `/cerrar-modulo M0`, fase A. Los 34 tickets de M0 están `hecho`. Se escribió [[M0 — pedido de review]] con los tickets, su trazabilidad, los 34 merges, los archivos tocados y 10 puntos a mirar entre tickets.
   - Ojo: con un clon *shallow*, `tickets.mjs modulo` no encuentra los merges viejos (PR #1 a #15). Hay que correr antes `git fetch --unshallow origin`.

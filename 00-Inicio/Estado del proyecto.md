@@ -14,6 +14,8 @@ actualizado: 13/10/26
 >
 > 👉 **22/10 (Nahuel):** **T-150** está hecho y mergeado (PR [#36](https://github.com/FranLuciano04/Vault-Rumbo/pull/36)): las auditorías de dependencias ahora también corren todos los lunes. La primera corrida manual dio verde. Nahuel mira los avisos. **A M0 le falta solo T-023** (login mobile) para pasar a la review de Codex.
 >
+> 👉 **23/10 (Nahuel):** la **review de Codex de M0** está hecha y triada ([[M0 — review Codex]]): 3 hallazgos confirmados, que pasaron a **T-158** (config de Firebase en mobile, bloqueante), **T-159** (tokens revocados, bloqueante, con una decisión abierta) y **T-160** (CI de mobile, importante). `mod-0` se pone cuando estén hechos y el equipo apruebe.
+>
 > 👉 **22/10 (Paloma):** **T-027** (alta de usuarios con su cuenta de Firebase) está hecho. Es de ⚠️ riesgo alto: el PR [#45](https://github.com/FranLuciano04/Vault-Rumbo/pull/45) **espera la aprobación de Francisco o Nahuel**. Falta probar a mano el envío real del mail. Se creó **T-153** (cuentas huérfanas), que queda sujeto a una decisión de la sync.
 >
 > 👉 **22/10 (Paloma):** **T-151** está hecho y mergeado (PR [#42](https://github.com/FranLuciano04/Vault-Rumbo/pull/42)). Un entero que no entra en la base ahora responde 422 en todos los módulos. Los tests de API corren dentro de un savepoint (`tests/conftest.py`).
@@ -99,6 +101,7 @@ Los tres tomamos **los tres roles** (Coordinador de vault · Guardián del domin
 ## Agenda para la próxima sync — decisiones abiertas
 > Índice de **todo lo que espera decisión**. ✅ La entrevista de diseño del 29/09 (equipo completo) cerró toda la agenda: ver *Decidido en el día 0*. El **formato del deck** se decidió en la sync del 30/09 (PowerPoint, ver H4). ✅ La duración de la exposición y si el prototipo se mostraba en vivo o con capturas quedaron sin efecto: el PC1 ya se presentó el 02/10.
 
+- `#accion/decidir` **(23/10, Nahuel, de la review de Codex de M0):** ¿se verifica la revocación del token de Firebase en cada pedido (**T-159**, suma una consulta a Firebase por pedido) o se acepta la ventana de hasta 1 h con una `DEC-`? Hay que decidirlo antes de tomar T-159.
 - `#accion/decidir` **(22/10, Paloma, de T-027):** ¿un `admin` puede dar de alta a otro `admin` o a una `dueno`? Hoy puede, porque sigue la letra de CU-25 paso 3, pero ninguna DEC dice si el admin puede otorgar un rol superior al suyo. Si se restringe, va junto con la edición de usuarios (T-028).
 - `#accion/decidir` **(22/10, Paloma, de T-027):** ¿se reutiliza una cuenta de Firebase sin `Usuario` en lugar de dar 409 (criterio A1 de CU-25)? Es la condición para tomar **T-153**.
 - `#accion/decidir` **(22/10, Paloma, de T-040 y T-032):** ¿al `freelance` hay que avisarle de duplicados de clientes de otros asesores, que hoy no ve? ¿Se puede editar un requisito de destino dado de baja?

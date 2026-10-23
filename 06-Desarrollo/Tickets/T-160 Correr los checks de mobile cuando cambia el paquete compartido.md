@@ -1,0 +1,48 @@
+---
+id: T-160
+titulo: Correr los checks de mobile cuando cambia el paquete compartido
+modulo: M0 — Fundaciones
+capa: infra
+estado: libre
+depende_de: []
+tamaño: XS
+riesgo: normal
+modelo_tests: haiku
+modelo_impl: haiku
+modelo_review: sonnet
+trazabilidad: [DEC-0015, RNF-15]
+origen: review-codex M0
+asignado:
+tomado_el:
+rama:
+pr:
+---
+# T-160 Correr los checks de mobile cuando cambia el paquete compartido
+
+tags:: #tipo/ticket
+
+> No editar `estado`, `asignado`, `tomado_el` ni `rama` a mano: los maneja `06-Desarrollo/herramientas/tickets.mjs` (ver [[Flujo de implementación]]).
+
+## Objetivo
+Un PR que solo toca `src/packages/shared/` corre también el job de mobile del CI (lint, typecheck y tests), porque la app mobile depende de `@rumbo/shared` desde T-022. Hoy el filtro del job `cambios` no incluye esa carpeta, y «CI ok» puede aprobar un cambio que rompe mobile (hallazgo H-03 de [[M0 — review Codex]]).
+
+## Criterios de aceptación
+- [ ] En `.github/workflows/ci.yml`, la salida `mobile` incluye `^src/packages/shared/`, y se borra el comentario «Mobile todavía no consume @rumbo/shared».
+- [ ] Con la lista de archivos `src/packages/shared/src/hooks/useYo.ts`, las expresiones dan `web=true` y `mobile=true`. Con `src/backend/rumbo/main.py`, siguen dando `mobile=false`.
+
+## Tests esperados
+Ticket de infra: se verifica ejecutando las expresiones del paso `cambios` con esas dos listas de archivos (por ejemplo, con un script de bash local que reproduzca `hay()`) y, si se puede, con el PR mismo tocando un archivo de `shared`.
+
+## Contexto (leer solo esto)
+- [[M0 — review Codex]] — H-03 y su triage
+- `.github/workflows/ci.yml` — job `cambios`
+- `src/apps/mobile/package.json` — dependencia `@rumbo/shared`
+
+## Archivos probables
+- `.github/workflows/ci.yml`
+
+## Fuera de alcance
+- Reorganizar el resto de los filtros o los jobs del CI.
+
+## Notas de implementación
+<Las completa el orquestador al cerrar.>
