@@ -43,7 +43,7 @@ Los implementadores invocan **a demanda** `debugging-and-error-recovery` (cuando
 2. Rama: `git checkout main && git pull --ff-only origin main`. Después, `git checkout <rama>` si ya existe (local o en `origin`), o `git checkout -b <rama>`.
 3. **Retomar:** si la rama ya tiene commits, mirá `git log main..HEAD --oneline` y seguí desde la fase que falta (`test` → `feat` → `refactor` → `fix` → `tickets: … hecho`).
 
-**Tests en la misma llamada:** `fase` acepta `--test "<comando>"`, que corre desde la raíz del repo, con bash. Pasale el comando que cubre los tests del ticket y la suite afectada (por ejemplo, `--test "cd src/backend && uv run pytest tests/api/test_errores.py"`). En el rojo exige que fallen (código 3 si pasan); en verde, refactor y fix, que pasen (código 4 si fallan). En ambos casos no commitea, y muestra las últimas líneas de la salida, así no hace falta correr los tests aparte.
+**Tests en la misma llamada:** `fase` acepta `--test "<comando>"`, que corre desde la raíz del repo, con bash. Pasale el comando que cubre **solo los tests del ticket y sus vecinos directos** (por ejemplo, `--test "cd src/backend && uv run pytest tests/api/test_errores.py"`). Los vecinos directos son los tests del código que el ticket tocó, por ejemplo los de destinos si se cambió un repositorio compartido. Nunca incluyas la suite completa ni `test_contrato_m1.py` y sus equivalentes: corren una sola vez, en el paso 6 (T-154). Pedile lo mismo a cada subagente cuando le digas qué correr. En el rojo exige que fallen (código 3 si pasan); en verde, refactor y fix, que pasen (código 4 si fallan). En ambos casos no commitea, y muestra las últimas líneas de la salida, así no hace falta correr los tests aparte.
 - **Código 5:** el comando no arrancó (126, 127 o 9009, por ejemplo un programa fuera del PATH) o no terminó (una señal o una salida demasiado grande). No corrió ningún test, así que no es ni un rojo ni un verde. Arreglá vos el comando, por ejemplo con `corepack pnpm` en lugar de `pnpm`, y volvé a correr; no se lo devuelvas al subagente.
 - Encadená los comandos con `&&`, nunca con `;`: `fase` solo ve el código del último.
 - Un «no encontrado» dentro de pnpm o uv sale con 1 o 2 y pasa como rojo, así que en el rojo mirá siempre el motivo de la falla.
@@ -57,7 +57,7 @@ Los implementadores invocan **a demanda** `debugging-and-error-recovery` (cuando
 ## 2. 🟢 Verde
 - Lanzá el implementador de la tabla con `model: <modelo_impl>`, en modo **verde** (en `infra`, el único modo).
 - En `infra`, lo que el implementador reportó como verificado lo volvés a ejecutar vos (pasalo como `--test` si es un comando).
-- `node 06-Desarrollo/herramientas/tickets.mjs fase T-NNN verde "<qué hace>" --test "<cmd>"`: comprueba que los tests y la suite afectada pasen, controla que **estén intactos** desde el rojo, commitea `feat` (`chore` en `infra`) y sube. Si cambió un test, sale con código 2 y lista los archivos: restauralos con el comando que imprime, volvé a correr y devolvéselo al implementador. **Excepción:** si el ticket pide cambiar un archivo de soporte que vive en `tests/` (por ejemplo `conftest.py` o `fabricas.py`) y no los tests del rojo, pedile autorización a la persona y usá `--tocar-tests`; anotalo en el ticket.
+- `node 06-Desarrollo/herramientas/tickets.mjs fase T-NNN verde "<qué hace>" --test "<cmd>"`: comprueba que los tests del ticket y sus vecinos pasen, controla que **estén intactos** desde el rojo, commitea `feat` (`chore` en `infra`) y sube. Si cambió un test, sale con código 2 y lista los archivos: restauralos con el comando que imprime, volvé a correr y devolvéselo al implementador. **Excepción:** si el ticket pide cambiar un archivo de soporte que vive en `tests/` (por ejemplo `conftest.py` o `fabricas.py`) y no los tests del rojo, pedile autorización a la persona y usá `--tocar-tests`; anotalo en el ticket.
 
 ## 3. 🔵 Refactor (todas menos `e2e` e `infra`)
 - Lanzá `simplificador` con `model: <modelo_impl>`.
@@ -76,7 +76,9 @@ Los implementadores invocan **a demanda** `debugging-and-error-recovery` (cuando
 - Si hubo bloqueantes, una sola ronda más de review, solo sobre el diff del fix.
 
 ## 6. Checks
-Corré lint, type-check y tests de las partes tocadas, con la cobertura, usando los comandos de la §4 de la spec. Todo en verde antes de abrir el PR. Guardá la salida resumida: la usa el PR.
+Acá corre **una sola vez la suite completa** de cada parte tocada, con lint, type-check y cobertura, usando los comandos de la §4 de la spec. En el backend es `uv run pytest -n auto --cov=…`, que incluye `test_contrato_m1.py` y sus equivalentes. Es el único lugar del flujo donde se corre la suite completa (T-154). Todo tiene que estar en verde antes de abrir el PR.
+- Si algo falla acá y no falló en las fases, es una regresión fuera de los vecinos. Devolvésela al implementador del verde en modo fix, con `SendMessage`, y cerrala con `fase … fix --test "<los tests que fallaron>"`. Después volvé a correr los checks.
+- Guardá la salida resumida: la usa el PR.
 
 ## 7. Cierre y PR
 1. Completá «Notas de implementación» del ticket en pocas líneas: decisiones, desvíos, hallazgos que quedaron como menores y modelos que se usaron de verdad (incluido algún escalado).

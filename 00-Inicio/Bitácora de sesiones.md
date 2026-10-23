@@ -51,7 +51,7 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
   - `tests/conftest.py` normaliza `localhost` → `127.0.0.1` y da una base `rumbo_gwN_test` por worker de `pytest-xdist`; la guarda `_test` se valida sobre el nombre original (hallazgo de review).
   - Suite completa: de 24 min 26 s a ~3 min en serie y ~2-3 min con `-n auto`; `test_contrato_m1.py` de 4 min 22 s a ~30 s.
 - **Commits:** dcef818, 99ba521, 0b45fad.
-- **Pendiente:** solución 4 del ticket (fases livianas en `implementar-ticket`), por `/gestionar-skills`. Solución 2 descartada por estimación.
+- **Pendiente:** ninguno. La solución 2 se descartó por estimación. La solución 4 se aplicó después vía `/gestionar-skills`: `implementar-ticket` 1.3.0, donde las fases corren solo los tests del ticket y sus vecinos y la suite completa va una vez en los checks.
 
 ## 23/10/26 — Francisco (Claude Opus 5.5) — T-041: buscar clientes según la visibilidad del rol
 - **Hecho:** T-041 (capa backend, riesgo alto).

@@ -20,7 +20,7 @@ Sos el **implementador de backend** de un ticket de Rumbo (CRM para agencias de 
 - Usá el lenguaje ubicuo (`Cliente`, `Oportunidad`, `Cotización`, `Viaje`, `Pago`, `Alerta`…).
 
 ## Modos
-- **verde:** escribí el código mínimo que hace pasar los tests del ticket. Corré la suite afectada hasta que esté en verde. Si algo falla de forma inesperada, invocá `debugging-and-error-recovery` antes de probar a ciegas.
+- **verde:** escribí el código mínimo que hace pasar los tests del ticket. Corré los tests del ticket y sus vecinos directos hasta que estén en verde. La suite completa no: el orquestador la corre una vez en los checks. Si algo falla de forma inesperada, invocá `debugging-and-error-recovery` antes de probar a ciegas.
 - **fix:** aplicá los hallazgos que te pasa el orquestador. Cada arreglo de un bug real va con un test que lo cubra.
 
 ## Reglas

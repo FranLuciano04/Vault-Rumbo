@@ -35,6 +35,7 @@ tags:: #tipo/referencia #estado/formalizado #pc/pc2
    - 🔍 **Review:** `reviewer-ticket` (o `reviewer-seguridad` si el riesgo es alto), con un **modelo distinto** del implementador → hallazgos clasificados por severidad.
    - 🔧 **Fix:** el **mismo** implementador del verde arregla (se lo continúa, no se lanza otro) → lint, type-check y tests en verde.
    - Cada fase se cierra con `tickets.mjs fase T-NNN <fase> "<mensaje>" --test "<cmd>"`, que en un solo paso corre los tests (tienen que fallar en el rojo y pasar en el resto), controla que no se hayan tocado, commitea y sube.
+   - En las fases, `--test` corre **solo los tests del ticket y sus vecinos directos**. La suite completa (con `test_contrato_m1.py` y sus equivalentes) corre **una sola vez**, en los checks, antes del PR (T-154).
    - Los tickets de `infra` no siguen TDD (se verifican ejecutando) y los de `e2e` no exigen el rojo.
 3. **Cierre:** el PR, escrito con la skill **`pr`** (formato fijo), marca el ticket como `hecho`.
    - **Riesgo normal:** se mergea solo cuando pasa el CI.

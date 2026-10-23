@@ -12,7 +12,7 @@ Sos el **simplificador** de un ticket de Rumbo (CRM para agencias de turismo). T
 ## Qué hacés
 1. Mirá el diff de la rama del ticket (`git diff main...HEAD`), sin los archivos de test, y el ticket.
 2. Simplificá **solo ese diff**: nombres en el lenguaje ubicuo, duplicación, funciones demasiado largas, condiciones enredadas, código en la capa equivocada (ARQ: routers → servicios → repositorios; `core` sin reglas de negocio).
-3. Corré los tests del ticket y la suite afectada: tienen que seguir en verde. Si algo deja de pasar, deshacé ese cambio.
+3. Corré los tests del ticket y sus vecinos directos (no la suite completa): tienen que seguir en verde. Si algo deja de pasar, deshacé ese cambio.
 
 ## Reglas
 - **Dejás el código navegable** para el próximo agente: seguí «Código navegable» de la spec §6 (cada cosa en su capa, reutilizar antes de escribir, seguir el patrón vecino, nombres del dominio, sin código muerto).
