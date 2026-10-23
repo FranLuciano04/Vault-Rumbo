@@ -24,22 +24,6 @@ La **persona** de cada sesión es quien la corre, identificada por su identidad 
 ## Avisos pendientes por persona
 > Claude los lee al identificar a la persona (paso 1 de `CLAUDE.md`) y se los cuenta **apenas la saluda**, antes de cualquier otra tarea. Cuando la persona confirme que lo leyó o que lo hizo, **Claude borra su fila** en esa misma sesión, con un commit. Cuando no quede ninguna fila de alguien, se borra también su sección.
 
-### Paloma (`palomap2003`) — decisiones del 22/10
-- **22/10, de Francisco: [[DEC-0017 Contacto mínimo del cliente]] quedó formalizada, con un agregado a la propuesta de Paloma.**
-  - El contacto mínimo sigue siendo teléfono/WhatsApp o email.
-  - El cliente puede tener además su **usuario de Instagram como dato opcional**. No cuenta como contacto mínimo.
-  - Ya se alinearon CU-02, CU-03, `Cliente`, RF-001, DGM-ER y el diagrama de clases.
-  - El código entra con **T-149**, del que ahora dependen T-042, T-045, T-046 y T-048.
-- **22/10, de Francisco: al editar un usuario se puede corregir el nombre** (CU-25 A2). El email no, porque identifica la cuenta de Firebase. Se sumó a **T-028**.
-- **22/10, de Francisco: tickets nuevos de hallazgos de T-030:**
-  - **T-146:** alinear RF-150 y RF-151 en el código del permiso por rol.
-  - **T-147:** tests de la comisión de un usuario dado de baja.
-  - **T-148:** que la cobertura cuente las líneas después de un `await`.
-- **22/10, de Francisco: `/implementar-ticket` 1.1.0.**
-  - Ya no se usa `--auto`, porque `main` no exige checks.
-  - Hay que esperar el CI en verde y mergear **sin** `--delete-branch`. Si el merge falla, `gh` borra igual la rama y el PR queda cerrado (pasó con T-030).
-  - La rama se borra recién cuando el PR está en `MERGED`.
-
 ### Francisco (`FranLucianoo`) y Nahuel (`Nahuel Viniegra`) — T-027
 - **22/10, de Paloma: aprobar el PR [#45](https://github.com/FranLuciano04/Vault-Rumbo/pull/45)** (T-027, alta de usuarios con su cuenta de Firebase, ⚠️ riesgo alto).
   - Alcanza con que lo apruebe uno de los dos en GitHub. Después Paloma lo mergea con `/implementar-ticket T-027`.
