@@ -70,11 +70,10 @@ jobs:
           raiz='^(\.github/workflows/ci\.yml|src/(package\.json|pnpm-lock\.yaml|pnpm-workspace\.yaml|tsconfig\.base\.json|eslint\.config\.base\.js))$'
           hay() { grep -Eq "$1" <<<"$archivos" && echo true || echo false; }
 
-          # Mobile todavía no consume @rumbo/shared: sumar `^src/packages/shared/` cuando lo haga.
           {
             echo "backend=$(hay "$raiz|^src/backend/")"
             echo "web=$(hay "$raiz|^src/apps/web/|^src/packages/shared/")"
-            echo "mobile=$(hay "$raiz|^src/apps/mobile/")"
+            echo "mobile=$(hay "$raiz|^src/apps/mobile/|^src/packages/shared/")"
             echo "src=$(hay "$raiz|^src/")"
           } | tee -a "$GITHUB_OUTPUT"
 
