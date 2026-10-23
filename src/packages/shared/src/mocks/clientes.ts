@@ -1,11 +1,17 @@
 import { http, HttpResponse, type RequestHandler } from "msw";
-import type { Cliente, ClienteCrear, ClienteEditar, HistorialCliente } from "../cliente";
+import type {
+  Cliente,
+  ClienteCrear,
+  ClienteEditar,
+  ClienteListado,
+  HistorialCliente,
+} from "../cliente";
 import { normalizarInstagram } from "../esquemas/clientes";
 import { usuariosPorRol } from "./index";
 import { respuestaProblema } from "./problema";
 
 /** Clientes ficticios que respetan el esquema `Cliente`. */
-export const clientesMock: Cliente[] = [
+export const clientesMock: ClienteListado[] = [
   {
     id: "3c1f6d2e-8a47-4b19-9e53-7d0a2b4c6e11",
     nombre: "Camila Benítez",
@@ -16,6 +22,9 @@ export const clientesMock: Cliente[] = [
     preferencias: "Hoteles todo incluido, vuelos directos.",
     no_recontactar: false,
     asesor_asignado_id: "a1c4e7f0-3d58-4b92-b6a3-8f0e2d1c4b03",
+    asesor: { id: "a1c4e7f0-3d58-4b92-b6a3-8f0e2d1c4b03", nombre: "Laura Asesora" },
+    ultimo_viaje: { fecha_salida: "2026-02-10", destino: "Punta Cana" },
+    oportunidades_abiertas: 1,
     created_by: "5d3e9c18-7b24-4a6f-8e10-2c4a9b6d5f02",
     updated_by: "a1c4e7f0-3d58-4b92-b6a3-8f0e2d1c4b03",
     created_at: "2026-01-12T14:30:00Z",
@@ -31,6 +40,9 @@ export const clientesMock: Cliente[] = [
     preferencias: null,
     no_recontactar: false,
     asesor_asignado_id: null,
+    asesor: null,
+    ultimo_viaje: null,
+    oportunidades_abiertas: 0,
     created_by: "5d3e9c18-7b24-4a6f-8e10-2c4a9b6d5f02",
     updated_by: "a1c4e7f0-3d58-4b92-b6a3-8f0e2d1c4b03",
     created_at: "2026-01-12T14:30:00Z",
@@ -46,6 +58,9 @@ export const clientesMock: Cliente[] = [
     preferencias: "Viaja solo, prefiere escapadas cortas.",
     no_recontactar: true,
     asesor_asignado_id: "e7b20d94-6a3f-4c15-9d8e-0b5a3f7c2e04",
+    asesor: { id: "e7b20d94-6a3f-4c15-9d8e-0b5a3f7c2e04", nombre: "Nicolás Paz" },
+    ultimo_viaje: { fecha_salida: "2025-11-03", destino: "Roma" },
+    oportunidades_abiertas: 2,
     created_by: "5d3e9c18-7b24-4a6f-8e10-2c4a9b6d5f02",
     updated_by: "a1c4e7f0-3d58-4b92-b6a3-8f0e2d1c4b03",
     created_at: "2026-01-12T14:30:00Z",
@@ -98,6 +113,15 @@ function claveEtiqueta(etiqueta: string): string {
     .split(/\s+/)
     .filter(Boolean)
     .join(" ");
+}
+
+/** La ficha que devuelve el backend: `Cliente`, sin el resumen que solo trae el listado. */
+export function aFicha(listado: ClienteListado): Cliente {
+  const ficha: Partial<ClienteListado> = { ...listado };
+  delete ficha.asesor;
+  delete ficha.ultimo_viaje;
+  delete ficha.oportunidades_abiertas;
+  return ficha as Cliente;
 }
 
 function noEncontrado() {
@@ -158,7 +182,7 @@ export const manejadoresClientes: RequestHandler[] = [
     if (duplicados.length > 0 && !datos.confirmar_duplicado) {
       return respuestaProblema(409, "Conflicto", {
         detail: "Ya existe un cliente con ese contacto.",
-        duplicados,
+        duplicados: duplicados.map(aFicha),
       });
     }
     const ahora = new Date().toISOString();
@@ -182,7 +206,7 @@ export const manejadoresClientes: RequestHandler[] = [
 
   http.get(`${BASE}/:id`, ({ params }) => {
     const cliente = clientesMock.find((c) => c.id === params["id"]);
-    return cliente ? HttpResponse.json(cliente) : noEncontrado();
+    return cliente ? HttpResponse.json(aFicha(cliente)) : noEncontrado();
   }),
 
   http.patch(`${BASE}/:id`, async ({ params, request }) => {
@@ -193,7 +217,7 @@ export const manejadoresClientes: RequestHandler[] = [
       "instagram" in cambios
         ? { ...cambios, instagram: normalizarInstagram(cambios.instagram) as string | null }
         : cambios;
-    return HttpResponse.json({ ...cliente, ...normalizados });
+    return HttpResponse.json({ ...aFicha(cliente), ...normalizados });
   }),
 
   http.get(`${BASE}/:id/historial`, ({ params }) => {

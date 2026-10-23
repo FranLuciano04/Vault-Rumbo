@@ -84,7 +84,7 @@ async def test_rf031_buscar_publica_filtros_y_paginacion(contrato: dict[str, Any
     nombre = _nombre(esquema["$ref"])
     assert nombre.startswith("Pagina")
     pagina = contrato["components"]["schemas"][nombre]
-    assert _nombre(pagina["properties"]["items"]["items"]["$ref"]) == "Cliente"
+    assert _nombre(pagina["properties"]["items"]["items"]["$ref"]) == "ClienteListado"
 
 
 async def test_rf031_por_pagina_tiene_maximo_100_en_el_contrato(

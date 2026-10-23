@@ -4,8 +4,9 @@ import uuid
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from rumbo.core.fechas import hoy
 from rumbo.datos.modelos import Cliente, RolUsuario, SegmentoCliente, Usuario
-from rumbo.datos.repositorios.clientes import RepositorioClientes
+from rumbo.datos.repositorios.clientes import RepositorioClientes, ResumenCliente
 from rumbo.datos.repositorios.seguridad import RepositorioUsuarios
 from rumbo.negocio.errores import DatosInvalidos, NoEncontrado, PosibleDuplicado
 from rumbo.negocio.politicas import visibilidad
@@ -67,14 +68,15 @@ async def buscar_clientes(
     mios: bool,
     desplazamiento: int,
     limite: int,
-) -> tuple[list[Cliente], int]:
-    """Página de clientes por nombre y el total (CU-03, RF-005, RF-031).
+) -> tuple[list[tuple[Cliente, ResumenCliente]], int]:
+    """Página de clientes por nombre, cada uno con su resumen, y el total (CU-03, RF-005, RF-031).
 
     `mios` deja solo los que el actor tiene asignados (RF-009). Lo que ve cada rol lo decide
     `visibilidad`, no el filtro: el `freelance` recibe solo los suyos aunque no pida `mios`
     (RF-151).
     """
-    return await _clientes.paginar(
+    vista = visibilidad(actor)
+    pagina, total = await _clientes.paginar(
         sesion,
         buscar=buscar,
         etiquetas=etiquetas,
@@ -82,8 +84,10 @@ async def buscar_clientes(
         asesor_id=actor.id if mios else None,
         desplazamiento=desplazamiento,
         limite=limite,
-        visibilidad=visibilidad(actor),
+        visibilidad=vista,
     )
+    resumenes = await _clientes.resumir(sesion, pagina, hoy=hoy(), visibilidad=vista)
+    return [(c, resumenes[c.id]) for c in pagina], total
 
 
 async def listar_etiquetas(sesion: AsyncSession, actor: Usuario) -> list[str]:

@@ -2363,7 +2363,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Pagina_Cliente_"
+                  "$ref": "#/components/schemas/Pagina_ClienteListado_"
                 }
               }
             }
@@ -2715,6 +2715,25 @@
   },
   "components": {
     "schemas": {
+      "AsesorDelCliente": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "nombre": {
+            "type": "string",
+            "title": "Nombre"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "nombre"
+        ],
+        "title": "AsesorDelCliente"
+      },
       "Cliente": {
         "properties": {
           "created_by": {
@@ -2985,6 +3004,162 @@
         "type": "object",
         "title": "ClienteEditar",
         "description": "Edición parcial de la ficha (CU-03, CU-30): solo cambian los campos enviados."
+      },
+      "ClienteListado": {
+        "properties": {
+          "created_by": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created By",
+            "description": "Usuario que creó el registro; vacío si lo hizo el proceso automático.",
+            "readOnly": true
+          },
+          "updated_by": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Updated By",
+            "description": "Usuario que lo modificó por última vez; vacío si fue el proceso automático.",
+            "readOnly": true
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At",
+            "readOnly": true
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At",
+            "readOnly": true
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "nombre": {
+            "type": "string",
+            "maxLength": 120,
+            "minLength": 1,
+            "title": "Nombre"
+          },
+          "contacto": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Contacto"
+          },
+          "instagram": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[a-z0-9._]{1,30}$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Instagram"
+          },
+          "segmento": {
+            "$ref": "#/components/schemas/SegmentoCliente"
+          },
+          "etiquetas": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Etiquetas"
+          },
+          "preferencias": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Preferencias"
+          },
+          "no_recontactar": {
+            "type": "boolean",
+            "title": "No Recontactar"
+          },
+          "asesor_asignado_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Asesor Asignado Id"
+          },
+          "asesor": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AsesorDelCliente"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "ultimo_viaje": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/UltimoViajeDelCliente"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "oportunidades_abiertas": {
+            "type": "integer",
+            "title": "Oportunidades Abiertas",
+            "description": "En `nueva`, `en_gestion` o `cotizada`."
+          }
+        },
+        "type": "object",
+        "required": [
+          "created_by",
+          "updated_by",
+          "created_at",
+          "updated_at",
+          "id",
+          "nombre",
+          "contacto",
+          "instagram",
+          "segmento",
+          "etiquetas",
+          "preferencias",
+          "no_recontactar",
+          "asesor_asignado_id",
+          "asesor",
+          "ultimo_viaje",
+          "oportunidades_abiertas"
+        ],
+        "title": "ClienteListado",
+        "description": "Fila del listado (CU-03 paso 1): la ficha más su resumen."
       },
       "ComisionPorDefecto": {
         "properties": {
@@ -3570,11 +3745,11 @@
         "title": "OportunidadDelCliente",
         "description": "Consulta del cliente, tal como aparece en su historial."
       },
-      "Pagina_Cliente_": {
+      "Pagina_ClienteListado_": {
         "properties": {
           "items": {
             "items": {
-              "$ref": "#/components/schemas/Cliente"
+              "$ref": "#/components/schemas/ClienteListado"
             },
             "type": "array",
             "title": "Items"
@@ -3599,7 +3774,7 @@
           "pagina",
           "por_pagina"
         ],
-        "title": "Pagina[Cliente]"
+        "title": "Pagina[ClienteListado]"
       },
       "Pagina_Destino_": {
         "properties": {
@@ -4074,6 +4249,27 @@
           "pareja"
         ],
         "title": "SegmentoCliente"
+      },
+      "UltimoViajeDelCliente": {
+        "properties": {
+          "fecha_salida": {
+            "type": "string",
+            "format": "date",
+            "title": "Fecha Salida"
+          },
+          "destino": {
+            "type": "string",
+            "title": "Destino",
+            "description": "Nombre del `Destino`."
+          }
+        },
+        "type": "object",
+        "required": [
+          "fecha_salida",
+          "destino"
+        ],
+        "title": "UltimoViajeDelCliente",
+        "description": "Viaje no cancelado de salida más reciente entre los que ya salieron (hasta hoy)."
       },
       "Usuario": {
         "properties": {

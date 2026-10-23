@@ -32,6 +32,22 @@ Instagram = Annotated[
 _OMITIDO: Any = None  # valor por defecto de un campo que no admite `null` pero puede omitirse
 
 
+class AsesorDelCliente(BaseModel):
+    id: uuid.UUID
+    nombre: str
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class UltimoViajeDelCliente(BaseModel):
+    """Viaje no cancelado de salida más reciente entre los que ya salieron (hasta hoy)."""
+
+    fecha_salida: date
+    destino: str = Field(description="Nombre del `Destino`.")
+
+    model_config = ConfigDict(from_attributes=True)
+
+
 class Cliente(Auditoria):
     """Ficha del cliente: contacto, segmento, etiquetas y preferencias."""
 
@@ -46,6 +62,14 @@ class Cliente(Auditoria):
     asesor_asignado_id: uuid.UUID | None
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class ClienteListado(Cliente):
+    """Fila del listado (CU-03 paso 1): la ficha más su resumen."""
+
+    asesor: AsesorDelCliente | None
+    ultimo_viaje: UltimoViajeDelCliente | None
+    oportunidades_abiertas: int = Field(description="En `nueva`, `en_gestion` o `cotizada`.")
 
 
 class ClienteCrear(Entrada):

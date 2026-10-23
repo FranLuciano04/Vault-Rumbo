@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 import { afterAll, afterEach, beforeAll, describe, expect, it } from "vitest";
-import { clientesMock, manejadoresClientes } from "./clientes";
+import type { ClienteListado } from "../cliente";
+import { aFicha, clientesMock, manejadoresClientes } from "./clientes";
 import { crearServidor } from "./index";
 
 type Esquema = { required?: string[]; enum?: string[] };
@@ -70,7 +71,7 @@ describe("RF-031 handlers MSW de /api/clientes", () => {
     const res = await fetch(`${BASE}/${String(clientesMock[0]?.["id"])}`);
 
     expect(res.status).toBe(200);
-    expect(await res.json()).toEqual(clientesMock[0]);
+    expect(await res.json()).toEqual(aFicha(clientesMock[0] as ClienteListado));
   });
 
   it("RF-031 GET /api/clientes/{id} de un cliente inexistente responde 404 problem+json", async () => {
@@ -113,7 +114,7 @@ describe("RF-031 handlers MSW de /api/clientes", () => {
     expect(res.headers.get("content-type")).toContain("application/problem+json");
     const cuerpo = (await res.json()) as { status: number; duplicados: unknown[] };
     expect(cuerpo.status).toBe(409);
-    expect(cuerpo.duplicados).toEqual([clientesMock[0]]);
+    expect(cuerpo.duplicados).toEqual([aFicha(clientesMock[0] as ClienteListado)]);
   });
 
   it("RF-031 POST duplicado con confirmar_duplicado=true responde 201", async () => {

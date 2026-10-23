@@ -551,6 +551,16 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /** AsesorDelCliente */
+        AsesorDelCliente: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Nombre */
+            nombre: string;
+        };
         /**
          * Cliente
          * @description Ficha del cliente: contacto, segmento, etiquetas y preferencias.
@@ -644,6 +654,59 @@ export interface components {
             no_recontactar?: boolean;
             /** Asesor Asignado Id */
             asesor_asignado_id?: string | null;
+        };
+        /**
+         * ClienteListado
+         * @description Fila del listado (CU-03 paso 1): la ficha más su resumen.
+         */
+        ClienteListado: {
+            /**
+             * Created By
+             * @description Usuario que creó el registro; vacío si lo hizo el proceso automático.
+             */
+            readonly created_by: string | null;
+            /**
+             * Updated By
+             * @description Usuario que lo modificó por última vez; vacío si fue el proceso automático.
+             */
+            readonly updated_by: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            readonly created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            readonly updated_at: string;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Nombre */
+            nombre: string;
+            /** Contacto */
+            contacto: string;
+            /** Instagram */
+            instagram: string | null;
+            segmento: components["schemas"]["SegmentoCliente"];
+            /** Etiquetas */
+            etiquetas: string[];
+            /** Preferencias */
+            preferencias: string | null;
+            /** No Recontactar */
+            no_recontactar: boolean;
+            /** Asesor Asignado Id */
+            asesor_asignado_id: string | null;
+            asesor: components["schemas"]["AsesorDelCliente"] | null;
+            ultimo_viaje: components["schemas"]["UltimoViajeDelCliente"] | null;
+            /**
+             * Oportunidades Abiertas
+             * @description En `nueva`, `en_gestion` o `cotizada`.
+             */
+            oportunidades_abiertas: number;
         };
         /**
          * ComisionPorDefecto
@@ -857,10 +920,10 @@ export interface components {
             /** Fecha Hasta Tentativa */
             fecha_hasta_tentativa: string | null;
         };
-        /** Pagina[Cliente] */
-        Pagina_Cliente_: {
+        /** Pagina[ClienteListado] */
+        Pagina_ClienteListado_: {
             /** Items */
-            items: components["schemas"]["Cliente"][];
+            items: components["schemas"]["ClienteListado"][];
             /** Total */
             total: number;
             /** Pagina */
@@ -1055,6 +1118,22 @@ export interface components {
          * @enum {string}
          */
         SegmentoCliente: "familia" | "amigos" | "individual" | "pareja";
+        /**
+         * UltimoViajeDelCliente
+         * @description Viaje no cancelado de salida más reciente entre los que ya salieron (hasta hoy).
+         */
+        UltimoViajeDelCliente: {
+            /**
+             * Fecha Salida
+             * Format: date
+             */
+            fecha_salida: string;
+            /**
+             * Destino
+             * @description Nombre del `Destino`.
+             */
+            destino: string;
+        };
         /** Usuario */
         Usuario: {
             /**
@@ -2657,7 +2736,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["Pagina_Cliente_"];
+                    "application/json": components["schemas"]["Pagina_ClienteListado_"];
                 };
             };
             /** @description Falta el token, no es válido o el usuario no tiene acceso. */
