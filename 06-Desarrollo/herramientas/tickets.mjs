@@ -342,6 +342,8 @@ const FASES = { rojo: 'test', verde: 'feat', refactor: 'refactor', fix: 'fix', h
 // Lo que se commitea en cada fase: todo, menos la configuración local de Obsidian, que el editor
 // reescribe solo y no es parte de ningún ticket (hallazgo T-022).
 const AGREGAR = ['add', '-A', '--', '.', ':(exclude).obsidian'];
+// Códigos con los que una shell avisa que el comando ni arrancó (no ejecutable, no encontrado).
+const NO_EJECUTO = new Set([126, 127, 9009]);
 
 // En Windows, el `bash` del PATH puede ser el de WSL (System32), que falla sin correr nada y hacía pasar
 // un rojo falso (hallazgo T-021). Se usa el bash de Git for Windows, que se deduce de `git --exec-path`.
@@ -366,6 +368,12 @@ function correrTests(comando, nombre) {
   const cola = salida.slice(-25).join('\n');
   const pasan = r.status === 0;
   console.log(`🧪 ${comando}\n${salida.length > 25 ? '…\n' : ''}${cola}\n`);
+  // 126/127 (bash: no ejecutable / no encontrado) y 9009 (cmd de Windows) dicen que ningún test corrió:
+  // no es ni un rojo ni un verde (hallazgo T-034).
+  if (NO_EJECUTO.has(r.status)) {
+    console.error(`❌ El comando de tests no se pudo ejecutar (código ${r.status}): no corrió ningún test, así que no es un rojo ni un verde. Revisá el PATH; por ejemplo, usá «corepack pnpm» en lugar de «pnpm». No se commiteó.`);
+    process.exit(5);
+  }
   if (nombre === 'rojo' && pasan) {
     console.error('❌ Los tests pasan antes de implementar: en el rojo tienen que fallar. No se commiteó.');
     process.exit(3);
