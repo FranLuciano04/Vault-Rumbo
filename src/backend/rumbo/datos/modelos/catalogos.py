@@ -88,6 +88,11 @@ class Operador(IdMixin, AuditoriaMixin, Base):
     activo: Mapped[bool] = mapped_column(server_default=text("true"))  # baja lógica, DEC-0009
 
 
+INDICE_NOMBRE_OPERADOR = "operador_nombre_normalizado_uq"
+# Dos operadores no pueden llamarse igual sin importar tildes, mayúsculas ni espacios (RF-094).
+Index(INDICE_NOMBRE_OPERADOR, nombre_normalizado(Operador.nombre), unique=True)
+
+
 class Hotel(IdMixin, AuditoriaMixin, Base):
     __tablename__ = "hotel"
     __table_args__ = (CheckConstraint("precio_referencia >= 0"),)

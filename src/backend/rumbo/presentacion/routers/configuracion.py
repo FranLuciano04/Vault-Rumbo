@@ -8,7 +8,7 @@ from fastapi import APIRouter, Depends
 from rumbo.core.db import SesionDep
 from rumbo.datos import modelos
 from rumbo.negocio.servicios import configuracion, parametros
-from rumbo.presentacion.contrato import GESTION, TODOS, no_implementado, operacion
+from rumbo.presentacion.contrato import GESTION, TODOS, operacion
 from rumbo.presentacion.dependencias import usuario_actual
 from rumbo.presentacion.esquemas.configuracion import (
     ComisionPorDefecto,
@@ -240,9 +240,27 @@ async def dar_de_baja_requisito_destino(
     **operacion(TODOS, "CU-31", 422),
 )
 async def listar_operadores(
-    pagina: PaginaDep, activo: bool | None = None, buscar: str | None = None
+    pagina: PaginaDep,
+    actor: ActorDep,
+    sesion: SesionDep,
+    activo: bool = True,
+    buscar: str | None = None,
 ) -> Pagina[Operador]:
-    raise no_implementado()
+    """Por defecto solo los activos; `activo=false` trae los de baja."""
+    items, total = await configuracion.listar_operadores(
+        sesion,
+        actor,
+        activo=activo,
+        buscar=buscar,
+        desplazamiento=pagina.desplazamiento,
+        limite=pagina.por_pagina,
+    )
+    return Pagina(
+        items=[Operador.model_validate(o) for o in items],
+        total=total,
+        pagina=pagina.pagina,
+        por_pagina=pagina.por_pagina,
+    )
 
 
 @router.post(
@@ -252,8 +270,9 @@ async def listar_operadores(
     summary="Dar de alta un operador",
     **operacion(GESTION, "CU-31", 409, 422),
 )
-async def crear_operador(datos: OperadorCrear) -> Operador:
-    raise no_implementado()
+async def crear_operador(datos: OperadorCrear, actor: ActorDep, sesion: SesionDep) -> Operador:
+    operador = await configuracion.crear_operador(sesion, actor, **datos.model_dump())
+    return Operador.model_validate(operador)
 
 
 @router.get(
@@ -262,8 +281,8 @@ async def crear_operador(datos: OperadorCrear) -> Operador:
     summary="Ver un operador",
     **operacion(TODOS, "CU-31", 404),
 )
-async def obtener_operador(operador_id: uuid.UUID) -> Operador:
-    raise no_implementado()
+async def obtener_operador(operador_id: uuid.UUID, actor: ActorDep, sesion: SesionDep) -> Operador:
+    return Operador.model_validate(await configuracion.obtener_operador(sesion, actor, operador_id))
 
 
 @router.patch(
@@ -272,8 +291,12 @@ async def obtener_operador(operador_id: uuid.UUID) -> Operador:
     summary="Editar un operador",
     **operacion(GESTION, "CU-31", 404, 409, 422),
 )
-async def editar_operador(operador_id: uuid.UUID, datos: OperadorEditar) -> Operador:
-    raise no_implementado()
+async def editar_operador(
+    operador_id: uuid.UUID, datos: OperadorEditar, actor: ActorDep, sesion: SesionDep
+) -> Operador:
+    cambios = datos.model_dump(exclude_unset=True)
+    operador = await configuracion.editar_operador(sesion, actor, operador_id, cambios)
+    return Operador.model_validate(operador)
 
 
 @router.post(
@@ -282,8 +305,11 @@ async def editar_operador(operador_id: uuid.UUID, datos: OperadorEditar) -> Oper
     summary="Dar de baja un operador (baja lógica)",
     **operacion(GESTION, "CU-31", 404),
 )
-async def dar_de_baja_operador(operador_id: uuid.UUID) -> Operador:
-    raise no_implementado()
+async def dar_de_baja_operador(
+    operador_id: uuid.UUID, actor: ActorDep, sesion: SesionDep
+) -> Operador:
+    operador = await configuracion.dar_de_baja_operador(sesion, actor, operador_id)
+    return Operador.model_validate(operador)
 
 
 @router.post(
@@ -292,5 +318,8 @@ async def dar_de_baja_operador(operador_id: uuid.UUID) -> Operador:
     summary="Reactivar un operador",
     **operacion(GESTION, "CU-31", 404),
 )
-async def reactivar_operador(operador_id: uuid.UUID) -> Operador:
-    raise no_implementado()
+async def reactivar_operador(
+    operador_id: uuid.UUID, actor: ActorDep, sesion: SesionDep
+) -> Operador:
+    operador = await configuracion.reactivar_operador(sesion, actor, operador_id)
+    return Operador.model_validate(operador)

@@ -1702,14 +1702,8 @@
             "in": "query",
             "required": false,
             "schema": {
-              "anyOf": [
-                {
-                  "type": "boolean"
-                },
-                {
-                  "type": "null"
-                }
-              ],
+              "type": "boolean",
+              "default": true,
               "title": "Activo"
             }
           },

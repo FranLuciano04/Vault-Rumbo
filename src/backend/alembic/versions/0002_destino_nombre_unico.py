@@ -20,7 +20,7 @@ def upgrade() -> None:
     op.execute(
         """
 CREATE UNIQUE INDEX destino_nombre_normalizado_uq ON destino (
-    regexp_replace(btrim(lower(translate(nombre, 'áéíóúüÁÉÍÓÚÜ', 'aeiouuaeiouu'))), '\s+', ' ', 'g')
+    regexp_replace(btrim(lower(translate(nombre, 'áéíóúüÁÉÍÓÚÜ', 'aeiouuaeiouu'))), '\\s+', ' ', 'g')
 )
         """
     )
