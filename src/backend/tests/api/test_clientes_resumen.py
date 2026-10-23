@@ -82,10 +82,20 @@ async def test_rf005_listado_trae_asesor_ultimo_viaje_y_oportunidades(
     viejo = await crear(sesion, DestinoFactory, nombre="Bariloche", pais="Argentina")
     nuevo = await crear(sesion, DestinoFactory, nombre="Salvador", pais="Brasil")
     await _viaje(
-        sesion, cliente, asesor, viejo, fecha_salida=date(2026, 1, 10), fecha_regreso=date(2026, 1, 20)
+        sesion,
+        cliente,
+        asesor,
+        viejo,
+        fecha_salida=date(2026, 1, 10),
+        fecha_regreso=date(2026, 1, 20),
     )
     await _viaje(
-        sesion, cliente, asesor, nuevo, fecha_salida=date(2027, 3, 1), fecha_regreso=date(2027, 3, 9)
+        sesion,
+        cliente,
+        asesor,
+        nuevo,
+        fecha_salida=date(2027, 3, 1),
+        fecha_regreso=date(2027, 3, 9),
     )
     for estado in ("nueva", "en_gestion", "cotizada", "ganada"):
         await _oportunidad(sesion, cliente, asesor, estado)
@@ -120,10 +130,20 @@ async def test_rf005_ultimo_viaje_ignora_cancelados(
     vigente = await crear(sesion, DestinoFactory, nombre="Mendoza", pais="Argentina")
     cancelado = await crear(sesion, DestinoFactory, nombre="Cancún", pais="México")
     await _viaje(
-        sesion, cliente, asesor, vigente, fecha_salida=date(2026, 5, 1), fecha_regreso=date(2026, 5, 8)
+        sesion,
+        cliente,
+        asesor,
+        vigente,
+        fecha_salida=date(2026, 5, 1),
+        fecha_regreso=date(2026, 5, 8),
     )
     await _cancelado(
-        sesion, cliente, asesor, cancelado, fecha_salida=date(2027, 8, 1), fecha_regreso=date(2027, 8, 8)
+        sesion,
+        cliente,
+        asesor,
+        cancelado,
+        fecha_salida=date(2027, 8, 1),
+        fecha_regreso=date(2027, 8, 8),
     )
     c = await cliente_como("admin")
 
@@ -161,7 +181,12 @@ async def test_rf151_freelance_ve_el_resumen_completo_de_sus_clientes(
         sesion, cliente, yo, propio, fecha_salida=date(2026, 6, 1), fecha_regreso=date(2026, 6, 8)
     )
     await _viaje(
-        sesion, cliente, empleado, ajeno, fecha_salida=date(2027, 6, 1), fecha_regreso=date(2027, 6, 8)
+        sesion,
+        cliente,
+        empleado,
+        ajeno,
+        fecha_salida=date(2027, 6, 1),
+        fecha_regreso=date(2027, 6, 8),
     )
     await _oportunidad(sesion, cliente, yo, "nueva")
     await _oportunidad(sesion, cliente, empleado, "en_gestion")
@@ -185,8 +210,14 @@ async def test_rf151_freelance_cuenta_lo_del_cliente_aunque_nada_sea_suyo_por_re
         asesor_asignado_id=c.usuario.id,  # type: ignore[attr-defined]
     )
     destino = await crear(sesion, DestinoFactory, nombre="Lima", pais="Perú")
-    await _viaje(sesion, cliente, empleado, destino, fecha_salida=date(2027, 6, 1),
-                 fecha_regreso=date(2027, 6, 8))
+    await _viaje(
+        sesion,
+        cliente,
+        empleado,
+        destino,
+        fecha_salida=date(2027, 6, 1),
+        fecha_regreso=date(2027, 6, 8),
+    )
     await _oportunidad(sesion, cliente, empleado, "nueva")
 
     item = _item(await c.get("/api/clientes"), cliente)

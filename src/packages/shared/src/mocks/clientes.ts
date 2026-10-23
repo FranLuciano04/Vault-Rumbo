@@ -115,6 +115,15 @@ function claveEtiqueta(etiqueta: string): string {
     .join(" ");
 }
 
+/** La ficha que devuelve el backend: `Cliente`, sin el resumen que solo trae el listado. */
+export function aFicha(listado: ClienteListado): Cliente {
+  const ficha: Partial<ClienteListado> = { ...listado };
+  delete ficha.asesor;
+  delete ficha.ultimo_viaje;
+  delete ficha.oportunidades_abiertas;
+  return ficha as Cliente;
+}
+
 function noEncontrado() {
   return respuestaProblema(404, "No encontrado", {
     detail: "El cliente no existe o no lo podés ver.",
@@ -173,7 +182,7 @@ export const manejadoresClientes: RequestHandler[] = [
     if (duplicados.length > 0 && !datos.confirmar_duplicado) {
       return respuestaProblema(409, "Conflicto", {
         detail: "Ya existe un cliente con ese contacto.",
-        duplicados,
+        duplicados: duplicados.map(aFicha),
       });
     }
     const ahora = new Date().toISOString();
@@ -197,7 +206,7 @@ export const manejadoresClientes: RequestHandler[] = [
 
   http.get(`${BASE}/:id`, ({ params }) => {
     const cliente = clientesMock.find((c) => c.id === params["id"]);
-    return cliente ? HttpResponse.json(cliente) : noEncontrado();
+    return cliente ? HttpResponse.json(aFicha(cliente)) : noEncontrado();
   }),
 
   http.patch(`${BASE}/:id`, async ({ params, request }) => {
@@ -208,7 +217,7 @@ export const manejadoresClientes: RequestHandler[] = [
       "instagram" in cambios
         ? { ...cambios, instagram: normalizarInstagram(cambios.instagram) as string | null }
         : cambios;
-    return HttpResponse.json({ ...cliente, ...normalizados });
+    return HttpResponse.json({ ...aFicha(cliente), ...normalizados });
   }),
 
   http.get(`${BASE}/:id/historial`, ({ params }) => {

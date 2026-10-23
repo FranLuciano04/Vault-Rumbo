@@ -104,8 +104,10 @@ class RepositorioClientes(RepositorioBase[Cliente]):
         self, sesion: AsyncSession, clientes: list[Cliente], *, visibilidad: Visibilidad
     ) -> dict[uuid.UUID, ResumenCliente]:
         """Resumen de cada `Cliente` de `clientes` en tres consultas, sin importar cuántos sean.
-        Viajes y oportunidades salen filtrados por `visibilidad`; el asesor es un dato del
-        cliente, que el actor ya ve."""
+        Viajes y oportunidades salen filtrados por `visibilidad` por convención, para que siga
+        valiendo si cambia la regla de `politicas` (hoy, para el freelance, un cliente propio
+        cuenta todo y el resultado es el mismo). El asesor es un dato del cliente, que el actor
+        ya ve."""
         ids = [c.id for c in clientes]
         asesores = {
             a.id: a

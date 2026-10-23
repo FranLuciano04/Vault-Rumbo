@@ -3,9 +3,9 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { act, renderHook, waitFor } from "@testing-library/react";
 import { createElement, type ReactNode } from "react";
 import { afterAll, afterEach, beforeAll, describe, expect, it } from "vitest";
-import { crearCliente } from "../cliente";
+import { crearCliente, type ClienteListado } from "../cliente";
 import { crearServidor } from "../mocks";
-import { clientesMock, manejadoresClientes } from "../mocks/clientes";
+import { aFicha, clientesMock, manejadoresClientes } from "../mocks/clientes";
 import {
   useClientes,
   useCliente,
@@ -53,7 +53,7 @@ describe("RF-031 hooks de clientes", () => {
     const { result } = renderHook(() => useCliente(cliente, id), { wrapper: envoltorio });
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
-    expect(result.current.data).toEqual(clientesMock[0]);
+    expect(result.current.data).toEqual(aFicha(clientesMock[0] as ClienteListado));
   });
 
   it("RF-031 useCliente expone el 404 como ErrorApi", async () => {
@@ -107,7 +107,9 @@ describe("RF-031 hooks de clientes", () => {
 
     await waitFor(() => expect(result.current.isError).toBe(true));
     expect(result.current.error).toMatchObject({ status: 409 });
-    expect(result.current.error).toHaveProperty("duplicados", [clientesMock[0]]);
+    expect(result.current.error).toHaveProperty("duplicados", [
+      aFicha(clientesMock[0] as ClienteListado),
+    ]);
   });
 
   it("RF-031 useEditarCliente edita la ficha", async () => {
