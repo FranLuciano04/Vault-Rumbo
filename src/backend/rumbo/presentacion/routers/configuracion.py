@@ -243,14 +243,14 @@ async def listar_operadores(
     pagina: PaginaDep,
     actor: ActorDep,
     sesion: SesionDep,
-    activo: bool | None = None,
+    activo: bool = True,
     buscar: str | None = None,
 ) -> Pagina[Operador]:
     """Por defecto solo los activos; `activo=false` trae los de baja."""
     items, total = await configuracion.listar_operadores(
         sesion,
         actor,
-        activo=activo is not False,
+        activo=activo,
         buscar=buscar,
         desplazamiento=pagina.desplazamiento,
         limite=pagina.por_pagina,

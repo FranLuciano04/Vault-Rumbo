@@ -16,7 +16,7 @@ from rumbo.datos.modelos import (
     TipoRequisito,
     Usuario,
 )
-from rumbo.datos.repositorios.base import RepositorioBase
+from rumbo.datos.repositorios.base import RepositorioBase, RepositorioCatalogo
 from rumbo.datos.repositorios.destinos import RepositorioDestinos
 from rumbo.datos.repositorios.operadores import RepositorioOperadores
 from rumbo.datos.repositorios.requisitos import RepositorioRequisitos
@@ -213,10 +213,10 @@ async def _fijar_activo[F: Destino | Operador](
     return fila
 
 
-async def _exigir_nombre_libre(
+async def _exigir_nombre_libre[F: Destino | Operador](
     sesion: AsyncSession,
     actor: Usuario,
-    repositorio: RepositorioDestinos | RepositorioOperadores,
+    repositorio: RepositorioCatalogo[F],
     nombre: str,
     *,
     excluir_id: uuid.UUID | None = None,
@@ -229,8 +229,8 @@ async def _exigir_nombre_libre(
         raise Conflicto(f"Ya existe un {repositorio.etiqueta} llamado «{repetido.nombre}».")
 
 
-async def _guardar_con_nombre_unico(
-    sesion: AsyncSession, repositorio: RepositorioDestinos | RepositorioOperadores
+async def _guardar_con_nombre_unico[F: Destino | Operador](
+    sesion: AsyncSession, repositorio: RepositorioCatalogo[F]
 ) -> None:
     """Flush que traduce el choque con el índice único del nombre a 409: cubre la carrera entre
     dos altas que pasaron `_exigir_nombre_libre` a la vez. Corre en un savepoint para que la
