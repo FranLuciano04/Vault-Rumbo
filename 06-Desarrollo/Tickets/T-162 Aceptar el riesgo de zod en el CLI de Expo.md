@@ -3,7 +3,7 @@ id: T-162
 titulo: Aceptar el riesgo de zod en el CLI de Expo
 modulo: M0 — Fundaciones
 capa: infra
-estado: tomado
+estado: hecho
 depende_de: []
 tamaño: XS
 riesgo: normal
@@ -42,3 +42,9 @@ El job `web` del CI vuelve a pasar `pnpm audit --audit-level=high`. Hoy falla en
 - Actualizar Expo.
 
 ## Notas de implementación
+- **Cierre (23/10/26):**
+  - Se suma GHSA-mrhx-c7xc-m3w5 a `audit.ignore`, con riesgo aceptado por Francisco. Lo decidió en la sesión de T-156: el override a zod 4 era un salto de versión mayor sobre `@expo/cli`.
+  - `pnpm why zod -r`: la 3.25.76, que es la vulnerable, llega solo por `@expo/cli`; la web y shared usan la 4.6.7.
+  - `pnpm audit --audit-level=high` sale con código 0.
+  - **Menor de la review, que queda anotado:** el ignore cubre la GHSA en todo el árbol. Hay que tenerlo en cuenta en la próxima revisión de los riesgos aceptados.
+  - **Modelos:** la implementación fue con Sonnet y la review con Opus.
