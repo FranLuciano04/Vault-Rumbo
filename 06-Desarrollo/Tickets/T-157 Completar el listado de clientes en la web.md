@@ -30,15 +30,17 @@ El listado de clientes de la web (T-044) queda completo y fiel al prototipo: col
 - [ ] Las columnas Asesor, Último viaje y Oportunidades muestran los datos de T-155, con «—» solo cuando no hay dato.
 - [ ] «Etiquetas» abre un menú con las etiquetas en uso (T-156) que permite elegir varias, con chips removibles. Un cliente aparece si tiene **todas** las etiquetas elegidas (combinables, RF-031). Reemplaza el campo de texto de T-044. La web manda `etiquetas` (parámetro repetido) y se retira el alias deprecado `etiqueta` del router, del hook `useClientes` y del mock (hallazgo T-041).
 - [ ] El `freelance` ve «Mis clientes» como una etiqueta fija y no clickeable, junto al aviso de la pantalla 39 (decidido el 23/10/26).
+- [ ] El alta y la edición de clientes (`ClienteCrear`, `ClienteEditar`) rechazan con 422 más de 20 etiquetas o una de más de 80 caracteres, con las mismas constantes que el filtro de `GET /clientes`. Esto venía de T-161, que se absorbió acá por pedido de Francisco el 23/10/26.
 
 ## Tests esperados
-`describe('RF-005 …')` con las columnas nuevas, `describe('RF-031 filtro de etiquetas')` con selección múltiple y quitar chips, y `describe('RF-009 vista personal')` con la etiqueta fija del freelance. Con MSW.
+`describe('RF-005 …')` con las columnas nuevas, `describe('RF-031 filtro de etiquetas')` con selección múltiple y quitar chips, y `describe('RF-009 vista personal')` con la etiqueta fija del freelance. Con MSW. En el backend, `tests/api/test_clientes.py`: `test_rf031_alta_rechaza_mas_de_20_etiquetas`, `test_rf031_alta_rechaza_etiqueta_de_mas_de_80_caracteres` y el borde de 20 etiquetas de 80 caracteres, que se acepta.
 
 ## Contexto (leer solo esto)
 - [[Prototipo UI]] — pantallas 8 y 39
 - Notas de implementación de T-044
 
 ## Archivos probables
+- `src/backend/rumbo/presentacion/esquemas/clientes.py` y `routers/clientes.py` (topes y retiro del alias)
 - `src/apps/web/src/features/clientes/`
 
 ## Fuera de alcance
