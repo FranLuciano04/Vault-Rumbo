@@ -9,6 +9,20 @@ import { CampoFormulario } from "./CampoFormulario";
 import { ERROR_AL_GUARDAR, marcarErroresDelServidor } from "./errores";
 import { type DatosParametros, esquemaParametros } from "./esquemas";
 
+const CAMPOS: { id: string; nombre: keyof DatosParametros; etiqueta: string }[] = [
+  {
+    id: "vigencia",
+    nombre: "vigencia_cotizacion_meses",
+    etiqueta: "Vigencia de la cotización (meses)",
+  },
+  {
+    id: "anticipacion",
+    nombre: "anticipacion_salida_dias",
+    etiqueta: "Anticipación de la salida (días)",
+  },
+  { id: "recontacto", nombre: "recontacto_meses", etiqueta: "Recontacto de clientes (meses)" },
+];
+
 /** Parámetros del negocio (RF-084, pantalla 30 del prototipo). */
 export function FormularioParametros({ cliente }: { cliente: AxiosInstance }) {
   const { data: configuracion, isPending } = useConfiguracion(cliente);
@@ -45,45 +59,17 @@ export function FormularioParametros({ cliente }: { cliente: AxiosInstance }) {
       onSubmit={(evento) => void formulario.handleSubmit(guardar)(evento)}
     >
       <h2 className="text-lg font-semibold">Parámetros del negocio</h2>
-      <CampoFormulario
-        id="vigencia"
-        etiqueta="Vigencia de la cotización (meses)"
-        error={errors.vigencia_cotizacion_meses}
-      >
-        {(props) => (
-          <Input
-            type="number"
-            {...props}
-            {...formulario.register("vigencia_cotizacion_meses", { valueAsNumber: true })}
-          />
-        )}
-      </CampoFormulario>
-      <CampoFormulario
-        id="anticipacion"
-        etiqueta="Anticipación de la salida (días)"
-        error={errors.anticipacion_salida_dias}
-      >
-        {(props) => (
-          <Input
-            type="number"
-            {...props}
-            {...formulario.register("anticipacion_salida_dias", { valueAsNumber: true })}
-          />
-        )}
-      </CampoFormulario>
-      <CampoFormulario
-        id="recontacto"
-        etiqueta="Recontacto de clientes (meses)"
-        error={errors.recontacto_meses}
-      >
-        {(props) => (
-          <Input
-            type="number"
-            {...props}
-            {...formulario.register("recontacto_meses", { valueAsNumber: true })}
-          />
-        )}
-      </CampoFormulario>
+      {CAMPOS.map(({ id, nombre, etiqueta }) => (
+        <CampoFormulario key={id} id={id} etiqueta={etiqueta} error={errors[nombre]}>
+          {(props) => (
+            <Input
+              type="number"
+              {...props}
+              {...formulario.register(nombre, { valueAsNumber: true })}
+            />
+          )}
+        </CampoFormulario>
+      ))}
       {error && (
         <p role="alert" className="text-sm font-medium text-destructive">
           {error}
