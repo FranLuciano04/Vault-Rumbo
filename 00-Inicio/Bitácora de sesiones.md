@@ -46,6 +46,12 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
+## 23/10/26 — Nahuel (Claude Opus 5.5) — M0: pedido de review para Codex
+- **Hecho:** `/cerrar-modulo M0`, fase A. Los 34 tickets de M0 están `hecho`. Se escribió [[M0 — pedido de review]] con los tickets, su trazabilidad, los 34 merges, los archivos tocados y 10 puntos a mirar entre tickets.
+  - Ojo: con un clon *shallow*, `tickets.mjs modulo` no encuentra los merges viejos (PR #1 a #15). Hay que correr antes `git fetch --unshallow origin`.
+- **Commits:** el de este pedido (`review: pedido de review de M0`).
+- **Pendiente:** que Codex escriba `06-Desarrollo/Reviews/M0 — review Codex.md`. Después, `/cerrar-modulo M0` fase B (triage y tickets de arreglo) y la aprobación del equipo para el tag `mod-0`.
+
 ## 23/10/26 — Nahuel (Claude Opus 5.5) — T-036: destinos y requisitos en la web
 - **Hecho:** tomó e implementó **T-036** (M1, web, M). PR #50 mergeado con CI en verde.
   - Pestaña «Destinos y requisitos» en Configuración: ABM de destinos con filtro de inactivos, baja y reactivación; requisitos con alta, edición y baja lógica con confirmación; 409 y 422 en el formulario.
