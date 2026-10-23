@@ -46,6 +46,18 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
+## 23/10/26 — Francisco (Claude Opus 5.5) — T-041: buscar clientes según la visibilidad del rol
+- **Hecho:** T-041 (capa backend, riesgo alto).
+  - `GET /clientes` permite buscar por texto, etiquetas combinables (el cliente tiene que tener todas), segmento y «lo mío», con paginación. `GET /clientes/{id}` devuelve la ficha.
+  - La visibilidad sale de `politicas`: el freelance solo ve los suyos y un cliente ajeno le da 404.
+  - Francisco autorizó cambiar `test_contrato_m2.py` (501 → 200).
+  - La review de seguridad (Sonnet) no encontró bloqueantes; los 2 menores se arreglaron.
+  - PR [#48](https://github.com/FranLuciano04/Vault-Rumbo/pull/48), con el CI en verde, aprobado y mergeado por Nahuel.
+- **Commits:** cf0b236, 2ac9266, 706b48c y 700da22; merge 5143433.
+- **Pendiente:**
+  - La web sigue mandando el alias deprecado `etiqueta`; pasarla a `etiquetas` y retirar el alias queda en T-157.
+  - Las etiquetas del alta de clientes (`ClienteCrear`) siguen sin tope de largo; no hay ticket.
+
 ## 23/10/26 — Francisco (Claude Opus 5.5) — T-044: listado de clientes en la web, y decisiones de CU-25
 - **Hecho:** T-044 (capa web, riesgo normal). Es la **primera pantalla de clientes de la web**.
   - Incluye tabla, búsqueda con debounce, filtros por segmento y etiqueta, la vista «Mis clientes / Toda la agencia», paginación sin parpadeo (`keepPreviousData` en `useClientes`) y estados de carga, vacío y error.

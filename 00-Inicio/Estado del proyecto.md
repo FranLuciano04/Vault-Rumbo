@@ -28,6 +28,8 @@ actualizado: 13/10/26
 >
 > 👉 **21/10 (Paloma):** **T-141** (íconos de la barra lateral web, como en el prototipo) está hecho y mergeado (PR [#27](https://github.com/FranLuciano04/Vault-Rumbo/pull/27)).
 >
+> 👉 **23/10 (Francisco):** **T-041** (búsqueda y ficha de clientes según la visibilidad del rol; etiquetas combinables) está hecho y mergeado (PR [#48](https://github.com/FranLuciano04/Vault-Rumbo/pull/48)). `GET /clientes` y `GET /clientes/{id}` ya no son stubs. Para el freelance, un cliente ajeno da 404.
+>
 > 👉 **23/10 (Francisco):** **T-044** (listado de clientes en la web, la primera pantalla de clientes) está hecho y mergeado (PR [#47](https://github.com/FranLuciano04/Vault-Rumbo/pull/47)).
 >
 > 👉 **23/10 (Francisco):** **T-149** (Instagram opcional del cliente, DEC-0017) está hecho y mergeado (PR [#38](https://github.com/FranLuciano04/Vault-Rumbo/pull/38)). Destraba los formularios de clientes en web y mobile. Migración 0003.
