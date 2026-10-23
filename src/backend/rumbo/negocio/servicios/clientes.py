@@ -20,6 +20,7 @@ async def registrar_cliente(
     *,
     nombre: str,
     contacto: str,
+    instagram: str | None,
     segmento: SegmentoCliente,
     etiquetas: list[str],
     preferencias: str | None,
@@ -45,6 +46,7 @@ async def registrar_cliente(
     cliente = Cliente(
         nombre=nombre,
         contacto=contacto,
+        instagram=instagram,
         segmento=segmento,
         etiquetas=etiquetas,
         preferencias=preferencias,

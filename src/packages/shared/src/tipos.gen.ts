@@ -561,6 +561,8 @@ export interface components {
             nombre: string;
             /** Contacto */
             contacto: string;
+            /** Instagram */
+            instagram: string | null;
             segmento: components["schemas"]["SegmentoCliente"];
             /** Etiquetas */
             etiquetas: string[];
@@ -580,6 +582,8 @@ export interface components {
             nombre: string;
             /** Contacto */
             contacto: string;
+            /** Instagram */
+            instagram?: string | null;
             segmento: components["schemas"]["SegmentoCliente"];
             /**
              * Etiquetas
@@ -605,6 +609,8 @@ export interface components {
             nombre?: string;
             /** Contacto */
             contacto?: string;
+            /** Instagram */
+            instagram?: string | null;
             segmento?: components["schemas"]["SegmentoCliente"];
             /** Etiquetas */
             etiquetas?: string[];

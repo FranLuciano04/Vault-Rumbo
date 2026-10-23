@@ -1,5 +1,6 @@
 import { http, HttpResponse, type RequestHandler } from "msw";
 import type { Cliente, ClienteCrear, ClienteEditar, HistorialCliente } from "../cliente";
+import { normalizarInstagram } from "../esquemas/clientes";
 import { usuariosPorRol } from "./index";
 import { respuestaProblema } from "./problema";
 
@@ -9,6 +10,7 @@ export const clientesMock: Cliente[] = [
     id: "3c1f6d2e-8a47-4b19-9e53-7d0a2b4c6e11",
     nombre: "Camila Benítez",
     contacto: "+54 9 11 5555-1234",
+    instagram: "camila.benitez",
     segmento: "pareja",
     etiquetas: ["Caribe", "luna de miel"],
     preferencias: "Hoteles todo incluido, vuelos directos.",
@@ -23,6 +25,7 @@ export const clientesMock: Cliente[] = [
     id: "9e5b0a74-1c3d-4f68-a2b9-5c8d7e0f1a22",
     nombre: "Familia Sosa",
     contacto: "sosa.familia@mail.test",
+    instagram: null,
     segmento: "familia",
     etiquetas: ["Brasil", "cruceros"],
     preferencias: null,
@@ -37,6 +40,7 @@ export const clientesMock: Cliente[] = [
     id: "d4a8c6e2-5f19-4073-8b3a-2e1c9d7f0b33",
     nombre: "Joaquín Ramos",
     contacto: "+54 9 351 555-9876",
+    instagram: null,
     segmento: "individual",
     etiquetas: ["Europa"],
     preferencias: "Viaja solo, prefiere escapadas cortas.",
@@ -133,6 +137,7 @@ export const manejadoresClientes: RequestHandler[] = [
       id: crypto.randomUUID(),
       nombre: datos.nombre,
       contacto: datos.contacto,
+      instagram: (normalizarInstagram(datos.instagram) as string | null | undefined) ?? null,
       segmento: datos.segmento,
       etiquetas: datos.etiquetas ?? [],
       preferencias: datos.preferencias ?? null,
@@ -155,7 +160,11 @@ export const manejadoresClientes: RequestHandler[] = [
     const cliente = clientesMock.find((c) => c.id === params["id"]);
     if (!cliente) return noEncontrado();
     const cambios = (await request.json()) as ClienteEditar;
-    return HttpResponse.json({ ...cliente, ...cambios });
+    const normalizados =
+      "instagram" in cambios
+        ? { ...cambios, instagram: normalizarInstagram(cambios.instagram) as string | null }
+        : cambios;
+    return HttpResponse.json({ ...cliente, ...normalizados });
   }),
 
   http.get(`${BASE}/:id/historial`, ({ params }) => {
