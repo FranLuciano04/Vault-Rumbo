@@ -3,7 +3,7 @@ id: T-041
 titulo: Buscar clientes según la visibilidad del rol
 modulo: M2 — Clientes
 capa: backend
-estado: libre
+estado: tomado
 depende_de: [T-039, T-012]
 tamaño: S
 riesgo: alto
@@ -12,9 +12,9 @@ modelo_impl: opus
 modelo_review: sonnet
 trazabilidad: [CU-03, RF-005, RF-009, RF-031, RF-151]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: FranLucianoo
+tomado_el: 23/10/26 11:47
+rama: feature/T-041-buscar-clientes-segun-la-visibilidad-del
 pr:
 ---
 # T-041 Buscar clientes según la visibilidad del rol
