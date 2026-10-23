@@ -1,4 +1,4 @@
-"""Servicio del módulo clientes (CU-02)."""
+"""Servicio del módulo clientes (CU-02, CU-03)."""
 
 import uuid
 
@@ -55,6 +55,41 @@ async def registrar_cliente(
     sesion.add(cliente)
     await sesion.flush()
     return cliente
+
+
+async def buscar_clientes(
+    sesion: AsyncSession,
+    actor: Usuario,
+    *,
+    buscar: str | None,
+    etiquetas: list[str],
+    segmento: SegmentoCliente | None,
+    mios: bool,
+    desplazamiento: int,
+    limite: int,
+) -> tuple[list[Cliente], int]:
+    """Página de clientes por nombre y el total (CU-03, RF-005, RF-031).
+
+    `mios` deja solo los que el actor tiene asignados (RF-009). Lo que ve cada rol lo decide
+    `visibilidad`, no el filtro: el `freelance` recibe solo los suyos aunque no pida `mios`
+    (RF-151).
+    """
+    return await _clientes.paginar(
+        sesion,
+        buscar=buscar,
+        etiquetas=etiquetas,
+        segmento=segmento,
+        asesor_id=actor.id if mios else None,
+        desplazamiento=desplazamiento,
+        limite=limite,
+        visibilidad=visibilidad(actor),
+    )
+
+
+async def obtener_cliente(sesion: AsyncSession, actor: Usuario, cliente_id: uuid.UUID) -> Cliente:
+    """Ficha de un `Cliente` (CU-03). Uno que el actor no ve es `NoEncontrado`, igual que uno
+    inexistente (A1, RF-151)."""
+    return await _clientes.obtener(sesion, cliente_id, visibilidad=visibilidad(actor))
 
 
 async def _exigir_asesor_activo(sesion: AsyncSession, actor: Usuario, asesor_id: uuid.UUID) -> None:

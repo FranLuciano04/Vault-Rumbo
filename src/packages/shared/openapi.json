@@ -2247,7 +2247,8 @@
             "schema": {
               "anyOf": [
                 {
-                  "type": "string"
+                  "type": "string",
+                  "maxLength": 200
                 },
                 {
                   "type": "null"
@@ -2259,22 +2260,48 @@
             "description": "Texto en el nombre o el contacto."
           },
           {
+            "name": "etiquetas",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "maxLength": 80
+                  },
+                  "maxItems": 20
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Etiquetas exactas; se repite el parámetro (`?etiquetas=a&etiquetas=b`) y el cliente tiene que tener todas. Las vacías se ignoran.",
+              "title": "Etiquetas"
+            },
+            "description": "Etiquetas exactas; se repite el parámetro (`?etiquetas=a&etiquetas=b`) y el cliente tiene que tener todas. Las vacías se ignoran."
+          },
+          {
             "name": "etiqueta",
             "in": "query",
             "required": false,
             "schema": {
               "anyOf": [
                 {
-                  "type": "string"
+                  "type": "string",
+                  "maxLength": 80
                 },
                 {
                   "type": "null"
                 }
               ],
-              "description": "Etiqueta exacta del cliente.",
+              "description": "Una etiqueta exacta. Usar `etiquetas`.",
+              "deprecated": true,
               "title": "Etiqueta"
             },
-            "description": "Etiqueta exacta del cliente."
+            "description": "Una etiqueta exacta. Usar `etiquetas`.",
+            "deprecated": true
           },
           {
             "name": "segmento",

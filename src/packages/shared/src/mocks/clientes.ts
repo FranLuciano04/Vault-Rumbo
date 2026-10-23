@@ -100,7 +100,11 @@ export const manejadoresClientes: RequestHandler[] = [
   http.get(BASE, ({ request }) => {
     const url = new URL(request.url);
     const buscar = url.searchParams.get("buscar")?.toLowerCase();
-    const etiqueta = url.searchParams.get("etiqueta");
+    // `etiqueta` es el alias viejo de `etiquetas`; el cliente tiene que tener todas.
+    const etiquetas = [
+      ...url.searchParams.getAll("etiquetas"),
+      ...url.searchParams.getAll("etiqueta"),
+    ];
     const segmento = url.searchParams.get("segmento");
     const mios = url.searchParams.get("mios") === "true";
     const pagina = Number(url.searchParams.get("pagina") ?? 1);
@@ -110,7 +114,7 @@ export const manejadoresClientes: RequestHandler[] = [
         (!buscar ||
           c.nombre.toLowerCase().includes(buscar) ||
           c.contacto.toLowerCase().includes(buscar)) &&
-        (!etiqueta || c.etiquetas.includes(etiqueta)) &&
+        etiquetas.every((e) => c.etiquetas.includes(e)) &&
         (!segmento || c.segmento === segmento) &&
         (!mios || c.asesor_asignado_id === usuariosPorRol.empleado.id),
     );

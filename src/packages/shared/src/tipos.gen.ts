@@ -2607,7 +2607,12 @@ export interface operations {
             query?: {
                 /** @description Texto en el nombre o el contacto. */
                 buscar?: string | null;
-                /** @description Etiqueta exacta del cliente. */
+                /** @description Etiquetas exactas; se repite el parámetro (`?etiquetas=a&etiquetas=b`) y el cliente tiene que tener todas. Las vacías se ignoran. */
+                etiquetas?: string[] | null;
+                /**
+                 * @deprecated
+                 * @description Una etiqueta exacta. Usar `etiquetas`.
+                 */
                 etiqueta?: string | null;
                 /** @description Segmento del cliente. */
                 segmento?: components["schemas"]["SegmentoCliente"] | null;

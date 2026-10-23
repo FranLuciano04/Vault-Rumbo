@@ -1,9 +1,10 @@
-"""Rutas del módulo clientes (CU-02, CU-03). Stubs: responden 501 hasta el ticket de backend."""
+"""Rutas del módulo clientes (CU-02, CU-03). Las que siguen en 501 esperan su ticket de backend."""
 
 import uuid
 from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends, Query
+from pydantic import Field
 
 from rumbo.core.db import SesionDep
 from rumbo.datos import modelos
@@ -35,6 +36,11 @@ router = APIRouter(
 )
 
 _ROLES = "**Roles:** admin, dueno, empleado, freelance."
+# Topes de la búsqueda: acotan el costo de la consulta sin limitar un uso normal.
+_MAX_BUSCAR = 200  # el largo del contacto
+_MAX_ETIQUETAS = 20
+_MAX_LARGO_ETIQUETA = 80
+EtiquetaFiltro = Annotated[str, Field(max_length=_MAX_LARGO_ETIQUETA)]
 _NO_ENCONTRADO: dict[int | str, dict[str, Any]] = {
     404: {"model": Problema, "description": "El cliente no existe o no lo podés ver."}
 }
@@ -48,12 +54,46 @@ _NO_ENCONTRADO: dict[int | str, dict[str, Any]] = {
 )
 async def buscar_clientes(
     paginacion: Annotated[ParametrosPagina, Depends(parametros_pagina)],
-    buscar: Annotated[str | None, Query(description="Texto en el nombre o el contacto.")] = None,
-    etiqueta: Annotated[str | None, Query(description="Etiqueta exacta del cliente.")] = None,
+    actor: Annotated[modelos.Usuario, Depends(usuario_actual)],
+    sesion: SesionDep,
+    buscar: Annotated[
+        str | None,
+        Query(description="Texto en el nombre o el contacto.", max_length=_MAX_BUSCAR),
+    ] = None,
+    etiquetas: Annotated[
+        list[EtiquetaFiltro] | None,
+        Query(
+            description=(
+                "Etiquetas exactas; se repite el parámetro (`?etiquetas=a&etiquetas=b`) y el "
+                "cliente tiene que tener todas. Las vacías se ignoran."
+            ),
+            max_length=_MAX_ETIQUETAS,
+        ),
+    ] = None,
+    etiqueta: Annotated[
+        EtiquetaFiltro | None,
+        Query(description="Una etiqueta exacta. Usar `etiquetas`.", deprecated=True),
+    ] = None,
     segmento: Annotated[SegmentoCliente | None, Query(description="Segmento del cliente.")] = None,
     mios: Annotated[bool, Query(description="Solo los clientes que tengo asignados.")] = False,
 ) -> Pagina[Cliente]:
-    raise no_implementado()
+    """Ordenados por nombre. El `freelance` recibe solo los suyos, pida o no `mios` (RF-151)."""
+    items, total = await clientes.buscar_clientes(
+        sesion,
+        actor,
+        buscar=buscar,
+        etiquetas=[e for e in [*(etiquetas or []), etiqueta] if e],
+        segmento=segmento,
+        mios=mios,
+        desplazamiento=paginacion.desplazamiento,
+        limite=paginacion.por_pagina,
+    )
+    return Pagina(
+        items=[Cliente.model_validate(c) for c in items],
+        total=total,
+        pagina=paginacion.pagina,
+        por_pagina=paginacion.por_pagina,
+    )
 
 
 @router.post(
@@ -89,8 +129,12 @@ async def registrar_cliente(
     description=f"{_ROLES}\n\n**Casos de uso:** CU-03.",
     responses=_NO_ENCONTRADO,
 )
-async def obtener_cliente(cliente_id: uuid.UUID) -> Cliente:
-    raise no_implementado()
+async def obtener_cliente(
+    cliente_id: uuid.UUID,
+    actor: Annotated[modelos.Usuario, Depends(usuario_actual)],
+    sesion: SesionDep,
+) -> Cliente:
+    return Cliente.model_validate(await clientes.obtener_cliente(sesion, actor, cliente_id))
 
 
 @router.patch(
