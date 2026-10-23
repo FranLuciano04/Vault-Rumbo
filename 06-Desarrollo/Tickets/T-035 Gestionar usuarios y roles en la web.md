@@ -3,7 +3,7 @@ id: T-035
 titulo: Gestionar usuarios y roles en la web
 modulo: M1 — Usuarios y configuración
 capa: web
-estado: libre
+estado: tomado
 depende_de: [T-034]
 tamaño: M
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [CU-25, RF-144, RF-145, RF-146, RF-147, RF-148, RF-149]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: Nahuel Viniegra
+tomado_el: 23/10/26 19:56
+rama: feature/T-035-gestionar-usuarios-y-roles-en-la-web
 pr:
 ---
 # T-035 Gestionar usuarios y roles en la web

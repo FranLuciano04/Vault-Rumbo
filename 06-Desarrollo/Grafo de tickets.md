@@ -14,8 +14,8 @@ tags:: #tipo/referencia
 
 | Módulo | Tickets | Hechos | Tomados | Disponibles | Esperando | Bloqueados | Estado del módulo |
 |---|---|---|---|---|---|---|---|
-| M0 — Fundaciones | 38 | 38 | 0 | 0 | 0 | 0 | 🔍 listo para la review |
-| M1 — Usuarios y configuración | 18 | 11 | 0 | 6 | 1 | 0 | 🛠️ en curso |
+| M0 — Fundaciones | 38 | 38 | 0 | 0 | 0 | 0 | ✅ cerrado |
+| M1 — Usuarios y configuración | 18 | 11 | 1 | 5 | 1 | 0 | 🛠️ en curso |
 | M2 — Clientes | 15 | 7 | 1 | 5 | 2 | 0 | 🛠️ en curso |
 | M3 — Alertas | 11 | 0 | 0 | 2 | 9 | 0 | 🛠️ en curso |
 | M4 — Oportunidades y cotizaciones | 14 | 0 | 0 | 1 | 13 | 0 | 🛠️ en curso |
@@ -82,7 +82,7 @@ flowchart LR
     T032["T-032 · Configurar los requisitos de cada destino<br/><small>backend</small>"]:::hecho
     T033["T-033 · Gestionar el catálogo de operadores<br/><small>backend</small>"]:::hecho
     T034["T-034 · Configurar los parámetros del negocio en la web<br/><small>web</small>"]:::hecho
-    T035["T-035 · Gestionar usuarios y roles en la web<br/><small>web</small>"]:::disponible
+    T035["T-035 · Gestionar usuarios y roles en la web<br/><small>web</small><br/>👤 Nahuel Viniegra"]:::tomado
     T036["T-036 · Gestionar destinos con sus requisitos en la web<br/><small>web</small>"]:::hecho
     T037["T-037 · Gestionar operadores en la web<br/><small>web</small>"]:::disponible
     T038["T-038 · Probar de punta a punta la configuración de la agencia<br/><small>e2e</small>"]:::esperando
