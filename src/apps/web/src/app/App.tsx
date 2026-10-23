@@ -3,7 +3,9 @@ import type { AxiosInstance } from "axios";
 import { useState } from "react";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router";
 import { PaginaLogin } from "@/features/seguridad/PaginaLogin";
+import { FichaClientePendiente } from "./FichaClientePendiente";
 import { RutaProtegida } from "./RutaProtegida";
+import { SeccionClientes } from "./SeccionClientes";
 import { SeccionConfiguracion } from "./SeccionConfiguracion";
 import { SeccionPendiente } from "./SeccionPendiente";
 
@@ -17,6 +19,8 @@ export function App({ cliente }: { cliente: AxiosInstance }) {
           <Route element={<RutaProtegida cliente={cliente} />}>
             <Route index element={<Navigate to="/agenda" replace />} />
             <Route path="configuracion" element={<SeccionConfiguracion cliente={cliente} />} />
+            <Route path="clientes" element={<SeccionClientes cliente={cliente} />} />
+            <Route path="clientes/:id" element={<FichaClientePendiente />} />
             <Route path=":seccion" element={<SeccionPendiente />} />
           </Route>
         </Routes>
