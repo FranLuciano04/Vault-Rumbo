@@ -3,7 +3,7 @@ id: T-158
 titulo: Leer la configuración de Firebase de mobile con accesos directos a process.env
 modulo: M0 — Fundaciones
 capa: mobile
-estado: tomado
+estado: hecho
 depende_de: []
 tamaño: S
 riesgo: alto
@@ -51,4 +51,9 @@ La app mobile arranca Firebase Auth con la configuración real del `.env`: API k
 - La web: Vite reemplaza `import.meta.env` de otra manera.
 
 ## Notas de implementación
-<Las completa el orquestador al cerrar.>
+- `src/lib/firebase.ts` lee las seis variables como `process.env.EXPO_PUBLIC_*` literales. El alias existía porque `process.env` quedaba tipado como `any`: se sumó `"expo/types"` a `types` del `tsconfig` de mobile, y eso permitió sacar también el cast de `EXPO_PUBLIC_API_URL` en `src/cliente.ts`.
+- Tests: `__tests__/firebase-env.test.ts` transforma el módulo con `babel-preset-expo` (caller `metro`). Comprueba `publicEnvVars`, el reemplazo en producción y que no haya alias. `@babel/core` y el preset se resuelven desde `jest-expo` con `createRequire`, porque no son dependencias directas. `__tests__/firebase-config.test.ts` pasaba ya en el rojo: Jest no aplica el inline de Metro, así que queda como guarda de regresión.
+- Se agregó `@types/node` como devDependency. Sus tipos se cargan solo en el test, con `/// <reference types="node" />`, para no sumar los globales de Node a la app.
+- Review (Sonnet, `reviewer-seguridad`): sin fallas de seguridad. 2 importantes de lint en el test y 2 menores (`"node"` en el tsconfig de la app y restaurar solo las claves de `process.env`); los cuatro se arreglaron, con autorización para tocar el test.
+- Prettier marca `__tests__/firebase.test.ts` y `__tests__/login.test.tsx`, que ya venían así de antes y no se tocaron.
+- Modelos: tests con Sonnet; implementación, refactor (sin cambios) y fix con Opus; review con Sonnet. Sin escalados.
