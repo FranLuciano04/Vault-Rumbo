@@ -69,6 +69,7 @@ uv run fastapi dev rumbo/main.py                              # API en http://lo
 uv run ruff check . && uv run ruff format --check .
 uv run mypy rumbo
 uv run pytest --cov=rumbo --cov-report=term-missing           # umbrales en pyproject (§6)
+uv run pytest -n auto                                         # en paralelo: una base «rumbo_gwN_test» por worker (T-154)
 uv run pytest --cov=rumbo/negocio --cov-fail-under=80         # umbral de negocio para el CI (§6)
 uv run python -m rumbo.presentacion.jobs.diario               # proceso automático, a mano
 uv run python -m rumbo.presentacion.cli exportar-openapi ../packages/shared/openapi.json
@@ -90,6 +91,8 @@ node 06-Desarrollo/herramientas/tickets.mjs disponibles
 
 **Entorno de Claude Code en Windows** (lo encontró T-006):
 - El sandbox define `SSLKEYLOGFILE` y asyncpg aborta con `OPENSSL_Applink`. `tests/conftest.py` la quita del entorno antes de cualquier conexión (T-140, RNF-15), así que `uv run pytest` corre sin `env -u`.
+- Las bases `rumbo_gwN_test` que crea `-n auto` quedan en el servidor de tests; se pueden borrar a mano.
+- En `TEST_DATABASE_URL` y `DATABASE_URL` del `.env` usar `127.0.0.1`, no `localhost`: en Windows `localhost` resuelve primero a `::1`, falla contra el puerto de Docker y cada conexión tarda ~2 s en vez de 0,02 s. `tests/conftest.py` lo normaliza para los tests (T-154).
 - Si pytest no puede escribir en el temporal del sistema, se agrega `--basetemp=.pytest_tmp` (está en `.gitignore`).
 - Si los puertos 5432 o 5433 están ocupados, se usan `RUMBO_DEV_PORT` y `RUMBO_TEST_PORT` en `src/.env`.
 

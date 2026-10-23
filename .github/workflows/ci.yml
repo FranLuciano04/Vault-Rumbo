@@ -130,7 +130,7 @@ jobs:
           DATABASE_URL: postgresql+asyncpg://rumbo:${{ env.CI_DB_PASSWORD }}@localhost:5432/rumbo_test
       - name: Tests con cobertura (total >= 70 %, negocio >= 80 %)
         run: |
-          uv run pytest --cov=rumbo --cov-report=term-missing
+          uv run pytest -n auto --cov=rumbo --cov-report=term-missing
           uv run coverage report --include='rumbo/negocio/*' --fail-under=80
         env:
           TEST_DATABASE_URL: postgresql+asyncpg://rumbo:${{ env.CI_DB_PASSWORD }}@localhost:5432/rumbo_test

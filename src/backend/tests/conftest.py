@@ -1,5 +1,6 @@
 import asyncio
 import os
+import re
 import subprocess
 import sys
 from collections.abc import AsyncIterator, Awaitable, Callable, Iterator
@@ -26,7 +27,33 @@ class _EntornoTests(BaseSettings):
     test_database_url: str
 
 
-_URL_TESTS = _EntornoTests().test_database_url  # type: ignore[call-arg]
+def url_de_tests(url: str, worker: str | None) -> str:
+    """T-154: URL de la base de tests que usa este proceso.
+
+    - `localhost` pasa a `127.0.0.1`: en Windows resuelve primero a `::1`, falla contra el puerto
+      que publica Docker y recién después cae a IPv4 (2,1 s por conexión contra 0,02 s).
+    - Con pytest-xdist (`worker` = `gw0`, `gw1`, …) cada worker usa su propia base, para que no
+      se pisen: `rumbo_test` pasa a `rumbo_gw0_test`. Conserva el sufijo `_test` de la guarda.
+    """
+    destino = make_url(url)
+    # La guarda mira el nombre ORIGINAL: el sufijo que se agrega por worker no la puede burlar.
+    if not (destino.database or "").endswith("_test"):
+        raise ValueError(
+            f"TEST_DATABASE_URL apunta a «{destino.database}»: el nombre de la base de tests "
+            "tiene que terminar en «_test»"
+        )
+    if destino.host == "localhost":
+        destino = destino.set(host="127.0.0.1")
+    if worker and destino.database:
+        raiz = destino.database.removesuffix("_test")
+        destino = destino.set(database=f"{raiz}_{worker}_test")
+    return destino.render_as_string(hide_password=False)
+
+
+_URL_TESTS = url_de_tests(
+    _EntornoTests().test_database_url,  # type: ignore[call-arg]
+    os.environ.get("PYTEST_XDIST_WORKER"),
+)
 
 # La app lee DATABASE_URL al importarse; los tests siempre apuntan a la base de tests.
 os.environ["DATABASE_URL"] = _URL_TESTS
@@ -58,6 +85,30 @@ def correr_alembic(url: str, *args: str) -> subprocess.CompletedProcess[str]:
     )
 
 
+async def _crear_base_si_falta(url: str) -> None:
+    """Un worker de xdist estrena su base la primera vez (la base común ya existe)."""
+    destino = make_url(url)
+    nombre = destino.database or ""
+    if not re.fullmatch(r"[a-z0-9_]{1,63}", nombre):
+        raise ValueError(
+            f"nombre de base de tests inválido «{nombre}»: solo minúsculas, dígitos y «_» "
+            "(hasta 63 caracteres)"
+        )
+    admin = create_async_engine(
+        destino.set(database="postgres"), poolclass=NullPool, isolation_level="AUTOCOMMIT"
+    )
+    try:
+        async with admin.connect() as conexion:
+            existe = await conexion.scalar(
+                text("SELECT 1 FROM pg_database WHERE datname = :nombre"),
+                {"nombre": destino.database},
+            )
+            if not existe:
+                await conexion.execute(text(f'CREATE DATABASE "{destino.database}"'))
+    finally:
+        await admin.dispose()
+
+
 async def _esquema_vacio(url: str) -> None:
     motor = create_async_engine(url, poolclass=NullPool)
     try:
@@ -76,6 +127,7 @@ def base_de_tests_migrada() -> None:
         f"TEST_DATABASE_URL apunta a «{nombre}»: se niega a borrar el esquema de una base "
         "cuyo nombre no termina en «_test»"
     )
+    asyncio.run(_crear_base_si_falta(_URL_TESTS))
     asyncio.run(_esquema_vacio(_URL_TESTS))
     resultado = correr_alembic(_URL_TESTS, "upgrade", "head")
     assert resultado.returncode == 0, resultado.stdout + resultado.stderr
