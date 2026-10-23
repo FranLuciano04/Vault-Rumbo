@@ -28,7 +28,7 @@ El listado de clientes de la web (T-044) queda completo y fiel al prototipo: col
 
 ## Criterios de aceptación
 - [ ] Las columnas Asesor, Último viaje y Oportunidades muestran los datos de T-155, con «—» solo cuando no hay dato.
-- [ ] «Etiquetas» abre un menú con las etiquetas en uso (T-156) que permite elegir varias, con chips removibles. Un cliente aparece si tiene **todas** las etiquetas elegidas (combinables, RF-031). Reemplaza el campo de texto de T-044.
+- [ ] «Etiquetas» abre un menú con las etiquetas en uso (T-156) que permite elegir varias, con chips removibles. Un cliente aparece si tiene **todas** las etiquetas elegidas (combinables, RF-031). Reemplaza el campo de texto de T-044. La web manda `etiquetas` (parámetro repetido) y se retira el alias deprecado `etiqueta` del router, del hook `useClientes` y del mock (hallazgo T-041).
 - [ ] El `freelance` ve «Mis clientes» como una etiqueta fija y no clickeable, junto al aviso de la pantalla 39 (decidido el 23/10/26).
 
 ## Tests esperados

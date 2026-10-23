@@ -16,7 +16,7 @@ tags:: #tipo/referencia
 |---|---|---|---|---|---|---|---|
 | M0 — Fundaciones | 37 | 35 | 0 | 2 | 0 | 0 | 🛠️ en curso |
 | M1 — Usuarios y configuración | 18 | 11 | 0 | 6 | 1 | 0 | 🛠️ en curso |
-| M2 — Clientes | 15 | 5 | 0 | 7 | 3 | 0 | 🛠️ en curso |
+| M2 — Clientes | 16 | 5 | 0 | 8 | 3 | 0 | 🛠️ en curso |
 | M3 — Alertas | 11 | 0 | 0 | 2 | 9 | 0 | 🛠️ en curso |
 | M4 — Oportunidades y cotizaciones | 14 | 0 | 0 | 1 | 13 | 0 | 🛠️ en curso |
 | M5 — Hoteles y reseñas | 11 | 0 | 0 | 1 | 10 | 0 | 🛠️ en curso |
@@ -107,6 +107,7 @@ flowchart LR
     T155["T-155 · Resumir asesor, último viaje y oportunidades en el listado de clientes<br/><small>backend</small>"]:::disponible
     T156["T-156 · Listar las etiquetas de clientes en uso<br/><small>backend</small>"]:::disponible
     T157["T-157 · Completar el listado de clientes en la web<br/><small>web</small>"]:::esperando
+    T161["T-161 · Limitar el largo de las etiquetas del cliente<br/><small>backend</small>"]:::disponible
   end
   subgraph M3["M3 — Alertas"]
     T050["T-050 · Publicar el contrato de alertas<br/><small>contrato</small>"]:::disponible
@@ -526,6 +527,7 @@ flowchart LR
   T044 --> T157
   T155 --> T157
   T156 --> T157
+  T041 --> T161
   classDef hecho fill:#c8e6c9,stroke:#2e7d32,color:#1b5e20
   classDef tomado fill:#fff3cd,stroke:#b8860b,color:#5d4300
   classDef disponible fill:#dbeafe,stroke:#1d4ed8,color:#1e3a8a
