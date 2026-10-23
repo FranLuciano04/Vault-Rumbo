@@ -2,6 +2,10 @@ import type { ComponentProps, ReactNode } from "react";
 import type { FieldError } from "react-hook-form";
 import { Label } from "@/components/ui/label";
 
+/** Clases del `<select>` nativo, para que combine con `Input`. */
+export const CLASE_SELECT =
+  "h-11 w-full rounded-md border border-input bg-background px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 aria-invalid:border-destructive";
+
 /** Etiqueta, control y mensaje de error de un campo; el control recibe `id` y `aria-*` ya armados. */
 export function CampoFormulario({
   id,

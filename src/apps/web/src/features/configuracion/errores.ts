@@ -10,7 +10,7 @@ export function mensajeDeError(falla: unknown): string {
 
 /**
  * Vuelca en sus campos los errores 422 del servidor (RNF-12). Devuelve el texto para el aviso
- * general: el `detail` de un 409 (por ejemplo, un duplicado), los mensajes de errores que no
+ * general: el `detail` de un 409 (por ejemplo, un duplicado) o de un 403, los mensajes de errores que no
  * corresponden a un campo del formulario (por ejemplo `body`), o el mensaje genérico si no fue un
  * 422; `null` si todo quedó en sus campos.
  */
@@ -19,7 +19,8 @@ export function aplicarErroresDelServidor<T extends FieldValues>(
   campos: readonly Path<T>[],
   setError: UseFormSetError<T>,
 ): string | null {
-  if (falla instanceof ErrorApi && falla.status === 409 && falla.detail) return falla.detail;
+  if (falla instanceof ErrorApi && (falla.status === 409 || falla.status === 403) && falla.detail)
+    return falla.detail;
   if (!(falla instanceof ErrorApi) || falla.status !== 422 || falla.errores.length === 0)
     return ERROR_AL_GUARDAR;
   const restantes: string[] = [];

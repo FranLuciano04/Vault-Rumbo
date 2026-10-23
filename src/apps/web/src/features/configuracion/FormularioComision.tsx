@@ -5,14 +5,11 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { CampoFormulario } from "./CampoFormulario";
+import { CampoFormulario, CLASE_SELECT } from "./CampoFormulario";
 import { aplicarErroresDelServidor } from "./errores";
 import { type DatosComision, esquemaComision } from "./esquemas";
 
 const CAMPOS = ["comision_default_tipo", "comision_default_valor"] as const;
-
-const CLASE_SELECT =
-  "h-11 w-full rounded-md border border-input bg-background px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 aria-invalid:border-destructive";
 
 /** Comisión por defecto de cada vendedor (RF-083, CU-13), incluidos los usuarios dados de baja. */
 export function FormularioComision({ cliente }: { cliente: AxiosInstance }) {
