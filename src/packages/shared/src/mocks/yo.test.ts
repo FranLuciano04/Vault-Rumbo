@@ -35,17 +35,14 @@ describe("RF-141 mock MSW de GET /api/auth/yo por rol", () => {
     expect(Object.keys(usuariosPorRol).sort()).toEqual([...rolesDelEsquema].sort());
   });
 
-  it.each(ROLES)(
-    "RF-141 el usuario mock del rol %s trae los campos requeridos del esquema",
-    (rol) => {
-      const usuario = usuariosPorRol[rol];
+  it.each(ROLES)("RF-141 el usuario mock del rol %s trae los campos requeridos del esquema", (rol) => {
+    const usuario = usuariosPorRol[rol];
 
-      for (const campo of esquemaDeYo().required ?? []) {
-        expect(usuario).toHaveProperty(campo);
-      }
-      expect(usuario.rol).toBe(rol);
-    },
-  );
+    for (const campo of esquemaDeYo().required ?? []) {
+      expect(usuario).toHaveProperty(campo);
+    }
+    expect(usuario.rol).toBe(rol);
+  });
 
   it.each(ROLES)("RF-141 manejadorYo(%s) responde 200 con ese usuario", async (rol) => {
     servidor.use(manejadorYo(rol));

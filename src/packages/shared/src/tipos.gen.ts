@@ -4,2985 +4,2985 @@
  */
 
 export interface paths {
-  "/api/salud": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/api/salud": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Salud */
+        get: operations["salud_api_salud_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    /** Salud */
-    get: operations["salud_api_salud_get"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/auth/yo": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/api/auth/yo": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Usuario de la sesión, con su rol y accesos
+         * @description **Roles:** admin, dueno, empleado, freelance.
+         *
+         *     **Casos de uso:** CU-24.
+         */
+        get: operations["obtener_usuario_actual"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    /**
-     * Usuario de la sesión, con su rol y accesos
-     * @description **Roles:** admin, dueno, empleado, freelance.
-     *
-     *     **Casos de uso:** CU-24.
-     */
-    get: operations["obtener_usuario_actual"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/usuarios": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/api/usuarios": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Listar usuarios
+         * @description **Roles:** admin, dueno.
+         *
+         *     **Casos de uso:** CU-25.
+         */
+        get: operations["listar_usuarios"];
+        put?: never;
+        /**
+         * Dar de alta un usuario
+         * @description **Roles:** admin, dueno.
+         *
+         *     **Casos de uso:** CU-25.
+         */
+        post: operations["crear_usuario"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    /**
-     * Listar usuarios
-     * @description **Roles:** admin, dueno.
-     *
-     *     **Casos de uso:** CU-25.
-     */
-    get: operations["listar_usuarios"];
-    put?: never;
-    /**
-     * Dar de alta un usuario
-     * @description **Roles:** admin, dueno.
-     *
-     *     **Casos de uso:** CU-25.
-     */
-    post: operations["crear_usuario"];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/usuarios/{usuario_id}": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/api/usuarios/{usuario_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Ver un usuario
+         * @description **Roles:** admin, dueno.
+         *
+         *     **Casos de uso:** CU-25.
+         */
+        get: operations["obtener_usuario"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Editar rol o accesos de un usuario
+         * @description **Roles:** admin, dueno.
+         *
+         *     **Casos de uso:** CU-25.
+         */
+        patch: operations["editar_usuario"];
+        trace?: never;
     };
-    /**
-     * Ver un usuario
-     * @description **Roles:** admin, dueno.
-     *
-     *     **Casos de uso:** CU-25.
-     */
-    get: operations["obtener_usuario"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    /**
-     * Editar rol o accesos de un usuario
-     * @description **Roles:** admin, dueno.
-     *
-     *     **Casos de uso:** CU-25.
-     */
-    patch: operations["editar_usuario"];
-    trace?: never;
-  };
-  "/api/usuarios/{usuario_id}/baja": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/api/usuarios/{usuario_id}/baja": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Dar de baja un usuario (baja lógica)
+         * @description **Roles:** admin, dueno.
+         *
+         *     **Casos de uso:** CU-25.
+         */
+        post: operations["dar_de_baja_usuario"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    get?: never;
-    put?: never;
-    /**
-     * Dar de baja un usuario (baja lógica)
-     * @description **Roles:** admin, dueno.
-     *
-     *     **Casos de uso:** CU-25.
-     */
-    post: operations["dar_de_baja_usuario"];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/configuracion": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/api/configuracion": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Ver los parámetros del negocio
+         * @description **Roles:** admin, dueno.
+         *
+         *     **Casos de uso:** CU-06, CU-07, CU-30.
+         */
+        get: operations["obtener_configuracion"];
+        /**
+         * Editar los parámetros del negocio
+         * @description **Roles:** admin, dueno.
+         *
+         *     **Casos de uso:** CU-06, CU-07, CU-30.
+         */
+        put: operations["editar_configuracion"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    /**
-     * Ver los parámetros del negocio
-     * @description **Roles:** admin, dueno.
-     *
-     *     **Casos de uso:** CU-06, CU-07, CU-30.
-     */
-    get: operations["obtener_configuracion"];
-    /**
-     * Editar los parámetros del negocio
-     * @description **Roles:** admin, dueno.
-     *
-     *     **Casos de uso:** CU-06, CU-07, CU-30.
-     */
-    put: operations["editar_configuracion"];
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/usuarios/{usuario_id}/comision-por-defecto": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/api/usuarios/{usuario_id}/comision-por-defecto": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Configurar la comisión por defecto de un vendedor
+         * @description **Roles:** admin, dueno.
+         *
+         *     **Casos de uso:** CU-13.
+         */
+        put: operations["configurar_comision_por_defecto"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    get?: never;
-    /**
-     * Configurar la comisión por defecto de un vendedor
-     * @description **Roles:** admin, dueno.
-     *
-     *     **Casos de uso:** CU-13.
-     */
-    put: operations["configurar_comision_por_defecto"];
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/destinos": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/api/destinos": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Listar destinos
+         * @description **Roles:** admin, dueno, empleado, freelance.
+         *
+         *     **Casos de uso:** CU-26.
+         */
+        get: operations["listar_destinos"];
+        put?: never;
+        /**
+         * Dar de alta un destino
+         * @description **Roles:** admin, dueno.
+         *
+         *     **Casos de uso:** CU-26.
+         */
+        post: operations["crear_destino"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    /**
-     * Listar destinos
-     * @description **Roles:** admin, dueno, empleado, freelance.
-     *
-     *     **Casos de uso:** CU-26.
-     */
-    get: operations["listar_destinos"];
-    put?: never;
-    /**
-     * Dar de alta un destino
-     * @description **Roles:** admin, dueno.
-     *
-     *     **Casos de uso:** CU-26.
-     */
-    post: operations["crear_destino"];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/destinos/{destino_id}": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/api/destinos/{destino_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Ver un destino
+         * @description **Roles:** admin, dueno, empleado, freelance.
+         *
+         *     **Casos de uso:** CU-26.
+         */
+        get: operations["obtener_destino"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Editar un destino
+         * @description **Roles:** admin, dueno.
+         *
+         *     **Casos de uso:** CU-26.
+         */
+        patch: operations["editar_destino"];
+        trace?: never;
     };
-    /**
-     * Ver un destino
-     * @description **Roles:** admin, dueno, empleado, freelance.
-     *
-     *     **Casos de uso:** CU-26.
-     */
-    get: operations["obtener_destino"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    /**
-     * Editar un destino
-     * @description **Roles:** admin, dueno.
-     *
-     *     **Casos de uso:** CU-26.
-     */
-    patch: operations["editar_destino"];
-    trace?: never;
-  };
-  "/api/destinos/{destino_id}/baja": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/api/destinos/{destino_id}/baja": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Dar de baja un destino (baja lógica)
+         * @description **Roles:** admin, dueno.
+         *
+         *     **Casos de uso:** CU-26.
+         */
+        post: operations["dar_de_baja_destino"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    get?: never;
-    put?: never;
-    /**
-     * Dar de baja un destino (baja lógica)
-     * @description **Roles:** admin, dueno.
-     *
-     *     **Casos de uso:** CU-26.
-     */
-    post: operations["dar_de_baja_destino"];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/destinos/{destino_id}/reactivar": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/api/destinos/{destino_id}/reactivar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Reactivar un destino
+         * @description **Roles:** admin, dueno.
+         *
+         *     **Casos de uso:** CU-26.
+         */
+        post: operations["reactivar_destino"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    get?: never;
-    put?: never;
-    /**
-     * Reactivar un destino
-     * @description **Roles:** admin, dueno.
-     *
-     *     **Casos de uso:** CU-26.
-     */
-    post: operations["reactivar_destino"];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/destinos/{destino_id}/requisitos": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/api/destinos/{destino_id}/requisitos": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Listar los requisitos de un destino
+         * @description **Roles:** admin, dueno, empleado, freelance.
+         *
+         *     **Casos de uso:** CU-15.
+         */
+        get: operations["listar_requisitos_destino"];
+        put?: never;
+        /**
+         * Agregar un requisito a un destino
+         * @description **Roles:** admin, dueno.
+         *
+         *     **Casos de uso:** CU-15.
+         */
+        post: operations["crear_requisito_destino"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    /**
-     * Listar los requisitos de un destino
-     * @description **Roles:** admin, dueno, empleado, freelance.
-     *
-     *     **Casos de uso:** CU-15.
-     */
-    get: operations["listar_requisitos_destino"];
-    put?: never;
-    /**
-     * Agregar un requisito a un destino
-     * @description **Roles:** admin, dueno.
-     *
-     *     **Casos de uso:** CU-15.
-     */
-    post: operations["crear_requisito_destino"];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/requisitos-destino/{requisito_id}": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/api/requisitos-destino/{requisito_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Editar un requisito
+         * @description **Roles:** admin, dueno.
+         *
+         *     **Casos de uso:** CU-15.
+         */
+        patch: operations["editar_requisito_destino"];
+        trace?: never;
     };
-    get?: never;
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    /**
-     * Editar un requisito
-     * @description **Roles:** admin, dueno.
-     *
-     *     **Casos de uso:** CU-15.
-     */
-    patch: operations["editar_requisito_destino"];
-    trace?: never;
-  };
-  "/api/requisitos-destino/{requisito_id}/baja": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/api/requisitos-destino/{requisito_id}/baja": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Quitar un requisito (baja lógica)
+         * @description **Roles:** admin, dueno.
+         *
+         *     **Casos de uso:** CU-15.
+         */
+        post: operations["dar_de_baja_requisito_destino"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    get?: never;
-    put?: never;
-    /**
-     * Quitar un requisito (baja lógica)
-     * @description **Roles:** admin, dueno.
-     *
-     *     **Casos de uso:** CU-15.
-     */
-    post: operations["dar_de_baja_requisito_destino"];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/operadores": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/api/operadores": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Listar operadores
+         * @description **Roles:** admin, dueno, empleado, freelance.
+         *
+         *     **Casos de uso:** CU-31.
+         */
+        get: operations["listar_operadores"];
+        put?: never;
+        /**
+         * Dar de alta un operador
+         * @description **Roles:** admin, dueno.
+         *
+         *     **Casos de uso:** CU-31.
+         */
+        post: operations["crear_operador"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    /**
-     * Listar operadores
-     * @description **Roles:** admin, dueno, empleado, freelance.
-     *
-     *     **Casos de uso:** CU-31.
-     */
-    get: operations["listar_operadores"];
-    put?: never;
-    /**
-     * Dar de alta un operador
-     * @description **Roles:** admin, dueno.
-     *
-     *     **Casos de uso:** CU-31.
-     */
-    post: operations["crear_operador"];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/operadores/{operador_id}": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/api/operadores/{operador_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Ver un operador
+         * @description **Roles:** admin, dueno, empleado, freelance.
+         *
+         *     **Casos de uso:** CU-31.
+         */
+        get: operations["obtener_operador"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Editar un operador
+         * @description **Roles:** admin, dueno.
+         *
+         *     **Casos de uso:** CU-31.
+         */
+        patch: operations["editar_operador"];
+        trace?: never;
     };
-    /**
-     * Ver un operador
-     * @description **Roles:** admin, dueno, empleado, freelance.
-     *
-     *     **Casos de uso:** CU-31.
-     */
-    get: operations["obtener_operador"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    /**
-     * Editar un operador
-     * @description **Roles:** admin, dueno.
-     *
-     *     **Casos de uso:** CU-31.
-     */
-    patch: operations["editar_operador"];
-    trace?: never;
-  };
-  "/api/operadores/{operador_id}/baja": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/api/operadores/{operador_id}/baja": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Dar de baja un operador (baja lógica)
+         * @description **Roles:** admin, dueno.
+         *
+         *     **Casos de uso:** CU-31.
+         */
+        post: operations["dar_de_baja_operador"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    get?: never;
-    put?: never;
-    /**
-     * Dar de baja un operador (baja lógica)
-     * @description **Roles:** admin, dueno.
-     *
-     *     **Casos de uso:** CU-31.
-     */
-    post: operations["dar_de_baja_operador"];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/operadores/{operador_id}/reactivar": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/api/operadores/{operador_id}/reactivar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Reactivar un operador
+         * @description **Roles:** admin, dueno.
+         *
+         *     **Casos de uso:** CU-31.
+         */
+        post: operations["reactivar_operador"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    get?: never;
-    put?: never;
-    /**
-     * Reactivar un operador
-     * @description **Roles:** admin, dueno.
-     *
-     *     **Casos de uso:** CU-31.
-     */
-    post: operations["reactivar_operador"];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/clientes": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/api/clientes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Buscar clientes
+         * @description **Roles:** admin, dueno, empleado, freelance.
+         *
+         *     **Casos de uso:** CU-03.
+         */
+        get: operations["buscar_clientes"];
+        put?: never;
+        /**
+         * Registrar un cliente
+         * @description **Roles:** admin, dueno, empleado, freelance.
+         *
+         *     **Casos de uso:** CU-02.
+         *
+         *     Si hay un posible duplicado responde `409` con los clientes parecidos; se reintenta con `confirmar_duplicado: true` (CU-02 A1).
+         */
+        post: operations["registrar_cliente"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    /**
-     * Buscar clientes
-     * @description **Roles:** admin, dueno, empleado, freelance.
-     *
-     *     **Casos de uso:** CU-03.
-     */
-    get: operations["buscar_clientes"];
-    put?: never;
-    /**
-     * Registrar un cliente
-     * @description **Roles:** admin, dueno, empleado, freelance.
-     *
-     *     **Casos de uso:** CU-02.
-     *
-     *     Si hay un posible duplicado responde `409` con los clientes parecidos; se reintenta con `confirmar_duplicado: true` (CU-02 A1).
-     */
-    post: operations["registrar_cliente"];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/clientes/etiquetas": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/api/clientes/etiquetas": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Etiquetas de clientes en uso
+         * @description **Roles:** admin, dueno, empleado, freelance.
+         *
+         *     **Casos de uso:** CU-03.
+         *
+         *     Distintas, ordenadas alfabéticamente y sin distinguir mayúsculas ni tildes. El `freelance` ve solo las de sus clientes (RF-151).
+         */
+        get: operations["listar_etiquetas_clientes"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    /**
-     * Etiquetas de clientes en uso
-     * @description **Roles:** admin, dueno, empleado, freelance.
-     *
-     *     **Casos de uso:** CU-03.
-     *
-     *     Distintas, ordenadas alfabéticamente y sin distinguir mayúsculas ni tildes. El `freelance` ve solo las de sus clientes (RF-151).
-     */
-    get: operations["listar_etiquetas_clientes"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/clientes/{cliente_id}": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/api/clientes/{cliente_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Ver la ficha de un cliente
+         * @description **Roles:** admin, dueno, empleado, freelance.
+         *
+         *     **Casos de uso:** CU-03.
+         */
+        get: operations["obtener_cliente"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Editar la ficha de un cliente
+         * @description **Roles:** admin, dueno, empleado, freelance.
+         *
+         *     **Casos de uso:** CU-03, CU-30.
+         */
+        patch: operations["editar_cliente"];
+        trace?: never;
     };
-    /**
-     * Ver la ficha de un cliente
-     * @description **Roles:** admin, dueno, empleado, freelance.
-     *
-     *     **Casos de uso:** CU-03.
-     */
-    get: operations["obtener_cliente"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    /**
-     * Editar la ficha de un cliente
-     * @description **Roles:** admin, dueno, empleado, freelance.
-     *
-     *     **Casos de uso:** CU-03, CU-30.
-     */
-    patch: operations["editar_cliente"];
-    trace?: never;
-  };
-  "/api/clientes/{cliente_id}/historial": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/api/clientes/{cliente_id}/historial": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Historial del cliente: oportunidades, viajes y reseñas
+         * @description **Roles:** admin, dueno, empleado, freelance.
+         *
+         *     **Casos de uso:** CU-03.
+         */
+        get: operations["obtener_historial_cliente"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    /**
-     * Historial del cliente: oportunidades, viajes y reseñas
-     * @description **Roles:** admin, dueno, empleado, freelance.
-     *
-     *     **Casos de uso:** CU-03.
-     */
-    get: operations["obtener_historial_cliente"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
 }
 export type webhooks = Record<string, never>;
 export interface components {
-  schemas: {
-    /** AsesorDelCliente */
-    AsesorDelCliente: {
-      /**
-       * Id
-       * Format: uuid
-       */
-      id: string;
-      /** Nombre */
-      nombre: string;
+    schemas: {
+        /** AsesorDelCliente */
+        AsesorDelCliente: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Nombre */
+            nombre: string;
+        };
+        /**
+         * Cliente
+         * @description Ficha del cliente: contacto, segmento, etiquetas y preferencias.
+         */
+        Cliente: {
+            /**
+             * Created By
+             * @description Usuario que creó el registro; vacío si lo hizo el proceso automático.
+             */
+            readonly created_by: string | null;
+            /**
+             * Updated By
+             * @description Usuario que lo modificó por última vez; vacío si fue el proceso automático.
+             */
+            readonly updated_by: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            readonly created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            readonly updated_at: string;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Nombre */
+            nombre: string;
+            /** Contacto */
+            contacto: string;
+            /** Instagram */
+            instagram: string | null;
+            segmento: components["schemas"]["SegmentoCliente"];
+            /** Etiquetas */
+            etiquetas: string[];
+            /** Preferencias */
+            preferencias: string | null;
+            /** No Recontactar */
+            no_recontactar: boolean;
+            /** Asesor Asignado Id */
+            asesor_asignado_id: string | null;
+        };
+        /**
+         * ClienteCrear
+         * @description Alta de un cliente (CU-02). `confirmar_duplicado` reintenta tras el aviso del 409 (A1).
+         */
+        ClienteCrear: {
+            /** Nombre */
+            nombre: string;
+            /** Contacto */
+            contacto: string;
+            /** Instagram */
+            instagram?: string | null;
+            segmento: components["schemas"]["SegmentoCliente"];
+            /**
+             * Etiquetas
+             * @default []
+             */
+            etiquetas: string[];
+            /** Preferencias */
+            preferencias?: string | null;
+            /** Asesor Asignado Id */
+            asesor_asignado_id?: string | null;
+            /**
+             * Confirmar Duplicado
+             * @default false
+             */
+            confirmar_duplicado: boolean;
+        };
+        /**
+         * ClienteEditar
+         * @description Edición parcial de la ficha (CU-03, CU-30): solo cambian los campos enviados.
+         */
+        ClienteEditar: {
+            /** Nombre */
+            nombre?: string;
+            /** Contacto */
+            contacto?: string;
+            /** Instagram */
+            instagram?: string | null;
+            segmento?: components["schemas"]["SegmentoCliente"];
+            /** Etiquetas */
+            etiquetas?: string[];
+            /** Preferencias */
+            preferencias?: string | null;
+            /** No Recontactar */
+            no_recontactar?: boolean;
+            /** Asesor Asignado Id */
+            asesor_asignado_id?: string | null;
+        };
+        /**
+         * ClienteListado
+         * @description Fila del listado (CU-03 paso 1): la ficha más su resumen.
+         */
+        ClienteListado: {
+            /**
+             * Created By
+             * @description Usuario que creó el registro; vacío si lo hizo el proceso automático.
+             */
+            readonly created_by: string | null;
+            /**
+             * Updated By
+             * @description Usuario que lo modificó por última vez; vacío si fue el proceso automático.
+             */
+            readonly updated_by: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            readonly created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            readonly updated_at: string;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Nombre */
+            nombre: string;
+            /** Contacto */
+            contacto: string;
+            /** Instagram */
+            instagram: string | null;
+            segmento: components["schemas"]["SegmentoCliente"];
+            /** Etiquetas */
+            etiquetas: string[];
+            /** Preferencias */
+            preferencias: string | null;
+            /** No Recontactar */
+            no_recontactar: boolean;
+            /** Asesor Asignado Id */
+            asesor_asignado_id: string | null;
+            asesor: components["schemas"]["AsesorDelCliente"] | null;
+            ultimo_viaje: components["schemas"]["UltimoViajeDelCliente"] | null;
+            /**
+             * Oportunidades Abiertas
+             * @description En `nueva`, `en_gestion` o `cotizada`.
+             */
+            oportunidades_abiertas: number;
+        };
+        /**
+         * ComisionPorDefecto
+         * @description Comisión por defecto de un vendedor; ambos en `null` la quita. No recalcula los viajes
+         *     ya registrados (DEC-0013).
+         */
+        ComisionPorDefecto: {
+            /** Comision Default Tipo */
+            comision_default_tipo: ("importe" | "porcentaje") | null;
+            /** Comision Default Valor */
+            comision_default_valor: number | string | null;
+        };
+        /** Configuracion */
+        Configuracion: {
+            /**
+             * Created By
+             * @description Usuario que creó el registro; vacío si lo hizo el proceso automático.
+             */
+            readonly created_by: string | null;
+            /**
+             * Updated By
+             * @description Usuario que lo modificó por última vez; vacío si fue el proceso automático.
+             */
+            readonly updated_by: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            readonly created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            readonly updated_at: string;
+            /** Vigencia Cotizacion Meses */
+            vigencia_cotizacion_meses: number;
+            /** Anticipacion Salida Dias */
+            anticipacion_salida_dias: number;
+            /** Recontacto Meses */
+            recontacto_meses: number;
+        };
+        /**
+         * ConfiguracionEditar
+         * @description Parámetros del negocio: reemplazan a los vigentes (`PUT`).
+         */
+        ConfiguracionEditar: {
+            /** Vigencia Cotizacion Meses */
+            vigencia_cotizacion_meses: number;
+            /** Anticipacion Salida Dias */
+            anticipacion_salida_dias: number;
+            /** Recontacto Meses */
+            recontacto_meses: number;
+        };
+        /** Destino */
+        Destino: {
+            /**
+             * Created By
+             * @description Usuario que creó el registro; vacío si lo hizo el proceso automático.
+             */
+            readonly created_by: string | null;
+            /**
+             * Updated By
+             * @description Usuario que lo modificó por última vez; vacío si fue el proceso automático.
+             */
+            readonly updated_by: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            readonly created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            readonly updated_at: string;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Nombre */
+            nombre: string;
+            /** Pais */
+            pais: string;
+            /** Region */
+            region: string | null;
+            /** Notas */
+            notas: string | null;
+            /** Activo */
+            activo: boolean;
+        };
+        /** DestinoCrear */
+        DestinoCrear: {
+            /** Nombre */
+            nombre: string;
+            /** Pais */
+            pais: string;
+            /** Region */
+            region?: string | null;
+            /** Notas */
+            notas?: string | null;
+        };
+        /** DestinoEditar */
+        DestinoEditar: {
+            /** Nombre */
+            nombre?: string;
+            /** Pais */
+            pais?: string;
+            /** Region */
+            region?: string | null;
+            /** Notas */
+            notas?: string | null;
+        };
+        /** ErrorCampo */
+        ErrorCampo: {
+            /** Campo */
+            campo: string;
+            /** Mensaje */
+            mensaje: string;
+        };
+        /**
+         * EstadoOportunidad
+         * @enum {string}
+         */
+        EstadoOportunidad: "nueva" | "en_gestion" | "cotizada" | "ganada" | "perdida";
+        /**
+         * EstadoResena
+         * @enum {string}
+         */
+        EstadoResena: "publicada" | "oculta";
+        /**
+         * EstadoViaje
+         * @enum {string}
+         */
+        EstadoViaje: "reservado" | "vendido" | "confirmado" | "en_curso" | "finalizado" | "cancelado";
+        /**
+         * HistorialCliente
+         * @description Memoria del cliente (CU-03): sus oportunidades, viajes y reseñas.
+         */
+        HistorialCliente: {
+            /** Oportunidades */
+            oportunidades: components["schemas"]["OportunidadDelCliente"][];
+            /** Viajes */
+            viajes: components["schemas"]["ViajeDelCliente"][];
+            /** Resenas */
+            resenas: components["schemas"]["ResenaDelCliente"][];
+        };
+        /** Operador */
+        Operador: {
+            /**
+             * Created By
+             * @description Usuario que creó el registro; vacío si lo hizo el proceso automático.
+             */
+            readonly created_by: string | null;
+            /**
+             * Updated By
+             * @description Usuario que lo modificó por última vez; vacío si fue el proceso automático.
+             */
+            readonly updated_by: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            readonly created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            readonly updated_at: string;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Nombre */
+            nombre: string;
+            /** Contacto */
+            contacto: string | null;
+            /** Activo */
+            activo: boolean;
+        };
+        /** OperadorCrear */
+        OperadorCrear: {
+            /** Nombre */
+            nombre: string;
+            /** Contacto */
+            contacto?: string | null;
+        };
+        /** OperadorEditar */
+        OperadorEditar: {
+            /** Nombre */
+            nombre?: string;
+            /** Contacto */
+            contacto?: string | null;
+        };
+        /**
+         * OportunidadDelCliente
+         * @description Consulta del cliente, tal como aparece en su historial.
+         */
+        OportunidadDelCliente: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Destino Consultado */
+            destino_consultado: string;
+            estado: components["schemas"]["EstadoOportunidad"];
+            /** Fecha Desde Tentativa */
+            fecha_desde_tentativa: string | null;
+            /** Fecha Hasta Tentativa */
+            fecha_hasta_tentativa: string | null;
+        };
+        /** Pagina[ClienteListado] */
+        Pagina_ClienteListado_: {
+            /** Items */
+            items: components["schemas"]["ClienteListado"][];
+            /** Total */
+            total: number;
+            /** Pagina */
+            pagina: number;
+            /** Por Pagina */
+            por_pagina: number;
+        };
+        /** Pagina[Destino] */
+        Pagina_Destino_: {
+            /** Items */
+            items: components["schemas"]["Destino"][];
+            /** Total */
+            total: number;
+            /** Pagina */
+            pagina: number;
+            /** Por Pagina */
+            por_pagina: number;
+        };
+        /** Pagina[Operador] */
+        Pagina_Operador_: {
+            /** Items */
+            items: components["schemas"]["Operador"][];
+            /** Total */
+            total: number;
+            /** Pagina */
+            pagina: number;
+            /** Por Pagina */
+            por_pagina: number;
+        };
+        /** Pagina[RequisitoDestino] */
+        Pagina_RequisitoDestino_: {
+            /** Items */
+            items: components["schemas"]["RequisitoDestino"][];
+            /** Total */
+            total: number;
+            /** Pagina */
+            pagina: number;
+            /** Por Pagina */
+            por_pagina: number;
+        };
+        /** Pagina[Usuario] */
+        Pagina_Usuario_: {
+            /** Items */
+            items: components["schemas"]["Usuario"][];
+            /** Total */
+            total: number;
+            /** Pagina */
+            pagina: number;
+            /** Por Pagina */
+            por_pagina: number;
+        };
+        Problema: {
+            /** Title */
+            title: string;
+            /** Status */
+            status: number;
+            /**
+             * Detail
+             * @default null
+             */
+            detail: string | null;
+            /**
+             * Errores
+             * @default null
+             */
+            errores: components["schemas"]["ErrorCampo"][] | null;
+        };
+        /**
+         * ProblemaDuplicado
+         * @description 409 del alta (CU-02 A1): trae los clientes que podrían ser el mismo.
+         */
+        ProblemaDuplicado: {
+            /** Title */
+            title: string;
+            /** Status */
+            status: number;
+            /** Detail */
+            detail?: string | null;
+            /** Errores */
+            errores?: components["schemas"]["ErrorCampo"][] | null;
+            /** Duplicados */
+            duplicados: components["schemas"]["Cliente"][];
+        };
+        /** RequisitoDestino */
+        RequisitoDestino: {
+            /**
+             * Created By
+             * @description Usuario que creó el registro; vacío si lo hizo el proceso automático.
+             */
+            readonly created_by: string | null;
+            /**
+             * Updated By
+             * @description Usuario que lo modificó por última vez; vacío si fue el proceso automático.
+             */
+            readonly updated_by: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            readonly created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            readonly updated_at: string;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Destino Id
+             * Format: uuid
+             */
+            destino_id: string;
+            /** Nombre */
+            nombre: string;
+            /**
+             * Tipo
+             * @enum {string}
+             */
+            tipo: "visa" | "vacunacion" | "documentacion" | "seguro" | "formulario" | "otro";
+            /** Obligatorio */
+            obligatorio: boolean;
+            /** Descripcion */
+            descripcion: string | null;
+            /** Anticipacion Dias */
+            anticipacion_dias: number;
+            /** Activo */
+            activo: boolean;
+        };
+        /** RequisitoDestinoCrear */
+        RequisitoDestinoCrear: {
+            /** Nombre */
+            nombre: string;
+            /**
+             * Tipo
+             * @enum {string}
+             */
+            tipo: "visa" | "vacunacion" | "documentacion" | "seguro" | "formulario" | "otro";
+            /** Obligatorio */
+            obligatorio: boolean;
+            /** Descripcion */
+            descripcion?: string | null;
+            /** Anticipacion Dias */
+            anticipacion_dias: number;
+        };
+        /** RequisitoDestinoEditar */
+        RequisitoDestinoEditar: {
+            /** Nombre */
+            nombre?: string;
+            /**
+             * Tipo
+             * @enum {string}
+             */
+            tipo?: "visa" | "vacunacion" | "documentacion" | "seguro" | "formulario" | "otro";
+            /** Obligatorio */
+            obligatorio?: boolean;
+            /** Descripcion */
+            descripcion?: string | null;
+            /** Anticipacion Dias */
+            anticipacion_dias?: number;
+        };
+        /**
+         * ResenaDelCliente
+         * @description Reseña que dejó el cliente, tal como aparece en su historial.
+         */
+        ResenaDelCliente: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Hotel Id
+             * Format: uuid
+             */
+            hotel_id: string;
+            /** Puntaje */
+            puntaje: number;
+            /** Comentario */
+            comentario: string;
+            /**
+             * Fecha
+             * Format: date
+             */
+            fecha: string;
+            estado: components["schemas"]["EstadoResena"];
+        };
+        /**
+         * SegmentoCliente
+         * @enum {string}
+         */
+        SegmentoCliente: "familia" | "amigos" | "individual" | "pareja";
+        /**
+         * UltimoViajeDelCliente
+         * @description Viaje no cancelado de salida más reciente entre los que ya salieron (hasta hoy).
+         */
+        UltimoViajeDelCliente: {
+            /**
+             * Fecha Salida
+             * Format: date
+             */
+            fecha_salida: string;
+            /**
+             * Destino
+             * @description Nombre del `Destino`.
+             */
+            destino: string;
+        };
+        /** Usuario */
+        Usuario: {
+            /**
+             * Created By
+             * @description Usuario que creó el registro; vacío si lo hizo el proceso automático.
+             */
+            readonly created_by: string | null;
+            /**
+             * Updated By
+             * @description Usuario que lo modificó por última vez; vacío si fue el proceso automático.
+             */
+            readonly updated_by: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            readonly created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            readonly updated_at: string;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Nombre */
+            nombre: string;
+            /** Email */
+            email: string;
+            /**
+             * Rol
+             * @enum {string}
+             */
+            rol: "admin" | "dueno" | "empleado" | "freelance";
+            /** Activo */
+            activo: boolean;
+            /** Acceso Redes */
+            acceso_redes: boolean;
+            /** Comision Default Tipo */
+            comision_default_tipo: ("importe" | "porcentaje") | null;
+            /** Comision Default Valor */
+            comision_default_valor: string | null;
+        };
+        /**
+         * UsuarioActual
+         * @description Usuario de Rumbo de la sesión, con su rol y accesos.
+         */
+        UsuarioActual: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Nombre */
+            nombre: string;
+            /** Email */
+            email: string;
+            /**
+             * Rol
+             * @enum {string}
+             */
+            rol: "admin" | "dueno" | "empleado" | "freelance";
+            /** Acceso Redes */
+            acceso_redes: boolean;
+        };
+        /**
+         * UsuarioCrear
+         * @description Alta de usuario: la cuenta de Firebase y el mail para elegir contraseña los resuelve el
+         *     servidor; el cuerpo no lleva contraseña (DEC-0016).
+         */
+        UsuarioCrear: {
+            /** Nombre */
+            nombre: string;
+            /**
+             * Email
+             * Format: email
+             */
+            email: string;
+            /**
+             * Rol
+             * @enum {string}
+             */
+            rol: "admin" | "dueno" | "empleado" | "freelance";
+            /**
+             * Acceso Redes
+             * @default false
+             */
+            acceso_redes: boolean;
+        };
+        /**
+         * UsuarioEditar
+         * @description Cambio de rol o de acceso a redes (CU-25 A2).
+         */
+        UsuarioEditar: {
+            /**
+             * Rol
+             * @enum {string}
+             */
+            rol?: "admin" | "dueno" | "empleado" | "freelance";
+            /** Acceso Redes */
+            acceso_redes?: boolean;
+        };
+        /**
+         * ViajeDelCliente
+         * @description Viaje del cliente, tal como aparece en su historial.
+         */
+        ViajeDelCliente: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Destino Id
+             * Format: uuid
+             */
+            destino_id: string;
+            estado: components["schemas"]["EstadoViaje"];
+            /**
+             * Fecha Salida
+             * Format: date
+             */
+            fecha_salida: string;
+            /**
+             * Fecha Regreso
+             * Format: date
+             */
+            fecha_regreso: string;
+        };
+        Pagina: {
+            /** Items */
+            items: unknown[];
+            /** Total */
+            total: number;
+            /** Pagina */
+            pagina: number;
+            /** Por Pagina */
+            por_pagina: number;
+        };
     };
-    /**
-     * Cliente
-     * @description Ficha del cliente: contacto, segmento, etiquetas y preferencias.
-     */
-    Cliente: {
-      /**
-       * Created By
-       * @description Usuario que creó el registro; vacío si lo hizo el proceso automático.
-       */
-      readonly created_by: string | null;
-      /**
-       * Updated By
-       * @description Usuario que lo modificó por última vez; vacío si fue el proceso automático.
-       */
-      readonly updated_by: string | null;
-      /**
-       * Created At
-       * Format: date-time
-       */
-      readonly created_at: string;
-      /**
-       * Updated At
-       * Format: date-time
-       */
-      readonly updated_at: string;
-      /**
-       * Id
-       * Format: uuid
-       */
-      id: string;
-      /** Nombre */
-      nombre: string;
-      /** Contacto */
-      contacto: string;
-      /** Instagram */
-      instagram: string | null;
-      segmento: components["schemas"]["SegmentoCliente"];
-      /** Etiquetas */
-      etiquetas: string[];
-      /** Preferencias */
-      preferencias: string | null;
-      /** No Recontactar */
-      no_recontactar: boolean;
-      /** Asesor Asignado Id */
-      asesor_asignado_id: string | null;
-    };
-    /**
-     * ClienteCrear
-     * @description Alta de un cliente (CU-02). `confirmar_duplicado` reintenta tras el aviso del 409 (A1).
-     */
-    ClienteCrear: {
-      /** Nombre */
-      nombre: string;
-      /** Contacto */
-      contacto: string;
-      /** Instagram */
-      instagram?: string | null;
-      segmento: components["schemas"]["SegmentoCliente"];
-      /**
-       * Etiquetas
-       * @default []
-       */
-      etiquetas: string[];
-      /** Preferencias */
-      preferencias?: string | null;
-      /** Asesor Asignado Id */
-      asesor_asignado_id?: string | null;
-      /**
-       * Confirmar Duplicado
-       * @default false
-       */
-      confirmar_duplicado: boolean;
-    };
-    /**
-     * ClienteEditar
-     * @description Edición parcial de la ficha (CU-03, CU-30): solo cambian los campos enviados.
-     */
-    ClienteEditar: {
-      /** Nombre */
-      nombre?: string;
-      /** Contacto */
-      contacto?: string;
-      /** Instagram */
-      instagram?: string | null;
-      segmento?: components["schemas"]["SegmentoCliente"];
-      /** Etiquetas */
-      etiquetas?: string[];
-      /** Preferencias */
-      preferencias?: string | null;
-      /** No Recontactar */
-      no_recontactar?: boolean;
-      /** Asesor Asignado Id */
-      asesor_asignado_id?: string | null;
-    };
-    /**
-     * ClienteListado
-     * @description Fila del listado (CU-03 paso 1): la ficha más su resumen.
-     */
-    ClienteListado: {
-      /**
-       * Created By
-       * @description Usuario que creó el registro; vacío si lo hizo el proceso automático.
-       */
-      readonly created_by: string | null;
-      /**
-       * Updated By
-       * @description Usuario que lo modificó por última vez; vacío si fue el proceso automático.
-       */
-      readonly updated_by: string | null;
-      /**
-       * Created At
-       * Format: date-time
-       */
-      readonly created_at: string;
-      /**
-       * Updated At
-       * Format: date-time
-       */
-      readonly updated_at: string;
-      /**
-       * Id
-       * Format: uuid
-       */
-      id: string;
-      /** Nombre */
-      nombre: string;
-      /** Contacto */
-      contacto: string;
-      /** Instagram */
-      instagram: string | null;
-      segmento: components["schemas"]["SegmentoCliente"];
-      /** Etiquetas */
-      etiquetas: string[];
-      /** Preferencias */
-      preferencias: string | null;
-      /** No Recontactar */
-      no_recontactar: boolean;
-      /** Asesor Asignado Id */
-      asesor_asignado_id: string | null;
-      asesor: components["schemas"]["AsesorDelCliente"] | null;
-      ultimo_viaje: components["schemas"]["UltimoViajeDelCliente"] | null;
-      /**
-       * Oportunidades Abiertas
-       * @description En `nueva`, `en_gestion` o `cotizada`.
-       */
-      oportunidades_abiertas: number;
-    };
-    /**
-     * ComisionPorDefecto
-     * @description Comisión por defecto de un vendedor; ambos en `null` la quita. No recalcula los viajes
-     *     ya registrados (DEC-0013).
-     */
-    ComisionPorDefecto: {
-      /** Comision Default Tipo */
-      comision_default_tipo: ("importe" | "porcentaje") | null;
-      /** Comision Default Valor */
-      comision_default_valor: number | string | null;
-    };
-    /** Configuracion */
-    Configuracion: {
-      /**
-       * Created By
-       * @description Usuario que creó el registro; vacío si lo hizo el proceso automático.
-       */
-      readonly created_by: string | null;
-      /**
-       * Updated By
-       * @description Usuario que lo modificó por última vez; vacío si fue el proceso automático.
-       */
-      readonly updated_by: string | null;
-      /**
-       * Created At
-       * Format: date-time
-       */
-      readonly created_at: string;
-      /**
-       * Updated At
-       * Format: date-time
-       */
-      readonly updated_at: string;
-      /** Vigencia Cotizacion Meses */
-      vigencia_cotizacion_meses: number;
-      /** Anticipacion Salida Dias */
-      anticipacion_salida_dias: number;
-      /** Recontacto Meses */
-      recontacto_meses: number;
-    };
-    /**
-     * ConfiguracionEditar
-     * @description Parámetros del negocio: reemplazan a los vigentes (`PUT`).
-     */
-    ConfiguracionEditar: {
-      /** Vigencia Cotizacion Meses */
-      vigencia_cotizacion_meses: number;
-      /** Anticipacion Salida Dias */
-      anticipacion_salida_dias: number;
-      /** Recontacto Meses */
-      recontacto_meses: number;
-    };
-    /** Destino */
-    Destino: {
-      /**
-       * Created By
-       * @description Usuario que creó el registro; vacío si lo hizo el proceso automático.
-       */
-      readonly created_by: string | null;
-      /**
-       * Updated By
-       * @description Usuario que lo modificó por última vez; vacío si fue el proceso automático.
-       */
-      readonly updated_by: string | null;
-      /**
-       * Created At
-       * Format: date-time
-       */
-      readonly created_at: string;
-      /**
-       * Updated At
-       * Format: date-time
-       */
-      readonly updated_at: string;
-      /**
-       * Id
-       * Format: uuid
-       */
-      id: string;
-      /** Nombre */
-      nombre: string;
-      /** Pais */
-      pais: string;
-      /** Region */
-      region: string | null;
-      /** Notas */
-      notas: string | null;
-      /** Activo */
-      activo: boolean;
-    };
-    /** DestinoCrear */
-    DestinoCrear: {
-      /** Nombre */
-      nombre: string;
-      /** Pais */
-      pais: string;
-      /** Region */
-      region?: string | null;
-      /** Notas */
-      notas?: string | null;
-    };
-    /** DestinoEditar */
-    DestinoEditar: {
-      /** Nombre */
-      nombre?: string;
-      /** Pais */
-      pais?: string;
-      /** Region */
-      region?: string | null;
-      /** Notas */
-      notas?: string | null;
-    };
-    /** ErrorCampo */
-    ErrorCampo: {
-      /** Campo */
-      campo: string;
-      /** Mensaje */
-      mensaje: string;
-    };
-    /**
-     * EstadoOportunidad
-     * @enum {string}
-     */
-    EstadoOportunidad: "nueva" | "en_gestion" | "cotizada" | "ganada" | "perdida";
-    /**
-     * EstadoResena
-     * @enum {string}
-     */
-    EstadoResena: "publicada" | "oculta";
-    /**
-     * EstadoViaje
-     * @enum {string}
-     */
-    EstadoViaje: "reservado" | "vendido" | "confirmado" | "en_curso" | "finalizado" | "cancelado";
-    /**
-     * HistorialCliente
-     * @description Memoria del cliente (CU-03): sus oportunidades, viajes y reseñas.
-     */
-    HistorialCliente: {
-      /** Oportunidades */
-      oportunidades: components["schemas"]["OportunidadDelCliente"][];
-      /** Viajes */
-      viajes: components["schemas"]["ViajeDelCliente"][];
-      /** Resenas */
-      resenas: components["schemas"]["ResenaDelCliente"][];
-    };
-    /** Operador */
-    Operador: {
-      /**
-       * Created By
-       * @description Usuario que creó el registro; vacío si lo hizo el proceso automático.
-       */
-      readonly created_by: string | null;
-      /**
-       * Updated By
-       * @description Usuario que lo modificó por última vez; vacío si fue el proceso automático.
-       */
-      readonly updated_by: string | null;
-      /**
-       * Created At
-       * Format: date-time
-       */
-      readonly created_at: string;
-      /**
-       * Updated At
-       * Format: date-time
-       */
-      readonly updated_at: string;
-      /**
-       * Id
-       * Format: uuid
-       */
-      id: string;
-      /** Nombre */
-      nombre: string;
-      /** Contacto */
-      contacto: string | null;
-      /** Activo */
-      activo: boolean;
-    };
-    /** OperadorCrear */
-    OperadorCrear: {
-      /** Nombre */
-      nombre: string;
-      /** Contacto */
-      contacto?: string | null;
-    };
-    /** OperadorEditar */
-    OperadorEditar: {
-      /** Nombre */
-      nombre?: string;
-      /** Contacto */
-      contacto?: string | null;
-    };
-    /**
-     * OportunidadDelCliente
-     * @description Consulta del cliente, tal como aparece en su historial.
-     */
-    OportunidadDelCliente: {
-      /**
-       * Id
-       * Format: uuid
-       */
-      id: string;
-      /** Destino Consultado */
-      destino_consultado: string;
-      estado: components["schemas"]["EstadoOportunidad"];
-      /** Fecha Desde Tentativa */
-      fecha_desde_tentativa: string | null;
-      /** Fecha Hasta Tentativa */
-      fecha_hasta_tentativa: string | null;
-    };
-    /** Pagina[ClienteListado] */
-    Pagina_ClienteListado_: {
-      /** Items */
-      items: components["schemas"]["ClienteListado"][];
-      /** Total */
-      total: number;
-      /** Pagina */
-      pagina: number;
-      /** Por Pagina */
-      por_pagina: number;
-    };
-    /** Pagina[Destino] */
-    Pagina_Destino_: {
-      /** Items */
-      items: components["schemas"]["Destino"][];
-      /** Total */
-      total: number;
-      /** Pagina */
-      pagina: number;
-      /** Por Pagina */
-      por_pagina: number;
-    };
-    /** Pagina[Operador] */
-    Pagina_Operador_: {
-      /** Items */
-      items: components["schemas"]["Operador"][];
-      /** Total */
-      total: number;
-      /** Pagina */
-      pagina: number;
-      /** Por Pagina */
-      por_pagina: number;
-    };
-    /** Pagina[RequisitoDestino] */
-    Pagina_RequisitoDestino_: {
-      /** Items */
-      items: components["schemas"]["RequisitoDestino"][];
-      /** Total */
-      total: number;
-      /** Pagina */
-      pagina: number;
-      /** Por Pagina */
-      por_pagina: number;
-    };
-    /** Pagina[Usuario] */
-    Pagina_Usuario_: {
-      /** Items */
-      items: components["schemas"]["Usuario"][];
-      /** Total */
-      total: number;
-      /** Pagina */
-      pagina: number;
-      /** Por Pagina */
-      por_pagina: number;
-    };
-    Problema: {
-      /** Title */
-      title: string;
-      /** Status */
-      status: number;
-      /**
-       * Detail
-       * @default null
-       */
-      detail: string | null;
-      /**
-       * Errores
-       * @default null
-       */
-      errores: components["schemas"]["ErrorCampo"][] | null;
-    };
-    /**
-     * ProblemaDuplicado
-     * @description 409 del alta (CU-02 A1): trae los clientes que podrían ser el mismo.
-     */
-    ProblemaDuplicado: {
-      /** Title */
-      title: string;
-      /** Status */
-      status: number;
-      /** Detail */
-      detail?: string | null;
-      /** Errores */
-      errores?: components["schemas"]["ErrorCampo"][] | null;
-      /** Duplicados */
-      duplicados: components["schemas"]["Cliente"][];
-    };
-    /** RequisitoDestino */
-    RequisitoDestino: {
-      /**
-       * Created By
-       * @description Usuario que creó el registro; vacío si lo hizo el proceso automático.
-       */
-      readonly created_by: string | null;
-      /**
-       * Updated By
-       * @description Usuario que lo modificó por última vez; vacío si fue el proceso automático.
-       */
-      readonly updated_by: string | null;
-      /**
-       * Created At
-       * Format: date-time
-       */
-      readonly created_at: string;
-      /**
-       * Updated At
-       * Format: date-time
-       */
-      readonly updated_at: string;
-      /**
-       * Id
-       * Format: uuid
-       */
-      id: string;
-      /**
-       * Destino Id
-       * Format: uuid
-       */
-      destino_id: string;
-      /** Nombre */
-      nombre: string;
-      /**
-       * Tipo
-       * @enum {string}
-       */
-      tipo: "visa" | "vacunacion" | "documentacion" | "seguro" | "formulario" | "otro";
-      /** Obligatorio */
-      obligatorio: boolean;
-      /** Descripcion */
-      descripcion: string | null;
-      /** Anticipacion Dias */
-      anticipacion_dias: number;
-      /** Activo */
-      activo: boolean;
-    };
-    /** RequisitoDestinoCrear */
-    RequisitoDestinoCrear: {
-      /** Nombre */
-      nombre: string;
-      /**
-       * Tipo
-       * @enum {string}
-       */
-      tipo: "visa" | "vacunacion" | "documentacion" | "seguro" | "formulario" | "otro";
-      /** Obligatorio */
-      obligatorio: boolean;
-      /** Descripcion */
-      descripcion?: string | null;
-      /** Anticipacion Dias */
-      anticipacion_dias: number;
-    };
-    /** RequisitoDestinoEditar */
-    RequisitoDestinoEditar: {
-      /** Nombre */
-      nombre?: string;
-      /**
-       * Tipo
-       * @enum {string}
-       */
-      tipo?: "visa" | "vacunacion" | "documentacion" | "seguro" | "formulario" | "otro";
-      /** Obligatorio */
-      obligatorio?: boolean;
-      /** Descripcion */
-      descripcion?: string | null;
-      /** Anticipacion Dias */
-      anticipacion_dias?: number;
-    };
-    /**
-     * ResenaDelCliente
-     * @description Reseña que dejó el cliente, tal como aparece en su historial.
-     */
-    ResenaDelCliente: {
-      /**
-       * Id
-       * Format: uuid
-       */
-      id: string;
-      /**
-       * Hotel Id
-       * Format: uuid
-       */
-      hotel_id: string;
-      /** Puntaje */
-      puntaje: number;
-      /** Comentario */
-      comentario: string;
-      /**
-       * Fecha
-       * Format: date
-       */
-      fecha: string;
-      estado: components["schemas"]["EstadoResena"];
-    };
-    /**
-     * SegmentoCliente
-     * @enum {string}
-     */
-    SegmentoCliente: "familia" | "amigos" | "individual" | "pareja";
-    /**
-     * UltimoViajeDelCliente
-     * @description Viaje no cancelado de salida más reciente entre los que ya salieron (hasta hoy).
-     */
-    UltimoViajeDelCliente: {
-      /**
-       * Fecha Salida
-       * Format: date
-       */
-      fecha_salida: string;
-      /**
-       * Destino
-       * @description Nombre del `Destino`.
-       */
-      destino: string;
-    };
-    /** Usuario */
-    Usuario: {
-      /**
-       * Created By
-       * @description Usuario que creó el registro; vacío si lo hizo el proceso automático.
-       */
-      readonly created_by: string | null;
-      /**
-       * Updated By
-       * @description Usuario que lo modificó por última vez; vacío si fue el proceso automático.
-       */
-      readonly updated_by: string | null;
-      /**
-       * Created At
-       * Format: date-time
-       */
-      readonly created_at: string;
-      /**
-       * Updated At
-       * Format: date-time
-       */
-      readonly updated_at: string;
-      /**
-       * Id
-       * Format: uuid
-       */
-      id: string;
-      /** Nombre */
-      nombre: string;
-      /** Email */
-      email: string;
-      /**
-       * Rol
-       * @enum {string}
-       */
-      rol: "admin" | "dueno" | "empleado" | "freelance";
-      /** Activo */
-      activo: boolean;
-      /** Acceso Redes */
-      acceso_redes: boolean;
-      /** Comision Default Tipo */
-      comision_default_tipo: ("importe" | "porcentaje") | null;
-      /** Comision Default Valor */
-      comision_default_valor: string | null;
-    };
-    /**
-     * UsuarioActual
-     * @description Usuario de Rumbo de la sesión, con su rol y accesos.
-     */
-    UsuarioActual: {
-      /**
-       * Id
-       * Format: uuid
-       */
-      id: string;
-      /** Nombre */
-      nombre: string;
-      /** Email */
-      email: string;
-      /**
-       * Rol
-       * @enum {string}
-       */
-      rol: "admin" | "dueno" | "empleado" | "freelance";
-      /** Acceso Redes */
-      acceso_redes: boolean;
-    };
-    /**
-     * UsuarioCrear
-     * @description Alta de usuario: la cuenta de Firebase y el mail para elegir contraseña los resuelve el
-     *     servidor; el cuerpo no lleva contraseña (DEC-0016).
-     */
-    UsuarioCrear: {
-      /** Nombre */
-      nombre: string;
-      /**
-       * Email
-       * Format: email
-       */
-      email: string;
-      /**
-       * Rol
-       * @enum {string}
-       */
-      rol: "admin" | "dueno" | "empleado" | "freelance";
-      /**
-       * Acceso Redes
-       * @default false
-       */
-      acceso_redes: boolean;
-    };
-    /**
-     * UsuarioEditar
-     * @description Cambio de rol o de acceso a redes (CU-25 A2).
-     */
-    UsuarioEditar: {
-      /**
-       * Rol
-       * @enum {string}
-       */
-      rol?: "admin" | "dueno" | "empleado" | "freelance";
-      /** Acceso Redes */
-      acceso_redes?: boolean;
-    };
-    /**
-     * ViajeDelCliente
-     * @description Viaje del cliente, tal como aparece en su historial.
-     */
-    ViajeDelCliente: {
-      /**
-       * Id
-       * Format: uuid
-       */
-      id: string;
-      /**
-       * Destino Id
-       * Format: uuid
-       */
-      destino_id: string;
-      estado: components["schemas"]["EstadoViaje"];
-      /**
-       * Fecha Salida
-       * Format: date
-       */
-      fecha_salida: string;
-      /**
-       * Fecha Regreso
-       * Format: date
-       */
-      fecha_regreso: string;
-    };
-    Pagina: {
-      /** Items */
-      items: unknown[];
-      /** Total */
-      total: number;
-      /** Pagina */
-      pagina: number;
-      /** Por Pagina */
-      por_pagina: number;
-    };
-  };
-  responses: never;
-  parameters: never;
-  requestBodies: never;
-  headers: never;
-  pathItems: never;
+    responses: never;
+    parameters: never;
+    requestBodies: never;
+    headers: never;
+    pathItems: never;
 }
 export type $defs = Record<string, never>;
 export interface operations {
-  salud_api_salud_get: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": {
-            [key: string]: string;
-          };
-        };
-      };
-    };
-  };
-  obtener_usuario_actual: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["UsuarioActual"];
-        };
-      };
-      /** @description Falta el token, no es válido o el usuario no tiene acceso. */
-      401: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/problem+json": components["schemas"]["Problema"];
-        };
-      };
-    };
-  };
-  listar_usuarios: {
-    parameters: {
-      query?: {
-        activo?: boolean | null;
-        pagina?: number;
-        por_pagina?: number;
-      };
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["Pagina_Usuario_"];
-        };
-      };
-      /** @description Falta el token, no es válido o el usuario no tiene acceso. */
-      401: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/problem+json": components["schemas"]["Problema"];
-        };
-      };
-      /** @description El rol no alcanza. */
-      403: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/problem+json": components["schemas"]["Problema"];
-        };
-      };
-      /** @description Datos inválidos. */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/problem+json": components["schemas"]["Problema"];
-        };
-      };
-    };
-  };
-  crear_usuario: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["UsuarioCrear"];
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      201: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["Usuario"];
-        };
-      };
-      /** @description Falta el token, no es válido o el usuario no tiene acceso. */
-      401: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/problem+json": components["schemas"]["Problema"];
-        };
-      };
-      /** @description El rol no alcanza. */
-      403: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/problem+json": components["schemas"]["Problema"];
-        };
-      };
-      /** @description Conflicto con el estado actual. */
-      409: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/problem+json": components["schemas"]["Problema"];
-        };
-      };
-      /** @description Datos inválidos. */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/problem+json": components["schemas"]["Problema"];
-        };
-      };
-    };
-  };
-  obtener_usuario: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        usuario_id: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["Usuario"];
-        };
-      };
-      /** @description Falta el token, no es válido o el usuario no tiene acceso. */
-      401: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/problem+json": components["schemas"]["Problema"];
-        };
-      };
-      /** @description El rol no alcanza. */
-      403: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/problem+json": components["schemas"]["Problema"];
-        };
-      };
-      /** @description No existe. */
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/problem+json": components["schemas"]["Problema"];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/problem+json": components["schemas"]["Problema"];
-        };
-      };
-    };
-  };
-  editar_usuario: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        usuario_id: string;
-      };
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["UsuarioEditar"];
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["Usuario"];
-        };
-      };
-      /** @description Falta el token, no es válido o el usuario no tiene acceso. */
-      401: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/problem+json": components["schemas"]["Problema"];
-        };
-      };
-      /** @description El rol no alcanza. */
-      403: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/problem+json": components["schemas"]["Problema"];
-        };
-      };
-      /** @description No existe. */
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/problem+json": components["schemas"]["Problema"];
-        };
-      };
-      /** @description Conflicto con el estado actual. */
-      409: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/problem+json": components["schemas"]["Problema"];
-        };
-      };
-      /** @description Datos inválidos. */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/problem+json": components["schemas"]["Problema"];
-        };
-      };
-    };
-  };
-  dar_de_baja_usuario: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        usuario_id: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["Usuario"];
-        };
-      };
-      /** @description Falta el token, no es válido o el usuario no tiene acceso. */
-      401: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/problem+json": components["schemas"]["Problema"];
-        };
-      };
-      /** @description El rol no alcanza. */
-      403: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/problem+json": components["schemas"]["Problema"];
-        };
-      };
-      /** @description No existe. */
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/problem+json": components["schemas"]["Problema"];
-        };
-      };
-      /** @description Conflicto con el estado actual. */
-      409: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/problem+json": components["schemas"]["Problema"];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/problem+json": components["schemas"]["Problema"];
-        };
-      };
-    };
-  };
-  obtener_configuracion: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["Configuracion"];
-        };
-      };
-      /** @description Falta el token, no es válido o el usuario no tiene acceso. */
-      401: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/problem+json": components["schemas"]["Problema"];
-        };
-      };
-      /** @description El rol no alcanza. */
-      403: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/problem+json": components["schemas"]["Problema"];
-        };
-      };
-    };
-  };
-  editar_configuracion: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["ConfiguracionEditar"];
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["Configuracion"];
-        };
-      };
-      /** @description Falta el token, no es válido o el usuario no tiene acceso. */
-      401: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/problem+json": components["schemas"]["Problema"];
-        };
-      };
-      /** @description El rol no alcanza. */
-      403: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/problem+json": components["schemas"]["Problema"];
-        };
-      };
-      /** @description Datos inválidos. */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/problem+json": components["schemas"]["Problema"];
-        };
-      };
-    };
-  };
-  configurar_comision_por_defecto: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        usuario_id: string;
-      };
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["ComisionPorDefecto"];
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["Usuario"];
-        };
-      };
-      /** @description Falta el token, no es válido o el usuario no tiene acceso. */
-      401: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/problem+json": components["schemas"]["Problema"];
-        };
-      };
-      /** @description El rol no alcanza. */
-      403: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/problem+json": components["schemas"]["Problema"];
-        };
-      };
-      /** @description No existe. */
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/problem+json": components["schemas"]["Problema"];
-        };
-      };
-      /** @description Datos inválidos. */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/problem+json": components["schemas"]["Problema"];
-        };
-      };
-    };
-  };
-  listar_destinos: {
-    parameters: {
-      query?: {
-        activo?: boolean;
-        buscar?: string | null;
-        pagina?: number;
-        por_pagina?: number;
-      };
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["Pagina_Destino_"];
-        };
-      };
-      /** @description Falta el token, no es válido o el usuario no tiene acceso. */
-      401: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/problem+json": components["schemas"]["Problema"];
-        };
-      };
-      /** @description Datos inválidos. */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/problem+json": components["schemas"]["Problema"];
-        };
-      };
-    };
-  };
-  crear_destino: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["DestinoCrear"];
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      201: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["Destino"];
-        };
-      };
-      /** @description Falta el token, no es válido o el usuario no tiene acceso. */
-      401: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/problem+json": components["schemas"]["Problema"];
-        };
-      };
-      /** @description El rol no alcanza. */
-      403: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/problem+json": components["schemas"]["Problema"];
-        };
-      };
-      /** @description Conflicto con el estado actual. */
-      409: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/problem+json": components["schemas"]["Problema"];
-        };
-      };
-      /** @description Datos inválidos. */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/problem+json": components["schemas"]["Problema"];
-        };
-      };
-    };
-  };
-  obtener_destino: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        destino_id: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["Destino"];
-        };
-      };
-      /** @description Falta el token, no es válido o el usuario no tiene acceso. */
-      401: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/problem+json": components["schemas"]["Problema"];
-        };
-      };
-      /** @description No existe. */
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/problem+json": components["schemas"]["Problema"];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/problem+json": components["schemas"]["Problema"];
-        };
-      };
-    };
-  };
-  editar_destino: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        destino_id: string;
-      };
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["DestinoEditar"];
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["Destino"];
-        };
-      };
-      /** @description Falta el token, no es válido o el usuario no tiene acceso. */
-      401: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/problem+json": components["schemas"]["Problema"];
-        };
-      };
-      /** @description El rol no alcanza. */
-      403: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/problem+json": components["schemas"]["Problema"];
-        };
-      };
-      /** @description No existe. */
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/problem+json": components["schemas"]["Problema"];
-        };
-      };
-      /** @description Conflicto con el estado actual. */
-      409: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/problem+json": components["schemas"]["Problema"];
-        };
-      };
-      /** @description Datos inválidos. */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/problem+json": components["schemas"]["Problema"];
-        };
-      };
-    };
-  };
-  dar_de_baja_destino: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        destino_id: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["Destino"];
-        };
-      };
-      /** @description Falta el token, no es válido o el usuario no tiene acceso. */
-      401: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/problem+json": components["schemas"]["Problema"];
-        };
-      };
-      /** @description El rol no alcanza. */
-      403: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/problem+json": components["schemas"]["Problema"];
-        };
-      };
-      /** @description No existe. */
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/problem+json": components["schemas"]["Problema"];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/problem+json": components["schemas"]["Problema"];
-        };
-      };
-    };
-  };
-  reactivar_destino: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        destino_id: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["Destino"];
-        };
-      };
-      /** @description Falta el token, no es válido o el usuario no tiene acceso. */
-      401: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/problem+json": components["schemas"]["Problema"];
-        };
-      };
-      /** @description El rol no alcanza. */
-      403: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/problem+json": components["schemas"]["Problema"];
-        };
-      };
-      /** @description No existe. */
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/problem+json": components["schemas"]["Problema"];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/problem+json": components["schemas"]["Problema"];
-        };
-      };
-    };
-  };
-  listar_requisitos_destino: {
-    parameters: {
-      query?: {
-        pagina?: number;
-        por_pagina?: number;
-      };
-      header?: never;
-      path: {
-        destino_id: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["Pagina_RequisitoDestino_"];
-        };
-      };
-      /** @description Falta el token, no es válido o el usuario no tiene acceso. */
-      401: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/problem+json": components["schemas"]["Problema"];
-        };
-      };
-      /** @description No existe. */
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/problem+json": components["schemas"]["Problema"];
-        };
-      };
-      /** @description Datos inválidos. */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/problem+json": components["schemas"]["Problema"];
-        };
-      };
-    };
-  };
-  crear_requisito_destino: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        destino_id: string;
-      };
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["RequisitoDestinoCrear"];
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      201: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["RequisitoDestino"];
-        };
-      };
-      /** @description Falta el token, no es válido o el usuario no tiene acceso. */
-      401: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/problem+json": components["schemas"]["Problema"];
-        };
-      };
-      /** @description El rol no alcanza. */
-      403: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/problem+json": components["schemas"]["Problema"];
-        };
-      };
-      /** @description No existe. */
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/problem+json": components["schemas"]["Problema"];
-        };
-      };
-      /** @description Datos inválidos. */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/problem+json": components["schemas"]["Problema"];
-        };
-      };
-    };
-  };
-  editar_requisito_destino: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        requisito_id: string;
-      };
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["RequisitoDestinoEditar"];
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["RequisitoDestino"];
-        };
-      };
-      /** @description Falta el token, no es válido o el usuario no tiene acceso. */
-      401: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/problem+json": components["schemas"]["Problema"];
-        };
-      };
-      /** @description El rol no alcanza. */
-      403: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/problem+json": components["schemas"]["Problema"];
-        };
-      };
-      /** @description No existe. */
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/problem+json": components["schemas"]["Problema"];
-        };
-      };
-      /** @description Datos inválidos. */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/problem+json": components["schemas"]["Problema"];
-        };
-      };
-    };
-  };
-  dar_de_baja_requisito_destino: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        requisito_id: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["RequisitoDestino"];
-        };
-      };
-      /** @description Falta el token, no es válido o el usuario no tiene acceso. */
-      401: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/problem+json": components["schemas"]["Problema"];
-        };
-      };
-      /** @description El rol no alcanza. */
-      403: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/problem+json": components["schemas"]["Problema"];
-        };
-      };
-      /** @description No existe. */
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/problem+json": components["schemas"]["Problema"];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/problem+json": components["schemas"]["Problema"];
-        };
-      };
-    };
-  };
-  listar_operadores: {
-    parameters: {
-      query?: {
-        activo?: boolean;
-        buscar?: string | null;
-        pagina?: number;
-        por_pagina?: number;
-      };
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["Pagina_Operador_"];
-        };
-      };
-      /** @description Falta el token, no es válido o el usuario no tiene acceso. */
-      401: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/problem+json": components["schemas"]["Problema"];
-        };
-      };
-      /** @description Datos inválidos. */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/problem+json": components["schemas"]["Problema"];
-        };
-      };
-    };
-  };
-  crear_operador: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["OperadorCrear"];
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      201: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["Operador"];
-        };
-      };
-      /** @description Falta el token, no es válido o el usuario no tiene acceso. */
-      401: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/problem+json": components["schemas"]["Problema"];
-        };
-      };
-      /** @description El rol no alcanza. */
-      403: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/problem+json": components["schemas"]["Problema"];
-        };
-      };
-      /** @description Conflicto con el estado actual. */
-      409: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/problem+json": components["schemas"]["Problema"];
-        };
-      };
-      /** @description Datos inválidos. */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/problem+json": components["schemas"]["Problema"];
-        };
-      };
-    };
-  };
-  obtener_operador: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        operador_id: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["Operador"];
-        };
-      };
-      /** @description Falta el token, no es válido o el usuario no tiene acceso. */
-      401: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/problem+json": components["schemas"]["Problema"];
-        };
-      };
-      /** @description No existe. */
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/problem+json": components["schemas"]["Problema"];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/problem+json": components["schemas"]["Problema"];
-        };
-      };
-    };
-  };
-  editar_operador: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        operador_id: string;
-      };
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["OperadorEditar"];
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["Operador"];
-        };
-      };
-      /** @description Falta el token, no es válido o el usuario no tiene acceso. */
-      401: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/problem+json": components["schemas"]["Problema"];
-        };
-      };
-      /** @description El rol no alcanza. */
-      403: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/problem+json": components["schemas"]["Problema"];
-        };
-      };
-      /** @description No existe. */
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/problem+json": components["schemas"]["Problema"];
-        };
-      };
-      /** @description Conflicto con el estado actual. */
-      409: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/problem+json": components["schemas"]["Problema"];
-        };
-      };
-      /** @description Datos inválidos. */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/problem+json": components["schemas"]["Problema"];
-        };
-      };
-    };
-  };
-  dar_de_baja_operador: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        operador_id: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["Operador"];
-        };
-      };
-      /** @description Falta el token, no es válido o el usuario no tiene acceso. */
-      401: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/problem+json": components["schemas"]["Problema"];
-        };
-      };
-      /** @description El rol no alcanza. */
-      403: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/problem+json": components["schemas"]["Problema"];
-        };
-      };
-      /** @description No existe. */
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/problem+json": components["schemas"]["Problema"];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/problem+json": components["schemas"]["Problema"];
-        };
-      };
-    };
-  };
-  reactivar_operador: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        operador_id: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["Operador"];
-        };
-      };
-      /** @description Falta el token, no es válido o el usuario no tiene acceso. */
-      401: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/problem+json": components["schemas"]["Problema"];
-        };
-      };
-      /** @description El rol no alcanza. */
-      403: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/problem+json": components["schemas"]["Problema"];
-        };
-      };
-      /** @description No existe. */
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/problem+json": components["schemas"]["Problema"];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/problem+json": components["schemas"]["Problema"];
-        };
-      };
-    };
-  };
-  buscar_clientes: {
-    parameters: {
-      query?: {
-        /** @description Texto en el nombre o el contacto. */
-        buscar?: string | null;
-        /** @description Etiquetas, sin distinguir mayúsculas, tildes ni espacios de más; se repite el parámetro (`?etiquetas=a&etiquetas=b`) y el cliente tiene que tener todas. Las vacías se ignoran. */
-        etiquetas?: string[] | null;
-        /** @description Segmento del cliente. */
-        segmento?: components["schemas"]["SegmentoCliente"] | null;
-        /** @description Solo los clientes que tengo asignados. */
-        mios?: boolean;
-        pagina?: number;
-        por_pagina?: number;
-      };
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["Pagina_ClienteListado_"];
-        };
-      };
-      /** @description Falta el token, no es válido o el usuario no tiene acceso. */
-      401: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/problem+json": components["schemas"]["Problema"];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/problem+json": components["schemas"]["Problema"];
-        };
-      };
-    };
-  };
-  registrar_cliente: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["ClienteCrear"];
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      201: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["Cliente"];
-        };
-      };
-      /** @description Falta el token, no es válido o el usuario no tiene acceso. */
-      401: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/problem+json": components["schemas"]["Problema"];
-        };
-      };
-      /** @description Posible cliente duplicado (CU-02 A1). */
-      409: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/problem+json": components["schemas"]["ProblemaDuplicado"];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/problem+json": components["schemas"]["Problema"];
-        };
-      };
-    };
-  };
-  listar_etiquetas_clientes: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": string[];
-        };
-      };
-      /** @description Falta el token, no es válido o el usuario no tiene acceso. */
-      401: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/problem+json": components["schemas"]["Problema"];
-        };
-      };
-    };
-  };
-  obtener_cliente: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        cliente_id: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["Cliente"];
-        };
-      };
-      /** @description Falta el token, no es válido o el usuario no tiene acceso. */
-      401: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/problem+json": components["schemas"]["Problema"];
-        };
-      };
-      /** @description El cliente no existe o no lo podés ver. */
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/problem+json": components["schemas"]["Problema"];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/problem+json": components["schemas"]["Problema"];
-        };
-      };
-    };
-  };
-  editar_cliente: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        cliente_id: string;
-      };
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["ClienteEditar"];
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["Cliente"];
-        };
-      };
-      /** @description Falta el token, no es válido o el usuario no tiene acceso. */
-      401: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/problem+json": components["schemas"]["Problema"];
-        };
-      };
-      /** @description El cliente no existe o no lo podés ver. */
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/problem+json": components["schemas"]["Problema"];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/problem+json": components["schemas"]["Problema"];
-        };
-      };
-    };
-  };
-  obtener_historial_cliente: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        cliente_id: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["HistorialCliente"];
-        };
-      };
-      /** @description Falta el token, no es válido o el usuario no tiene acceso. */
-      401: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/problem+json": components["schemas"]["Problema"];
-        };
-      };
-      /** @description El cliente no existe o no lo podés ver. */
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/problem+json": components["schemas"]["Problema"];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/problem+json": components["schemas"]["Problema"];
-        };
-      };
-    };
-  };
+    salud_api_salud_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: string;
+                    };
+                };
+            };
+        };
+    };
+    obtener_usuario_actual: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UsuarioActual"];
+                };
+            };
+            /** @description Falta el token, no es válido o el usuario no tiene acceso. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+        };
+    };
+    listar_usuarios: {
+        parameters: {
+            query?: {
+                activo?: boolean | null;
+                pagina?: number;
+                por_pagina?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Pagina_Usuario_"];
+                };
+            };
+            /** @description Falta el token, no es válido o el usuario no tiene acceso. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description El rol no alcanza. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Datos inválidos. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+        };
+    };
+    crear_usuario: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UsuarioCrear"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Usuario"];
+                };
+            };
+            /** @description Falta el token, no es válido o el usuario no tiene acceso. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description El rol no alcanza. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Conflicto con el estado actual. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Datos inválidos. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+        };
+    };
+    obtener_usuario: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                usuario_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Usuario"];
+                };
+            };
+            /** @description Falta el token, no es válido o el usuario no tiene acceso. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description El rol no alcanza. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description No existe. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+        };
+    };
+    editar_usuario: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                usuario_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UsuarioEditar"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Usuario"];
+                };
+            };
+            /** @description Falta el token, no es válido o el usuario no tiene acceso. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description El rol no alcanza. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description No existe. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Conflicto con el estado actual. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Datos inválidos. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+        };
+    };
+    dar_de_baja_usuario: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                usuario_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Usuario"];
+                };
+            };
+            /** @description Falta el token, no es válido o el usuario no tiene acceso. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description El rol no alcanza. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description No existe. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Conflicto con el estado actual. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+        };
+    };
+    obtener_configuracion: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Configuracion"];
+                };
+            };
+            /** @description Falta el token, no es válido o el usuario no tiene acceso. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description El rol no alcanza. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+        };
+    };
+    editar_configuracion: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ConfiguracionEditar"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Configuracion"];
+                };
+            };
+            /** @description Falta el token, no es válido o el usuario no tiene acceso. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description El rol no alcanza. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Datos inválidos. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+        };
+    };
+    configurar_comision_por_defecto: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                usuario_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ComisionPorDefecto"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Usuario"];
+                };
+            };
+            /** @description Falta el token, no es válido o el usuario no tiene acceso. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description El rol no alcanza. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description No existe. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Datos inválidos. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+        };
+    };
+    listar_destinos: {
+        parameters: {
+            query?: {
+                activo?: boolean;
+                buscar?: string | null;
+                pagina?: number;
+                por_pagina?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Pagina_Destino_"];
+                };
+            };
+            /** @description Falta el token, no es válido o el usuario no tiene acceso. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Datos inválidos. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+        };
+    };
+    crear_destino: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DestinoCrear"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Destino"];
+                };
+            };
+            /** @description Falta el token, no es válido o el usuario no tiene acceso. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description El rol no alcanza. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Conflicto con el estado actual. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Datos inválidos. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+        };
+    };
+    obtener_destino: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                destino_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Destino"];
+                };
+            };
+            /** @description Falta el token, no es válido o el usuario no tiene acceso. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description No existe. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+        };
+    };
+    editar_destino: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                destino_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DestinoEditar"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Destino"];
+                };
+            };
+            /** @description Falta el token, no es válido o el usuario no tiene acceso. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description El rol no alcanza. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description No existe. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Conflicto con el estado actual. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Datos inválidos. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+        };
+    };
+    dar_de_baja_destino: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                destino_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Destino"];
+                };
+            };
+            /** @description Falta el token, no es válido o el usuario no tiene acceso. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description El rol no alcanza. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description No existe. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+        };
+    };
+    reactivar_destino: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                destino_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Destino"];
+                };
+            };
+            /** @description Falta el token, no es válido o el usuario no tiene acceso. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description El rol no alcanza. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description No existe. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+        };
+    };
+    listar_requisitos_destino: {
+        parameters: {
+            query?: {
+                pagina?: number;
+                por_pagina?: number;
+            };
+            header?: never;
+            path: {
+                destino_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Pagina_RequisitoDestino_"];
+                };
+            };
+            /** @description Falta el token, no es válido o el usuario no tiene acceso. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description No existe. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Datos inválidos. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+        };
+    };
+    crear_requisito_destino: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                destino_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RequisitoDestinoCrear"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RequisitoDestino"];
+                };
+            };
+            /** @description Falta el token, no es válido o el usuario no tiene acceso. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description El rol no alcanza. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description No existe. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Datos inválidos. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+        };
+    };
+    editar_requisito_destino: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                requisito_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RequisitoDestinoEditar"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RequisitoDestino"];
+                };
+            };
+            /** @description Falta el token, no es válido o el usuario no tiene acceso. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description El rol no alcanza. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description No existe. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Datos inválidos. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+        };
+    };
+    dar_de_baja_requisito_destino: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                requisito_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RequisitoDestino"];
+                };
+            };
+            /** @description Falta el token, no es válido o el usuario no tiene acceso. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description El rol no alcanza. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description No existe. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+        };
+    };
+    listar_operadores: {
+        parameters: {
+            query?: {
+                activo?: boolean;
+                buscar?: string | null;
+                pagina?: number;
+                por_pagina?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Pagina_Operador_"];
+                };
+            };
+            /** @description Falta el token, no es válido o el usuario no tiene acceso. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Datos inválidos. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+        };
+    };
+    crear_operador: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OperadorCrear"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Operador"];
+                };
+            };
+            /** @description Falta el token, no es válido o el usuario no tiene acceso. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description El rol no alcanza. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Conflicto con el estado actual. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Datos inválidos. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+        };
+    };
+    obtener_operador: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                operador_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Operador"];
+                };
+            };
+            /** @description Falta el token, no es válido o el usuario no tiene acceso. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description No existe. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+        };
+    };
+    editar_operador: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                operador_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OperadorEditar"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Operador"];
+                };
+            };
+            /** @description Falta el token, no es válido o el usuario no tiene acceso. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description El rol no alcanza. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description No existe. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Conflicto con el estado actual. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Datos inválidos. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+        };
+    };
+    dar_de_baja_operador: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                operador_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Operador"];
+                };
+            };
+            /** @description Falta el token, no es válido o el usuario no tiene acceso. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description El rol no alcanza. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description No existe. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+        };
+    };
+    reactivar_operador: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                operador_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Operador"];
+                };
+            };
+            /** @description Falta el token, no es válido o el usuario no tiene acceso. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description El rol no alcanza. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description No existe. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+        };
+    };
+    buscar_clientes: {
+        parameters: {
+            query?: {
+                /** @description Texto en el nombre o el contacto. */
+                buscar?: string | null;
+                /** @description Etiquetas, sin distinguir mayúsculas, tildes ni espacios de más; se repite el parámetro (`?etiquetas=a&etiquetas=b`) y el cliente tiene que tener todas. Las vacías se ignoran. */
+                etiquetas?: string[] | null;
+                /** @description Segmento del cliente. */
+                segmento?: components["schemas"]["SegmentoCliente"] | null;
+                /** @description Solo los clientes que tengo asignados. */
+                mios?: boolean;
+                pagina?: number;
+                por_pagina?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Pagina_ClienteListado_"];
+                };
+            };
+            /** @description Falta el token, no es válido o el usuario no tiene acceso. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+        };
+    };
+    registrar_cliente: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ClienteCrear"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Cliente"];
+                };
+            };
+            /** @description Falta el token, no es válido o el usuario no tiene acceso. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Posible cliente duplicado (CU-02 A1). */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemaDuplicado"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+        };
+    };
+    listar_etiquetas_clientes: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": string[];
+                };
+            };
+            /** @description Falta el token, no es válido o el usuario no tiene acceso. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+        };
+    };
+    obtener_cliente: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                cliente_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Cliente"];
+                };
+            };
+            /** @description Falta el token, no es válido o el usuario no tiene acceso. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description El cliente no existe o no lo podés ver. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+        };
+    };
+    editar_cliente: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                cliente_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ClienteEditar"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Cliente"];
+                };
+            };
+            /** @description Falta el token, no es válido o el usuario no tiene acceso. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description El cliente no existe o no lo podés ver. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+        };
+    };
+    obtener_historial_cliente: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                cliente_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HistorialCliente"];
+                };
+            };
+            /** @description Falta el token, no es válido o el usuario no tiene acceso. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description El cliente no existe o no lo podés ver. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+        };
+    };
 }
