@@ -344,6 +344,8 @@ const FASES = { rojo: 'test', verde: 'feat', refactor: 'refactor', fix: 'fix', h
 const AGREGAR = ['add', '-A', '--', '.', ':(exclude).obsidian'];
 // Códigos con los que una shell avisa que el comando ni arrancó (no ejecutable, no encontrado).
 const NO_EJECUTO = new Set([126, 127, 9009]);
+// Tope de la salida de los tests: si Node lo supera mata el proceso (status null) y la corrida queda trunca.
+const MAX_SALIDA_TESTS = 64 * 1024 * 1024;
 
 // En Windows, el `bash` del PATH puede ser el de WSL (System32), que falla sin correr nada y hacía pasar
 // un rojo falso (hallazgo T-021). Se usa el bash de Git for Windows, que se deduce de `git --exec-path`.
@@ -362,12 +364,17 @@ function correrTests(comando, nombre) {
   // Si bash no arranca, su código de salida no dice nada de los tests: se cae a la shell del sistema.
   const sonda = spawnSync(bash, ['-c', 'true'], { cwd: ROOT, encoding: 'utf8' });
   const r = sonda.status === 0
-    ? spawnSync(bash, ['-c', comando], { cwd: ROOT, encoding: 'utf8' })
-    : spawnSync(comando, { cwd: ROOT, encoding: 'utf8', shell: true });
+    ? spawnSync(bash, ['-c', comando], { cwd: ROOT, encoding: 'utf8', maxBuffer: MAX_SALIDA_TESTS })
+    : spawnSync(comando, { cwd: ROOT, encoding: 'utf8', shell: true, maxBuffer: MAX_SALIDA_TESTS });
   const salida = `${r.stdout || ''}${r.stderr || ''}`.trimEnd().split(/\r?\n/);
   const cola = salida.slice(-25).join('\n');
   const pasan = r.status === 0;
   console.log(`🧪 ${comando}\n${salida.length > 25 ? '…\n' : ''}${cola}\n`);
+  // Si Node lo mató o no pudo lanzarlo (señal, ENOBUFS), la corrida quedó trunca.
+  if (r.error || r.status === null) {
+    console.error(`❌ El comando de tests no terminó (${r.error?.code ?? r.signal ?? 'sin código de salida'}): la corrida quedó incompleta, así que no es un rojo ni un verde. No se commiteó.`);
+    process.exit(5);
+  }
   // 126/127 (bash: no ejecutable / no encontrado) y 9009 (cmd de Windows) dicen que ningún test corrió:
   // no es ni un rojo ni un verde (hallazgo T-034).
   if (NO_EJECUTO.has(r.status)) {
