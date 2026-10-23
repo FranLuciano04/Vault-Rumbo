@@ -155,6 +155,11 @@ def _verify_que_lanza(error: Exception) -> object:
 async def test_rf142_token_rechazado_por_firebase_da_token_invalido(
     monkeypatch: pytest.MonkeyPatch, error: Exception
 ) -> None:
+    """Solo prueba la traducción de las excepciones del SDK a `TokenInvalido`.
+
+    No prueba que Rumbo detecte tokens revocados: sin `check_revoked` el SDK nunca lanza
+    `RevokedIdTokenError` (ventana de revocación aceptada en DEC-0018).
+    """
     monkeypatch.setattr(auth, "verify_id_token", _verify_que_lanza(error))
 
     with pytest.raises(TokenInvalido):
@@ -213,6 +218,29 @@ async def test_rf140_token_valido_devuelve_el_uid(monkeypatch: pytest.MonkeyPatc
 
     assert await VerificadorFirebase(app=app).verificar("token") == "uid-1"
     assert llamadas == [("token", app)]
+
+
+async def test_rf142_verificador_no_pide_check_revoked_dec0018(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Caracterización (DEC-0018): se acepta la ventana de revocación de 1 h.
+
+    Si alguien agrega `check_revoked=True`, cambia el costo (una llamada a Firebase por
+    pedido) y la decisión: debe revisarse DEC-0018 antes de tocar este test.
+    """
+    llamadas: list[dict[str, object]] = []
+
+    def _verify(*args: object, **kwargs: object) -> dict[str, str]:
+        llamadas.append({"args": args, "kwargs": kwargs})
+        return {"uid": "uid-1"}
+
+    monkeypatch.setattr(auth, "verify_id_token", _verify)
+
+    await VerificadorFirebase(app=object()).verificar("token")
+
+    assert len(llamadas) == 1
+    assert not llamadas[0]["kwargs"].get("check_revoked", False)  # type: ignore[attr-defined]
+    assert len(llamadas[0]["args"]) <= 2  # type: ignore[arg-type]  # token (+ app posicional)
 
 
 @pytest.mark.usefixtures("sin_emulador_en_el_proceso", "sin_apps_de_firebase")
