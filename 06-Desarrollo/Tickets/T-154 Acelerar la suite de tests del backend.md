@@ -3,7 +3,7 @@ id: T-154
 titulo: Acelerar la suite de tests del backend
 modulo: M0 — Fundaciones
 capa: infra
-estado: libre
+estado: tomado
 depende_de: []
 tamaño: M
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [DEC-0014]
 origen: hallazgo T-033
-asignado:
-tomado_el:
-rama:
+asignado: Nahuel Viniegra
+tomado_el: 23/10/26 14:11
+rama: feature/T-154-acelerar-la-suite-de-tests-del-backend
 pr:
 ---
 # T-154 Acelerar la suite de tests del backend
