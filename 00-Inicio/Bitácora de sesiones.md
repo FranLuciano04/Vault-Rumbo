@@ -90,6 +90,14 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Commits:** el de este pedido (`review: pedido de review de M0`).
 - **Pendiente:** que Codex escriba `06-Desarrollo/Reviews/M0 — review Codex.md`. Después, `/cerrar-modulo M0` fase B (triage y tickets de arreglo) y la aprobación del equipo para el tag `mod-0`.
 
+## 23/10/26 — Nahuel (Claude Opus 5.5) — T-035: usuarios y roles en la web
+- **Hecho:** tomó e implementó **T-035** (M1, web, M). PR #58 mergeado con CI en verde.
+  - Pestaña «Usuarios y roles»: listado, alta con aviso del mail de Firebase, edición de rol y accesos (PATCH solo con lo que cambió), baja con confirmación; 409 y 403 con mensaje claro. Admin y dueño muestran redes «Por su rol» (DEC-0013).
+  - `errores.ts` (compartido) también muestra el `detail` de un 403; `CLASE_SELECT` pasó a `CampoFormulario.tsx`.
+  - Review (Opus): 0 bloqueantes, 2 importantes y 7 menores; arreglados todos menos uno. Web: 195 tests, cobertura 93,4 %.
+- **Commits:** fdf093e, fdb358d, 3072623, 491fb55, 32d65fc.
+- **Pendiente:** contra el backend real solo andan el listado y el alta; edición, baja, último admin y 403 del dueño dependen de **T-028**. Después de T-028, habilitar la edición del nombre en la web (CU-25 A2). Menor sin hacer: ocultar «Dueño» en el select si quien edita no es dueño.
+
 ## 23/10/26 — Nahuel (Claude Opus 5.5) — T-036: destinos y requisitos en la web
 - **Hecho:** tomó e implementó **T-036** (M1, web, M). PR #50 mergeado con CI en verde.
   - Pestaña «Destinos y requisitos» en Configuración: ABM de destinos con filtro de inactivos, baja y reactivación; requisitos con alta, edición y baja lógica con confirmación; 409 y 422 en el formulario.
