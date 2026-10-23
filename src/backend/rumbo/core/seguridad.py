@@ -95,10 +95,11 @@ class VerificadorFirebase:
         # El Admin SDK es sincrónico (baja certificados por HTTP): corre en un hilo para no
         # bloquear el event loop. Sin `check_revoked` (DEC-0018): costaría una llamada a Firebase
         # por pedido. Un token revocado en Firebase sigue valiendo hasta que vence (≤ 1 h, ventana
-        # aceptada); la baja en Rumbo (`Usuario.activo`) sí corta el acceso al instante.
+        # aceptada); la baja en Rumbo (`Usuario.activo`) corta el acceso en el pedido siguiente.
         try:
             datos = await asyncio.to_thread(auth.verify_id_token, token, app=self._app)
-        except auth.InvalidIdTokenError as error:  # malformado, firma inválida o vencido
+        except auth.InvalidIdTokenError as error:
+            # Malformado, firma inválida, de otro proyecto o vencido.
             raise TokenInvalido("token inválido") from error
         except auth.CertificateFetchError as error:
             logger.warning("No se pudieron bajar los certificados de Firebase", exc_info=error)
