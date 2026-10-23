@@ -14,7 +14,7 @@ tags:: #tipo/referencia
 
 | Módulo | Tickets | Hechos | Tomados | Disponibles | Esperando | Bloqueados | Estado del módulo |
 |---|---|---|---|---|---|---|---|
-| M0 — Fundaciones | 33 | 32 | 1 | 0 | 0 | 0 | 🛠️ en curso |
+| M0 — Fundaciones | 33 | 33 | 0 | 0 | 0 | 0 | 🔍 listo para la review |
 | M1 — Usuarios y configuración | 17 | 8 | 1 | 5 | 3 | 0 | 🛠️ en curso |
 | M2 — Clientes | 12 | 3 | 0 | 3 | 6 | 0 | 🛠️ en curso |
 | M3 — Alertas | 11 | 0 | 0 | 2 | 9 | 0 | 🛠️ en curso |
@@ -65,7 +65,7 @@ flowchart LR
     T144["T-144 · Exportar el OpenAPI con finales de línea LF<br/><small>backend</small>"]:::hecho
     T145["T-145 · Responder un error controlado si falta el proyecto de Firebase<br/><small>backend · ⚠️ riesgo alto</small>"]:::hecho
     T150["T-150 · Correr las auditorías de dependencias cada semana<br/><small>infra</small>"]:::hecho
-    T152["T-152 · Rechazar en el rojo un comando de tests que no se pudo ejecutar<br/><small>infra</small><br/>👤 Nahuel Viniegra"]:::tomado
+    T152["T-152 · Rechazar en el rojo un comando de tests que no se pudo ejecutar<br/><small>infra</small>"]:::hecho
   end
   subgraph M1["M1 — Usuarios y configuración"]
     T026["T-026 · Publicar el contrato de usuarios y configuración<br/><small>contrato</small>"]:::hecho
