@@ -97,9 +97,12 @@ async def crear_usuario(
     """Da de alta un `Usuario` con su cuenta de Firebase y le hace mandar a Firebase el mail para
     elegir la contraseña (CU-25 pasos 3 a 5, RF-144, RF-145, DEC-0016).
 
-    Email repetido en Rumbo o en Firebase: `Conflicto` sin crear nada (A1, RF-146). Si después
-    de crear la cuenta falla la base o el envío del mail, la cuenta se borra (compensación) y
-    no queda `Usuario`.
+    Email repetido en Rumbo (sin distinguir mayúsculas) o en Firebase: `Conflicto` sin crear
+    nada (A1, RF-146). Si después de crear la cuenta falla la base o el envío del mail, o el
+    pedido se cancela, la cuenta se borra (compensación) y no queda `Usuario`.
+
+    Riesgo conocido: si falla el commit final del pedido (después del flush y del mail), queda
+    una cuenta de Firebase sin `Usuario`; se resuelve en un ticket aparte.
     """
     exigir_rol(actor, RolUsuario.admin, RolUsuario.dueno)
     email = email.strip().lower()
@@ -122,7 +125,7 @@ async def crear_usuario(
             sesion.add(usuario)
             await sesion.flush()
             await gestor.enviar_mail_restablecimiento(email)
-    except Exception as error:
+    except BaseException as error:  # también `CancelledError` si el cliente corta
         await _borrar_cuenta_creada(gestor, firebase_uid)
         if isinstance(error, IntegrityError):  # carrera con otra alta del mismo email o uid
             raise Conflicto("Ya existe un usuario con ese email o esa cuenta.") from error

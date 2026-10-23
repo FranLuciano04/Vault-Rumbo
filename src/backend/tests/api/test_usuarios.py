@@ -1,6 +1,7 @@
 """T-027: alta y consulta de usuarios con su cuenta de Firebase (CU-25, RF-144, RF-145, RF-146,
 RF-150, DEC-0016). Usa un gestor de cuentas falso: nunca toca Firebase."""
 
+import asyncio
 import uuid
 from collections.abc import Awaitable, Callable
 
@@ -13,6 +14,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from rumbo.core.errores import ServicioExterno
 from rumbo.core.seguridad import CuentaYaExiste, obtener_gestor_de_cuentas
 from rumbo.datos.modelos import RolUsuario, Usuario
+from rumbo.negocio.servicios import seguridad
 from tests.fabricas import UsuarioFactory, crear
 
 RUTA = "/api/usuarios"
@@ -318,4 +320,44 @@ async def test_rf150_crear_usuario_403_para_roles_sin_gestion_sin_crear_nada(
     assert r.headers["content-type"].startswith(PROBLEM_JSON)
     assert firebase.cuentas == {}
     assert firebase.mails == []
+    assert await _usuarios_con_email(sesion, "lucia@agencia.test") == 0
+
+
+async def test_rf146_email_duplicado_en_rumbo_con_mayusculas_409_sin_tocar_firebase(
+    cliente_como: ClienteComo, firebase: GestorDeCuentasFalso, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("admin")
+    await crear(sesion, UsuarioFactory, email="Lucia@Agencia.test")
+
+    r = await c.post(RUTA, json=_alta(email="lucia@AGENCIA.test"))
+
+    assert r.status_code == 409
+    assert r.headers["content-type"].startswith(PROBLEM_JSON)
+    assert firebase.cuentas == {}
+    assert firebase.mails == []
+
+
+class _GestorQueSeCancelaAlEnviarElMail(GestorDeCuentasFalso):
+    async def enviar_mail_restablecimiento(self, email: str) -> None:
+        raise asyncio.CancelledError
+
+
+async def test_rf144_cancelacion_despues_de_crear_la_cuenta_la_borra(sesion: AsyncSession) -> None:
+    """Si el pedido se cancela (p. ej. el cliente corta) entre la cuenta y el mail, la
+    compensación borra la cuenta y la cancelación sigue su curso."""
+    actor = await crear(sesion, UsuarioFactory, rol=RolUsuario.admin)
+    gestor = _GestorQueSeCancelaAlEnviarElMail()
+
+    with pytest.raises(asyncio.CancelledError):
+        await seguridad.crear_usuario(
+            sesion,
+            actor,
+            gestor,
+            nombre="Lucía Pérez",
+            email="lucia@agencia.test",
+            rol=RolUsuario.empleado,
+        )
+
+    assert len(gestor.borradas) == 1
+    assert gestor.cuentas == {}
     assert await _usuarios_con_email(sesion, "lucia@agencia.test") == 0

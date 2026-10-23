@@ -18,9 +18,10 @@ class RepositorioUsuarios(RepositorioBase[Usuario]):
         return await sesion.scalar(select(Usuario).where(Usuario.firebase_uid == firebase_uid))
 
     async def buscar_por_email(self, sesion: AsyncSession, email: str) -> Usuario | None:
-        """Usuario con ese email. Sin filtro de visibilidad: es la búsqueda de `datos-iniciales`,
-        que corre sin actor."""
-        return await sesion.scalar(select(Usuario).where(Usuario.email == email))
+        """Usuario con ese email, sin distinguir mayúsculas. Sin filtro de visibilidad: la usan
+        `datos-iniciales`, que corre sin actor, y el chequeo de email libre del alta."""
+        consulta = select(Usuario).where(func.lower(Usuario.email) == email.lower())
+        return await sesion.scalar(consulta.limit(1))
 
     async def paginar(
         self,
