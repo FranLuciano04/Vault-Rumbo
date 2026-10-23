@@ -38,3 +38,41 @@ export const esquemaComision = z.discriminatedUnion("comision_default_tipo", [
 ]);
 
 export type DatosComision = z.infer<typeof esquemaComision>;
+
+/** Destino (RF-089): nombre y país obligatorios; región y notas opcionales (vacías se envían como null). */
+export const esquemaDestino = z.object({
+  nombre: z
+    .string()
+    .trim()
+    .min(1, "Ingresá el nombre.")
+    .max(120, "Usá como máximo 120 caracteres."),
+  pais: z.string().trim().min(1, "Ingresá el país.").max(80, "Usá como máximo 80 caracteres."),
+  region: z.string().trim().max(80, "Usá como máximo 80 caracteres."),
+  notas: z.string().trim(),
+});
+
+export type DatosDestino = z.infer<typeof esquemaDestino>;
+
+export const TIPOS_REQUISITO = [
+  { valor: "visa", etiqueta: "Visa" },
+  { valor: "vacunacion", etiqueta: "Vacunación" },
+  { valor: "documentacion", etiqueta: "Documentación" },
+  { valor: "seguro", etiqueta: "Seguro" },
+  { valor: "formulario", etiqueta: "Formulario" },
+  { valor: "otro", etiqueta: "Otro" },
+] as const;
+
+/** Requisito de un destino (RF-086): anticipación en días enteros, de 0 o más. */
+export const esquemaRequisito = z.object({
+  nombre: z
+    .string()
+    .trim()
+    .min(1, "Ingresá el nombre.")
+    .max(120, "Usá como máximo 120 caracteres."),
+  tipo: z.enum(TIPOS_REQUISITO.map(({ valor }) => valor)),
+  obligatorio: z.boolean(),
+  descripcion: z.string().trim(),
+  anticipacion_dias: entero(0, "Ingresá un número entero de 0 o más."),
+});
+
+export type DatosRequisito = z.infer<typeof esquemaRequisito>;
