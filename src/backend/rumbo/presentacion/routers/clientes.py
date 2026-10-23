@@ -92,9 +92,7 @@ async def buscar_clientes(
     )
     return Pagina(
         items=[
-            ClienteListado.model_validate(
-                {**Cliente.model_validate(c).model_dump(), **vars(resumen)}
-            )
+            ClienteListado(**Cliente.model_validate(c).model_dump(), **vars(resumen))
             for c, resumen in items
         ],
         total=total,

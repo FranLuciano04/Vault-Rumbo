@@ -60,6 +60,7 @@ class Cliente(Auditoria):
     preferencias: str | None
     no_recontactar: bool
     asesor_asignado_id: uuid.UUID | None
+
     model_config = ConfigDict(from_attributes=True)
 
 

@@ -74,6 +74,7 @@ async def buscar_clientes(
     `visibilidad`, no el filtro: el `freelance` recibe solo los suyos aunque no pida `mios`
     (RF-151).
     """
+    vista = visibilidad(actor)
     pagina, total = await _clientes.paginar(
         sesion,
         buscar=buscar,
@@ -82,9 +83,9 @@ async def buscar_clientes(
         asesor_id=actor.id if mios else None,
         desplazamiento=desplazamiento,
         limite=limite,
-        visibilidad=visibilidad(actor),
+        visibilidad=vista,
     )
-    resumenes = await _clientes.resumir(sesion, pagina, visibilidad=visibilidad(actor))
+    resumenes = await _clientes.resumir(sesion, pagina, visibilidad=vista)
     return [(c, resumenes[c.id]) for c in pagina], total
 
 
