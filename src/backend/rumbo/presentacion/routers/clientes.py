@@ -123,6 +123,22 @@ async def registrar_cliente(
 
 
 @router.get(
+    "/etiquetas",
+    operation_id="listar_etiquetas_clientes",
+    summary="Etiquetas de clientes en uso",
+    description=(
+        f"{_ROLES}\n\n**Casos de uso:** CU-03.\n\nDistintas, ordenadas alfabéticamente y sin "
+        "distinguir mayúsculas ni tildes. El `freelance` ve solo las de sus clientes (RF-151)."
+    ),
+)
+async def listar_etiquetas_clientes(
+    actor: Annotated[modelos.Usuario, Depends(usuario_actual)],
+    sesion: SesionDep,
+) -> list[str]:
+    return await clientes.listar_etiquetas(sesion, actor)
+
+
+@router.get(
     "/{cliente_id}",
     operation_id="obtener_cliente",
     summary="Ver la ficha de un cliente",

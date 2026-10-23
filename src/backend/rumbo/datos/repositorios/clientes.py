@@ -64,3 +64,16 @@ class RepositorioClientes(RepositorioBase[Cliente]):
         pagina = consulta.order_by(nombre_normalizado(Cliente.nombre), Cliente.id)
         filas = await sesion.scalars(pagina.offset(desplazamiento).limit(limite))
         return list(filas), total or 0
+
+    async def etiquetas_en_uso(
+        self, sesion: AsyncSession, *, visibilidad: Visibilidad
+    ) -> list[str]:
+        """Etiquetas distintas de los clientes visibles, ordenadas alfabéticamente. Dos que solo
+        difieren en mayúsculas o tildes son una sola: queda la menor en orden de código."""
+        consulta = visibilidad.aplicar(select(Cliente.etiquetas), Cliente)
+        variantes: dict[str, str] = {}
+        for etiquetas in await sesion.scalars(consulta):
+            for etiqueta in etiquetas:
+                clave = normalizar(etiqueta)
+                variantes[clave] = min(etiqueta, variantes.get(clave, etiqueta))
+        return [variantes[clave] for clave in sorted(variantes)]

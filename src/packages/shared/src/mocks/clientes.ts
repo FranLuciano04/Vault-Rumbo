@@ -95,7 +95,7 @@ function noEncontrado() {
   });
 }
 
-/** Handlers MSW de las cinco rutas de `/api/clientes` (CU-02, CU-03). */
+/** Handlers MSW de las rutas de `/api/clientes` (CU-02, CU-03). */
 export const manejadoresClientes: RequestHandler[] = [
   http.get(BASE, ({ request }) => {
     const url = new URL(request.url);
@@ -126,6 +126,14 @@ export const manejadoresClientes: RequestHandler[] = [
       por_pagina: porPagina,
     });
   }),
+
+  http.get(`${BASE}/etiquetas`, () =>
+    HttpResponse.json(
+      [...new Set(clientesMock.flatMap((c) => c.etiquetas))].sort((a, b) =>
+        a.localeCompare(b, "es"),
+      ),
+    ),
+  ),
 
   http.post(BASE, async ({ request }) => {
     const datos = (await request.json()) as ClienteCrear;

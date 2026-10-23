@@ -473,6 +473,30 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/clientes/etiquetas": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Etiquetas de clientes en uso
+         * @description **Roles:** admin, dueno, empleado, freelance.
+         *
+         *     **Casos de uso:** CU-03.
+         *
+         *     Distintas, ordenadas alfabéticamente y sin distinguir mayúsculas ni tildes. El `freelance` ve solo las de sus clientes (RF-151).
+         */
+        get: operations["listar_etiquetas_clientes"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/clientes/{cliente_id}": {
         parameters: {
             query?: never;
@@ -2698,6 +2722,35 @@ export interface operations {
             };
             /** @description Validation Error */
             422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+        };
+    };
+    listar_etiquetas_clientes: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": string[];
+                };
+            };
+            /** @description Falta el token, no es válido o el usuario no tiene acceso. */
+            401: {
                 headers: {
                     [name: string]: unknown;
                 };

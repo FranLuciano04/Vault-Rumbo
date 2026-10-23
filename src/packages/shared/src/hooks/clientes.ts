@@ -40,6 +40,14 @@ export function useClientes(cliente: AxiosInstance, filtros?: FiltrosClientes) {
   });
 }
 
+/** Etiquetas en uso, sin duplicados y ordenadas (`GET /api/clientes/etiquetas`, RF-031). */
+export function useEtiquetasClientes(cliente: AxiosInstance) {
+  return useQuery({
+    queryKey: [...claveClientes, "etiquetas"],
+    queryFn: async () => (await cliente.get<string[]>("/api/clientes/etiquetas")).data,
+  });
+}
+
 /** Ficha de un cliente (`GET /api/clientes/{id}`, CU-03). */
 export function useCliente(cliente: AxiosInstance, id: string) {
   return useQuery({
