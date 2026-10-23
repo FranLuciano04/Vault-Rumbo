@@ -46,6 +46,14 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
+## 23/10/26 — Nahuel (Claude Opus 5.5) — T-159: verificación del token alineada con DEC-0018
+- **Hecho:** tomó e implementó **T-159** (M0, backend, XS). PR [#53](https://github.com/FranLuciano04/Vault-Rumbo/pull/53) mergeado con el CI en verde.
+  - Test de caracterización `test_rf142_verificador_no_pide_check_revoked_dec0018`: impide activar `check_revoked` sin una `DEC-` nueva. Que detecta el cambio se comprobó con mutaciones. Los comentarios de `core/seguridad.py` citan DEC-0018.
+  - Desvío de TDD anotado en el ticket: el rojo no podía fallar porque el comportamiento no cambia.
+  - Review (Opus): 2 menores de redacción, arreglados. Backend: 819 tests, cobertura 97 %.
+- **Commits:** 8d09a0f, 2b05a0e, dd98472, cdf6eb0; merge 5a8506e.
+- **Pendiente:** en esta máquina, `tmp_path` de pytest da `PermissionError` sobre `%TEMP%\pytest-of-test123`; se evita con `--basetemp`. Para cerrar M0 faltan T-160 (libre) y T-162 (de Francisco, hallazgo de T-156).
+
 ## 23/10/26 — Nahuel con el equipo (Claude Opus 5.5) — DEC-0018: revocación de sesiones de Firebase
 - **Hecho:** el equipo (Francisco, Nahuel y Paloma) eligió la opción B para el hallazgo H-02 de Codex. Se formalizó [[DEC-0018 Revocación de sesiones de Firebase|DEC-0018]]: no se usa `check_revoked`, el acceso se corta con `Usuario.activo` y un corte hecho solo en Firebase tarda hasta 1 h. Se reescribió **T-159** (ahora: alinear los comentarios y los tests con la decisión, XS, riesgo normal), se aclaró T-010, se actualizaron el triage de Codex y el MOC de decisiones, y se cerró el `#accion/decidir` del estado.
 - **Commits:** el de esta decisión.
