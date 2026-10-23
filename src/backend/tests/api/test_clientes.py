@@ -233,3 +233,95 @@ async def test_rf003_el_409_trae_hasta_10_candidatos(
 
     assert r.status_code == 409
     assert len(r.json()["duplicados"]) == 10
+
+
+# --- T-156: etiquetas de clientes en uso (RF-031, RF-151) -----------------------------------
+# Contrato asumido: `GET /api/clientes/etiquetas` responde 200 con una lista JSON de strings.
+
+
+async def test_rf031_lista_etiquetas_en_uso(
+    cliente_como: FabricaCliente, sesion: AsyncSession
+) -> None:
+    await crear(sesion, ClienteFactory, nombre="Ana", etiquetas=["Playa", "Brasil"])
+    await crear(sesion, ClienteFactory, nombre="Beto", etiquetas=["Familias"])
+    await crear(sesion, ClienteFactory, nombre="Carla", etiquetas=[])
+    c = await cliente_como("empleado")
+
+    r = await c.get("/api/clientes/etiquetas")
+
+    assert r.status_code == 200, r.text
+    assert r.json() == ["Brasil", "Familias", "Playa"]
+
+
+async def test_rf031_etiquetas_sin_duplicados(
+    cliente_como: FabricaCliente, sesion: AsyncSession
+) -> None:
+    await crear(sesion, ClienteFactory, nombre="Ana", etiquetas=["Brasil", "Álamo"])
+    await crear(sesion, ClienteFactory, nombre="Beto", etiquetas=["brasil", "alamo", "Zeta"])
+    await crear(sesion, ClienteFactory, nombre="Carla", etiquetas=["BRASIL"])
+    c = await cliente_como("dueno")
+
+    r = await c.get("/api/clientes/etiquetas")
+
+    assert r.status_code == 200, r.text
+    etiquetas = r.json()
+    claves = [e.lower().replace("á", "a") for e in etiquetas]
+    assert claves == ["alamo", "brasil", "zeta"]
+
+
+@pytest.mark.parametrize("rol", ROLES)
+async def test_rf031_todos_los_roles_pueden_consultar_las_etiquetas(
+    cliente_como: FabricaCliente, sesion: AsyncSession, rol: str
+) -> None:
+    c = await cliente_como(rol)
+    await crear(
+        sesion,
+        ClienteFactory,
+        nombre="Ana",
+        etiquetas=["Brasil"],
+        asesor_asignado_id=c.usuario.id,  # type: ignore[attr-defined]
+    )
+
+    r = await c.get("/api/clientes/etiquetas")
+
+    assert r.status_code == 200, r.text
+    assert r.json() == ["Brasil"]
+
+
+async def test_rf151_freelance_ve_solo_sus_etiquetas(
+    cliente_como: FabricaCliente, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("freelance")
+    otro = await crear(sesion, UsuarioFactory)
+    await crear(
+        sesion,
+        ClienteFactory,
+        nombre="Ana",
+        etiquetas=["Propia"],
+        asesor_asignado_id=c.usuario.id,  # type: ignore[attr-defined]
+    )
+    await crear(
+        sesion, ClienteFactory, nombre="Beto", etiquetas=["Ajena"], asesor_asignado_id=otro.id
+    )
+    await crear(
+        sesion, ClienteFactory, nombre="Carla", etiquetas=["SinAsesor"], asesor_asignado_id=None
+    )
+
+    r = await c.get("/api/clientes/etiquetas")
+
+    assert r.status_code == 200, r.text
+    assert r.json() == ["Propia"]
+
+
+async def test_rf031_etiqueta_listada_filtra_todas_sus_variantes(
+    cliente_como: FabricaCliente, sesion: AsyncSession
+) -> None:
+    for nombre, etiqueta in [("Ana", "Brasil"), ("Beto", "brasil"), ("Carla", " BRASIL ")]:
+        await crear(sesion, ClienteFactory, nombre=nombre, etiquetas=[etiqueta])
+    c = await cliente_como("empleado")
+
+    listadas = (await c.get("/api/clientes/etiquetas")).json()
+    r = await c.get("/api/clientes", params={"etiquetas": listadas[0]})
+
+    assert len(listadas) == 1
+    assert r.json()["total"] == 3

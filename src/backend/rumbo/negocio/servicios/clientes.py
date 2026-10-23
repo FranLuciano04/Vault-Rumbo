@@ -86,6 +86,11 @@ async def buscar_clientes(
     )
 
 
+async def listar_etiquetas(sesion: AsyncSession, actor: Usuario) -> list[str]:
+    """Etiquetas en uso entre los clientes que el actor ve (RF-031, RF-151)."""
+    return await _clientes.etiquetas_en_uso(sesion, visibilidad=visibilidad(actor))
+
+
 async def obtener_cliente(sesion: AsyncSession, actor: Usuario, cliente_id: uuid.UUID) -> Cliente:
     """Ficha de un `Cliente` (CU-03). Uno que el actor no ve es `NoEncontrado`, igual que uno
     inexistente (A1, RF-151)."""

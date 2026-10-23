@@ -2277,10 +2277,10 @@
                   "type": "null"
                 }
               ],
-              "description": "Etiquetas exactas; se repite el parámetro (`?etiquetas=a&etiquetas=b`) y el cliente tiene que tener todas. Las vacías se ignoran.",
+              "description": "Etiquetas, sin distinguir mayúsculas, tildes ni espacios de más; se repite el parámetro (`?etiquetas=a&etiquetas=b`) y el cliente tiene que tener todas. Las vacías se ignoran.",
               "title": "Etiquetas"
             },
-            "description": "Etiquetas exactas; se repite el parámetro (`?etiquetas=a&etiquetas=b`) y el cliente tiene que tener todas. Las vacías se ignoran."
+            "description": "Etiquetas, sin distinguir mayúsculas, tildes ni espacios de más; se repite el parámetro (`?etiquetas=a&etiquetas=b`) y el cliente tiene que tener todas. Las vacías se ignoran."
           },
           {
             "name": "etiqueta",
@@ -2454,6 +2454,47 @@
             }
           }
         }
+      }
+    },
+    "/api/clientes/etiquetas": {
+      "get": {
+        "tags": [
+          "clientes"
+        ],
+        "summary": "Etiquetas de clientes en uso",
+        "description": "**Roles:** admin, dueno, empleado, freelance.\n\n**Casos de uso:** CU-03.\n\nDistintas, ordenadas alfabéticamente y sin distinguir mayúsculas ni tildes. El `freelance` ve solo las de sus clientes (RF-151).",
+        "operationId": "listar_etiquetas_clientes",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array",
+                  "title": "Response Listar Etiquetas Clientes"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Falta el token, no es válido o el usuario no tiene acceso.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
       }
     },
     "/api/clientes/{cliente_id}": {

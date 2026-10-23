@@ -2,14 +2,20 @@
 
 import uuid
 
-from sqlalchemy import func, or_, select
+from sqlalchemy import ColumnElement, exists, func, or_, select, true
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from rumbo.datos.modelos import Cliente, SegmentoCliente
-from rumbo.datos.modelos.base import nombre_normalizado
+from rumbo.datos.modelos.base import espacios_colapsados, nombre_normalizado
 from rumbo.datos.repositorios.base import RepositorioBase, Visibilidad, escapar_like, normalizar
 
 MAX_PARECIDOS = 10
+
+
+def _tiene_etiqueta(clave: str) -> ColumnElement[bool]:
+    """El `Cliente` tiene una etiqueta cuya clave normalizada es `clave`."""
+    etiqueta = func.unnest(Cliente.etiquetas).table_valued("etiqueta").render_derived().c.etiqueta
+    return exists().where(nombre_normalizado(etiqueta) == clave).correlate(Cliente)
 
 
 class RepositorioClientes(RepositorioBase[Cliente]):
@@ -55,7 +61,8 @@ class RepositorioClientes(RepositorioBase[Cliente]):
                 )
             )
         if etiquetas:
-            consulta = consulta.where(Cliente.etiquetas.contains(etiquetas))
+            for etiqueta in etiquetas:
+                consulta = consulta.where(_tiene_etiqueta(normalizar(etiqueta)))
         if segmento is not None:
             consulta = consulta.where(Cliente.segmento == segmento)
         if asesor_id is not None:
@@ -64,3 +71,23 @@ class RepositorioClientes(RepositorioBase[Cliente]):
         pagina = consulta.order_by(nombre_normalizado(Cliente.nombre), Cliente.id)
         filas = await sesion.scalars(pagina.offset(desplazamiento).limit(limite))
         return list(filas), total or 0
+
+    async def etiquetas_en_uso(
+        self, sesion: AsyncSession, *, visibilidad: Visibilidad
+    ) -> list[str]:
+        """Etiquetas distintas de los clientes visibles, ordenadas alfabéticamente. Las que solo
+        difieren en mayúsculas, tildes o espacios son una sola (la misma clave que usa el filtro
+        de `paginar`); la representa la variante más usada y, si empatan, la primera en orden."""
+        desanidadas = func.unnest(Cliente.etiquetas).table_valued("etiqueta").render_derived()
+        variante = espacios_colapsados(desanidadas.c.etiqueta)
+        visibles = visibilidad.aplicar(select(Cliente).join(desanidadas, true()), Cliente)
+        consulta = visibles.with_only_columns(variante, func.count()).group_by(variante)
+        filas = await sesion.execute(consulta)
+        representantes: dict[str, tuple[int, str]] = {}
+        for texto, usos in filas:
+            clave = normalizar(texto)
+            if clave:
+                actual = representantes.get(clave)
+                if actual is None or (-usos, texto) < (-actual[0], actual[1]):
+                    representantes[clave] = (usos, texto)
+        return [representantes[clave][1] for clave in sorted(representantes)]

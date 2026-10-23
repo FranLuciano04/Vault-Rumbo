@@ -64,8 +64,9 @@ async def buscar_clientes(
         list[EtiquetaFiltro] | None,
         Query(
             description=(
-                "Etiquetas exactas; se repite el parámetro (`?etiquetas=a&etiquetas=b`) y el "
-                "cliente tiene que tener todas. Las vacías se ignoran."
+                "Etiquetas, sin distinguir mayúsculas, tildes ni espacios de más; se repite el "
+                "parámetro (`?etiquetas=a&etiquetas=b`) y el cliente tiene que tener todas. "
+                "Las vacías se ignoran."
             ),
             max_length=_MAX_ETIQUETAS,
         ),
@@ -120,6 +121,22 @@ async def registrar_cliente(
         error.extra = {"duplicados": [Cliente.model_validate(c) for c in error.duplicados]}
         raise
     return Cliente.model_validate(cliente)
+
+
+@router.get(
+    "/etiquetas",
+    operation_id="listar_etiquetas_clientes",
+    summary="Etiquetas de clientes en uso",
+    description=(
+        f"{_ROLES}\n\n**Casos de uso:** CU-03.\n\nDistintas, ordenadas alfabéticamente y sin "
+        "distinguir mayúsculas ni tildes. El `freelance` ve solo las de sus clientes (RF-151)."
+    ),
+)
+async def listar_etiquetas_clientes(
+    actor: Annotated[modelos.Usuario, Depends(usuario_actual)],
+    sesion: SesionDep,
+) -> list[str]:
+    return await clientes.listar_etiquetas(sesion, actor)
 
 
 @router.get(
