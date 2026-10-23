@@ -3,7 +3,7 @@ id: T-152
 titulo: Rechazar en el rojo un comando de tests que no se pudo ejecutar
 modulo: M0 — Fundaciones
 capa: infra
-estado: tomado
+estado: hecho
 depende_de: []
 tamaño: XS
 riesgo: normal
@@ -49,3 +49,7 @@ Capa `infra`: no hay TDD. Se verifica ejecutando `fase` en una rama descartable:
 - Instalar o configurar `pnpm` en el PATH.
 
 ## Notas de implementación
+- **Modelos:** implementación y fix sonnet, review opus. Sin escalados.
+- **Hecho:** `fase` sale con **5** sin commitear si el comando de `--test` no arrancó (126, 127 o 9009) o no terminó (`r.error` o `status null`, por ejemplo ENOBUFS). `maxBuffer` del comando pasa a 64 MB. Los códigos 2 a 5 y la regla de encadenar con `&&` quedan en [[Flujo de implementación]].
+- **Verificación:** con un arnés que extrae `correrTests` del archivo real: el comando inexistente y el caso de T-034 (`cd src && pnpm …`) dan 5; un desborde de salida da 5; `exit 1` en rojo y `true` en verde se aceptan; `true` en rojo da 3 y `exit 1` en verde da 4. El reviewer además corrió `fase` real en los casos que rechazan. **El 9009 del fallback a cmd no se probó** (la sonda de bash anda en esta PC).
+- **Review:** 0 bloqueantes; 1 importante (corrida trunca aceptada como rojo) arreglado en el fix. Menores que quedan: la skill `/implementar-ticket` no menciona el código 5 (cambiarla pasa por `/gestionar-skills`); si el que no encuentra el binario es pnpm o uv (sale 1 o 2), sigue pasando como rojo (fuera de alcance: lo verifica el orquestador).
