@@ -46,6 +46,13 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
+## 23/10/26 — Nahuel (Claude Opus 5.5) — T-160: CI de mobile al cambiar shared
+- **Hecho:** tomó e implementó **T-160** (M0, infra, XS; hallazgo H-03 de Codex). PR [#55](https://github.com/FranLuciano04/Vault-Rumbo/pull/55) mergeado con los 8 checks en verde, incluido Mobile.
+  - En `ci.yml`, la salida `mobile` también se activa con `^src/packages/shared/`. Se verificó evaluando las expresiones sacadas del propio workflow.
+  - Review (Sonnet): un menor que ya existía y queda fuera de alcance: si se edita `openapi.json` a mano sin tocar el backend, no corre el job `backend`. Está anotado en el ticket.
+- **Commits:** 2321709, 7b171f6; merge 8859ecc.
+- **Pendiente:** con T-162 (Francisco, PR #54) también mergeado, **todos los tickets de M0 están hechos**. Falta la aprobación del equipo para el tag `mod-0` (`/cerrar-modulo M0`).
+
 ## 23/10/26 — Nahuel (Claude Opus 5.5) — T-159: verificación del token alineada con DEC-0018
 - **Hecho:** tomó e implementó **T-159** (M0, backend, XS). PR [#53](https://github.com/FranLuciano04/Vault-Rumbo/pull/53) mergeado con el CI en verde.
   - Test de caracterización `test_rf142_verificador_no_pide_check_revoked_dec0018`: impide activar `check_revoked` sin una `DEC-` nueva. Que detecta el cambio se comprobó con mutaciones. Los comentarios de `core/seguridad.py` citan DEC-0018.
