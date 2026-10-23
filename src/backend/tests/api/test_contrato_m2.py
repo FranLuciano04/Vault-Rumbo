@@ -184,7 +184,11 @@ async def test_rf031_sin_token_responde_401_problem_json(
     assert r.headers["content-type"].startswith(PROBLEM_JSON)
 
 
-IMPLEMENTADAS = {("post", "/api/clientes")}  # T-040
+IMPLEMENTADAS = {
+    ("post", "/api/clientes"),  # T-040
+    ("get", "/api/clientes"),  # T-041
+    ("get", f"/api/clientes/{ID}"),  # T-041
+}
 OPERACIONES_501 = [op for op in OPERACIONES if op[:2] not in IMPLEMENTADAS]
 
 
@@ -206,7 +210,7 @@ async def test_rf031_con_token_de_cualquier_rol_responde_501_problem_json(
     assert r.json()["status"] == 501
 
 
-async def test_rf031_buscar_con_filtros_validos_llega_al_501(cliente_como: FabricaCliente) -> None:
+async def test_rf031_buscar_con_filtros_validos_responde_200(cliente_como: FabricaCliente) -> None:
     c = await cliente_como("empleado")
 
     r = await c.get(
@@ -220,7 +224,7 @@ async def test_rf031_buscar_con_filtros_validos_llega_al_501(cliente_como: Fabri
         },
     )
 
-    assert r.status_code == 501
+    assert r.status_code == 200
 
 
 @pytest.mark.parametrize("params", [{"por_pagina": 101}, {"pagina": 0}, {"mios": "quizas"}])
@@ -309,7 +313,7 @@ async def test_rf031_buscar_filtra_por_segmento(
     invalido = await c.get("/api/clientes", params={"segmento": "otro"})
 
     assert "segmento" in parametros
-    assert r.status_code == 501
+    assert r.status_code == 200
     assert invalido.status_code == 422
 
 

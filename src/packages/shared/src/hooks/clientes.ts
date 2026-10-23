@@ -11,6 +11,9 @@ import type {
 
 export interface FiltrosClientes {
   buscar?: string;
+  /** El cliente tiene que tener todas; viajan como `?etiquetas=a&etiquetas=b`. */
+  etiquetas?: string[];
+  /** Alias viejo de una sola etiqueta; lo usa la web hasta el filtro múltiple (T-157). */
   etiqueta?: string;
   segmento?: SegmentoCliente;
   mios?: boolean;
@@ -27,7 +30,13 @@ export function useClientes(cliente: AxiosInstance, filtros?: FiltrosClientes) {
     // Al paginar o filtrar, la lista anterior sigue visible hasta que llega la nueva.
     placeholderData: keepPreviousData,
     queryFn: async () =>
-      (await cliente.get<PaginaClientes>("/api/clientes", { params: filtros })).data,
+      (
+        await cliente.get<PaginaClientes>("/api/clientes", {
+          params: filtros,
+          // Listas como parámetro repetido, sin corchetes: es lo que lee FastAPI.
+          paramsSerializer: { indexes: null },
+        })
+      ).data,
   });
 }
 

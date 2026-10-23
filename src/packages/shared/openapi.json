@@ -2259,6 +2259,27 @@
             "description": "Texto en el nombre o el contacto."
           },
           {
+            "name": "etiquetas",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Etiquetas exactas; se repite el parámetro (`?etiquetas=a&etiquetas=b`) y el cliente tiene que tener todas.",
+              "title": "Etiquetas"
+            },
+            "description": "Etiquetas exactas; se repite el parámetro (`?etiquetas=a&etiquetas=b`) y el cliente tiene que tener todas."
+          },
+          {
             "name": "etiqueta",
             "in": "query",
             "required": false,
@@ -2271,10 +2292,12 @@
                   "type": "null"
                 }
               ],
-              "description": "Etiqueta exacta del cliente.",
+              "description": "Una etiqueta exacta. Usar `etiquetas`.",
+              "deprecated": true,
               "title": "Etiqueta"
             },
-            "description": "Etiqueta exacta del cliente."
+            "description": "Una etiqueta exacta. Usar `etiquetas`.",
+            "deprecated": true
           },
           {
             "name": "segmento",
