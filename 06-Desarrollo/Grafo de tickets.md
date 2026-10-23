@@ -16,7 +16,7 @@ tags:: #tipo/referencia
 |---|---|---|---|---|---|---|---|
 | M0 — Fundaciones | 38 | 38 | 0 | 0 | 0 | 0 | 🔍 listo para la review |
 | M1 — Usuarios y configuración | 18 | 11 | 0 | 6 | 1 | 0 | 🛠️ en curso |
-| M2 — Clientes | 15 | 7 | 0 | 6 | 2 | 0 | 🛠️ en curso |
+| M2 — Clientes | 15 | 7 | 1 | 5 | 2 | 0 | 🛠️ en curso |
 | M3 — Alertas | 11 | 0 | 0 | 2 | 9 | 0 | 🛠️ en curso |
 | M4 — Oportunidades y cotizaciones | 14 | 0 | 0 | 1 | 13 | 0 | 🛠️ en curso |
 | M5 — Hoteles y reseñas | 11 | 0 | 0 | 1 | 10 | 0 | 🛠️ en curso |
@@ -107,7 +107,7 @@ flowchart LR
     T149["T-149 · Guardar el usuario de Instagram del cliente<br/><small>backend</small>"]:::hecho
     T155["T-155 · Resumir asesor, último viaje y oportunidades en el listado de clientes<br/><small>backend</small>"]:::hecho
     T156["T-156 · Listar las etiquetas de clientes en uso<br/><small>backend</small>"]:::hecho
-    T157["T-157 · Completar el listado de clientes en la web<br/><small>web</small>"]:::disponible
+    T157["T-157 · Completar el listado de clientes en la web<br/><small>web</small><br/>👤 FranLucianoo"]:::tomado
   end
   subgraph M3["M3 — Alertas"]
     T050["T-050 · Publicar el contrato de alertas<br/><small>contrato</small>"]:::disponible

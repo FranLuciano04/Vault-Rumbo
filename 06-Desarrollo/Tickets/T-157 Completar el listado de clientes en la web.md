@@ -3,7 +3,7 @@ id: T-157
 titulo: Completar el listado de clientes en la web
 modulo: M2 — Clientes
 capa: web
-estado: libre
+estado: tomado
 depende_de: [T-044, T-155, T-156]
 tamaño: S
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [CU-03, RF-005, RF-009, RF-031]
 origen: hallazgo T-044 (decidido el 23/10/26)
-asignado:
-tomado_el:
-rama:
+asignado: FranLucianoo
+tomado_el: 23/10/26 19:44
+rama: feature/T-157-completar-el-listado-de-clientes-en-la-w
 pr:
 ---
 # T-157 Completar el listado de clientes en la web
