@@ -13,6 +13,7 @@ export function aplicarErroresDelServidor<T extends FieldValues>(
   campos: readonly Path<T>[],
   setError: UseFormSetError<T>,
 ): string | null {
+  if (falla instanceof ErrorApi && falla.status === 409 && falla.detail) return falla.detail;
   if (!(falla instanceof ErrorApi) || falla.status !== 422 || falla.errores.length === 0)
     return ERROR_AL_GUARDAR;
   const restantes: string[] = [];
