@@ -46,6 +46,11 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
+## 23/10/26 — Nahuel con el equipo (Claude Opus 5.5) — DEC-0018: revocación de sesiones de Firebase
+- **Hecho:** el equipo (Francisco, Nahuel y Paloma) eligió la opción B para el hallazgo H-02 de Codex. Se formalizó [[DEC-0018 Revocación de sesiones de Firebase|DEC-0018]]: no se usa `check_revoked`, el acceso se corta con `Usuario.activo` y un corte hecho solo en Firebase tarda hasta 1 h. Se reescribió **T-159** (ahora: alinear los comentarios y los tests con la decisión, XS, riesgo normal), se aclaró T-010, se actualizaron el triage de Codex y el MOC de decisiones, y se cerró el `#accion/decidir` del estado.
+- **Commits:** el de esta decisión.
+- **Pendiente:** T-159 y T-160 para cerrar M0.
+
 ## 23/10/26 — Nahuel (Claude Opus 5.5) — T-158: config de Firebase en el bundle mobile
 - **Hecho:** tomó e implementó **T-158** (M0, mobile, S, ⚠️ riesgo alto; hallazgo H-01 de Codex). Paloma aprobó el PR [#51](https://github.com/FranLuciano04/Vault-Rumbo/pull/51), que se mergeó con el CI en verde (8/8).
   - `src/lib/firebase.ts` lee las seis `EXPO_PUBLIC_*` como `process.env.X` literales. `"expo/types"` en el `tsconfig` tipa `process.env`, que era la razón del alias.

@@ -62,6 +62,7 @@ Cada pedido autenticado trae el ID token de Firebase; la API lo verifica con `fi
   - En `.env.example`, `FIREBASE_AUTH_EMULATOR_HOST` y `ENTORNO` quedan comentadas.
   - `conftest.py` apaga el emulador para que la suite no dependa del `.env` de cada uno.
 - **Sin `check_revoked`:** costaría una llamada a Firebase por pedido. La baja se hace con `Usuario.activo`, que se consulta en cada pedido. Un usuario deshabilitado solo en Firebase sigue entrando hasta que vence su token (1 h).
+- **Aclaración del 23/10/26 ([[DEC-0018 Revocación de sesiones de Firebase|DEC-0018]]):** el «revocado» de arriba vale solo cuando el SDK informa la revocación. La API no la comprueba contra Firebase en cada pedido, y el equipo aceptó esa ventana de hasta 1 h a partir del hallazgo H-02 de [[M0 — review Codex]].
 - **Tests agregados con autorización de Francisco:**
   - `tests/test_seguridad.py`: el candado y el verificador real.
   - El 502 en `tests/api/test_seguridad.py`.

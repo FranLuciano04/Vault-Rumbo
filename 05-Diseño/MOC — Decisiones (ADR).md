@@ -28,6 +28,7 @@ tags:: #tipo/modulo #estado/formalizado
 - [[DEC-0015 Decisiones de implementación]] (formalizada el 13/10/26; grill de la fase 0: sesión, contraseñas, UI, contrato por módulo, CI y calidad; sus §2 y §3 los reemplaza DEC-0016)
 - [[DEC-0016 Autenticación con Firebase]] (formalizada el 13/10/26; reemplaza DEC-0008 §1 y DEC-0015 §2 y §3)
 - [[DEC-0017 Contacto mínimo del cliente]] (formalizada el 22/10/26): el contacto mínimo es teléfono/WhatsApp o email; el usuario de Instagram se guarda como dato opcional.
+- [[DEC-0018 Revocación de sesiones de Firebase]] (formalizada el 23/10/26): la API no comprueba la revocación del token en cada pedido; el acceso se corta con `Usuario.activo` y se acepta una ventana de hasta 1 h para los cortes hechos solo en Firebase.
 
 ## Todas (Dataview)
 ```dataview

@@ -68,7 +68,7 @@ flowchart LR
     T152["T-152 · Rechazar en el rojo un comando de tests que no se pudo ejecutar<br/><small>infra</small>"]:::hecho
     T154["T-154 · Acelerar la suite de tests del backend<br/><small>infra</small>"]:::hecho
     T158["T-158 · Leer la configuración de Firebase de mobile con accesos directos a process.env<br/><small>mobile · ⚠️ riesgo alto</small>"]:::hecho
-    T159["T-159 · Rechazar los tokens revocados o de cuentas deshabilitadas en Firebase<br/><small>backend · ⚠️ riesgo alto</small>"]:::disponible
+    T159["T-159 · Alinear la verificación del token con la ventana de revocación aceptada<br/><small>backend</small>"]:::disponible
     T160["T-160 · Correr los checks de mobile cuando cambia el paquete compartido<br/><small>infra</small>"]:::disponible
   end
   subgraph M1["M1 — Usuarios y configuración"]

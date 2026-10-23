@@ -14,7 +14,7 @@ actualizado: 13/10/26
 >
 > 👉 **22/10 (Nahuel):** **T-150** está hecho y mergeado (PR [#36](https://github.com/FranLuciano04/Vault-Rumbo/pull/36)): las auditorías de dependencias ahora también corren todos los lunes. La primera corrida manual dio verde. Nahuel mira los avisos. **A M0 le falta solo T-023** (login mobile) para pasar a la review de Codex.
 >
-> 👉 **23/10 (Nahuel):** la **review de Codex de M0** está hecha y triada ([[M0 — review Codex]]): 3 hallazgos confirmados, que pasaron a **T-158** (config de Firebase en mobile, bloqueante), **T-159** (tokens revocados, bloqueante, con una decisión abierta) y **T-160** (CI de mobile, importante). `mod-0` se pone cuando estén hechos y el equipo apruebe.
+> 👉 **23/10 (Nahuel):** la **review de Codex de M0** está hecha y triada ([[M0 — review Codex]]): 3 hallazgos confirmados, que pasaron a **T-158** (config de Firebase en mobile, bloqueante), **T-159** (tokens revocados, bloqueante) y **T-160** (CI de mobile, importante). ✅ **T-158** mergeado (PR #51). ✅ T-159 se resolvió con [[DEC-0018 Revocación de sesiones de Firebase|DEC-0018]]: se acepta la ventana de 1 h y el ticket solo alinea comentarios y tests. `mod-0` se pone cuando estén hechos T-159 y T-160 y el equipo apruebe.
 >
 > 👉 **22/10 (Paloma):** **T-027** (alta de usuarios con su cuenta de Firebase) está hecho. Es de ⚠️ riesgo alto: Francisco mergeó el PR [#45](https://github.com/FranLuciano04/Vault-Rumbo/pull/45) el 23/10. Falta que Paloma pruebe a mano el envío real del mail con `rumbo-9ff17`. Se creó **T-153** (cuentas huérfanas), que ya se puede tomar.
 >
@@ -101,7 +101,6 @@ Los tres tomamos **los tres roles** (Coordinador de vault · Guardián del domin
 ## Agenda para la próxima sync — decisiones abiertas
 > Índice de **todo lo que espera decisión**. ✅ La entrevista de diseño del 29/09 (equipo completo) cerró toda la agenda: ver *Decidido en el día 0*. El **formato del deck** se decidió en la sync del 30/09 (PowerPoint, ver H4). ✅ La duración de la exposición y si el prototipo se mostraba en vivo o con capturas quedaron sin efecto: el PC1 ya se presentó el 02/10.
 
-- `#accion/decidir` **(23/10, Nahuel, de la review de Codex de M0):** ¿se verifica la revocación del token de Firebase en cada pedido (**T-159**, suma una consulta a Firebase por pedido) o se acepta la ventana de hasta 1 h con una `DEC-`? Hay que decidirlo antes de tomar T-159.
 - ✅ **Decidido el 23/10 por Francisco (de T-027):** un `admin` **no** puede crear ni asignar `dueno`. Solo la dueña puede hacerlo (CU-25; entra en T-028). Una cuenta de Firebase sin `Usuario` se reutiliza en vez de dar 409 (CU-25 A1; ya se puede tomar **T-153**).
 - `#accion/decidir` **(22/10, Paloma, de T-040 y T-032):** ¿al `freelance` hay que avisarle de duplicados de clientes de otros asesores, que hoy no ve? ¿Se puede editar un requisito de destino dado de baja?
 
