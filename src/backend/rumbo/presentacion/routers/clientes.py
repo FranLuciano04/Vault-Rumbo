@@ -64,8 +64,9 @@ async def buscar_clientes(
         list[EtiquetaFiltro] | None,
         Query(
             description=(
-                "Etiquetas exactas; se repite el parámetro (`?etiquetas=a&etiquetas=b`) y el "
-                "cliente tiene que tener todas. Las vacías se ignoran."
+                "Etiquetas, sin distinguir mayúsculas, tildes ni espacios de más; se repite el "
+                "parámetro (`?etiquetas=a&etiquetas=b`) y el cliente tiene que tener todas. "
+                "Las vacías se ignoran."
             ),
             max_length=_MAX_ETIQUETAS,
         ),

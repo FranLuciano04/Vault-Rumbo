@@ -311,3 +311,17 @@ async def test_rf151_freelance_ve_solo_sus_etiquetas(
 
     assert r.status_code == 200, r.text
     assert r.json() == ["Propia"]
+
+
+async def test_rf031_etiqueta_listada_filtra_todas_sus_variantes(
+    cliente_como: FabricaCliente, sesion: AsyncSession
+) -> None:
+    for nombre, etiqueta in [("Ana", "Brasil"), ("Beto", "brasil"), ("Carla", " BRASIL ")]:
+        await crear(sesion, ClienteFactory, nombre=nombre, etiquetas=[etiqueta])
+    c = await cliente_como("empleado")
+
+    listadas = (await c.get("/api/clientes/etiquetas")).json()
+    r = await c.get("/api/clientes", params={"etiquetas": listadas[0]})
+
+    assert len(listadas) == 1
+    assert r.json()["total"] == 3

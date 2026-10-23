@@ -89,6 +89,17 @@ const SIN_HISTORIAL: HistorialCliente = { oportunidades: [], viajes: [], resenas
 
 const BASE = "*/api/clientes";
 
+/** Clave de una etiqueta: minúsculas, sin tildes y con los espacios colapsados (como el backend). */
+function claveEtiqueta(etiqueta: string): string {
+  return etiqueta
+    .normalize("NFD")
+    .replace(/\p{M}/gu, "")
+    .toLowerCase()
+    .split(/\s+/)
+    .filter(Boolean)
+    .join(" ");
+}
+
 function noEncontrado() {
   return respuestaProblema(404, "No encontrado", {
     detail: "El cliente no existe o no lo podés ver.",
@@ -114,7 +125,9 @@ export const manejadoresClientes: RequestHandler[] = [
         (!buscar ||
           c.nombre.toLowerCase().includes(buscar) ||
           c.contacto.toLowerCase().includes(buscar)) &&
-        etiquetas.every((e) => c.etiquetas.includes(e)) &&
+        etiquetas.every((e) =>
+          c.etiquetas.some((propia) => claveEtiqueta(propia) === claveEtiqueta(e)),
+        ) &&
         (!segmento || c.segmento === segmento) &&
         (!mios || c.asesor_asignado_id === usuariosPorRol.empleado.id),
     );
@@ -129,9 +142,13 @@ export const manejadoresClientes: RequestHandler[] = [
 
   http.get(`${BASE}/etiquetas`, () =>
     HttpResponse.json(
-      [...new Set(clientesMock.flatMap((c) => c.etiquetas))].sort((a, b) =>
-        a.localeCompare(b, "es"),
-      ),
+      [
+        ...new Map(
+          clientesMock.flatMap((c) => c.etiquetas).map((e) => [claveEtiqueta(e), e] as const),
+        ),
+      ]
+        .sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))
+        .map(([, etiqueta]) => etiqueta),
     ),
   ),
 

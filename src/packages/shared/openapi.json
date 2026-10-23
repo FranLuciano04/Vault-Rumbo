@@ -2277,10 +2277,10 @@
                   "type": "null"
                 }
               ],
-              "description": "Etiquetas exactas; se repite el parámetro (`?etiquetas=a&etiquetas=b`) y el cliente tiene que tener todas. Las vacías se ignoran.",
+              "description": "Etiquetas, sin distinguir mayúsculas, tildes ni espacios de más; se repite el parámetro (`?etiquetas=a&etiquetas=b`) y el cliente tiene que tener todas. Las vacías se ignoran.",
               "title": "Etiquetas"
             },
-            "description": "Etiquetas exactas; se repite el parámetro (`?etiquetas=a&etiquetas=b`) y el cliente tiene que tener todas. Las vacías se ignoran."
+            "description": "Etiquetas, sin distinguir mayúsculas, tildes ni espacios de más; se repite el parámetro (`?etiquetas=a&etiquetas=b`) y el cliente tiene que tener todas. Las vacías se ignoran."
           },
           {
             "name": "etiqueta",

@@ -21,12 +21,21 @@ CON_TILDE = "áéíóúüÁÉÍÓÚÜ"
 SIN_TILDE = "aeiouuaeiouu"
 
 
-def nombre_normalizado(columna: InstrumentedAttribute[str]) -> ColumnElement[str]:
+def espacios_colapsados(
+    columna: ColumnElement[str] | InstrumentedAttribute[str],
+) -> ColumnElement[str]:
+    """Texto sin espacios en los extremos y con los del medio colapsados, calculado en la base."""
+    return func.regexp_replace(func.btrim(columna), r"\s+", " ", "g")
+
+
+def nombre_normalizado(
+    columna: ColumnElement[str] | InstrumentedAttribute[str],
+) -> ColumnElement[str]:
     """Nombre sin tildes, en minúsculas y con los espacios colapsados, calculado en la base.
     Es la clave de unicidad de los catálogos; solo usa funciones inmutables de PostgreSQL, así
     que sirve para un índice. `normalizar` (repositorios) lo reproduce en Python."""
     sin_tildes = func.lower(func.translate(columna, CON_TILDE, SIN_TILDE))
-    return func.regexp_replace(func.btrim(sin_tildes), r"\s+", " ", "g")
+    return espacios_colapsados(sin_tildes)
 
 
 def _enum_pg(clase: type[enum.Enum]) -> Enum:
