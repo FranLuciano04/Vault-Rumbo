@@ -39,3 +39,6 @@ audit:
     # GHSA-vfj7-8cjw-p6xm (alta, sin parche en ninguna versión): braces entra por Metro y Tailwind, que
     # corren en build y desarrollo. Riesgo aceptado por Nahuel (21/10/26): revisar cuando haya parche.
     - GHSA-vfj7-8cjw-p6xm
+    # GHSA-mrhx-c7xc-m3w5 (alta, sin parche en la 3.x): zod < 4.6.6 entra por @expo/cli, que pide zod ^3.25.76 y
+    # corre solo en build y desarrollo. Riesgo aceptado por Francisco (23/10/26): revisar cuando Expo pase a zod 4.
+    - GHSA-mrhx-c7xc-m3w5
