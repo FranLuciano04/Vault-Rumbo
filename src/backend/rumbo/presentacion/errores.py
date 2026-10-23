@@ -1,7 +1,6 @@
 import logging
 from typing import Any, cast
 
-from asyncpg.exceptions import DataError as DataErrorDeAsyncpg  # type: ignore[import-untyped]
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.encoders import jsonable_encoder
 from fastapi.exceptions import RequestValidationError
@@ -9,6 +8,7 @@ from fastapi.responses import JSONResponse
 from sqlalchemy.exc import DBAPIError
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
+from rumbo.core.errores_de_base import es_numero_fuera_de_rango
 from rumbo.negocio.errores import (
     Conflicto,
     DatosInvalidos,
@@ -95,25 +95,9 @@ async def _error_de_validacion(_: Request, exc: Exception) -> JSONResponse:
     return _problema(422, "Los datos enviados no son válidos.", errores=jsonable_encoder(errores))
 
 
-_SQLSTATE_NUMERO_FUERA_DE_RANGO = "22003"
-
-
-def _es_numero_fuera_de_rango(error: DBAPIError) -> bool:
-    """Distingue un número que no entra en la columna de cualquier otro error de la base.
-
-    asyncpg rechaza un entero fuera de rango al codificar el parámetro (`DataError` con
-    `OverflowError` de causa); Postgres lo rechaza con SQLSTATE 22003. SQLAlchemy los
-    envuelve en un `DBAPIError` genérico, y el original queda en `orig.__cause__`.
-    """
-    original = error.orig
-    if getattr(original, "sqlstate", None) == _SQLSTATE_NUMERO_FUERA_DE_RANGO:
-        return True
-    origen = getattr(original, "__cause__", None)
-    return isinstance(origen, DataErrorDeAsyncpg) and isinstance(origen.__cause__, OverflowError)
-
-
 async def _error_de_base(request: Request, exc: Exception) -> JSONResponse:
-    if _es_numero_fuera_de_rango(cast(DBAPIError, exc)):
+    if es_numero_fuera_de_rango(cast(DBAPIError, exc)):
+        logger.warning("Número fuera del rango de la base", exc_info=exc)
         return _problema(422, "Hay un número fuera del rango admitido.")
     return await _error_no_controlado(request, exc)
 

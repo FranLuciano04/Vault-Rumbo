@@ -124,7 +124,8 @@ async def sesion(motor: AsyncEngine) -> AsyncIterator[AsyncSession]:
 @pytest.fixture
 async def cliente(sesion: AsyncSession) -> AsyncIterator[AsyncClient]:
     async def _sesion_de_test() -> AsyncIterator[AsyncSession]:
-        yield sesion
+        async with sesion.begin_nested():
+            yield sesion
 
     app.dependency_overrides[obtener_sesion] = _sesion_de_test
     try:
@@ -170,7 +171,8 @@ def app_de_tests(sesion: AsyncSession, verificador_falso: VerificadorFalso) -> I
     nueva = crear_app()
 
     async def _sesion_de_test() -> AsyncIterator[AsyncSession]:
-        yield sesion
+        async with sesion.begin_nested():
+            yield sesion
 
     nueva.dependency_overrides[obtener_sesion] = _sesion_de_test
     nueva.dependency_overrides[obtener_verificador] = lambda: verificador_falso

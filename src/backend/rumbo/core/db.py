@@ -77,15 +77,6 @@ async def obtener_sesion() -> AsyncIterator[AsyncSession]:
         yield sesion
 
 
-async def _sesion_del_pedido(
-    sesion: Annotated[AsyncSession, Depends(obtener_sesion, scope="function")],
-) -> AsyncIterator[AsyncSession]:
-    """El pedido corre en un savepoint: si la base rechaza una sentencia, se revierte solo el
-    pedido y la sesión sigue usable para que el manejador de errores responda."""
-    async with sesion.begin_nested():
-        yield sesion
-
-
-SesionDep = Annotated[AsyncSession, Depends(_sesion_del_pedido, scope="function")]
+SesionDep = Annotated[AsyncSession, Depends(obtener_sesion, scope="function")]
 """Única forma de pedir sesión en los routers. `scope="function"` hace que el commit
 corra antes de enviar la respuesta: si falla, el cliente recibe un error y no un 2xx."""
