@@ -3,7 +3,7 @@ id: T-034
 titulo: Configurar los parámetros del negocio en la web
 modulo: M1 — Usuarios y configuración
 capa: web
-estado: libre
+estado: tomado
 depende_de: [T-026, T-020]
 tamaño: S
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [CU-13, DEC-0013, RF-083, RF-084]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: Nahuel Viniegra
+tomado_el: 22/10/26 21:15
+rama: feature/T-034-configurar-los-parametros-del-negocio-en
 pr:
 ---
 # T-034 Configurar los parámetros del negocio en la web
