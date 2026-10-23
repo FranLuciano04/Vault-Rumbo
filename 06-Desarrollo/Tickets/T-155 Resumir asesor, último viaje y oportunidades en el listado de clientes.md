@@ -3,7 +3,7 @@ id: T-155
 titulo: Resumir asesor, último viaje y oportunidades en el listado de clientes
 modulo: M2 — Clientes
 capa: backend
-estado: libre
+estado: tomado
 depende_de: [T-041]
 tamaño: S
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [CU-03, RF-005, RF-006, RF-151]
 origen: hallazgo T-044 (decidido el 23/10/26)
-asignado:
-tomado_el:
-rama:
+asignado: FranLucianoo
+tomado_el: 23/10/26 18:40
+rama: feature/T-155-resumir-asesor-ultimo-viaje-y-oportunida
 pr:
 ---
 # T-155 Resumir asesor, último viaje y oportunidades en el listado de clientes
