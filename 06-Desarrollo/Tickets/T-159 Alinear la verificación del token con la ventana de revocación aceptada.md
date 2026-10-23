@@ -3,7 +3,7 @@ id: T-159
 titulo: Alinear la verificación del token con la ventana de revocación aceptada
 modulo: M0 — Fundaciones
 capa: backend
-estado: tomado
+estado: hecho
 depende_de: []
 tamaño: XS
 riesgo: normal
@@ -51,3 +51,9 @@ El código y los tests de la verificación del token dicen lo mismo que [[DEC-00
 
 ## Notas de implementación
 - 23/10/26: el ticket se creó para activar `check_revoked`. El equipo eligió la opción B (DEC-0018) y se reescribió para alinear el código con esa decisión.
+- **Desvío de TDD:** el comportamiento no cambia, así que `test_rf142_verificador_no_pide_check_revoked_dec0018` es un test de caracterización. Pasa desde el rojo, que se commiteó sin `--test`. Que detecta `check_revoked` se comprobó con mutaciones: el test-writer probó con kwarg, y la review con kwarg, posicional y expresión verdadera. Las tres dieron rojo.
+- `core/seguridad.py`: solo comentarios. Citan DEC-0018, la baja con `Usuario.activo` corta el acceso «en el pedido siguiente», y el `except InvalidIdTokenError` dice «malformado, firma inválida, de otro proyecto o vencido». El test parametrizado tiene un docstring que aclara que solo prueba la traducción de las excepciones del SDK.
+- No se lanzó el simplificador: el diff de código son tres líneas de comentario.
+- Review (Opus): 0 bloqueantes, 0 importantes y 2 menores de redacción, arreglados.
+- En esta máquina, `tmp_path` y el `basetemp` de pytest dan `PermissionError` sobre `%TEMP%\pytest-of-test123`. Es previo al ticket y se evitó con `--basetemp`. Suite completa: 819 passed, cobertura 97 %.
+- Modelos: tests, implementación y fix con Sonnet; review con Opus. Sin escalados.
