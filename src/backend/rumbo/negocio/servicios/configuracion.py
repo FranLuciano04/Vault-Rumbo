@@ -224,3 +224,23 @@ async def _guardar_con_nombre_unico(sesion: AsyncSession) -> None:
         if INDICE_NOMBRE_DESTINO not in str(error.orig):
             raise
         raise Conflicto("Ya existe un destino con ese nombre.") from error
+
+
+async def crear_operador(
+    sesion: AsyncSession, actor: Usuario, *, nombre: str, contacto: str | None = None
+) -> Any:
+    raise NotImplementedError
+
+
+async def editar_operador(
+    sesion: AsyncSession, actor: Usuario, operador_id: uuid.UUID, cambios: dict[str, Any]
+) -> Any:
+    raise NotImplementedError
+
+
+async def dar_de_baja_operador(sesion: AsyncSession, actor: Usuario, operador_id: uuid.UUID) -> Any:
+    raise NotImplementedError
+
+
+async def reactivar_operador(sesion: AsyncSession, actor: Usuario, operador_id: uuid.UUID) -> Any:
+    raise NotImplementedError
