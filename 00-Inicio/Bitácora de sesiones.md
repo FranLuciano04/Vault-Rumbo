@@ -59,10 +59,10 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
   - El PR #45 (T-027) lo **mergeó Francisco**.
   - La prueba del mail real le queda a Paloma, que tiene un aviso con los pasos.
 - **Commits:** c0ae9f1, 1a39860, d776d79, a96e64b y 27772a5.
-- **Pendiente para la sync:**
-  - En la pantalla 39 el freelance ve «Mis clientes» fijo, pero el ticket lo excluye: ¿cuál vale?
-  - Las columnas Asesor (de otros), Último viaje y Oportunidades necesitan ampliar el contrato de clientes.
-  - El filtro de etiquetas se resolvió como texto con una sola etiqueta.
+- **Decidido por Francisco (23/10):**
+  - El freelance ve «Mis clientes» como etiqueta fija y no clickeable, como en la pantalla 39.
+  - Se amplía el contrato del listado con el asesor, el último viaje y las oportunidades abiertas (**T-155**).
+  - Las etiquetas pasan a un menú con las que están en uso, con selección múltiple combinable (todas a la vez, RF-031): **T-156** (backend) y **T-157** (web). T-041 ya pide varias etiquetas combinables.
 
 ## 23/10/26 — Francisco (Claude Opus 5.5) — T-149: Instagram opcional del cliente
 - **Hecho:** T-149 (backend, contrato y shared; riesgo normal; DEC-0017).

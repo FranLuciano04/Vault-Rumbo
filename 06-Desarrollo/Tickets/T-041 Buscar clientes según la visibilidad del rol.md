@@ -27,7 +27,7 @@ tags:: #tipo/ticket
 Cada rol busca clientes por texto o etiquetas y abre su ficha, viendo solo lo que le corresponde: el `freelance` únicamente sus clientes; el resto, toda la agencia con el filtro «lo mío».
 
 ## Criterios de aceptación
-- [ ] `GET /clientes` con búsqueda por texto, etiquetas (segmentos comerciales) y «lo mío», paginado.
+- [ ] `GET /clientes` con búsqueda por texto, etiquetas (segmentos comerciales; **varias combinables: el cliente tiene que tener todas**, decidido el 23/10/26) y «lo mío», paginado.
 - [ ] `GET /clientes/{id}` devuelve la ficha; un cliente ajeno para el `freelance` → 404 (A1).
 - [ ] La visibilidad sale de `politicas`, nunca del filtro que manda el front.
 

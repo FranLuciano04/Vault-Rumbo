@@ -16,7 +16,7 @@ tags:: #tipo/referencia
 |---|---|---|---|---|---|---|---|
 | M0 — Fundaciones | 34 | 33 | 0 | 1 | 0 | 0 | 🛠️ en curso |
 | M1 — Usuarios y configuración | 18 | 10 | 0 | 6 | 2 | 0 | 🛠️ en curso |
-| M2 — Clientes | 12 | 4 | 0 | 4 | 4 | 0 | 🛠️ en curso |
+| M2 — Clientes | 15 | 4 | 0 | 4 | 7 | 0 | 🛠️ en curso |
 | M3 — Alertas | 11 | 0 | 0 | 2 | 9 | 0 | 🛠️ en curso |
 | M4 — Oportunidades y cotizaciones | 14 | 0 | 0 | 1 | 13 | 0 | 🛠️ en curso |
 | M5 — Hoteles y reseñas | 11 | 0 | 0 | 1 | 10 | 0 | 🛠️ en curso |
@@ -101,6 +101,9 @@ flowchart LR
     T048["T-048 · Registrar un cliente desde la app mobile<br/><small>mobile</small>"]:::esperando
     T049["T-049 · Probar de punta a punta la gestión de clientes<br/><small>e2e</small>"]:::esperando
     T149["T-149 · Guardar el usuario de Instagram del cliente<br/><small>backend</small>"]:::hecho
+    T155["T-155 · Resumir asesor, último viaje y oportunidades en el listado de clientes<br/><small>backend</small>"]:::esperando
+    T156["T-156 · Listar las etiquetas de clientes en uso<br/><small>backend</small>"]:::esperando
+    T157["T-157 · Completar el listado de clientes en la web<br/><small>web</small>"]:::esperando
   end
   subgraph M3["M3 — Alertas"]
     T050["T-050 · Publicar el contrato de alertas<br/><small>contrato</small>"]:::disponible
@@ -515,6 +518,11 @@ flowchart LR
   T040 --> T149
   T019 --> T150
   T027 --> T153
+  T041 --> T155
+  T041 --> T156
+  T044 --> T157
+  T155 --> T157
+  T156 --> T157
   classDef hecho fill:#c8e6c9,stroke:#2e7d32,color:#1b5e20
   classDef tomado fill:#fff3cd,stroke:#b8860b,color:#5d4300
   classDef disponible fill:#dbeafe,stroke:#1d4ed8,color:#1e3a8a
