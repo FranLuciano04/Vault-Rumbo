@@ -3,7 +3,7 @@ id: T-033
 titulo: Gestionar el catálogo de operadores
 modulo: M1 — Usuarios y configuración
 capa: backend
-estado: libre
+estado: tomado
 depende_de: [T-031]
 tamaño: S
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: haiku
 modelo_review: opus
 trazabilidad: [CU-31, RF-093, RF-094, RF-095, RF-096, RF-153, DEC-0009]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: Nahuel Viniegra
+tomado_el: 22/10/26 22:31
+rama: feature/T-033-gestionar-el-catalogo-de-operadores
 pr:
 ---
 # T-033 Gestionar el catálogo de operadores
