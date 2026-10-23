@@ -3,7 +3,7 @@ id: T-160
 titulo: Correr los checks de mobile cuando cambia el paquete compartido
 modulo: M0 — Fundaciones
 capa: infra
-estado: tomado
+estado: hecho
 depende_de: []
 tamaño: XS
 riesgo: normal
@@ -45,4 +45,12 @@ Ticket de infra: se verifica ejecutando las expresiones del paso `cambios` con e
 - Reorganizar el resto de los filtros o los jobs del CI.
 
 ## Notas de implementación
-<Las completa el orquestador al cerrar.>
+- `ci.yml`, job `cambios`: `mobile` ahora también se activa con `^src/packages/shared/`, y se borró el comentario que decía que mobile no consumía el paquete.
+- Verificación: se evaluaron las expresiones sacadas directamente de `ci.yml` (no una copia a mano):
+  - `shared/…/useYo.ts` → `web=true`, `mobile=true`;
+  - `backend/rumbo/main.py` → `mobile=false`;
+  - `apps/mobile/…` → `mobile=true`;
+  - `pnpm-lock.yaml` → todo `true`.
+  En GitHub, este PR toca `ci.yml` (regla de raíz), así que corren todos los jobs.
+- Review (Sonnet): 0 bloqueantes y 0 importantes. Un menor ya existía y queda fuera de alcance: si se edita a mano `src/packages/shared/openapi.json` sin tocar `src/backend/`, no corre el job `backend` ni su check de contrato al día. Si se quiere cubrir, va en un ticket aparte.
+- Modelos: implementación con Haiku y review con Sonnet. Sin escalados.
