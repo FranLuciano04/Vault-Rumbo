@@ -3,7 +3,7 @@ id: T-028
 titulo: Editar el rol de un usuario protegiendo al último admin
 modulo: M1 — Usuarios y configuración
 capa: backend
-estado: libre
+estado: tomado
 depende_de: [T-027]
 tamaño: M
 riesgo: alto
@@ -12,9 +12,9 @@ modelo_impl: opus
 modelo_review: sonnet
 trazabilidad: [CU-25, RF-147, RF-148, RF-149, RF-153, DEC-0016]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: Nahuel Viniegra
+tomado_el: 23/10/26 20:49
+rama: feature/T-028-editar-el-rol-de-un-usuario-protegiendo
 pr:
 ---
 # T-028 Editar el rol de un usuario protegiendo al último admin
