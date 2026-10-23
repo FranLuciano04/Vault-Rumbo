@@ -14,6 +14,8 @@ actualizado: 13/10/26
 >
 > 👉 **22/10 (Nahuel):** **T-150** está hecho y mergeado (PR [#36](https://github.com/FranLuciano04/Vault-Rumbo/pull/36)): las auditorías de dependencias ahora también corren todos los lunes. La primera corrida manual dio verde. Nahuel mira los avisos. **A M0 le falta solo T-023** (login mobile) para pasar a la review de Codex.
 >
+> 👉 **22/10 (Paloma):** **T-027** (alta de usuarios con su cuenta de Firebase) está hecho. Es de ⚠️ riesgo alto: el PR [#45](https://github.com/FranLuciano04/Vault-Rumbo/pull/45) **espera la aprobación de Francisco o Nahuel**. Falta probar a mano el envío real del mail. Se creó **T-153** (cuentas huérfanas), que queda sujeto a una decisión de la sync.
+>
 > 👉 **22/10 (Paloma):** **T-151** está hecho y mergeado (PR [#42](https://github.com/FranLuciano04/Vault-Rumbo/pull/42)). Un entero que no entra en la base ahora responde 422 en todos los módulos. Los tests de API corren dentro de un savepoint (`tests/conftest.py`).
 >
 > 👉 **22/10 (Paloma):** **T-032** (requisitos de cada destino) está hecho y mergeado (PR [#39](https://github.com/FranLuciano04/Vault-Rumbo/pull/39)). Destraba 7 tickets. Adelantó **T-148**: la cobertura ya sigue los `await`. T-148 ya quedó cerrado (PR [#41](https://github.com/FranLuciano04/Vault-Rumbo/pull/41)). Se creó **T-151** (422 ante un entero fuera de rango).
@@ -90,6 +92,10 @@ Los tres tomamos **los tres roles** (Coordinador de vault · Guardián del domin
 
 ## Agenda para la próxima sync — decisiones abiertas
 > Índice de **todo lo que espera decisión**. ✅ La entrevista de diseño del 29/09 (equipo completo) cerró toda la agenda: ver *Decidido en el día 0*. El **formato del deck** se decidió en la sync del 30/09 (PowerPoint, ver H4). ✅ La duración de la exposición y si el prototipo se mostraba en vivo o con capturas quedaron sin efecto: el PC1 ya se presentó el 02/10.
+
+- `#accion/decidir` **(22/10, Paloma, de T-027):** ¿un `admin` puede dar de alta a otro `admin` o a una `dueno`? Hoy puede, porque sigue la letra de CU-25 paso 3, pero ninguna DEC dice si el admin puede otorgar un rol superior al suyo. Si se restringe, va junto con la edición de usuarios (T-028).
+- `#accion/decidir` **(22/10, Paloma, de T-027):** ¿se reutiliza una cuenta de Firebase sin `Usuario` en lugar de dar 409 (criterio A1 de CU-25)? Es la condición para tomar **T-153**.
+- `#accion/decidir` **(22/10, Paloma, de T-040 y T-032):** ¿al `freelance` hay que avisarle de duplicados de clientes de otros asesores, que hoy no ve? ¿Se puede editar un requisito de destino dado de baja?
 
 ## Plan comprimido a 3 días (PC1 adelantado)
 > 29/09/26: **el PC1 se adelantó al viernes 02/10/26 a las 20 hs**, con **exposición oral** a la misma hora. Hay tiempo desde el martes 29/09 a las 19 hs. Este plan **reemplaza el calendario por semanas** de abajo; el detalle de cada paso (qué se entrega y dónde) sigue en *Pasos restantes hacia PC1*. ✅ 30/09: [[Cronograma y PC]] y las portadas de los tres `.docx` ya dicen 02/10/26.

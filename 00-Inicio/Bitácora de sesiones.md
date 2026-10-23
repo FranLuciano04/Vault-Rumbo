@@ -40,6 +40,13 @@ La **persona** de cada sesión es quien la corre, identificada por su identidad 
   - Hay que esperar el CI en verde y mergear **sin** `--delete-branch`. Si el merge falla, `gh` borra igual la rama y el PR queda cerrado (pasó con T-030).
   - La rama se borra recién cuando el PR está en `MERGED`.
 
+### Francisco (`FranLucianoo`) y Nahuel (`Nahuel Viniegra`) — T-027
+- **22/10, de Paloma: aprobar el PR [#45](https://github.com/FranLuciano04/Vault-Rumbo/pull/45)** (T-027, alta de usuarios con su cuenta de Firebase, ⚠️ riesgo alto).
+  - Alcanza con que lo apruebe uno de los dos en GitHub. Después Paloma lo mergea con `/implementar-ticket T-027`.
+  - La review de seguridad no encontró bloqueantes.
+  - **Falta probar a mano** el envío real del mail (`accounts:sendOobCode`) con el emulador y con `rumbo-9ff17`. La cuenta de servicio necesita el permiso `firebaseauth.users.sendEmail`.
+  - **Para la sync:** si un `admin` puede crear una `dueno`, y **T-153** (reutilizar cuentas de Firebase sin `Usuario`).
+
 ## Formato
 Es **obligatorio** nombrar a la persona que hizo la sesión.
 ```
@@ -123,6 +130,14 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
   - **CI:** todo en verde y el PR [#42](https://github.com/FranLuciano04/Vault-Rumbo/pull/42) quedó mergeado.
   - **Aviso al equipo:** desde ahora, cada test de API corre dentro de un savepoint. Así, después de un error en el flush se puede seguir leyendo la base.
 - **Commits (4):** 1f5ef4b, 0585cf4, 4e4a5de, 1a2f0c8, 6068e22.
+- **Hecho (5):** **T-027** (M1, backend, ⚠️ riesgo alto; CU-25, RF-144/145/146/150). Listar, ver y dar de alta usuarios.
+  - El alta crea la cuenta de Firebase, guarda el `Usuario` y Firebase manda el mail con `accounts:sendOobCode`.
+  - Si falla la base, el mail o hay una cancelación, la cuenta se borra.
+  - Decisión de Paloma: un mail fallido da 502 y deshace todo.
+  - **Review de seguridad (Sonnet):** 0 bloqueantes, 2 importantes y 4 menores.
+  - Se creó **T-153** (cuentas huérfanas) y se sumaron 3 decisiones abiertas a la agenda de la sync.
+  - El PR [#45](https://github.com/FranLuciano04/Vault-Rumbo/pull/45) espera la aprobación de Francisco o Nahuel.
+- **Commits (5):** 5e2838b, 8a901be, 36dcf31, 6091eb3, 40dd750.
 - **Pendiente (2):**
   - Un 22003 que no viene del usuario (por ejemplo, un SUM que desborda) también responde 422. Queda registrado en el log.
   - Decidir si se puede editar un requisito dado de baja: hoy responde 200.

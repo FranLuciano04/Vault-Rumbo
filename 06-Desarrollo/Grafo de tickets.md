@@ -15,7 +15,7 @@ tags:: #tipo/referencia
 | Módulo | Tickets | Hechos | Tomados | Disponibles | Esperando | Bloqueados | Estado del módulo |
 |---|---|---|---|---|---|---|---|
 | M0 — Fundaciones | 33 | 33 | 0 | 0 | 0 | 0 | 🔍 listo para la review |
-| M1 — Usuarios y configuración | 17 | 8 | 2 | 4 | 3 | 0 | 🛠️ en curso |
+| M1 — Usuarios y configuración | 18 | 8 | 2 | 4 | 4 | 0 | 🛠️ en curso |
 | M2 — Clientes | 12 | 3 | 0 | 3 | 6 | 0 | 🛠️ en curso |
 | M3 — Alertas | 11 | 0 | 0 | 2 | 9 | 0 | 🛠️ en curso |
 | M4 — Oportunidades y cotizaciones | 14 | 0 | 0 | 1 | 13 | 0 | 🛠️ en curso |
@@ -85,6 +85,7 @@ flowchart LR
     T147["T-147 · Fijar con un test la comisión de un usuario dado de baja<br/><small>backend</small>"]:::disponible
     T148["T-148 · Medir la cobertura del backend a través de los await<br/><small>infra</small>"]:::hecho
     T151["T-151 · Responder 422 ante un número fuera del rango de la base<br/><small>backend</small>"]:::hecho
+    T153["T-153 · Recuperar las cuentas de Firebase que quedaron sin usuario<br/><small>backend · ⚠️ riesgo alto</small>"]:::esperando
   end
   subgraph M2["M2 — Clientes"]
     T039["T-039 · Publicar el contrato de clientes<br/><small>contrato</small>"]:::hecho
@@ -512,6 +513,7 @@ flowchart LR
   T030 --> T147
   T040 --> T149
   T019 --> T150
+  T027 --> T153
   classDef hecho fill:#c8e6c9,stroke:#2e7d32,color:#1b5e20
   classDef tomado fill:#fff3cd,stroke:#b8860b,color:#5d4300
   classDef disponible fill:#dbeafe,stroke:#1d4ed8,color:#1e3a8a
