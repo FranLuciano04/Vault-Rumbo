@@ -1,6 +1,7 @@
-import type { ClienteListado, UsuarioActual } from "@rumbo/shared";
+import type { ClienteListado } from "@rumbo/shared";
 import { ChevronRight } from "lucide-react";
 import { Link, useNavigate } from "react-router";
+import { formatearFecha } from "@/lib/formato";
 import { ETIQUETA_SEGMENTO } from "./segmentos";
 
 const ENCABEZADOS = ["Cliente", "Segmento", "Etiquetas", "Asesor", "Último viaje", "Oportunidades"];
@@ -12,17 +13,10 @@ const iniciales = (nombre: string) =>
     .map((palabra) => palabra.charAt(0).toUpperCase())
     .join("");
 
-/**
- * Tabla del listado (pantalla 8). El contrato no trae el nombre del asesor, el último viaje ni las
- * oportunidades: el asesor se resuelve solo si es el usuario de la sesión; el resto muestra «—».
- */
-export function TablaClientes({
-  clientes,
-  usuario,
-}: {
-  clientes: ClienteListado[];
-  usuario: UsuarioActual;
-}) {
+const SIN_DATO = <span className="text-muted-foreground">—</span>;
+
+/** Tabla del listado (pantalla 8); «—» solo donde el cliente no tiene asesor ni viaje. */
+export function TablaClientes({ clientes }: { clientes: ClienteListado[] }) {
   const navegar = useNavigate();
   return (
     <table className="w-full text-left text-sm">
@@ -75,15 +69,20 @@ export function TablaClientes({
                 ))}
               </ul>
             </td>
+            <td className="px-3 py-3">{c.asesor?.nombre ?? SIN_DATO}</td>
             <td className="px-3 py-3">
-              {c.asesor_asignado_id === usuario.id ? (
-                usuario.nombre
+              {c.ultimo_viaje ? (
+                <>
+                  {c.ultimo_viaje.destino}
+                  <span className="block text-muted-foreground">
+                    {formatearFecha(c.ultimo_viaje.fecha_salida)}
+                  </span>
+                </>
               ) : (
-                <span className="text-muted-foreground">—</span>
+                SIN_DATO
               )}
             </td>
-            <td className="px-3 py-3 text-muted-foreground">—</td>
-            <td className="px-3 py-3 text-muted-foreground">—</td>
+            <td className="px-3 py-3">{c.oportunidades_abiertas}</td>
             <td className="px-3 py-3">
               <ChevronRight aria-hidden="true" className="size-4 text-muted-foreground" />
             </td>

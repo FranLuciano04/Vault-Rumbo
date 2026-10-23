@@ -13,8 +13,6 @@ export interface FiltrosClientes {
   buscar?: string;
   /** El cliente tiene que tener todas; viajan como `?etiquetas=a&etiquetas=b`. */
   etiquetas?: string[];
-  /** Alias viejo de una sola etiqueta; lo usa la web hasta el filtro múltiple (T-157). */
-  etiqueta?: string;
   segmento?: SegmentoCliente;
   mios?: boolean;
   pagina?: number;

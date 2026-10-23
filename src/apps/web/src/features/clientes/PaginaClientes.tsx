@@ -1,12 +1,13 @@
 import type { SegmentoCliente, UsuarioActual } from "@rumbo/shared";
 import { useClientes, type FiltrosClientes } from "@rumbo/shared/hooks";
 import type { AxiosInstance } from "axios";
-import { Eye, Search, SlidersHorizontal } from "lucide-react";
+import { Eye, Search } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useDebouncedValue } from "@/lib/useDebouncedValue";
 import { cn } from "@/lib/utils";
+import { FiltroEtiquetas } from "./FiltroEtiquetas";
 import { ETIQUETA_SEGMENTO } from "./segmentos";
 import { TablaClientes } from "./TablaClientes";
 
@@ -29,8 +30,6 @@ export function PaginaClientes({
   );
   const [textoBusqueda, setTextoBusqueda] = useState("");
   const buscar = useDebouncedValue(textoBusqueda.trim() || undefined);
-  const [verEtiqueta, setVerEtiqueta] = useState(false);
-  const [textoEtiqueta, setTextoEtiqueta] = useState("");
   const { data, isPending, isError, isPlaceholderData } = useClientes(cliente, filtros);
 
   // Todo cambio de filtro vuelve a la primera página.
@@ -43,18 +42,6 @@ export function PaginaClientes({
 
   // La búsqueda ya demorada pasa a los filtros (ajuste de estado durante el render, sin efecto).
   if (buscar !== filtros.buscar) filtrar({ buscar });
-
-  const aplicarEtiqueta = () => {
-    const etiqueta = textoEtiqueta.trim() || undefined;
-    if (etiqueta !== filtros.etiqueta) filtrar({ etiqueta });
-  };
-  const alternarEtiqueta = () => {
-    if (verEtiqueta) {
-      setTextoEtiqueta("");
-      if (filtros.etiqueta) filtrar({ etiqueta: undefined });
-    }
-    setVerEtiqueta(!verEtiqueta);
-  };
 
   // La navegación parte de la página pedida, no de la del dato (que es la vieja mientras llega la nueva).
   const pagina = filtros.pagina ?? 1;
@@ -98,7 +85,11 @@ export function PaginaClientes({
       )}
 
       <div className="flex flex-wrap items-center gap-3">
-        {!esFreelance && (
+        {esFreelance ? (
+          <span className="rounded-full bg-secondary px-3 py-1.5 text-sm font-medium text-secondary-foreground">
+            Mis clientes
+          </span>
+        ) : (
           <div className="flex rounded-lg border bg-card p-1">
             {[
               { etiqueta: "Mis clientes", mios: true },
@@ -131,34 +122,13 @@ export function PaginaClientes({
             {ETIQUETA_SEGMENTO[segmento]}
           </Button>
         ))}
-        <div className="ml-auto flex items-center gap-2">
-          {verEtiqueta && (
-            <Input
-              aria-label="Filtrar por etiqueta"
-              placeholder="Etiqueta"
-              className="h-9 w-48"
-              value={textoEtiqueta}
-              onChange={(e) => {
-                setTextoEtiqueta(e.target.value);
-              }}
-              onBlur={aplicarEtiqueta}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") aplicarEtiqueta();
-              }}
-            />
-          )}
-          <Button
-            variant={filtros.etiqueta ? "default" : "outline"}
-            aria-expanded={verEtiqueta}
-            onMouseDown={(e) => {
-              e.preventDefault();
-            }}
-            onClick={alternarEtiqueta}
-          >
-            <SlidersHorizontal aria-hidden="true" />
-            Etiquetas
-          </Button>
-        </div>
+        <FiltroEtiquetas
+          cliente={cliente}
+          elegidas={filtros.etiquetas ?? []}
+          alCambiar={(etiquetas) => {
+            filtrar({ etiquetas: etiquetas.length > 0 ? etiquetas : undefined });
+          }}
+        />
       </div>
 
       {isPending && <p role="status">Cargando clientes…</p>}
@@ -174,7 +144,7 @@ export function PaginaClientes({
         )}
         {data && data.items.length > 0 && (
           <div className="rounded-2xl border bg-card p-2">
-            <TablaClientes clientes={data.items} usuario={usuario} />
+            <TablaClientes clientes={data.items} />
             <div className="flex items-center justify-between px-3 py-4 text-sm text-muted-foreground">
               <span>
                 Mostrando {data.items.length} de {data.total} clientes

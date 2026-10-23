@@ -2712,11 +2712,6 @@ export interface operations {
                 buscar?: string | null;
                 /** @description Etiquetas, sin distinguir mayúsculas, tildes ni espacios de más; se repite el parámetro (`?etiquetas=a&etiquetas=b`) y el cliente tiene que tener todas. Las vacías se ignoran. */
                 etiquetas?: string[] | null;
-                /**
-                 * @deprecated
-                 * @description Una etiqueta exacta. Usar `etiquetas`.
-                 */
-                etiqueta?: string | null;
                 /** @description Segmento del cliente. */
                 segmento?: components["schemas"]["SegmentoCliente"] | null;
                 /** @description Solo los clientes que tengo asignados. */
