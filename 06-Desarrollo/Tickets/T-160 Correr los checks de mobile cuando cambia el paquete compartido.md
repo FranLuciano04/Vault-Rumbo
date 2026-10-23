@@ -3,7 +3,7 @@ id: T-160
 titulo: Correr los checks de mobile cuando cambia el paquete compartido
 modulo: M0 — Fundaciones
 capa: infra
-estado: libre
+estado: tomado
 depende_de: []
 tamaño: XS
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: haiku
 modelo_review: sonnet
 trazabilidad: [DEC-0015, RNF-15]
 origen: review-codex M0
-asignado:
-tomado_el:
-rama:
+asignado: Nahuel Viniegra
+tomado_el: 23/10/26 18:39
+rama: feature/T-160-correr-los-checks-de-mobile-cuando-cambi
 pr:
 ---
 # T-160 Correr los checks de mobile cuando cambia el paquete compartido
