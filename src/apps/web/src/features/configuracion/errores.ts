@@ -10,9 +10,9 @@ export function mensajeDeError(falla: unknown): string {
 
 /**
  * Vuelca en sus campos los errores 422 del servidor (RNF-12). Devuelve el texto para el aviso
- * general: el `detail` de un 409 (por ejemplo, un duplicado) o de un 403, los mensajes de errores que no
- * corresponden a un campo del formulario (por ejemplo `body`), o el mensaje genérico si no fue un
- * 422; `null` si todo quedó en sus campos.
+ * general: el `detail` de un 409 (por ejemplo, un duplicado) o de un 403, los mensajes de errores
+ * que no corresponden a un campo del formulario (por ejemplo `body`), o el mensaje genérico si no
+ * fue un 422; `null` si todo quedó en sus campos.
  */
 export function aplicarErroresDelServidor<T extends FieldValues>(
   falla: unknown,

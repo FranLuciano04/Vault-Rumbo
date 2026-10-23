@@ -45,7 +45,9 @@ export function FormularioUsuario({
       if (usuario) {
         const { rol, acceso_redes } = datos;
         await editar.mutateAsync({ usuarioId: usuario.id, datos: { rol, acceso_redes } });
-      } else await crear.mutateAsync(datos);
+      } else {
+        await crear.mutateAsync(datos);
+      }
       onCerrar();
     } catch (falla) {
       setError(aplicarErroresDelServidor(falla, CAMPOS, formulario.setError));
