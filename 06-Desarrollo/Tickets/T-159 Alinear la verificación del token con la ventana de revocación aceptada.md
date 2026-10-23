@@ -3,7 +3,7 @@ id: T-159
 titulo: Alinear la verificación del token con la ventana de revocación aceptada
 modulo: M0 — Fundaciones
 capa: backend
-estado: libre
+estado: tomado
 depende_de: []
 tamaño: XS
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [CU-24, RF-142, DEC-0016, DEC-0018]
 origen: review-codex M0
-asignado:
-tomado_el:
-rama:
+asignado: Nahuel Viniegra
+tomado_el: 23/10/26 18:17
+rama: feature/T-159-alinear-la-verificacion-del-token-con-la
 pr:
 ---
 # T-159 Alinear la verificación del token con la ventana de revocación aceptada
