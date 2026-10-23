@@ -3,7 +3,7 @@ id: T-036
 titulo: Gestionar destinos con sus requisitos en la web
 modulo: M1 — Usuarios y configuración
 capa: web
-estado: libre
+estado: tomado
 depende_de: [T-034]
 tamaño: M
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [CU-26, CU-15, RF-086, RF-089, RF-090, RF-091, RF-092]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: Nahuel Viniegra
+tomado_el: 23/10/26 15:39
+rama: feature/T-036-gestionar-destinos-con-sus-requisitos-en
 pr:
 ---
 # T-036 Gestionar destinos con sus requisitos en la web
