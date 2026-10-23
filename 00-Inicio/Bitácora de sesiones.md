@@ -49,6 +49,19 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
+## 22/10/26 — Nahuel (Claude Opus 5.5) — T-152: falso rojo de `fase`
+- **Hecho:** creó e implementó **T-152** (M0, infra, XS; hallazgo de T-034, DEC-0014).
+  - `tickets.mjs fase` sale con **5** y no commitea cuando el comando de `--test` no arrancó (código 126, 127 o 9009) o no terminó (una señal o ENOBUFS).
+  - `maxBuffer` del comando de tests sube a 64 MB.
+  - Los códigos 2 a 5 y la regla de encadenar con `&&` quedan documentados en [[Flujo de implementación]].
+  - **Review (Opus):** 0 bloqueantes y 1 importante, la corrida trunca, que se arregló.
+  - **CI:** en verde. PR [#44](https://github.com/FranLuciano04/Vault-Rumbo/pull/44) mergeado (05c30da).
+- **Commits:** 39650a7, 2701006, 5f4cf68, 39a6fdc.
+- **Pendiente:**
+  - Probar el 9009 en una PC sin el bash de Git.
+  - Sumar el código 5 a la skill `/implementar-ticket`, por `/gestionar-skills`.
+  - Un binario que falta dentro de pnpm o uv sigue pasando como rojo. Queda fuera del alcance de T-152.
+
 ## 22/10/26 — Nahuel (Claude Opus 5.5) — T-034: parámetros del negocio en la web
 - **Hecho:** tomó e implementó **T-034** (M1, web, riesgo normal; CU-13, RF-083/084, DEC-0013).
   - Sección Configuración solo para admin y dueña, con las cuatro pestañas del prototipo. Las otras tres quedan deshabilitadas, porque tienen tickets propios.
