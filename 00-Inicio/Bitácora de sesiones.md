@@ -46,6 +46,11 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
+## 23/10/26 — Paloma (Claude Opus 5.5) — web local: Clientes en blanco
+- **Hecho:** se investigó por qué, con `pnpm dev`, Clientes quedaba en blanco. La API no estaba levantada y Vite devolvía `index.html` para `/api/...`. Se levantó Rumbo completo con Docker para comprobarlo: salud OK y `/auth/yo` en 401 sin token. Después se bajó, porque falta crear la dueña en la base nueva. Las dos fallas quedaron en [[Estado del proyecto#Pendientes técnicos]].
+- **Commits:** el de esta entrada.
+- **Pendiente:** que el equipo decida si las dos fallas pasan a ticket. Para ver la app con datos: compose completo y `datos-iniciales --demo`, igual que en el aviso de T-027.
+
 ## 23/10/26 — Francisco (Claude Opus 5.5) — T-156, T-155, T-157 y T-162: listado de clientes completo
 - **Hecho:**
   - **T-156** (#52): `GET /clientes/etiquetas`.
