@@ -3,7 +3,7 @@ id: T-154
 titulo: Acelerar la suite de tests del backend
 modulo: M0 — Fundaciones
 capa: infra
-estado: tomado
+estado: hecho
 depende_de: []
 tamaño: M
 riesgo: normal
@@ -82,3 +82,6 @@ Ticket de infra: se verifica ejecutando. Corrida de `uv run pytest --durations=1
 - Solución 1 (normalizar `localhost` a `127.0.0.1`) y solución 3 (una base `rumbo_gwN_test` por worker de xdist) hechas en `tests/conftest.py`; el CI corre con `-n auto` y la cobertura sigue combinándose (total 96,5 %, negocio 99 %).
 - Solución 2 (engine por sesión) **no se aplicó**: con la 1 el setup mediano ya es 0,04 s, así que el techo de ganancia (~0,03 s por test) es menor al 10 % de la suite en serie y exige `loop_scope="session"` en todos los tests.
 - Solución 4 (fases livianas en `implementar-ticket`) queda pendiente: requiere `/gestionar-skills`.
+- **Review (opus), fix aplicado:** con xdist la guarda `_test` miraba el nombre ya transformado (`…/rumbo` → `rumbo_gw0_test` pasaba); ahora `url_de_tests` rechaza un nombre original sin `_test`, con test. Se valida el nombre antes del `CREATE DATABASE` y la spec §4 avisa que las bases `rumbo_gwN_test` quedan en el servidor.
+- **Modelos usados:** implementación y fix sonnet, review opus. Sin escalados.
+- **Checks finales:** ruff y mypy limpios; `pytest -n auto`: 779 passed, 1 skipped en 2 min 54 s; cobertura total 97 %, negocio 99 %.
