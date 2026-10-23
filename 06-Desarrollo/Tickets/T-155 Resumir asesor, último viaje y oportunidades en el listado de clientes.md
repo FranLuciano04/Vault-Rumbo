@@ -28,7 +28,7 @@ Cada fila del listado de clientes trae los datos que muestra el prototipo (panta
 
 ## Criterios de aceptación
 - [ ] `GET /clientes` devuelve en cada ítem `asesor` (`{id, nombre}` o `null`), `ultimo_viaje` (`{fecha_salida, destino}` del viaje más reciente no cancelado, o `null`) y `oportunidades_abiertas` (cantidad en `nueva`, `en_gestion` o `cotizada`). Contrato, tipos y mocks regenerados.
-- [ ] Los datos respetan la visibilidad del actor: el `freelance` no ve viajes ni oportunidades ajenas, aunque sean del mismo cliente.
+- [ ] Los datos respetan la visibilidad del actor (`politicas.visibilidad`): el `freelance` ve el resumen completo de sus clientes, incluidos los viajes y oportunidades de los que es responsable otro usuario (decidido por Francisco el 23/10/26, igual que en T-012).
 - [ ] Sin consultas N+1: el listado resuelve el resumen en una cantidad fija de consultas por página.
 
 ## Tests esperados
