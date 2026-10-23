@@ -46,6 +46,13 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
+## 23/10/26 — Nahuel (Claude Opus 5.5) — T-154: suite del backend más rápida
+- **Hecho:** tomó e implementó **T-154** (M0, infra, M; hallazgo de T-033). PR #49 mergeado con CI en verde (el backend ya corre con `-n auto` en GitHub).
+  - `tests/conftest.py` normaliza `localhost` → `127.0.0.1` y da una base `rumbo_gwN_test` por worker de `pytest-xdist`; la guarda `_test` se valida sobre el nombre original (hallazgo de review).
+  - Suite completa: de 24 min 26 s a ~3 min en serie y ~2-3 min con `-n auto`; `test_contrato_m1.py` de 4 min 22 s a ~30 s.
+- **Commits:** dcef818, 99ba521, 0b45fad.
+- **Pendiente:** solución 4 del ticket (fases livianas en `implementar-ticket`), por `/gestionar-skills`. Solución 2 descartada por estimación.
+
 ## 23/10/26 — Francisco (Claude Opus 5.5) — T-041: buscar clientes según la visibilidad del rol
 - **Hecho:** T-041 (capa backend, riesgo alto).
   - `GET /clientes` permite buscar por texto, etiquetas combinables (el cliente tiene que tener todas), segmento y «lo mío», con paginación. `GET /clientes/{id}` devuelve la ficha.
