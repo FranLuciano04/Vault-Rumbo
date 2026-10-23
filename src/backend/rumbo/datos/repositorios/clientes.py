@@ -80,10 +80,9 @@ class RepositorioClientes(RepositorioBase[Cliente]):
         de `paginar`); la representa la variante más usada y, si empatan, la primera en orden."""
         desanidadas = func.unnest(Cliente.etiquetas).table_valued("etiqueta").render_derived()
         variante = espacios_colapsados(desanidadas.c.etiqueta)
-        consulta = visibilidad.aplicar(
-            select(variante, func.count()).select_from(Cliente).join(desanidadas, true()), Cliente
-        )
-        filas = await sesion.execute(consulta.group_by(variante))
+        visibles = visibilidad.aplicar(select(Cliente).join(desanidadas, true()), Cliente)
+        consulta = visibles.with_only_columns(variante, func.count()).group_by(variante)
+        filas = await sesion.execute(consulta)
         representantes: dict[str, tuple[int, str]] = {}
         for texto, usos in filas:
             clave = normalizar(texto)
