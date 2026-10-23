@@ -25,7 +25,7 @@ logger = logging.getLogger(__name__)
 # validar la firma de los tokens, así que nunca debe llegar a producción.
 VARIABLE_EMULADOR = "FIREBASE_AUTH_EMULATOR_HOST"
 
-_URL_ENVIAR_CODIGO = "https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode"
+_RUTA_ENVIAR_CODIGO = "identitytoolkit.googleapis.com/v1/accounts:sendOobCode"
 _TIMEOUT_SEGUNDOS = 10
 
 
@@ -153,6 +153,9 @@ class GestorDeCuentas(Protocol):
         ...
 
 
+_ERRORES_FIREBASE = (exceptions.FirebaseError, ValueError, DefaultCredentialsError)
+
+
 class GestorFirebase:
     """Cuentas de Firebase con el Admin SDK; el mail de restablecimiento lo manda Firebase con
     la API REST `accounts:sendOobCode`, autorizada con la misma credencial del Admin SDK.
@@ -173,7 +176,7 @@ class GestorFirebase:
             )
         except auth.EmailAlreadyExistsError as error:
             raise CuentaYaExiste(email) from error
-        except (exceptions.FirebaseError, ValueError, DefaultCredentialsError) as error:
+        except _ERRORES_FIREBASE as error:
             logger.error("Firebase no pudo crear la cuenta (%s)", type(error).__name__)
             raise ServicioExterno("No se pudo crear la cuenta en Firebase.") from error
         return str(usuario.uid)
@@ -183,7 +186,7 @@ class GestorFirebase:
             await asyncio.to_thread(auth.delete_user, firebase_uid, app=self._app())
         except auth.UserNotFoundError:
             return
-        except (exceptions.FirebaseError, ValueError, DefaultCredentialsError) as error:
+        except _ERRORES_FIREBASE as error:
             raise ServicioExterno("No se pudo borrar la cuenta en Firebase.") from error
 
     async def enviar_mail_restablecimiento(self, email: str) -> None:
@@ -203,10 +206,10 @@ class GestorFirebase:
         app = self._app()  # deja escrita la variable del emulador, si corresponde
         host = os.environ.get(VARIABLE_EMULADOR)
         if host:  # El emulador acepta el token de administrador `owner`.
-            url = f"http://{host}/identitytoolkit.googleapis.com/v1/accounts:sendOobCode"
+            url = f"http://{host}/{_RUTA_ENVIAR_CODIGO}"
             credencial: GoogleCredentials = OAuthCredentials(token="owner")  # type: ignore[no-untyped-call]  # noqa: S106
         else:
-            url = _URL_ENVIAR_CODIGO
+            url = f"https://{_RUTA_ENVIAR_CODIGO}"
             credencial = app.credential.get_credential()
         cuerpo = {
             "requestType": "PASSWORD_RESET",
