@@ -17,6 +17,7 @@ from rumbo.presentacion.esquemas.clientes import (
     Cliente,
     ClienteCrear,
     ClienteEditar,
+    ClienteListado,
     HistorialCliente,
     ProblemaDuplicado,
 )
@@ -77,7 +78,7 @@ async def buscar_clientes(
     ] = None,
     segmento: Annotated[SegmentoCliente | None, Query(description="Segmento del cliente.")] = None,
     mios: Annotated[bool, Query(description="Solo los clientes que tengo asignados.")] = False,
-) -> Pagina[Cliente]:
+) -> Pagina[ClienteListado]:
     """Ordenados por nombre. El `freelance` recibe solo los suyos, pida o no `mios` (RF-151)."""
     items, total = await clientes.buscar_clientes(
         sesion,
@@ -90,7 +91,12 @@ async def buscar_clientes(
         limite=paginacion.por_pagina,
     )
     return Pagina(
-        items=[Cliente.model_validate(c) for c in items],
+        items=[
+            ClienteListado.model_validate(
+                {**Cliente.model_validate(c).model_dump(), **vars(resumen)}
+            )
+            for c, resumen in items
+        ],
         total=total,
         pagina=paginacion.pagina,
         por_pagina=paginacion.por_pagina,

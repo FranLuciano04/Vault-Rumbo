@@ -1,4 +1,4 @@
-import type { Cliente, UsuarioActual } from "@rumbo/shared";
+import type { ClienteListado, UsuarioActual } from "@rumbo/shared";
 import { ChevronRight } from "lucide-react";
 import { Link, useNavigate } from "react-router";
 import { ETIQUETA_SEGMENTO } from "./segmentos";
@@ -20,7 +20,7 @@ export function TablaClientes({
   clientes,
   usuario,
 }: {
-  clientes: Cliente[];
+  clientes: ClienteListado[];
   usuario: UsuarioActual;
 }) {
   const navegar = useNavigate();

@@ -1,15 +1,43 @@
 """Repositorio del módulo clientes: `Cliente` (CU-02, CU-03)."""
 
 import uuid
+from dataclasses import dataclass
+from datetime import date
 
 from sqlalchemy import ColumnElement, exists, func, or_, select, true
+from sqlalchemy.dialects.postgresql import distinct_on
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from rumbo.datos.modelos import Cliente, SegmentoCliente
+from rumbo.datos.modelos import (
+    Cliente,
+    Destino,
+    EstadoOportunidad,
+    EstadoViaje,
+    Oportunidad,
+    SegmentoCliente,
+    Usuario,
+    Viaje,
+)
 from rumbo.datos.modelos.base import espacios_colapsados, nombre_normalizado
 from rumbo.datos.repositorios.base import RepositorioBase, Visibilidad, escapar_like, normalizar
 
 MAX_PARECIDOS = 10
+_ABIERTAS = (EstadoOportunidad.nueva, EstadoOportunidad.en_gestion, EstadoOportunidad.cotizada)
+
+
+@dataclass(frozen=True)
+class UltimoViaje:
+    fecha_salida: date
+    destino: str
+
+
+@dataclass(frozen=True)
+class ResumenCliente:
+    """Lo que muestra cada fila del listado (CU-03 paso 1): asesor, último viaje y abiertas."""
+
+    asesor: Usuario | None = None
+    ultimo_viaje: UltimoViaje | None = None
+    oportunidades_abiertas: int = 0
 
 
 def _tiene_etiqueta(clave: str) -> ColumnElement[bool]:
@@ -71,6 +99,49 @@ class RepositorioClientes(RepositorioBase[Cliente]):
         pagina = consulta.order_by(nombre_normalizado(Cliente.nombre), Cliente.id)
         filas = await sesion.scalars(pagina.offset(desplazamiento).limit(limite))
         return list(filas), total or 0
+
+    async def resumir(
+        self, sesion: AsyncSession, clientes: list[Cliente], *, visibilidad: Visibilidad
+    ) -> dict[uuid.UUID, ResumenCliente]:
+        """Resumen de cada `Cliente` de `clientes` en tres consultas, sin importar cuántos sean.
+        Viajes y oportunidades salen filtrados por `visibilidad`; el asesor es un dato del
+        cliente, que el actor ya ve."""
+        ids = [c.id for c in clientes]
+        asesores = {
+            a.id: a
+            for a in await sesion.scalars(
+                select(Usuario).where(
+                    Usuario.id.in_([c.asesor_asignado_id for c in clientes if c.asesor_asignado_id])
+                )
+            )
+        }
+        ultimos = (
+            visibilidad.aplicar(select(Viaje), Viaje)
+            .with_only_columns(Viaje.cliente_id, Viaje.fecha_salida, Destino.nombre)
+            .ext(distinct_on(Viaje.cliente_id))
+            .join(Destino, Destino.id == Viaje.destino_id)
+            .where(Viaje.cliente_id.in_(ids), Viaje.estado != EstadoViaje.cancelado)
+            .order_by(Viaje.cliente_id, Viaje.fecha_salida.desc(), Viaje.id)
+        )
+        abiertas = (
+            visibilidad.aplicar(select(Oportunidad), Oportunidad)
+            .with_only_columns(Oportunidad.cliente_id, func.count())
+            .where(Oportunidad.cliente_id.in_(ids), Oportunidad.estado.in_(_ABIERTAS))
+            .group_by(Oportunidad.cliente_id)
+        )
+        viajes = {
+            cliente_id: UltimoViaje(fecha, destino)
+            for cliente_id, fecha, destino in await sesion.execute(ultimos)
+        }
+        cantidades = dict((await sesion.execute(abiertas)).all())
+        return {
+            c.id: ResumenCliente(
+                asesores.get(c.asesor_asignado_id) if c.asesor_asignado_id else None,
+                viajes.get(c.id),
+                cantidades.get(c.id, 0),
+            )
+            for c in clientes
+        }
 
     async def etiquetas_en_uso(
         self, sesion: AsyncSession, *, visibilidad: Visibilidad
