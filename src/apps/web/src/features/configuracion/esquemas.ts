@@ -13,19 +13,27 @@ export const esquemaParametros = z.object({
 export type DatosParametros = z.infer<typeof esquemaParametros>;
 
 /** Comisión por defecto de un vendedor (RF-083): porcentaje de 0 a 100 o importe de 0 o más. */
+const TOPE_IMPORTE = 999_999_999_999.99; // numeric(14, 2): 12 enteros y 2 decimales
+
+const dosDecimales = (valor: number) => Math.round(valor * 100) / 100 === valor;
+
+/** Valor de la comisión con a lo sumo 2 decimales. */
+const valorComision = z
+  .number("Ingresá un número.")
+  .refine(dosDecimales, "Usá como máximo 2 decimales.");
+
 export const esquemaComision = z.discriminatedUnion("comision_default_tipo", [
   z.object({
     comision_default_tipo: z.literal("porcentaje"),
-    comision_default_valor: z
-      .number("Ingresá un número.")
+    comision_default_valor: valorComision
       .min(0, "El porcentaje no puede ser negativo.")
       .max(100, "El porcentaje no puede superar 100."),
   }),
   z.object({
     comision_default_tipo: z.literal("importe"),
-    comision_default_valor: z
-      .number("Ingresá un número.")
-      .min(0, "El importe no puede ser negativo."),
+    comision_default_valor: valorComision
+      .min(0, "El importe no puede ser negativo.")
+      .max(TOPE_IMPORTE, "El importe es demasiado grande."),
   }),
 ]);
 

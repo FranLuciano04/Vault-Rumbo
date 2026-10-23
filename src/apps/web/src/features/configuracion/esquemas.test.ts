@@ -7,6 +7,12 @@ describe("RF-084 validación de los parámetros (zod)", () => {
     expect(esquemaParametros.safeParse(validos).success).toBe(true);
   });
 
+  it("RF-084 acepta anticipacion_salida_dias = 0", () => {
+    expect(esquemaParametros.safeParse({ ...validos, anticipacion_salida_dias: 0 }).success).toBe(
+      true,
+    );
+  });
+
   it.each([
     ["vigencia_cotizacion_meses", 0],
     ["vigencia_cotizacion_meses", -1],
@@ -38,6 +44,9 @@ describe("RF-083 validación de la comisión por defecto (zod)", () => {
     ["porcentaje", 100.01],
     ["porcentaje", 150],
     ["porcentaje", -1],
+    ["porcentaje", 10.555],
+    ["importe", 100.001],
+    ["importe", 1_000_000_000_000],
     ["importe", -1],
     ["importe", "abc"],
     ["otro", 10],

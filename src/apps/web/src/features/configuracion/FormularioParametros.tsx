@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { CampoFormulario } from "./CampoFormulario";
-import { ERROR_AL_GUARDAR, marcarErroresDelServidor } from "./errores";
+import { aplicarErroresDelServidor } from "./errores";
 import { type DatosParametros, esquemaParametros } from "./esquemas";
 
 const CAMPOS: { id: string; nombre: keyof DatosParametros; etiqueta: string }[] = [
@@ -25,7 +25,7 @@ const CAMPOS: { id: string; nombre: keyof DatosParametros; etiqueta: string }[] 
 
 /** Parámetros del negocio (RF-084, pantalla 30 del prototipo). */
 export function FormularioParametros({ cliente }: { cliente: AxiosInstance }) {
-  const { data: configuracion, isPending } = useConfiguracion(cliente);
+  const { data: configuracion, isPending, isError } = useConfiguracion(cliente);
   const editar = useEditarConfiguracion(cliente);
   const [guardado, setGuardado] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -46,10 +46,22 @@ export function FormularioParametros({ cliente }: { cliente: AxiosInstance }) {
       await editar.mutateAsync(datos);
       setGuardado(true);
     } catch (falla) {
-      if (!marcarErroresDelServidor(falla, formulario.setError)) setError(ERROR_AL_GUARDAR);
+      setError(
+        aplicarErroresDelServidor(
+          falla,
+          CAMPOS.map(({ nombre }) => nombre),
+          formulario.setError,
+        ),
+      );
     }
   }
 
+  if (isError)
+    return (
+      <p role="alert" className="text-sm font-medium text-destructive">
+        No pudimos cargar los parámetros del negocio. Probá de nuevo en unos minutos.
+      </p>
+    );
   if (isPending) return <p role="status">Cargando…</p>;
 
   return (

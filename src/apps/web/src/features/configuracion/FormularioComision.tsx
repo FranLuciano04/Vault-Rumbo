@@ -6,15 +6,17 @@ import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { CampoFormulario } from "./CampoFormulario";
-import { ERROR_AL_GUARDAR, marcarErroresDelServidor } from "./errores";
+import { aplicarErroresDelServidor } from "./errores";
 import { type DatosComision, esquemaComision } from "./esquemas";
+
+const CAMPOS = ["comision_default_tipo", "comision_default_valor"] as const;
 
 const CLASE_SELECT =
   "h-11 w-full rounded-md border border-input bg-background px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 aria-invalid:border-destructive";
 
 /** Comisión por defecto de cada vendedor (RF-083, CU-13), incluidos los usuarios dados de baja. */
 export function FormularioComision({ cliente }: { cliente: AxiosInstance }) {
-  const { data: usuarios } = useUsuarios(cliente, { por_pagina: 50 });
+  const { data: usuarios, isError } = useUsuarios(cliente, { por_pagina: 100 });
   const configurar = useConfigurarComisionPorDefecto(cliente);
   const [usuarioId, setUsuarioId] = useState("");
   const [guardado, setGuardado] = useState(false);
@@ -24,7 +26,10 @@ export function FormularioComision({ cliente }: { cliente: AxiosInstance }) {
     resolver: zodResolver(esquemaComision),
     values: {
       comision_default_tipo: elegido?.comision_default_tipo ?? "porcentaje",
-      comision_default_valor: Number(elegido?.comision_default_valor ?? 0),
+      // Sin comisión cargada el valor queda vacío ("" limpia el campo) para que haya que cargarlo.
+      comision_default_valor: (elegido?.comision_default_valor == null
+        ? ""
+        : Number(elegido.comision_default_valor)) as number,
     },
   });
   const { errors } = formulario.formState;
@@ -43,9 +48,16 @@ export function FormularioComision({ cliente }: { cliente: AxiosInstance }) {
       await configurar.mutateAsync({ usuarioId, datos });
       setGuardado(true);
     } catch (falla) {
-      if (!marcarErroresDelServidor(falla, formulario.setError)) setError(ERROR_AL_GUARDAR);
+      setError(aplicarErroresDelServidor(falla, CAMPOS, formulario.setError));
     }
   }
+
+  if (isError)
+    return (
+      <p role="alert" className="text-sm font-medium text-destructive">
+        No pudimos cargar los vendedores. Probá de nuevo en unos minutos.
+      </p>
+    );
 
   return (
     <form
@@ -97,12 +109,15 @@ export function FormularioComision({ cliente }: { cliente: AxiosInstance }) {
         {(props) => (
           <Input
             type="number"
-            step="any"
+            step="0.01"
             {...props}
             {...formulario.register("comision_default_valor", { valueAsNumber: true })}
           />
         )}
       </CampoFormulario>
+      {elegido?.comision_default_tipo == null && elegido && (
+        <p className="text-sm text-muted-foreground">Sin comisión configurada.</p>
+      )}
       {error && (
         <p role="alert" className="text-sm font-medium text-destructive">
           {error}

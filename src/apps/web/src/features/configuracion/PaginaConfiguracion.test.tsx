@@ -176,6 +176,16 @@ describe("RF-084 parámetros del negocio", () => {
   });
 });
 
+describe("RF-084 carga de los parámetros", () => {
+  it("RF-084 si falla el GET de la configuración avisa en lugar del formulario", async () => {
+    servidor.use(http.get("*/api/configuracion", () => problema(500, "Error interno")));
+    renderPagina();
+
+    expect(await screen.findByText(/no pudimos cargar los parámetros/i)).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /guardar parámetros/i })).not.toBeInTheDocument();
+  });
+});
+
 describe("RF-083 comisión por defecto por vendedor", () => {
   async function elegirVendedor(nombre: string) {
     const usuario = userEvent.setup();
@@ -287,6 +297,40 @@ describe("RF-083 comisión por defecto por vendedor", () => {
 
     expect(await screen.findByText("El porcentaje no puede superar 100.")).toBeInTheDocument();
     expect(valor()).toBeInvalid();
+  });
+
+  it("RF-083 un 422 sin campo propio (body) se muestra en el aviso general", async () => {
+    servidor.use(
+      http.put("*/api/usuarios/:id/comision-por-defecto", () =>
+        problema(422, "Datos inválidos", {
+          errores: [{ campo: "body", mensaje: "Combinación de comisión inválida." }],
+        }),
+      ),
+    );
+    renderPagina();
+    const usuario = await elegirVendedor("Ana Pérez");
+
+    await usuario.click(guardar());
+
+    expect(await screen.findByRole("alert")).toHaveTextContent("Combinación de comisión inválida.");
+    expect(valor()).toBeValid();
+  });
+
+  it("RF-083 un usuario sin comisión queda con el valor vacío y lo indica", async () => {
+    renderPagina();
+
+    await elegirVendedor("Lucía Fernández");
+
+    expect(screen.getByText(/sin comisión configurada/i)).toBeInTheDocument();
+    expect(valor()).toHaveValue(null);
+  });
+
+  it("RF-083 si falla el listado de usuarios avisa en lugar del formulario", async () => {
+    servidor.use(http.get("*/api/usuarios", () => problema(500, "Error interno")));
+    renderPagina();
+
+    expect(await screen.findByText(/no pudimos cargar los vendedores/i)).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /guardar comisión/i })).not.toBeInTheDocument();
   });
 
   it("RF-083 permite configurar a un usuario dado de baja (CU-13, decisión 22/10/26)", async () => {
