@@ -202,7 +202,7 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
   - Decisión de Paloma: un mail fallido da 502 y deshace todo.
   - **Review de seguridad (Sonnet):** 0 bloqueantes, 2 importantes y 4 menores.
   - Se creó **T-153** (cuentas huérfanas) y se sumaron 3 decisiones abiertas a la agenda de la sync.
-  - El PR [#45](https://github.com/FranLuciano04/Vault-Rumbo/pull/45) espera la aprobación de Francisco o Nahuel.
+  - El PR [#45](https://github.com/FranLuciano04/Vault-Rumbo/pull/45) lo mergeó Francisco el 23/10, sin una aprobación formal en GitHub. Ramas borradas y grafo al día.
 - **Commits (5):** 5e2838b, 8a901be, 36dcf31, 6091eb3, 40dd750.
 - **Pendiente (2):**
   - Un 22003 que no viene del usuario (por ejemplo, un SUM que desborda) también responde 422. Queda registrado en el log.
