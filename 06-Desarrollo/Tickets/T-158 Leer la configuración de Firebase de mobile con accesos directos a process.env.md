@@ -3,7 +3,7 @@ id: T-158
 titulo: Leer la configuración de Firebase de mobile con accesos directos a process.env
 modulo: M0 — Fundaciones
 capa: mobile
-estado: libre
+estado: tomado
 depende_de: []
 tamaño: S
 riesgo: alto
@@ -12,9 +12,9 @@ modelo_impl: opus
 modelo_review: sonnet
 trazabilidad: [CU-24, RF-140, DEC-0016]
 origen: review-codex M0
-asignado:
-tomado_el:
-rama:
+asignado: Nahuel Viniegra
+tomado_el: 23/10/26 17:06
+rama: feature/T-158-leer-la-configuracion-de-firebase-de-mob
 pr:
 ---
 # T-158 Leer la configuración de Firebase de mobile con accesos directos a process.env
