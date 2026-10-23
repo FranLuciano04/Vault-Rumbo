@@ -46,6 +46,11 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
+## 23/10/26 — Nahuel con el equipo (Claude Opus 5.5) — cierre de M0 (`mod-0`)
+- **Hecho:** con la aprobación del equipo, `/cerrar-modulo M0` fase B, cierre. Se puso el tag `mod-0` sobre `d57e8f2`, se publicó el grafo y se cargó el resumen del módulo en [[Bitácora técnica]] (38 tickets y 3 hallazgos de Codex resueltos).
+- **Commits:** el de este cierre.
+- **Pendiente:** probar el login mobile en el development build con un `.env` real. Seguir con M1 y los siguientes según el [[Plan de implementación]].
+
 ## 23/10/26 — Nahuel (Claude Opus 5.5) — T-160: CI de mobile al cambiar shared
 - **Hecho:** tomó e implementó **T-160** (M0, infra, XS; hallazgo H-03 de Codex). PR [#55](https://github.com/FranLuciano04/Vault-Rumbo/pull/55) mergeado con los 8 checks en verde, incluido Mobile.
   - En `ci.yml`, la salida `mobile` también se activa con `^src/packages/shared/`. Se verificó evaluando las expresiones sacadas del propio workflow.
