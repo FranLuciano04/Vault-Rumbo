@@ -1,14 +1,14 @@
 import { crearCliente } from "@rumbo/shared";
-import { crearServidor, usuariosMock } from "@rumbo/shared/mocks";
+import { crearServidor, manejadoresM1, usuariosMock } from "@rumbo/shared/mocks";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { http, HttpResponse } from "msw";
+import { http, HttpResponse, type JsonBodyType } from "msw";
 import { MemoryRouter } from "react-router";
 import { afterAll, afterEach, beforeAll } from "vitest";
 import { PaginaConfiguracion } from "./PaginaConfiguracion";
 
-const servidor = crearServidor();
+const servidor = crearServidor(...manejadoresM1);
 beforeAll(() => {
   servidor.listen({ onUnhandledRequest: "error" });
 });
@@ -72,7 +72,7 @@ describe("RF-084 parámetros del negocio", () => {
   });
 
   it("RF-084 guarda con PUT /api/configuracion los valores editados", async () => {
-    let cuerpo: unknown;
+    let cuerpo: JsonBodyType;
     servidor.use(
       http.put("*/api/configuracion", async ({ request }) => {
         cuerpo = await request.json();
@@ -199,7 +199,7 @@ describe("RF-083 comisión por defecto por vendedor", () => {
 
   it("RF-083 guarda un porcentaje con PUT /api/usuarios/{id}/comision-por-defecto", async () => {
     let ruta = "";
-    let cuerpo: unknown;
+    let cuerpo: JsonBodyType;
     servidor.use(
       http.put("*/api/usuarios/:id/comision-por-defecto", async ({ request }) => {
         ruta = new URL(request.url).pathname;
@@ -221,7 +221,7 @@ describe("RF-083 comisión por defecto por vendedor", () => {
   });
 
   it("RF-083 guarda un importe fijo al cambiar el tipo", async () => {
-    let cuerpo: unknown;
+    let cuerpo: JsonBodyType;
     servidor.use(
       http.put("*/api/usuarios/:id/comision-por-defecto", async ({ request }) => {
         cuerpo = await request.json();
