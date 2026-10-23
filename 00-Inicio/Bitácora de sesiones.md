@@ -46,6 +46,14 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
+## 23/10/26 — Nahuel (Claude Opus 5.5) — T-036: destinos y requisitos en la web
+- **Hecho:** tomó e implementó **T-036** (M1, web, M). PR #50 mergeado con CI en verde.
+  - Pestaña «Destinos y requisitos» en Configuración: ABM de destinos con filtro de inactivos, baja y reactivación; requisitos con alta, edición y baja lógica con confirmación; 409 y 422 en el formulario.
+  - `errores.ts` es compartido: un 409 ahora muestra su `detail` en todos los formularios de Configuración.
+  - Review (Opus): 0 bloqueantes, 3 importantes y 5 menores, todos arreglados. Web: 168 tests, cobertura 92,5 %.
+- **Commits:** c7a9677, 3eae8fe, baeb45f, 1dbeec3.
+- **Pendiente:** decidir en equipo si la pantalla de destinos pasa a maestro-detalle, como el prototipo (pantalla 32). Si se crea un paginador web, adoptarlo en estos listados, que hoy avisan «Mostramos N de M».
+
 ## 23/10/26 — Nahuel (Claude Opus 5.5) — T-154: suite del backend más rápida
 - **Hecho:** tomó e implementó **T-154** (M0, infra, M; hallazgo de T-033). PR #49 mergeado con CI en verde (el backend ya corre con `-n auto` en GitHub).
   - `tests/conftest.py` normaliza `localhost` → `127.0.0.1` y da una base `rumbo_gwN_test` por worker de `pytest-xdist`; la guarda `_test` se valida sobre el nombre original (hallazgo de review).
