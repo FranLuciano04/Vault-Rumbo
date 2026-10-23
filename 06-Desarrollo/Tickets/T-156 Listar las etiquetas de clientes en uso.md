@@ -3,7 +3,7 @@ id: T-156
 titulo: Listar las etiquetas de clientes en uso
 modulo: M2 — Clientes
 capa: backend
-estado: libre
+estado: tomado
 depende_de: [T-041]
 tamaño: XS
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [RF-031, RF-151]
 origen: hallazgo T-044 (decidido el 23/10/26)
-asignado:
-tomado_el:
-rama:
+asignado: FranLucianoo
+tomado_el: 23/10/26 17:58
+rama: feature/T-156-listar-las-etiquetas-de-clientes-en-uso
 pr:
 ---
 # T-156 Listar las etiquetas de clientes en uso
