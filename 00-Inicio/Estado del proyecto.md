@@ -32,6 +32,12 @@ actualizado: 13/10/26
 >
 > 👉 **21/10 (Paloma):** **T-141** (íconos de la barra lateral web, como en el prototipo) está hecho y mergeado (PR [#27](https://github.com/FranLuciano04/Vault-Rumbo/pull/27)).
 >
+> 👉 **23/10 (Francisco):** el **listado de clientes** de la web quedó completo. Se mergearon:
+> - **T-156** (PR [#52](https://github.com/FranLuciano04/Vault-Rumbo/pull/52)): etiquetas en uso.
+> - **T-155** (PR [#56](https://github.com/FranLuciano04/Vault-Rumbo/pull/56)): asesor, último viaje ya salido y oportunidades abiertas, en `ClienteListado`.
+> - **T-157** (PR [#57](https://github.com/FranLuciano04/Vault-Rumbo/pull/57)): menú de etiquetas combinables, columnas como en el prototipo y topes de 20 etiquetas de hasta 80 caracteres. Se retiró el alias `etiqueta`.
+> - **T-162** (PR [#54](https://github.com/FranLuciano04/Vault-Rumbo/pull/54)): se acepta el riesgo de zod en el CLI de Expo, así que el audit vuelve a pasar.
+>
 > 👉 **23/10 (Francisco):** **T-041** (búsqueda y ficha de clientes según la visibilidad del rol; etiquetas combinables) está hecho y mergeado (PR [#48](https://github.com/FranLuciano04/Vault-Rumbo/pull/48)). `GET /clientes` y `GET /clientes/{id}` ya no son stubs. Para el freelance, un cliente ajeno da 404.
 >
 > 👉 **23/10 (Francisco):** **T-044** (listado de clientes en la web, la primera pantalla de clientes) está hecho y mergeado (PR [#47](https://github.com/FranLuciano04/Vault-Rumbo/pull/47)).

@@ -46,6 +46,29 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
+## 23/10/26 — Francisco (Claude Opus 5.5) — T-156, T-155, T-157 y T-162: listado de clientes completo
+- **Hecho:**
+  - **T-156** (#52): `GET /clientes/etiquetas`.
+    - Las etiquetas salen sin duplicados y en el menú se muestra la variante más usada.
+    - El filtro de etiquetas ya no distingue mayúsculas, tildes ni espacios.
+  - **T-162** (#54): se ignora GHSA-mrhx-c7xc-m3w5, la vulnerabilidad de zod en `@expo/cli`. La 3.x no tiene parche y el riesgo lo aceptó Francisco.
+  - **T-155** (#56): el listado devuelve `ClienteListado` con el resumen, en 3 consultas por página.
+  - **T-157** (#57):
+    - Menú de etiquetas con chips, columnas como en el prototipo y «Mis clientes» fija para el freelance.
+    - Topes de etiquetas en el alta y la edición. Antes eran T-161, que se absorbió acá.
+    - Se retiró el alias `etiqueta`.
+  - Todos tuvieron review y el CI en verde, salvo el #52: se mergeó con solo el audit en rojo, por la falla de zod que resolvió T-162. Lo decidió Francisco.
+- **Decisiones de Francisco:**
+  - El freelance ve el resumen completo de sus clientes, según `politicas`.
+  - `ClienteListado` va aparte de `Cliente`.
+  - El «último viaje» es el último que ya salió, en hora de Argentina; el helper es `core/fechas.hoy` y `tzdata` quedó declarada.
+  - **No abrir subtickets:** los hallazgos chicos se resuelven dentro del ticket en curso.
+- **Commits:** los merges de #52, #54, #56 y #57; ef1f09c y el que absorbe T-161 en `main`.
+- **Pendiente:**
+  - Cuando se implemente el PATCH de clientes, `test_rf031_edicion_acepta_20_etiquetas_de_80_caracteres` tiene que esperar el éxito.
+  - `ClienteEditar` no recorta espacios.
+  - El ignore de zod se revisa cuando Expo pase a zod 4.
+
 ## 23/10/26 — Nahuel con el equipo (Claude Opus 5.5) — cierre de M0 (`mod-0`)
 - **Hecho:** con la aprobación del equipo, `/cerrar-modulo M0` fase B, cierre. Se puso el tag `mod-0` sobre `d57e8f2`, se publicó el grafo y se cargó el resumen del módulo en [[Bitácora técnica]] (38 tickets y 3 hallazgos de Codex resueltos).
 - **Commits:** el de este cierre.
