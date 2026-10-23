@@ -51,10 +51,13 @@ describe("RF-144 alta de usuario", () => {
     const filaLucia = await fila("Lucía Fernández");
     expect(within(filaLucia).getByText("lucia@rumbo.test")).toBeInTheDocument();
     expect(within(filaLucia).getByText(/admin/i)).toBeInTheDocument();
-    expect(within(filaLucia).getByText(/redes/i)).toBeInTheDocument();
+    expect(within(filaLucia).getByText("Por su rol")).toBeInTheDocument();
     const filaAna = await fila("Ana Pérez");
     expect(within(filaAna).getByText("ana@rumbo.test")).toBeInTheDocument();
     expect(within(filaAna).getByText(/empleado/i)).toBeInTheDocument();
+    expect(within(filaAna).getByText("Sin acceso")).toBeInTheDocument();
+    const filaTomas = await fila("Tomás Roldán");
+    expect(within(filaTomas).getByText("Sin acceso")).toBeInTheDocument();
     expect(await fila("Tomás Roldán")).toBeInTheDocument();
   });
 
@@ -228,6 +231,47 @@ describe("RF-144 alta de usuario", () => {
     expect(await screen.findByRole("alert")).toHaveTextContent(/solo un dueño/i);
     expect(screen.getByLabelText(/nombre/i)).toHaveValue("Marta");
   });
+
+  it("RF-144 cierra el formulario tras un alta exitosa", async () => {
+    renderPestana();
+    const usuario = userEvent.setup();
+
+    await screen.findByText("Lucía Fernández");
+    await usuario.click(screen.getByRole("button", { name: /nuevo usuario/i }));
+    await usuario.type(await screen.findByLabelText(/nombre/i), "Marta Gómez");
+    await usuario.type(screen.getByLabelText(/email/i), "marta@rumbo.test");
+    await usuario.click(screen.getByRole("button", { name: /guardar/i }));
+
+    await waitFor(() => {
+      expect(screen.queryByLabelText(/nombre/i)).not.toBeInTheDocument();
+    });
+  });
+
+  it("RF-144 admin y dueño tienen el acceso a redes fijo, por su rol", async () => {
+    renderPestana();
+    const usuario = userEvent.setup();
+
+    await screen.findByText("Lucía Fernández");
+    await usuario.click(screen.getByRole("button", { name: /nuevo usuario/i }));
+    await usuario.selectOptions(await screen.findByLabelText(/rol/i), "dueno");
+
+    expect(screen.getByLabelText(/acceso a redes/i)).toBeDisabled();
+    expect(screen.getByLabelText(/acceso a redes/i)).toBeChecked();
+    expect(
+      within(screen.getByRole("form", { name: /nuevo usuario/i })).getByText("Por su rol"),
+    ).toBeInTheDocument();
+  });
+
+  it("RF-144 avisa qué ve un freelance al elegir ese rol", async () => {
+    renderPestana();
+    const usuario = userEvent.setup();
+
+    await screen.findByText("Lucía Fernández");
+    await usuario.click(screen.getByRole("button", { name: /nuevo usuario/i }));
+    await usuario.selectOptions(await screen.findByLabelText(/rol/i), "freelance");
+
+    expect(screen.getByText(/ve solo lo suyo/i)).toBeInTheDocument();
+  });
 });
 
 describe("RF-146 email duplicado", () => {
@@ -246,7 +290,9 @@ describe("RF-146 email duplicado", () => {
     await usuario.type(screen.getByLabelText(/email/i), "ana@rumbo.test");
     await usuario.click(screen.getByRole("button", { name: /guardar/i }));
 
-    expect(await screen.findByRole("alert")).toHaveTextContent(/ya existe un usuario con el email/i);
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      /ya existe un usuario con el email/i,
+    );
     expect(screen.getByLabelText(/email/i)).toHaveValue("ana@rumbo.test");
   });
 
@@ -265,8 +311,8 @@ describe("RF-146 email duplicado", () => {
   });
 });
 
-describe("RF-145 edición de rol y accesos", () => {
-  it("RF-145 edita el rol y el acceso a redes con PATCH /api/usuarios/{id}", async () => {
+describe("RF-147 edición de rol y accesos", () => {
+  it("RF-147 edita el rol y el acceso a redes con PATCH /api/usuarios/{id}", async () => {
     let ruta = "";
     let cuerpo: JsonBodyType;
     servidor.use(
@@ -290,12 +336,12 @@ describe("RF-145 edición de rol y accesos", () => {
     await usuario.click(screen.getByRole("button", { name: /guardar/i }));
 
     await waitFor(() => {
-      expect(cuerpo).toMatchObject({ rol: "admin", acceso_redes: true });
+      expect(cuerpo).toEqual({ rol: "admin", acceso_redes: true });
     });
     expect(ruta).toBe(`/api/usuarios/${ana.id}`);
   });
 
-  it("RF-145 al editar el email no se puede modificar", async () => {
+  it("RF-147 al editar el email no se puede modificar", async () => {
     renderPestana();
     const usuario = userEvent.setup();
 
@@ -307,7 +353,7 @@ describe("RF-145 edición de rol y accesos", () => {
     expect(email).toBeDisabled();
   });
 
-  it("RF-145 muestra el 403 de la restricción del dueño al editar el rol", async () => {
+  it("RF-147 muestra el 403 de la restricción del dueño al editar el rol", async () => {
     servidor.use(
       http.patch("*/api/usuarios/:id", () =>
         problema(403, "Prohibido", { detail: "Solo un dueño puede asignar el rol dueño." }),
@@ -323,10 +369,70 @@ describe("RF-145 edición de rol y accesos", () => {
 
     expect(await screen.findByRole("alert")).toHaveTextContent(/solo un dueño/i);
   });
+
+  it("RF-147 al editar deshabilita el nombre, no muestra el aviso del mail y avisa del próximo inicio de sesión", async () => {
+    renderPestana();
+    const usuario = userEvent.setup();
+
+    const filaAna = await fila("Ana Pérez");
+    await usuario.click(within(filaAna).getByRole("button", { name: /editar/i }));
+
+    expect(await screen.findByLabelText(/nombre/i)).toBeDisabled();
+    expect(screen.queryByText(/recibe un mail/i)).not.toBeInTheDocument();
+    expect(screen.getByText(/próximo inicio de sesión/i)).toBeInTheDocument();
+  });
+
+  it("RF-147 cierra el formulario tras una edición exitosa", async () => {
+    servidor.use(
+      http.patch("*/api/usuarios/:id", async ({ request }) =>
+        HttpResponse.json({ ...ana, ...((await request.json()) as object) }),
+      ),
+    );
+    renderPestana();
+    const usuario = userEvent.setup();
+
+    const filaAna = await fila("Ana Pérez");
+    await usuario.click(within(filaAna).getByRole("button", { name: /editar/i }));
+    await usuario.selectOptions(await screen.findByLabelText(/rol/i), "freelance");
+    await usuario.click(screen.getByRole("button", { name: /guardar/i }));
+
+    await waitFor(() => {
+      expect(screen.queryByLabelText(/rol/i)).not.toBeInTheDocument();
+    });
+  });
+
+  it("RF-147 edita a un usuario con un email que el formulario no acepta y el PATCH solo lleva lo modificado", async () => {
+    let cuerpo: JsonBodyType;
+    servidor.use(
+      http.get("*/api/usuarios", () =>
+        HttpResponse.json({
+          items: [lucia, { ...ana, email: "jose@agencia.c" }],
+          total: 2,
+          pagina: 1,
+          por_pagina: 50,
+        }),
+      ),
+      http.patch("*/api/usuarios/:id", async ({ request }) => {
+        cuerpo = await request.json();
+        return HttpResponse.json({ ...ana, ...(cuerpo as object) });
+      }),
+    );
+    renderPestana();
+    const usuario = userEvent.setup();
+
+    const filaAna = await fila("Ana Pérez");
+    await usuario.click(within(filaAna).getByRole("button", { name: /editar/i }));
+    await usuario.selectOptions(await screen.findByLabelText(/rol/i), "freelance");
+    await usuario.click(screen.getByRole("button", { name: /guardar/i }));
+
+    await waitFor(() => {
+      expect(cuerpo).toEqual({ rol: "freelance" });
+    });
+  });
 });
 
-describe("RF-147 baja de usuario", () => {
-  it("RF-147 pide confirmación y da de baja con POST /api/usuarios/{id}/baja", async () => {
+describe("RF-148 baja de usuario", () => {
+  it("RF-148 pide confirmación y da de baja con POST /api/usuarios/{id}/baja", async () => {
     let ruta = "";
     let llamadas = 0;
     servidor.use(
@@ -351,7 +457,7 @@ describe("RF-147 baja de usuario", () => {
     });
   });
 
-  it("RF-147 no da de baja si se cancela la confirmación", async () => {
+  it("RF-148 no da de baja si se cancela la confirmación", async () => {
     let llamadas = 0;
     servidor.use(
       http.post("*/api/usuarios/:id/baja", () => {
@@ -372,7 +478,7 @@ describe("RF-147 baja de usuario", () => {
     expect(llamadas).toBe(0);
   });
 
-  it("RF-147 avisa si falla la baja", async () => {
+  it("RF-148 avisa si falla la baja", async () => {
     servidor.use(http.post("*/api/usuarios/:id/baja", () => problema(500, "Error interno")));
     renderPestana();
     const usuario = userEvent.setup();
@@ -386,7 +492,7 @@ describe("RF-147 baja de usuario", () => {
     expect(await screen.findByRole("alert")).toHaveTextContent(/no pudimos guardar/i);
   });
 
-  it("RF-147 un usuario dado de baja no ofrece volver a darlo de baja", async () => {
+  it("RF-148 un usuario dado de baja no ofrece volver a darlo de baja", async () => {
     servidor.use(
       http.get("*/api/usuarios", () =>
         HttpResponse.json({

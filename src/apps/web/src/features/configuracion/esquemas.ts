@@ -74,6 +74,12 @@ export const esquemaUsuario = z.object({
 
 export type DatosUsuario = z.infer<typeof esquemaUsuario>;
 
+/** Edición (RF-147): solo se envían rol y acceso a redes; nombre y email se muestran sin validar. */
+export const esquemaEdicionUsuario = esquemaUsuario.extend({
+  nombre: z.string(),
+  email: z.string(),
+});
+
 export const TIPOS_REQUISITO = [
   { valor: "visa", etiqueta: "Visa" },
   { valor: "vacunacion", etiqueta: "Vacunación" },

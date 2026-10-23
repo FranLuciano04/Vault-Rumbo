@@ -3,18 +3,21 @@ import type { Usuario } from "@rumbo/shared";
 import { useCrearUsuario, useEditarUsuario } from "@rumbo/shared/hooks";
 import type { AxiosInstance } from "axios";
 import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { CampoFormulario, CLASE_SELECT } from "../CampoFormulario";
 import { aplicarErroresDelServidor } from "../errores";
-import { type DatosUsuario, ROLES, esquemaUsuario } from "../esquemas";
+import { type DatosUsuario, ROLES, esquemaEdicionUsuario, esquemaUsuario } from "../esquemas";
 
 const CAMPOS = ["nombre", "email", "rol", "acceso_redes"] as const;
 
+const tieneRedesPorRol = (rol: string) => rol === "admin" || rol === "dueno";
+
 /**
- * Alta y edición de un usuario (RF-144, RF-145). Al editar solo cambian el rol y el acceso a redes;
- * los 403 y 409 del servidor (RF-146, RF-149) se muestran como aviso y dejan el formulario abierto.
+ * Alta (RF-144) y edición (RF-147) de un usuario. Al editar solo cambian el rol y el acceso a
+ * redes, y el PATCH lleva únicamente lo que se tocó. Los 403 y 409 del servidor (RF-146, RF-149) se
+ * muestran como aviso y dejan el formulario abierto.
  */
 export function FormularioUsuario({
   cliente,
@@ -29,7 +32,7 @@ export function FormularioUsuario({
   const editar = useEditarUsuario(cliente);
   const [error, setError] = useState<string | null>(null);
   const formulario = useForm<DatosUsuario>({
-    resolver: zodResolver(esquemaUsuario),
+    resolver: zodResolver(usuario ? esquemaEdicionUsuario : esquemaUsuario),
     defaultValues: {
       nombre: usuario?.nombre ?? "",
       email: usuario?.email ?? "",
@@ -37,14 +40,23 @@ export function FormularioUsuario({
       acceso_redes: usuario?.acceso_redes ?? false,
     },
   });
-  const { errors } = formulario.formState;
+  const { errors, dirtyFields } = formulario.formState;
+  const rol = useWatch({ control: formulario.control, name: "rol" });
+  // Admin y dueño tienen acceso a redes siempre, por su rol (DEC-0013).
+  const redesPorRol = tieneRedesPorRol(rol);
 
   async function guardar(datos: DatosUsuario) {
     setError(null);
     try {
       if (usuario) {
-        const { rol, acceso_redes } = datos;
-        await editar.mutateAsync({ usuarioId: usuario.id, datos: { rol, acceso_redes } });
+        const cambios = {
+          ...(dirtyFields.rol && { rol: datos.rol }),
+          ...(dirtyFields.acceso_redes && { acceso_redes: datos.acceso_redes }),
+        };
+        // Sin cambios no hay nada que enviar.
+        if (Object.keys(cambios).length > 0) {
+          await editar.mutateAsync({ usuarioId: usuario.id, datos: cambios });
+        }
       } else {
         await crear.mutateAsync(datos);
       }
@@ -78,7 +90,16 @@ export function FormularioUsuario({
       </CampoFormulario>
       <CampoFormulario id="usuario-rol" etiqueta="Rol" error={errors.rol}>
         {(props) => (
-          <select className={CLASE_SELECT} {...props} {...formulario.register("rol")}>
+          <select
+            className={CLASE_SELECT}
+            {...props}
+            {...formulario.register("rol", {
+              onChange: (evento: { target: { value: string } }) => {
+                if (tieneRedesPorRol(evento.target.value))
+                  formulario.setValue("acceso_redes", true, { shouldDirty: true });
+              },
+            })}
+          >
             {ROLES.map(({ valor, etiqueta }) => (
               <option key={valor} value={valor}>
                 {etiqueta}
@@ -89,19 +110,29 @@ export function FormularioUsuario({
       </CampoFormulario>
       <CampoFormulario id="usuario-redes" etiqueta="Acceso a redes" error={errors.acceso_redes}>
         {(props) => (
-          <input
-            type="checkbox"
-            className="size-4 self-start"
-            {...props}
-            {...formulario.register("acceso_redes")}
-          />
+          <div className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              className="size-4"
+              {...props}
+              disabled={redesPorRol}
+              {...formulario.register("acceso_redes")}
+            />
+            {redesPorRol && <span className="text-sm text-muted-foreground">Por su rol</span>}
+          </div>
         )}
       </CampoFormulario>
-      {!usuario && (
-        <p className="text-sm text-muted-foreground">
-          La persona recibe un mail para elegir su contraseña.
+      {rol === "freelance" && (
+        <p className="rounded-md bg-muted p-3 text-sm">
+          <strong>Freelance: ve solo lo suyo.</strong> Sus clientes, oportunidades, viajes, pagos y
+          comisiones, más el catálogo compartido. Los clientes que cree quedan a su nombre.
         </p>
       )}
+      <p className="text-sm text-muted-foreground">
+        {usuario
+          ? "Los cambios aplican en el próximo inicio de sesión."
+          : "La persona recibe un mail para elegir su contraseña."}
+      </p>
       {error && (
         <p role="alert" className="text-sm font-medium text-destructive">
           {error}

@@ -9,6 +9,10 @@ import { FormularioUsuario } from "./FormularioUsuario";
 
 const etiquetaDeRol = (rol: Usuario["rol"]) => ROLES.find(({ valor }) => valor === rol)?.etiqueta;
 
+/** Admin y dueño acceden a redes siempre, por su rol (DEC-0013); el resto, según su permiso. */
+const accesoARedes = ({ rol, acceso_redes }: Usuario) =>
+  rol === "admin" || rol === "dueno" ? "Por su rol" : acceso_redes ? "Con acceso" : "Sin acceso";
+
 /** Usuarios y roles (CU-25, RF-144 a RF-149), pantalla 31 del prototipo. */
 export function PestanaUsuarios({ cliente }: { cliente: AxiosInstance }) {
   const { data, isError } = useUsuarios(cliente, { por_pagina: 100 });
@@ -108,9 +112,7 @@ export function PestanaUsuarios({ cliente }: { cliente: AxiosInstance }) {
                       <div className="text-muted-foreground">{usuario.email}</div>
                     </td>
                     <td className="py-2">{etiquetaDeRol(usuario.rol)}</td>
-                    <td className="py-2">
-                      {usuario.acceso_redes ? "Con acceso a redes" : "Sin acceso a redes"}
-                    </td>
+                    <td className="py-2">{accesoARedes(usuario)}</td>
                     <td className="py-2">{usuario.activo ? "Activo" : "Inactivo"}</td>
                     <td className="py-2">
                       <div className="flex justify-end gap-2">
