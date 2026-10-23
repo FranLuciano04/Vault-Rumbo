@@ -59,7 +59,7 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Commits:** 39650a7, 2701006, 5f4cf68, 39a6fdc.
 - **Pendiente:**
   - Probar el 9009 en una PC sin el bash de Git.
-  - Sumar el código 5 a la skill `/implementar-ticket`, por `/gestionar-skills`.
+  - ~~Sumar el código 5 a la skill `/implementar-ticket`~~: hecho, `implementar-ticket` 1.2.0 (por `/gestionar-skills`).
   - Un binario que falta dentro de pnpm o uv sigue pasando como rojo. Queda fuera del alcance de T-152.
 
 ## 22/10/26 — Nahuel (Claude Opus 5.5) — T-034: parámetros del negocio en la web

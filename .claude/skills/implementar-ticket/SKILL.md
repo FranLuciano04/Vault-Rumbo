@@ -44,6 +44,9 @@ Los implementadores invocan **a demanda** `debugging-and-error-recovery` (cuando
 3. **Retomar:** si la rama ya tiene commits, mirá `git log main..HEAD --oneline` y seguí desde la fase que falta (`test` → `feat` → `refactor` → `fix` → `tickets: … hecho`).
 
 **Tests en la misma llamada:** `fase` acepta `--test "<comando>"`, que corre desde la raíz del repo, con bash. Pasale el comando que cubre los tests del ticket y la suite afectada (por ejemplo, `--test "cd src/backend && uv run pytest tests/api/test_errores.py"`). En el rojo exige que fallen (código 3 si pasan); en verde, refactor y fix, que pasen (código 4 si fallan). En ambos casos no commitea, y muestra las últimas líneas de la salida, así no hace falta correr los tests aparte.
+- **Código 5:** el comando no arrancó (126, 127 o 9009, por ejemplo un programa fuera del PATH) o no terminó (una señal o una salida demasiado grande). No corrió ningún test, así que no es ni un rojo ni un verde. Arreglá vos el comando, por ejemplo con `corepack pnpm` en lugar de `pnpm`, y volvé a correr; no se lo devuelvas al subagente.
+- Encadená los comandos con `&&`, nunca con `;`: `fase` solo ve el código del último.
+- Un «no encontrado» dentro de pnpm o uv sale con 1 o 2 y pasa como rojo, así que en el rojo mirá siempre el motivo de la falla.
 
 ## 1. 🔴 Rojo (todas las capas menos `infra`)
 - Lanzá `test-writer` con `model: <modelo_tests>`, en el modo de la tabla.
