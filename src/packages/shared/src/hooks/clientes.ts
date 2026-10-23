@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { AxiosInstance } from "axios";
 import type {
   Cliente,
@@ -24,6 +24,8 @@ const claveClientes = ["clientes"] as const;
 export function useClientes(cliente: AxiosInstance, filtros?: FiltrosClientes) {
   return useQuery({
     queryKey: [...claveClientes, "buscar", filtros],
+    // Al paginar o filtrar, la lista anterior sigue visible hasta que llega la nueva.
+    placeholderData: keepPreviousData,
     queryFn: async () =>
       (await cliente.get<PaginaClientes>("/api/clientes", { params: filtros })).data,
   });

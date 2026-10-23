@@ -1,14 +1,16 @@
 import type { SegmentoCliente, UsuarioActual } from "@rumbo/shared";
 import { useClientes, type FiltrosClientes } from "@rumbo/shared/hooks";
 import type { AxiosInstance } from "axios";
+import { Eye, Search, SlidersHorizontal } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useDebouncedValue } from "@/lib/useDebouncedValue";
+import { cn } from "@/lib/utils";
+import { ETIQUETA_SEGMENTO } from "./segmentos";
 import { TablaClientes } from "./TablaClientes";
 
-const SEGMENTOS: SegmentoCliente[] = ["familia", "pareja", "amigos", "individual"];
-
-const capitalizar = (texto: string) => texto.charAt(0).toUpperCase() + texto.slice(1);
+const SEGMENTOS = Object.keys(ETIQUETA_SEGMENTO) as SegmentoCliente[];
 
 /**
  * Listado de clientes (CU-03, pantallas 8 y 39). El freelance solo recibe los suyos, por decisión
@@ -22,9 +24,14 @@ export function PaginaClientes({
   usuario: UsuarioActual;
 }) {
   const esFreelance = usuario.rol === "freelance";
-  const [filtros, setFiltros] = useState<FiltrosClientes>({ pagina: 1, mios: !esFreelance });
+  const [filtros, setFiltros] = useState<FiltrosClientes>(
+    esFreelance ? { pagina: 1 } : { pagina: 1, mios: true },
+  );
+  const [textoBusqueda, setTextoBusqueda] = useState("");
+  const buscar = useDebouncedValue(textoBusqueda.trim() || undefined);
   const [verEtiqueta, setVerEtiqueta] = useState(false);
-  const { data, isPending, isError } = useClientes(cliente, filtros);
+  const [textoEtiqueta, setTextoEtiqueta] = useState("");
+  const { data, isPending, isError, isPlaceholderData } = useClientes(cliente, filtros);
 
   // Todo cambio de filtro vuelve a la primera página.
   const filtrar = (cambios: FiltrosClientes) => {
@@ -34,83 +41,120 @@ export function PaginaClientes({
     setFiltros((f) => ({ ...f, pagina }));
   };
 
+  // La búsqueda ya demorada pasa a los filtros (ajuste de estado durante el render, sin efecto).
+  if (buscar !== filtros.buscar) filtrar({ buscar });
+
+  const aplicarEtiqueta = () => {
+    const etiqueta = textoEtiqueta.trim() || undefined;
+    if (etiqueta !== filtros.etiqueta) filtrar({ etiqueta });
+  };
+  const alternarEtiqueta = () => {
+    if (verEtiqueta) {
+      setTextoEtiqueta("");
+      if (filtros.etiqueta) filtrar({ etiqueta: undefined });
+    }
+    setVerEtiqueta(!verEtiqueta);
+  };
+
   const pagina = data?.pagina ?? 1;
   const ultima = data ? Math.max(1, Math.ceil(data.total / data.por_pagina)) : 1;
 
   return (
     <div className="flex flex-col gap-4">
-      <h1 className="text-2xl font-semibold">Clientes</h1>
+      <header className="flex items-end justify-between gap-4">
+        <div>
+          <p className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
+            Comercial
+          </p>
+          <h1 className="text-3xl font-semibold">Clientes</h1>
+        </div>
+        <div className="relative w-80">
+          <Search
+            aria-hidden="true"
+            className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"
+          />
+          <Input
+            aria-label="Buscar por nombre, teléfono o email"
+            placeholder="Buscar por nombre, teléfono o email"
+            className="pl-9"
+            value={textoBusqueda}
+            onChange={(e) => {
+              setTextoBusqueda(e.target.value);
+            }}
+          />
+        </div>
+      </header>
 
-      {esFreelance ? (
+      {esFreelance && (
         <p
           role="note"
-          className="rounded-md bg-secondary px-3 py-2 text-sm text-secondary-foreground"
+          className="flex items-center gap-2 rounded-xl bg-amber-50 px-4 py-3 text-sm text-amber-900"
         >
-          Estás viendo solo tus clientes. Para ver el resto, pedile acceso a la dueña.
+          <Eye aria-hidden="true" className="size-4 shrink-0" />
+          Estás viendo solo tus clientes: los que tenés como asesor asignado. Los clientes que das
+          de alta quedan a tu nombre.
         </p>
-      ) : (
-        <div className="flex gap-2">
-          {[
-            { etiqueta: "Mis clientes", mios: true },
-            { etiqueta: "Toda la agencia", mios: false },
-          ].map(({ etiqueta, mios }) => (
-            <Button
-              key={etiqueta}
-              variant={filtros.mios === mios ? "default" : "outline"}
-              aria-pressed={filtros.mios === mios}
-              onClick={() => {
-                filtrar({ mios });
-              }}
-            >
-              {etiqueta}
-            </Button>
-          ))}
-        </div>
       )}
 
-      <Input
-        aria-label="Buscar por nombre, teléfono o email"
-        placeholder="Buscar por nombre, teléfono o email"
-        value={filtros.buscar ?? ""}
-        onChange={(e) => {
-          filtrar({ buscar: e.target.value || undefined });
-        }}
-      />
-
-      <div className="flex flex-wrap items-center gap-2">
+      <div className="flex flex-wrap items-center gap-3">
+        {!esFreelance && (
+          <div className="flex rounded-lg border bg-card p-1">
+            {[
+              { etiqueta: "Mis clientes", mios: true },
+              { etiqueta: "Toda la agencia", mios: false },
+            ].map(({ etiqueta, mios }) => (
+              <Button
+                key={etiqueta}
+                variant={filtros.mios === mios ? "default" : "ghost"}
+                aria-pressed={filtros.mios === mios}
+                onClick={() => {
+                  filtrar({ mios });
+                }}
+              >
+                {etiqueta}
+              </Button>
+            ))}
+          </div>
+        )}
         {SEGMENTOS.map((segmento) => (
           <Button
             key={segmento}
             size="sm"
+            className="rounded-full"
             variant={filtros.segmento === segmento ? "default" : "outline"}
             aria-pressed={filtros.segmento === segmento}
             onClick={() => {
               filtrar({ segmento: filtros.segmento === segmento ? undefined : segmento });
             }}
           >
-            {capitalizar(segmento)}
+            {ETIQUETA_SEGMENTO[segmento]}
           </Button>
         ))}
-        <Button
-          size="sm"
-          variant="outline"
-          onClick={() => {
-            setVerEtiqueta((v) => !v);
-          }}
-        >
-          Etiquetas
-        </Button>
-        {verEtiqueta && (
-          <Input
-            aria-label="Filtrar por etiqueta"
-            placeholder="Etiqueta"
-            className="h-8 w-48"
-            value={filtros.etiqueta ?? ""}
-            onChange={(e) => {
-              filtrar({ etiqueta: e.target.value || undefined });
-            }}
-          />
-        )}
+        <div className="ml-auto flex items-center gap-2">
+          {verEtiqueta && (
+            <Input
+              aria-label="Filtrar por etiqueta"
+              placeholder="Etiqueta"
+              className="h-9 w-48"
+              value={textoEtiqueta}
+              onChange={(e) => {
+                setTextoEtiqueta(e.target.value);
+              }}
+              onBlur={aplicarEtiqueta}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") aplicarEtiqueta();
+              }}
+            />
+          )}
+          <Button
+            variant={filtros.etiqueta ? "default" : "outline"}
+            aria-expanded={verEtiqueta}
+            onClick={alternarEtiqueta}
+          >
+            <SlidersHorizontal aria-hidden="true" />
+            Etiquetas
+          </Button>
+        </div>
       </div>
 
       {isPending && <p role="status">Cargando clientes…</p>}
@@ -119,16 +163,17 @@ export function PaginaClientes({
       )}
       {data && data.items.length === 0 && <p>No se encontraron clientes.</p>}
       {data && data.items.length > 0 && (
-        <>
-          <TablaClientes clientes={data.items} />
-          <div className="flex items-center justify-between text-sm text-muted-foreground">
+        <div className="rounded-2xl border bg-card p-2">
+          <div className={cn("transition-opacity", isPlaceholderData && "opacity-60")}>
+            <TablaClientes clientes={data.items} usuario={usuario} />
+          </div>
+          <div className="flex items-center justify-between px-3 py-4 text-sm text-muted-foreground">
             <span>
               Mostrando {data.items.length} de {data.total} clientes
             </span>
             <div className="flex gap-2">
               <Button
                 variant="outline"
-                size="sm"
                 disabled={pagina <= 1}
                 onClick={() => {
                   irAPagina(pagina - 1);
@@ -138,8 +183,7 @@ export function PaginaClientes({
               </Button>
               <Button
                 variant="outline"
-                size="sm"
-                disabled={pagina >= ultima}
+                disabled={pagina >= ultima || isPlaceholderData}
                 onClick={() => {
                   irAPagina(pagina + 1);
                 }}
@@ -148,7 +192,7 @@ export function PaginaClientes({
               </Button>
             </div>
           </div>
-        </>
+        </div>
       )}
     </div>
   );

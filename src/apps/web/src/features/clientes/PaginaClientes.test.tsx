@@ -131,7 +131,10 @@ describe("RF-005 búsqueda de clientes", () => {
     await screen.findByText("Camila Benítez");
 
     await usuario.click(screen.getByRole("button", { name: /etiquetas/i }));
-    await usuario.type(screen.getByRole("textbox", { name: /filtrar por etiqueta/i }), "Brasil");
+    await usuario.type(
+      screen.getByRole("textbox", { name: /filtrar por etiqueta/i }),
+      "Brasil{Enter}",
+    );
 
     await waitFor(() => {
       expect(screen.queryByText("Camila Benítez")).not.toBeInTheDocument();
@@ -212,6 +215,88 @@ describe("RF-005 búsqueda de clientes", () => {
   });
 });
 
+describe("RF-005 estados de la lista", () => {
+  it("RF-005 al paginar, la tabla sigue en pantalla mientras llega la página siguiente", async () => {
+    const pedidos: URLSearchParams[] = [];
+    servidor.use(
+      http.get("*/api/clientes", async ({ request }) => {
+        const params = new URL(request.url).searchParams;
+        pedidos.push(params);
+        if (params.get("pagina") === "2") await delay("infinite");
+        return HttpResponse.json({
+          items: clientesMock,
+          total: 128,
+          pagina: 1,
+          por_pagina: 20,
+        });
+      }),
+    );
+    renderPagina("admin");
+    const usuario = userEvent.setup();
+    await screen.findByText("Camila Benítez");
+
+    await usuario.click(screen.getByRole("button", { name: /siguiente/i }));
+    await waitFor(() => {
+      expect(pedidos.some((p) => p.get("pagina") === "2")).toBe(true);
+    });
+
+    expect(screen.getByText("Camila Benítez")).toBeInTheDocument();
+    expect(screen.queryByRole("status")).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /siguiente/i })).toBeDisabled();
+  });
+
+  it("RF-005 muestra un error cuando la API falla", async () => {
+    servidor.use(http.get("*/api/clientes", () => new HttpResponse(null, { status: 500 })));
+    renderPagina("admin");
+
+    expect(await screen.findByRole("alert")).toHaveTextContent(/no pudimos cargar los clientes/i);
+  });
+
+  it("RF-005 la búsqueda espera a que se deje de tipear antes de pedir", async () => {
+    const pedidos: URLSearchParams[] = [];
+    servidor.use(paginaFija(3, pedidos));
+    renderPagina("admin");
+    const usuario = userEvent.setup();
+    await screen.findByText("Camila Benítez");
+
+    await usuario.type(await buscador(), "sosa");
+
+    await waitFor(() => {
+      expect(pedidos.at(-1)?.get("buscar")).toBe("sosa");
+    });
+    expect(pedidos.map((p) => p.get("buscar")).filter(Boolean)).toEqual(["sosa"]);
+  });
+
+  it("RF-005 ocultar el campo de etiqueta quita el filtro", async () => {
+    const pedidos: URLSearchParams[] = [];
+    servidor.use(paginaFija(3, pedidos));
+    renderPagina("admin");
+    const usuario = userEvent.setup();
+    await screen.findByText("Camila Benítez");
+
+    const boton = screen.getByRole("button", { name: /etiquetas/i });
+    expect(boton).toHaveAttribute("aria-expanded", "false");
+    await usuario.click(boton);
+    expect(boton).toHaveAttribute("aria-expanded", "true");
+    await usuario.type(
+      screen.getByRole("textbox", { name: /filtrar por etiqueta/i }),
+      "Brasil{Enter}",
+    );
+    await waitFor(() => {
+      expect(pedidos.at(-1)?.get("etiqueta")).toBe("Brasil");
+    });
+
+    await usuario.click(boton);
+
+    await waitFor(() => {
+      expect(pedidos.at(-1)?.get("etiqueta")).toBeNull();
+    });
+    expect(
+      screen.queryByRole("textbox", { name: /filtrar por etiqueta/i }),
+    ).not.toBeInTheDocument();
+  });
+});
+
 describe("RF-009 vista personal", () => {
   it("RF-009 el empleado arranca en «Mis clientes» y ve solo los asignados a él", async () => {
     renderPagina("empleado");
@@ -254,7 +339,11 @@ describe("RF-009 vista personal", () => {
   it("RF-009 el freelance ve el aviso de que solo ve sus clientes (pantalla 39)", async () => {
     renderPagina("freelance");
 
-    expect(await screen.findByText(/estás viendo solo tus clientes/i)).toBeInTheDocument();
+    expect(
+      await screen.findByText(
+        "Estás viendo solo tus clientes: los que tenés como asesor asignado. Los clientes que das de alta quedan a tu nombre.",
+      ),
+    ).toBeInTheDocument();
   });
 
   it.each(["empleado", "admin", "dueno"] as RolMock[])(
@@ -266,4 +355,14 @@ describe("RF-009 vista personal", () => {
       expect(screen.queryByText(/estás viendo solo tus clientes/i)).not.toBeInTheDocument();
     },
   );
+
+  it("RF-009 el freelance no manda el parámetro mios (lo decide la API)", async () => {
+    const pedidos: URLSearchParams[] = [];
+    servidor.use(paginaFija(3, pedidos));
+    renderPagina("freelance");
+    await screen.findByRole("table");
+
+    expect(pedidos.length).toBeGreaterThan(0);
+    expect(pedidos.every((p) => !p.has("mios"))).toBe(true);
+  });
 });
