@@ -2,7 +2,7 @@
   "extends": ["expo/tsconfig.base", "../../tsconfig.base.json"],
   "compilerOptions": {
     "jsx": "react-jsx",
-    "types": ["jest", "expo-router/build/ts-declarations/expect"]
+    "types": ["jest", "expo-router/build/ts-declarations/expect", "expo/types", "node"]
   },
   "include": ["**/*.ts", "**/*.tsx", "nativewind-env.d.ts"]
 }

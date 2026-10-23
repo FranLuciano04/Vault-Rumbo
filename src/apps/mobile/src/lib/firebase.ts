@@ -15,19 +15,19 @@ import {
 
 /**
  * Único punto de contacto con Firebase Authentication en la app (DEC-0016): Firebase autentica y
- * la autorización queda en la API. La config pública sale de las `EXPO_PUBLIC_*` (ver `.env.example`).
+ * la autorización queda en la API. La config pública sale de las `EXPO_PUBLIC_*` (ver `.env.example`),
+ * siempre con acceso literal `process.env.EXPO_PUBLIC_…`: es lo único que Expo incorpora al bundle.
  */
 let instancia: Auth | undefined;
-const entorno = process.env as Record<string, string | undefined>;
 
 // Se inicializa al primer uso: así importar este módulo (por ejemplo, en los tests) no toca Firebase.
 function auth(): Auth {
   if (instancia) return instancia;
   const app = initializeApp({
-    apiKey: entorno.EXPO_PUBLIC_FIREBASE_API_KEY,
-    authDomain: entorno.EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN,
-    projectId: entorno.EXPO_PUBLIC_FIREBASE_PROJECT_ID,
-    appId: entorno.EXPO_PUBLIC_FIREBASE_APP_ID,
+    apiKey: process.env.EXPO_PUBLIC_FIREBASE_API_KEY,
+    authDomain: process.env.EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN,
+    projectId: process.env.EXPO_PUBLIC_FIREBASE_PROJECT_ID,
+    appId: process.env.EXPO_PUBLIC_FIREBASE_APP_ID,
   });
   // La sesión se guarda en el teléfono para no pedir el login cada vez que se abre la app.
   instancia = initializeAuth(app, {
@@ -35,9 +35,9 @@ function auth(): Auth {
   });
   // Los mails de Firebase (recuperar la contraseña) salen en español.
   instancia.languageCode = "es";
-  const emulador = entorno.EXPO_PUBLIC_FIREBASE_AUTH_EMULATOR_URL;
+  const emulador = process.env.EXPO_PUBLIC_FIREBASE_AUTH_EMULATOR_URL;
   if (emulador) connectAuthEmulator(instancia, emulador, { disableWarnings: true });
-  GoogleSignin.configure({ webClientId: entorno.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID });
+  GoogleSignin.configure({ webClientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID });
   return instancia;
 }
 
