@@ -46,6 +46,24 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
+## 23/10/26 — Francisco (Claude Opus 5.5) — T-044: listado de clientes en la web, y decisiones de CU-25
+- **Hecho:** T-044 (capa web, riesgo normal). Es la **primera pantalla de clientes de la web**.
+  - Incluye tabla, búsqueda con debounce, filtros por segmento y etiqueta, la vista «Mis clientes / Toda la agencia», paginación sin parpadeo (`keepPreviousData` en `useClientes`) y estados de carga, vacío y error.
+  - El layout sigue las pantallas 8 y 39.
+  - El freelance no ve el selector y ve el aviso con el texto del prototipo.
+  - La review (Opus) tuvo dos rondas. La primera pidió cambios, con 5 importantes y 4 menores, y la segunda dejó 2 menores. Todo quedó arreglado.
+  - El PR [#47](https://github.com/FranLuciano04/Vault-Rumbo/pull/47) se mergeó con el CI en verde. Pasan 146 tests de web.
+- **Decisiones de Francisco sobre CU-25:**
+  - Solo la dueña crea o asigna el rol `dueño`. Queda en T-028.
+  - Una cuenta de Firebase sin `Usuario` se reutiliza al reintentar el alta. Queda en T-153, que ya se puede tomar.
+  - El PR #45 (T-027) lo **mergeó Francisco**.
+  - La prueba del mail real le queda a Paloma, que tiene un aviso con los pasos.
+- **Commits:** c0ae9f1, 1a39860, d776d79, a96e64b y 27772a5.
+- **Pendiente para la sync:**
+  - En la pantalla 39 el freelance ve «Mis clientes» fijo, pero el ticket lo excluye: ¿cuál vale?
+  - Las columnas Asesor (de otros), Último viaje y Oportunidades necesitan ampliar el contrato de clientes.
+  - El filtro de etiquetas se resolvió como texto con una sola etiqueta.
+
 ## 23/10/26 — Francisco (Claude Opus 5.5) — T-149: Instagram opcional del cliente
 - **Hecho:** T-149 (backend, contrato y shared; riesgo normal; DEC-0017).
   - Columna `cliente.instagram` (migración 0003) y tipo `Instagram`: quita el `@` inicial y los espacios ASCII, pasa a minúsculas, deja en `null` lo que queda vacío y valida con `^[a-z0-9._]{1,30}$`.
