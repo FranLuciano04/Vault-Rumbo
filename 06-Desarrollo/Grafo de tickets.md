@@ -16,7 +16,7 @@ tags:: #tipo/referencia
 |---|---|---|---|---|---|---|---|
 | M0 — Fundaciones | 34 | 33 | 1 | 0 | 0 | 0 | 🛠️ en curso |
 | M1 — Usuarios y configuración | 18 | 10 | 0 | 6 | 2 | 0 | 🛠️ en curso |
-| M2 — Clientes | 15 | 4 | 1 | 3 | 7 | 0 | 🛠️ en curso |
+| M2 — Clientes | 15 | 5 | 0 | 7 | 3 | 0 | 🛠️ en curso |
 | M3 — Alertas | 11 | 0 | 0 | 2 | 9 | 0 | 🛠️ en curso |
 | M4 — Oportunidades y cotizaciones | 14 | 0 | 0 | 1 | 13 | 0 | 🛠️ en curso |
 | M5 — Hoteles y reseñas | 11 | 0 | 0 | 1 | 10 | 0 | 🛠️ en curso |
@@ -91,9 +91,9 @@ flowchart LR
   subgraph M2["M2 — Clientes"]
     T039["T-039 · Publicar el contrato de clientes<br/><small>contrato</small>"]:::hecho
     T040["T-040 · Registrar clientes detectando duplicados<br/><small>backend</small>"]:::hecho
-    T041["T-041 · Buscar clientes según la visibilidad del rol<br/><small>backend · ⚠️ riesgo alto</small><br/>👤 FranLucianoo"]:::tomado
-    T042["T-042 · Editar la ficha del cliente<br/><small>backend</small>"]:::esperando
-    T043["T-043 · Mostrar el historial del cliente<br/><small>backend</small>"]:::esperando
+    T041["T-041 · Buscar clientes según la visibilidad del rol<br/><small>backend · ⚠️ riesgo alto</small>"]:::hecho
+    T042["T-042 · Editar la ficha del cliente<br/><small>backend</small>"]:::disponible
+    T043["T-043 · Mostrar el historial del cliente<br/><small>backend</small>"]:::disponible
     T044["T-044 · Listar clientes en la web<br/><small>web</small>"]:::hecho
     T045["T-045 · Registrar un cliente en la web<br/><small>web</small>"]:::disponible
     T046["T-046 · Mostrar la ficha editable del cliente en la web<br/><small>web</small>"]:::disponible
@@ -101,8 +101,8 @@ flowchart LR
     T048["T-048 · Registrar un cliente desde la app mobile<br/><small>mobile</small>"]:::esperando
     T049["T-049 · Probar de punta a punta la gestión de clientes<br/><small>e2e</small>"]:::esperando
     T149["T-149 · Guardar el usuario de Instagram del cliente<br/><small>backend</small>"]:::hecho
-    T155["T-155 · Resumir asesor, último viaje y oportunidades en el listado de clientes<br/><small>backend</small>"]:::esperando
-    T156["T-156 · Listar las etiquetas de clientes en uso<br/><small>backend</small>"]:::esperando
+    T155["T-155 · Resumir asesor, último viaje y oportunidades en el listado de clientes<br/><small>backend</small>"]:::disponible
+    T156["T-156 · Listar las etiquetas de clientes en uso<br/><small>backend</small>"]:::disponible
     T157["T-157 · Completar el listado de clientes en la web<br/><small>web</small>"]:::esperando
   end
   subgraph M3["M3 — Alertas"]
