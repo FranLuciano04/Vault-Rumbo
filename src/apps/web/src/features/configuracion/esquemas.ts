@@ -69,7 +69,7 @@ export const esquemaRequisito = z.object({
     .trim()
     .min(1, "Ingresá el nombre.")
     .max(120, "Usá como máximo 120 caracteres."),
-  tipo: z.enum(["visa", "vacunacion", "documentacion", "seguro", "formulario", "otro"]),
+  tipo: z.enum(TIPOS_REQUISITO.map(({ valor }) => valor)),
   obligatorio: z.boolean(),
   descripcion: z.string().trim(),
   anticipacion_dias: entero(0, "Ingresá un número entero de 0 o más."),

@@ -12,7 +12,7 @@ import { type DatosDestino, esquemaDestino } from "../esquemas";
 
 const CAMPOS = ["nombre", "pais", "region", "notas"] as const;
 
-/** Alta y edición de un destino (RF-089); el 409 por nombre y país repetidos (RF-090) deja el formulario abierto. */
+/** Alta y edición de un destino (RF-089); el 409 por nombre repetido (RF-090) deja el formulario abierto. */
 export function FormularioDestino({
   cliente,
   destino,

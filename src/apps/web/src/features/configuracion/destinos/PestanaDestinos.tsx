@@ -3,10 +3,11 @@ import { useDarDeBajaDestino, useDestinos, useReactivarDestino } from "@rumbo/sh
 import type { AxiosInstance } from "axios";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { mensajeDeError } from "../errores";
 import { FormularioDestino } from "./FormularioDestino";
 import { RequisitosDestino } from "./RequisitosDestino";
 
-/** Destinos y sus requisitos (CU-15, RF-089, RF-090, RF-086), pantalla 51 del prototipo. */
+/** Destinos y sus requisitos (CU-15, RF-089, RF-090, RF-086), pantalla 32 del prototipo. */
 export function PestanaDestinos({ cliente }: { cliente: AxiosInstance }) {
   const [inactivos, setInactivos] = useState(false);
   const { data, isError } = useDestinos(cliente, { activo: !inactivos, por_pagina: 100 });
@@ -19,6 +20,14 @@ export function PestanaDestinos({ cliente }: { cliente: AxiosInstance }) {
   function abrirFormulario(valor: Destino | "nuevo") {
     setConRequisitos(null);
     setFormulario(valor);
+  }
+
+  function darDeBajaDestino(destino: Destino) {
+    darDeBaja.mutate(destino.id, {
+      onSuccess: () => {
+        setConRequisitos((abierto) => (abierto?.id === destino.id ? null : abierto));
+      },
+    });
   }
 
   function abrirRequisitos(destino: Destino) {
@@ -38,6 +47,7 @@ export function PestanaDestinos({ cliente }: { cliente: AxiosInstance }) {
               checked={inactivos}
               onChange={(evento) => {
                 setInactivos(evento.target.checked);
+                setConRequisitos(null);
               }}
             />
             Ver inactivos
@@ -61,6 +71,11 @@ export function PestanaDestinos({ cliente }: { cliente: AxiosInstance }) {
           }}
         />
       )}
+      {(darDeBaja.isError || reactivar.isError) && (
+        <p role="alert" className="text-sm font-medium text-destructive">
+          {mensajeDeError(darDeBaja.error ?? reactivar.error)}
+        </p>
+      )}
       {isError ? (
         <p role="alert" className="text-sm font-medium text-destructive">
           No pudimos cargar los destinos. Probá de nuevo en unos minutos.
@@ -70,70 +85,79 @@ export function PestanaDestinos({ cliente }: { cliente: AxiosInstance }) {
         (data.items.length === 0 ? (
           <p className="text-sm text-muted-foreground">No hay destinos para mostrar.</p>
         ) : (
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b text-left text-muted-foreground">
-                <th className="py-2 font-medium">Destino</th>
-                <th className="py-2 font-medium">País</th>
-                <th className="py-2 font-medium">Región</th>
-                <th className="py-2 font-medium">
-                  <span className="sr-only">Acciones</span>
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {data.items.map((destino) => (
-                <tr key={destino.id} className="border-b">
-                  <td className="py-2">{destino.nombre}</td>
-                  <td className="py-2">{destino.pais}</td>
-                  <td className="py-2">{destino.region}</td>
-                  <td className="flex justify-end gap-2 py-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => {
-                        abrirRequisitos(destino);
-                      }}
-                    >
-                      Requisitos
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => {
-                        abrirFormulario(destino);
-                      }}
-                    >
-                      Editar
-                    </Button>
-                    {destino.activo ? (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        disabled={darDeBaja.isPending}
-                        onClick={() => {
-                          darDeBaja.mutate(destino.id);
-                        }}
-                      >
-                        Dar de baja
-                      </Button>
-                    ) : (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        disabled={reactivar.isPending}
-                        onClick={() => {
-                          reactivar.mutate(destino.id);
-                        }}
-                      >
-                        Reactivar
-                      </Button>
-                    )}
-                  </td>
+          <>
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b text-left text-muted-foreground">
+                  <th className="py-2 font-medium">Destino</th>
+                  <th className="py-2 font-medium">País</th>
+                  <th className="py-2 font-medium">Región</th>
+                  <th className="py-2 font-medium">
+                    <span className="sr-only">Acciones</span>
+                  </th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {data.items.map((destino) => (
+                  <tr key={destino.id} className="border-b">
+                    <td className="py-2">{destino.nombre}</td>
+                    <td className="py-2">{destino.pais}</td>
+                    <td className="py-2">{destino.region}</td>
+                    <td className="py-2">
+                      <div className="flex justify-end gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            abrirRequisitos(destino);
+                          }}
+                        >
+                          Requisitos
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            abrirFormulario(destino);
+                          }}
+                        >
+                          Editar
+                        </Button>
+                        {destino.activo ? (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            disabled={darDeBaja.isPending}
+                            onClick={() => {
+                              darDeBajaDestino(destino);
+                            }}
+                          >
+                            Dar de baja
+                          </Button>
+                        ) : (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            disabled={reactivar.isPending}
+                            onClick={() => {
+                              reactivar.mutate(destino.id);
+                            }}
+                          >
+                            Reactivar
+                          </Button>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            {data.total > data.items.length && (
+              <p role="status" className="text-sm text-muted-foreground">
+                Mostramos {data.items.length} de {data.total} destinos.
+              </p>
+            )}
+          </>
         ))
       )}
       {conRequisitos && <RequisitosDestino cliente={cliente} destino={conRequisitos} />}

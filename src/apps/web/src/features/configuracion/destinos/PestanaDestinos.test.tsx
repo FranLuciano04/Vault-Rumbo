@@ -177,6 +177,33 @@ describe("RF-089 destinos", () => {
     });
   });
 
+  it("RF-089 avisa si falla la baja del destino", async () => {
+    servidor.use(http.post("*/api/destinos/:id/baja", () => problema(500, "Error interno")));
+    renderPestana();
+    const usuario = userEvent.setup();
+
+    const bariloche = await fila("Bariloche");
+    await usuario.click(within(bariloche).getByRole("button", { name: /dar de baja/i }));
+
+    expect(await screen.findByRole("alert")).toHaveTextContent(/no pudimos guardar/i);
+  });
+
+  it("RF-089 avisa si hay más destinos que los mostrados", async () => {
+    servidor.use(
+      http.get("*/api/destinos", () =>
+        HttpResponse.json({
+          items: [destinosMock[0], destinosMock[1]],
+          total: 150,
+          pagina: 1,
+          por_pagina: 100,
+        }),
+      ),
+    );
+    renderPestana();
+
+    expect(await screen.findByText(/mostramos 2 de 150 destinos/i)).toBeInTheDocument();
+  });
+
   it("RF-089 reactiva un destino inactivo con POST /reactivar", async () => {
     let ruta = "";
     servidor.use(
@@ -204,7 +231,7 @@ describe("RF-090 duplicado", () => {
   it("RF-090 muestra el 409 de nombre duplicado en el formulario y lo deja abierto", async () => {
     servidor.use(
       http.post("*/api/destinos", () =>
-        problema(409, "Conflicto", { detail: "Ya existe un destino con ese nombre y país." }),
+        problema(409, "Conflicto", { detail: "Ya existe un destino llamado «Bariloche»." }),
       ),
     );
     renderPestana();
@@ -351,8 +378,10 @@ describe("RF-086 requisitos", () => {
 
   it("RF-086 quita un requisito con POST /api/requisitos-destino/{id}/baja", async () => {
     let ruta = "";
+    let llamadas = 0;
     servidor.use(
       http.post("*/api/requisitos-destino/:id/baja", ({ request }) => {
+        llamadas += 1;
         ruta = new URL(request.url).pathname;
         return HttpResponse.json({ ...requisitosMock[0], activo: false });
       }),
@@ -362,12 +391,79 @@ describe("RF-086 requisitos", () => {
 
     const pasaporte = await fila("Pasaporte vigente");
     await usuario.click(within(pasaporte).getByRole("button", { name: /quitar/i }));
-    const confirmar = screen.queryByRole("button", { name: /confirmar/i });
-    if (confirmar) await usuario.click(confirmar);
+    const dialogo = await screen.findByRole("alertdialog");
+    expect(dialogo).toHaveTextContent(/baja lógica/i);
+    expect(llamadas).toBe(0);
+
+    await usuario.click(within(dialogo).getByRole("button", { name: /confirmar/i }));
 
     await waitFor(() => {
       expect(ruta).toBe(`/api/requisitos-destino/${requisitosMock[0].id}/baja`);
     });
+  });
+
+  it("RF-086 no quita el requisito si se cancela la confirmación", async () => {
+    let llamadas = 0;
+    servidor.use(
+      http.post("*/api/requisitos-destino/:id/baja", () => {
+        llamadas += 1;
+        return HttpResponse.json({ ...requisitosMock[0], activo: false });
+      }),
+    );
+    renderPestana();
+    const usuario = await abrirRequisitos();
+
+    const pasaporte = await fila("Pasaporte vigente");
+    await usuario.click(within(pasaporte).getByRole("button", { name: /quitar/i }));
+    await usuario.click(
+      within(await screen.findByRole("alertdialog")).getByRole("button", { name: /cancelar/i }),
+    );
+
+    expect(screen.queryByRole("alertdialog")).not.toBeInTheDocument();
+    expect(llamadas).toBe(0);
+  });
+
+  it("RF-086 avisa si falla la baja del requisito", async () => {
+    servidor.use(
+      http.post("*/api/requisitos-destino/:id/baja", () => problema(500, "Error interno")),
+    );
+    renderPestana();
+    const usuario = await abrirRequisitos();
+
+    const pasaporte = await fila("Pasaporte vigente");
+    await usuario.click(within(pasaporte).getByRole("button", { name: /quitar/i }));
+    await usuario.click(
+      within(await screen.findByRole("alertdialog")).getByRole("button", { name: /confirmar/i }),
+    );
+
+    expect(await screen.findByRole("alert")).toHaveTextContent(/no pudimos guardar/i);
+  });
+
+  it("RF-086 cierra los requisitos al dar de baja ese destino", async () => {
+    servidor.use(
+      http.post("*/api/destinos/:id/baja", () => HttpResponse.json({ ...destinosMock[1] })),
+    );
+    renderPestana();
+    const usuario = await abrirRequisitos();
+
+    const cancun = await fila("Cancún");
+    await usuario.click(within(cancun).getByRole("button", { name: /dar de baja/i }));
+
+    await waitFor(() => {
+      expect(screen.queryByText("Pasaporte vigente")).not.toBeInTheDocument();
+    });
+  });
+
+  it("RF-086 avisa si hay más requisitos que los mostrados", async () => {
+    servidor.use(
+      http.get("*/api/destinos/:id/requisitos", () =>
+        HttpResponse.json({ items: requisitosMock, total: 25, pagina: 1, por_pagina: 2 }),
+      ),
+    );
+    renderPestana();
+    await abrirRequisitos();
+
+    expect(screen.getByText(/mostramos 2 de 25 requisitos/i)).toBeInTheDocument();
   });
 
   it("RF-086 muestra el 422 del servidor en el campo del requisito", async () => {
