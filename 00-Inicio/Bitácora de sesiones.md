@@ -25,16 +25,12 @@ La **persona** de cada sesión es quien la corre, identificada por su identidad 
 > Claude los lee al identificar a la persona (paso 1 de `CLAUDE.md`) y se los cuenta **apenas la saluda**, antes de cualquier otra tarea. Cuando la persona confirme que lo leyó o que lo hizo, **Claude borra su fila** en esa misma sesión, con un commit. Cuando no quede ninguna fila de alguien, se borra también su sección.
 
 ### Paloma (`palomap2003`) — probar el mail real de T-027
-- **23/10, de Francisco: probar el envío real del mail del alta de usuarios** (T-027, ya mergeado). Te toca a vos porque sos la dueña de `rumbo-9ff17` y el ticket es tuyo.
-  1. **Permiso:** en Google Cloud → IAM, darle a la cuenta de servicio `firebase-adminsdk-…` el rol **«Administrador de Firebase Authentication»**, y dejarle solo ese (`src/infra/firebase.md` §2). Es el permiso que incluye `firebaseauth.users.sendEmail`.
-  2. **Backend contra el proyecto real:** en `src/backend/.env`, `FIREBASE_PROJECT_ID=rumbo-9ff17` y `GOOGLE_APPLICATION_CREDENTIALS`, sin `FIREBASE_AUTH_EMULATOR_HOST`.
-  3. **Web contra el proyecto real:** en `src/apps/web/.env`, las `VITE_FIREBASE_*` de la consola, sin `VITE_FIREBASE_AUTH_EMULATOR_URL`.
-  4. **Tu usuario dueña en el proyecto real:** `datos-iniciales` con tu email.
-  5. **La prueba:** dar de alta un usuario con otro email tuyo y verificar que llegue el mail para elegir la contraseña. Después, que esa persona pueda entrar.
+- **23/10, de Francisco: probar el envío real del mail del alta de usuarios** (T-027, ya mergeado). ✅ **Hecho el 23/10:** el mail llegó, se eligió la contraseña con el link y Firebase aceptó el login.
+  - **Falta:** comprobar que esa persona **entra a Rumbo con la API levantada**. La prueba del 23/10 se hizo con `pnpm dev` y sin API, así que la web aceptó un `/auth/yo` falso (ver la falla 1 en [[Estado del proyecto#Pendientes técnicos]]). Para probarlo: compose completo y `datos-iniciales` con tu email; después, entrar con la cuenta nueva y abrir Clientes.
 
 ### Francisco (`FranLucianoo`) y Nahuel (`Nahuel Viniegra`) — T-027
 - **22/10, de Paloma: PR [#45](https://github.com/FranLuciano04/Vault-Rumbo/pull/45)** (T-027, alta de usuarios con su cuenta de Firebase, ⚠️ riesgo alto). ✅ **Francisco lo mergeó el 23/10.** Quedan:
-  - **Falta probar a mano** el envío real del mail (`accounts:sendOobCode`) con el emulador y con `rumbo-9ff17`. La cuenta de servicio necesita el permiso `firebaseauth.users.sendEmail`.
+  - ✅ **Envío real del mail probado** con `rumbo-9ff17` el 23/10 (Paloma). Falta ver que la cuenta nueva entre a Rumbo con la API levantada, y la prueba con el emulador.
   - **Para la sync:** ~~si un `admin` puede crear una `dueno`~~ ✅ decidido el 23/10 por Francisco: **no**, solo la dueña crea o asigna `dueño` (CU-25; va en T-028), y ~~**T-153**~~ ✅ decidido el 23/10 por Francisco: se reutiliza la cuenta de Firebase sin `Usuario` (CU-25 A1).
 
 ## Formato
