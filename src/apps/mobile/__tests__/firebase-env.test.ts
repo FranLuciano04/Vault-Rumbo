@@ -1,16 +1,18 @@
+/// <reference types="node" />
 import { readFileSync } from "fs";
-import { dirname, resolve } from "path";
+import { createRequire } from "module";
+import { resolve } from "path";
 
 // `@babel/core` y `babel-preset-expo` no son dependencias directas de mobile: se resuelven desde
 // `jest-expo`, que las trae, igual que lo hace Metro con la app.
-const desdeJestExpo = dirname(require.resolve("jest-expo/package.json"));
-const babel = require(require.resolve("@babel/core", { paths: [desdeJestExpo] })) as {
+const desdeJestExpo = createRequire(require.resolve("jest-expo/package.json"));
+const babel = desdeJestExpo("@babel/core") as {
   transformSync: (
     code: string,
     opts: Record<string, unknown>,
   ) => { code: string; metadata: { publicEnvVars?: string[] } } | null;
 };
-const presetExpo = require.resolve("babel-preset-expo", { paths: [desdeJestExpo] });
+const presetExpo = desdeJestExpo.resolve("babel-preset-expo");
 
 const ARCHIVO = resolve(__dirname, "../src/lib/firebase.ts");
 
@@ -42,15 +44,16 @@ describe("RF-140 configuración de Firebase en el bundle", () => {
   });
 
   it("en producción las seis variables se reemplazan por su valor en el bundle", () => {
-    const previo = { ...process.env };
-    VARIABLES.forEach((nombre) => {
-      process.env[nombre] = `valor-${nombre}`;
-    });
+    const previos = VARIABLES.map((nombre) => [nombre, process.env[nombre]] as const);
+    for (const nombre of VARIABLES) process.env[nombre] = `valor-${nombre}`;
     try {
       const { code } = transformar(false);
-      VARIABLES.forEach((nombre) => expect(code).toContain(`valor-${nombre}`));
+      for (const nombre of VARIABLES) expect(code).toContain(`valor-${nombre}`);
     } finally {
-      process.env = previo;
+      for (const [nombre, valor] of previos) {
+        if (valor === undefined) Reflect.deleteProperty(process.env, nombre);
+        else process.env[nombre] = valor;
+      }
     }
   });
 
