@@ -28,6 +28,8 @@ actualizado: 13/10/26
 >
 > 👉 **21/10 (Paloma):** **T-141** (íconos de la barra lateral web, como en el prototipo) está hecho y mergeado (PR [#27](https://github.com/FranLuciano04/Vault-Rumbo/pull/27)).
 >
+> 👉 **23/10 (Francisco):** **T-149** (Instagram opcional del cliente, DEC-0017) está hecho y mergeado (PR [#38](https://github.com/FranLuciano04/Vault-Rumbo/pull/38)). Destraba los formularios de clientes en web y mobile. Migración 0003.
+>
 > 👉 **22/10 (Francisco):** **T-031** (catálogo de destinos, el patrón de ABM que copian T-032 y T-033) está hecho y mergeado (PR [#37](https://github.com/FranLuciano04/Vault-Rumbo/pull/37)). El CI ahora falla si `openapi.json` o `tipos.gen.ts` no están al día. ⚠️ Corran `uv run alembic upgrade head` (migración 0002).
 >
 > 👉 **22/10 (Francisco):** **T-029** (parámetros del negocio) está hecho y mergeado (PR [#35](https://github.com/FranLuciano04/Vault-Rumbo/pull/35)). Destraba 15 tickets. Los módulos que necesiten la vigencia, la anticipación o el recontacto usan `parametros.obtener(sesion)`.

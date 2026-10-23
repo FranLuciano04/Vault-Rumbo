@@ -40,6 +40,19 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
+## 23/10/26 — Francisco (Claude Opus 5.5) — T-149: Instagram opcional del cliente
+- **Hecho:** T-149 (backend, contrato y shared; riesgo normal; DEC-0017).
+  - Columna `cliente.instagram` (migración 0003) y tipo `Instagram`: quita el `@` inicial y los espacios ASCII, pasa a minúsculas, deja en `null` lo que queda vacío y valida con `^[a-z0-9._]{1,30}$`.
+  - Instagram **no** cuenta como contacto mínimo.
+  - En shared, `normalizarInstagram` aplica la misma regla en el zod del alta y en los mocks.
+  - Un PATCH sin `instagram` no lo borra (`exclude_unset`): queda listo para T-042.
+  - La review (Opus) lo dio aprobable con 4 menores; se arreglaron 3. Pasan 668 tests de backend y 107 de shared.
+  - El PR [#38](https://github.com/FranLuciano04/Vault-Rumbo/pull/38) lo **mergeó Paloma** con el CI en verde.
+- **Tests:** con autorización de Francisco, `tests/test_modelos.py` suma `instagram` a las columnas de `cliente`. Las columnas posteriores a `rumbo.sql` vienen de migraciones nuevas, y el criterio vale para las próximas.
+- **Commits:** 9254522, 57bcc50, 11eebd6 y 28e82db.
+- **Para el equipo:** corran `uv run alembic upgrade head` (0003; con T-033 la cabeza ya es 0004).
+- **Pendiente:** nada.
+
 ## 23/10/26 — Nahuel (Claude Opus 5.5) — T-033: catálogo de operadores
 - **Hecho:** tomó e implementó **T-033** (M1, backend, S, riesgo normal) con TDD: rojo sonnet, verde/refactor/fix haiku, review opus. PR #46 mergeado con CI en verde.
   - Operadores siguen el patrón de destinos; búsqueda y paginación quedan en `RepositorioCatalogo[T]` compartido. Migración `0004` con índice único normalizado; corregido el `'\s+'` de `0002`.
