@@ -5,8 +5,10 @@ from fastapi import FastAPI, HTTPException, Request
 from fastapi.encoders import jsonable_encoder
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
+from sqlalchemy.exc import DBAPIError
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
+from rumbo.core.errores_de_base import es_numero_fuera_de_rango
 from rumbo.negocio.errores import (
     Conflicto,
     DatosInvalidos,
@@ -93,6 +95,13 @@ async def _error_de_validacion(_: Request, exc: Exception) -> JSONResponse:
     return _problema(422, "Los datos enviados no son válidos.", errores=jsonable_encoder(errores))
 
 
+async def _error_de_base(request: Request, exc: Exception) -> JSONResponse:
+    if es_numero_fuera_de_rango(cast(DBAPIError, exc)):
+        logger.warning("Número fuera del rango de la base", exc_info=exc)
+        return _problema(422, "Hay un número fuera del rango admitido.")
+    return await _error_no_controlado(request, exc)
+
+
 async def _error_no_controlado(_: Request, exc: Exception) -> JSONResponse:
     logger.error("Error no controlado", exc_info=exc)
     return _problema(500, "Ocurrió un error inesperado.")
@@ -102,4 +111,5 @@ def registrar_manejadores(app: FastAPI) -> None:
     app.add_exception_handler(ErrorDeDominio, _error_de_dominio)
     app.add_exception_handler(StarletteHTTPException, _error_http)
     app.add_exception_handler(RequestValidationError, _error_de_validacion)
+    app.add_exception_handler(DBAPIError, _error_de_base)
     app.add_exception_handler(Exception, _error_no_controlado)

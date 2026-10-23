@@ -4,6 +4,7 @@ import pytest
 from fastapi import APIRouter, Depends, FastAPI
 from httpx import ASGITransport, AsyncClient
 from pydantic import BaseModel
+from sqlalchemy.exc import IntegrityError
 
 from rumbo.main import crear_app
 from rumbo.negocio.errores import (
@@ -63,6 +64,10 @@ def _app_de_prueba() -> FastAPI:
     @router.get("/explota")
     async def explota() -> None:
         raise RuntimeError("password=secreto host=db-interna")
+
+    @router.get("/integridad")
+    async def integridad() -> None:
+        raise IntegrityError("INSERT secreto", {}, Exception("clave duplicada"))
 
     @router.post("/validar")
     async def validar(entrada: Entrada) -> Entrada:
@@ -218,3 +223,14 @@ async def test_rnf06_paginacion_invalida_devuelve_422_problem_json(
 def test_rnf06_desplazamiento_se_calcula_desde_pagina_y_por_pagina() -> None:
     assert ParametrosPagina(pagina=1, por_pagina=20).desplazamiento == 0
     assert ParametrosPagina(pagina=3, por_pagina=20).desplazamiento == 40
+
+
+async def test_rnf12_otro_error_de_base_sigue_siendo_500_problem_json(
+    cliente: AsyncClient,
+) -> None:
+    r = await cliente.get("/api/prueba/integridad")
+
+    assert r.status_code == 500
+    assert r.headers["content-type"].startswith(PROBLEM_JSON)
+    assert r.json()["status"] == 500
+    assert "secreto" not in r.text
