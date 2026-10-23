@@ -122,3 +122,29 @@ def crear_cuenta(email: str, nombre: str) -> str:
 def obtener_verificador() -> VerificadorDeTokens:
     """Dependencia de FastAPI: el verificador real (los tests la sobrescriben)."""
     return VerificadorFirebase(_app_firebase(get_settings()))
+
+
+class CuentaYaExiste(Exception):
+    """Ya hay una cuenta de Firebase con ese email (CU-25 A1)."""
+
+
+class GestorDeCuentas(Protocol):
+    """Alta y baja de cuentas de Firebase y envío del mail de restablecimiento (DEC-0016)."""
+
+    async def crear_cuenta(self, email: str, nombre: str) -> str:
+        """Crea la cuenta sin contraseña y devuelve su uid. Lanza `CuentaYaExiste` si el email
+        ya existe en Firebase y `ServicioExterno` si Firebase falla."""
+        ...
+
+    async def borrar_cuenta(self, firebase_uid: str) -> None:
+        """Compensación: borra la cuenta creada."""
+        ...
+
+    async def enviar_mail_restablecimiento(self, email: str) -> None:
+        """Pide a Firebase que mande el mail para elegir la contraseña (no hay mails propios)."""
+        ...
+
+
+def obtener_gestor_de_cuentas() -> GestorDeCuentas:
+    """Dependencia de FastAPI: el gestor real (los tests la sobrescriben). Stub de T-027."""
+    raise NotImplementedError("T-027: gestor de cuentas de Firebase no implementado")
