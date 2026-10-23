@@ -49,6 +49,18 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
+## 22/10/26 — Nahuel (Claude Opus 5.5) — T-034: parámetros del negocio en la web
+- **Hecho:** tomó e implementó **T-034** (M1, web, riesgo normal; CU-13, RF-083/084, DEC-0013).
+  - Sección Configuración solo para admin y dueña, con las cuatro pestañas del prototipo. Las otras tres quedan deshabilitadas, porque tienen tickets propios.
+  - Formulario de parámetros y comisión por defecto por vendedor, incluidos los dados de baja. Tienen validación zod con los rangos del backend y muestran los errores 422 en sus campos. Los errores de nivel modelo (`campo: "body"`) van al aviso general.
+  - **Tests tocados con autorización de Nahuel:** el setup de MSW (`manejadoresM1`) y un tipo en el verde, y casos agregados en el fix. No cambió ninguna aserción.
+  - **Review (Opus):** 0 bloqueantes, 2 importantes y 4 menores, todos arreglados.
+  - **CI:** en verde. PR [#43](https://github.com/FranLuciano04/Vault-Rumbo/pull/43) mergeado (14ac574).
+- **Commits:** d50de2f, 06c91ba, b8d9c09, 2b07dc8, fb36df2.
+- **Pendiente:**
+  - Comparar labels y botones con las pantallas 30 y 51 del prototipo, porque se tomaron de CU-13.
+  - Hallazgo de herramienta: `tickets.mjs fase … rojo --test` aceptó como rojo un `pnpm: command not found`. En el bash de esta PC hay que usar `corepack pnpm`. Habría que no aceptar el código 127 como rojo; todavía no tiene ticket.
+
 ## 22/10/26 — Nahuel (Claude Opus 5.5) — T-023: login mobile con email o Google
 - **Hecho:** tomó e implementó **T-023** (M0, mobile, riesgo alto; CU-24, RF-140/142/143, DEC-0016). Es el último ticket de M0.
   - **Dependencia aprobada por Nahuel:** `@react-native-google-signin/google-signin`, sumada a la spec §3. También se agregaron `firebase` y AsyncStorage.
