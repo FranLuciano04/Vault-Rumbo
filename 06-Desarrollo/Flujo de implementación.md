@@ -72,6 +72,8 @@ node 06-Desarrollo/herramientas/tickets.mjs publicar-grafo
 node 06-Desarrollo/herramientas/tickets.mjs modulo MN
 ```
 
+**Códigos de salida de `fase`** (en todos, sin commitear): `2` cambiaron archivos de test desde el rojo; `3` los tests pasan en el rojo; `4` los tests fallan en una fase que necesita verde; `5` el comando de `--test` no se pudo ejecutar (código 126, 127 o 9009: típicamente un programa fuera del PATH, como `pnpm`; usar `corepack pnpm`). Con el `5` ningún test corrió, así que no cuenta ni como rojo ni como verde. También sale con `5` si el comando no terminó (lo mató una señal o superó los 64 MB de salida). Encadenar los comandos de `--test` con `&&`, nunca con `;`: solo se ve el código del último.
+
 ## Auditoría semanal de dependencias (T-150)
 - **Quién mira el aviso:** Nahuel Viniegra. Es quien edita el `cron` de `.github/workflows/auditoria-semanal.yml`, y por eso quien recibe la notificación de GitHub: la regla de GitHub para workflows programados la envía a quien modificó por última vez la sintaxis `cron` ([documentación de GitHub Actions, evento `schedule`](https://docs.github.com/actions/reference/workflows-and-actions/events-that-trigger-workflows#schedule)).
 - **Si la corrida falla:** revisar el job (`pip-audit` o `pnpm-audit`) en la pestaña Actions y decidir:
