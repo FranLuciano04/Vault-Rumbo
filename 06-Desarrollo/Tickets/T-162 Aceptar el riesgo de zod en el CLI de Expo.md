@@ -3,7 +3,7 @@ id: T-162
 titulo: Aceptar el riesgo de zod en el CLI de Expo
 modulo: M0 — Fundaciones
 capa: infra
-estado: libre
+estado: tomado
 depende_de: []
 tamaño: XS
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [RNF-15]
 origen: hallazgo T-156
-asignado:
-tomado_el:
-rama:
+asignado: FranLucianoo
+tomado_el: 23/10/26 18:35
+rama: feature/T-162-aceptar-el-riesgo-de-zod-en-el-cli-de-ex
 pr:
 ---
 # T-162 Aceptar el riesgo de zod en el CLI de Expo
