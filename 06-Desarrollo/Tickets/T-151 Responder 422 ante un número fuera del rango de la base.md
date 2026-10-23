@@ -3,7 +3,7 @@ id: T-151
 titulo: Responder 422 ante un número fuera del rango de la base
 modulo: M1 — Usuarios y configuración
 capa: backend
-estado: tomado
+estado: hecho
 depende_de: []
 tamaño: XS
 riesgo: normal
@@ -45,3 +45,9 @@ Si un cuerpo trae un entero que no entra en la columna de Postgres (por ejemplo 
 - Topes de negocio en los esquemas (`le=`) y cambios en `openapi.json`.
 
 ## Notas de implementación
+- **Detección (`rumbo/core/errores_de_base.py`):** el entero fuera de rango no llega como `DataError` de SQLAlchemy. asyncpg lo rechaza al codificar el parámetro y llega como `DBAPIError`, cuyo `orig.__cause__` es un `asyncpg.DataError` causado por un `OverflowError`. También se cubre el SQLSTATE `22003` del servidor. Se distingue solo por tipos, sin leer el mensaje. `IntegrityError` y el resto siguen en 500.
+- **Manejador:** `presentacion/errores.py` registra `DBAPIError`. Ante un número fuera de rango responde 422 problem+json, sin SQL ni el valor, y lo deja en el log con `logger.warning`. Cualquier otro error va a `_error_no_controlado` (500). La capa de presentación no importa el driver.
+- **Tests de soporte (autorización de Paloma, `--tocar-tests`):** las dos `_sesion_de_test` de `tests/conftest.py` hacen `yield` dentro de `begin_nested()`. Así, después de un error en el flush, el test todavía puede leer la base. El verde lo había resuelto con un savepoint por pedido en `core/db.py`; la review mostró que en producción no aportaba nada y sumaba 2 viajes a la base, así que se revirtió.
+- **Review (opus):** 0 bloqueantes, 2 importantes (savepoint en producción, driver en presentación) y 2 menores (falta de tests unitarios del clasificador, log del 422). Se arreglaron los 4. Tests unitarios nuevos en `tests/test_errores_de_base.py`.
+- **Pendiente:** un `22003` que no venga del usuario (por ejemplo, un SUM que desborda) también responde 422. Queda registrado en el log.
+- **Modelos:** tests sonnet, implementación/refactor/fix sonnet, review opus. Sin escalados.
