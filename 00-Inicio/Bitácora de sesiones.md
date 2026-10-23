@@ -59,7 +59,7 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Commits:** d50de2f, 06c91ba, b8d9c09, 2b07dc8, fb36df2.
 - **Pendiente:**
   - Comparar labels y botones con las pantallas 30 y 51 del prototipo, porque se tomaron de CU-13.
-  - Hallazgo de herramienta: `tickets.mjs fase … rojo --test` aceptó como rojo un `pnpm: command not found`. En el bash de esta PC hay que usar `corepack pnpm`. Habría que no aceptar el código 127 como rojo; todavía no tiene ticket.
+  - Hallazgo de herramienta: `tickets.mjs fase … rojo --test` aceptó como rojo un `pnpm: command not found`. En el bash de esta PC hay que usar `corepack pnpm`. Queda como **T-152** (M0, infra, XS).
 
 ## 22/10/26 — Nahuel (Claude Opus 5.5) — T-023: login mobile con email o Google
 - **Hecho:** tomó e implementó **T-023** (M0, mobile, riesgo alto; CU-24, RF-140/142/143, DEC-0016). Es el último ticket de M0.
