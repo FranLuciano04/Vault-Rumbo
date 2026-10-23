@@ -4,7 +4,6 @@ import uuid
 from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends, Query
-from pydantic import Field
 
 from rumbo.core.db import SesionDep
 from rumbo.datos import modelos
@@ -14,10 +13,12 @@ from rumbo.negocio.servicios import clientes
 from rumbo.presentacion.dependencias import usuario_actual
 from rumbo.presentacion.errores import no_implementado
 from rumbo.presentacion.esquemas.clientes import (
+    MAX_ETIQUETAS,
     Cliente,
     ClienteCrear,
     ClienteEditar,
     ClienteListado,
+    Etiqueta,
     HistorialCliente,
     ProblemaDuplicado,
 )
@@ -39,9 +40,6 @@ router = APIRouter(
 _ROLES = "**Roles:** admin, dueno, empleado, freelance."
 # Topes de la búsqueda: acotan el costo de la consulta sin limitar un uso normal.
 _MAX_BUSCAR = 200  # el largo del contacto
-_MAX_ETIQUETAS = 20
-_MAX_LARGO_ETIQUETA = 80
-EtiquetaFiltro = Annotated[str, Field(max_length=_MAX_LARGO_ETIQUETA)]
 _NO_ENCONTRADO: dict[int | str, dict[str, Any]] = {
     404: {"model": Problema, "description": "El cliente no existe o no lo podés ver."}
 }
@@ -62,19 +60,15 @@ async def buscar_clientes(
         Query(description="Texto en el nombre o el contacto.", max_length=_MAX_BUSCAR),
     ] = None,
     etiquetas: Annotated[
-        list[EtiquetaFiltro] | None,
+        list[Etiqueta] | None,
         Query(
             description=(
                 "Etiquetas, sin distinguir mayúsculas, tildes ni espacios de más; se repite el "
                 "parámetro (`?etiquetas=a&etiquetas=b`) y el cliente tiene que tener todas. "
                 "Las vacías se ignoran."
             ),
-            max_length=_MAX_ETIQUETAS,
+            max_length=MAX_ETIQUETAS,
         ),
-    ] = None,
-    etiqueta: Annotated[
-        EtiquetaFiltro | None,
-        Query(description="Una etiqueta exacta. Usar `etiquetas`.", deprecated=True),
     ] = None,
     segmento: Annotated[SegmentoCliente | None, Query(description="Segmento del cliente.")] = None,
     mios: Annotated[bool, Query(description="Solo los clientes que tengo asignados.")] = False,
@@ -84,7 +78,7 @@ async def buscar_clientes(
         sesion,
         actor,
         buscar=buscar,
-        etiquetas=[e for e in [*(etiquetas or []), etiqueta] if e],
+        etiquetas=[e for e in etiquetas or [] if e],
         segmento=segmento,
         mios=mios,
         desplazamiento=paginacion.desplazamiento,

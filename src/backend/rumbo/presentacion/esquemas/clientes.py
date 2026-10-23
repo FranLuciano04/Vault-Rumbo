@@ -11,6 +11,11 @@ from rumbo.presentacion.esquemas.comunes import Auditoria, Entrada, Problema
 
 Nombre = Annotated[str, Field(min_length=1, max_length=120)]
 Contacto = Annotated[str, Field(min_length=1, max_length=200)]
+# Topes de las etiquetas: los usan el alta, la edición y el filtro de `GET /clientes`.
+MAX_ETIQUETAS = 20
+MAX_LARGO_ETIQUETA = 80
+Etiqueta = Annotated[str, Field(max_length=MAX_LARGO_ETIQUETA)]
+Etiquetas = Annotated[list[Etiqueta], Field(max_length=MAX_ETIQUETAS)]
 
 
 # Solo espacios ASCII, el mismo conjunto que quita el esquema zod del alta.
@@ -79,7 +84,7 @@ class ClienteCrear(Entrada):
     contacto: Contacto
     instagram: Instagram = None
     segmento: SegmentoCliente
-    etiquetas: list[str] = []
+    etiquetas: Etiquetas = []
     preferencias: str | None = None
     asesor_asignado_id: uuid.UUID | None = None
     confirmar_duplicado: bool = False
@@ -94,7 +99,7 @@ class ClienteEditar(BaseModel):
     contacto: Contacto = _OMITIDO
     instagram: Instagram = None
     segmento: SegmentoCliente = _OMITIDO
-    etiquetas: list[str] = _OMITIDO
+    etiquetas: Etiquetas = _OMITIDO
     preferencias: str | None = None
     no_recontactar: bool = _OMITIDO
     asesor_asignado_id: uuid.UUID | None = None

@@ -2283,27 +2283,6 @@
             "description": "Etiquetas, sin distinguir mayúsculas, tildes ni espacios de más; se repite el parámetro (`?etiquetas=a&etiquetas=b`) y el cliente tiene que tener todas. Las vacías se ignoran."
           },
           {
-            "name": "etiqueta",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string",
-                  "maxLength": 80
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "description": "Una etiqueta exacta. Usar `etiquetas`.",
-              "deprecated": true,
-              "title": "Etiqueta"
-            },
-            "description": "Una etiqueta exacta. Usar `etiquetas`.",
-            "deprecated": true
-          },
-          {
             "name": "segmento",
             "in": "query",
             "required": false,
@@ -2893,9 +2872,11 @@
           },
           "etiquetas": {
             "items": {
-              "type": "string"
+              "type": "string",
+              "maxLength": 80
             },
             "type": "array",
+            "maxItems": 20,
             "title": "Etiquetas",
             "default": []
           },
@@ -2968,9 +2949,11 @@
           },
           "etiquetas": {
             "items": {
-              "type": "string"
+              "type": "string",
+              "maxLength": 80
             },
             "type": "array",
+            "maxItems": 20,
             "title": "Etiquetas"
           },
           "preferencias": {

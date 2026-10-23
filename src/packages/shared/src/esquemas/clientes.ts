@@ -1,5 +1,9 @@
 import { z } from "zod";
 
+/** Topes de las etiquetas de un cliente; los mismos que valida la API. */
+export const MAX_ETIQUETAS = 20;
+export const MAX_LARGO_ETIQUETA = 80;
+
 const SEGMENTOS = ["familia", "amigos", "individual", "pareja"] as const;
 
 /** Teléfono o WhatsApp: al menos 7 dígitos, con `+`, espacios, guiones y paréntesis. */
@@ -36,7 +40,7 @@ export const esquemaAltaCliente = z.object({
     .refine(esContactoValido, "Ingresá un teléfono o un email válido."),
   instagram,
   segmento: z.enum(SEGMENTOS),
-  etiquetas: z.array(z.string()).optional(),
+  etiquetas: z.array(z.string().max(MAX_LARGO_ETIQUETA)).max(MAX_ETIQUETAS).optional(),
   preferencias: z.string().nullable().optional(),
   asesor_asignado_id: z.uuid().nullable().optional(),
   confirmar_duplicado: z.boolean().optional(),

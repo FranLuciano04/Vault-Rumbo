@@ -135,11 +135,8 @@ export const manejadoresClientes: RequestHandler[] = [
   http.get(BASE, ({ request }) => {
     const url = new URL(request.url);
     const buscar = url.searchParams.get("buscar")?.toLowerCase();
-    // `etiqueta` es el alias viejo de `etiquetas`; el cliente tiene que tener todas.
-    const etiquetas = [
-      ...url.searchParams.getAll("etiquetas"),
-      ...url.searchParams.getAll("etiqueta"),
-    ];
+    // El cliente tiene que tener todas las etiquetas.
+    const etiquetas = url.searchParams.getAll("etiquetas");
     const segmento = url.searchParams.get("segmento");
     const mios = url.searchParams.get("mios") === "true";
     const pagina = Number(url.searchParams.get("pagina") ?? 1);

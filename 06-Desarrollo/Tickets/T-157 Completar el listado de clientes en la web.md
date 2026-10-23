@@ -3,7 +3,7 @@ id: T-157
 titulo: Completar el listado de clientes en la web
 modulo: M2 — Clientes
 capa: web
-estado: tomado
+estado: hecho
 depende_de: [T-044, T-155, T-156]
 tamaño: S
 riesgo: normal
@@ -46,4 +46,18 @@ El listado de clientes de la web (T-044) queda completo y fiel al prototipo: col
 ## Fuera de alcance
 - El alta y la ficha (T-045 y T-046).
 
-## Notas de implementación
+## Notas de implementación- **Cierre (23/10/26):**
+  - **Listado:**
+    - La tabla muestra el asesor y el último viaje («Destino · dd/mm/aa»), con datos de T-155.
+    - Oportunidades sigue el prototipo: «—» con 0, «1 abierta» y «n abiertas». Lo decidió el orquestador a partir de un hallazgo importante de la review, y se ajustaron las 2 aserciones que fijaban «0» y «2».
+  - **Filtro de etiquetas:** `FiltroEtiquetas` es un disclosure con checkboxes nativos, alimentado por `useEtiquetasClientes`.
+    - Las etiquetas elegidas quedan como chips «Quitar X».
+    - Se pueden elegir hasta 20.
+    - Muestra los estados de carga y de error.
+    - Se cierra con Escape y con un clic afuera, y tiene `aria-controls`.
+  - **Freelance:** «Mis clientes» es una pastilla fija, oscura y no interactiva.
+  - **Backend (venía de T-161):** `MAX_ETIQUETAS` y `MAX_LARGO_ETIQUETA` viven en `esquemas/clientes.py` y los usan `ClienteCrear`, `ClienteEditar` y el filtro. Shared exporta las mismas constantes en zod. Se retiró el alias `etiqueta` del router, el hook, el mock y el contrato; `test_contrato_m2.py` se actualizó en el rojo.
+  - **Incidente:** prettier reformateó `tipos.gen.ts` y `yo.test.ts`. Se restauraron en `b8cbdb7` y se verificó que `generar` no produce diferencias.
+  - **Notas para más adelante:** cuando se implemente el PATCH, `test_rf031_edicion_acepta_20_etiquetas_de_80_caracteres` tiene que pasar a esperar el éxito. Además, `ClienteEditar` no recorta espacios porque no hereda de `Entrada`.
+  - **Modelos:** Sonnet en tests, verde, refactor (sin cambios) y fix; Opus en la review.
+  - **Checks:** backend con 844 tests (97 % de cobertura, 99 % en negocio). Shared con 107 tests y web con 184 (92,6 %). Lint, typecheck, ruff y mypy pasan limpios.

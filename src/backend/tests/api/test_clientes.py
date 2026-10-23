@@ -325,3 +325,100 @@ async def test_rf031_etiqueta_listada_filtra_todas_sus_variantes(
 
     assert len(listadas) == 1
     assert r.json()["total"] == 3
+
+
+# --- T-157: topes de etiquetas del alta y la edición (RF-031) -------------------------------
+# Mismas constantes que el filtro de `GET /clientes`: hasta 20 etiquetas de hasta 80 caracteres.
+
+MAX_ETIQUETAS = 20
+MAX_LARGO_ETIQUETA = 80
+ID_EDICION = "3c1f6d2e-8a47-4b19-9e53-7d0a2b4c6e11"
+
+
+async def test_rf031_alta_rechaza_mas_de_20_etiquetas(
+    cliente_como: FabricaCliente, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("empleado")
+    etiquetas = [f"etiqueta {i}" for i in range(MAX_ETIQUETAS + 1)]
+
+    r = await c.post("/api/clientes", json={**CUERPO, "etiquetas": etiquetas})
+
+    assert r.status_code == 422
+    assert r.headers["content-type"].startswith(PROBLEM_JSON)
+    assert await _cantidad(sesion) == 0
+
+
+async def test_rf031_alta_rechaza_etiqueta_de_mas_de_80_caracteres(
+    cliente_como: FabricaCliente, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("empleado")
+
+    r = await c.post(
+        "/api/clientes", json={**CUERPO, "etiquetas": ["x" * (MAX_LARGO_ETIQUETA + 1)]}
+    )
+
+    assert r.status_code == 422
+    assert r.headers["content-type"].startswith(PROBLEM_JSON)
+    assert await _cantidad(sesion) == 0
+
+
+async def test_rf031_alta_acepta_20_etiquetas_de_80_caracteres(
+    cliente_como: FabricaCliente, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("empleado")
+    etiquetas = [f"{i:02d}".ljust(MAX_LARGO_ETIQUETA, "x") for i in range(MAX_ETIQUETAS)]
+
+    r = await c.post("/api/clientes", json={**CUERPO, "etiquetas": etiquetas})
+
+    assert r.status_code == 201
+    assert r.json()["etiquetas"] == etiquetas
+    assert await _cantidad(sesion) == 1
+
+
+async def test_rf031_edicion_rechaza_mas_de_20_etiquetas(cliente_como: FabricaCliente) -> None:
+    c = await cliente_como("empleado")
+    etiquetas = [f"etiqueta {i}" for i in range(MAX_ETIQUETAS + 1)]
+
+    r = await c.patch(f"/api/clientes/{ID_EDICION}", json={"etiquetas": etiquetas})
+
+    assert r.status_code == 422
+    assert r.headers["content-type"].startswith(PROBLEM_JSON)
+
+
+async def test_rf031_edicion_rechaza_etiqueta_de_mas_de_80_caracteres(
+    cliente_como: FabricaCliente,
+) -> None:
+    c = await cliente_como("empleado")
+
+    r = await c.patch(
+        f"/api/clientes/{ID_EDICION}", json={"etiquetas": ["x" * (MAX_LARGO_ETIQUETA + 1)]}
+    )
+
+    assert r.status_code == 422
+    assert r.headers["content-type"].startswith(PROBLEM_JSON)
+
+
+async def test_rf031_edicion_acepta_20_etiquetas_de_80_caracteres(
+    cliente_como: FabricaCliente,
+) -> None:
+    c = await cliente_como("empleado")
+    etiquetas = [f"{i:02d}".ljust(MAX_LARGO_ETIQUETA, "x") for i in range(MAX_ETIQUETAS)]
+
+    r = await c.patch(f"/api/clientes/{ID_EDICION}", json={"etiquetas": etiquetas})
+
+    # El PATCH todavía no está implementado (501): el borde solo no debe caer en la validación.
+    assert r.status_code != 422
+
+
+async def test_rf031_get_clientes_ya_no_acepta_el_alias_etiqueta(
+    cliente_como: FabricaCliente, sesion: AsyncSession
+) -> None:
+    await crear(sesion, ClienteFactory, nombre="Ana", etiquetas=["Brasil"])
+    await crear(sesion, ClienteFactory, nombre="Beto", etiquetas=["Europa"])
+    c = await cliente_como("empleado")
+
+    r = await c.get("/api/clientes", params={"etiqueta": "Brasil"})
+
+    # Sin el alias, el parámetro se ignora: no filtra.
+    assert r.status_code == 200
+    assert r.json()["total"] == 2
