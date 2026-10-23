@@ -56,10 +56,9 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
   - Se arregló un bug de T-022: había dos copias de React entre la app y `@rumbo/shared`, y por eso `useYo` real daba «Invalid hook call».
   - **Desvíos:** los tests corrigieron la falta de `await` en `fireEvent` (RNTL 14), con autorización de Nahuel. No usan MSW, porque no carga bajo jest-expo. Mobile pasa a tener `testTimeout` de 20 s por la caché fría.
   - **Review (Sonnet, seguridad):** 0 bloqueantes, 0 importantes y 2 menores. Uno se arregló; el otro era un falso positivo y se descartó (el redirect por 401 en `(pestanas)/_layout.tsx` ya funciona con el usuario en caché).
-  - **CI:** en verde. El PR [#40](https://github.com/FranLuciano04/Vault-Rumbo/pull/40) espera la aprobación de otro integrante (riesgo alto).
+  - **CI:** en verde. El PR [#40](https://github.com/FranLuciano04/Vault-Rumbo/pull/40) lo aprobó Paloma y quedó mergeado (c7f9b1b).
 - **Commits:** f74a33b, 15a3db1, 4c148a5, c8d35f8, f9b4dfe, 5955b0d.
 - **Pendiente:**
-  - Que otro integrante apruebe el PR #40; después, `/implementar-ticket T-023` para mergear.
   - Probar en el development build. Falta configurar `EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID` y el SHA-1 (Android) y `GoogleService-Info.plist` (iOS).
 
 ## 22/10/26 — Nahuel (Claude Opus 5.5) — T-150: auditorías de dependencias semanales
