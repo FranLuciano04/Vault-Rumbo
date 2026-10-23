@@ -2607,7 +2607,7 @@ export interface operations {
             query?: {
                 /** @description Texto en el nombre o el contacto. */
                 buscar?: string | null;
-                /** @description Etiquetas exactas; se repite el parámetro (`?etiquetas=a&etiquetas=b`) y el cliente tiene que tener todas. */
+                /** @description Etiquetas exactas; se repite el parámetro (`?etiquetas=a&etiquetas=b`) y el cliente tiene que tener todas. Las vacías se ignoran. */
                 etiquetas?: string[] | null;
                 /**
                  * @deprecated
