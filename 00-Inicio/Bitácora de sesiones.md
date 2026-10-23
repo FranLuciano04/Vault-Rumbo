@@ -90,8 +90,16 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
   - **CI:** todo en verde antes del merge. El PR [#39](https://github.com/FranLuciano04/Vault-Rumbo/pull/39) quedó mergeado y destraba 7 tickets.
 - **Commits (2):** 194ab4f, 8fa63f9, 5e4b10d, 483ff3b, 6833514.
 - **Hecho (3):** **T-148** cerrado verificando. Se confirmó que la cobertura ya sigue los `await`: `negocio/` da 99 % y el backend 99 %. El PR [#41](https://github.com/FranLuciano04/Vault-Rumbo/pull/41) quedó mergeado; solo trae las notas del ticket.
+- **Hecho (4):** **T-151** (M1, backend, hallazgo T-032). Un entero fuera del rango de la base ahora da 422 problem+json, y no 500, en todos los módulos.
+  - El error se detecta por tipos en `rumbo/core/errores_de_base.py`: asyncpg `DataError` causado por un `OverflowError`, o el SQLSTATE 22003.
+  - Cualquier otro error sigue en 500.
+  - Con autorización de Paloma, el savepoint quedó en las `_sesion_de_test` de `tests/conftest.py` y no en producción.
+  - **Review (Opus):** 0 bloqueantes, 2 importantes y 2 menores; se arreglaron los 4.
+  - **CI:** todo en verde y el PR [#42](https://github.com/FranLuciano04/Vault-Rumbo/pull/42) quedó mergeado.
+  - **Aviso al equipo:** desde ahora, cada test de API corre dentro de un savepoint. Así, después de un error en el flush se puede seguir leyendo la base.
+- **Commits (4):** 1f5ef4b, 0585cf4, 4e4a5de, 1a2f0c8, 6068e22.
 - **Pendiente (2):**
-  - Tomar T-151.
+  - Un 22003 que no viene del usuario (por ejemplo, un SUM que desborda) también responde 422. Queda registrado en el log.
   - Decidir si se puede editar un requisito dado de baja: hoy responde 200.
 
 ## 22/10/26 — Nahuel (Claude Opus 5.5) — T-019: análisis de seguridad en el CI
