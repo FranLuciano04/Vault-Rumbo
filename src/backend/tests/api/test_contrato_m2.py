@@ -78,7 +78,8 @@ async def test_rf031_buscar_publica_filtros_y_paginacion(contrato: dict[str, Any
     operacion = contrato["paths"]["/api/clientes"]["get"]
     parametros = {p["name"] for p in operacion["parameters"]}
 
-    assert {"buscar", "etiqueta", "mios", "pagina", "por_pagina"} <= parametros
+    assert {"buscar", "etiquetas", "mios", "pagina", "por_pagina"} <= parametros
+    assert "etiqueta" not in parametros
     assert "422" in operacion["responses"]
     esquema = operacion["responses"]["200"]["content"]["application/json"]["schema"]
     nombre = _nombre(esquema["$ref"])
@@ -217,7 +218,7 @@ async def test_rf031_buscar_con_filtros_validos_responde_200(cliente_como: Fabri
         "/api/clientes",
         params={
             "buscar": "ana",
-            "etiqueta": "luna de miel",
+            "etiquetas": "luna de miel",
             "mios": "true",
             "pagina": 2,
             "por_pagina": 50,

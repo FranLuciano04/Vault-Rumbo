@@ -131,10 +131,7 @@ describe("RF-005 búsqueda de clientes", () => {
     await screen.findByText("Camila Benítez");
 
     await usuario.click(screen.getByRole("button", { name: /etiquetas/i }));
-    await usuario.type(
-      screen.getByRole("textbox", { name: /filtrar por etiqueta/i }),
-      "Brasil{Enter}",
-    );
+    await usuario.click(await screen.findByRole("checkbox", { name: "Brasil" }));
 
     await waitFor(() => {
       expect(screen.queryByText("Camila Benítez")).not.toBeInTheDocument();
@@ -299,7 +296,7 @@ describe("RF-005 estados de la lista", () => {
     expect(pedidos.map((p) => p.get("buscar")).filter(Boolean)).toEqual(["sosa"]);
   });
 
-  it("RF-005 ocultar el campo de etiqueta quita el filtro", async () => {
+  it("RF-005 el botón Etiquetas abre el menú y elegir una manda etiquetas (no etiqueta)", async () => {
     const pedidos: URLSearchParams[] = [];
     servidor.use(paginaFija(3, pedidos));
     renderPagina("admin");
@@ -310,22 +307,152 @@ describe("RF-005 estados de la lista", () => {
     expect(boton).toHaveAttribute("aria-expanded", "false");
     await usuario.click(boton);
     expect(boton).toHaveAttribute("aria-expanded", "true");
-    await usuario.type(
-      screen.getByRole("textbox", { name: /filtrar por etiqueta/i }),
-      "Brasil{Enter}",
-    );
-    await waitFor(() => {
-      expect(pedidos.at(-1)?.get("etiqueta")).toBe("Brasil");
-    });
-
-    await usuario.click(boton);
+    await usuario.click(await screen.findByRole("checkbox", { name: "Brasil" }));
 
     await waitFor(() => {
-      expect(pedidos.at(-1)?.get("etiqueta")).toBeNull();
+      expect(pedidos.at(-1)?.getAll("etiquetas")).toEqual(["Brasil"]);
     });
+    expect(pedidos.at(-1)?.has("etiqueta")).toBe(false);
+  });
+});
+
+describe("RF-005 columnas con datos reales", () => {
+  async function filaDe(nombre: string) {
+    const usuario = userEvent.setup();
+    renderPagina("admin");
+    await usuario.click(await todaLaAgencia());
+    const fila = (await screen.findByText(nombre)).closest("tr");
+    expect(fila).not.toBeNull();
+    return within(fila as HTMLElement);
+  }
+
+  it("RF-005 muestra el asesor, el último viaje y las oportunidades abiertas del cliente", async () => {
+    const fila = await filaDe("Joaquín Ramos");
+
+    expect(fila.getByText("Nicolás Paz")).toBeInTheDocument();
+    expect(fila.getByText(/Roma/)).toBeInTheDocument();
+    expect(fila.getByText(/03\/11\/25/)).toBeInTheDocument();
+    expect(fila.getAllByRole("cell").at(5)).toHaveTextContent(/^2$/);
+  });
+
+  it("RF-005 el asesor es el de la fila aunque no sea el usuario de la sesión", async () => {
+    const fila = await filaDe("Camila Benítez");
+
+    expect(fila.getByText("Laura Asesora")).toBeInTheDocument();
+    expect(fila.getByText(/Punta Cana/)).toBeInTheDocument();
+    expect(fila.getByText(/10\/02\/26/)).toBeInTheDocument();
+  });
+
+  it("RF-005 muestra «—» en asesor y último viaje cuando no hay dato, y 0 oportunidades", async () => {
+    const fila = await filaDe("Familia Sosa");
+
+    const celdas = fila.getAllByRole("cell");
+    expect(celdas.at(3)).toHaveTextContent("—");
+    expect(celdas.at(4)).toHaveTextContent("—");
+    expect(celdas.at(5)).toHaveTextContent(/^0$/);
+  });
+});
+
+describe("RF-031 filtro de etiquetas", () => {
+  async function abrirMenu(pedidos: URLSearchParams[]) {
+    servidor.use(paginaFija(3, pedidos));
+    renderPagina("admin");
+    const usuario = userEvent.setup();
+    await screen.findByText("Camila Benítez");
+    await usuario.click(screen.getByRole("button", { name: /etiquetas/i }));
+    return usuario;
+  }
+
+  it("RF-031 el menú lista las etiquetas en uso que devuelve la API", async () => {
+    await abrirMenu([]);
+
+    for (const etiqueta of ["Brasil", "Caribe", "cruceros", "Europa", "luna de miel"]) {
+      expect(await screen.findByRole("checkbox", { name: etiqueta })).toBeInTheDocument();
+    }
+  });
+
+  it("RF-031 ya no hay campo de texto para escribir la etiqueta", async () => {
+    await abrirMenu([]);
+    await screen.findByRole("checkbox", { name: "Brasil" });
+
     expect(
       screen.queryByRole("textbox", { name: /filtrar por etiqueta/i }),
     ).not.toBeInTheDocument();
+  });
+
+  it("RF-031 elegir una etiqueta manda etiquetas y muestra un chip removible", async () => {
+    const pedidos: URLSearchParams[] = [];
+    const usuario = await abrirMenu(pedidos);
+
+    await usuario.click(await screen.findByRole("checkbox", { name: "Brasil" }));
+
+    await waitFor(() => {
+      expect(pedidos.at(-1)?.getAll("etiquetas")).toEqual(["Brasil"]);
+    });
+    expect(screen.getByRole("button", { name: /quitar.*brasil/i })).toBeInTheDocument();
+  });
+
+  it("RF-031 permite elegir varias y las manda como parámetro repetido, sin el alias etiqueta", async () => {
+    const pedidos: URLSearchParams[] = [];
+    const usuario = await abrirMenu(pedidos);
+
+    await usuario.click(await screen.findByRole("checkbox", { name: "Brasil" }));
+    await usuario.click(await screen.findByRole("checkbox", { name: "cruceros" }));
+
+    await waitFor(() => {
+      expect(pedidos.at(-1)?.getAll("etiquetas")).toEqual(["Brasil", "cruceros"]);
+    });
+    expect(pedidos.every((p) => !p.has("etiqueta"))).toBe(true);
+  });
+
+  it("RF-031 un cliente aparece solo si tiene todas las etiquetas elegidas", async () => {
+    renderPagina("admin");
+    const usuario = userEvent.setup();
+    await usuario.click(await todaLaAgencia());
+    await screen.findByText("Camila Benítez");
+    await usuario.click(screen.getByRole("button", { name: /etiquetas/i }));
+
+    await usuario.click(await screen.findByRole("checkbox", { name: "Brasil" }));
+    await usuario.click(await screen.findByRole("checkbox", { name: "cruceros" }));
+    await waitFor(() => {
+      expect(screen.queryByText("Camila Benítez")).not.toBeInTheDocument();
+    });
+    expect(screen.getByText("Familia Sosa")).toBeInTheDocument();
+
+    await usuario.click(await screen.findByRole("checkbox", { name: "Caribe" }));
+    expect(await screen.findByText(/no se encontraron clientes/i)).toBeInTheDocument();
+    expect(screen.queryByText("Familia Sosa")).not.toBeInTheDocument();
+  });
+
+  it("RF-031 quitar un chip saca esa etiqueta del pedido y conserva las otras", async () => {
+    const pedidos: URLSearchParams[] = [];
+    const usuario = await abrirMenu(pedidos);
+    await usuario.click(await screen.findByRole("checkbox", { name: "Brasil" }));
+    await usuario.click(await screen.findByRole("checkbox", { name: "cruceros" }));
+    await waitFor(() => {
+      expect(pedidos.at(-1)?.getAll("etiquetas")).toEqual(["Brasil", "cruceros"]);
+    });
+
+    await usuario.click(screen.getByRole("button", { name: /quitar.*brasil/i }));
+
+    await waitFor(() => {
+      expect(pedidos.at(-1)?.getAll("etiquetas")).toEqual(["cruceros"]);
+    });
+    expect(screen.queryByRole("button", { name: /quitar.*brasil/i })).not.toBeInTheDocument();
+  });
+
+  it("RF-031 quitar el último chip deja de filtrar y vuelve a la primera página", async () => {
+    const pedidos: URLSearchParams[] = [];
+    const usuario = await abrirMenu(pedidos);
+    await usuario.click(await screen.findByRole("checkbox", { name: "Brasil" }));
+    await screen.findByRole("button", { name: /quitar.*brasil/i });
+
+    await usuario.click(screen.getByRole("button", { name: /quitar.*brasil/i }));
+
+    await waitFor(() => {
+      expect(pedidos.at(-1)?.has("etiquetas")).toBe(false);
+    });
+    expect(pedidos.at(-1)?.get("pagina")).toBe("1");
   });
 });
 
@@ -387,6 +514,15 @@ describe("RF-009 vista personal", () => {
       expect(screen.queryByText(/estás viendo solo tus clientes/i)).not.toBeInTheDocument();
     },
   );
+
+  it("RF-009 el freelance ve «Mis clientes» como etiqueta fija y no clickeable", async () => {
+    renderPagina("freelance");
+    await screen.findByRole("table");
+
+    const etiqueta = screen.getByText("Mis clientes");
+    expect(etiqueta.closest("button")).toBeNull();
+    expect(etiqueta.closest("a")).toBeNull();
+  });
 
   it("RF-009 el freelance no manda el parámetro mios (lo decide la API)", async () => {
     const pedidos: URLSearchParams[] = [];
