@@ -3,7 +3,7 @@ id: T-027
 titulo: Dar de alta usuarios con su cuenta de Firebase
 modulo: M1 — Usuarios y configuración
 capa: backend
-estado: libre
+estado: tomado
 depende_de: [T-026, T-017, T-012, T-011]
 tamaño: M
 riesgo: alto
@@ -12,9 +12,9 @@ modelo_impl: opus
 modelo_review: sonnet
 trazabilidad: [CU-25, RF-144, RF-145, RF-146, RF-150, DEC-0016]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: palomap2003
+tomado_el: 22/10/26 21:22
+rama: feature/T-027-dar-de-alta-usuarios-con-su-cuenta-de-fi
 pr:
 ---
 # T-027 Dar de alta usuarios con su cuenta de Firebase

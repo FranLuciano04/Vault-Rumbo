@@ -15,7 +15,7 @@ tags:: #tipo/referencia
 | Módulo | Tickets | Hechos | Tomados | Disponibles | Esperando | Bloqueados | Estado del módulo |
 |---|---|---|---|---|---|---|---|
 | M0 — Fundaciones | 32 | 32 | 0 | 0 | 0 | 0 | 🔍 listo para la review |
-| M1 — Usuarios y configuración | 17 | 7 | 1 | 4 | 5 | 0 | 🛠️ en curso |
+| M1 — Usuarios y configuración | 17 | 7 | 2 | 3 | 5 | 0 | 🛠️ en curso |
 | M2 — Clientes | 12 | 3 | 0 | 3 | 6 | 0 | 🛠️ en curso |
 | M3 — Alertas | 11 | 0 | 0 | 2 | 9 | 0 | 🛠️ en curso |
 | M4 — Oportunidades y cotizaciones | 14 | 0 | 0 | 1 | 13 | 0 | 🛠️ en curso |
@@ -68,7 +68,7 @@ flowchart LR
   end
   subgraph M1["M1 — Usuarios y configuración"]
     T026["T-026 · Publicar el contrato de usuarios y configuración<br/><small>contrato</small>"]:::hecho
-    T027["T-027 · Dar de alta usuarios con su cuenta de Firebase<br/><small>backend · ⚠️ riesgo alto</small>"]:::disponible
+    T027["T-027 · Dar de alta usuarios con su cuenta de Firebase<br/><small>backend · ⚠️ riesgo alto</small><br/>👤 palomap2003"]:::tomado
     T028["T-028 · Editar el rol de un usuario protegiendo al último admin<br/><small>backend · ⚠️ riesgo alto</small>"]:::esperando
     T029["T-029 · Editar los parámetros del negocio<br/><small>backend</small>"]:::hecho
     T030["T-030 · Configurar la comisión por defecto de un vendedor<br/><small>backend · ⚠️ riesgo alto</small>"]:::hecho
