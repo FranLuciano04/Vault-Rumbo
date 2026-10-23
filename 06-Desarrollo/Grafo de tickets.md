@@ -15,7 +15,7 @@ tags:: #tipo/referencia
 | Módulo | Tickets | Hechos | Tomados | Disponibles | Esperando | Bloqueados | Estado del módulo |
 |---|---|---|---|---|---|---|---|
 | M0 — Fundaciones | 34 | 34 | 0 | 0 | 0 | 0 | 🔍 listo para la review |
-| M1 — Usuarios y configuración | 18 | 10 | 1 | 5 | 2 | 0 | 🛠️ en curso |
+| M1 — Usuarios y configuración | 18 | 11 | 0 | 6 | 1 | 0 | 🛠️ en curso |
 | M2 — Clientes | 15 | 5 | 0 | 7 | 3 | 0 | 🛠️ en curso |
 | M3 — Alertas | 11 | 0 | 0 | 2 | 9 | 0 | 🛠️ en curso |
 | M4 — Oportunidades y cotizaciones | 14 | 0 | 0 | 1 | 13 | 0 | 🛠️ en curso |
@@ -79,8 +79,8 @@ flowchart LR
     T033["T-033 · Gestionar el catálogo de operadores<br/><small>backend</small>"]:::hecho
     T034["T-034 · Configurar los parámetros del negocio en la web<br/><small>web</small>"]:::hecho
     T035["T-035 · Gestionar usuarios y roles en la web<br/><small>web</small>"]:::disponible
-    T036["T-036 · Gestionar destinos con sus requisitos en la web<br/><small>web</small><br/>👤 Nahuel Viniegra"]:::tomado
-    T037["T-037 · Gestionar operadores en la web<br/><small>web</small>"]:::esperando
+    T036["T-036 · Gestionar destinos con sus requisitos en la web<br/><small>web</small>"]:::hecho
+    T037["T-037 · Gestionar operadores en la web<br/><small>web</small>"]:::disponible
     T038["T-038 · Probar de punta a punta la configuración de la agencia<br/><small>e2e</small>"]:::esperando
     T146["T-146 · Alinear las referencias de RF del permiso por rol<br/><small>backend</small>"]:::disponible
     T147["T-147 · Fijar con un test la comisión de un usuario dado de baja<br/><small>backend</small>"]:::disponible
