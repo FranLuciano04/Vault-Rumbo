@@ -47,3 +47,14 @@ Cada rol busca clientes por texto o etiquetas y abre su ficha, viendo solo lo qu
 - Historial (ticket propio).
 
 ## Notas de implementación
+- **Para retomar (23/10/26, Francisco):** el rojo ya está commiteado (`cf0b236`) en `tests/api/test_buscar_clientes.py`: fallan 42 por 501 y pasan 5 de validación (422). Lo que sigue es el **verde con Opus**.
+  - **Etiquetas:** parámetro multi `etiquetas` repetido (`?etiquetas=Brasil&etiquetas=Familias`); el cliente tiene que tener **todas**. Hoy el router solo tiene `etiqueta`: hay que agregar `etiquetas: list[str]` y quitar o mantener como alias el `etiqueta` viejo. Después, regenerar `openapi.json` y los tipos, porque el CI lo controla, y ajustar el mock y el hook `useClientes` de shared y su uso en `PaginaClientes` (T-044), que hoy manda `etiqueta`.
+  - **Supuestos del rojo:**
+    - orden por nombre ascendente;
+    - búsqueda en nombre o contacto, sin tildes ni mayúsculas;
+    - `mios=true`: `asesor_asignado_id` igual al actor;
+    - el freelance solo ve los suyos en el listado aunque mande `mios`;
+    - el detalle ajeno o sin asesor da 404 para el freelance, igual que uno inexistente;
+    - admin, dueño y empleado ven el detalle de cualquier cliente;
+    - una página fuera de rango da 200 con `items` vacío y el `total` real.
+  - `test_contrato_m1.py` no tiene rutas de clientes. Hay que revisar si el contrato de T-039 tiene su propio test de 501 y aplicar la convención de `IMPLEMENTADAS`.
