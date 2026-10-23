@@ -245,6 +245,38 @@ describe("RF-005 estados de la lista", () => {
     expect(screen.getByRole("button", { name: /siguiente/i })).toBeDisabled();
   });
 
+  it("RF-005 Anterior parte de la página pedida y queda bloqueado mientras llega la nueva", async () => {
+    const pedidos: URLSearchParams[] = [];
+    servidor.use(
+      http.get("*/api/clientes", async ({ request }) => {
+        const params = new URL(request.url).searchParams;
+        pedidos.push(params);
+        if (params.get("segmento") === "pareja") await delay("infinite");
+        return HttpResponse.json({
+          items: clientesMock,
+          total: 128,
+          pagina: Number(params.get("pagina") ?? 1),
+          por_pagina: 20,
+        });
+      }),
+    );
+    renderPagina("admin");
+    const usuario = userEvent.setup();
+    await screen.findByText("Camila Benítez");
+    await usuario.click(screen.getByRole("button", { name: /siguiente/i }));
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /anterior/i })).toBeEnabled();
+    });
+
+    await usuario.click(screen.getByRole("button", { name: "Pareja" }));
+    await waitFor(() => {
+      expect(pedidos.some((p) => p.get("segmento") === "pareja")).toBe(true);
+    });
+
+    expect(pedidos.at(-1)?.get("pagina")).toBe("1");
+    expect(screen.getByRole("button", { name: /anterior/i })).toBeDisabled();
+  });
+
   it("RF-005 muestra un error cuando la API falla", async () => {
     servidor.use(http.get("*/api/clientes", () => new HttpResponse(null, { status: 500 })));
     renderPagina("admin");

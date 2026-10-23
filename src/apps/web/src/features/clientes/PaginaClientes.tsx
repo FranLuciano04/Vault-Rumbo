@@ -56,7 +56,8 @@ export function PaginaClientes({
     setVerEtiqueta(!verEtiqueta);
   };
 
-  const pagina = data?.pagina ?? 1;
+  // La navegación parte de la página pedida, no de la del dato (que es la vieja mientras llega la nueva).
+  const pagina = filtros.pagina ?? 1;
   const ultima = data ? Math.max(1, Math.ceil(data.total / data.por_pagina)) : 1;
 
   return (
@@ -149,6 +150,9 @@ export function PaginaClientes({
           <Button
             variant={filtros.etiqueta ? "default" : "outline"}
             aria-expanded={verEtiqueta}
+            onMouseDown={(e) => {
+              e.preventDefault();
+            }}
             onClick={alternarEtiqueta}
           >
             <SlidersHorizontal aria-hidden="true" />
@@ -161,39 +165,44 @@ export function PaginaClientes({
       {isError && (
         <p role="alert">No pudimos cargar los clientes. Probá de nuevo en unos minutos.</p>
       )}
-      {data && data.items.length === 0 && <p>No se encontraron clientes.</p>}
-      {data && data.items.length > 0 && (
-        <div className="rounded-2xl border bg-card p-2">
-          <div className={cn("transition-opacity", isPlaceholderData && "opacity-60")}>
+      <div
+        aria-busy={isPlaceholderData}
+        className={cn("transition-opacity", isPlaceholderData && "opacity-60")}
+      >
+        {data && data.items.length === 0 && !isPlaceholderData && (
+          <p>No se encontraron clientes.</p>
+        )}
+        {data && data.items.length > 0 && (
+          <div className="rounded-2xl border bg-card p-2">
             <TablaClientes clientes={data.items} usuario={usuario} />
-          </div>
-          <div className="flex items-center justify-between px-3 py-4 text-sm text-muted-foreground">
-            <span>
-              Mostrando {data.items.length} de {data.total} clientes
-            </span>
-            <div className="flex gap-2">
-              <Button
-                variant="outline"
-                disabled={pagina <= 1}
-                onClick={() => {
-                  irAPagina(pagina - 1);
-                }}
-              >
-                Anterior
-              </Button>
-              <Button
-                variant="outline"
-                disabled={pagina >= ultima || isPlaceholderData}
-                onClick={() => {
-                  irAPagina(pagina + 1);
-                }}
-              >
-                Siguiente
-              </Button>
+            <div className="flex items-center justify-between px-3 py-4 text-sm text-muted-foreground">
+              <span>
+                Mostrando {data.items.length} de {data.total} clientes
+              </span>
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  disabled={pagina <= 1 || isPlaceholderData}
+                  onClick={() => {
+                    irAPagina(pagina - 1);
+                  }}
+                >
+                  Anterior
+                </Button>
+                <Button
+                  variant="outline"
+                  disabled={pagina >= ultima || isPlaceholderData}
+                  onClick={() => {
+                    irAPagina(pagina + 1);
+                  }}
+                >
+                  Siguiente
+                </Button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }
