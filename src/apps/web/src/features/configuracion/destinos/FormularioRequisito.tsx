@@ -6,14 +6,11 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { CampoFormulario } from "../CampoFormulario";
+import { CampoFormulario, CLASE_SELECT } from "../CampoFormulario";
 import { aplicarErroresDelServidor } from "../errores";
 import { type DatosRequisito, esquemaRequisito, TIPOS_REQUISITO } from "../esquemas";
 
 const CAMPOS = ["nombre", "tipo", "obligatorio", "descripcion", "anticipacion_dias"] as const;
-
-const CLASE_SELECT =
-  "h-11 w-full rounded-md border border-input bg-background px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 aria-invalid:border-destructive";
 
 /** Alta y edición de un requisito de un destino (RF-086). */
 export function FormularioRequisito({

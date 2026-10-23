@@ -2,19 +2,20 @@ import type { AxiosInstance } from "axios";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { PestanaDestinos } from "./destinos/PestanaDestinos";
+import { PestanaUsuarios } from "./usuarios/PestanaUsuarios";
 import { FormularioComision } from "./FormularioComision";
 import { FormularioParametros } from "./FormularioParametros";
 
 const PESTANAS = [
   { id: "parametros", etiqueta: "Parámetros y comisiones", habilitada: true },
-  { id: "usuarios", etiqueta: "Usuarios y roles", habilitada: false },
+  { id: "usuarios", etiqueta: "Usuarios y roles", habilitada: true },
   { id: "destinos", etiqueta: "Destinos y requisitos", habilitada: true },
   { id: "operadores", etiqueta: "Operadores", habilitada: false },
 ];
 
 /**
- * Configuración (CU-13 y CU-15, pantallas 30 y 51 del prototipo). Por ahora están activas las
- * pestañas de parámetros y comisiones y la de destinos; las otras llegan con sus propios tickets.
+ * Configuración (CU-13, CU-15 y CU-25, pantallas 30, 31 y 51 del prototipo). Por ahora están
+ * activas las pestañas de parámetros y comisiones, usuarios y destinos; la otra llega con su ticket.
  */
 export function PaginaConfiguracion({ cliente }: { cliente: AxiosInstance }) {
   const [pestana, setPestana] = useState("parametros");
@@ -61,6 +62,7 @@ export function PaginaConfiguracion({ cliente }: { cliente: AxiosInstance }) {
             <FormularioComision cliente={cliente} />
           </>
         )}
+        {pestana === "usuarios" && <PestanaUsuarios cliente={cliente} />}
         {pestana === "destinos" && <PestanaDestinos cliente={cliente} />}
       </div>
     </div>

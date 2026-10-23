@@ -53,6 +53,33 @@ export const esquemaDestino = z.object({
 
 export type DatosDestino = z.infer<typeof esquemaDestino>;
 
+export const ROLES = [
+  { valor: "admin", etiqueta: "Admin" },
+  { valor: "dueno", etiqueta: "Dueño" },
+  { valor: "empleado", etiqueta: "Empleado" },
+  { valor: "freelance", etiqueta: "Freelance" },
+] as const;
+
+/** Usuario (RF-144): nombre, email con formato válido, rol y acceso a redes. */
+export const esquemaUsuario = z.object({
+  nombre: z
+    .string()
+    .trim()
+    .min(1, "Ingresá el nombre.")
+    .max(120, "Usá como máximo 120 caracteres."),
+  email: z.string().trim().min(1, "Ingresá el email.").pipe(z.email("Ingresá un email válido.")),
+  rol: z.enum(ROLES.map(({ valor }) => valor)),
+  acceso_redes: z.boolean(),
+});
+
+export type DatosUsuario = z.infer<typeof esquemaUsuario>;
+
+/** Edición (RF-147): solo se envían rol y acceso a redes; nombre y email se muestran sin validar. */
+export const esquemaEdicionUsuario = esquemaUsuario.extend({
+  nombre: z.string(),
+  email: z.string(),
+});
+
 export const TIPOS_REQUISITO = [
   { valor: "visa", etiqueta: "Visa" },
   { valor: "vacunacion", etiqueta: "Vacunación" },
