@@ -82,7 +82,11 @@ export function TablaClientes({ clientes }: { clientes: ClienteListado[] }) {
                 SIN_DATO
               )}
             </td>
-            <td className="px-3 py-3">{c.oportunidades_abiertas}</td>
+            <td className="px-3 py-3">
+              {c.oportunidades_abiertas === 0
+                ? SIN_DATO
+                : `${String(c.oportunidades_abiertas)} ${c.oportunidades_abiertas === 1 ? "abierta" : "abiertas"}`}
+            </td>
             <td className="px-3 py-3">
               <ChevronRight aria-hidden="true" className="size-4 text-muted-foreground" />
             </td>

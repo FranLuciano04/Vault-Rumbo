@@ -332,7 +332,7 @@ describe("RF-005 columnas con datos reales", () => {
     expect(fila.getByText("Nicolás Paz")).toBeInTheDocument();
     expect(fila.getByText(/Roma/)).toBeInTheDocument();
     expect(fila.getByText(/03\/11\/25/)).toBeInTheDocument();
-    expect(fila.getAllByRole("cell").at(5)).toHaveTextContent(/^2$/);
+    expect(fila.getAllByRole("cell").at(5)).toHaveTextContent(/^2 abiertas$/);
   });
 
   it("RF-005 el asesor es el de la fila aunque no sea el usuario de la sesión", async () => {
@@ -349,7 +349,7 @@ describe("RF-005 columnas con datos reales", () => {
     const celdas = fila.getAllByRole("cell");
     expect(celdas.at(3)).toHaveTextContent("—");
     expect(celdas.at(4)).toHaveTextContent("—");
-    expect(celdas.at(5)).toHaveTextContent(/^0$/);
+    expect(celdas.at(5)).toHaveTextContent("—");
   });
 });
 
