@@ -3,7 +3,7 @@ id: T-152
 titulo: Rechazar en el rojo un comando de tests que no se pudo ejecutar
 modulo: M0 — Fundaciones
 capa: infra
-estado: libre
+estado: tomado
 depende_de: []
 tamaño: XS
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [DEC-0014]
 origen: hallazgo T-034
-asignado:
-tomado_el:
-rama:
+asignado: Nahuel Viniegra
+tomado_el: 22/10/26 22:05
+rama: feature/T-152-rechazar-en-el-rojo-un-comando-de-tests
 pr:
 ---
 # T-152 Rechazar en el rojo un comando de tests que no se pudo ejecutar
