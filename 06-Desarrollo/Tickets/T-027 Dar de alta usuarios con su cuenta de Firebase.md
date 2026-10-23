@@ -3,7 +3,7 @@ id: T-027
 titulo: Dar de alta usuarios con su cuenta de Firebase
 modulo: M1 — Usuarios y configuración
 capa: backend
-estado: tomado
+estado: hecho
 depende_de: [T-026, T-017, T-012, T-011]
 tamaño: M
 riesgo: alto
@@ -50,3 +50,12 @@ Admin y dueña listan usuarios y dan de alta uno nuevo: Rumbo crea su cuenta en 
 
 ## Notas de implementación
 - **Del plan:** El Admin SDK solo **genera** el link de restablecimiento; para que Firebase **envíe** el mail desde el servidor hay que verificar en la documentación oficial la vía correcta (p. ej., la API REST `accounts:sendOobCode` con `PASSWORD_RESET`). No armar mails propios (spec §7).
+- **Costura de cuentas:** el `GestorDeCuentas` (Protocol) de `rumbo/core/seguridad.py` crea la cuenta, la borra y manda el mail. Su versión real es `GestorFirebase`: el Admin SDK en un hilo para crear y borrar, y `accounts:sendOobCode` con `PASSWORD_RESET` firmado con la credencial del Admin SDK para el mail (fuente: https://cloud.google.com/identity-platform/docs/reference/rest/v1/accounts/sendOobCode). Con `returnOobLink` en false el mail lo manda Firebase. No hay variables ni secretos nuevos. Con el emulador se usa el token `owner`, solo en desarrollo. Los tests usan un `GestorDeCuentasFalso`.
+- **Alta:** se valida el rol y el email (normalizado; en Rumbo se busca sin distinguir mayúsculas → 409 sin tocar Firebase). Después se crea la cuenta (`CuentaYaExiste` → 409, sin borrar la cuenta ajena) y, en un savepoint, el INSERT y el mail. Si falla la base, el mail o hay una cancelación (`BaseException`), se borra la cuenta y se relanza el error. `IntegrityError` → 409.
+- **Decisión de Paloma (22/10/26):** si Firebase no puede mandar el mail, la respuesta es 502, se borra la cuenta y no queda `Usuario`.
+- **Riesgo conocido (decisión de Paloma):** si falla el commit final del pedido, después del mail, o si llega una cancelación mientras se crea la cuenta, queda una cuenta de Firebase sin `Usuario` y reintentar da 409. Va a un ticket aparte (recuperar cuentas huérfanas).
+- **Decisión abierta para la sync (`#accion/decidir`):** hoy un `admin` puede dar de alta a otro `admin` o a una `dueno`. Sigue la letra de CU-25 paso 3, pero ninguna DEC dice si puede otorgar un rol superior al suyo.
+- **Tests de soporte (`--tocar-tests`):** las 3 rutas en `IMPLEMENTADAS` de `test_contrato_m1.py`. En el fix se sumaron dos tests (email con mayúsculas y cancelación), autorizados por el orquestador. En el rojo se sacó el test de «`password` extra → 422»: prohibir campos extra cambiaría el contrato, y el servidor nunca usa una contraseña.
+- **Review de seguridad (sonnet):** 0 bloqueantes, 2 importantes y 4 menores. Se arreglaron la cancelación y la búsqueda sin mayúsculas. El commit final y el rol `dueno` siguieron las decisiones de arriba. Descartado: «nombre de solo espacios» (`Entrada` recorta, así que da 422). Quedan como menores: `ValueError` del SDK → 502 (el email inválido ya da 422 en el esquema, e `INVALID_EMAIL` del servidor no tiene tipo propio) y timeouts del Admin SDK por defecto.
+- **Pendiente de verificación manual:** el envío real del mail con el emulador y con `rumbo-9ff17`. La cuenta de servicio necesita `firebaseauth.users.sendEmail`; hay que confirmar si hace falta `userIp`. `GestorFirebase` no tiene tests propios (core/seguridad.py, 72 %).
+- **Modelos:** tests sonnet, implementación/refactor/fix opus, review sonnet. Sin escalados.
