@@ -104,6 +104,8 @@ class RequisitoDestinoEditar(Edicion):
 
 
 class Operador(Auditoria):
+    model_config = ConfigDict(from_attributes=True)
+
     id: uuid.UUID
     nombre: str
     contacto: str | None

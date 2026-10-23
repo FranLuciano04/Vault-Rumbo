@@ -15,6 +15,11 @@ def normalizar(texto: str) -> str:
     return " ".join(texto.translate(str.maketrans(CON_TILDE, SIN_TILDE)).lower().split())
 
 
+def escapar_like(texto: str) -> str:
+    """Escapa los comodines de LIKE para que `buscar` los trate como texto literal."""
+    return texto.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
+
+
 class Visibilidad(Protocol):
     """Filtro por fila que arma `negocio.politicas.visibilidad(actor)`; datos no lo conoce."""
 

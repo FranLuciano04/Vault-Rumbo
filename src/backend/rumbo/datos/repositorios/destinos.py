@@ -7,15 +7,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from rumbo.datos.modelos import Destino
 from rumbo.datos.modelos.base import nombre_normalizado
-from rumbo.datos.repositorios.base import RepositorioBase, Visibilidad, normalizar
-
-
-def _escapar_like(texto: str) -> str:
-    return texto.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
+from rumbo.datos.modelos.catalogos import INDICE_NOMBRE_DESTINO
+from rumbo.datos.repositorios.base import RepositorioBase, Visibilidad, escapar_like, normalizar
 
 
 class RepositorioDestinos(RepositorioBase[Destino]):
     modelo = Destino
+    etiqueta = "destino"
+    indice = INDICE_NOMBRE_DESTINO
 
     async def buscar_por_nombre(
         self,
@@ -48,7 +47,7 @@ class RepositorioDestinos(RepositorioBase[Destino]):
         consulta = visibilidad.aplicar(select(Destino), Destino)
         consulta = consulta.where(Destino.activo == activo)
         if buscar:
-            patron = f"%{_escapar_like(normalizar(buscar))}%"
+            patron = f"%{escapar_like(normalizar(buscar))}%"
             consulta = consulta.where(
                 or_(
                     nombre_normalizado(Destino.nombre).like(patron, escape="\\"),

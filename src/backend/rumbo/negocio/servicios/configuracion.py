@@ -9,20 +9,23 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from rumbo.datos.modelos import (
     Destino,
+    Operador,
     RequisitoDestino,
     RolUsuario,
     TipoComision,
     TipoRequisito,
     Usuario,
 )
-from rumbo.datos.modelos.catalogos import INDICE_NOMBRE_DESTINO
+from rumbo.datos.repositorios.base import RepositorioBase
 from rumbo.datos.repositorios.destinos import RepositorioDestinos
+from rumbo.datos.repositorios.operadores import RepositorioOperadores
 from rumbo.datos.repositorios.requisitos import RepositorioRequisitos
 from rumbo.datos.repositorios.seguridad import RepositorioUsuarios
 from rumbo.negocio.errores import Conflicto
 from rumbo.negocio.politicas import exigir_rol, visibilidad
 
 _destinos = RepositorioDestinos()
+_operadores = RepositorioOperadores()
 _requisitos = RepositorioRequisitos()
 _usuarios = RepositorioUsuarios()
 
@@ -83,10 +86,10 @@ async def crear_destino(
 ) -> Destino:
     """Da de alta un `Destino` (CU-26, RF-089, RF-090). El nombre no puede repetirse."""
     exigir_rol(actor, RolUsuario.admin, RolUsuario.dueno)
-    await _exigir_nombre_libre(sesion, actor, nombre)
+    await _exigir_nombre_libre(sesion, actor, _destinos, nombre)
     destino = Destino(nombre=nombre, pais=pais, region=region, notas=notas)
     sesion.add(destino)
-    await _guardar_con_nombre_unico(sesion)
+    await _guardar_con_nombre_unico(sesion, _destinos)
     return destino
 
 
@@ -97,10 +100,12 @@ async def editar_destino(
     exigir_rol(actor, RolUsuario.admin, RolUsuario.dueno)
     destino = await obtener_destino(sesion, actor, destino_id)
     if "nombre" in cambios:
-        await _exigir_nombre_libre(sesion, actor, cambios["nombre"], excluir_id=destino.id)
+        await _exigir_nombre_libre(
+            sesion, actor, _destinos, cambios["nombre"], excluir_id=destino.id
+        )
     for campo, valor in cambios.items():
         setattr(destino, campo, valor)
-    await _guardar_con_nombre_unico(sesion)
+    await _guardar_con_nombre_unico(sesion, _destinos)
     return destino
 
 
@@ -108,12 +113,12 @@ async def dar_de_baja_destino(
     sesion: AsyncSession, actor: Usuario, destino_id: uuid.UUID
 ) -> Destino:
     """Baja lógica, aunque esté en uso; idempotente (CU-26, RF-091)."""
-    return await _fijar_activo(sesion, actor, destino_id, activo=False)
+    return await _fijar_activo(sesion, actor, _destinos, destino_id, activo=False)
 
 
 async def reactivar_destino(sesion: AsyncSession, actor: Usuario, destino_id: uuid.UUID) -> Destino:
     """Vuelve a dejar activo un `Destino` de baja; idempotente (CU-26, RF-092)."""
-    return await _fijar_activo(sesion, actor, destino_id, activo=True)
+    return await _fijar_activo(sesion, actor, _destinos, destino_id, activo=True)
 
 
 async def listar_requisitos(
@@ -191,29 +196,42 @@ async def dar_de_baja_requisito(
     return requisito
 
 
-async def _fijar_activo(
-    sesion: AsyncSession, actor: Usuario, destino_id: uuid.UUID, *, activo: bool
-) -> Destino:
+async def _fijar_activo[F: Destino | Operador](
+    sesion: AsyncSession,
+    actor: Usuario,
+    repositorio: RepositorioBase[F],
+    id_: uuid.UUID,
+    *,
+    activo: bool,
+) -> F:
+    """Baja o reactivación de cualquier catálogo con baja lógica; idempotente."""
     exigir_rol(actor, RolUsuario.admin, RolUsuario.dueno)
-    destino = await obtener_destino(sesion, actor, destino_id)
-    if destino.activo is not activo:
-        destino.activo = activo
+    fila = await repositorio.obtener(sesion, id_, visibilidad=visibilidad(actor))
+    if fila.activo is not activo:
+        fila.activo = activo
         await sesion.flush()
-    return destino
+    return fila
 
 
 async def _exigir_nombre_libre(
-    sesion: AsyncSession, actor: Usuario, nombre: str, *, excluir_id: uuid.UUID | None = None
+    sesion: AsyncSession,
+    actor: Usuario,
+    repositorio: RepositorioDestinos | RepositorioOperadores,
+    nombre: str,
+    *,
+    excluir_id: uuid.UUID | None = None,
 ) -> None:
-    """409 si otro `Destino`, activo o no, ya tiene ese nombre (sin mirar el país)."""
-    repetido = await _destinos.buscar_por_nombre(
+    """409 si otra fila del catálogo, activa o no, ya tiene ese nombre (sin mirar el país)."""
+    repetido = await repositorio.buscar_por_nombre(
         sesion, nombre, excluir_id=excluir_id, visibilidad=visibilidad(actor)
     )
     if repetido is not None:
-        raise Conflicto(f"Ya existe un destino llamado «{repetido.nombre}».")
+        raise Conflicto(f"Ya existe un {repositorio.etiqueta} llamado «{repetido.nombre}».")
 
 
-async def _guardar_con_nombre_unico(sesion: AsyncSession) -> None:
+async def _guardar_con_nombre_unico(
+    sesion: AsyncSession, repositorio: RepositorioDestinos | RepositorioOperadores
+) -> None:
     """Flush que traduce el choque con el índice único del nombre a 409: cubre la carrera entre
     dos altas que pasaron `_exigir_nombre_libre` a la vez. Corre en un savepoint para que la
     sesión siga usable."""
@@ -221,26 +239,75 @@ async def _guardar_con_nombre_unico(sesion: AsyncSession) -> None:
         async with sesion.begin_nested():
             await sesion.flush()
     except IntegrityError as error:
-        if INDICE_NOMBRE_DESTINO not in str(error.orig):
+        if repositorio.indice not in str(error.orig):
             raise
-        raise Conflicto("Ya existe un destino con ese nombre.") from error
+        raise Conflicto(f"Ya existe un {repositorio.etiqueta} con ese nombre.") from error
+
+
+async def listar_operadores(
+    sesion: AsyncSession,
+    actor: Usuario,
+    *,
+    activo: bool,
+    buscar: str | None,
+    desplazamiento: int,
+    limite: int,
+) -> tuple[list[Operador], int]:
+    """Página del catálogo de operadores por nombre y el total (CU-31, RF-093). Lo leen todos."""
+    return await _operadores.paginar(
+        sesion,
+        activo=activo,
+        buscar=buscar,
+        desplazamiento=desplazamiento,
+        limite=limite,
+        visibilidad=visibilidad(actor),
+    )
+
+
+async def obtener_operador(
+    sesion: AsyncSession, actor: Usuario, operador_id: uuid.UUID
+) -> Operador:
+    """Un `Operador`, activo o no (CU-31). Lo leen todos."""
+    return await _operadores.obtener(sesion, operador_id, visibilidad=visibilidad(actor))
 
 
 async def crear_operador(
     sesion: AsyncSession, actor: Usuario, *, nombre: str, contacto: str | None = None
-) -> Any:
-    raise NotImplementedError
+) -> Operador:
+    """Da de alta un `Operador` (CU-31, RF-093, RF-094). El nombre no puede repetirse."""
+    exigir_rol(actor, RolUsuario.admin, RolUsuario.dueno)
+    await _exigir_nombre_libre(sesion, actor, _operadores, nombre)
+    operador = Operador(nombre=nombre, contacto=contacto)
+    sesion.add(operador)
+    await _guardar_con_nombre_unico(sesion, _operadores)
+    return operador
 
 
 async def editar_operador(
     sesion: AsyncSession, actor: Usuario, operador_id: uuid.UUID, cambios: dict[str, Any]
-) -> Any:
-    raise NotImplementedError
+) -> Operador:
+    """Aplica solo los campos enviados (CU-31, RF-093); un nombre nuevo no puede repetirse."""
+    exigir_rol(actor, RolUsuario.admin, RolUsuario.dueno)
+    operador = await obtener_operador(sesion, actor, operador_id)
+    if "nombre" in cambios:
+        await _exigir_nombre_libre(
+            sesion, actor, _operadores, cambios["nombre"], excluir_id=operador.id
+        )
+    for campo, valor in cambios.items():
+        setattr(operador, campo, valor)
+    await _guardar_con_nombre_unico(sesion, _operadores)
+    return operador
 
 
-async def dar_de_baja_operador(sesion: AsyncSession, actor: Usuario, operador_id: uuid.UUID) -> Any:
-    raise NotImplementedError
+async def dar_de_baja_operador(
+    sesion: AsyncSession, actor: Usuario, operador_id: uuid.UUID
+) -> Operador:
+    """Baja lógica, aunque esté en uso; idempotente (CU-31, RF-095, DEC-0009)."""
+    return await _fijar_activo(sesion, actor, _operadores, operador_id, activo=False)
 
 
-async def reactivar_operador(sesion: AsyncSession, actor: Usuario, operador_id: uuid.UUID) -> Any:
-    raise NotImplementedError
+async def reactivar_operador(
+    sesion: AsyncSession, actor: Usuario, operador_id: uuid.UUID
+) -> Operador:
+    """Vuelve a dejar activo un `Operador` de baja; idempotente (CU-31, RF-096)."""
+    return await _fijar_activo(sesion, actor, _operadores, operador_id, activo=True)
