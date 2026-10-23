@@ -14,7 +14,7 @@ tags:: #tipo/referencia
 
 | Módulo | Tickets | Hechos | Tomados | Disponibles | Esperando | Bloqueados | Estado del módulo |
 |---|---|---|---|---|---|---|---|
-| M0 — Fundaciones | 33 | 33 | 0 | 0 | 0 | 0 | 🔍 listo para la review |
+| M0 — Fundaciones | 34 | 33 | 0 | 1 | 0 | 0 | 🛠️ en curso |
 | M1 — Usuarios y configuración | 18 | 8 | 2 | 4 | 4 | 0 | 🛠️ en curso |
 | M2 — Clientes | 12 | 3 | 0 | 3 | 6 | 0 | 🛠️ en curso |
 | M3 — Alertas | 11 | 0 | 0 | 2 | 9 | 0 | 🛠️ en curso |
@@ -66,6 +66,7 @@ flowchart LR
     T145["T-145 · Responder un error controlado si falta el proyecto de Firebase<br/><small>backend · ⚠️ riesgo alto</small>"]:::hecho
     T150["T-150 · Correr las auditorías de dependencias cada semana<br/><small>infra</small>"]:::hecho
     T152["T-152 · Rechazar en el rojo un comando de tests que no se pudo ejecutar<br/><small>infra</small>"]:::hecho
+    T154["T-154 · Acelerar la suite de tests del backend<br/><small>infra</small>"]:::disponible
   end
   subgraph M1["M1 — Usuarios y configuración"]
     T026["T-026 · Publicar el contrato de usuarios y configuración<br/><small>contrato</small>"]:::hecho
