@@ -3,7 +3,7 @@ id: T-034
 titulo: Configurar los parámetros del negocio en la web
 modulo: M1 — Usuarios y configuración
 capa: web
-estado: tomado
+estado: hecho
 depende_de: [T-026, T-020]
 tamaño: S
 riesgo: normal
@@ -46,3 +46,8 @@ Admin y dueña tienen la sección Configuración con sus pestañas, y en la de p
 - Las otras pestañas (tickets propios).
 
 ## Notas de implementación
+- **Modelos:** tests sonnet, implementación/refactor/fix sonnet, review opus. Sin escalados.
+- **Tests tocados después del rojo (autorizado por Nahuel, `--tocar-tests`):** en el verde, solo el setup de MSW (`crearServidor(...manejadoresM1)`) y el tipo `JsonBodyType` de `cuerpo` en `PaginaConfiguracion.test.tsx`; en el fix, solo se agregaron casos (422 con `campo: "body"`, 2 decimales, anticipación 0, usuario sin comisión, GET con error). Ninguna aserción cambió.
+- **Rojo verificado a mano:** `fase rojo` aceptó como rojo un `pnpm: command not found` (en el bash de esta PC hay que usar `corepack pnpm`). Los 36 tests fallaban por el motivo correcto. Hallazgo para `tickets.mjs`: no tratar el código 127 como rojo.
+- **Review:** 0 bloqueantes; 2 importantes (422 de nivel modelo tragado en silencio, decimales de la comisión) y 3 menores (usuario sin comisión, errores de carga, `por_pagina` 100) arreglados en el fix.
+- **Pendiente:** labels y botones inventados desde CU-13 (no se pudieron leer los PNG de las pantallas 30 y 51); comparar con el prototipo. Las otras tres pestañas quedan deshabilitadas (tickets propios). No hay forma de quitar una comisión (el contrato lo permite; CU-13 no lo pide).
