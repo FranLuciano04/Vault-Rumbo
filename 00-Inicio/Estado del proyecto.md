@@ -24,7 +24,7 @@ actualizado: 13/10/26
 >
 > 👉 **22/10 (Paloma):** **T-032** (requisitos de cada destino) está hecho y mergeado (PR [#39](https://github.com/FranLuciano04/Vault-Rumbo/pull/39)). Destraba 7 tickets. Adelantó **T-148**: la cobertura ya sigue los `await`. T-148 ya quedó cerrado (PR [#41](https://github.com/FranLuciano04/Vault-Rumbo/pull/41)). Se creó **T-151** (422 ante un entero fuera de rango).
 >
-> 👉 **22/10 (Paloma):** **T-040** (alta de clientes con detección de duplicados) está hecho y mergeado (PR [#34](https://github.com/FranLuciano04/Vault-Rumbo/pull/34)). Destraba 11 tickets. Para la sync: ¿al `freelance` hay que avisarle de duplicados de otros asesores? ⚠️ `main` no tiene checks obligatorios, así que `--auto` mergea sin esperar el CI.
+> 👉 **22/10 (Paloma):** **T-040** (alta de clientes con detección de duplicados) está hecho y mergeado (PR [#34](https://github.com/FranLuciano04/Vault-Rumbo/pull/34)). Destraba 11 tickets. Para la sync: ¿al `freelance` hay que avisarle de duplicados de otros asesores? ⚠️ `main` no tiene checks obligatorios, así que `--auto` mergea sin esperar el CI. ✅ Descartado (24/10, Francisco): el repo privado gratis no permite proteger ramas y el equipo no va a pagar GitHub Pro. Se mitiga mergeando sin `--auto` (`/implementar-ticket` 1.1.0).
 >
 > 👉 **22/10 (Paloma):** **T-039** (contrato de clientes) está hecho y mergeado (PR [#31](https://github.com/FranLuciano04/Vault-Rumbo/pull/31)). Destraba 21 tickets de M2. Queda en revisión [[DEC-0017 Contacto mínimo del cliente]], para ratificar en la sync.
 >
