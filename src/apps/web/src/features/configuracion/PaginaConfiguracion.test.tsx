@@ -60,6 +60,21 @@ describe("RF-083 pestañas de Configuración", () => {
   });
 });
 
+describe("RF-093 pestaña Operadores", () => {
+  it("RF-093 la pestaña Operadores está habilitada y muestra el catálogo", async () => {
+    renderPagina();
+    const usuario = userEvent.setup();
+
+    const pestana = await screen.findByRole("tab", { name: /operadores/i });
+    expect(pestana).toBeEnabled();
+    await usuario.click(pestana);
+
+    expect(pestana).toHaveAttribute("aria-selected", "true");
+    expect(await screen.findByText("Despegar Mayorista")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /nuevo operador/i })).toBeInTheDocument();
+  });
+});
+
 describe("RF-084 parámetros del negocio", () => {
   it("RF-084 precarga los valores vigentes del servidor", async () => {
     renderPagina();

@@ -53,6 +53,18 @@ export const esquemaDestino = z.object({
 
 export type DatosDestino = z.infer<typeof esquemaDestino>;
 
+/** Operador (RF-093): nombre obligatorio; contacto opcional (vacío se envía como null). */
+export const esquemaOperador = z.object({
+  nombre: z
+    .string()
+    .trim()
+    .min(1, "Ingresá el nombre.")
+    .max(120, "Usá como máximo 120 caracteres."),
+  contacto: z.string().trim().max(200, "Usá como máximo 200 caracteres."),
+});
+
+export type DatosOperador = z.infer<typeof esquemaOperador>;
+
 export const ROLES = [
   { valor: "admin", etiqueta: "Admin" },
   { valor: "dueno", etiqueta: "Dueño" },
@@ -74,9 +86,8 @@ export const esquemaUsuario = z.object({
 
 export type DatosUsuario = z.infer<typeof esquemaUsuario>;
 
-/** Edición (RF-147): solo se envían rol y acceso a redes; nombre y email se muestran sin validar. */
+/** Edición (RF-147): el nombre se valida como en el alta; el email se muestra bloqueado, sin validar. */
 export const esquemaEdicionUsuario = esquemaUsuario.extend({
-  nombre: z.string(),
   email: z.string(),
 });
 
