@@ -659,3 +659,61 @@ async def test_rf147_admin_edita_a_una_duena_sin_cambiarle_el_rol_no_da_403(
     assert duena.rol == RolUsuario.dueno
     assert duena.acceso_redes is True
     assert duena.nombre == "Ana María"
+
+
+async def test_rf147_admin_no_puede_quitar_rol_dueno_403(
+    cliente_como: ClienteComo, firebase: GestorDeCuentasFalso, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("admin")
+    duena = await crear(sesion, UsuarioFactory, rol=RolUsuario.dueno, activo=True)
+
+    r = await c.patch(f"{RUTA}/{duena.id}", json={"rol": "empleado"})
+
+    assert r.status_code == 403
+    assert r.headers["content-type"].startswith(PROBLEM_JSON)
+    assert (await _recargar(sesion, duena)).rol == RolUsuario.dueno
+
+
+async def test_rf148_admin_no_puede_dar_de_baja_a_una_duena_403(
+    cliente_como: ClienteComo, firebase: GestorDeCuentasFalso, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("admin")
+    duena = await crear(sesion, UsuarioFactory, rol=RolUsuario.dueno, activo=True)
+
+    r = await c.post(f"{RUTA}/{duena.id}/baja")
+
+    assert r.status_code == 403
+    assert r.headers["content-type"].startswith(PROBLEM_JSON)
+    assert (await _recargar(sesion, duena)).activo is True
+    assert firebase.deshabilitadas == []
+
+
+async def test_rf147_la_duena_puede_quitar_rol_dueno_y_dar_de_baja_a_otra_duena(
+    cliente_como: ClienteComo, firebase: GestorDeCuentasFalso, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("dueno")
+    otra = await crear(sesion, UsuarioFactory, rol=RolUsuario.dueno, activo=True)
+    tercera = await crear(sesion, UsuarioFactory, rol=RolUsuario.dueno, activo=True)
+
+    r_rol = await c.patch(f"{RUTA}/{otra.id}", json={"rol": "empleado"})
+    r_baja = await c.post(f"{RUTA}/{tercera.id}/baja")
+
+    assert r_rol.status_code == 200, r_rol.text
+    assert r_baja.status_code == 200, r_baja.text
+    assert (await _recargar(sesion, otra)).rol == RolUsuario.empleado
+    assert (await _recargar(sesion, tercera)).activo is False
+    assert firebase.deshabilitadas == [tercera.firebase_uid]
+
+
+async def test_rf147_admin_reenvia_rol_dueno_sin_cambio_no_da_403(
+    cliente_como: ClienteComo, firebase: GestorDeCuentasFalso, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("admin")
+    duena = await crear(sesion, UsuarioFactory, rol=RolUsuario.dueno, acceso_redes=False)
+
+    r = await c.patch(f"{RUTA}/{duena.id}", json={"rol": "dueno", "acceso_redes": True})
+
+    assert r.status_code == 200, r.text
+    duena = await _recargar(sesion, duena)
+    assert duena.rol == RolUsuario.dueno
+    assert duena.acceso_redes is True
