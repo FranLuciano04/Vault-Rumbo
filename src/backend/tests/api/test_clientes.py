@@ -669,3 +669,89 @@ async def test_rf008_no_hay_borrado(cliente_como: FabricaCliente, sesion: AsyncS
 
     assert r.status_code == 405
     assert await _cantidad(sesion) == 1
+
+
+async def test_rf150_freelance_no_reasigna_su_cliente(
+    cliente_como: FabricaCliente, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("freelance")
+    otro = await crear(sesion, UsuarioFactory)
+    propio = await crear(sesion, ClienteFactory, asesor_asignado_id=c.usuario.id)  # type: ignore[attr-defined]
+
+    r = await c.patch(
+        f"/api/clientes/{propio.id}",
+        json={"asesor_asignado_id": str(otro.id), "segmento": "pareja"},
+    )
+
+    assert r.status_code == 200, r.text
+    assert r.json()["asesor_asignado_id"] == str(c.usuario.id)  # type: ignore[attr-defined]
+    await sesion.refresh(propio)
+    assert propio.asesor_asignado_id == c.usuario.id  # type: ignore[attr-defined]
+
+
+async def test_rf002_edicion_asesor_de_baja_422(
+    cliente_como: FabricaCliente, sesion: AsyncSession
+) -> None:
+    de_baja = await crear(sesion, UsuarioFactory, activo=False)
+    cliente = await crear(sesion, ClienteFactory, nombre="Ana Pérez", asesor_asignado_id=None)
+    c = await cliente_como("empleado")
+
+    r = await c.patch(
+        f"/api/clientes/{cliente.id}",
+        json={"asesor_asignado_id": str(de_baja.id), "nombre": "Otro"},
+    )
+
+    assert r.status_code == 422
+    assert r.json()["errores"][0]["campo"] == "asesor_asignado_id"
+    await sesion.refresh(cliente)
+    assert cliente.asesor_asignado_id is None
+    assert cliente.nombre == "Ana Pérez"
+
+
+async def test_rf007_empleado_reasigna_a_asesor_activo(
+    cliente_como: FabricaCliente, sesion: AsyncSession
+) -> None:
+    asesor = await crear(sesion, UsuarioFactory)
+    cliente = await crear(sesion, ClienteFactory, asesor_asignado_id=None)
+    c = await cliente_como("empleado")
+
+    r = await c.patch(f"/api/clientes/{cliente.id}", json={"asesor_asignado_id": str(asesor.id)})
+
+    assert r.status_code == 200, r.text
+    assert r.json()["asesor_asignado_id"] == str(asesor.id)
+    await sesion.refresh(cliente)
+    assert cliente.asesor_asignado_id == asesor.id
+
+
+async def test_rf007_empleado_quita_el_asesor_con_null(
+    cliente_como: FabricaCliente, sesion: AsyncSession
+) -> None:
+    asesor = await crear(sesion, UsuarioFactory)
+    cliente = await crear(sesion, ClienteFactory, asesor_asignado_id=asesor.id)
+    c = await cliente_como("empleado")
+
+    r = await c.patch(f"/api/clientes/{cliente.id}", json={"asesor_asignado_id": None})
+
+    assert r.status_code == 200, r.text
+    assert r.json()["asesor_asignado_id"] is None
+    await sesion.refresh(cliente)
+    assert cliente.asesor_asignado_id is None
+
+
+async def test_rf003_freelance_con_mismo_nombre_y_otro_contacto_ajeno_no_recibe_aviso(
+    cliente_como: FabricaCliente, sesion: AsyncSession
+) -> None:
+    ajeno = await crear(sesion, UsuarioFactory)
+    await crear(
+        sesion,
+        ClienteFactory,
+        nombre="Ana Pérez",
+        contacto="otro@mail.test",
+        asesor_asignado_id=ajeno.id,
+    )
+    c = await cliente_como("freelance")
+
+    r = await c.post("/api/clientes", json=CUERPO)
+
+    assert r.status_code == 201
+    assert await _cantidad(sesion) == 2

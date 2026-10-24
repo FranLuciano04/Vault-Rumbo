@@ -64,6 +64,12 @@ class RepositorioClientes(RepositorioBase[Cliente]):
         consulta = consulta.order_by(Cliente.created_at, Cliente.id).limit(MAX_PARECIDOS)
         return list(await sesion.scalars(consulta))
 
+    async def existe_contacto(self, sesion: AsyncSession, *, contacto: str) -> bool:
+        """Si algún `Cliente` de la agencia tiene ese contacto (sin distinguir mayúsculas), sin
+        filtro de visibilidad ni filas cargadas: solo para avisar de un duplicado ajeno."""
+        consulta = select(exists().where(func.lower(Cliente.contacto) == contacto.lower()))
+        return bool(await sesion.scalar(consulta))
+
     async def paginar(
         self,
         sesion: AsyncSession,

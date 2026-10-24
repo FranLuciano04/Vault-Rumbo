@@ -292,7 +292,7 @@ async def test_cu03_editar_acepta_null_en_preferencias_y_asesor(
         f"/api/clientes/{ID}", json={"preferencias": None, "asesor_asignado_id": None}
     )
 
-    assert r.status_code == 501
+    assert r.status_code == 404  # el id no existe: el `null` pasó la validación (no es 422)
 
 
 async def test_cu03_a2_el_contrato_no_publica_como_nullable_lo_que_no_admite_null(

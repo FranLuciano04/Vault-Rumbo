@@ -10,7 +10,7 @@ from rumbo.datos.modelos import Cliente, RolUsuario, SegmentoCliente, Usuario
 from rumbo.datos.repositorios.clientes import RepositorioClientes, ResumenCliente
 from rumbo.datos.repositorios.seguridad import RepositorioUsuarios
 from rumbo.negocio.errores import DatosInvalidos, NoEncontrado, PosibleDuplicado
-from rumbo.negocio.politicas import exigir_escritura, visibilidad, visibilidad_agencia
+from rumbo.negocio.politicas import exigir_escritura, visibilidad
 
 _clientes = RepositorioClientes()
 _usuarios = RepositorioUsuarios()
@@ -31,10 +31,10 @@ async def registrar_cliente(
 ) -> Cliente:
     """Da de alta un `Cliente` (CU-02, RF-001..RF-003, RF-150).
 
-    Si hay uno con el mismo contacto o nombre en la agencia, corta con `PosibleDuplicado` (A1)
-    salvo que `confirmar_duplicado` sea verdadero; el `freelance` recibe solo los que ve y, si el
-    parecido es ajeno, el aviso va sin candidatos. El `freelance` queda como asesor asignado de lo
-    que da de alta, sin importar lo que envíe.
+    Si hay uno con el mismo contacto o nombre entre los que el actor ve, corta con
+    `PosibleDuplicado` (A1) salvo que `confirmar_duplicado` sea verdadero. Al `freelance` también
+    se le avisa, sin candidatos, si un cliente ajeno tiene el mismo contacto (no el mismo nombre).
+    El `freelance` queda como asesor asignado de lo que da de alta, sin importar lo que envíe.
     """
     if actor.rol is RolUsuario.freelance:
         asesor_asignado_id = actor.id
@@ -46,8 +46,8 @@ async def registrar_cliente(
         )
         if parecidos:
             raise PosibleDuplicado(parecidos)
-        if actor.rol is RolUsuario.freelance and await _clientes.buscar_parecidos(
-            sesion, nombre=nombre, contacto=contacto, visibilidad=visibilidad_agencia(actor)
+        if actor.rol is RolUsuario.freelance and await _clientes.existe_contacto(
+            sesion, contacto=contacto
         ):
             raise PosibleDuplicado([])  # avisa que hay uno, sin mostrar fichas ajenas (A1)
     cliente = Cliente(
