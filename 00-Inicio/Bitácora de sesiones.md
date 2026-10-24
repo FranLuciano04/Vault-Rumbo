@@ -106,6 +106,15 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Commits:** 4ec0370, 41ddcb2, 9593781, d84393d, 35e55c1, 8ba3f52, 56f34ef (merge de main), bf6b493 (merge del PR), 4715c49 (grafo) y el de esta entrada.
 - **Pendiente:** las cuatro fallas para levantar Rumbo en local. Hay avisos de T-046 para Nahuel y Paloma.
 
+## 24/10/26 — Paloma (Claude Opus 5.5) — T-146 referencias de RF del permiso por rol
+- **Hecho:** **T-146**, mergeado en el PR [#70](https://github.com/FranLuciano04/Vault-Rumbo/pull/70) con el CI en verde.
+  - El permiso por rol y la visibilidad por fila citan RF-151. RF-150 queda para la asignación del `freelance`.
+  - Se renombraron 20 tests, sin cambiar aserciones. Sin rojo, porque es solo de renombres.
+  - Review (Opus): 3 menores, todos arreglados.
+  - También se mergeó el PR [#67](https://github.com/FranLuciano04/Vault-Rumbo/pull/67), con la salida del 5173 para la API key, que había quedado afuera del #65.
+- **Commits:** b52bb03, 8c5a916, 9a006bb, 9a288e6 (merge), 327f1da (grafo) y el de esta entrada.
+- **Pendiente:** nada de T-146.
+
 ## 24/10/26 — Paloma (Claude Opus 5.5) — DEC-0019 y las cuatro fallas de entorno local
 - **Hecho:**
   - Se registró la decisión del equipo **[[DEC-0019 Las fallas se arreglan al encontrarlas|DEC-0019]]**: las fallas se arreglan al encontrarlas, sin crear tickets, incluidos los hallazgos de Codex. Reemplaza en parte a DEC-0014. Se actualizaron `/implementar-ticket` (1.4.0), `/cerrar-modulo` (1.1.0), [[Flujo de implementación]] y el catálogo de skills.

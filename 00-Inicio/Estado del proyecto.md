@@ -18,6 +18,8 @@ actualizado: 13/10/26
 >
 > 🏁 **23/10 — M0 Fundaciones cerrado.** El equipo lo aprobó y se puso el tag `mod-0`. El resumen está en [[Bitácora técnica]].
 >
+> 👉 **24/10 (Paloma):** **T-146** (referencias de RF del permiso por rol) está hecho y mergeado (PR [#70](https://github.com/FranLuciano04/Vault-Rumbo/pull/70)). El permiso por rol y la visibilidad por fila citan RF-151; RF-150 queda solo para la asignación del `freelance`. No cambia el comportamiento.
+>
 > 👉 **24/10 (Paloma):** **T-043** (historial del cliente) está hecho y mergeado (PR [#62](https://github.com/FranLuciano04/Vault-Rumbo/pull/62)). `GET /clientes/{id}/historial` devuelve las oportunidades (por fecha de alta), los viajes (por salida) y las reseñas (por fecha), de lo más reciente a lo más antiguo. Las reseñas ocultas solo las ven `admin` y `dueno`, igual que en el catálogo (CU-29). Destraba 7 tickets.
 >
 > 👉 **22/10 (Paloma):** **T-027** (alta de usuarios con su cuenta de Firebase) está hecho. Es de ⚠️ riesgo alto: Francisco mergeó el PR [#45](https://github.com/FranLuciano04/Vault-Rumbo/pull/45) el 23/10. ✅ Verificado a mano el 23/10 por Paloma, con `rumbo-9ff17` y con el Auth Emulator: se manda el mail, se elige la contraseña y la cuenta nueva entra a Rumbo. Se creó **T-153** (cuentas huérfanas), que ya se puede tomar.
