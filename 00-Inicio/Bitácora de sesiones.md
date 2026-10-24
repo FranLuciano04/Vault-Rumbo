@@ -24,7 +24,7 @@ La **persona** de cada sesión es quien la corre, identificada por su identidad 
 ## Avisos pendientes por persona
 > Claude los lee al identificar a la persona (paso 1 de `CLAUDE.md`) y se los cuenta **apenas la saluda**, antes de cualquier otra tarea. Cuando la persona confirme que lo leyó o que lo hizo, **Claude borra su fila** en esa misma sesión, con un commit. Cuando no quede ninguna fila de alguien, se borra también su sección.
 
-### Nahuel (`Nahuel Viniegra`) y Paloma (`palomap2003`) — T-046
+### Paloma (`palomap2003`) — T-046
 - **24/10, de Francisco: T-046 (PR [#63](https://github.com/FranLuciano04/Vault-Rumbo/pull/63)) tocó piezas compartidas.** Después del pull:
   - **Web:** `CampoFormulario` pasó a `@/components/CampoFormulario`, y `errores` e `iniciales`, a `@/lib/`. Si tenés una rama abierta que importa de `features/configuracion` (por ejemplo T-037), traé `main`.
   - **API:** `Cliente` ahora trae `asesor: {id, nombre} | null`, y existe `GET /usuarios/asesores` (admin, dueño y empleado). Su mock está en `manejadoresM1`.
@@ -46,7 +46,7 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
   - El primer CI falló porque T-046 movió `errores` y `CampoFormulario`: se trajo `main` y se corrigieron los imports.
 - **Checks:** web 285 tests, cobertura 94,3 %, lint, typecheck y build en verde.
 - **Commits:** a82610f, a508b30, 10367df, e7a1148, ad37be1 (merge de main), 7b09780, 1ba418a (merge del PR), e1e8b29 (grafo) y el de esta entrada.
-- **Pendiente:** el aviso de T-046 para Nahuel sigue hasta que lo confirme.
+- **Pendiente:** nada del ticket. Nahuel confirmó el aviso de T-046; queda solo para Paloma.
 
 ## 24/10/26 — Francisco (Claude Opus 5.5) — T-046: ficha editable del cliente en la web
 - **Hecho:** T-046 (PR #63, mergeado). La ficha en `/clientes/:id` muestra:
