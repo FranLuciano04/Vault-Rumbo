@@ -1,4 +1,32 @@
-import { esquemaComision, esquemaParametros } from "./esquemas";
+import { esquemaComision, esquemaEdicionUsuario, esquemaParametros } from "./esquemas";
+
+describe("RF-147 validación de la edición de usuario (zod)", () => {
+  const valido = { nombre: "Ana Pérez", email: "ana@rumbo.test", rol: "empleado", acceso_redes: false };
+
+  it("RF-147 acepta un nombre corregido", () => {
+    expect(esquemaEdicionUsuario.safeParse({ ...valido, nombre: "Ana María" }).success).toBe(true);
+  });
+
+  it("RF-147 rechaza un nombre vacío", () => {
+    expect(esquemaEdicionUsuario.safeParse({ ...valido, nombre: "" }).success).toBe(false);
+  });
+
+  it("RF-147 rechaza un nombre de solo espacios", () => {
+    expect(esquemaEdicionUsuario.safeParse({ ...valido, nombre: "   " }).success).toBe(false);
+  });
+
+  it("RF-147 rechaza un nombre de más de 120 caracteres", () => {
+    expect(esquemaEdicionUsuario.safeParse({ ...valido, nombre: "a".repeat(121) }).success).toBe(
+      false,
+    );
+  });
+
+  it("RF-147 no valida el email (se muestra bloqueado)", () => {
+    expect(esquemaEdicionUsuario.safeParse({ ...valido, email: "jose@agencia.c" }).success).toBe(
+      true,
+    );
+  });
+});
 
 const validos = { vigencia_cotizacion_meses: 1, anticipacion_salida_dias: 7, recontacto_meses: 6 };
 

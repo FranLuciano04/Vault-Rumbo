@@ -370,16 +370,116 @@ describe("RF-147 edición de rol y accesos", () => {
     expect(await screen.findByRole("alert")).toHaveTextContent(/solo un dueño/i);
   });
 
-  it("RF-147 al editar deshabilita el nombre, no muestra el aviso del mail y avisa del próximo inicio de sesión", async () => {
+  it("RF-147 al editar deja el nombre editable, no muestra el aviso del mail y avisa del próximo inicio de sesión", async () => {
     renderPestana();
     const usuario = userEvent.setup();
 
     const filaAna = await fila("Ana Pérez");
     await usuario.click(within(filaAna).getByRole("button", { name: /editar/i }));
 
-    expect(await screen.findByLabelText(/nombre/i)).toBeDisabled();
+    const nombre = await screen.findByLabelText(/nombre/i);
+    expect(nombre).toBeEnabled();
+    expect(nombre).toHaveValue("Ana Pérez");
+    expect(screen.getByLabelText(/email/i)).toBeDisabled();
     expect(screen.queryByText(/recibe un mail/i)).not.toBeInTheDocument();
     expect(screen.getByText(/próximo inicio de sesión/i)).toBeInTheDocument();
+  });
+
+  it("RF-147 corrige el nombre y el PATCH lleva solo nombre", async () => {
+    let ruta = "";
+    let cuerpo: JsonBodyType;
+    servidor.use(
+      http.patch("*/api/usuarios/:id", async ({ request }) => {
+        ruta = new URL(request.url).pathname;
+        cuerpo = await request.json();
+        return HttpResponse.json({ ...ana, ...(cuerpo as object) });
+      }),
+    );
+    renderPestana();
+    const usuario = userEvent.setup();
+
+    const filaAna = await fila("Ana Pérez");
+    await usuario.click(within(filaAna).getByRole("button", { name: /editar/i }));
+    const nombre = await screen.findByLabelText(/nombre/i);
+    await usuario.clear(nombre);
+    await usuario.type(nombre, "Ana María Pérez");
+    await usuario.click(screen.getByRole("button", { name: /guardar/i }));
+
+    await waitFor(() => {
+      expect(cuerpo).toEqual({ nombre: "Ana María Pérez" });
+    });
+    expect(ruta).toBe(`/api/usuarios/${ana.id}`);
+  });
+
+  it("RF-147 si cambian nombre y rol, el PATCH lleva ambos", async () => {
+    let cuerpo: JsonBodyType;
+    servidor.use(
+      http.patch("*/api/usuarios/:id", async ({ request }) => {
+        cuerpo = await request.json();
+        return HttpResponse.json({ ...ana, ...(cuerpo as object) });
+      }),
+    );
+    renderPestana();
+    const usuario = userEvent.setup();
+
+    const filaAna = await fila("Ana Pérez");
+    await usuario.click(within(filaAna).getByRole("button", { name: /editar/i }));
+    const nombre = await screen.findByLabelText(/nombre/i);
+    await usuario.clear(nombre);
+    await usuario.type(nombre, "Ana M. Pérez");
+    await usuario.selectOptions(screen.getByLabelText(/rol/i), "freelance");
+    await usuario.click(screen.getByRole("button", { name: /guardar/i }));
+
+    await waitFor(() => {
+      expect(cuerpo).toEqual({ nombre: "Ana M. Pérez", rol: "freelance" });
+    });
+  });
+
+  it("RF-147 un nombre vacío no se envía y queda marcado inválido", async () => {
+    let llamadas = 0;
+    servidor.use(
+      http.patch("*/api/usuarios/:id", () => {
+        llamadas += 1;
+        return HttpResponse.json(ana);
+      }),
+    );
+    renderPestana();
+    const usuario = userEvent.setup();
+
+    const filaAna = await fila("Ana Pérez");
+    await usuario.click(within(filaAna).getByRole("button", { name: /editar/i }));
+    const nombre = await screen.findByLabelText(/nombre/i);
+    await usuario.clear(nombre);
+    await usuario.click(screen.getByRole("button", { name: /guardar/i }));
+
+    await waitFor(() => {
+      expect(nombre).toBeInvalid();
+    });
+    expect(llamadas).toBe(0);
+  });
+
+  it("RF-147 un nombre de solo espacios tampoco se envía", async () => {
+    let llamadas = 0;
+    servidor.use(
+      http.patch("*/api/usuarios/:id", () => {
+        llamadas += 1;
+        return HttpResponse.json(ana);
+      }),
+    );
+    renderPestana();
+    const usuario = userEvent.setup();
+
+    const filaAna = await fila("Ana Pérez");
+    await usuario.click(within(filaAna).getByRole("button", { name: /editar/i }));
+    const nombre = await screen.findByLabelText(/nombre/i);
+    await usuario.clear(nombre);
+    await usuario.type(nombre, "   ");
+    await usuario.click(screen.getByRole("button", { name: /guardar/i }));
+
+    await waitFor(() => {
+      expect(nombre).toBeInvalid();
+    });
+    expect(llamadas).toBe(0);
   });
 
   it("RF-147 cierra el formulario tras una edición exitosa", async () => {
