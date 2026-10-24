@@ -1,4 +1,4 @@
-"""Visibilidad por fila y permisos por rol (DEC-0005 §2, DEC-0008 §3; RF-150, RF-151).
+"""Visibilidad por fila y permisos por rol (DEC-0005 §2, DEC-0008 §3; RF-151).
 
 Lectura: para `empleado`, `admin` y `dueno` es **global** (toda la agencia, DEC-0005), salvo las
 `Alerta` ajenas y las `Resena` ocultas, que solo ven `admin` y `dueno`. Para el `freelance` es
@@ -119,7 +119,7 @@ def visibilidad(actor: Usuario) -> FiltroVisibilidad:
 
 
 def exigir_rol(actor: Usuario, *roles: RolUsuario) -> None:
-    """`SinPermiso` si el rol del actor no está entre `roles` (RF-150)."""
+    """`SinPermiso` si el rol del actor no está entre `roles` (RF-151)."""
     if actor.rol not in roles:
         raise SinPermiso("Tu rol no permite esta acción")
 
@@ -143,7 +143,7 @@ def _escribe_alerta(actor: Usuario, alerta: Alerta) -> bool:
 
 
 def exigir_escritura(actor: Usuario, registro: object) -> None:
-    """`SinPermiso` si el actor no puede modificar `registro` según DEC-0005 §2 (RF-150).
+    """`SinPermiso` si el actor no puede modificar `registro` según DEC-0005 §2 (RF-151).
 
     Para `Pago`, `ViajeHotel` y `Cotizacion` el servicio pasa el `Viaje` o la `Oportunidad` padre.
     Que el freelance cree un `Cliente` como suyo (`asesor_asignado` = él) lo resuelve el servicio.

@@ -1,5 +1,5 @@
 """T-027: alta y consulta de usuarios con su cuenta de Firebase (CU-25, RF-144, RF-145, RF-146,
-RF-150, DEC-0016) y T-028: edición de rol y baja lógica (RF-147, RF-148, RF-149, RF-153).
+RF-151, DEC-0016) y T-028: edición de rol y baja lógica (RF-147, RF-148, RF-149, RF-153).
 Usa un gestor de cuentas falso: nunca toca Firebase."""
 
 import asyncio
@@ -290,7 +290,7 @@ async def test_rf144_obtener_usuario_inexistente_404(cliente_como: ClienteComo) 
 
 
 @pytest.mark.parametrize("rol", ROLES_SIN_ACCESO)
-async def test_rf150_listar_usuarios_403_para_roles_sin_gestion(
+async def test_rf151_listar_usuarios_403_para_roles_sin_gestion(
     rol: str, cliente_como: ClienteComo, firebase: GestorDeCuentasFalso
 ) -> None:
     c = await cliente_como(rol)
@@ -302,7 +302,7 @@ async def test_rf150_listar_usuarios_403_para_roles_sin_gestion(
 
 
 @pytest.mark.parametrize("rol", ROLES_SIN_ACCESO)
-async def test_rf150_obtener_usuario_403_para_roles_sin_gestion(
+async def test_rf151_obtener_usuario_403_para_roles_sin_gestion(
     rol: str, cliente_como: ClienteComo, firebase: GestorDeCuentasFalso
 ) -> None:
     c = await cliente_como(rol)
@@ -314,7 +314,7 @@ async def test_rf150_obtener_usuario_403_para_roles_sin_gestion(
 
 
 @pytest.mark.parametrize("rol", ROLES_SIN_ACCESO)
-async def test_rf150_crear_usuario_403_para_roles_sin_gestion_sin_crear_nada(
+async def test_rf151_crear_usuario_403_para_roles_sin_gestion_sin_crear_nada(
     rol: str,
     cliente_como: ClienteComo,
     firebase: GestorDeCuentasFalso,
@@ -463,7 +463,7 @@ async def test_rf147_editar_usuario_inexistente_404(
 
 
 @pytest.mark.parametrize("rol", ROLES_SIN_ACCESO)
-async def test_rf150_editar_y_baja_403_para_roles_sin_gestion(
+async def test_rf151_editar_y_baja_403_para_roles_sin_gestion(
     rol: str,
     cliente_como: ClienteComo,
     firebase: GestorDeCuentasFalso,
@@ -786,7 +786,7 @@ async def test_rf148_baja_de_un_usuario_ya_inactivo_es_idempotente(
     assert (await _recargar(sesion, otro)).activo is False
 
 
-# --- T-046 (fix de la review): candidatos a asesor del cliente (RF-007, RF-150) ----------------
+# --- T-046 (fix de la review): candidatos a asesor del cliente (RF-007, RF-151) ----------------
 
 RUTA_ASESORES = "/api/usuarios/asesores"
 
@@ -805,7 +805,7 @@ async def test_rf007_asesores_lo_leen_admin_dueno_y_empleado(
     assert {str(otro.id), str(c.usuario.id)} <= ids  # type: ignore[attr-defined]
 
 
-async def test_rf150_asesores_el_freelance_recibe_403(cliente_como: ClienteComo) -> None:
+async def test_rf151_asesores_el_freelance_recibe_403(cliente_como: ClienteComo) -> None:
     c = await cliente_como("freelance")
 
     r = await c.get(RUTA_ASESORES)

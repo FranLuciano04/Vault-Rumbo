@@ -67,7 +67,7 @@ async def usuario_actual(
 
 
 def exigir_roles(*roles: RolUsuario) -> Callable[..., Awaitable[Usuario]]:
-    """Dependencia que deja pasar solo a esos roles (403 al resto, RF-150). Es dependencia de
+    """Dependencia que deja pasar solo a esos roles (403 al resto, RF-151). Es dependencia de
     FastAPI para que el 401 y el 403 salgan antes que el 422 de un cuerpo con datos inválidos.
     Una excepción: si el cuerpo ni siquiera es JSON, FastAPI lo rechaza con 422 antes de resolver
     las dependencias, aun sin token o con un rol que no alcanza."""

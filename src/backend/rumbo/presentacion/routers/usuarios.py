@@ -84,7 +84,7 @@ async def crear_usuario(
     **operacion((RolUsuario.admin, RolUsuario.dueno, RolUsuario.empleado), "CU-03"),
 )
 async def listar_asesores(actor: ActorDep, sesion: SesionDep) -> list[AsesorDelCliente]:
-    """Usuarios activos de cualquier rol, con id y nombre, ordenados por nombre (RF-007, RF-150).
+    """Usuarios activos de cualquier rol, con id y nombre, ordenados por nombre (RF-007, RF-151).
     Alimenta el selector de asesor de la ficha; no expone el padrón completo de `GET /usuarios`."""
     return [
         AsesorDelCliente.model_validate(u) for u in await seguridad.listar_asesores(sesion, actor)

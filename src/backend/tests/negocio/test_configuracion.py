@@ -1,5 +1,5 @@
 """T-030: el servicio de comisión por defecto exige el rol por sí mismo, sin depender de la
-guardia de la ruta (RF-150, CU-13)."""
+guardia de la ruta (RF-151, CU-13)."""
 
 from decimal import Decimal
 
@@ -13,7 +13,7 @@ from tests.fabricas import UsuarioFactory, crear
 
 
 @pytest.mark.parametrize("rol", ["empleado", "freelance"])
-async def test_rf150_servicio_exige_rol_de_gestion(sesion: AsyncSession, rol: str) -> None:
+async def test_rf151_servicio_exige_rol_de_gestion(sesion: AsyncSession, rol: str) -> None:
     actor = await crear(sesion, UsuarioFactory, rol=RolUsuario(rol), activo=True)
     vendedor = await crear(sesion, UsuarioFactory, rol=RolUsuario("empleado"), activo=True)
 
