@@ -1,10 +1,9 @@
-import { ErrorApi } from "@rumbo/shared";
+import { ETIQUETA_SEGMENTO, ErrorApi, normalizarTelefonoAR } from "@rumbo/shared";
 import { useCliente } from "@rumbo/shared/hooks";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { Linking, Pressable, ScrollView, Text, View } from "react-native";
 import { cliente } from "../../cliente";
 import { HistorialClienteMobile } from "./HistorialClienteMobile";
-import { ETIQUETA_SEGMENTO } from "./segmentos";
 
 function BotonContacto({ titulo, destino }: { titulo: string; destino: string }) {
   return (
@@ -19,35 +18,52 @@ function BotonContacto({ titulo, destino }: { titulo: string; destino: string })
   );
 }
 
-/** Acciones según el contacto: con email solo se escribe; con teléfono se llama o se abre WhatsApp. */
+/** Acciones según el contacto: con email solo se escribe; con un teléfono válido se llama o se abre WhatsApp. */
 function AccionesContacto({ contacto }: { contacto: string }) {
   if (contacto.includes("@"))
     return <BotonContacto titulo="Enviar email" destino={`mailto:${contacto}`} />;
-  const digitos = contacto.replace(/\D/g, "");
+  const telefono = normalizarTelefonoAR(contacto);
+  if (!telefono) return null;
   return (
     <>
-      <BotonContacto titulo="Llamar" destino={`tel:${contacto.replace(/[^\d+]/g, "")}`} />
-      <BotonContacto titulo="WhatsApp" destino={`https://wa.me/${digitos}`} />
+      <BotonContacto titulo="Llamar" destino={`tel:+${telefono}`} />
+      <BotonContacto titulo="WhatsApp" destino={`https://wa.me/${telefono}`} />
     </>
+  );
+}
+
+function Volver() {
+  const router = useRouter();
+  return (
+    <Pressable
+      role="button"
+      accessibilityLabel="Volver"
+      onPress={() => {
+        router.back();
+      }}
+    >
+      <Text className="text-primary">‹ Clientes</Text>
+    </Pressable>
   );
 }
 
 /** Ficha del cliente para el teléfono (RF-006, CU-03): datos, acciones de contacto e historial. */
 export function FichaClienteMobile() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const router = useRouter();
   const { data: ficha, error, isPending } = useCliente(cliente, id);
 
   if (isPending)
     return (
-      <Text role="status" className="p-6">
-        Cargando…
-      </Text>
+      <View className="flex-1 gap-4 bg-white p-6 pt-12">
+        <Volver />
+        <Text role="status">Cargando…</Text>
+      </View>
     );
   if (!ficha) {
     const noEncontrado = error instanceof ErrorApi && error.status === 404;
     return (
-      <View className="flex-1 bg-white p-6">
+      <View className="flex-1 gap-4 bg-white p-6 pt-12">
+        <Volver />
         <Text role={noEncontrado ? "heading" : "alert"}>
           {noEncontrado
             ? "Cliente no encontrado."
@@ -63,15 +79,7 @@ export function FichaClienteMobile() {
       className="flex-1 bg-white"
       contentContainerClassName="gap-5 p-4 pt-12"
     >
-      <Pressable
-        role="button"
-        accessibilityLabel="Volver"
-        onPress={() => {
-          router.back();
-        }}
-      >
-        <Text className="text-primary">‹ Clientes</Text>
-      </Pressable>
+      <Volver />
       <View className="gap-1">
         <Text role="heading" className="text-2xl font-bold">
           {ficha.nombre}
@@ -93,15 +101,14 @@ export function FichaClienteMobile() {
         </View>
       )}
       {ficha.preferencias ? <Text className="text-sm">{ficha.preferencias}</Text> : null}
-      {ficha.no_recontactar ? (
-        <Text role="alert" className="rounded-xl bg-red-50 p-3 text-sm font-medium text-red-700">
-          No recontactar: el cliente pidió no ser contactado.
+      {ficha.no_recontactar && (
+        <Text className="self-start rounded-full bg-secondary px-3 py-1 text-xs font-medium text-primary">
+          No incluir en recontactos
         </Text>
-      ) : (
-        <View className="flex-row gap-3">
-          <AccionesContacto contacto={ficha.contacto} />
-        </View>
       )}
+      <View className="flex-row gap-3">
+        <AccionesContacto contacto={ficha.contacto} />
+      </View>
       <HistorialClienteMobile id={ficha.id} />
     </ScrollView>
   );

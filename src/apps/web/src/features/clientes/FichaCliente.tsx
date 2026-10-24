@@ -1,4 +1,4 @@
-import { ErrorApi, type UsuarioActual } from "@rumbo/shared";
+import { ETIQUETA_SEGMENTO, ErrorApi, type UsuarioActual } from "@rumbo/shared";
 import { useCliente } from "@rumbo/shared/hooks";
 import type { AxiosInstance } from "axios";
 import { Pencil } from "lucide-react";
@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/button";
 import { iniciales } from "@/lib/iniciales";
 import { FormularioCliente } from "./FormularioCliente";
 import { HistorialCliente } from "./HistorialCliente";
-import { ETIQUETA_SEGMENTO } from "./segmentos";
 
 const TITULO_TARJETA = "mb-3 text-xs font-medium tracking-wide text-muted-foreground uppercase";
 

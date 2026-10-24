@@ -1,4 +1,4 @@
-import type { SegmentoCliente, UsuarioActual } from "@rumbo/shared";
+import { ETIQUETA_SEGMENTO, type SegmentoCliente, type UsuarioActual } from "@rumbo/shared";
 import { useClientes, type FiltrosClientes } from "@rumbo/shared/hooks";
 import type { AxiosInstance } from "axios";
 import { Eye, Plus, Search } from "lucide-react";
@@ -9,7 +9,6 @@ import { Input } from "@/components/ui/input";
 import { useDebouncedValue } from "@/lib/useDebouncedValue";
 import { cn } from "@/lib/utils";
 import { FiltroEtiquetas } from "./FiltroEtiquetas";
-import { ETIQUETA_SEGMENTO } from "./segmentos";
 import { TablaClientes } from "./TablaClientes";
 
 const SEGMENTOS = Object.keys(ETIQUETA_SEGMENTO) as SegmentoCliente[];

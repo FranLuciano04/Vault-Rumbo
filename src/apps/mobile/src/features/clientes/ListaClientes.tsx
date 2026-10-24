@@ -1,10 +1,9 @@
-import type { ClienteListado } from "@rumbo/shared";
+import { ETIQUETA_SEGMENTO, type ClienteListado } from "@rumbo/shared";
 import { useClientes } from "@rumbo/shared/hooks";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import { FlatList, Pressable, Text, TextInput, View } from "react-native";
 import { cliente } from "../../cliente";
-import { ETIQUETA_SEGMENTO } from "./segmentos";
 
 const ESPERA_BUSQUEDA_MS = 300;
 
@@ -19,7 +18,7 @@ export function ListaClientes() {
   const [buscar, setBuscar] = useState("");
   const [pagina, setPagina] = useState(1);
   const [paginas, setPaginas] = useState<ClienteListado[][]>([]);
-  const { data, isError, isFetching, isPlaceholderData } = useClientes(cliente, {
+  const { data, isError, isFetching, isPlaceholderData, refetch } = useClientes(cliente, {
     buscar,
     pagina,
   });
@@ -60,9 +59,19 @@ export function ListaClientes() {
         className="mb-3 rounded-xl border border-input px-4 py-3"
       />
       {isError && (
-        <Text role="alert" className="mb-3 text-sm font-medium text-red-700">
-          No pudimos cargar los clientes. Probá de nuevo en unos minutos.
-        </Text>
+        <View accessible role="alert" className="mb-3 flex-row items-center justify-between gap-3">
+          <Text className="flex-1 text-sm font-medium text-red-700">
+            No pudimos cargar los clientes. Probá de nuevo en unos minutos.
+          </Text>
+          <Pressable
+            role="button"
+            accessibilityLabel="Reintentar"
+            onPress={() => void refetch()}
+            className="rounded-xl bg-primary px-4 py-2"
+          >
+            <Text className="font-semibold text-primary-foreground">Reintentar</Text>
+          </Pressable>
+        </View>
       )}
       <FlatList
         testID="lista-clientes"

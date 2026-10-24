@@ -24,7 +24,7 @@ const ASESOR = { id: "a1c4e7f0-3d58-4b92-b6a3-8f0e2d1c4b03", nombre: "Laura Ases
 
 function listado(n: number, nombre: string, contacto: string, extra = {}) {
   return {
-    id: `id-${n}`,
+    id: `id-${String(n)}`,
     nombre,
     contacto,
     instagram: null,
@@ -148,7 +148,7 @@ function llamadasLista() {
 let abrir: jest.SpyInstance;
 beforeEach(() => {
   jest.clearAllMocks();
-  abrir = jest.spyOn(Linking, "openURL").mockResolvedValue(true);
+  abrir = jest.spyOn(Linking, "openURL").mockResolvedValue(undefined);
 });
 
 describe("RF-005 búsqueda mobile", () => {
@@ -205,7 +205,7 @@ describe("RF-005 búsqueda mobile", () => {
     expect(vista.queryByText("Joaquín Ramos")).toBeNull();
 
     await act(async () => {
-      fireEvent(vista.getByTestId("lista-clientes"), "endReached");
+      await fireEvent(vista.getByTestId("lista-clientes"), "endReached");
     });
 
     await vista.findByText("Joaquín Ramos");
@@ -219,7 +219,7 @@ describe("RF-005 búsqueda mobile", () => {
     await vista.findByText("Camila Benítez");
 
     await act(async () => {
-      fireEvent(vista.getByTestId("lista-clientes"), "endReached");
+      await fireEvent(vista.getByTestId("lista-clientes"), "endReached");
     });
 
     expect(llamadasLista()).toHaveLength(1);
@@ -231,6 +231,55 @@ describe("RF-005 búsqueda mobile", () => {
 
     await vista.findByRole("alert");
     expect(vista.getByText(/no pudimos cargar los clientes/i)).toBeTruthy();
+  });
+
+  it("una búsqueda nueva después de paginar reemplaza la lista y pide pagina=1", async () => {
+    backend({ paginas: [[camila, sosa], [joaquin]] });
+    const vista = await renderClientes();
+    await vista.findByText("Camila Benítez");
+    await act(async () => {
+      await fireEvent(vista.getByTestId("lista-clientes"), "endReached");
+    });
+    await vista.findByText("Joaquín Ramos");
+
+    mockHttp.mockClear();
+    backend({ paginas: [[sosa]] });
+    await fireEvent.changeText(vista.getByLabelText(/buscar cliente/i), "sosa");
+
+    await waitFor(() => {
+      expect(
+        llamadasLista().some((c) => c.params?.["buscar"] === "sosa" && c.params["pagina"] === 1),
+      ).toBe(true);
+    });
+    await waitFor(() => {
+      expect(vista.queryByText("Joaquín Ramos")).toBeNull();
+    });
+    expect(vista.queryByText("Camila Benítez")).toBeNull();
+    expect(vista.getByText("Familia Sosa")).toBeTruthy();
+  });
+
+  it("si falla una página siguiente se puede reintentar y se agregan los clientes", async () => {
+    backend({ paginas: [[camila, sosa], [joaquin]] });
+    const vista = await renderClientes();
+    await vista.findByText("Camila Benítez");
+
+    const normal = mockHttp.getMockImplementation() as (config: Config) => Promise<unknown>;
+    mockHttp.mockImplementation((config) =>
+      config.url === "/api/clientes" && config.params?.["pagina"] === 2
+        ? respuesta(500, {}, config)
+        : normal(config),
+    );
+    await act(async () => {
+      await fireEvent(vista.getByTestId("lista-clientes"), "endReached");
+    });
+    await vista.findByRole("alert");
+
+    mockHttp.mockImplementation(normal);
+    await fireEvent.press(vista.getByRole("button", { name: /reintentar/i }));
+
+    await vista.findByText("Joaquín Ramos");
+    expect(vista.getByText("Camila Benítez")).toBeTruthy();
+    expect(vista.queryByRole("alert")).toBeNull();
   });
 
   it("tocar un cliente abre su ficha", async () => {
@@ -300,14 +349,32 @@ describe("RF-006 ficha mobile", () => {
     expect(vista.queryByRole("button", { name: /whatsapp/i })).toBeNull();
   });
 
-  it("un cliente con no_recontactar muestra el aviso y no ofrece acciones de contacto", async () => {
+  it("un cliente con no_recontactar sigue mostrando las acciones de contacto y la etiqueta informativa", async () => {
     backend({ fichas: { "id-3": joaquin } });
     const vista = await renderClientes("/clientes/id-3");
     await vista.findByText("Joaquín Ramos");
 
-    expect(vista.getByText(/no recontactar/i)).toBeTruthy();
+    expect(vista.getByText(/no incluir en recontactos/i)).toBeTruthy();
+    expect(vista.getByRole("button", { name: /llamar/i })).toBeTruthy();
+    expect(vista.getByRole("button", { name: /whatsapp/i })).toBeTruthy();
+  });
+
+  it("un contacto sin un teléfono válido no ofrece llamar ni WhatsApp", async () => {
+    const raro = listado(4, "Cliente Raro", "consultar por Instagram");
+    backend({ fichas: { "id-4": raro } });
+    const vista = await renderClientes("/clientes/id-4");
+    await vista.findByText("Cliente Raro");
+
     expect(vista.queryByRole("button", { name: /llamar/i })).toBeNull();
     expect(vista.queryByRole("button", { name: /whatsapp/i })).toBeNull();
+  });
+
+  it("la ficha ofrece volver también cuando el cliente no existe", async () => {
+    backend({ fichas: {} });
+    const vista = await renderClientes("/clientes/id-99");
+
+    await vista.findByText(/cliente no encontrado/i);
+    expect(vista.getByRole("button", { name: /volver/i })).toBeTruthy();
   });
 
   it("un cliente inexistente o ajeno (404 del backend, caso freelance) muestra 'Cliente no encontrado'", async () => {
@@ -320,7 +387,7 @@ describe("RF-006 ficha mobile", () => {
 
   it("si falla la carga del historial la ficha sigue visible y avisa del error", async () => {
     backend({ fichas: { "id-1": camila } });
-    const base = mockHttp.getMockImplementation()!;
+    const base = mockHttp.getMockImplementation() as (config: Config) => Promise<unknown>;
     mockHttp.mockImplementation((config) =>
       /historial$/.test(config.url ?? "") ? respuesta(500, {}, config) : base(config),
     );

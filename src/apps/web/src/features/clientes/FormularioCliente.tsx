@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import type { Cliente, ClienteEditar } from "@rumbo/shared";
+import { ETIQUETA_SEGMENTO, type Cliente, type ClienteEditar } from "@rumbo/shared";
 import { esquemaAltaCliente } from "@rumbo/shared/esquemas";
 import { useAsesores, useEditarCliente } from "@rumbo/shared/hooks";
 import type { AxiosInstance } from "axios";
@@ -11,7 +11,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { aplicarErroresDelServidor } from "@/lib/errores";
 import { EditorEtiquetas } from "./EditorEtiquetas";
-import { ETIQUETA_SEGMENTO } from "./segmentos";
 
 // El formato lo fija el esquema del alta; el asesor viaja como texto ("" = sin asesor).
 export const esquemaFicha = esquemaAltaCliente

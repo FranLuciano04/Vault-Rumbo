@@ -1,9 +1,7 @@
-import type { ClienteListado } from "@rumbo/shared";
+import { ETIQUETA_SEGMENTO, formatearFecha, type ClienteListado } from "@rumbo/shared";
 import { ChevronRight } from "lucide-react";
 import { Link, useNavigate } from "react-router";
-import { formatearFecha } from "@/lib/formato";
 import { iniciales } from "@/lib/iniciales";
-import { ETIQUETA_SEGMENTO } from "./segmentos";
 
 const ENCABEZADOS = ["Cliente", "Segmento", "Etiquetas", "Asesor", "Último viaje", "Oportunidades"];
 

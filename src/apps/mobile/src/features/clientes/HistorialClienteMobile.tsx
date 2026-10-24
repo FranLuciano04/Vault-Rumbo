@@ -1,25 +1,8 @@
-import type { HistorialCliente } from "@rumbo/shared";
+import { ETIQUETA_ESTADO_OPORTUNIDAD, ETIQUETA_ESTADO_VIAJE, formatearFecha } from "@rumbo/shared";
 import { useHistorialCliente } from "@rumbo/shared/hooks";
 import type { ReactNode } from "react";
 import { Text, View } from "react-native";
 import { cliente } from "../../cliente";
-import { formatearFecha } from "../../lib/formato";
-
-const ESTADO_OPORTUNIDAD: Record<HistorialCliente["oportunidades"][number]["estado"], string> = {
-  nueva: "Nueva",
-  en_gestion: "En gestión",
-  cotizada: "Cotizada",
-  ganada: "Ganada",
-  perdida: "Perdida",
-};
-const ESTADO_VIAJE: Record<HistorialCliente["viajes"][number]["estado"], string> = {
-  reservado: "Reservado",
-  vendido: "Vendido",
-  confirmado: "Confirmado",
-  en_curso: "En curso",
-  finalizado: "Finalizado",
-  cancelado: "Cancelado",
-};
 
 function Seccion({
   titulo,
@@ -77,7 +60,7 @@ export function HistorialClienteMobile({ id }: { id: string }) {
               <Fila
                 key={o.id}
                 principal={o.destino_consultado}
-                estado={ESTADO_OPORTUNIDAD[o.estado]}
+                estado={ETIQUETA_ESTADO_OPORTUNIDAD[o.estado]}
               />
             ))}
           </Seccion>
@@ -86,7 +69,7 @@ export function HistorialClienteMobile({ id }: { id: string }) {
               <Fila
                 key={v.id}
                 principal={`${formatearFecha(v.fecha_salida)} → ${formatearFecha(v.fecha_regreso)}`}
-                estado={ESTADO_VIAJE[v.estado]}
+                estado={ETIQUETA_ESTADO_VIAJE[v.estado]}
               />
             ))}
           </Seccion>
