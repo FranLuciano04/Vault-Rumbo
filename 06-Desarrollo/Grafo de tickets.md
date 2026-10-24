@@ -15,7 +15,7 @@ tags:: #tipo/referencia
 | Módulo | Tickets | Hechos | Tomados | Disponibles | Esperando | Bloqueados | Estado del módulo |
 |---|---|---|---|---|---|---|---|
 | M0 — Fundaciones | 38 | 38 | 0 | 0 | 0 | 0 | ✅ cerrado |
-| M1 — Usuarios y configuración | 19 | 16 | 2 | 1 | 0 | 0 | 🛠️ en curso |
+| M1 — Usuarios y configuración | 19 | 17 | 1 | 1 | 0 | 0 | 🛠️ en curso |
 | M2 — Clientes | 15 | 11 | 1 | 1 | 2 | 0 | 🛠️ en curso |
 | M3 — Alertas | 11 | 0 | 0 | 2 | 9 | 0 | 🛠️ en curso |
 | M4 — Oportunidades y cotizaciones | 14 | 0 | 0 | 1 | 13 | 0 | 🛠️ en curso |
@@ -87,7 +87,7 @@ flowchart LR
     T037["T-037 · Gestionar operadores en la web<br/><small>web</small>"]:::hecho
     T038["T-038 · Probar de punta a punta la configuración de la agencia<br/><small>e2e</small>"]:::hecho
     T146["T-146 · Alinear las referencias de RF del permiso por rol<br/><small>backend</small><br/>👤 palomap2003"]:::tomado
-    T147["T-147 · Fijar con un test la comisión de un usuario dado de baja<br/><small>backend</small><br/>👤 Nahuel Viniegra"]:::tomado
+    T147["T-147 · Fijar con un test la comisión de un usuario dado de baja<br/><small>backend</small>"]:::hecho
     T148["T-148 · Medir la cobertura del backend a través de los await<br/><small>infra</small>"]:::hecho
     T151["T-151 · Responder 422 ante un número fuera del rango de la base<br/><small>backend</small>"]:::hecho
     T153["T-153 · Recuperar las cuentas de Firebase que quedaron sin usuario<br/><small>backend · ⚠️ riesgo alto</small>"]:::disponible
