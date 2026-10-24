@@ -30,6 +30,16 @@ La **persona** de cada sesión es quien la corre, identificada por su identidad 
   - **API:** `Cliente` ahora trae `asesor: {id, nombre} | null`, y existe `GET /usuarios/asesores` (admin, dueño y empleado). Su mock está en `manejadoresM1`.
   - **Backend:** `Cliente.asesor` es la primera `relationship` del código, con `lazy="joined"`. Para bloquear un `Cliente` hay que usar `with_for_update(of=Cliente)`.
 
+### Francisco (`FranLucianoo`) y Nahuel (`Nahuel Viniegra`) — DEC-0019 y PR #65
+- **24/10, de Paloma: [[DEC-0019 Las fallas se arreglan al encontrarlas|DEC-0019]]**, la decisión que tomamos en equipo. Una falla se arregla cuando se encuentra, sin crear un ticket:
+  - si aparece durante un ticket, en su misma rama y PR;
+  - si no, en una rama `fix/…`;
+  - los hallazgos de Codex también se arreglan así.
+  - Ya están actualizadas `/implementar-ticket` 1.4.0 y `/cerrar-modulo` 1.1.0.
+- **24/10, de Paloma: el PR [#65](https://github.com/FranLuciano04/Vault-Rumbo/pull/65) necesita la aprobación de uno de los dos** (⚠️ riesgo alto). Arregla las cuatro fallas para ver Rumbo en local y el CI está en verde. Después del merge:
+  - `pnpm dev` ya llega a la API; el destino se cambia con `RUMBO_API_PROXY` en `apps/web/.env`.
+  - Para el compose contra el Firebase real se usa `-f src/docker-compose.firebase.yml`, con `RUMBO_FIREBASE_CREDENCIALES` en `src/.env` (ver `src/infra/firebase.md`).
+
 ## Formato
 Es **obligatorio** nombrar a la persona que hizo la sesión.
 ```
@@ -63,6 +73,21 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Checks:** backend 927 tests (96,8 %), web 255, shared 110 y mobile en verde. Se integró `main` (T-043) resolviendo un conflicto en `test_clientes.py`: se conservaron los tests de los dos.
 - **Commits:** 4ec0370, 41ddcb2, 9593781, d84393d, 35e55c1, 8ba3f52, 56f34ef (merge de main), bf6b493 (merge del PR), 4715c49 (grafo) y el de esta entrada.
 - **Pendiente:** las cuatro fallas para levantar Rumbo en local. Hay avisos de T-046 para Nahuel y Paloma.
+
+## 24/10/26 — Paloma (Claude Opus 5.5) — DEC-0019 y las cuatro fallas de entorno local
+- **Hecho:**
+  - Se registró la decisión del equipo **[[DEC-0019 Las fallas se arreglan al encontrarlas|DEC-0019]]**: las fallas se arreglan al encontrarlas, sin crear tickets, incluidos los hallazgos de Codex. Reemplaza en parte a DEC-0014. Se actualizaron `/implementar-ticket` (1.4.0), `/cerrar-modulo` (1.1.0), [[Flujo de implementación]] y el catálogo de skills.
+  - Se arreglaron, sin ticket, las **cuatro fallas para ver Rumbo en local**. Rama `fix/levantar-rumbo-en-local`, PR [#65](https://github.com/FranLuciano04/Vault-Rumbo/pull/65), CI en verde:
+    - el cliente HTTP rechaza un 2xx que no es JSON;
+    - el proxy de `/api` en `pnpm dev`;
+    - el override `docker-compose.firebase.yml`;
+    - las salidas para la API key, documentadas.
+  - La review de seguridad (Opus) dejó 3 menores, todos arreglados.
+  - Al correr la suite completa apareció una regresión en el login mobile. La causa era un adaptador falso sin `content-type`, y se corrigió afinando la regla.
+- **Commits:** d15c24a (DEC-0019, en `main`); en la rama: 58857f5, 5c5e970, b20879c, 6f25290 y 3cbaefc; y el de esta entrada.
+- **Pendiente:**
+  - Aprobación de Francisco o de Nahuel en el PR #65, y después el merge.
+  - Opcional, fuera del repo: sumar `http://localhost/*` a la restricción de la API key en Google Cloud.
 
 ## 24/10/26 — Paloma (Claude Opus 5.5) — T-043 historial del cliente
 - **Hecho:** se tomó y se implementó **T-043** con TDD. Por error se había tomado antes T-037, que se liberó enseguida. `GET /clientes/{id}/historial` ya no es un stub. Mergeado en el PR [#62](https://github.com/FranLuciano04/Vault-Rumbo/pull/62), con el CI en verde.
