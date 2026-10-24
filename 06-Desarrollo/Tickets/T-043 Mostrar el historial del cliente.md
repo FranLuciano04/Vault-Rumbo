@@ -3,7 +3,7 @@ id: T-043
 titulo: Mostrar el historial del cliente
 modulo: M2 — Clientes
 capa: backend
-estado: libre
+estado: tomado
 depende_de: [T-041]
 tamaño: S
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [CU-03, RF-006]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: palomap2003
+tomado_el: 24/10/26 11:36
+rama: feature/T-043-mostrar-el-historial-del-cliente
 pr:
 ---
 # T-043 Mostrar el historial del cliente
