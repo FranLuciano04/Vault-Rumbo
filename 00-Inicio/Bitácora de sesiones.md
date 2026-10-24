@@ -43,6 +43,28 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
+## 24/10/26 — Francisco (Claude Opus 5.5) — T-045: alta de clientes en la web
+- **Hecho:** T-045 (PR [#69](https://github.com/FranLuciano04/Vault-Rumbo/pull/69), mergeado con el CI en verde).
+  - En el listado de Clientes hay un botón «Registrar cliente» que abre `/clientes/nuevo`.
+  - El alta valida los datos mínimos y el Instagram es opcional.
+  - Hay selector de asesor, salvo para el `freelance`.
+  - Ante un posible duplicado se ven los candidatos, con «Ir al cliente existente» o «Confirmar alta». El `freelance` ve el aviso de CU-02 A1 sin datos ajenos.
+  - Tras el alta se abre la ficha.
+  - **Review Opus:** 2 importantes y 1 menor, arreglados:
+    - «Confirmar alta» reenviaba los datos viejos.
+    - El 422 del asesor no se mostraba; también pasaba en la ficha.
+    - El aviso pasó a un texto neutro.
+  - Se aceptan desvíos del prototipo: página en vez de panel, un solo campo de contacto y sin etiquetas en el alta.
+  - Se borró a Francisco de los avisos de DEC-0019 y del PR #65 (`ee512b7`).
+  - **Para ver la app en local con el Auth Emulator, sin tocar los `.env`:**
+    - el emulador (`src/infra/firebase.md`);
+    - la API, con `ENTORNO=desarrollo FIREBASE_PROJECT_ID=demo-rumbo FIREBASE_AUTH_EMULATOR_HOST=127.0.0.1:9099`;
+    - la web, con las `VITE_FIREBASE_*` de `.env.example` y `VITE_FIREBASE_AUTH_EMULATOR_URL`;
+    - la cuenta `duena@rumbo.test` / `Clave-de-prueba-1`, creada con `signUp` y `datos-iniciales --demo`.
+- **Checks:** web 308 tests (94,3 %), lint, typecheck, build y e2e en verde.
+- **Commits:** 4a165d8, e9145f7, 08a013a, 0a19f7f, afd595c, 34261fd (merge del PR), 9da471e (grafo) y el de esta entrada.
+- **Pendiente:** en M2 quedan T-047 (mobile) y los tickets que destraba T-045.
+
 ## 24/10/26 — Nahuel (Claude Opus 5.5) — T-147: comisión de un usuario dado de baja
 - **Hecho:** T-147 (PR [#68](https://github.com/FranLuciano04/Vault-Rumbo/pull/68), mergeado con el CI en verde). Tres tests de caracterización de RF-083 en `tests/api/test_comision.py` fijan la decisión del 22/10/26 de CU-13: usuario inactivo, el propio admin y la dueña pueden tener comisión por defecto. Validados con tres mutaciones temporales del servicio. Review Opus sin hallazgos.
   - Se iba a hacer también T-146, pero lo tomó Paloma (14:40).
