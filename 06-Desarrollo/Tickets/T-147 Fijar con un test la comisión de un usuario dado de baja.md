@@ -3,7 +3,7 @@ id: T-147
 titulo: Fijar con un test la comisión de un usuario dado de baja
 modulo: M1 — Usuarios y configuración
 capa: backend
-estado: libre
+estado: tomado
 depende_de: [T-030]
 tamaño: XS
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [CU-13, RF-083, RF-153]
 origen: hallazgo T-030
-asignado:
-tomado_el:
-rama:
+asignado: Nahuel Viniegra
+tomado_el: 24/10/26 15:20
+rama: feature/T-147-fijar-con-un-test-la-comision-de-un-usua
 pr:
 ---
 # T-147 Fijar con un test la comisión de un usuario dado de baja
