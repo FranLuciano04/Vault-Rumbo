@@ -45,4 +45,5 @@ La ficha del cliente muestra sus datos y su historial, y permite editarla a quie
 - Crear una consulta desde la ficha (M4).
 
 ## Notas de implementación
+- **Sumado el 24/10/26 (Francisco, de T-042):** al `freelance` no se le muestra el selector de asesor: sus clientes siempre quedan a su nombre (RF-150). Si lo manda igual, el backend lo ignora.
 - **Sumado el 22/10/26 (DEC-0017):** incluir el usuario de Instagram del cliente como campo **opcional**. No cuenta como contacto mínimo. El contrato lo expone desde T-149.

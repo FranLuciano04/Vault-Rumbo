@@ -45,5 +45,6 @@ Se registra un cliente desde la web; si el servidor avisa un posible duplicado, 
 - Alta rápida desde una consulta (M4).
 
 ## Notas de implementación
+- **Sumado el 24/10/26 (Francisco, de T-042):** al `freelance` no se le muestra el selector de asesor: sus clientes siempre quedan a su nombre (RF-150). Si lo manda igual, el backend lo ignora.
 - **Sumado el 24/10/26 (CU-02 A1):** cuando el 409 de un `freelance` indica que el duplicado es de otro asesor y no trae candidatos, mostrar «Ya hay un cliente con ese contacto en la agencia. Consultalo con un admin», con la opción de confirmar el alta. El formato del 409 lo define T-042.
 - **Sumado el 22/10/26 (DEC-0017):** incluir el usuario de Instagram del cliente como campo **opcional**. No cuenta como contacto mínimo. El contrato lo expone desde T-149.
