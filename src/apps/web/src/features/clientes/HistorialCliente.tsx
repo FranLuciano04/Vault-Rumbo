@@ -1,25 +1,8 @@
-import type { HistorialCliente as Historial } from "@rumbo/shared";
+import { ETIQUETA_ESTADO_OPORTUNIDAD, ETIQUETA_ESTADO_VIAJE, formatearFecha } from "@rumbo/shared";
 import { useHistorialCliente } from "@rumbo/shared/hooks";
 import type { AxiosInstance } from "axios";
 import type { ReactNode } from "react";
 import { Link } from "react-router";
-import { formatearFecha } from "@/lib/formato";
-
-const ESTADO_OPORTUNIDAD: Record<Historial["oportunidades"][number]["estado"], string> = {
-  nueva: "Nueva",
-  en_gestion: "En gestión",
-  cotizada: "Cotizada",
-  ganada: "Ganada",
-  perdida: "Perdida",
-};
-const ESTADO_VIAJE: Record<Historial["viajes"][number]["estado"], string> = {
-  reservado: "Reservado",
-  vendido: "Vendido",
-  confirmado: "Confirmado",
-  en_curso: "En curso",
-  finalizado: "Finalizado",
-  cancelado: "Cancelado",
-};
 
 const Estado = ({ children }: { children: string }) => (
   <span className="rounded-full bg-secondary px-2.5 py-0.5 text-xs font-medium text-secondary-foreground">
@@ -78,7 +61,7 @@ export function HistorialCliente({ cliente, id }: { cliente: AxiosInstance; id: 
               <li key={o.id}>
                 <Link to={`/oportunidades/${o.id}`} className={CLASE_ENLACE}>
                   <span className="font-medium">{o.destino_consultado}</span>
-                  <Estado>{ESTADO_OPORTUNIDAD[o.estado]}</Estado>
+                  <Estado>{ETIQUETA_ESTADO_OPORTUNIDAD[o.estado]}</Estado>
                 </Link>
               </li>
             ))}
@@ -90,7 +73,7 @@ export function HistorialCliente({ cliente, id }: { cliente: AxiosInstance; id: 
                   <span>
                     {formatearFecha(v.fecha_salida)} → {formatearFecha(v.fecha_regreso)}
                   </span>
-                  <Estado>{ESTADO_VIAJE[v.estado]}</Estado>
+                  <Estado>{ETIQUETA_ESTADO_VIAJE[v.estado]}</Estado>
                 </Link>
               </li>
             ))}

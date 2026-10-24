@@ -7,7 +7,7 @@ export const MAX_LARGO_ETIQUETA = 80;
 const SEGMENTOS = ["familia", "amigos", "individual", "pareja"] as const;
 
 /** Teléfono o WhatsApp: al menos 7 dígitos, con `+`, espacios, guiones y paréntesis. */
-const TELEFONO = /^\+?(?=(?:\D*\d){7,15}\D*$)[\d\s\-()]+$/;
+export const TELEFONO = /^\+?(?=(?:\D*\d){7,15}\D*$)[\d\s\-()]+$/;
 
 const esContactoValido = (contacto: string) =>
   z.email().safeParse(contacto).success || TELEFONO.test(contacto);

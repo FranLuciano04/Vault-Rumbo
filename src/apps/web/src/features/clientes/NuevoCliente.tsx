@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ErrorApi, type Cliente, type UsuarioActual } from "@rumbo/shared";
+import { ETIQUETA_SEGMENTO, ErrorApi, type Cliente, type UsuarioActual } from "@rumbo/shared";
 import { useCrearCliente } from "@rumbo/shared/hooks";
 import type { AxiosInstance } from "axios";
 import { TriangleAlert } from "lucide-react";
@@ -18,7 +18,6 @@ import {
   type DatosFicha,
   type EntradaFicha,
 } from "./FormularioCliente";
-import { ETIQUETA_SEGMENTO } from "./segmentos";
 
 const AVISO_CLIENTE_AJENO =
   "Ya hay un cliente con ese contacto en la agencia. Consultalo con un admin";

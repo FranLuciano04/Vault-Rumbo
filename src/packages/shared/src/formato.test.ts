@@ -1,4 +1,4 @@
-import { formatearFecha, formatearImporte } from "@/lib/formato";
+import { formatearFecha, formatearImporte } from "./formato";
 
 const normalizar = (texto: string) => texto.replace(/[\u00a0\u202f]/g, " ");
 
