@@ -3,7 +3,7 @@ id: T-038
 titulo: Probar de punta a punta la configuración de la agencia
 modulo: M1 — Usuarios y configuración
 capa: e2e
-estado: libre
+estado: tomado
 depende_de: [T-028, T-029, T-030, T-032, T-033, T-035, T-036, T-037, T-025]
 tamaño: S
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [CU-25, CU-26, CU-15, CU-31, CU-13]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: Nahuel Viniegra
+tomado_el: 24/10/26 13:45
+rama: feature/T-038-probar-de-punta-a-punta-la-configuracion
 pr:
 ---
 # T-038 Probar de punta a punta la configuración de la agencia
