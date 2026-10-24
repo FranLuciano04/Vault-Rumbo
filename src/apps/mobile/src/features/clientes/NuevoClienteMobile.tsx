@@ -5,6 +5,7 @@ import { useRouter } from "expo-router";
 import { useRef, useState } from "react";
 import { Pressable, ScrollView, Text, TextInput, View } from "react-native";
 import { cliente } from "../../cliente";
+import { VolverAClientes } from "./VolverAClientes";
 
 const AVISO_CLIENTE_AJENO =
   "Ya hay un cliente con ese contacto en la agencia. Consultalo con un admin";
@@ -237,16 +238,7 @@ export function NuevoClienteMobile() {
       contentContainerClassName="gap-4 p-6 pt-12"
       keyboardShouldPersistTaps="handled"
     >
-      <Pressable
-        role="button"
-        accessibilityLabel="Volver"
-        onPress={() => {
-          if (router.canGoBack()) router.back();
-          else router.replace("/clientes");
-        }}
-      >
-        <Text className="text-primary">‹ Clientes</Text>
-      </Pressable>
+      <VolverAClientes />
       <Text role="heading" className="text-xl font-bold text-primary">
         Nuevo cliente
       </Text>
