@@ -44,16 +44,18 @@ export function FichaClienteMobile() {
         Cargando…
       </Text>
     );
-  if (!ficha)
+  if (!ficha) {
+    const noEncontrado = error instanceof ErrorApi && error.status === 404;
     return (
       <View className="flex-1 bg-white p-6">
-        <Text role={error instanceof ErrorApi && error.status === 404 ? "heading" : "alert"}>
-          {error instanceof ErrorApi && error.status === 404
+        <Text role={noEncontrado ? "heading" : "alert"}>
+          {noEncontrado
             ? "Cliente no encontrado."
             : "No pudimos cargar el cliente. Probá de nuevo en unos minutos."}
         </Text>
       </View>
     );
+  }
 
   return (
     <ScrollView
