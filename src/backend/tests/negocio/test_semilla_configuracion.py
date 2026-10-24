@@ -104,3 +104,18 @@ async def test_rf089_demo_de_la_cli_carga_la_semilla_y_dos_corridas_no_duplican(
         demo=True,
     )
     assert await _conteos(sesion) == (destinos, requisitos, operadores, usuarios)
+
+
+async def test_rf089_la_semilla_no_duplica_nombres_cargados_con_otra_forma(
+    sesion: AsyncSession,
+) -> None:
+    sesion.add(Destino(nombre="cancun", pais="México", activo=False))
+    sesion.add(Operador(nombre="MAYORISTA DEMO SUR", activo=False))
+    await sesion.flush()
+    destinos_antes, _, operadores_antes, _ = await _conteos(sesion)
+
+    await sembrar_configuracion(sesion)
+
+    destinos, _, operadores, _ = await _conteos(sesion)
+    assert destinos == destinos_antes + 2  # Bariloche y Nueva York; Cancún ya estaba
+    assert operadores == operadores_antes + 1  # solo falta la operadora del Caribe

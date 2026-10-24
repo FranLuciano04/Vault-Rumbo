@@ -10,8 +10,14 @@ async function ingresar(pagina: Page, email: string, password: string): Promise<
   await pagina.goto("/login");
   await pagina.getByLabel("Email").fill(email);
   await pagina.getByLabel("Contraseña", { exact: true }).fill(password);
+  const respuesta = pagina.waitForResponse((r) => r.url().includes("/api/auth/yo"));
   await pagina.getByRole("button", { name: "Ingresar" }).click();
-  await expect(pagina).toHaveURL(/\/agenda$/);
+  const yo = await respuesta;
+  if (!yo.ok()) {
+    const aviso = await pagina.getByRole("alert").textContent();
+    throw new Error(`Falló el ingreso de ${email}: ${String(yo.status())} ${aviso ?? ""}`);
+  }
+  await expect(pagina).toHaveURL(/\/agenda$/, { timeout: 15_000 });
 }
 
 async function abrirConfiguracion(pagina: Page, pestana: string): Promise<void> {
