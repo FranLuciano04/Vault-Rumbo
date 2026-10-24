@@ -5,8 +5,8 @@ import { BrowserRouter, Navigate, Route, Routes } from "react-router";
 import { PaginaLogin } from "@/features/seguridad/PaginaLogin";
 import { RutaProtegida } from "./RutaProtegida";
 import { SeccionClientes } from "./SeccionClientes";
-import { SeccionFichaCliente } from "./SeccionFichaCliente";
 import { SeccionConfiguracion } from "./SeccionConfiguracion";
+import { SeccionFichaCliente } from "./SeccionFichaCliente";
 import { SeccionPendiente } from "./SeccionPendiente";
 
 export function App({ cliente }: { cliente: AxiosInstance }) {
