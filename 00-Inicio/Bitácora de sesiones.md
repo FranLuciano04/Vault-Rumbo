@@ -24,15 +24,15 @@ La **persona** de cada sesión es quien la corre, identificada por su identidad 
 ## Avisos pendientes por persona
 > Claude los lee al identificar a la persona (paso 1 de `CLAUDE.md`) y se los cuenta **apenas la saluda**, antes de cualquier otra tarea. Cuando la persona confirme que lo leyó o que lo hizo, **Claude borra su fila** en esa misma sesión, con un commit. Cuando no quede ninguna fila de alguien, se borra también su sección.
 
-### Francisco (`FranLucianoo`) y Nahuel (`Nahuel Viniegra`) — DEC-0019 y PR #65
+### Francisco (`FranLucianoo`) y Nahuel (`Nahuel Viniegra`) — DEC-0019 y fallas de entorno local
 - **24/10, de Paloma: [[DEC-0019 Las fallas se arreglan al encontrarlas|DEC-0019]]**, la decisión que tomamos en equipo. Una falla se arregla cuando se encuentra, sin crear un ticket:
   - si aparece durante un ticket, en su misma rama y PR;
   - si no, en una rama `fix/…`;
   - los hallazgos de Codex también se arreglan así.
   - Ya están actualizadas `/implementar-ticket` 1.4.0 y `/cerrar-modulo` 1.1.0.
-- **24/10, de Paloma: el PR [#65](https://github.com/FranLuciano04/Vault-Rumbo/pull/65) necesita la aprobación de uno de los dos** (⚠️ riesgo alto). Arregla las cuatro fallas para ver Rumbo en local y el CI está en verde. Después del merge:
+- **24/10, de Paloma: el PR [#65](https://github.com/FranLuciano04/Vault-Rumbo/pull/65) ya está mergeado** (lo aprobó y mergeó Nahuel). Arregla las cuatro fallas para ver Rumbo en local. Después del pull:
   - `pnpm dev` ya llega a la API; el destino se cambia con `RUMBO_API_PROXY` en `apps/web/.env`.
-  - Para el compose contra el Firebase real se usa `-f src/docker-compose.firebase.yml`, con `RUMBO_FIREBASE_CREDENCIALES` en `src/.env` (ver `src/infra/firebase.md`).
+  - Para el compose contra el Firebase real se usa `-f src/docker-compose.firebase.yml`, con `RUMBO_FIREBASE_CREDENCIALES` en `src/.env`, y se publica en el 5173 (`RUMBO_HTTP_PORT=5173`). No se amplía la restricción de la API key (ver `src/infra/firebase.md`).
 
 ## Formato
 Es **obligatorio** nombrar a la persona que hizo la sesión.
@@ -89,7 +89,7 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
   - Al correr la suite completa apareció una regresión en el login mobile. La causa era un adaptador falso sin `content-type`, y se corrigió afinando la regla.
 - **Commits:** d15c24a (DEC-0019, en `main`); en la rama: 58857f5, 5c5e970, b20879c, 6f25290 y 3cbaefc; y el de esta entrada.
 - **Pendiente:**
-  - Aprobación de Francisco o de Nahuel en el PR #65, y después el merge.
+  - ✅ PR #65 aprobado y mergeado por Nahuel (6564d67).
   - ✅ Decidido por Paloma: no se amplía la restricción de la API key. Con el Firebase real, el compose se publica en el 5173 (`RUMBO_HTTP_PORT=5173`).
 
 ## 24/10/26 — Paloma (Claude Opus 5.5) — T-043 historial del cliente
