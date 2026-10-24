@@ -3,7 +3,7 @@
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from rumbo.datos.modelos import Usuario
+from rumbo.datos.modelos import RolUsuario, Usuario
 from rumbo.datos.repositorios.base import RepositorioBase, Visibilidad
 
 
@@ -40,3 +40,12 @@ class RepositorioUsuarios(RepositorioBase[Usuario]):
         pagina = consulta.order_by(Usuario.nombre, Usuario.id)
         filas = await sesion.scalars(pagina.offset(desplazamiento).limit(limite))
         return list(filas), total or 0
+
+    async def contar_admins_activos(self, sesion: AsyncSession, *, visibilidad: Visibilidad) -> int:
+        """Cuántos `admin` activos hay, bloqueando sus filas hasta el fin de la transacción:
+        dos pedidos simultáneos no pueden dejar cada uno al otro como último admin (RF-149)."""
+        consulta = select(Usuario.id).where(
+            Usuario.rol == RolUsuario.admin, Usuario.activo.is_(True)
+        )
+        filas = await sesion.scalars(visibilidad.aplicar(consulta, Usuario).with_for_update())
+        return len(filas.all())

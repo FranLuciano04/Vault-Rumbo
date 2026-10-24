@@ -1227,9 +1227,12 @@ export interface components {
         };
         /**
          * UsuarioEditar
-         * @description Cambio de rol o de acceso a redes (CU-25 A2).
+         * @description Corrección del nombre y cambio de rol o de acceso a redes (CU-25 A2). Asignar o quitar
+         *     el rol `dueno` es solo de la dueña.
          */
         UsuarioEditar: {
+            /** Nombre */
+            nombre?: string;
             /**
              * Rol
              * @enum {string}
