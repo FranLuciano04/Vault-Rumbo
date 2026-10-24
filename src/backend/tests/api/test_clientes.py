@@ -636,7 +636,7 @@ async def test_rf007_editar_inexistente_404(cliente_como: FabricaCliente) -> Non
     assert r.headers["content-type"].startswith(PROBLEM_JSON)
 
 
-async def test_rf150_freelance_edita_su_cliente(
+async def test_rf151_freelance_edita_su_cliente(
     cliente_como: FabricaCliente, sesion: AsyncSession
 ) -> None:
     c = await cliente_como("freelance")
@@ -768,7 +768,7 @@ async def test_rf003_freelance_con_mismo_nombre_y_otro_contacto_ajeno_no_recibe_
     assert await _cantidad(sesion) == 2
 
 
-# --- T-046 (fix de la review): la ficha expone el asesor con su nombre (RF-007, RF-150) -------
+# --- T-046 (fix de la review): la ficha expone el asesor con su nombre (RF-007) -------
 
 
 async def test_rf007_ficha_expone_el_asesor_con_id_y_nombre(

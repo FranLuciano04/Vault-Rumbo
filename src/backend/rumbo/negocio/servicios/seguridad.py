@@ -80,7 +80,7 @@ async def listar_usuarios(
 
 
 async def listar_asesores(sesion: AsyncSession, actor: Usuario) -> list[Usuario]:
-    """Usuarios activos que pueden quedar como asesor de un cliente, por nombre (RF-007, RF-150).
+    """Usuarios activos que pueden quedar como asesor de un cliente, por nombre (RF-007, RF-151).
     Los pide quien puede reasignar clientes; el `freelance` no (`SinPermiso`)."""
     exigir_rol(actor, RolUsuario.admin, RolUsuario.dueno, RolUsuario.empleado)
     return await _usuarios.listar_activos(sesion)

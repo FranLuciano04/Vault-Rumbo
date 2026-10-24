@@ -786,7 +786,7 @@ async def test_rf148_baja_de_un_usuario_ya_inactivo_es_idempotente(
     assert (await _recargar(sesion, otro)).activo is False
 
 
-# --- T-046 (fix de la review): candidatos a asesor del cliente (RF-007, RF-150) ----------------
+# --- T-046 (fix de la review): candidatos a asesor del cliente (RF-007, RF-151) ----------------
 
 RUTA_ASESORES = "/api/usuarios/asesores"
 
