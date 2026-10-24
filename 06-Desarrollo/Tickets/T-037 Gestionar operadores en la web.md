@@ -3,7 +3,7 @@ id: T-037
 titulo: Gestionar operadores en la web
 modulo: M1 — Usuarios y configuración
 capa: web
-estado: tomado
+estado: hecho
 depende_de: [T-036]
 tamaño: S
 riesgo: normal
@@ -51,3 +51,9 @@ Admin y dueña gestionan el catálogo de operadores desde su pestaña, con el mi
   - En `features/configuracion/esquemas.ts`, `esquemaEdicionUsuario` valida el nombre con la misma regla del alta (no vacío).
   - El PATCH lo manda solo si cambió (`dirtyFields`, como el resto).
   - Test en `PestanaUsuarios.test.tsx`: se corrige el nombre y el PATCH lleva solo `nombre`; un nombre vacío no se envía.
+- **Implementación (24/10/26, Nahuel):**
+  - `PestanaOperadores` + `FormularioOperador` replican el ABM de destinos (formulario arriba de la tabla, no a la derecha como en el prototipo). La baja pide confirmación, como en la pantalla 33; el botón dice «Confirmar».
+  - No se agregaron la columna «Viajes» ni el campo «Ejecutivo de cuentas» del prototipo: el contrato (`OperadorCrear`/`OperadorEditar`) solo tiene `nombre` y `contacto`; el CU-31 cubre el ejecutivo dentro de `contacto`.
+  - RF-147: nombre editable al editar un usuario; `esquemaEdicionUsuario` valida el nombre como el alta; el PATCH lo manda solo si cambió. Se reescribió el test previo que exigía el nombre deshabilitado.
+  - Review: el hallazgo importante (confirmación de baja no fijada por los tests) se arregló con autorización para corregir el test (`--tocar-tests`). Queda como menor: el aviso muestra `darDeBaja.error ?? reactivar.error`, que puede dejar visible un error viejo; es el mismo patrón que destinos y conviene tocarlo en los dos lugares.
+  - Modelos: tests sonnet, implementación y refactor haiku (sin escalado), review opus. El refactor no hizo cambios.
