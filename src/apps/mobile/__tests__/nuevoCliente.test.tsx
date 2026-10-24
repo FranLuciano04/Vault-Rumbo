@@ -346,6 +346,43 @@ describe("RF-002 datos mínimos mobile", () => {
     expect(await vista.findByRole("button", { name: ASESOR.nombre })).toBeTruthy();
   });
 
+  it("RF-002 el empleado elige un asesor y el alta lo manda", async () => {
+    backend({ rol: "empleado" });
+    const vista = await renderAlta();
+    await completar(vista, "Ana Gómez", "ana@mail.test");
+    await fireEvent.press(await vista.findByRole("button", { name: ASESOR.nombre }));
+
+    await fireEvent.press(registrar(vista));
+
+    await waitFor(() => {
+      expect(cuerpos).toHaveLength(1);
+    });
+    expect(cuerpos[0]?.["asesor_asignado_id"]).toBe(ASESOR.id);
+  });
+
+  it("RF-002 muestra el 422 del servidor sobre el asesor", async () => {
+    backend({
+      alta: (_cuerpo, config) =>
+        respuesta(
+          422,
+          {
+            title: "Error de validación",
+            status: 422,
+            errores: [{ campo: "asesor_asignado_id", mensaje: "El asesor no está activo." }],
+          },
+          config,
+        ),
+    });
+    const vista = await renderAlta();
+    await completar(vista, "Ana Gómez", "ana@mail.test");
+    await vista.findByRole("button", { name: ASESOR.nombre });
+
+    await fireEvent.press(registrar(vista));
+
+    expect(await vista.findByText("El asesor no está activo.")).toBeTruthy();
+    expect(vista).toHavePathname("/clientes/nuevo");
+  });
+
   it("RF-002 desde la lista de clientes, «Nuevo cliente» abre el formulario de alta", async () => {
     backend();
     const vista = await renderAlta("/clientes");

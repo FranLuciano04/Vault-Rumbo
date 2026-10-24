@@ -29,12 +29,10 @@ function Campo({
   etiqueta,
   error,
   onChangeText,
-  ...props
 }: {
   etiqueta: string;
   error?: string;
   onChangeText: (texto: string) => void;
-  keyboardType?: "email-address";
 }) {
   return (
     <View>
@@ -44,7 +42,6 @@ function Campo({
         autoCapitalize="none"
         onChangeText={onChangeText}
         className="rounded-xl border border-input px-4 py-3"
-        {...props}
       />
       <MensajeError texto={error} />
     </View>
@@ -227,7 +224,11 @@ export function NuevoClienteMobile() {
         setAviso(restantes.length > 0 ? restantes.join(" ") : null);
         return;
       }
-      setAviso(falla.status === 409 || falla.status === 403 ? falla.detail : ERROR_AL_GUARDAR);
+      setAviso(
+        (falla.status === 409 || falla.status === 403) && falla.detail
+          ? falla.detail
+          : ERROR_AL_GUARDAR,
+      );
     }
   }
 
@@ -252,7 +253,6 @@ export function NuevoClienteMobile() {
       <Campo
         etiqueta="Contacto (teléfono o email)"
         error={errores.contacto}
-        keyboardType="email-address"
         onChangeText={(valor) => {
           texto.current.contacto = valor;
         }}
