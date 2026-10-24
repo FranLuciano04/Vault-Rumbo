@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input";
 import { aplicarErroresDelServidor } from "@/lib/errores";
 import {
   CAMPOS,
+  datosParaLaApi,
   esquemaFicha,
   SelectorAsesor,
   type DatosFicha,
@@ -111,12 +112,7 @@ export function NuevoCliente({
     setEnviado(datos);
     try {
       const nuevo = await crear.mutateAsync({
-        nombre: datos.nombre,
-        contacto: datos.contacto,
-        instagram: datos.instagram ?? null,
-        segmento: datos.segmento,
-        preferencias: datos.preferencias?.trim() || null,
-        ...(conAsesor && { asesor_asignado_id: datos.asesor_asignado_id || null }),
+        ...datosParaLaApi(datos, conAsesor),
         ...(confirmarDuplicado && { confirmar_duplicado: true }),
       });
       void navegar(`/clientes/${nuevo.id}`);

@@ -30,14 +30,9 @@ export const CAMPOS = [
   "asesor_asignado_id",
 ] as const;
 
-/** Solo los campos que cambiaron respecto de la ficha; es lo que viaja en el PATCH. */
-function cambiosDeLaFicha(
-  datos: DatosFicha,
-  etiquetas: string[],
-  ficha: Cliente,
-  conAsesor: boolean,
-): ClienteEditar {
-  const nuevo = {
+/** Los datos del formulario como los espera la API, en el alta y en la edición. */
+export function datosParaLaApi(datos: DatosFicha, conAsesor: boolean) {
+  return {
     nombre: datos.nombre,
     contacto: datos.contacto,
     instagram: datos.instagram ?? null,
@@ -45,6 +40,16 @@ function cambiosDeLaFicha(
     preferencias: datos.preferencias?.trim() || null,
     ...(conAsesor && { asesor_asignado_id: datos.asesor_asignado_id || null }),
   };
+}
+
+/** Solo los campos que cambiaron respecto de la ficha; es lo que viaja en el PATCH. */
+function cambiosDeLaFicha(
+  datos: DatosFicha,
+  etiquetas: string[],
+  ficha: Cliente,
+  conAsesor: boolean,
+): ClienteEditar {
+  const nuevo = datosParaLaApi(datos, conAsesor);
   const cambios: ClienteEditar = Object.fromEntries(
     Object.entries(nuevo).filter(([campo, valor]) => ficha[campo as keyof Cliente] !== valor),
   );
