@@ -15,9 +15,9 @@ const CAMPOS = ["nombre", "email", "rol", "acceso_redes"] as const;
 const tieneRedesPorRol = (rol: string) => rol === "admin" || rol === "dueno";
 
 /**
- * Alta (RF-144) y edición (RF-147) de un usuario. Al editar solo cambian el rol y el acceso a
- * redes, y el PATCH lleva únicamente lo que se tocó. Los 403 y 409 del servidor (RF-146, RF-149) se
- * muestran como aviso y dejan el formulario abierto.
+ * Alta (RF-144) y edición (RF-147) de un usuario. Al editar no cambia el email (identifica la cuenta
+ * de Firebase), y el PATCH lleva únicamente lo que se tocó. Los 403 y 409 del servidor (RF-146,
+ * RF-149) se muestran como aviso y dejan el formulario abierto.
  */
 export function FormularioUsuario({
   cliente,
@@ -50,6 +50,7 @@ export function FormularioUsuario({
     try {
       if (usuario) {
         const cambios = {
+          ...(dirtyFields.nombre && { nombre: datos.nombre }),
           ...(dirtyFields.rol && { rol: datos.rol }),
           ...(dirtyFields.acceso_redes && { acceso_redes: datos.acceso_redes }),
         };
@@ -74,9 +75,7 @@ export function FormularioUsuario({
       onSubmit={(evento) => void formulario.handleSubmit(guardar)(evento)}
     >
       <CampoFormulario id="usuario-nombre" etiqueta="Nombre" error={errors.nombre}>
-        {(props) => (
-          <Input {...props} disabled={Boolean(usuario)} {...formulario.register("nombre")} />
-        )}
+        {(props) => <Input {...props} {...formulario.register("nombre")} />}
       </CampoFormulario>
       <CampoFormulario id="usuario-email" etiqueta="Email" error={errors.email}>
         {(props) => (
