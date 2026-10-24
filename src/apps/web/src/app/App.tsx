@@ -1,4 +1,4 @@
-import { crearQueryClient } from "@rumbo/shared";
+import { crearQueryClient } from "@rumbo/shared/query";
 import { QueryClientProvider } from "@tanstack/react-query";
 import type { AxiosInstance } from "axios";
 import { useState } from "react";

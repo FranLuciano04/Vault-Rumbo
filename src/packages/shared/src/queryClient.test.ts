@@ -10,10 +10,8 @@ function errorApi(status: number): ErrorApi {
 
 function debeReintentar(falla: unknown, intento = 0): boolean {
   const retry = crearQueryClient().getDefaultOptions().queries?.retry;
-  if (typeof retry === "function") return retry(intento, falla as Error);
-  if (typeof retry === "number") return intento < retry;
-  if (retry === undefined) return intento < 3; // valor por defecto de TanStack Query
-  return retry;
+  if (typeof retry !== "function") throw new Error("retry debe ser una función");
+  return retry(intento, falla as Error);
 }
 
 describe("RF-003 política de reintentos del QueryClient de la app", () => {
