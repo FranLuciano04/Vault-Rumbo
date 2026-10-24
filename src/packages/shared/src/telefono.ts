@@ -1,12 +1,13 @@
+import { TELEFONO } from "./esquemas/clientes";
+
 /**
  * Número de teléfono argentino en formato internacional (solo dígitos, con 549 para celulares),
  * o `null` si el contacto no es un único número válido (texto sin dígitos, dos números, email).
  */
 export function normalizarTelefonoAR(contacto: string): string | null {
   const texto = contacto.trim();
-  // Dos números juntos se distinguen por los separadores que no son de formato.
+  // Cualquier carácter que no sea de formato (letras, "/", ",") indica texto u otro número.
   if (/[^\d\s()+\-.]/.test(texto)) return null;
-  if (/\d[\s.-]*\/|\d\s*[,;y]\s*\d/.test(texto)) return null;
   const tieneInternacional = texto.startsWith("+") || texto.startsWith("00");
   let digitos = texto.replace(/\D/g, "");
   if (tieneInternacional) {
@@ -33,4 +34,9 @@ function validar(nacional: string): string | null {
     }
   }
   return null;
+}
+
+/** Enlace `tel:` con los dígitos y el `+` tal como se escribieron, o `null` si no es un único teléfono. */
+export function enlaceLlamada(contacto: string): string | null {
+  return TELEFONO.test(contacto) ? `tel:${contacto.replace(/[^\d+]/g, "")}` : null;
 }

@@ -369,6 +369,29 @@ describe("RF-006 ficha mobile", () => {
     expect(vista.queryByRole("button", { name: /whatsapp/i })).toBeNull();
   });
 
+  it("un teléfono que no se puede pasar a WhatsApp ofrece Llamar con los dígitos tal como están escritos", async () => {
+    const fijo = listado(5, "Cliente Fijo", "4444-5555");
+    backend({ fichas: { "id-5": fijo } });
+    const vista = await renderClientes("/clientes/id-5");
+    await vista.findByText("Cliente Fijo");
+
+    await fireEvent.press(vista.getByRole("button", { name: /llamar/i }));
+    expect(abrir).toHaveBeenCalledWith("tel:44445555");
+    expect(vista.queryByRole("button", { name: /whatsapp/i })).toBeNull();
+  });
+
+  it("Volver sin historial de navegación lleva a la lista de clientes", async () => {
+    backend({ fichas: { "id-1": camila } });
+    const vista = await renderClientes("/clientes/id-1");
+    await vista.findByText("Camila Benítez");
+
+    await fireEvent.press(vista.getByRole("button", { name: /volver/i }));
+
+    await waitFor(() => {
+      expect(vista).toHavePathname("/clientes");
+    });
+  });
+
   it("la ficha ofrece volver también cuando el cliente no existe", async () => {
     backend({ fichas: {} });
     const vista = await renderClientes("/clientes/id-99");

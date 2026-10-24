@@ -1,4 +1,4 @@
-import { ETIQUETA_SEGMENTO, ErrorApi, normalizarTelefonoAR } from "@rumbo/shared";
+import { ETIQUETA_SEGMENTO, ErrorApi, enlaceLlamada, normalizarTelefonoAR } from "@rumbo/shared";
 import { useCliente } from "@rumbo/shared/hooks";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { Linking, Pressable, ScrollView, Text, View } from "react-native";
@@ -22,12 +22,12 @@ function BotonContacto({ titulo, destino }: { titulo: string; destino: string })
 function AccionesContacto({ contacto }: { contacto: string }) {
   if (contacto.includes("@"))
     return <BotonContacto titulo="Enviar email" destino={`mailto:${contacto}`} />;
-  const telefono = normalizarTelefonoAR(contacto);
-  if (!telefono) return null;
+  const llamada = enlaceLlamada(contacto);
+  const whatsapp = normalizarTelefonoAR(contacto);
   return (
     <>
-      <BotonContacto titulo="Llamar" destino={`tel:+${telefono}`} />
-      <BotonContacto titulo="WhatsApp" destino={`https://wa.me/${telefono}`} />
+      {llamada && <BotonContacto titulo="Llamar" destino={llamada} />}
+      {whatsapp && <BotonContacto titulo="WhatsApp" destino={`https://wa.me/${whatsapp}`} />}
     </>
   );
 }
@@ -39,7 +39,8 @@ function Volver() {
       role="button"
       accessibilityLabel="Volver"
       onPress={() => {
-        router.back();
+        if (router.canGoBack()) router.back();
+        else router.replace("/clientes");
       }}
     >
       <Text className="text-primary">‹ Clientes</Text>

@@ -1,4 +1,4 @@
-import { normalizarTelefonoAR } from "./telefono";
+import { enlaceLlamada, normalizarTelefonoAR } from "./telefono";
 
 describe("normalizarTelefonoAR (contacto de clientes, CU-03)", () => {
   it.each([
@@ -27,4 +27,22 @@ describe("normalizarTelefonoAR (contacto de clientes, CU-03)", () => {
   ])("%j -> null", (entrada) => {
     expect(normalizarTelefonoAR(entrada)).toBeNull();
   });
+});
+
+describe("enlaceLlamada", () => {
+  it.each([
+    ["11 5555-1234", "tel:1155551234"],
+    ["+54 9 11 5555-1234", "tel:+5491155551234"],
+    ["+1 305 555 1234", "tel:+13055551234"],
+    ["4444-5555", "tel:44445555"],
+  ])("%s -> %s", (entrada, esperado) => {
+    expect(enlaceLlamada(entrada)).toBe(esperado);
+  });
+
+  it.each(["consultar por Instagram", "sosa.familia@mail.test", "11 5555-1234 / 11 4444-5555", ""])(
+    "%j -> null",
+    (entrada) => {
+      expect(enlaceLlamada(entrada)).toBeNull();
+    },
+  );
 });
