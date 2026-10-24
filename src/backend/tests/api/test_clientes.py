@@ -657,7 +657,7 @@ async def test_rf150_freelance_edita_su_cliente(
     assert r.json()["etiquetas"] == ["vip"]
 
 
-async def test_rf150_freelance_no_edita_cliente_ajeno_404(
+async def test_rf151_freelance_no_edita_cliente_ajeno_404(
     cliente_como: FabricaCliente, sesion: AsyncSession
 ) -> None:
     ajeno = await crear(sesion, UsuarioFactory)

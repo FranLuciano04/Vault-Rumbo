@@ -1,4 +1,4 @@
-"""T-012: visibilidad por fila y permisos por rol (RF-151, RF-150, DEC-0005, DEC-0008).
+"""T-012: visibilidad por fila y permisos por rol (RF-151, DEC-0005, DEC-0008).
 
 Contrato supuesto:
 - `visibilidad(actor) -> FiltroVisibilidad`; `filtro.aplicar(select, Modelo) -> select`.
@@ -366,22 +366,22 @@ async def test_rf151_el_filtro_se_aplica_a_una_consulta(sesion: AsyncSession) ->
 
 
 @pytest.mark.parametrize("rol", ROLES)
-def test_rf150_exigir_rol_deja_pasar_al_rol_permitido(rol: str) -> None:
+def test_rf151_exigir_rol_deja_pasar_al_rol_permitido(rol: str) -> None:
     exigir_rol(_actor(rol), m.RolUsuario(rol))
 
 
 @pytest.mark.parametrize("rol", ["empleado", "freelance"])
-def test_rf150_exigir_rol_admin_o_dueno_rechaza_a_los_demas(rol: str) -> None:
+def test_rf151_exigir_rol_admin_o_dueno_rechaza_a_los_demas(rol: str) -> None:
     with pytest.raises(SinPermiso):
         exigir_rol(_actor(rol), m.RolUsuario.admin, m.RolUsuario.dueno)
 
 
 @pytest.mark.parametrize("rol", ["admin", "dueno"])
-def test_rf150_exigir_rol_admin_o_dueno_acepta_a_ambos(rol: str) -> None:
+def test_rf151_exigir_rol_admin_o_dueno_acepta_a_ambos(rol: str) -> None:
     exigir_rol(_actor(rol), m.RolUsuario.admin, m.RolUsuario.dueno)
 
 
-def test_rf150_exigir_rol_solo_admin_rechaza_al_dueno() -> None:
+def test_rf151_exigir_rol_solo_admin_rechaza_al_dueno() -> None:
     with pytest.raises(SinPermiso):
         exigir_rol(_actor("dueno"), m.RolUsuario.admin)
 
@@ -406,50 +406,50 @@ def _alerta(prop: uuid.UUID) -> m.Alerta:
 
 
 @pytest.mark.parametrize("rol", ["empleado", "admin", "dueno"])
-def test_rf150_cliente_lo_escribe_toda_la_agencia(rol: str) -> None:
+def test_rf151_cliente_lo_escribe_toda_la_agencia(rol: str) -> None:
     exigir_escritura(_actor(rol), _cliente(uuid.uuid4()))
     exigir_escritura(_actor(rol), _cliente(None))
 
 
-def test_rf150_freelance_escribe_su_cliente() -> None:
+def test_rf151_freelance_escribe_su_cliente() -> None:
     actor = _actor("freelance")
     exigir_escritura(actor, _cliente(actor.id))
 
 
 @pytest.mark.parametrize("asesor", [None, uuid.uuid4()])
-def test_rf150_freelance_no_escribe_cliente_ajeno(asesor: uuid.UUID | None) -> None:
+def test_rf151_freelance_no_escribe_cliente_ajeno(asesor: uuid.UUID | None) -> None:
     with pytest.raises(SinPermiso):
         exigir_escritura(_actor("freelance"), _cliente(asesor))
 
 
 @pytest.mark.parametrize("fabrica", [_oportunidad, _viaje])
 @pytest.mark.parametrize("rol", ["empleado", "freelance"])
-def test_rf150_el_responsable_escribe_oportunidad_y_viaje(fabrica: Any, rol: str) -> None:
+def test_rf151_el_responsable_escribe_oportunidad_y_viaje(fabrica: Any, rol: str) -> None:
     actor = _actor(rol)
     exigir_escritura(actor, fabrica(actor.id))
 
 
 @pytest.mark.parametrize("fabrica", [_oportunidad, _viaje])
 @pytest.mark.parametrize("rol", ["admin", "dueno"])
-def test_rf150_admin_y_dueno_escriben_oportunidad_y_viaje_ajenos(fabrica: Any, rol: str) -> None:
+def test_rf151_admin_y_dueno_escriben_oportunidad_y_viaje_ajenos(fabrica: Any, rol: str) -> None:
     exigir_escritura(_actor(rol), fabrica(uuid.uuid4()))
 
 
 @pytest.mark.parametrize("fabrica", [_oportunidad, _viaje])
 @pytest.mark.parametrize("rol", ["empleado", "freelance"])
-def test_rf150_no_responsable_no_escribe_oportunidad_ni_viaje(fabrica: Any, rol: str) -> None:
+def test_rf151_no_responsable_no_escribe_oportunidad_ni_viaje(fabrica: Any, rol: str) -> None:
     with pytest.raises(SinPermiso):
         exigir_escritura(_actor(rol), fabrica(uuid.uuid4()))
 
 
 @pytest.mark.parametrize("rol", ROLES)
-def test_rf150_el_propietario_escribe_su_alerta(rol: str) -> None:
+def test_rf151_el_propietario_escribe_su_alerta(rol: str) -> None:
     actor = _actor(rol)
     exigir_escritura(actor, _alerta(actor.id))
 
 
 @pytest.mark.parametrize("rol", ROLES)
-def test_rf150_solo_el_propietario_escribe_la_alerta(rol: str) -> None:
+def test_rf151_solo_el_propietario_escribe_la_alerta(rol: str) -> None:
     with pytest.raises(SinPermiso):
         exigir_escritura(_actor(rol), _alerta(uuid.uuid4()))
 
@@ -460,6 +460,6 @@ def test_rf150_solo_el_propietario_escribe_la_alerta(rol: str) -> None:
     [HotelFactory.build(id=uuid.uuid4()), object()],
     ids=["hotel", "objeto_cualquiera"],
 )
-def test_rf150_registro_de_tipo_desconocido_se_cierra_por_defecto(rol: str, registro: Any) -> None:
+def test_rf151_registro_de_tipo_desconocido_se_cierra_por_defecto(rol: str, registro: Any) -> None:
     with pytest.raises(SinPermiso):
         exigir_escritura(_actor(rol), registro)
