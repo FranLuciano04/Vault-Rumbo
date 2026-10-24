@@ -17,6 +17,7 @@ from rumbo.presentacion.paginacion import Pagina, ParametrosPagina, parametros_p
 router = APIRouter(prefix="/usuarios", tags=["seguridad"])
 
 ActorDep = Annotated[modelos.Usuario, Depends(usuario_actual)]
+GestorDep = Annotated[GestorDeCuentas, Depends(obtener_gestor_de_cuentas)]
 
 
 @router.get(
@@ -58,7 +59,7 @@ async def crear_usuario(
     datos: UsuarioCrear,
     actor: ActorDep,
     sesion: SesionDep,
-    gestor: Annotated[GestorDeCuentas, Depends(obtener_gestor_de_cuentas)],
+    gestor: GestorDep,
 ) -> Usuario:
     """CU-25 pasos 3 a 5 (RF-144): crea el usuario y su cuenta de Firebase, y Firebase le manda
     el mail para elegir la contraseña (DEC-0016). Si Firebase falla responde 502."""
@@ -110,7 +111,7 @@ async def dar_de_baja_usuario(
     usuario_id: uuid.UUID,
     actor: ActorDep,
     sesion: SesionDep,
-    gestor: Annotated[GestorDeCuentas, Depends(obtener_gestor_de_cuentas)],
+    gestor: GestorDep,
 ) -> Usuario:
     """CU-25 A3 y A4 (RF-148, RF-149): desactiva al usuario y deshabilita su cuenta de
     Firebase; no se da de baja al último admin activo (409). Si Firebase falla responde 502."""
