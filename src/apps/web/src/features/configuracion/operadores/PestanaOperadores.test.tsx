@@ -238,12 +238,48 @@ describe("RF-093 operadores", () => {
 
     const filaDespegar = await fila("Despegar Mayorista");
     await usuario.click(within(filaDespegar).getByRole("button", { name: /dar de baja/i }));
-    const confirmar = screen.queryByRole("button", { name: /confirmar/i });
-    if (confirmar) await usuario.click(confirmar);
+    await usuario.click(screen.getByRole("button", { name: /confirmar/i }));
 
     await waitFor(() => {
       expect(ruta).toBe(`/api/operadores/${despegar.id}/baja`);
     });
+  });
+
+  it("RF-093 no da de baja hasta confirmar en el diálogo", async () => {
+    let llamadas = 0;
+    servidor.use(
+      http.post("*/api/operadores/:id/baja", () => {
+        llamadas += 1;
+        return HttpResponse.json({ ...despegar, activo: false });
+      }),
+    );
+    renderPestana();
+    const usuario = userEvent.setup();
+
+    const filaDespegar = await fila("Despegar Mayorista");
+    await usuario.click(within(filaDespegar).getByRole("button", { name: /dar de baja/i }));
+
+    expect(screen.getByRole("alertdialog")).toBeInTheDocument();
+    expect(llamadas).toBe(0);
+  });
+
+  it("RF-093 cancelar el diálogo cierra la confirmación sin dar de baja", async () => {
+    let llamadas = 0;
+    servidor.use(
+      http.post("*/api/operadores/:id/baja", () => {
+        llamadas += 1;
+        return HttpResponse.json({ ...despegar, activo: false });
+      }),
+    );
+    renderPestana();
+    const usuario = userEvent.setup();
+
+    const filaDespegar = await fila("Despegar Mayorista");
+    await usuario.click(within(filaDespegar).getByRole("button", { name: /dar de baja/i }));
+    await usuario.click(screen.getByRole("button", { name: /cancelar/i }));
+
+    expect(screen.queryByRole("alertdialog")).not.toBeInTheDocument();
+    expect(llamadas).toBe(0);
   });
 
   it("RF-093 avisa si falla la baja del operador", async () => {
@@ -253,8 +289,7 @@ describe("RF-093 operadores", () => {
 
     const filaDespegar = await fila("Despegar Mayorista");
     await usuario.click(within(filaDespegar).getByRole("button", { name: /dar de baja/i }));
-    const confirmar = screen.queryByRole("button", { name: /confirmar/i });
-    if (confirmar) await usuario.click(confirmar);
+    await usuario.click(screen.getByRole("button", { name: /confirmar/i }));
 
     expect(await screen.findByRole("alert")).toHaveTextContent(/no pudimos guardar/i);
   });
@@ -274,7 +309,9 @@ describe("RF-093 operadores", () => {
     const usuario = userEvent.setup();
 
     const filaAndes = await fila("Andes Travel");
-    expect(within(filaAndes).queryByRole("button", { name: /dar de baja/i })).not.toBeInTheDocument();
+    expect(
+      within(filaAndes).queryByRole("button", { name: /dar de baja/i }),
+    ).not.toBeInTheDocument();
     await usuario.click(within(filaAndes).getByRole("button", { name: /reactivar/i }));
 
     await waitFor(() => {

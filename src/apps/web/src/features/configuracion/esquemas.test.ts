@@ -1,7 +1,12 @@
 import { esquemaComision, esquemaEdicionUsuario, esquemaParametros } from "./esquemas";
 
 describe("RF-147 validación de la edición de usuario (zod)", () => {
-  const valido = { nombre: "Ana Pérez", email: "ana@rumbo.test", rol: "empleado", acceso_redes: false };
+  const valido = {
+    nombre: "Ana Pérez",
+    email: "ana@rumbo.test",
+    rol: "empleado",
+    acceso_redes: false,
+  };
 
   it("RF-147 acepta un nombre corregido", () => {
     expect(esquemaEdicionUsuario.safeParse({ ...valido, nombre: "Ana María" }).success).toBe(true);
