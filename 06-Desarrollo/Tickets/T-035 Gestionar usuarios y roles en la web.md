@@ -49,7 +49,7 @@ Admin y dueña listan usuarios, dan de alta uno (que recibe el mail de Firebase)
 - Redes por rol (DEC-0013): admin y dueño muestran «Por su rol» y el checkbox queda deshabilitado (marcado). Edición con `esquemaEdicionUsuario` (no valida nombre ni email) y PATCH solo con los campos cambiados (`dirtyFields`).
 - `errores.ts` (compartido): `aplicarErroresDelServidor` también devuelve el `detail` de un 403. `CLASE_SELECT` pasó a `CampoFormulario.tsx` (lo usan Comisión y Requisitos).
 - **Contra el backend real, solo el alta y el listado funcionan hoy:** PATCH, baja, 409 de último admin y 403 del dueño los implementa **T-028**; acá se validaron contra MSW.
-- **Pendiente para después de T-028:** habilitar en la web la edición del `nombre` (CU-25 A2) cuando se regenere `UsuarioEditar`.
+- **Pendiente para después de T-028:** habilitar en la web la edición del `nombre` (CU-25 A2) cuando se regenere `UsuarioEditar`. ✅ 24/10/26: pasa a T-037.
 - Menor no aplicado: ocultar «Dueño» en el select si el actor no es dueño (`useYo`). Requiere que 4 tests monten un actor dueño; queda para un ticket chico.
 - Pendiente del equipo: panel lateral (pantalla 31) vs. formulario arriba, igual que T-036.
 - Review (Opus): 0 bloqueantes, 2 importantes y 7 menores; arreglados todos menos el del select. Tests corregidos con autorización (`--tocar-tests`): valor exacto de la columna de redes, nombres de RF en los `describe` y PATCH con igualdad exacta.

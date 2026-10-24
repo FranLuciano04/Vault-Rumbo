@@ -39,6 +39,8 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
   - Al `freelance` se le avisa que ya hay un cliente con ese contacto en la agencia, sin mostrarle datos del otro cliente (CU-02 A1). ⚠️ Quién se queda con el cliente se confirma con la agencia.
   - Un requisito de destino dado de baja no se edita: 404 (CU-15 A3).
   - Las dos se implementan dentro de T-042, sin subtickets. El mensaje de la web va en T-045.
+  - La edición del nombre del usuario en la web (pendiente de T-035) se suma a T-037.
+  - Se descartan los checks obligatorios en `main`: no se paga GitHub Pro.
 - **Commits:** 9bfb34d y el de esta entrada.
 - **Pendiente:** las cuatro fallas para levantar Rumbo en local siguen sin decidir (Estado, *Pendientes técnicos*). Próximo ticket de Francisco: T-042.
 
@@ -136,7 +138,7 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:**
   - ~~Aprobación del PR #59.~~ ✅ Mergeado el 24/10 (`116ff01`).
   - `#accion/decidir` en CU-25: si se protege a la última dueña activa.
-  - Habilitar la edición del nombre en la web (T-035).
+  - Habilitar la edición del nombre en la web (T-035). ✅ 24/10: va en T-037.
   - En esta PC, pytest necesita `--basetemp` porque el tmp de Windows da `PermissionError`.
 
 ## 23/10/26 — Nahuel (Claude Opus 5.5) — T-035: usuarios y roles en la web

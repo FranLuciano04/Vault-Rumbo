@@ -10,7 +10,7 @@ riesgo: normal
 modelo_tests: sonnet
 modelo_impl: haiku
 modelo_review: opus
-trazabilidad: [CU-31, RF-093, RF-094, RF-095, RF-096]
+trazabilidad: [CU-31, RF-093, RF-094, RF-095, RF-096, CU-25, RF-147]
 origen: plan
 asignado:
 tomado_el:
@@ -46,3 +46,8 @@ Admin y dueña gestionan el catálogo de operadores desde su pestaña, con el mi
 - —
 
 ## Notas de implementación
+- **Sumado el 24/10/26 (Francisco; pendiente de T-035, se absorbe acá en vez de abrir un subticket):** permitir corregir el `nombre` al editar un usuario (CU-25 A2, RF-147). El backend ya lo acepta desde T-028 (`UsuarioEditar.nombre`).
+  - En `features/configuracion/usuarios/FormularioUsuario.tsx`, habilitar el campo Nombre al editar. El email sigue bloqueado, porque identifica la cuenta de Firebase.
+  - En `features/configuracion/esquemas.ts`, `esquemaEdicionUsuario` valida el nombre con la misma regla del alta (no vacío).
+  - El PATCH lo manda solo si cambió (`dirtyFields`, como el resto).
+  - Test en `PestanaUsuarios.test.tsx`: se corrige el nombre y el PATCH lleva solo `nombre`; un nombre vacío no se envía.
