@@ -6,6 +6,14 @@
 # Para los e2e (Auth Emulator + IA falsa), sumar el override:
 #   docker compose -f src/docker-compose.yml -f src/docker-compose.e2e.yml up -d --build
 #
+# Para entrar con el proyecto REAL de Firebase, sumar el override (pide RUMBO_FIREBASE_CREDENCIALES
+# en src/.env: ruta al JSON de la cuenta de servicio, fuera del repo; ver src/infra/firebase.md):
+#   docker compose -f src/docker-compose.yml -f src/docker-compose.firebase.yml up -d --build
+# Ojo: la API key web está restringida por referente a http://localhost:5173/*, y Firebase rechaza
+# http://localhost/ (puerto 80). Dos salidas:
+#   a) publicar nginx en el 5173: RUMBO_HTTP_PORT=5173 en src/.env, con `pnpm dev` apagado; o
+#   b) sumar http://localhost/* a la restricción de la clave (Google Cloud, lo hace quien administra).
+#
 # Al volver de e2e a producción local, sumar --remove-orphans al up (si no, queda el auth-emulator).
 #
 # Todo sale de src/.env (fuera de Git); las imágenes no llevan secretos.
