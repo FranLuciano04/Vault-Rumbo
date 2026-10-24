@@ -190,7 +190,7 @@ async def test_rf001_asesor_activo_queda_asignado(
     assert r.json()["asesor_asignado_id"] == str(asesor.id)
 
 
-async def test_rf003_freelance_no_ve_duplicados_ajenos(
+async def test_rf003_freelance_con_duplicado_ajeno_recibe_aviso_sin_datos(
     cliente_como: FabricaCliente, sesion: AsyncSession
 ) -> None:
     ajeno = await crear(sesion, UsuarioFactory)
@@ -205,8 +205,57 @@ async def test_rf003_freelance_no_ve_duplicados_ajenos(
 
     r = await c.post("/api/clientes", json=CUERPO)
 
+    assert r.status_code == 409
+    assert r.headers["content-type"].startswith(PROBLEM_JSON)
+    assert r.json()["duplicados"] == []
+    assert "Ana Pérez" not in r.text
+    assert await _cantidad(sesion) == 1  # sin alta
+
+
+async def test_rf003_freelance_confirma_duplicado_ajeno_y_se_da_de_alta(
+    cliente_como: FabricaCliente, sesion: AsyncSession
+) -> None:
+    ajeno = await crear(sesion, UsuarioFactory)
+    await crear(
+        sesion,
+        ClienteFactory,
+        nombre="Ana Pérez",
+        contacto="ana@mail.test",
+        asesor_asignado_id=ajeno.id,
+    )
+    c = await cliente_como("freelance")
+
+    r = await c.post("/api/clientes", json={**CUERPO, "confirmar_duplicado": True})
+
     assert r.status_code == 201
-    assert "duplicados" not in r.json()
+    assert await _cantidad(sesion) == 2
+
+
+async def test_rf003_freelance_con_duplicado_propio_y_ajeno_ve_solo_el_propio(
+    cliente_como: FabricaCliente, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("freelance")
+    ajeno = await crear(sesion, UsuarioFactory)
+    propio = await crear(
+        sesion,
+        ClienteFactory,
+        nombre="Ana Pérez",
+        contacto="otro@mail.test",
+        asesor_asignado_id=c.usuario.id,  # type: ignore[attr-defined]
+    )
+    await crear(
+        sesion,
+        ClienteFactory,
+        nombre="Carlos Gómez",
+        contacto="ana@mail.test",
+        asesor_asignado_id=ajeno.id,
+    )
+
+    r = await c.post("/api/clientes", json=CUERPO)
+
+    assert r.status_code == 409
+    assert [d["id"] for d in r.json()["duplicados"]] == [str(propio.id)]
+    assert "Carlos Gómez" not in r.text
     assert await _cantidad(sesion) == 2
 
 
@@ -399,15 +448,16 @@ async def test_rf031_edicion_rechaza_etiqueta_de_mas_de_80_caracteres(
 
 
 async def test_rf031_edicion_acepta_20_etiquetas_de_80_caracteres(
-    cliente_como: FabricaCliente,
+    cliente_como: FabricaCliente, sesion: AsyncSession
 ) -> None:
+    cliente = await crear(sesion, ClienteFactory)
     c = await cliente_como("empleado")
     etiquetas = [f"{i:02d}".ljust(MAX_LARGO_ETIQUETA, "x") for i in range(MAX_ETIQUETAS)]
 
-    r = await c.patch(f"/api/clientes/{ID_EDICION}", json={"etiquetas": etiquetas})
+    r = await c.patch(f"/api/clientes/{cliente.id}", json={"etiquetas": etiquetas})
 
-    # El PATCH todavía no está implementado (501): el borde solo no debe caer en la validación.
-    assert r.status_code != 422
+    assert r.status_code == 200, r.text
+    assert r.json()["etiquetas"] == etiquetas
 
 
 async def test_rf031_get_clientes_ya_no_acepta_el_alias_etiqueta(
@@ -422,3 +472,200 @@ async def test_rf031_get_clientes_ya_no_acepta_el_alias_etiqueta(
     # Sin el alias, el parámetro se ignora: no filtra.
     assert r.status_code == 200
     assert r.json()["total"] == 2
+
+
+# --- T-042: editar la ficha del cliente (CU-03, CU-30, RF-002, RF-007, RF-008) ---------------
+
+
+@pytest.mark.parametrize("rol", ["admin", "dueno", "empleado"])
+async def test_rf007_editar_ficha(
+    cliente_como: FabricaCliente, sesion: AsyncSession, rol: str
+) -> None:
+    cliente = await crear(
+        sesion, ClienteFactory, nombre="Ana Pérez", contacto="ana@mail.test", etiquetas=["playa"]
+    )
+    c = await cliente_como(rol)
+
+    r = await c.patch(
+        f"/api/clientes/{cliente.id}",
+        json={
+            "nombre": "Ana P. de Gómez",
+            "contacto": "+5491155551111",
+            "segmento": "pareja",
+            "etiquetas": ["luna de miel", "caribe"],
+            "preferencias": "all inclusive",
+            "no_recontactar": True,
+        },
+    )
+
+    assert r.status_code == 200, r.text
+    cuerpo = r.json()
+    assert cuerpo["id"] == str(cliente.id)
+    assert cuerpo["nombre"] == "Ana P. de Gómez"
+    assert cuerpo["contacto"] == "+5491155551111"
+    assert cuerpo["segmento"] == "pareja"
+    assert cuerpo["etiquetas"] == ["luna de miel", "caribe"]
+    assert cuerpo["preferencias"] == "all inclusive"
+    assert cuerpo["no_recontactar"] is True
+    assert cuerpo["updated_by"] == str(c.usuario.id)  # type: ignore[attr-defined]
+    await sesion.refresh(cliente)
+    assert cliente.nombre == "Ana P. de Gómez"
+    assert cliente.no_recontactar is True
+    assert list(cliente.etiquetas) == ["luna de miel", "caribe"]
+    assert cliente.updated_by == c.usuario.id  # type: ignore[attr-defined]
+
+
+async def test_rf007_editar_parcial_no_toca_lo_no_enviado(
+    cliente_como: FabricaCliente, sesion: AsyncSession
+) -> None:
+    cliente = await crear(
+        sesion,
+        ClienteFactory,
+        nombre="Ana Pérez",
+        contacto="ana@mail.test",
+        etiquetas=["playa"],
+        preferencias="vuelo directo",
+    )
+    c = await cliente_como("empleado")
+
+    r = await c.patch(f"/api/clientes/{cliente.id}", json={"no_recontactar": True})
+
+    assert r.status_code == 200, r.text
+    assert r.json()["nombre"] == "Ana Pérez"
+    assert r.json()["contacto"] == "ana@mail.test"
+    assert r.json()["etiquetas"] == ["playa"]
+    assert r.json()["preferencias"] == "vuelo directo"
+    assert r.json()["no_recontactar"] is True
+
+
+async def test_rf007_editar_puede_vaciar_etiquetas_y_preferencias(
+    cliente_como: FabricaCliente, sesion: AsyncSession
+) -> None:
+    cliente = await crear(sesion, ClienteFactory, etiquetas=["playa"], preferencias="vuelo directo")
+    c = await cliente_como("empleado")
+
+    r = await c.patch(f"/api/clientes/{cliente.id}", json={"etiquetas": [], "preferencias": None})
+
+    assert r.status_code == 200, r.text
+    assert r.json()["etiquetas"] == []
+    assert r.json()["preferencias"] is None
+
+
+async def test_rf007_editar_instagram_normalizado_y_se_puede_quitar(
+    cliente_como: FabricaCliente, sesion: AsyncSession
+) -> None:
+    cliente = await crear(sesion, ClienteFactory)
+    c = await cliente_como("empleado")
+
+    r = await c.patch(f"/api/clientes/{cliente.id}", json={"instagram": "@Ana.Perez"})
+    assert r.status_code == 200, r.text
+    assert r.json()["instagram"] == "ana.perez"
+
+    r = await c.patch(f"/api/clientes/{cliente.id}", json={"instagram": None})
+    assert r.status_code == 200, r.text
+    assert r.json()["instagram"] is None
+
+
+async def test_rf002_edicion_recorta_espacios(
+    cliente_como: FabricaCliente, sesion: AsyncSession
+) -> None:
+    cliente = await crear(sesion, ClienteFactory)
+    c = await cliente_como("empleado")
+
+    r = await c.patch(
+        f"/api/clientes/{cliente.id}",
+        json={"nombre": "  Ana Pérez  ", "contacto": "  ana@mail.test "},
+    )
+
+    assert r.status_code == 200, r.text
+    assert r.json()["nombre"] == "Ana Pérez"
+    assert r.json()["contacto"] == "ana@mail.test"
+    await sesion.refresh(cliente)
+    assert cliente.nombre == "Ana Pérez"
+    assert cliente.contacto == "ana@mail.test"
+
+
+@pytest.mark.parametrize(
+    "cuerpo",
+    [
+        {"nombre": ""},
+        {"nombre": "   "},
+        {"nombre": None},
+        {"contacto": ""},
+        {"contacto": "   "},
+        {"contacto": None},
+        {"segmento": "otro"},
+        {"segmento": None},
+        {"no_recontactar": None},
+        {"etiquetas": None},
+        {"instagram": "no válido!!"},
+    ],
+)
+async def test_rf002_edicion_invalida_422(
+    cliente_como: FabricaCliente, sesion: AsyncSession, cuerpo: dict[str, Any]
+) -> None:
+    cliente = await crear(sesion, ClienteFactory, nombre="Ana Pérez", contacto="ana@mail.test")
+    c = await cliente_como("empleado")
+
+    r = await c.patch(f"/api/clientes/{cliente.id}", json=cuerpo)
+
+    assert r.status_code == 422
+    assert r.headers["content-type"].startswith(PROBLEM_JSON)
+    await sesion.refresh(cliente)
+    assert cliente.nombre == "Ana Pérez"
+    assert cliente.contacto == "ana@mail.test"
+
+
+async def test_rf007_editar_inexistente_404(cliente_como: FabricaCliente) -> None:
+    c = await cliente_como("empleado")
+
+    r = await c.patch(f"/api/clientes/{ID_EDICION}", json={"nombre": "Ana"})
+
+    assert r.status_code == 404
+    assert r.headers["content-type"].startswith(PROBLEM_JSON)
+
+
+async def test_rf150_freelance_edita_su_cliente(
+    cliente_como: FabricaCliente, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("freelance")
+    propio = await crear(
+        sesion,
+        ClienteFactory,
+        nombre="Ana",
+        etiquetas=[],
+        asesor_asignado_id=c.usuario.id,  # type: ignore[attr-defined]
+    )
+
+    r = await c.patch(
+        f"/api/clientes/{propio.id}", json={"no_recontactar": True, "etiquetas": ["vip"]}
+    )
+
+    assert r.status_code == 200, r.text
+    assert r.json()["no_recontactar"] is True
+    assert r.json()["etiquetas"] == ["vip"]
+
+
+async def test_rf150_freelance_no_edita_cliente_ajeno_404(
+    cliente_como: FabricaCliente, sesion: AsyncSession
+) -> None:
+    ajeno = await crear(sesion, UsuarioFactory)
+    cliente = await crear(sesion, ClienteFactory, nombre="Ana", asesor_asignado_id=ajeno.id)
+    c = await cliente_como("freelance")
+
+    r = await c.patch(f"/api/clientes/{cliente.id}", json={"nombre": "Hackeado"})
+
+    assert r.status_code == 404
+    assert r.headers["content-type"].startswith(PROBLEM_JSON)
+    await sesion.refresh(cliente)
+    assert cliente.nombre == "Ana"
+
+
+async def test_rf008_no_hay_borrado(cliente_como: FabricaCliente, sesion: AsyncSession) -> None:
+    cliente = await crear(sesion, ClienteFactory)
+    c = await cliente_como("admin")
+
+    r = await c.delete(f"/api/clientes/{cliente.id}")
+
+    assert r.status_code == 405
+    assert await _cantidad(sesion) == 1

@@ -189,6 +189,7 @@ IMPLEMENTADAS = {
     ("post", "/api/clientes"),  # T-040
     ("get", "/api/clientes"),  # T-041
     ("get", f"/api/clientes/{ID}"),  # T-041
+    ("patch", f"/api/clientes/{ID}"),  # T-042
 }
 OPERACIONES_501 = [op for op in OPERACIONES if op[:2] not in IMPLEMENTADAS]
 
