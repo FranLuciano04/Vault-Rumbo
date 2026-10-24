@@ -98,8 +98,8 @@ async def test_dec0015_sin_demo_no_corre_las_semillas(
     assert corridas == []
 
 
-async def test_dec0015_demo_sin_semillas_registradas_en_m0_no_falla(sesion: AsyncSession) -> None:
-    assert semillas.SEMILLAS == []
+async def test_dec0015_demo_con_las_semillas_registradas_no_falla(sesion: AsyncSession) -> None:
+    assert semillas.SEMILLAS
 
     duena = await cli.datos_iniciales(
         sesion, nombre=NOMBRE, email=EMAIL, crear_cuenta=FirebaseFalso(), demo=True
