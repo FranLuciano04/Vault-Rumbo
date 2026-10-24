@@ -3,7 +3,7 @@ id: T-146
 titulo: Alinear las referencias de RF del permiso por rol
 modulo: M1 — Usuarios y configuración
 capa: backend
-estado: tomado
+estado: hecho
 depende_de: []
 tamaño: XS
 riesgo: normal
@@ -47,3 +47,13 @@ Renombrar, sin cambiar aserciones. Correr la suite completa de backend.
 - Cambiar reglas de permisos.
 
 ## Notas de implementación
+- **Sin rojo:** es un ticket solo de renombres y su criterio es que la suite pase igual. Se hizo un único paso de implementación con `--tocar-tests`, y se verificó en el diff que solo cambian referencias a RF-150/RF-151 y ninguna aserción.
+- **Pasaron a RF-151:**
+  - `politicas.py`: el módulo, `exigir_roles` y `puede_modificar`.
+  - `dependencias.py`: `exigir_rol`.
+  - Los docstrings de `listar_asesores` (servicio y router).
+  - 20 tests: 13 en `test_politicas`, 1 en `test_configuracion`, 5 en `test_usuarios` y 2 en `test_clientes` (`freelance_no_edita_cliente_ajeno_404` y `freelance_edita_su_cliente`).
+- **Siguen en RF-150 (asignación del freelance):** el alta y la conservación del asesor en `servicios/clientes.py`, más `test_rf150_freelance_queda_asignado`, `test_rf150_freelance_no_reasigna_su_cliente` y `test_rf150_alta_de_freelance_responde_con_el_propio_asesor`.
+- **Review (Opus):** 3 menores, todos arreglados en el fix. El OpenAPI no cambia, porque el docstring de `listar_asesores` no llega al contrato.
+- **Entorno:** una corrida de la fase fix tardó 41 min con 1 error transitorio de la base de tests. Al repetirla pasó en 22 s.
+- **Modelos:** implementación y fix con Sonnet; review con Opus. No hubo escalados. No hubo refactor, porque no había nada que simplificar.
