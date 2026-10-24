@@ -29,6 +29,7 @@
     ".": "./src/index.ts",
     "./mocks": "./src/mocks/index.ts",
     "./hooks": "./src/hooks/index.ts",
+    "./query": "./src/queryClient.ts",
     "./esquemas": "./src/esquemas/index.ts",
     "./tipos": "./src/tipos.gen.ts"
   },

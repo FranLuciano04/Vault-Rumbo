@@ -1,5 +1,5 @@
-import { ErrorApi } from "@rumbo/shared";
 import { QueryClient } from "@tanstack/react-query";
+import { ErrorApi } from "./cliente";
 
 const REINTENTOS_MAXIMOS = 3; // tope por defecto de TanStack Query
 
