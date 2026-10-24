@@ -1,7 +1,9 @@
 """T-040: alta de clientes con detección de duplicados (CU-02, RF-001, RF-002, RF-003, RF-150)."""
 
 from collections.abc import Awaitable, Callable
+from datetime import UTC, date, datetime
 from typing import Any
+from uuid import uuid4
 
 import pytest
 from httpx import AsyncClient
@@ -9,7 +11,16 @@ from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from rumbo.datos.modelos import Cliente, SegmentoCliente
-from tests.fabricas import ClienteFactory, UsuarioFactory, crear
+from tests.fabricas import (
+    ClienteFactory,
+    DestinoFactory,
+    HotelFactory,
+    OportunidadFactory,
+    ResenaFactory,
+    UsuarioFactory,
+    ViajeFactory,
+    crear,
+)
 
 PROBLEM_JSON = "application/problem+json"
 ROLES = ["admin", "dueno", "empleado", "freelance"]
@@ -422,3 +433,106 @@ async def test_rf031_get_clientes_ya_no_acepta_el_alias_etiqueta(
     # Sin el alias, el parámetro se ignora: no filtra.
     assert r.status_code == 200
     assert r.json()["total"] == 2
+
+
+# --- T-043: historial del cliente (CU-03 paso 3, RF-006) ------------------------------------
+# Supuesto: oportunidades se ordenan por `created_at` desc; viajes por `fecha_salida` desc;
+# reseñas por `fecha` desc (la oportunidad no tiene otra fecha propia).
+
+
+def _ids(items: list[dict[str, Any]]) -> list[str]:
+    return [i["id"] for i in items]
+
+
+async def test_rf006_historial_ordenado(cliente_como: FabricaCliente, sesion: AsyncSession) -> None:
+    c = await cliente_como("empleado")
+    usuario = c.usuario  # type: ignore[attr-defined]
+    cliente = await crear(sesion, ClienteFactory)
+    ajeno = await crear(sesion, ClienteFactory)
+    destino = await crear(sesion, DestinoFactory)
+    hotel = await crear(sesion, HotelFactory, destino_id=destino.id)
+
+    async def oportunidad(cli: Any, anio: int) -> Any:
+        return await crear(
+            sesion,
+            OportunidadFactory,
+            cliente_id=cli.id,
+            responsable_id=usuario.id,
+            created_at=datetime(anio, 3, 1, tzinfo=UTC),
+        )
+
+    async def viaje(cli: Any, salida: date) -> Any:
+        return await crear(
+            sesion,
+            ViajeFactory,
+            cliente_id=cli.id,
+            responsable_id=usuario.id,
+            destino_id=destino.id,
+            fecha_salida=salida,
+            fecha_regreso=salida,
+        )
+
+    async def resena(cli: Any, fecha: date) -> Any:
+        return await crear(sesion, ResenaFactory, cliente_id=cli.id, hotel_id=hotel.id, fecha=fecha)
+
+    o_vieja = await oportunidad(cliente, 2024)
+    o_nueva = await oportunidad(cliente, 2026)
+    o_media = await oportunidad(cliente, 2025)
+    v_viejo = await viaje(cliente, date(2025, 1, 10))
+    v_nuevo = await viaje(cliente, date(2027, 1, 10))
+    r_vieja = await resena(cliente, date(2025, 2, 1))
+    r_nueva = await resena(cliente, date(2027, 2, 1))
+    await oportunidad(ajeno, 2026)
+    await viaje(ajeno, date(2028, 1, 10))
+    await resena(ajeno, date(2028, 2, 1))
+
+    r = await c.get(f"/api/clientes/{cliente.id}/historial")
+
+    assert r.status_code == 200, r.text
+    cuerpo = r.json()
+    assert _ids(cuerpo["oportunidades"]) == [str(o.id) for o in (o_nueva, o_media, o_vieja)]
+    assert _ids(cuerpo["viajes"]) == [str(v_nuevo.id), str(v_viejo.id)]
+    assert _ids(cuerpo["resenas"]) == [str(r_nueva.id), str(r_vieja.id)]
+    assert cuerpo["oportunidades"][0]["destino_consultado"] == "Bariloche"
+    assert cuerpo["viajes"][0]["destino_id"] == str(destino.id)
+    assert cuerpo["resenas"][0]["hotel_id"] == str(hotel.id)
+    assert cuerpo["resenas"][0]["puntaje"] == 5
+
+
+async def test_rf006_sin_historial(cliente_como: FabricaCliente, sesion: AsyncSession) -> None:
+    c = await cliente_como("empleado")
+    cliente = await crear(sesion, ClienteFactory)
+
+    r = await c.get(f"/api/clientes/{cliente.id}/historial")
+
+    assert r.status_code == 200, r.text
+    assert r.json() == {"oportunidades": [], "viajes": [], "resenas": []}
+
+
+async def test_rf151_historial_de_cliente_ajeno_404_para_freelance(
+    cliente_como: FabricaCliente, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("freelance")
+    otro = await crear(sesion, UsuarioFactory)
+    ajeno = await crear(sesion, ClienteFactory, asesor_asignado_id=otro.id)
+    propio = await crear(
+        sesion,
+        ClienteFactory,
+        asesor_asignado_id=c.usuario.id,  # type: ignore[attr-defined]
+    )
+
+    r_ajeno = await c.get(f"/api/clientes/{ajeno.id}/historial")
+    r_propio = await c.get(f"/api/clientes/{propio.id}/historial")
+
+    assert r_ajeno.status_code == 404
+    assert r_ajeno.headers["content-type"].startswith(PROBLEM_JSON)
+    assert r_propio.status_code == 200, r_propio.text
+
+
+async def test_rf006_historial_de_cliente_inexistente_404(cliente_como: FabricaCliente) -> None:
+    c = await cliente_como("empleado")
+
+    r = await c.get(f"/api/clientes/{uuid4()}/historial")
+
+    assert r.status_code == 404
+    assert r.headers["content-type"].startswith(PROBLEM_JSON)
