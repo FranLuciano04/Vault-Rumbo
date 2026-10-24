@@ -3,7 +3,7 @@ id: T-046
 titulo: Mostrar la ficha editable del cliente en la web
 modulo: M2 — Clientes
 capa: web
-estado: libre
+estado: tomado
 depende_de: [T-044, T-149]
 tamaño: M
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [CU-03, RF-006, RF-007]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: FranLucianoo
+tomado_el: 24/10/26 12:05
+rama: feature/T-046-mostrar-la-ficha-editable-del-cliente-en
 pr:
 ---
 # T-046 Mostrar la ficha editable del cliente en la web
