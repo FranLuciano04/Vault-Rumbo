@@ -24,13 +24,9 @@ La **persona** de cada sesión es quien la corre, identificada por su identidad 
 ## Avisos pendientes por persona
 > Claude los lee al identificar a la persona (paso 1 de `CLAUDE.md`) y se los cuenta **apenas la saluda**, antes de cualquier otra tarea. Cuando la persona confirme que lo leyó o que lo hizo, **Claude borra su fila** en esa misma sesión, con un commit. Cuando no quede ninguna fila de alguien, se borra también su sección.
 
-### Paloma (`palomap2003`) — probar el mail real de T-027
-- **23/10, de Francisco: probar el envío real del mail del alta de usuarios** (T-027, ya mergeado). ✅ **Hecho el 23/10:** el mail llegó, se eligió la contraseña con el link y Firebase aceptó el login.
-  - **Falta:** comprobar que esa persona **entra a Rumbo con la API levantada**. La prueba del 23/10 se hizo con `pnpm dev` y sin API, así que la web aceptó un `/auth/yo` falso (ver la falla 1 en [[Estado del proyecto#Pendientes técnicos]]). Para probarlo: compose completo y `datos-iniciales` con tu email; después, entrar con la cuenta nueva y abrir Clientes.
-
 ### Francisco (`FranLucianoo`) y Nahuel (`Nahuel Viniegra`) — T-027
 - **22/10, de Paloma: PR [#45](https://github.com/FranLuciano04/Vault-Rumbo/pull/45)** (T-027, alta de usuarios con su cuenta de Firebase, ⚠️ riesgo alto). ✅ **Francisco lo mergeó el 23/10.** Quedan:
-  - ✅ **Envío real del mail probado** con `rumbo-9ff17` el 23/10 (Paloma). Falta ver que la cuenta nueva entre a Rumbo con la API levantada, y la prueba con el emulador.
+  - ✅ **Envío real del mail probado** con `rumbo-9ff17` el 23/10 (Paloma). ✅ Y la cuenta entra a Rumbo con la API levantada (compose completo, 23/10): Clientes y Configuración cargan como dueña. ✅ Prueba con el emulador hecha el 23/10 (Paloma): alta, mail, contraseña y login de la cuenta nueva. **T-027 queda verificado por completo.**
   - **Para la sync:** ~~si un `admin` puede crear una `dueno`~~ ✅ decidido el 23/10 por Francisco: **no**, solo la dueña crea o asigna `dueño` (CU-25; va en T-028), y ~~**T-153**~~ ✅ decidido el 23/10 por Francisco: se reutiliza la cuenta de Firebase sin `Usuario` (CU-25 A1).
 
 ## Formato
@@ -41,6 +37,17 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Commits:** <hash>, <hash>
 - **Pendiente:** …
 ```
+
+## 23/10/26 — Paloma (Claude Opus 5.5) — T-027 probado con el Auth Emulator
+- **Hecho:** prueba de punta a punta de T-027 con el compose más `docker-compose.e2e.yml`, en un proyecto de Docker aparte (`-p rumbo-emu`) para no tocar el Rumbo con login real. Pasaron los 8 pasos: la dueña entra, `POST /usuarios` da 201, la cuenta aparece en el emulador, Firebase emite el código `PASSWORD_RESET`, la empleada elige la contraseña con el link y entra (`/auth/yo` con rol `empleado`), email repetido en mayúsculas → 409, empleada listando usuarios → 403 y la dueña lista los 2 usuarios. Después se bajó el proyecto y se borró su base. Resultado anotado en las notas del ticket.
+- **Commits:** el de esta entrada.
+- **Pendiente:** nada de T-027. Sigue abierto que el equipo decida si las cuatro fallas del Estado pasan a ticket.
+
+## 23/10/26 — Paloma (Claude Opus 5.5) — Rumbo completo andando en local con login real
+- **Hecho:** se levantó Rumbo con Docker y se entró con la cuenta de Google de Paloma (dueña ya cargada en la base; `--demo` todavía no carga nada porque ningún módulo registró semillas). Para que funcionara: nginx publicado en el 5173 (`RUMBO_HTTP_PORT=5173`, cortando `pnpm dev`) y la API recreada con `FIREBASE_PROJECT_ID` y un override local, fuera del repo, que monta la cuenta de servicio. Esas dos trabas quedaron como fallas 3 y 4 en [[Estado del proyecto#Pendientes técnicos]].
+- **Commits:** el de esta entrada.
+- **Verificado por Paloma:** entra como dueña y cargan Clientes y Configuración. Con eso se cerró su aviso de T-027.
+- **Pendiente:** que el equipo decida si las cuatro fallas pasan a ticket.
 
 ## 23/10/26 — Paloma (Claude Opus 5.5) — web local: Clientes en blanco
 - **Hecho:** se investigó por qué, con `pnpm dev`, Clientes quedaba en blanco. La API no estaba levantada y Vite devolvía `index.html` para `/api/...`. Se levantó Rumbo completo con Docker para comprobarlo: salud OK y `/auth/yo` en 401 sin token. Después se bajó, porque falta crear la dueña en la base nueva. Las dos fallas quedaron en [[Estado del proyecto#Pendientes técnicos]].

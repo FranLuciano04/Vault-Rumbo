@@ -13,7 +13,7 @@ modelo_review: sonnet
 trazabilidad: [CU-25, RF-147, RF-148, RF-149, RF-153, DEC-0016]
 origen: plan
 asignado: Nahuel Viniegra
-tomado_el: 23/10/26 20:49
+tomado_el: 23/10/26 22:48
 rama: feature/T-028-editar-el-rol-de-un-usuario-protegiendo
 pr:
 ---
