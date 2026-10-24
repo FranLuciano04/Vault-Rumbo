@@ -14,14 +14,14 @@ import { EditorEtiquetas } from "./EditorEtiquetas";
 import { ETIQUETA_SEGMENTO } from "./segmentos";
 
 // El formato lo fija el esquema del alta; el asesor viaja como texto ("" = sin asesor).
-const esquemaFicha = esquemaAltaCliente
+export const esquemaFicha = esquemaAltaCliente
   .pick({ nombre: true, contacto: true, instagram: true, segmento: true, preferencias: true })
   .extend({ asesor_asignado_id: z.string() });
 
-type EntradaFicha = z.input<typeof esquemaFicha>;
-type DatosFicha = z.output<typeof esquemaFicha>;
+export type EntradaFicha = z.input<typeof esquemaFicha>;
+export type DatosFicha = z.output<typeof esquemaFicha>;
 
-const CAMPOS = [
+export const CAMPOS = [
   "nombre",
   "contacto",
   "instagram",
@@ -53,7 +53,7 @@ function cambiosDeLaFicha(
 }
 
 /** Asesor asignado (RF-150): lo ven admin, dueño y empleado; el de baja se conserva como opción. */
-function SelectorAsesor({
+export function SelectorAsesor({
   cliente,
   actual,
   control,
