@@ -1,4 +1,4 @@
-import { ErrorApi } from "@rumbo/shared";
+import { ErrorApi } from "./cliente";
 import { describe, expect, it } from "vitest";
 import { crearQueryClient } from "./queryClient";
 
