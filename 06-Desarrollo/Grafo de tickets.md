@@ -16,7 +16,7 @@ tags:: #tipo/referencia
 |---|---|---|---|---|---|---|---|
 | M0 — Fundaciones | 38 | 38 | 0 | 0 | 0 | 0 | ✅ cerrado |
 | M1 — Usuarios y configuración | 19 | 18 | 1 | 0 | 0 | 0 | 🛠️ en curso |
-| M2 — Clientes | 15 | 13 | 1 | 0 | 1 | 0 | 🛠️ en curso |
+| M2 — Clientes | 15 | 14 | 0 | 1 | 0 | 0 | 🛠️ en curso |
 | M3 — Alertas | 11 | 0 | 0 | 2 | 9 | 0 | 🛠️ en curso |
 | M4 — Oportunidades y cotizaciones | 14 | 0 | 0 | 1 | 13 | 0 | 🛠️ en curso |
 | M5 — Hoteles y reseñas | 11 | 0 | 0 | 1 | 10 | 0 | 🛠️ en curso |
@@ -102,8 +102,8 @@ flowchart LR
     T044["T-044 · Listar clientes en la web<br/><small>web</small>"]:::hecho
     T045["T-045 · Registrar un cliente en la web<br/><small>web</small>"]:::hecho
     T046["T-046 · Mostrar la ficha editable del cliente en la web<br/><small>web</small>"]:::hecho
-    T047["T-047 · Consultar clientes desde la app mobile<br/><small>mobile</small><br/>👤 Nahuel Viniegra"]:::tomado
-    T048["T-048 · Registrar un cliente desde la app mobile<br/><small>mobile</small>"]:::esperando
+    T047["T-047 · Consultar clientes desde la app mobile<br/><small>mobile</small>"]:::hecho
+    T048["T-048 · Registrar un cliente desde la app mobile<br/><small>mobile</small>"]:::disponible
     T049["T-049 · Probar de punta a punta la gestión de clientes<br/><small>e2e</small>"]:::hecho
     T149["T-149 · Guardar el usuario de Instagram del cliente<br/><small>backend</small>"]:::hecho
     T155["T-155 · Resumir asesor, último viaje y oportunidades en el listado de clientes<br/><small>backend</small>"]:::hecho
