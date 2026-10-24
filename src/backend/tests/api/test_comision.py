@@ -242,3 +242,57 @@ async def test_rf085_no_cambia_viajes_existentes(
     await sesion.refresh(viaje)  # ...y el viaje existente conserva su comisión
     assert viaje.comision_tipo == TipoComision("porcentaje")
     assert viaje.comision_vendedor == Decimal("10.00")
+
+
+async def test_rf083_usuario_inactivo_puede_tener_comision(
+    cliente_como: Fabrica, sesion: AsyncSession
+) -> None:
+    """CU-13, decisión del 22/10/26: también se configura la comisión de un usuario dado de baja."""
+    c = await cliente_como("admin")
+    baja = await crear(sesion, UsuarioFactory, rol=RolUsuario("empleado"), activo=False)
+
+    r = await c.put(
+        _url(baja.id),
+        json={"comision_default_tipo": "porcentaje", "comision_default_valor": "7.50"},
+    )
+
+    assert r.status_code == 200
+    assert Decimal(r.json()["comision_default_valor"]) == Decimal("7.50")
+    await sesion.refresh(baja)
+    assert baja.activo is False
+    assert baja.comision_default_tipo == TipoComision("porcentaje")
+    assert baja.comision_default_valor == Decimal("7.50")
+
+
+async def test_rf083_admin_fija_su_propia_comision(
+    cliente_como: Fabrica, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("admin")
+    admin = c.usuario  # type: ignore[attr-defined]
+
+    r = await c.put(
+        _url(admin.id),
+        json={"comision_default_tipo": "importe", "comision_default_valor": "3000.00"},
+    )
+
+    assert r.status_code == 200
+    await sesion.refresh(admin)
+    assert admin.comision_default_tipo == TipoComision("importe")
+    assert admin.comision_default_valor == Decimal("3000.00")
+
+
+async def test_rf083_admin_fija_la_comision_de_la_duena(
+    cliente_como: Fabrica, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("admin")
+    duena = await crear(sesion, UsuarioFactory, rol=RolUsuario("dueno"), activo=True)
+
+    r = await c.put(
+        _url(duena.id),
+        json={"comision_default_tipo": "porcentaje", "comision_default_valor": "5"},
+    )
+
+    assert r.status_code == 200
+    await sesion.refresh(duena)
+    assert duena.comision_default_tipo == TipoComision("porcentaje")
+    assert duena.comision_default_valor == Decimal("5.00")
