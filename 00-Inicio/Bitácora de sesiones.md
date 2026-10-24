@@ -43,6 +43,13 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
+## 24/10/26 — Nahuel (Claude Opus 5.5) — T-147: comisión de un usuario dado de baja
+- **Hecho:** T-147 (PR [#68](https://github.com/FranLuciano04/Vault-Rumbo/pull/68), mergeado con el CI en verde). Tres tests de caracterización de RF-083 en `tests/api/test_comision.py` fijan la decisión del 22/10/26 de CU-13: usuario inactivo, el propio admin y la dueña pueden tener comisión por defecto. Validados con tres mutaciones temporales del servicio. Review Opus sin hallazgos.
+  - Se iba a hacer también T-146, pero lo tomó Paloma (14:40).
+- **Checks:** backend 937 tests (96,9 %), ruff y mypy.
+- **Commits:** 307fffe, 00fa3e2, cc81c7a (merge del PR), 63c4c2c (grafo) y el de esta entrada.
+- **Pendiente:** en M1 quedan T-146 (Paloma) y T-153 (riesgo alto); después, `/cerrar-modulo`.
+
 ## 24/10/26 — Nahuel (Claude Opus 5.5) — T-038: e2e de la configuración y semilla de demo de M1
 - **Hecho:** T-038 (PR [#66](https://github.com/FranLuciano04/Vault-Rumbo/pull/66), mergeado con el CI en verde). `e2e/configuracion.spec.ts` prueba contra el sistema real el alta de un empleado que inicia sesión y no ve Configuración (RF-144), destino con requisito, baja y reactivación (RF-089), operador duplicado (RF-094) y comisión (RF-083). `datos-iniciales --demo` carga la semilla de M1: 3 destinos con requisitos, 2 operadores y 2 usuarios de demo.
   - **Decisiones de Nahuel:** usuarios de demo con `firebase_uid` ficticio (no inician sesión); se actualizó el test de M0 que exigía `SEMILLAS == []`.
