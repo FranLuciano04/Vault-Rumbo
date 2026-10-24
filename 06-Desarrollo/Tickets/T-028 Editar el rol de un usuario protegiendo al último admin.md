@@ -3,7 +3,7 @@ id: T-028
 titulo: Editar el rol de un usuario protegiendo al último admin
 modulo: M1 — Usuarios y configuración
 capa: backend
-estado: tomado
+estado: hecho
 depende_de: [T-027]
 tamaño: M
 riesgo: alto
@@ -48,3 +48,12 @@ Admin y dueña cambian el rol y los accesos de un usuario o lo dan de baja (lóg
 - Reasignar los clientes de un freelance dado de baja (no lo pide CU-25).
 
 ## Notas de implementación
+- `editar_usuario` y `dar_de_baja_usuario` en `negocio/servicios/seguridad.py`; el PATCH aplica solo los campos enviados. `UsuarioEditar` suma `nombre` (1..120); `openapi.json` y `tipos.gen.ts` regenerados (los mocks MSW ya mezclaban el cuerpo).
+- **Regla de la dueña ampliada por Nahuel (23/10/26), anotada en CU-25:** un admin no puede quitar el rol `dueno` ni dar de baja a una dueña (403). El 403 se evalúa antes que el 409 del último admin.
+- **Concurrencia:** se bloquean con `FOR UPDATE` primero los admins activos (por id) y después el usuario objetivo, siempre en ese orden para evitar deadlocks. No hay test de concurrencia real; se apoya en el orden de bloqueo.
+- **Baja:** primero se deshabilita la cuenta de Firebase y después `activo = false`. Si Firebase falla → 502 y el usuario sigue activo; `UserNotFoundError` cuenta como deshabilitada; la baja de alguien inactivo es idempotente. El Admin SDK ahora tiene `httpTimeout` de 10 s (antes, 120 s por defecto).
+- `test_contrato_m1.py`: PATCH y baja de usuarios pasan a `IMPLEMENTADAS` (con `--tocar-tests`, como los tickets anteriores).
+- Review de seguridad (sonnet): 0 bloqueantes, 1 importante (rol leído sin bloqueo) y 2 menores (timeout de Firebase y tests de seguridad faltantes), todos arreglados.
+- **Abierto:** proteger a la última `dueno` activa (`#accion/decidir` en CU-25). Menor sin hacer: sumar `nombre` a `NULOS_EN_OBLIGATORIOS` de `test_contrato_m1.py`. En la web falta habilitar la edición del nombre (T-035).
+- En esta PC, pytest necesita `--basetemp` dentro del scratchpad: `C:\Users\test123\AppData\Local\Temp\pytest-of-test123` da `PermissionError`. El problema es de la máquina, no del código.
+- Modelos: tests sonnet, impl/refactor/fix opus, review sonnet. Sin escalados.
