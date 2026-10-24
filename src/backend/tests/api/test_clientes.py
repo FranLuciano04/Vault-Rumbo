@@ -521,12 +521,28 @@ async def test_rf151_historial_de_cliente_ajeno_404_para_freelance(
         asesor_asignado_id=c.usuario.id,  # type: ignore[attr-defined]
     )
 
+    oportunidad = await crear(
+        sesion,
+        OportunidadFactory,
+        cliente_id=propio.id,
+        responsable_id=c.usuario.id,  # type: ignore[attr-defined]
+    )
+    viaje = await crear(
+        sesion,
+        ViajeFactory,
+        cliente_id=propio.id,
+        responsable_id=c.usuario.id,  # type: ignore[attr-defined]
+        destino_id=(await crear(sesion, DestinoFactory)).id,
+    )
+
     r_ajeno = await c.get(f"/api/clientes/{ajeno.id}/historial")
     r_propio = await c.get(f"/api/clientes/{propio.id}/historial")
 
     assert r_ajeno.status_code == 404
     assert r_ajeno.headers["content-type"].startswith(PROBLEM_JSON)
     assert r_propio.status_code == 200, r_propio.text
+    assert _ids(r_propio.json()["oportunidades"]) == [str(oportunidad.id)]
+    assert _ids(r_propio.json()["viajes"]) == [str(viaje.id)]
 
 
 async def test_rf006_historial_de_cliente_inexistente_404(cliente_como: FabricaCliente) -> None:
@@ -536,3 +552,35 @@ async def test_rf006_historial_de_cliente_inexistente_404(cliente_como: FabricaC
 
     assert r.status_code == 404
     assert r.headers["content-type"].startswith(PROBLEM_JSON)
+
+
+@pytest.mark.parametrize(
+    ("rol", "ve_oculta"),
+    [("admin", True), ("dueno", True), ("empleado", False), ("freelance", False)],
+)
+async def test_rf151_historial_oculta_resenas_ocultas_salvo_jefes(
+    cliente_como: FabricaCliente, sesion: AsyncSession, rol: str, ve_oculta: bool
+) -> None:
+    c = await cliente_como(rol)
+    cliente = await crear(
+        sesion,
+        ClienteFactory,
+        asesor_asignado_id=c.usuario.id,  # type: ignore[attr-defined]
+    )
+    hotel = await crear(sesion, HotelFactory, destino_id=(await crear(sesion, DestinoFactory)).id)
+    publicada = await crear(sesion, ResenaFactory, cliente_id=cliente.id, hotel_id=hotel.id)
+    oculta = await crear(
+        sesion,
+        ResenaFactory,
+        cliente_id=cliente.id,
+        hotel_id=hotel.id,
+        estado="oculta",
+        motivo_baja="Lenguaje ofensivo",
+    )
+
+    r = await c.get(f"/api/clientes/{cliente.id}/historial")
+
+    assert r.status_code == 200, r.text
+    ids = set(_ids(r.json()["resenas"]))
+    assert str(publicada.id) in ids
+    assert (str(oculta.id) in ids) is ve_oculta
