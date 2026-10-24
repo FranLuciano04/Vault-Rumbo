@@ -90,7 +90,7 @@ class ClienteCrear(Entrada):
     confirmar_duplicado: bool = False
 
 
-class ClienteEditar(BaseModel):
+class ClienteEditar(Entrada):
     """Edición parcial de la ficha (CU-03, CU-30): solo cambian los campos enviados."""
 
     # Sin `None` en el tipo: omitir el campo lo deja igual, pero un `null` explícito es 422

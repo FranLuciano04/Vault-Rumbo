@@ -118,6 +118,12 @@ def visibilidad(actor: Usuario) -> FiltroVisibilidad:
     return FiltroVisibilidad(actor_id=actor.id, rol=actor.rol)
 
 
+def visibilidad_agencia(actor: Usuario) -> FiltroVisibilidad:
+    """Filtro que ve toda la agencia sea cual sea el rol del actor. Solo para comprobar que algo
+    existe sin mostrarlo (aviso de duplicado al `freelance`, CU-02 A1); no para devolver filas."""
+    return FiltroVisibilidad(actor_id=actor.id, rol=RolUsuario.empleado)
+
+
 def exigir_rol(actor: Usuario, *roles: RolUsuario) -> None:
     """`SinPermiso` si el rol del actor no está entre `roles` (RF-150)."""
     if actor.rol not in roles:
