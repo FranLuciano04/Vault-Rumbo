@@ -755,3 +755,126 @@ async def test_rf003_freelance_con_mismo_nombre_y_otro_contacto_ajeno_no_recibe_
 
     assert r.status_code == 201
     assert await _cantidad(sesion) == 2
+
+
+# --- T-046 (fix de la review): la ficha expone el asesor con su nombre (RF-007, RF-150) -------
+
+
+async def test_rf007_ficha_expone_el_asesor_con_id_y_nombre(
+    cliente_como: FabricaCliente, sesion: AsyncSession
+) -> None:
+    asesor = await crear(sesion, UsuarioFactory, nombre="Laura Asesora")
+    cliente = await crear(sesion, ClienteFactory, asesor_asignado_id=asesor.id)
+    c = await cliente_como("empleado")
+
+    r = await c.get(f"/api/clientes/{cliente.id}")
+
+    assert r.status_code == 200, r.text
+    assert r.json()["asesor"] == {"id": str(asesor.id), "nombre": "Laura Asesora"}
+    assert r.json()["asesor_asignado_id"] == str(asesor.id)
+
+
+async def test_rf007_ficha_sin_asesor_trae_asesor_null(
+    cliente_como: FabricaCliente, sesion: AsyncSession
+) -> None:
+    cliente = await crear(sesion, ClienteFactory, asesor_asignado_id=None)
+    c = await cliente_como("empleado")
+
+    r = await c.get(f"/api/clientes/{cliente.id}")
+
+    assert r.status_code == 200, r.text
+    assert "asesor" in r.json()
+    assert r.json()["asesor"] is None
+    assert r.json()["asesor_asignado_id"] is None
+
+
+async def test_rf007_ficha_con_asesor_de_baja_igual_trae_su_nombre(
+    cliente_como: FabricaCliente, sesion: AsyncSession
+) -> None:
+    de_baja = await crear(sesion, UsuarioFactory, nombre="Beatriz Baja", activo=False)
+    cliente = await crear(sesion, ClienteFactory, asesor_asignado_id=de_baja.id)
+    c = await cliente_como("admin")
+
+    r = await c.get(f"/api/clientes/{cliente.id}")
+
+    assert r.status_code == 200, r.text
+    assert r.json()["asesor"] == {"id": str(de_baja.id), "nombre": "Beatriz Baja"}
+
+
+async def test_rf007_ficha_tiene_la_misma_forma_de_asesor_que_el_listado(
+    cliente_como: FabricaCliente, sesion: AsyncSession
+) -> None:
+    asesor = await crear(sesion, UsuarioFactory, nombre="Laura Asesora")
+    cliente = await crear(sesion, ClienteFactory, asesor_asignado_id=asesor.id)
+    c = await cliente_como("dueno")
+
+    ficha = (await c.get(f"/api/clientes/{cliente.id}")).json()
+    listado = (await c.get("/api/clientes")).json()["items"]
+
+    en_listado = next(i for i in listado if i["id"] == str(cliente.id))
+    assert ficha["asesor"] == en_listado["asesor"]
+    assert ficha["asesor"] is not None
+
+
+async def test_rf001_alta_responde_con_el_asesor_y_su_nombre(
+    cliente_como: FabricaCliente, sesion: AsyncSession
+) -> None:
+    asesor = await crear(sesion, UsuarioFactory, nombre="Laura Asesora")
+    c = await cliente_como("empleado")
+
+    r = await c.post("/api/clientes", json={**CUERPO, "asesor_asignado_id": str(asesor.id)})
+
+    assert r.status_code == 201, r.text
+    assert r.json()["asesor"] == {"id": str(asesor.id), "nombre": "Laura Asesora"}
+
+
+async def test_rf150_alta_de_freelance_responde_con_el_propio_asesor(
+    cliente_como: FabricaCliente,
+) -> None:
+    c = await cliente_como("freelance")
+
+    r = await c.post("/api/clientes", json=CUERPO)
+
+    assert r.status_code == 201, r.text
+    yo = c.usuario  # type: ignore[attr-defined]
+    assert r.json()["asesor"] == {"id": str(yo.id), "nombre": yo.nombre}
+
+
+async def test_rf007_editar_responde_con_el_asesor_nuevo_y_su_nombre(
+    cliente_como: FabricaCliente, sesion: AsyncSession
+) -> None:
+    asesor = await crear(sesion, UsuarioFactory, nombre="Laura Asesora")
+    cliente = await crear(sesion, ClienteFactory, asesor_asignado_id=None)
+    c = await cliente_como("empleado")
+
+    r = await c.patch(f"/api/clientes/{cliente.id}", json={"asesor_asignado_id": str(asesor.id)})
+
+    assert r.status_code == 200, r.text
+    assert r.json()["asesor"] == {"id": str(asesor.id), "nombre": "Laura Asesora"}
+
+
+async def test_rf007_editar_sin_tocar_al_asesor_de_baja_lo_sigue_mostrando(
+    cliente_como: FabricaCliente, sesion: AsyncSession
+) -> None:
+    de_baja = await crear(sesion, UsuarioFactory, nombre="Beatriz Baja", activo=False)
+    cliente = await crear(sesion, ClienteFactory, nombre="Ana", asesor_asignado_id=de_baja.id)
+    c = await cliente_como("empleado")
+
+    r = await c.patch(f"/api/clientes/{cliente.id}", json={"nombre": "Ana María"})
+
+    assert r.status_code == 200, r.text
+    assert r.json()["asesor"] == {"id": str(de_baja.id), "nombre": "Beatriz Baja"}
+
+
+async def test_rf007_editar_quitando_el_asesor_responde_asesor_null(
+    cliente_como: FabricaCliente, sesion: AsyncSession
+) -> None:
+    asesor = await crear(sesion, UsuarioFactory)
+    cliente = await crear(sesion, ClienteFactory, asesor_asignado_id=asesor.id)
+    c = await cliente_como("empleado")
+
+    r = await c.patch(f"/api/clientes/{cliente.id}", json={"asesor_asignado_id": None})
+
+    assert r.status_code == 200, r.text
+    assert "asesor" in r.json()
+    assert r.json()["asesor"] is None
