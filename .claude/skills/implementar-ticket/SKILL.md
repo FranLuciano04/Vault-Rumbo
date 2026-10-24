@@ -102,7 +102,10 @@ Acá corre **una sola vez la suite completa** de cada parte tocada, con lint, ty
 1. **Primero, depurar con método.** Si un implementador devuelve un verde fallido, pedile (con `SendMessage`) que invoque `debugging-and-error-recovery` y aplique el ciclo reproducir → localizar → reducir → arreglar → proteger antes de reintentar.
 2. **Después, escalar.** Si el mismo paso falla **dos veces** con método, relanzalo con el modelo siguiente (haiku → sonnet → opus). Anotalo en el ticket.
 3. **Si Opus falla dos veces**, o el ticket es ambiguo o contradice el vault, **pará y preguntale a la persona** con la skill `interview-me`. Si sale una decisión, registrala con la skill `documentation-and-adrs` como una `DEC-` en `05-Diseño/Decisiones/` (formalizada solo con la aprobación del equipo). Nunca elijas en silencio.
-4. Si aparece trabajo fuera del ticket, no lo hagas: avisale a la persona. Si acepta, se crea un ticket nuevo (`origen: hallazgo T-NNN`) desde `_plantillas/PL-Ticket.md`, en `main`, con `tickets.mjs validar`.
+4. **Si aparece una falla fuera de lo que pide el ticket, se arregla acá mismo, sin crear un ticket** (DEC-0019).
+   - Va en esta rama y en este PR: el `test-writer` escribe el test que la reproduce y el implementador del verde la arregla en modo fix, con `fase … fix --tocar-tests`.
+   - Anotala en las «Notas de implementación» y en el PR.
+   - Si es **funcionalidad nueva** y no una falla, no la hagas: avisale a la persona, y si acepta, se crea un ticket (`origen: hallazgo T-NNN`) desde `_plantillas/PL-Ticket.md`, en `main`, con `tickets.mjs validar`. Si no queda claro cuál de las dos es, preguntale.
 
 ## No hacer
 - No commitear a `main` código de `src/`: el código entra solo por PR.

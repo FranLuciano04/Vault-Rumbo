@@ -69,7 +69,7 @@ El **orquestador** es la sesión principal de cada persona, en **Opus 5.5 con ef
 - **Merge:** si el ticket es de riesgo normal y el CI pasa, se mergea solo. Si es de **riesgo alto** (autenticación, permisos, dinero, estados, proceso diario), necesita la aprobación de otro integrante en GitHub. Siempre con merge commit, para que la secuencia rojo-verde-refactor quede como evidencia.
 
 ### 6. Barrera de módulo con un modelo externo
-Cuando todos los tickets de un módulo están hechos, `/cerrar-modulo` prepara un pedido de review. **Codex** (OpenAI), disparado a mano por un integrante, lo revisa siguiendo [[Review de módulo — rol de Codex]] y deja sus hallazgos con formato fijo en `06-Desarrollo/Reviews/`. Claude verifica cada hallazgo, convierte los confirmados en **tickets de arreglo** del mismo módulo y, con la **aprobación humana**, cierra el módulo con el tag `mod-N`.
+Cuando todos los tickets de un módulo están hechos, `/cerrar-modulo` prepara un pedido de review. **Codex** (OpenAI), disparado a mano por un integrante, lo revisa siguiendo [[Review de módulo — rol de Codex]] y deja sus hallazgos con formato fijo en `06-Desarrollo/Reviews/`. Claude verifica cada hallazgo, convierte los confirmados en **tickets de arreglo** del mismo módulo (⚠️ reemplazado el 24/10/26 por [[DEC-0019 Las fallas se arreglan al encontrarlas|DEC-0019]]: las fallas y los hallazgos se arreglan al encontrarlos, sin tickets) y, con la **aprobación humana**, cierra el módulo con el tag `mod-N`.
 
 ### 7. Rúbrica de modelos por rol
 
