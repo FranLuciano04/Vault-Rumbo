@@ -34,6 +34,9 @@ La **persona** de cada sesión es quien la corre, identificada por su identidad 
   - `pnpm dev` ya llega a la API; el destino se cambia con `RUMBO_API_PROXY` en `apps/web/.env`.
   - Para el compose contra el Firebase real se usa `-f src/docker-compose.firebase.yml`, con `RUMBO_FIREBASE_CREDENCIALES` en `src/.env`, y se publica en el 5173 (`RUMBO_HTTP_PORT=5173`). No se amplía la restricción de la API key (ver `src/infra/firebase.md`).
 
+### Francisco (`FranLucianoo`) y Nahuel (`Nahuel Viniegra`) — T-153
+- **24/10, de Paloma: el PR [#73](https://github.com/FranLuciano04/Vault-Rumbo/pull/73) (T-153) necesita la aprobación de uno de los dos** (⚠️ riesgo alto, auth). Hay un **cambio de decisión**, Francisco: el 23/10 decidiste que la cuenta de Firebase sin `Usuario` se reutilizaba. La review de seguridad lo marcó como bloqueante (*pre-account hijacking*: la cuenta conserva la contraseña, los proveedores o las sesiones de quien la haya creado). Paloma decidió que esa cuenta se **borra y se crea una nueva**. CU-25 A1 se actualiza en el mismo PR. Además, el alta toma un lock por email, y nunca se borra una cuenta cuyo uid es de un `Usuario`.
+
 ## Formato
 Es **obligatorio** nombrar a la persona que hizo la sesión.
 ```
@@ -130,6 +133,15 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Checks:** backend 927 tests (96,8 %), web 255, shared 110 y mobile en verde. Se integró `main` (T-043) resolviendo un conflicto en `test_clientes.py`: se conservaron los tests de los dos.
 - **Commits:** 4ec0370, 41ddcb2, 9593781, d84393d, 35e55c1, 8ba3f52, 56f34ef (merge de main), bf6b493 (merge del PR), 4715c49 (grafo) y el de esta entrada.
 - **Pendiente:** las cuatro fallas para levantar Rumbo en local. Hay avisos de T-046 para Nahuel y Paloma.
+
+## 24/10/26 — Paloma (Claude Opus 5.5) — T-153 cuentas de Firebase sin usuario
+- **Hecho:**
+  - **T-153** quedó implementado. El PR [#73](https://github.com/FranLuciano04/Vault-Rumbo/pull/73) espera la aprobación de otro integrante (riesgo alto).
+  - La review de seguridad marcó como **bloqueante** reutilizar la cuenta huérfana (*pre-account hijacking*). **Decisión de Paloma:** se borra y se crea una nueva. Así se cambió la decisión de Francisco del 23/10 y CU-25 A1 se actualiza en el PR.
+  - Se sumaron un lock por email contra altas simultáneas y la regla de no borrar nunca la cuenta de un `Usuario` existente (2.ª review).
+  - La suite completa da 946 pasados y 6 skipped. Cobertura: 99 % en `negocio/`.
+- **Commits:** 788f82e (rojo), 42b5bd9 (verde), 2ef3378 y dca4505 (fixes), c1f6c79 (hecho) y el de esta entrada.
+- **Pendiente:** aprobación del PR #73 y después el merge.
 
 ## 24/10/26 — Paloma (Claude Opus 5.5) — T-146 referencias de RF del permiso por rol
 - **Hecho:** **T-146**, mergeado en el PR [#70](https://github.com/FranLuciano04/Vault-Rumbo/pull/70) con el CI en verde.
