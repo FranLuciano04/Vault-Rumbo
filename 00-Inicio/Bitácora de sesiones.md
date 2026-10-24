@@ -90,7 +90,7 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Commits:** d15c24a (DEC-0019, en `main`); en la rama: 58857f5, 5c5e970, b20879c, 6f25290 y 3cbaefc; y el de esta entrada.
 - **Pendiente:**
   - Aprobación de Francisco o de Nahuel en el PR #65, y después el merge.
-  - Opcional, fuera del repo: sumar `http://localhost/*` a la restricción de la API key en Google Cloud.
+  - ✅ Decidido por Paloma: no se amplía la restricción de la API key. Con el Firebase real, el compose se publica en el 5173 (`RUMBO_HTTP_PORT=5173`).
 
 ## 24/10/26 — Paloma (Claude Opus 5.5) — T-043 historial del cliente
 - **Hecho:** se tomó y se implementó **T-043** con TDD. Por error se había tomado antes T-037, que se liberó enseguida. `GET /clientes/{id}/historial` ya no es un stub. Mergeado en el PR [#62](https://github.com/FranLuciano04/Vault-Rumbo/pull/62), con el CI en verde.
