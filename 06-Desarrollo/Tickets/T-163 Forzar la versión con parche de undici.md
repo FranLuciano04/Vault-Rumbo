@@ -3,7 +3,7 @@ id: T-163
 titulo: Forzar la versión con parche de undici
 modulo: M1 — Usuarios y configuración
 capa: infra
-estado: tomado
+estado: hecho
 depende_de: []
 tamaño: XS
 riesgo: normal
@@ -45,3 +45,8 @@ El job `web` del CI vuelve a pasar `pnpm audit --audit-level=high`. Desde el 23/
 - Cambios en T-028: su PR #59 se vuelve a correr una vez mergeado este ticket.
 
 ## Notas de implementación
+- Override `undici: "^8.12.2"` en `src/pnpm-workspace.yaml`: queda una sola versión, `undici@8.12.3`. Su único dependiente es `jsdom@30.1.3`, que pide `^8.12.1`, así que entra en el rango.
+- `pnpm audit --audit-level=high`: código 0. Pasan web (211 tests, 93,4 %), mobile (43 tests), lint, typecheck y build.
+- El lockfile (+8 −59) cambia también la resolución de peers de `firebase` en `apps/web`: pasa a usar la misma variante que mobile. Es determinista (regenerar desde `main` con este `pnpm-workspace.yaml` da un lockfile idéntico) y no cambia el bundle web.
+- Se pasó a M1 porque M0 ya estaba cerrado (`mod-0`). Para tomarlo hubo que liberar T-028, que espera la aprobación del PR #59, y retomarlo después.
+- Review (opus): 0 bloqueantes, 0 importantes, 1 menor (anotar el cambio de peers de firebase), anotado acá. Modelos: impl sonnet, review opus.
