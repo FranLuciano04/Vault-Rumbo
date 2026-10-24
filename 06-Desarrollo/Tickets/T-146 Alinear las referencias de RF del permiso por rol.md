@@ -3,7 +3,7 @@ id: T-146
 titulo: Alinear las referencias de RF del permiso por rol
 modulo: M1 — Usuarios y configuración
 capa: backend
-estado: libre
+estado: tomado
 depende_de: []
 tamaño: XS
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [RF-150, RF-151, DEC-0005, DEC-0008]
 origen: hallazgo T-030
-asignado:
-tomado_el:
-rama:
+asignado: palomap2003
+tomado_el: 24/10/26 14:40
+rama: feature/T-146-alinear-las-referencias-de-rf-del-permis
 pr:
 ---
 # T-146 Alinear las referencias de RF del permiso por rol
