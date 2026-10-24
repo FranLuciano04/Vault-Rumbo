@@ -24,12 +24,6 @@ La **persona** de cada sesión es quien la corre, identificada por su identidad 
 ## Avisos pendientes por persona
 > Claude los lee al identificar a la persona (paso 1 de `CLAUDE.md`) y se los cuenta **apenas la saluda**, antes de cualquier otra tarea. Cuando la persona confirme que lo leyó o que lo hizo, **Claude borra su fila** en esa misma sesión, con un commit. Cuando no quede ninguna fila de alguien, se borra también su sección.
 
-### Paloma (`palomap2003`) — T-046
-- **24/10, de Francisco: T-046 (PR [#63](https://github.com/FranLuciano04/Vault-Rumbo/pull/63)) tocó piezas compartidas.** Después del pull:
-  - **Web:** `CampoFormulario` pasó a `@/components/CampoFormulario`, y `errores` e `iniciales`, a `@/lib/`. Si tenés una rama abierta que importa de `features/configuracion` (por ejemplo T-037), traé `main`.
-  - **API:** `Cliente` ahora trae `asesor: {id, nombre} | null`, y existe `GET /usuarios/asesores` (admin, dueño y empleado). Su mock está en `manejadoresM1`.
-  - **Backend:** `Cliente.asesor` es la primera `relationship` del código, con `lazy="joined"`. Para bloquear un `Cliente` hay que usar `with_for_update(of=Cliente)`.
-
 ### Francisco (`FranLucianoo`) y Nahuel (`Nahuel Viniegra`) — DEC-0019 y PR #65
 - **24/10, de Paloma: [[DEC-0019 Las fallas se arreglan al encontrarlas|DEC-0019]]**, la decisión que tomamos en equipo. Una falla se arregla cuando se encuentra, sin crear un ticket:
   - si aparece durante un ticket, en su misma rama y PR;
