@@ -170,5 +170,12 @@ async def editar_cliente(cliente_id: uuid.UUID, cambios: ClienteEditar) -> Clien
     description=f"{_ROLES}\n\n**Casos de uso:** CU-03.",
     responses=_NO_ENCONTRADO,
 )
-async def obtener_historial_cliente(cliente_id: uuid.UUID) -> HistorialCliente:
-    raise no_implementado()
+async def obtener_historial_cliente(
+    cliente_id: uuid.UUID,
+    actor: Annotated[modelos.Usuario, Depends(usuario_actual)],
+    sesion: SesionDep,
+) -> HistorialCliente:
+    """Lo más reciente primero: oportunidades por alta, viajes por salida y reseñas por fecha."""
+    return HistorialCliente.model_validate(
+        await clientes.obtener_historial(sesion, actor, cliente_id), from_attributes=True
+    )
