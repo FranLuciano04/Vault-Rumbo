@@ -32,6 +32,8 @@ actualizado: 13/10/26
 >
 > 👉 **21/10 (Paloma):** **T-141** (íconos de la barra lateral web, como en el prototipo) está hecho y mergeado (PR [#27](https://github.com/FranLuciano04/Vault-Rumbo/pull/27)).
 >
+> 👉 **24/10 (Francisco):** **T-042** (editar la ficha del cliente) está hecho y mergeado (PR [#61](https://github.com/FranLuciano04/Vault-Rumbo/pull/61)). Destraba 9 tickets. `PATCH /clientes/{id}` ya no es un stub. Además, al `freelance` se le avisa de un duplicado ajeno sin mostrarle datos, y un requisito de destino de baja ya no se edita.
+>
 > 👉 **23/10 (Francisco):** el **listado de clientes** de la web quedó completo. Se mergearon:
 > - **T-156** (PR [#52](https://github.com/FranLuciano04/Vault-Rumbo/pull/52)): etiquetas en uso.
 > - **T-155** (PR [#56](https://github.com/FranLuciano04/Vault-Rumbo/pull/56)): asesor, último viaje ya salido y oportunidades abiertas, en `ClienteListado`.

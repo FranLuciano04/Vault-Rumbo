@@ -1,6 +1,7 @@
 """Servicio del módulo clientes (CU-02, CU-03)."""
 
 import uuid
+from typing import Any
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -13,7 +14,7 @@ from rumbo.datos.repositorios.clientes import (
 )
 from rumbo.datos.repositorios.seguridad import RepositorioUsuarios
 from rumbo.negocio.errores import DatosInvalidos, NoEncontrado, PosibleDuplicado
-from rumbo.negocio.politicas import visibilidad
+from rumbo.negocio.politicas import exigir_escritura, visibilidad
 
 _clientes = RepositorioClientes()
 _usuarios = RepositorioUsuarios()
@@ -35,8 +36,9 @@ async def registrar_cliente(
     """Da de alta un `Cliente` (CU-02, RF-001..RF-003, RF-150).
 
     Si hay uno con el mismo contacto o nombre entre los que el actor ve, corta con
-    `PosibleDuplicado` (A1) salvo que `confirmar_duplicado` sea verdadero. El `freelance` queda
-    como asesor asignado de lo que da de alta, sin importar lo que envíe.
+    `PosibleDuplicado` (A1) salvo que `confirmar_duplicado` sea verdadero. Al `freelance` también
+    se le avisa, sin candidatos, si un cliente ajeno tiene el mismo contacto (no el mismo nombre).
+    El `freelance` queda como asesor asignado de lo que da de alta, sin importar lo que envíe.
     """
     if actor.rol is RolUsuario.freelance:
         asesor_asignado_id = actor.id
@@ -48,6 +50,10 @@ async def registrar_cliente(
         )
         if parecidos:
             raise PosibleDuplicado(parecidos)
+        if actor.rol is RolUsuario.freelance and await _clientes.existe_contacto(
+            sesion, contacto=contacto
+        ):
+            raise PosibleDuplicado([])  # avisa que hay uno, sin mostrar fichas ajenas (A1)
     cliente = Cliente(
         nombre=nombre,
         contacto=contacto,
@@ -113,6 +119,23 @@ async def obtener_historial(
     vista = visibilidad(actor)
     await _clientes.obtener(sesion, cliente_id, visibilidad=vista)
     return await _clientes.historial(sesion, cliente_id, visibilidad=vista)
+
+
+async def editar_cliente(
+    sesion: AsyncSession, actor: Usuario, cliente_id: uuid.UUID, cambios: dict[str, Any]
+) -> Cliente:
+    """Aplica solo los campos enviados a la ficha (CU-03, CU-30, RF-007). Los `Cliente` no se
+    borran (RF-008). El `freelance` conserva su asignación, como en el alta (RF-150)."""
+    cliente = await _clientes.obtener(sesion, cliente_id, visibilidad=visibilidad(actor))
+    exigir_escritura(actor, cliente)
+    if actor.rol is RolUsuario.freelance:
+        cambios = {c: v for c, v in cambios.items() if c != "asesor_asignado_id"}
+    elif cambios.get("asesor_asignado_id") is not None:
+        await _exigir_asesor_activo(sesion, actor, cambios["asesor_asignado_id"])
+    for campo, valor in cambios.items():
+        setattr(cliente, campo, valor)
+    await sesion.flush()
+    return cliente
 
 
 async def _exigir_asesor_activo(sesion: AsyncSession, actor: Usuario, asesor_id: uuid.UUID) -> None:

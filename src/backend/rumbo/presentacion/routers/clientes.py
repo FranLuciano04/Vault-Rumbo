@@ -11,7 +11,6 @@ from rumbo.datos.modelos import SegmentoCliente
 from rumbo.negocio.errores import PosibleDuplicado
 from rumbo.negocio.servicios import clientes
 from rumbo.presentacion.dependencias import usuario_actual
-from rumbo.presentacion.errores import no_implementado
 from rumbo.presentacion.esquemas.clientes import (
     MAX_ETIQUETAS,
     Cliente,
@@ -159,8 +158,16 @@ async def obtener_cliente(
     description=f"{_ROLES}\n\n**Casos de uso:** CU-03, CU-30.",
     responses=_NO_ENCONTRADO,
 )
-async def editar_cliente(cliente_id: uuid.UUID, cambios: ClienteEditar) -> Cliente:
-    raise no_implementado()
+async def editar_cliente(
+    cliente_id: uuid.UUID,
+    cambios: ClienteEditar,
+    actor: Annotated[modelos.Usuario, Depends(usuario_actual)],
+    sesion: SesionDep,
+) -> Cliente:
+    cliente = await clientes.editar_cliente(
+        sesion, actor, cliente_id, cambios.model_dump(exclude_unset=True)
+    )
+    return Cliente.model_validate(cliente)
 
 
 @router.get(

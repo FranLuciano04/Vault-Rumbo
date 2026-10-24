@@ -3,7 +3,7 @@ id: T-042
 titulo: Editar la ficha del cliente
 modulo: M2 — Clientes
 capa: backend
-estado: tomado
+estado: hecho
 depende_de: [T-040, T-041, T-149]
 tamaño: S
 riesgo: normal
@@ -51,3 +51,15 @@ Quien puede ver a un cliente edita su ficha (contacto, segmento, etiquetas, pref
   - **Duplicados para el `freelance` (CU-02 A1, RF-003):** si el alta de un freelance coincide con un cliente que no ve, el 409 avisa que ya hay un cliente con ese contacto en la agencia, **sin candidatos ni ningún dato ajeno**. Con `confirmar_duplicado: true`, el alta sale igual. Hay que cambiar el test de T-040 que fija que no se le avisa nada.
   - **Requisito de destino de baja (CU-15 A3):** `editar_requisito` (`negocio/servicios/configuracion.py`) responde 404 si el requisito está de baja. Hoy da 200.
   - De T-157: `test_rf031_edicion_acepta_20_etiquetas_de_80_caracteres` tiene que esperar el éxito, y `ClienteEditar` tiene que recortar los espacios.
+- **Implementado (24/10/26):**
+  - `PATCH /clientes/{id}` con `editar_cliente`: aplica solo lo enviado y valida como el alta (`ClienteEditar` sobre `Edicion`, recorta espacios). Al `freelance`, un cliente ajeno le da 404.
+  - **Decisiones de Francisco:**
+    - Si un `freelance` manda `asesor_asignado_id`, se ignora sin error, como en el alta: el cliente sigue a su nombre.
+    - El aviso por cliente ajeno es **solo por contacto**: 409 `ProblemaDuplicado` con `duplicados: []`, usando `RepositorioClientes.existe_contacto`, que no carga filas. El contrato no cambió.
+  - `editar_requisito` da 404 con un requisito de baja.
+  - `DELETE /clientes/{id}` da 405 (RF-008).
+  - El test de contrato `test_cu03_editar_acepta_null_en_preferencias_y_asesor` pasó de esperar 501 a esperar 404. Lo corrigió el fix, con `--tocar-tests` autorizado.
+- **Review (Opus):** 0 bloqueantes, 1 importante (faltaban tests del asesor en el PATCH) y 3 menores. Se arreglaron todos.
+- **Checks:** 901 tests pasan, 2 se saltean y la cobertura es 96,8 %. ruff, mypy y el OpenAPI, sin cambios.
+- **Modelos:** tests Sonnet, implementación y fix Sonnet, refactor Sonnet (sin cambios), review Opus. Sin escalados.
+- **Para la web:** T-045 y T-046 no tienen que mostrarle al `freelance` el selector de asesor.

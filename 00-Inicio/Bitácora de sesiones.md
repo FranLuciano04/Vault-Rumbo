@@ -41,8 +41,14 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
   - Las dos se implementan dentro de T-042, sin subtickets. El mensaje de la web va en T-045.
   - La edición del nombre del usuario en la web (pendiente de T-035) se suma a T-037.
   - Se descartan los checks obligatorios en `main`: no se paga GitHub Pro.
-- **Commits:** 9bfb34d y el de esta entrada.
-- **Pendiente:** las cuatro fallas para levantar Rumbo en local siguen sin decidir (Estado, *Pendientes técnicos*). Próximo ticket de Francisco: T-042.
+- **T-042** (PR #61, mergeado): `PATCH /clientes/{id}` con las validaciones del alta. Además:
+  - el aviso de duplicado ajeno al `freelance` (solo por contacto, `duplicados: []`, sin cargar filas);
+  - el requisito de baja no editable (404);
+  - `DELETE` de clientes da 405.
+  - Review Opus: 0 bloqueantes, 1 importante y 3 menores, todos arreglados. Backend: 901 tests, 96,8 % de cobertura.
+  - Decidido por Francisco: si un freelance manda otro asesor al editar, se ignora sin error, como en el alta. En T-045 y T-046 quedó anotado que la web no le muestre el selector.
+- **Commits:** 9bfb34d, a70f155, e101f54, 7c4ec83; T-042 5e5afd3, aef3f21, bebbc66, fb23eed y el merge 3b974b6; 6c4ff91 (notas de T-045 y T-046) y el de esta entrada.
+- **Pendiente:** las cuatro fallas para levantar Rumbo en local siguen sin decidir (Estado, *Pendientes técnicos*).
 
 ## 23/10/26 — Paloma (Claude Opus 5.5) — T-027 probado con el Auth Emulator
 - **Hecho:** prueba de punta a punta de T-027 con el compose más `docker-compose.e2e.yml`, en un proyecto de Docker aparte (`-p rumbo-emu`) para no tocar el Rumbo con login real. Pasaron los 8 pasos: la dueña entra, `POST /usuarios` da 201, la cuenta aparece en el emulador, Firebase emite el código `PASSWORD_RESET`, la empleada elige la contraseña con el link y entra (`/auth/yo` con rol `empleado`), email repetido en mayúsculas → 409, empleada listando usuarios → 403 y la dueña lista los 2 usuarios. Después se bajó el proyecto y se borró su base. Resultado anotado en las notas del ticket.
