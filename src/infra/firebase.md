@@ -140,10 +140,9 @@ No combinarlo con `docker-compose.e2e.yml` (emulador y credencial real son exclu
 ### La API key web y el puerto de la web
 
 La clave web está restringida por referente a `http://localhost:5173/*` (sección 2), y Firebase
-rechaza `http://localhost/` (el puerto 80 del Compose) con `API_KEY_HTTP_REFERRER_BLOCKED`. No
-se arregla desde el repo; hay dos salidas:
+rechaza `http://localhost/` (el puerto 80 del Compose) con `API_KEY_HTTP_REFERRER_BLOCKED`.
 
-- **Publicar nginx en el 5173:** `RUMBO_HTTP_PORT=5173` en `src/.env` y la web en
-  <http://localhost:5173>. Hay que tener apagado `pnpm dev` (usa el mismo puerto).
-- **Ampliar la restricción:** en Google Cloud → APIs y servicios → Credenciales → «Browser key»,
-  sumar `http://localhost/*` a los sitios web permitidos (lo hace quien administra el proyecto).
+**Se publica nginx en el 5173:** `RUMBO_HTTP_PORT=5173` en `src/.env` y la web en
+<http://localhost:5173>. Hay que tener apagado `pnpm dev`, que usa el mismo puerto. La restricción
+de la clave **no se amplía** a `http://localhost/*`: lo decidió Paloma el 24/10/26, para que la
+clave siga aceptando un solo origen local.
