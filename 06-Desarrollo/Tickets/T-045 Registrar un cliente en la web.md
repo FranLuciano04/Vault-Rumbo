@@ -3,7 +3,7 @@ id: T-045
 titulo: Registrar un cliente en la web
 modulo: M2 — Clientes
 capa: web
-estado: libre
+estado: tomado
 depende_de: [T-044, T-149]
 tamaño: S
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [CU-02, RF-001, RF-002, RF-003]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: FranLucianoo
+tomado_el: 24/10/26 15:03
+rama: feature/T-045-registrar-un-cliente-en-la-web
 pr:
 ---
 # T-045 Registrar un cliente en la web
