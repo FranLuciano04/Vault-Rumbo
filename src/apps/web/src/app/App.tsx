@@ -1,9 +1,9 @@
+import { crearQueryClient } from "@rumbo/shared";
 import { QueryClientProvider } from "@tanstack/react-query";
 import type { AxiosInstance } from "axios";
 import { useState } from "react";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router";
 import { PaginaLogin } from "@/features/seguridad/PaginaLogin";
-import { crearQueryClient } from "@/lib/queryClient";
 import { RutaProtegida } from "./RutaProtegida";
 import { SeccionClientes } from "./SeccionClientes";
 import { SeccionConfiguracion } from "./SeccionConfiguracion";
