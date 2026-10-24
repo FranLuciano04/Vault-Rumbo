@@ -43,6 +43,20 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
+## 24/10/26 — Nahuel (Claude Opus 5.5) — T-047: clientes en la app mobile
+- **Hecho:** T-047 (PR [#72](https://github.com/FranLuciano04/Vault-Rumbo/pull/72), mergeado con el CI en verde). Se tomó T-047 porque T-153 ya lo tenía Paloma.
+  - **Lista:** la pestaña Clientes tiene búsqueda, scroll paginado y botón «Reintentar».
+  - **Ficha:** `/clientes/[id]` muestra datos, historial y las acciones Llamar, WhatsApp y Enviar email.
+  - **`no_recontactar`:** solo muestra la etiqueta «No incluir en recontactos» y no bloquea el contacto (Glosario, CU-30).
+  - **Movido a `@rumbo/shared`:** `formatearFecha`, `formatearImporte` y las etiquetas de segmento y estado, que salieron de la web. También se agregaron `normalizarTelefonoAR` y `enlaceLlamada`.
+  - **Review Opus:** dos rondas. 1 bloqueante, 5 importantes y 5 menores, todos arreglados. El chip «Mis clientes / Toda la agencia» quedó fuera de alcance.
+- **Checks:** shared, web (304 tests, 94,2 %) y mobile (65 tests, 97,2 %), con lint y typecheck en verde. CI del PR en verde.
+- **Commits:** d476ebc, c21fc59, 9cad9bb, 59e6404, 2dbb2dd, 49e00dd, 2ea4856 (merge de main), b20818b (merge del PR), b84c8f4 (grafo) y el de esta entrada.
+- **Pendiente:**
+  - Mobile sigue reintentando los 4xx con `new QueryClient()`, así que una ficha 404 tarda unos 7 s; lo anotó Francisco desde T-049. Arreglarlo en una rama `fix/…` llevando `crearQueryClient()` a `@rumbo/shared` (DEC-0019).
+  - Contrastar los textos con las pantallas 57 y 36 del prototipo.
+  - Para cerrar M2 falta T-048.
+
 ## 24/10/26 — Francisco (Claude Opus 5.5) — T-049: e2e de clientes y semilla de demo
 - **Hecho:** T-049 (PR [#71](https://github.com/FranLuciano04/Vault-Rumbo/pull/71), mergeado con el CI en verde).
   - **e2e:** `e2e/clientes.spec.ts` prueba contra el sistema real tres casos. El alta con duplicado y «Confirmar alta» (RF-003). Que el freelance vea los suyos y reciba 404 por un cliente ajeno (RF-151). Y que no se guarde un contacto inválido (RF-007).
