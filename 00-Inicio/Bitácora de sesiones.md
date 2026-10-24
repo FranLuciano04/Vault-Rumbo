@@ -121,6 +121,20 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Commits:** el de este pedido (`review: pedido de review de M0`).
 - **Pendiente:** que Codex escriba `06-Desarrollo/Reviews/M0 — review Codex.md`. Después, `/cerrar-modulo M0` fase B (triage y tickets de arreglo) y la aprobación del equipo para el tag `mod-0`.
 
+## 23/10/26 — Nahuel (Claude Opus 5.5) — T-028 (PR abierto) y T-163: undici
+- **T-028** (M1, backend, ⚠️ alto): implementado en el PR #59, con el CI en verde. **Falta que otro integrante lo apruebe**; después se mergea con `/implementar-ticket T-028`.
+  - PATCH de nombre, rol y acceso a redes. La baja es lógica: deshabilita Firebase y el pedido siguiente da 401. Si la operación deja al sistema sin admin, da 409.
+  - Regla de la dueña ampliada por Nahuel y anotada en CU-25: un admin no asigna, no quita ni da de baja a una dueña (403).
+  - Para la concurrencia se usa `FOR UPDATE`, siempre en orden: primero los admins y después el objetivo. El SDK de Firebase tiene timeout de 10 s.
+  - Review de seguridad: 0 bloqueantes, 1 importante y 2 menores, todos arreglados. Backend: 875 tests, 96,8 % de cobertura.
+- **T-163** (hallazgo de T-028, pasado a M1 porque M0 está cerrado): override `undici ^8.12.2` por GHSA-xjj6-f33q-929c, que hacía fallar la auditoría del CI web en todos los PR. PR #60 mergeado. Para tomarlo se liberó T-028 y se retomó después.
+- **Commits:** T-028 0f624ef, 1723129, b794642, 45e69bc, 7c27e3d, 574379b, 480f595, dcabe39; T-163 8c10efb, 406c52c, 54f9320.
+- **Pendiente:**
+  - Aprobación del PR #59.
+  - `#accion/decidir` en CU-25: si se protege a la última dueña activa.
+  - Habilitar la edición del nombre en la web (T-035).
+  - En esta PC, pytest necesita `--basetemp` porque el tmp de Windows da `PermissionError`.
+
 ## 23/10/26 — Nahuel (Claude Opus 5.5) — T-035: usuarios y roles en la web
 - **Hecho:** tomó e implementó **T-035** (M1, web, M). PR #58 mergeado con CI en verde.
   - Pestaña «Usuarios y roles»: listado, alta con aviso del mail de Firebase, edición de rol y accesos (PATCH solo con lo que cambió), baja con confirmación; 409 y 403 con mensaje claro. Admin y dueño muestran redes «Por su rol» (DEC-0013).
