@@ -71,6 +71,28 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/usuarios/asesores": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Listar los usuarios que pueden ser asesor de un cliente
+         * @description **Roles:** admin, dueno, empleado.
+         *
+         *     **Casos de uso:** CU-03.
+         */
+        get: operations["listar_asesores"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/usuarios/{usuario_id}": {
         parameters: {
             query?: never;
@@ -606,6 +628,8 @@ export interface components {
             no_recontactar: boolean;
             /** Asesor Asignado Id */
             asesor_asignado_id: string | null;
+            /** @description Nombre del asesor asignado, también si está de baja. */
+            asesor: components["schemas"]["AsesorDelCliente"] | null;
         };
         /**
          * ClienteCrear
@@ -700,6 +724,7 @@ export interface components {
             no_recontactar: boolean;
             /** Asesor Asignado Id */
             asesor_asignado_id: string | null;
+            /** @description Nombre del asesor asignado, también si está de baja. */
             asesor: components["schemas"]["AsesorDelCliente"] | null;
             ultimo_viaje: components["schemas"]["UltimoViajeDelCliente"] | null;
             /**
@@ -1440,6 +1465,44 @@ export interface operations {
             };
             /** @description Datos inválidos. */
             422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+        };
+    };
+    listar_asesores: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AsesorDelCliente"][];
+                };
+            };
+            /** @description Falta el token, no es válido o el usuario no tiene acceso. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description El rol no alcanza. */
+            403: {
                 headers: {
                     [name: string]: unknown;
                 };

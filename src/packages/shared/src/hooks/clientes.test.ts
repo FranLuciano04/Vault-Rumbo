@@ -1,6 +1,7 @@
 // @vitest-environment jsdom
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { act, renderHook, waitFor } from "@testing-library/react";
+import { http, HttpResponse } from "msw";
 import { createElement, type ReactNode } from "react";
 import { afterAll, afterEach, beforeAll, describe, expect, it } from "vitest";
 import { crearCliente, type ClienteListado } from "../cliente";
@@ -124,6 +125,58 @@ describe("RF-031 hooks de clientes", () => {
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
     expect(result.current.data).toMatchObject({ no_recontactar: true });
+  });
+
+  it("RF-007 useEditarCliente deja en caché la ficha devuelta por el servidor", async () => {
+    const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+    const wrapper = ({ children }: { children: ReactNode }) =>
+      createElement(QueryClientProvider, { client: queryClient }, children);
+    const id = String(clientesMock[0]?.["id"]);
+    const devuelta = {
+      ...aFicha(clientesMock[0] as ClienteListado),
+      nombre: "Nombre del servidor",
+    };
+    servidor.use(http.patch("*/api/clientes/:id", () => HttpResponse.json(devuelta)));
+    const { result } = renderHook(() => useEditarCliente(cliente), { wrapper });
+
+    await act(async () => {
+      await result.current.mutateAsync({ id, cambios: { nombre: "Lo que se mandó" } });
+    });
+
+    expect(queryClient.getQueryData(["clientes", id])).toEqual(devuelta);
+  });
+
+  it("RF-007 useEditarCliente invalida la consulta del listado para que se vuelva a pedir", async () => {
+    const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+    const wrapper = ({ children }: { children: ReactNode }) =>
+      createElement(QueryClientProvider, { client: queryClient }, children);
+    let pedidosDelListado = 0;
+    servidor.use(
+      http.get("*/api/clientes", () => {
+        pedidosDelListado += 1;
+        return HttpResponse.json({
+          items: clientesMock,
+          total: clientesMock.length,
+          pagina: 1,
+          por_pagina: 20,
+        });
+      }),
+    );
+    const { result } = renderHook(
+      () => ({ lista: useClientes(cliente), editar: useEditarCliente(cliente) }),
+      { wrapper },
+    );
+    await waitFor(() => expect(result.current.lista.isSuccess).toBe(true));
+    expect(pedidosDelListado).toBe(1);
+
+    await act(async () => {
+      await result.current.editar.mutateAsync({
+        id: String(clientesMock[0]?.["id"]),
+        cambios: { no_recontactar: true },
+      });
+    });
+
+    await waitFor(() => expect(pedidosDelListado).toBe(2));
   });
 
   it("RF-031 useClientes manda el filtro segmento", async () => {

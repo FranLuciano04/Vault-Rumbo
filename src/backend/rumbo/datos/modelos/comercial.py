@@ -18,9 +18,10 @@ from sqlalchemy import (
 )
 from sqlalchemy.dialects.postgresql import ARRAY, JSONB
 from sqlalchemy.ext.mutable import MutableList
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from rumbo.datos.modelos.base import AuditoriaMixin, Base, IdMixin
+from rumbo.datos.modelos.catalogos import Usuario
 from rumbo.datos.modelos.enums import (
     CanalOportunidad,
     CategoriaViaje,
@@ -50,6 +51,9 @@ class Cliente(IdMixin, AuditoriaMixin, Base):
     )
     preferencias: Mapped[str | None] = mapped_column(Text)
     no_recontactar: Mapped[bool] = mapped_column(server_default=text("false"))  # opt-out del CRM
+    # Cargado con el cliente en la misma consulta (join): la ficha y el listado muestran su nombre,
+    # también si el asesor está de baja. Tras cambiar `asesor_asignado_id` hay que releerlo.
+    asesor: Mapped[Usuario | None] = relationship(lazy="joined", foreign_keys=[asesor_asignado_id])
 
 
 class Oportunidad(IdMixin, AuditoriaMixin, Base):

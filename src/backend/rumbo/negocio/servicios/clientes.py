@@ -65,6 +65,7 @@ async def registrar_cliente(
     )
     sesion.add(cliente)
     await sesion.flush()
+    await sesion.refresh(cliente, ["asesor"])
     return cliente
 
 
@@ -135,6 +136,7 @@ async def editar_cliente(
     for campo, valor in cambios.items():
         setattr(cliente, campo, valor)
     await sesion.flush()
+    await sesion.refresh(cliente, ["asesor"])
     return cliente
 
 

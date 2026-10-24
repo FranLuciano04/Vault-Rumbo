@@ -3,7 +3,7 @@ import { useDarDeBajaUsuario, useUsuarios } from "@rumbo/shared/hooks";
 import type { AxiosInstance } from "axios";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { mensajeDeError } from "../errores";
+import { mensajeDeError } from "@/lib/errores";
 import { ROLES } from "../esquemas";
 import { FormularioUsuario } from "./FormularioUsuario";
 

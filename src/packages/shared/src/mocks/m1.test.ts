@@ -30,6 +30,7 @@ const contrato = JSON.parse(
 const RUTAS: [string, string, string][] = [
   ["RF-144", "GET", "/usuarios"],
   ["RF-144", "POST", "/usuarios"],
+  ["RF-007", "GET", "/usuarios/asesores"],
   ["RF-144", "GET", "/usuarios/{usuario_id}"],
   ["RF-147", "PATCH", "/usuarios/{usuario_id}"],
   ["RF-148", "POST", "/usuarios/{usuario_id}/baja"],

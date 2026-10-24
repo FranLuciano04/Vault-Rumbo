@@ -5,8 +5,8 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { CampoFormulario, CLASE_SELECT } from "./CampoFormulario";
-import { aplicarErroresDelServidor } from "./errores";
+import { CampoFormulario, CLASE_SELECT } from "@/components/CampoFormulario";
+import { aplicarErroresDelServidor } from "@/lib/errores";
 import { type DatosComision, esquemaComision } from "./esquemas";
 
 const CAMPOS = ["comision_default_tipo", "comision_default_valor"] as const;

@@ -17,7 +17,6 @@ from rumbo.datos.modelos import (
     Oportunidad,
     Resena,
     SegmentoCliente,
-    Usuario,
     Viaje,
 )
 from rumbo.datos.modelos.base import espacios_colapsados, nombre_normalizado
@@ -35,9 +34,8 @@ class UltimoViaje:
 
 @dataclass(frozen=True)
 class ResumenCliente:
-    """Lo que muestra cada fila del listado (CU-03 paso 1): asesor, último viaje y abiertas."""
+    """Lo que suma cada fila del listado a la ficha (CU-03 paso 1): último viaje y abiertas."""
 
-    asesor: Usuario | None = None
     ultimo_viaje: UltimoViaje | None = None
     oportunidades_abiertas: int = 0
 
@@ -125,21 +123,12 @@ class RepositorioClientes(RepositorioBase[Cliente]):
         hoy: date,
         visibilidad: Visibilidad,
     ) -> dict[uuid.UUID, ResumenCliente]:
-        """Resumen de cada `Cliente` de `clientes` en tres consultas, sin importar cuántos sean.
+        """Resumen de cada `Cliente` de `clientes` en dos consultas, sin importar cuántos sean.
         Viajes y oportunidades salen filtrados por `visibilidad` por convención, para que siga
         valiendo si cambia la regla de `politicas` (hoy, para el freelance, un cliente propio
-        cuenta todo y el resultado es el mismo). El asesor es un dato del cliente, que el actor
-        ya ve. El último viaje es el no cancelado de mayor `fecha_salida` que ya salió
-        (`<= hoy`)."""
+        cuenta todo y el resultado es el mismo). El último viaje es el no cancelado de mayor
+        `fecha_salida` que ya salió (`<= hoy`)."""
         ids = [c.id for c in clientes]
-        asesores = {
-            a.id: a
-            for a in await sesion.scalars(
-                select(Usuario).where(
-                    Usuario.id.in_([c.asesor_asignado_id for c in clientes if c.asesor_asignado_id])
-                )
-            )
-        }
         ultimos = (
             visibilidad.aplicar(select(Viaje), Viaje)
             .with_only_columns(Viaje.cliente_id, Viaje.fecha_salida, Destino.nombre)
@@ -165,7 +154,6 @@ class RepositorioClientes(RepositorioBase[Cliente]):
         cantidades = dict((await sesion.execute(abiertas)).all())
         return {
             c.id: ResumenCliente(
-                asesores.get(c.asesor_asignado_id) if c.asesor_asignado_id else None,
                 viajes.get(c.id),
                 cantidades.get(c.id, 0),
             )

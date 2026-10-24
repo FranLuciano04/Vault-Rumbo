@@ -784,3 +784,94 @@ async def test_rf148_baja_de_un_usuario_ya_inactivo_es_idempotente(
     assert r.status_code == 200, r.text
     assert r.json()["activo"] is False
     assert (await _recargar(sesion, otro)).activo is False
+
+
+# --- T-046 (fix de la review): candidatos a asesor del cliente (RF-007, RF-150) ----------------
+
+RUTA_ASESORES = "/api/usuarios/asesores"
+
+
+@pytest.mark.parametrize("quien", ["admin", "dueno", "empleado"])
+async def test_rf007_asesores_lo_leen_admin_dueno_y_empleado(
+    quien: str, cliente_como: ClienteComo, sesion: AsyncSession
+) -> None:
+    c = await cliente_como(quien)
+    otro = await crear(sesion, UsuarioFactory, nombre="Laura Asesora", activo=True)
+
+    r = await c.get(RUTA_ASESORES)
+
+    assert r.status_code == 200, r.text
+    ids = {a["id"] for a in r.json()}
+    assert {str(otro.id), str(c.usuario.id)} <= ids  # type: ignore[attr-defined]
+
+
+async def test_rf150_asesores_el_freelance_recibe_403(cliente_como: ClienteComo) -> None:
+    c = await cliente_como("freelance")
+
+    r = await c.get(RUTA_ASESORES)
+
+    assert r.status_code == 403
+    assert r.headers["content-type"].startswith(PROBLEM_JSON)
+
+
+async def test_rf007_asesores_sin_sesion_401(cliente_sin_sesion: AsyncClient) -> None:
+    r = await cliente_sin_sesion.get(RUTA_ASESORES)
+
+    assert r.status_code == 401
+
+
+async def test_rf007_asesores_trae_solo_id_y_nombre(
+    cliente_como: ClienteComo, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("empleado")
+    await crear(sesion, UsuarioFactory, nombre="Laura Asesora", activo=True)
+
+    r = await c.get(RUTA_ASESORES)
+
+    assert r.status_code == 200, r.text
+    assert r.json()
+    assert all(set(a) == {"id", "nombre"} for a in r.json())
+
+
+async def test_rf007_asesores_excluye_a_los_usuarios_de_baja(
+    cliente_como: ClienteComo, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("admin")
+    baja = await crear(sesion, UsuarioFactory, nombre="Beatriz Baja", activo=False)
+    activo = await crear(sesion, UsuarioFactory, nombre="Laura Asesora", activo=True)
+
+    r = await c.get(RUTA_ASESORES)
+
+    assert r.status_code == 200, r.text
+    ids = [a["id"] for a in r.json()]
+    assert str(activo.id) in ids
+    assert str(baja.id) not in ids
+
+
+async def test_rf007_asesores_ordenados_por_nombre(
+    cliente_como: ClienteComo, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("dueno")
+    zulema = await crear(sesion, UsuarioFactory, nombre="Zulema Zapata", activo=True)
+    abel = await crear(sesion, UsuarioFactory, nombre="Abel Aguirre", activo=True)
+
+    r = await c.get(RUTA_ASESORES)
+
+    assert r.status_code == 200, r.text
+    ids = [a["id"] for a in r.json()]
+    assert ids.index(str(abel.id)) < ids.index(str(zulema.id))
+
+
+async def test_rf007_asesores_incluye_todos_los_roles_activos(
+    cliente_como: ClienteComo, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("admin")
+    creados = [
+        await crear(sesion, UsuarioFactory, rol=RolUsuario(rol), activo=True)
+        for rol in ("admin", "dueno", "empleado", "freelance")
+    ]
+
+    r = await c.get(RUTA_ASESORES)
+
+    assert r.status_code == 200, r.text
+    assert {str(u.id) for u in creados} <= {a["id"] for a in r.json()}

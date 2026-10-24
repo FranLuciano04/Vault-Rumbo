@@ -24,6 +24,12 @@ La **persona** de cada sesión es quien la corre, identificada por su identidad 
 ## Avisos pendientes por persona
 > Claude los lee al identificar a la persona (paso 1 de `CLAUDE.md`) y se los cuenta **apenas la saluda**, antes de cualquier otra tarea. Cuando la persona confirme que lo leyó o que lo hizo, **Claude borra su fila** en esa misma sesión, con un commit. Cuando no quede ninguna fila de alguien, se borra también su sección.
 
+### Nahuel (`Nahuel Viniegra`) y Paloma (`palomap2003`) — T-046
+- **24/10, de Francisco: T-046 (PR [#63](https://github.com/FranLuciano04/Vault-Rumbo/pull/63)) tocó piezas compartidas.** Después del pull:
+  - **Web:** `CampoFormulario` pasó a `@/components/CampoFormulario`, y `errores` e `iniciales`, a `@/lib/`. Si tenés una rama abierta que importa de `features/configuracion` (por ejemplo T-037), traé `main`.
+  - **API:** `Cliente` ahora trae `asesor: {id, nombre} | null`, y existe `GET /usuarios/asesores` (admin, dueño y empleado). Su mock está en `manejadoresM1`.
+  - **Backend:** `Cliente.asesor` es la primera `relationship` del código, con `lazy="joined"`. Para bloquear un `Cliente` hay que usar `with_for_update(of=Cliente)`.
+
 ## Formato
 Es **obligatorio** nombrar a la persona que hizo la sesión.
 ```
@@ -32,6 +38,22 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Commits:** <hash>, <hash>
 - **Pendiente:** …
 ```
+
+## 24/10/26 — Francisco (Claude Opus 5.5) — T-046: ficha editable del cliente en la web
+- **Hecho:** T-046 (PR #63, mergeado). La ficha en `/clientes/:id` muestra:
+  - los datos, el perfil y el historial, con un estado vacío por sección;
+  - la edición en línea con PATCH parcial, 422 en el campo, etiquetas editables y el aviso «Ficha actualizada»;
+  - el 404 de un cliente inexistente.
+- **Decisiones de Francisco:**
+  - Las etiquetas se editan en la ficha.
+  - El empleado reasigna el asesor (RF-007), resuelto dentro del ticket: `Cliente.asesor` con nombre y `GET /usuarios/asesores` (el freelance recibe 403).
+  - Un asesor de baja figura como «(de baja)».
+- **Review Opus, en dos rondas:**
+  - Primera ronda: 4 importantes y 6 menores, arreglados.
+  - Segunda ronda, sobre el fix: 2 menores, que quedan anotados en el ticket.
+- **Checks:** backend 927 tests (96,8 %), web 255, shared 110 y mobile en verde. Se integró `main` (T-043) resolviendo un conflicto en `test_clientes.py`: se conservaron los tests de los dos.
+- **Commits:** 4ec0370, 41ddcb2, 9593781, d84393d, 35e55c1, 8ba3f52, 56f34ef (merge de main), bf6b493 (merge del PR), 4715c49 (grafo) y el de esta entrada.
+- **Pendiente:** las cuatro fallas para levantar Rumbo en local. Hay avisos de T-046 para Nahuel y Paloma.
 
 ## 24/10/26 — Paloma (Claude Opus 5.5) — T-043 historial del cliente
 - **Hecho:** se tomó y se implementó **T-043** con TDD. Por error se había tomado antes T-037, que se liberó enseguida. `GET /clientes/{id}/historial` ya no es un stub. Mergeado en el PR [#62](https://github.com/FranLuciano04/Vault-Rumbo/pull/62), con el CI en verde.

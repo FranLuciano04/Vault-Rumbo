@@ -3,7 +3,7 @@ import { useDarDeBajaRequisitoDestino, useRequisitosDestino } from "@rumbo/share
 import type { AxiosInstance } from "axios";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { mensajeDeError } from "../errores";
+import { mensajeDeError } from "@/lib/errores";
 import { TIPOS_REQUISITO } from "../esquemas";
 import { FormularioRequisito } from "./FormularioRequisito";
 

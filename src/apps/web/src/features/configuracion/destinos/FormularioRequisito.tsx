@@ -6,8 +6,8 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { CampoFormulario, CLASE_SELECT } from "../CampoFormulario";
-import { aplicarErroresDelServidor } from "../errores";
+import { CampoFormulario, CLASE_SELECT } from "@/components/CampoFormulario";
+import { aplicarErroresDelServidor } from "@/lib/errores";
 import { type DatosRequisito, esquemaRequisito, TIPOS_REQUISITO } from "../esquemas";
 
 const CAMPOS = ["nombre", "tipo", "obligatorio", "descripcion", "anticipacion_dias"] as const;
