@@ -105,12 +105,11 @@ async def crear_usuario(
     """Da de alta un `Usuario` con su cuenta de Firebase y le hace mandar a Firebase el mail para
     elegir la contraseña (CU-25 pasos 3 a 5, RF-144, RF-145, DEC-0016).
 
-    Email repetido en Rumbo (sin distinguir mayúsculas) o en Firebase: `Conflicto` sin crear
-    nada (A1, RF-146). Si después de crear la cuenta falla la base o el envío del mail, o el
-    pedido se cancela, la cuenta se borra (compensación) y no queda `Usuario`.
-
-    Riesgo conocido: si falla el commit final del pedido (después del flush y del mail), queda
-    una cuenta de Firebase sin `Usuario`; se resuelve en un ticket aparte.
+    Email repetido en Rumbo (sin distinguir mayúsculas): `Conflicto` sin tocar Firebase (A1,
+    RF-146). Si el email ya tiene cuenta en Firebase pero ningún `Usuario` (un alta anterior
+    que falló después de crearla), se reutiliza esa cuenta. Si después falla la base o el envío
+    del mail, o el pedido se cancela, no queda `Usuario` y la cuenta se borra solo si la creó
+    este pedido (compensación); una cuenta reutilizada queda para el próximo intento.
     """
     exigir_rol(actor, RolUsuario.admin, RolUsuario.dueno)
     if rol is RolUsuario.dueno:
@@ -118,10 +117,7 @@ async def crear_usuario(
     email = email.strip().lower()
     if await _usuarios.buscar_por_email(sesion, email) is not None:
         raise Conflicto(_EMAIL_EN_USO)
-    try:
-        firebase_uid = await gestor.crear_cuenta(email, nombre)
-    except CuentaYaExiste as error:
-        raise Conflicto(_EMAIL_EN_USO) from error
+    firebase_uid, cuenta_creada = await _crear_o_reutilizar_cuenta(gestor, email, nombre)
     try:
         # Savepoint: si falla el mail, se deshace el INSERT aunque la sesión siga abierta.
         async with sesion.begin_nested():
@@ -136,7 +132,8 @@ async def crear_usuario(
             await sesion.flush()
             await gestor.enviar_mail_restablecimiento(email)
     except BaseException as error:  # también `CancelledError` si el cliente corta
-        await _borrar_cuenta_creada(gestor, firebase_uid)
+        if cuenta_creada:
+            await _borrar_cuenta_creada(gestor, firebase_uid)
         if isinstance(error, IntegrityError):  # carrera con otra alta del mismo email o uid
             raise Conflicto("Ya existe un usuario con ese email o esa cuenta.") from error
         raise
@@ -207,6 +204,20 @@ def _exigir_otro_admin_activo(usuario: Usuario, admins_activos: int) -> None:
     """`Conflicto` si `usuario` es el único `admin` activo: el sistema nunca queda sin uno."""
     if usuario.rol is RolUsuario.admin and usuario.activo and admins_activos <= 1:
         raise Conflicto("Es el único administrador activo: asigná otro antes de cambiarlo.")
+
+
+async def _crear_o_reutilizar_cuenta(
+    gestor: GestorDeCuentas, email: str, nombre: str
+) -> tuple[str, bool]:
+    """uid de la cuenta de Firebase para el alta, y si la creó este pedido. Si el email ya
+    tiene cuenta se la reutiliza; quien llama ya comprobó que no tiene `Usuario` (RF-146)."""
+    try:
+        return await gestor.crear_cuenta(email, nombre), True
+    except CuentaYaExiste as error:
+        firebase_uid = await gestor.buscar_uid_por_email(email)
+        if firebase_uid is None:  # la borraron entre las dos llamadas: se puede reintentar
+            raise Conflicto(_EMAIL_EN_USO) from error
+        return firebase_uid, False
 
 
 async def _borrar_cuenta_creada(gestor: GestorDeCuentas, firebase_uid: str) -> None:

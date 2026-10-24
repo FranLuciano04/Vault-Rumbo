@@ -150,6 +150,11 @@ class GestorDeCuentas(Protocol):
         ya existe en Firebase y `ServicioExterno` si Firebase falla."""
         ...
 
+    async def buscar_uid_por_email(self, email: str) -> str | None:
+        """uid de la cuenta de Firebase con ese email, o `None` si no hay. Lanza
+        `ServicioExterno` si Firebase falla."""
+        ...
+
     async def borrar_cuenta(self, firebase_uid: str) -> None:
         """Compensación: borra la cuenta creada."""
         ...
@@ -190,6 +195,16 @@ class GestorFirebase:
         except _ERRORES_FIREBASE as error:
             logger.error("Firebase no pudo crear la cuenta (%s)", type(error).__name__)
             raise ServicioExterno("No se pudo crear la cuenta en Firebase.") from error
+        return str(usuario.uid)
+
+    async def buscar_uid_por_email(self, email: str) -> str | None:
+        try:
+            usuario = await asyncio.to_thread(auth.get_user_by_email, email, app=self._app())
+        except auth.UserNotFoundError:
+            return None
+        except _ERRORES_FIREBASE as error:
+            logger.error("Firebase no pudo buscar la cuenta (%s)", type(error).__name__)
+            raise ServicioExterno("No se pudo buscar la cuenta en Firebase.") from error
         return str(usuario.uid)
 
     async def borrar_cuenta(self, firebase_uid: str) -> None:

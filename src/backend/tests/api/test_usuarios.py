@@ -178,22 +178,6 @@ async def test_rf146_email_duplicado_en_rumbo_409(
     assert await _usuarios_con_email(sesion, "lucia@agencia.test") == 1
 
 
-async def test_rf146_email_duplicado_en_firebase_409(
-    cliente_como: ClienteComo, firebase: GestorDeCuentasFalso, sesion: AsyncSession
-) -> None:
-    c = await cliente_como("admin")
-    firebase.cuentas["lucia@agencia.test"] = "uid-preexistente"
-
-    r = await c.post(RUTA, json=_alta())
-
-    assert r.status_code == 409
-    assert r.headers["content-type"].startswith(PROBLEM_JSON)
-    assert firebase.cuentas == {"lucia@agencia.test": "uid-preexistente"}
-    assert firebase.borradas == []
-    assert firebase.mails == []
-    assert await _usuarios_con_email(sesion, "lucia@agencia.test") == 0
-
-
 async def test_rf144_falla_firebase_502_sin_usuario(
     cliente_como: ClienteComo, firebase: GestorDeCuentasFalso, sesion: AsyncSession
 ) -> None:
