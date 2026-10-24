@@ -4,7 +4,7 @@ import { ErrorApi, crearCliente } from "./cliente";
 import { crearServidor } from "./mocks";
 
 const BASE = "http://rumbo.test/api";
-const HTML = "<!doctype html><html><body><div id=\"root\"></div></body></html>";
+const HTML = '<!doctype html><html><body><div id="root"></div></body></html>';
 
 const servidor = crearServidor(
   http.get(

@@ -5,9 +5,9 @@ import type { UsuarioActual } from "../cliente";
 /** Handlers de ejemplo; cada módulo agrega los suyos en su ticket de contrato. */
 export const manejadoresEjemplo: RequestHandler[] = [manejadorYo("empleado")];
 
-/** Servidor MSW para tests (Vitest y Jest); `extra` se suma a los handlers de ejemplo. */
+/** Servidor MSW para tests (Vitest y Jest); `extra` tiene prioridad sobre los handlers de ejemplo. */
 export function crearServidor(...extra: RequestHandler[]): SetupServer {
-  return setupServer(...manejadoresEjemplo, ...extra);
+  return setupServer(...extra, ...manejadoresEjemplo);
 }
 
 export type RolMock = UsuarioActual["rol"];

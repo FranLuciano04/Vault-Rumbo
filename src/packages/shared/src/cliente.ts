@@ -43,19 +43,35 @@ export function crearCliente({ baseURL, obtenerToken }: OpcionesCliente): AxiosI
     return config;
   });
 
-  cliente.interceptors.response.use(undefined, (error: unknown) => {
-    if (!isAxiosError(error) || !error.response) throw error;
-    const data: unknown = error.response.data;
-    const problema: Partial<Problema & Pick<ProblemaDuplicado, "duplicados">> =
-      data && typeof data === "object" ? data : {};
-    const errorApi = new ErrorApi(problema.title ?? error.message);
-    errorApi.status = error.response.status;
-    errorApi.title = problema.title ?? "";
-    errorApi.detail = problema.detail ?? "";
-    errorApi.errores = problema.errores ?? [];
-    if (problema.duplicados) errorApi.duplicados = problema.duplicados;
-    throw errorApi;
-  });
+  cliente.interceptors.response.use(
+    (respuesta) => {
+      // Sin API detrás del proxy, el dev server contesta 200 con el index.html: no es una respuesta de la API.
+      const tipo = String(respuesta.headers["content-type"] ?? "");
+      const esperaJson = [undefined, "json"].includes(respuesta.config.responseType);
+      const tieneCuerpo =
+        respuesta.status !== 204 && respuesta.data != null && respuesta.data !== "";
+      if (esperaJson && tieneCuerpo && !/\bjson\b/i.test(tipo)) {
+        const errorApi = new ErrorApi("La API no respondió");
+        errorApi.status = respuesta.status;
+        errorApi.title = errorApi.message;
+        throw errorApi;
+      }
+      return respuesta;
+    },
+    (error: unknown) => {
+      if (!isAxiosError(error) || !error.response) throw error;
+      const data: unknown = error.response.data;
+      const problema: Partial<Problema & Pick<ProblemaDuplicado, "duplicados">> =
+        data && typeof data === "object" ? data : {};
+      const errorApi = new ErrorApi(problema.title ?? error.message);
+      errorApi.status = error.response.status;
+      errorApi.title = problema.title ?? "";
+      errorApi.detail = problema.detail ?? "";
+      errorApi.errores = problema.errores ?? [];
+      if (problema.duplicados) errorApi.duplicados = problema.duplicados;
+      throw errorApi;
+    },
+  );
 
   return cliente;
 }
