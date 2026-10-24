@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import { crearQueryClient } from "./queryClient";
 
 function errorApi(status: number): ErrorApi {
-  const e = new ErrorApi(`HTTP ${status}`);
+  const e = new ErrorApi(`HTTP ${String(status)}`);
   e.status = status;
   return e;
 }
