@@ -3,7 +3,7 @@ id: T-163
 titulo: Forzar la versión con parche de undici
 modulo: M1 — Usuarios y configuración
 capa: infra
-estado: libre
+estado: tomado
 depende_de: []
 tamaño: XS
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [RNF-15]
 origen: hallazgo T-028
-asignado:
-tomado_el:
-rama:
+asignado: Nahuel Viniegra
+tomado_el: 23/10/26 22:31
+rama: feature/T-163-forzar-la-version-con-parche-de-undici
 pr:
 ---
 # T-163 Forzar la versión con parche de undici

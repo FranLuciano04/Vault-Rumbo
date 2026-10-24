@@ -15,7 +15,7 @@ tags:: #tipo/referencia
 | Módulo | Tickets | Hechos | Tomados | Disponibles | Esperando | Bloqueados | Estado del módulo |
 |---|---|---|---|---|---|---|---|
 | M0 — Fundaciones | 38 | 38 | 0 | 0 | 0 | 0 | ✅ cerrado |
-| M1 — Usuarios y configuración | 19 | 12 | 0 | 6 | 1 | 0 | 🛠️ en curso |
+| M1 — Usuarios y configuración | 19 | 12 | 1 | 5 | 1 | 0 | 🛠️ en curso |
 | M2 — Clientes | 15 | 8 | 0 | 5 | 2 | 0 | 🛠️ en curso |
 | M3 — Alertas | 11 | 0 | 0 | 2 | 9 | 0 | 🛠️ en curso |
 | M4 — Oportunidades y cotizaciones | 14 | 0 | 0 | 1 | 13 | 0 | 🛠️ en curso |
@@ -91,7 +91,7 @@ flowchart LR
     T148["T-148 · Medir la cobertura del backend a través de los await<br/><small>infra</small>"]:::hecho
     T151["T-151 · Responder 422 ante un número fuera del rango de la base<br/><small>backend</small>"]:::hecho
     T153["T-153 · Recuperar las cuentas de Firebase que quedaron sin usuario<br/><small>backend · ⚠️ riesgo alto</small>"]:::disponible
-    T163["T-163 · Forzar la versión con parche de undici<br/><small>infra</small>"]:::disponible
+    T163["T-163 · Forzar la versión con parche de undici<br/><small>infra</small><br/>👤 Nahuel Viniegra"]:::tomado
   end
   subgraph M2["M2 — Clientes"]
     T039["T-039 · Publicar el contrato de clientes<br/><small>contrato</small>"]:::hecho
