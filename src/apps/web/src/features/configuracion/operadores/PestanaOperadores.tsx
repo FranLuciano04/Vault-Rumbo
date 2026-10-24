@@ -3,7 +3,7 @@ import { useDarDeBajaOperador, useOperadores, useReactivarOperador } from "@rumb
 import type { AxiosInstance } from "axios";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { mensajeDeError } from "../errores";
+import { mensajeDeError } from "@/lib/errores";
 import { FormularioOperador } from "./FormularioOperador";
 
 /** Operadores (CU-31, RF-093 a RF-096), pantalla 33 del prototipo. */
