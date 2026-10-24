@@ -482,15 +482,15 @@ async def test_rf146_cuenta_que_desaparece_entre_crear_y_buscar_reintenta_crear_
 
 
 class _GestorQueMiraLosBloqueos(GestorDeCuentasFalso):
-    """Al crear la cuenta, anota si la transacción del alta tiene tomado el advisory lock del
-    email (misma conexión que la sesión de test)."""
+    """En cada llamada que toca Firebase anota si la transacción del alta tiene tomado el
+    advisory lock del email (misma conexión que la sesión de test)."""
 
     def __init__(self, sesion: AsyncSession) -> None:
         super().__init__()
         self.sesion = sesion
-        self.email_bloqueado: list[bool] = []
+        self.email_bloqueado: list[tuple[str, bool]] = []
 
-    async def crear_cuenta(self, email: str, nombre: str) -> str:
+    async def _anotar_bloqueo(self, llamada: str, email: str) -> None:
         bloqueado = await self.sesion.scalar(
             text(
                 "SELECT EXISTS (SELECT 1 FROM pg_locks WHERE locktype = 'advisory'"
@@ -500,23 +500,61 @@ class _GestorQueMiraLosBloqueos(GestorDeCuentasFalso):
             ),
             {"email": email},
         )
-        self.email_bloqueado.append(bool(bloqueado))
+        self.email_bloqueado.append((llamada, bool(bloqueado)))
+
+    async def crear_cuenta(self, email: str, nombre: str) -> str:
+        await self._anotar_bloqueo("crear_cuenta", email)
         return await super().crear_cuenta(email, nombre)
+
+    async def buscar_uid_por_email(self, email: str) -> str | None:
+        await self._anotar_bloqueo("buscar_uid_por_email", email)
+        return await super().buscar_uid_por_email(email)
+
+    async def borrar_cuenta(self, firebase_uid: str) -> None:
+        email = next(e for e, u in self.cuentas.items() if u == firebase_uid)
+        await self._anotar_bloqueo("borrar_cuenta", email)
+        await super().borrar_cuenta(firebase_uid)
 
 
 async def test_rf146_alta_bloquea_el_email_antes_de_tocar_firebase(
     app_de_tests: FastAPI, cliente_como: ClienteComo, sesion: AsyncSession
 ) -> None:
     """Dos altas simultáneas del mismo email van de a una: la segunda espera el commit de la
-    primera, ve su `Usuario` y da 409, sin borrar la cuenta recién creada (T-153)."""
+    primera, ve su `Usuario` y da 409, sin borrar la cuenta recién creada (T-153). El lock se
+    mantiene en todo el recambio de una cuenta huérfana."""
     gestor = _GestorQueMiraLosBloqueos(sesion)
     app_de_tests.dependency_overrides[obtener_gestor_de_cuentas] = lambda: gestor
     c = await cliente_como("admin")
+    gestor.cuentas["lucia@agencia.test"] = "uid-huerfano"
 
     r = await c.post(RUTA, json=_alta(email="Lucia@AGENCIA.test"))
 
     assert r.status_code == 201, r.text
-    assert gestor.email_bloqueado == [True]
+    assert gestor.email_bloqueado == [
+        ("crear_cuenta", True),
+        ("buscar_uid_por_email", True),
+        ("borrar_cuenta", True),
+        ("crear_cuenta", True),
+    ]
+
+
+async def test_rf146_cuenta_de_firebase_de_otro_usuario_409_sin_borrarla(
+    cliente_como: ClienteComo, firebase: GestorDeCuentasFalso, sesion: AsyncSession
+) -> None:
+    """La cuenta de Firebase con el email del alta es de un `Usuario` cuyo email cambió en
+    Firebase sin que Rumbo lo sepa: no es huérfana, no se borra."""
+    c = await cliente_como("admin")
+    await crear(sesion, UsuarioFactory, email="otra@agencia.test", firebase_uid="uid-de-otra")
+    firebase.cuentas["lucia@agencia.test"] = "uid-de-otra"
+
+    r = await c.post(RUTA, json=_alta())
+
+    assert r.status_code == 409
+    assert r.headers["content-type"].startswith(PROBLEM_JSON)
+    assert firebase.borradas == []
+    assert firebase.cuentas == {"lucia@agencia.test": "uid-de-otra"}
+    assert firebase.mails == []
+    assert await _usuarios_con_email(sesion, "lucia@agencia.test") == 0
 
 
 class _GestorQueSeCancelaAlEnviarElMail(GestorDeCuentasFalso):

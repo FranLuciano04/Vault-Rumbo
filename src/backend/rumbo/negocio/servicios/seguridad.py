@@ -119,7 +119,7 @@ async def crear_usuario(
     await _usuarios.bloquear_email(sesion, email)
     if await _usuarios.buscar_por_email(sesion, email) is not None:
         raise Conflicto(_EMAIL_EN_USO)
-    firebase_uid = await _crear_cuenta_nueva(gestor, email, nombre)
+    firebase_uid = await _crear_cuenta_nueva(sesion, gestor, email, nombre)
     try:
         # Savepoint: si falla el mail, se deshace el INSERT aunque la sesión siga abierta.
         async with sesion.begin_nested():
@@ -207,16 +207,23 @@ def _exigir_otro_admin_activo(usuario: Usuario, admins_activos: int) -> None:
         raise Conflicto("Es el único administrador activo: asigná otro antes de cambiarlo.")
 
 
-async def _crear_cuenta_nueva(gestor: GestorDeCuentas, email: str, nombre: str) -> str:
+async def _crear_cuenta_nueva(
+    sesion: AsyncSession, gestor: GestorDeCuentas, email: str, nombre: str
+) -> str:
     """uid de una cuenta de Firebase creada por este pedido. Si el email ya tiene cuenta (sin
     `Usuario`: quien llama ya lo comprobó con el email bloqueado), se la borra y se crea otra,
     porque sus credenciales podrían ser de otra persona (pre-account hijacking, T-153). Si la
-    cuenta desaparece entre las dos llamadas, se reintenta crear una sola vez."""
+    cuenta desaparece entre las dos llamadas, se reintenta crear una sola vez.
+
+    Si esa cuenta es de un `Usuario` con otro email (se lo cambiaron en Firebase), `Conflicto`
+    sin borrar nada."""
     try:
         return await gestor.crear_cuenta(email, nombre)
     except CuentaYaExiste:
         cuenta_previa = await gestor.buscar_uid_por_email(email)
         if cuenta_previa is not None:
+            if await _usuarios.buscar_por_firebase_uid(sesion, cuenta_previa) is not None:
+                raise Conflicto(_EMAIL_EN_USO) from None
             await gestor.borrar_cuenta(cuenta_previa)
     try:
         return await gestor.crear_cuenta(email, nombre)
