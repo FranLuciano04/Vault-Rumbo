@@ -50,7 +50,7 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
   - RF-094 falló una vez en el login de la dueña en la primera corrida local; `ingresar` ahora deja diagnóstico. La alternativa con `storageState` está anotada en el ticket.
 - **Checks:** backend 934 tests (96,9 %), ruff, mypy, lint y typecheck web, e2e 4/4.
 - **Commits:** ef03b1a, 005e69c, 1b7e680, 989e51b, d1503cd (merge del PR), aa6e164 (grafo) y el de esta entrada.
-- **Pendiente:** con T-038, M1 queda listo para `/cerrar-modulo` (review de Codex). Quedan T-146, T-147 y T-153 disponibles en M1.
+- **Pendiente:** quedan T-146, T-147 y T-153 en M1; cuando estén hechos, M1 puede pasar por `/cerrar-modulo` (review de Codex).
 
 ## 24/10/26 — Nahuel (Claude Opus 5.5) — T-037: operadores en la web
 - **Hecho:** T-037 (PR [#64](https://github.com/FranLuciano04/Vault-Rumbo/pull/64), mergeado con el CI en verde). La pestaña Operadores de Configuración tiene listado con inactivos, alta, edición, baja con confirmación y reactivación, y muestra el 409 en el formulario (CU-31, RF-093/094). También se sumó la nota de T-035: el nombre de un usuario se puede corregir al editarlo (RF-147).
