@@ -3,7 +3,7 @@ id: T-048
 titulo: Registrar un cliente desde la app mobile
 modulo: M2 — Clientes
 capa: mobile
-estado: libre
+estado: tomado
 depende_de: [T-047, T-149]
 tamaño: S
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [CU-02, RF-001, RF-002, RF-003]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: FranLucianoo
+tomado_el: 24/10/26 19:34
+rama: feature/T-048-registrar-un-cliente-desde-la-app-mobile
 pr:
 ---
 # T-048 Registrar un cliente desde la app mobile
