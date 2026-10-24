@@ -3,6 +3,7 @@
 import uuid
 from dataclasses import dataclass
 from datetime import date
+from typing import Any
 
 from sqlalchemy import ColumnElement, exists, func, or_, select, true
 from sqlalchemy.dialects.postgresql import distinct_on
@@ -14,6 +15,7 @@ from rumbo.datos.modelos import (
     EstadoOportunidad,
     EstadoViaje,
     Oportunidad,
+    Resena,
     SegmentoCliente,
     Viaje,
 )
@@ -36,6 +38,15 @@ class ResumenCliente:
 
     ultimo_viaje: UltimoViaje | None = None
     oportunidades_abiertas: int = 0
+
+
+@dataclass(frozen=True)
+class HistorialDelCliente:
+    """Memoria del cliente (CU-03 paso 3): lo más reciente primero en cada lista."""
+
+    oportunidades: list[Oportunidad]
+    viajes: list[Viaje]
+    resenas: list[Resena]
 
 
 def _tiene_etiqueta(clave: str) -> ColumnElement[bool]:
@@ -148,6 +159,25 @@ class RepositorioClientes(RepositorioBase[Cliente]):
             )
             for c in clientes
         }
+
+    async def historial(
+        self, sesion: AsyncSession, cliente_id: uuid.UUID, *, visibilidad: Visibilidad
+    ) -> HistorialDelCliente:
+        """Oportunidades (por `created_at`), viajes (por `fecha_salida`) y reseñas (por `fecha`)
+        del `Cliente`, de la más reciente a la más antigua y filtradas por `visibilidad`."""
+
+        async def traer[M](modelo: type[M], *orden: Any) -> list[M]:
+            consulta = visibilidad.aplicar(
+                select(modelo).where(modelo.cliente_id == cliente_id),  # type: ignore[attr-defined]
+                modelo,
+            )
+            return list(await sesion.scalars(consulta.order_by(*orden)))
+
+        return HistorialDelCliente(
+            oportunidades=await traer(Oportunidad, Oportunidad.created_at.desc(), Oportunidad.id),
+            viajes=await traer(Viaje, Viaje.fecha_salida.desc(), Viaje.id),
+            resenas=await traer(Resena, Resena.fecha.desc(), Resena.id),
+        )
 
     async def etiquetas_en_uso(
         self, sesion: AsyncSession, *, visibilidad: Visibilidad

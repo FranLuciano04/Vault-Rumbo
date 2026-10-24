@@ -33,6 +33,14 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
+## 24/10/26 — Paloma (Claude Opus 5.5) — T-043 historial del cliente
+- **Hecho:** se tomó y se implementó **T-043** con TDD. Por error se había tomado antes T-037, que se liberó enseguida. `GET /clientes/{id}/historial` ya no es un stub. Mergeado en el PR [#62](https://github.com/FranLuciano04/Vault-Rumbo/pull/62), con el CI en verde.
+  - **Decisiones de Paloma:** las oportunidades se ordenan por fecha de alta, porque no tienen una fecha de negocio propia. Las reseñas ocultas del historial solo las ven `admin` y `dueno` (CU-29). Las dos están anotadas en el ticket.
+  - **Review (Opus):** marcó como importante que faltaba un test del filtro de visibilidad; se sumó. Quedó como menor un `# type: ignore` en el helper `traer`.
+  - **Conflictos con T-042:** se resolvieron conservando los dos aportes y se quitó el import `no_implementado`, que quedó sin uso en el router de clientes.
+- **Commits:** ee53918 (rojo), cd0574d (verde), 9783b81 (fix), 59ca0c4 (hecho), c8b3c35 (merge de main), d44d085 (merge del PR), e195e4c (grafo) y el de esta entrada.
+- **Pendiente:** siguen sin decidir las cuatro fallas para levantar Rumbo en local (Estado, *Pendientes técnicos*).
+
 ## 24/10/26 — Francisco (Claude Opus 5.5) — pendientes del 23/10 y dos decisiones
 - **Hecho:** repaso de los pendientes de la sesión del 23/10, que había quedado registrada aunque no se cerró. Se borró el aviso de T-027 (ya resuelto) y T-028 figura mergeado (PR #59).
 - **Decisiones de Francisco** (las había planteado Paloma, de T-040 y T-032):

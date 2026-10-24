@@ -7,7 +7,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from rumbo.core.fechas import hoy
 from rumbo.datos.modelos import Cliente, RolUsuario, SegmentoCliente, Usuario
-from rumbo.datos.repositorios.clientes import RepositorioClientes, ResumenCliente
+from rumbo.datos.repositorios.clientes import (
+    HistorialDelCliente,
+    RepositorioClientes,
+    ResumenCliente,
+)
 from rumbo.datos.repositorios.seguridad import RepositorioUsuarios
 from rumbo.negocio.errores import DatosInvalidos, NoEncontrado, PosibleDuplicado
 from rumbo.negocio.politicas import exigir_escritura, visibilidad
@@ -106,6 +110,16 @@ async def obtener_cliente(sesion: AsyncSession, actor: Usuario, cliente_id: uuid
     """Ficha de un `Cliente` (CU-03). Uno que el actor no ve es `NoEncontrado`, igual que uno
     inexistente (A1, RF-151)."""
     return await _clientes.obtener(sesion, cliente_id, visibilidad=visibilidad(actor))
+
+
+async def obtener_historial(
+    sesion: AsyncSession, actor: Usuario, cliente_id: uuid.UUID
+) -> HistorialDelCliente:
+    """Oportunidades, viajes y reseñas de un `Cliente` (CU-03 paso 3, RF-006). Si el actor no ve
+    al cliente es `NoEncontrado` (A1, RF-151)."""
+    vista = visibilidad(actor)
+    await _clientes.obtener(sesion, cliente_id, visibilidad=vista)
+    return await _clientes.historial(sesion, cliente_id, visibilidad=vista)
 
 
 async def editar_cliente(

@@ -29,6 +29,7 @@ tags:: #tipo/modulo #estado/formalizado
 - [[DEC-0016 Autenticación con Firebase]] (formalizada el 13/10/26; reemplaza DEC-0008 §1 y DEC-0015 §2 y §3)
 - [[DEC-0017 Contacto mínimo del cliente]] (formalizada el 22/10/26): el contacto mínimo es teléfono/WhatsApp o email; el usuario de Instagram se guarda como dato opcional.
 - [[DEC-0018 Revocación de sesiones de Firebase]] (formalizada el 23/10/26): la API no comprueba la revocación del token en cada pedido; el acceso se corta con `Usuario.activo` y se acepta una ventana de hasta 1 h para los cortes hechos solo en Firebase.
+- [[DEC-0019 Las fallas se arreglan al encontrarlas]] (formalizada el 24/10/26): una falla se arregla en el ticket en curso o en una rama `fix/…`, sin crear un ticket; vale también para los hallazgos de Codex. Reemplaza en parte a DEC-0014.
 
 ## Todas (Dataview)
 ```dataview

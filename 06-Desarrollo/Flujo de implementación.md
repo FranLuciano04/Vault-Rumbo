@@ -45,7 +45,7 @@ tags:: #tipo/referencia #estado/formalizado #pc/pc2
 ## Fase 2: barrera de módulo (`/cerrar-modulo MN`)
 1. Con todos los tickets del módulo hechos, Claude escribe `06-Desarrollo/Reviews/MN — pedido de review.md`.
 2. Un integrante le pide a Codex: «Leé `06-Desarrollo/Review de módulo — rol de Codex.md` y revisá el módulo MN según `06-Desarrollo/Reviews/MN — pedido de review.md`».
-3. Codex deja `06-Desarrollo/Reviews/MN — review Codex.md`. Con `/cerrar-modulo MN`, Claude verifica cada hallazgo y convierte los confirmados en **tickets de arreglo**.
+3. Codex deja `06-Desarrollo/Reviews/MN — review Codex.md`. Con `/cerrar-modulo MN`, Claude verifica cada hallazgo y **arregla los confirmados** en ramas `fix/MN-…` con su PR, sin crear tickets ([[DEC-0019 Las fallas se arreglan al encontrarlas|DEC-0019]]).
 4. Con los arreglos y los e2e hechos, y la **aprobación del equipo**, se pone el tag `mod-N`. Se escribe una entrada en la [[Bitácora técnica]] y una línea en [[Estado del proyecto]].
 
 Mientras tanto no se espera: los tickets de otros módulos con las dependencias cumplidas se pueden tomar.
@@ -78,7 +78,7 @@ node 06-Desarrollo/herramientas/tickets.mjs modulo MN
 ## Auditoría semanal de dependencias (T-150)
 - **Quién mira el aviso:** Nahuel Viniegra. Es quien edita el `cron` de `.github/workflows/auditoria-semanal.yml`, y por eso quien recibe la notificación de GitHub: la regla de GitHub para workflows programados la envía a quien modificó por última vez la sintaxis `cron` ([documentación de GitHub Actions, evento `schedule`](https://docs.github.com/actions/reference/workflows-and-actions/events-that-trigger-workflows#schedule)).
 - **Si la corrida falla:** revisar el job (`pip-audit` o `pnpm-audit`) en la pestaña Actions y decidir:
-  - Vulnerabilidad real: crear un ticket con `origen: hallazgo T-150` y actualizar la dependencia en el lockfile.
+  - Vulnerabilidad real: actualizar la dependencia en el lockfile en una rama `fix/…` con su PR, sin crear un ticket ([[DEC-0019 Las fallas se arreglan al encontrarlas|DEC-0019]]).
   - Falso positivo o riesgo aceptado: agregar la excepción comentada, con su motivo: `audit.ignore` en `src/pnpm-workspace.yaml` (pnpm) o `--ignore-vuln <ID>` en el workflow (pip-audit).
 - **Cambio de responsable:** si otra persona edita el `cron`, pasa a recibir el aviso de GitHub. Debe actualizar esta sección y avisar al equipo.
 

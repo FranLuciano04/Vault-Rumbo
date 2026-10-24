@@ -1,6 +1,6 @@
 ---
 name: cerrar-modulo
-description: Barrera de revisión de un módulo de implementación de Rumbo. Prepara el pedido de review para Codex, convierte sus hallazgos en tickets de arreglo y, con la aprobación del equipo, cierra el módulo con el tag mod-N. Usar cuando alguien pida cerrar o revisar el módulo MN, o diga que Codex ya terminó su review.
+description: Barrera de revisión de un módulo de implementación de Rumbo. Prepara el pedido de review para Codex, arregla sus hallazgos confirmados en ramas fix/ (DEC-0019) y, con la aprobación del equipo, cierra el módulo con el tag mod-N. Usar cuando alguien pida cerrar o revisar el módulo MN, o diga que Codex ya terminó su review.
 ---
 
 # Cerrar un módulo
@@ -21,14 +21,13 @@ Proceso en `06-Desarrollo/Flujo de implementación.md` (DEC-0014). El módulo `M
 
 ## Fase B: procesar la review (Codex ya escribió `MN — review Codex.md`)
 1. Leer los hallazgos. **Verificar cada uno** contra el código. Si son muchos, lanzar `reviewer-ticket` con `model: sonnet` solo para confirmarlos. Anotar el resultado en la sección «Triage de Claude» del mismo archivo: confirmado o descartado, con el motivo.
-2. Cada hallazgo **bloqueante** o **importante** confirmado se convierte en un ticket nuevo desde `_plantillas/PL-Ticket.md`:
-   - `modulo: MN …` y `origen: review-codex MN`;
-   - `trazabilidad` copiada del hallazgo;
-   - modelos según la rúbrica de DEC-0014;
-   - la siguiente numeración libre.
-   Los **menores** se le consultan a la persona.
-3. `tickets.mjs validar` y `tickets.mjs grafo`. Commit `review: hallazgos de Codex en MN → T-NNN…` y push a `main`. Los tickets de arreglo siguen el ciclo normal (`/tomar-ticket` y `/implementar-ticket`).
-4. **Cierre**, cuando todos los tickets del módulo, incluidos los de arreglo, estén `hecho`:
+2. Cada hallazgo **bloqueante** o **importante** confirmado **se arregla directamente, sin crear un ticket** (DEC-0019):
+   - En una rama `fix/MN-<hallazgo>` desde `main`, con los pasos de `/implementar-ticket`: test que reproduce la falla (`test-writer`), arreglo (`implementador` de la capa, en modo fix), review con un modelo distinto, checks completos y PR.
+   - Si toca auth, permisos, dinero, estados o el proceso diario, la review la hace `reviewer-seguridad` y el PR necesita la aprobación de otro integrante.
+   - Se pueden agrupar varios hallazgos chicos de la misma zona en una misma rama.
+   - Los **menores** se le consultan a la persona.
+3. Anotar en «Triage de Claude» el PR de cada hallazgo arreglado. Commit `review: triage de Codex en MN` y push a `main`.
+4. **Cierre**, cuando todos los tickets del módulo estén `hecho` y los PR de los hallazgos estén mergeados:
    1. Pedir la **aprobación humana** del módulo (la del equipo, o la de quien lo pida en nombre del equipo).
    2. Con la aprobación, `git checkout main && git pull --ff-only origin main`, `git tag -a mod-N -m "Módulo MN cerrado"` y `git push origin mod-N`.
    3. `tickets.mjs publicar-grafo`.
