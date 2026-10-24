@@ -1,5 +1,5 @@
 import { expect, type Page, test } from "@playwright/test";
-import { crearCuentaEnEmulador, DUENA, EMULADOR, URL_BASE } from "./compose";
+import { DUENA, EMULADOR, elegirContrasena, URL_BASE } from "./compose";
 
 // T-049: flujos de Clientes (CU-02, CU-03) contra el backend real. Los datos de partida se
 // preparan por la API (más estable que la UI); lo que se prueba se hace desde la web.
@@ -96,8 +96,6 @@ test.describe("CU-03 Gestionar ficha del cliente", () => {
     const email = `freelance-${SUFIJO}@rumbo.test`;
     const ajeno = `Cliente Ajeno E2E ${SUFIJO}`;
     const propio = `Cliente Propio E2E ${SUFIJO}`;
-    // La cuenta se crea antes con contraseña; el alta de usuario reutiliza la cuenta por email.
-    await crearCuentaEnEmulador(email, CLAVE_FREELANCE);
     const duena = await tokenDe(DUENA.email, DUENA.password);
     const yo = await api<{ id: string }>(duena, "GET", "/auth/yo");
     const freelance = await api<{ id: string }>(duena, "POST", "/usuarios", {
@@ -105,6 +103,8 @@ test.describe("CU-03 Gestionar ficha del cliente", () => {
       email,
       rol: "freelance",
     });
+    // El alta crea la cuenta sin contraseña (DEC-0016): se elige con el código del emulador.
+    await elegirContrasena(email, CLAVE_FREELANCE);
     const clienteAjeno = await api<ClienteApi>(duena, "POST", "/clientes", {
       nombre: ajeno,
       contacto: `ajeno-${SUFIJO}@rumbo.test`,
