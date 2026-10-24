@@ -24,7 +24,7 @@ La **persona** de cada sesión es quien la corre, identificada por su identidad 
 ## Avisos pendientes por persona
 > Claude los lee al identificar a la persona (paso 1 de `CLAUDE.md`) y se los cuenta **apenas la saluda**, antes de cualquier otra tarea. Cuando la persona confirme que lo leyó o que lo hizo, **Claude borra su fila** en esa misma sesión, con un commit. Cuando no quede ninguna fila de alguien, se borra también su sección.
 
-### Francisco (`FranLucianoo`) y Nahuel (`Nahuel Viniegra`) — DEC-0019 y fallas de entorno local
+### Nahuel (`Nahuel Viniegra`) — DEC-0019 y fallas de entorno local
 - **24/10, de Paloma: [[DEC-0019 Las fallas se arreglan al encontrarlas|DEC-0019]]**, la decisión que tomamos en equipo. Una falla se arregla cuando se encuentra, sin crear un ticket:
   - si aparece durante un ticket, en su misma rama y PR;
   - si no, en una rama `fix/…`;
