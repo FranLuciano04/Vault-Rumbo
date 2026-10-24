@@ -39,6 +39,15 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
+## 24/10/26 — Nahuel (Claude Opus 5.5) — T-037: operadores en la web
+- **Hecho:** T-037 (PR [#64](https://github.com/FranLuciano04/Vault-Rumbo/pull/64), mergeado con el CI en verde). La pestaña Operadores de Configuración tiene listado con inactivos, alta, edición, baja con confirmación y reactivación, y muestra el 409 en el formulario (CU-31, RF-093/094). También se sumó la nota de T-035: el nombre de un usuario se puede corregir al editarlo (RF-147).
+  - Sin la columna «Viajes» ni el campo «Ejecutivo de cuentas» del prototipo, porque no están en el contrato.
+  - **Review Opus:** 1 importante (la confirmación de baja no quedaba fijada en los tests), arreglado; 1 menor anotado en el ticket (`darDeBaja.error ?? reactivar.error`, mismo patrón que destinos).
+  - El primer CI falló porque T-046 movió `errores` y `CampoFormulario`: se trajo `main` y se corrigieron los imports.
+- **Checks:** web 285 tests, cobertura 94,3 %, lint, typecheck y build en verde.
+- **Commits:** a82610f, a508b30, 10367df, e7a1148, ad37be1 (merge de main), 7b09780, 1ba418a (merge del PR), e1e8b29 (grafo) y el de esta entrada.
+- **Pendiente:** el aviso de T-046 para Nahuel sigue hasta que lo confirme.
+
 ## 24/10/26 — Francisco (Claude Opus 5.5) — T-046: ficha editable del cliente en la web
 - **Hecho:** T-046 (PR #63, mergeado). La ficha en `/clientes/:id` muestra:
   - los datos, el perfil y el historial, con un estado vacío por sección;
