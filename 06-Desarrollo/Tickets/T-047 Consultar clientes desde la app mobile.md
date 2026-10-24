@@ -3,7 +3,7 @@ id: T-047
 titulo: Consultar clientes desde la app mobile
 modulo: M2 — Clientes
 capa: mobile
-estado: libre
+estado: tomado
 depende_de: [T-039, T-022]
 tamaño: M
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [CU-03, RF-005, RF-006, RF-009]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: Nahuel Viniegra
+tomado_el: 24/10/26 16:13
+rama: feature/T-047-consultar-clientes-desde-la-app-mobile
 pr:
 ---
 # T-047 Consultar clientes desde la app mobile
