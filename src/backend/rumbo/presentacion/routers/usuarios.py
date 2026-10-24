@@ -8,9 +8,11 @@ from fastapi import APIRouter, Depends
 from rumbo.core.db import SesionDep
 from rumbo.core.seguridad import GestorDeCuentas, obtener_gestor_de_cuentas
 from rumbo.datos import modelos
+from rumbo.datos.modelos import RolUsuario
 from rumbo.negocio.servicios import seguridad
 from rumbo.presentacion.contrato import GESTION, operacion
 from rumbo.presentacion.dependencias import usuario_actual
+from rumbo.presentacion.esquemas.clientes import AsesorDelCliente
 from rumbo.presentacion.esquemas.usuarios import Usuario, UsuarioCrear, UsuarioEditar
 from rumbo.presentacion.paginacion import Pagina, ParametrosPagina, parametros_pagina
 
@@ -73,6 +75,20 @@ async def crear_usuario(
         acceso_redes=datos.acceso_redes,
     )
     return Usuario.model_validate(usuario)
+
+
+@router.get(
+    "/asesores",
+    operation_id="listar_asesores",
+    summary="Listar los usuarios que pueden ser asesor de un cliente",
+    **operacion((RolUsuario.admin, RolUsuario.dueno, RolUsuario.empleado), "CU-03"),
+)
+async def listar_asesores(actor: ActorDep, sesion: SesionDep) -> list[AsesorDelCliente]:
+    """Usuarios activos de cualquier rol, con id y nombre, ordenados por nombre (RF-007, RF-150).
+    Alimenta el selector de asesor de la ficha; no expone el padrón completo de `GET /usuarios`."""
+    return [
+        AsesorDelCliente.model_validate(u) for u in await seguridad.listar_asesores(sesion, actor)
+    ]
 
 
 @router.get(

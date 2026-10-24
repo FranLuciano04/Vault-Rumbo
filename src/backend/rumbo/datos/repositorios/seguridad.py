@@ -44,6 +44,14 @@ class RepositorioUsuarios(RepositorioBase[Usuario]):
         filas = await sesion.scalars(pagina.offset(desplazamiento).limit(limite))
         return list(filas), total or 0
 
+    async def listar_activos(self, sesion: AsyncSession) -> list[Usuario]:
+        """Los usuarios activos de cualquier rol, ordenados por nombre. Sin filtro de visibilidad:
+        el servicio decide qué roles lo piden."""
+        consulta = (
+            select(Usuario).where(Usuario.activo.is_(True)).order_by(Usuario.nombre, Usuario.id)
+        )
+        return list(await sesion.scalars(consulta))
+
     async def contar_admins_activos(self, sesion: AsyncSession, *, visibilidad: Visibilidad) -> int:
         """Cuántos `admin` activos hay, bloqueando sus filas (en orden de id) hasta el fin de la
         transacción: dos pedidos simultáneos no pueden dejar cada uno al otro como último admin

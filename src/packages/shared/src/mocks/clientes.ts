@@ -1,5 +1,6 @@
 import { http, HttpResponse, type RequestHandler } from "msw";
 import type {
+  AsesorDelCliente,
   Cliente,
   ClienteCrear,
   ClienteEditar,
@@ -104,6 +105,23 @@ const SIN_HISTORIAL: HistorialCliente = { oportunidades: [], viajes: [], resenas
 
 const BASE = "*/api/clientes";
 
+/** Usuarios activos que pueden ser asesor (`GET /api/usuarios/asesores`), por nombre. */
+export function asesoresMock(): AsesorDelCliente[] {
+  const { admin, dueno } = usuariosPorRol;
+  const asesores = [
+    ...clientesMock.flatMap((c) => (c.asesor ? [c.asesor] : [])),
+    { id: admin.id, nombre: admin.nombre },
+    { id: dueno.id, nombre: dueno.nombre },
+  ];
+  return [...new Map(asesores.map((a) => [a.id, a] as const)).values()].sort((a, b) =>
+    a.nombre.localeCompare(b.nombre, "es"),
+  );
+}
+
+function asesorPorId(id: string | null | undefined): AsesorDelCliente | null {
+  return asesoresMock().find((a) => a.id === id) ?? null;
+}
+
 /** Clave de una etiqueta: minúsculas, sin tildes y con los espacios colapsados (como el backend). */
 function claveEtiqueta(etiqueta: string): string {
   return etiqueta
@@ -118,7 +136,6 @@ function claveEtiqueta(etiqueta: string): string {
 /** La ficha que devuelve el backend: `Cliente`, sin el resumen que solo trae el listado. */
 export function aFicha(listado: ClienteListado): Cliente {
   const ficha: Partial<ClienteListado> = { ...listado };
-  delete ficha.asesor;
   delete ficha.ultimo_viaje;
   delete ficha.oportunidades_abiertas;
   return ficha as Cliente;
@@ -193,6 +210,7 @@ export const manejadoresClientes: RequestHandler[] = [
       preferencias: datos.preferencias ?? null,
       no_recontactar: false,
       asesor_asignado_id: datos.asesor_asignado_id ?? null,
+      asesor: asesorPorId(datos.asesor_asignado_id),
       created_by: usuariosPorRol.empleado.id,
       updated_by: usuariosPorRol.empleado.id,
       created_at: ahora,
@@ -214,7 +232,9 @@ export const manejadoresClientes: RequestHandler[] = [
       "instagram" in cambios
         ? { ...cambios, instagram: normalizarInstagram(cambios.instagram) as string | null }
         : cambios;
-    return HttpResponse.json({ ...aFicha(cliente), ...normalizados });
+    const asesor =
+      "asesor_asignado_id" in cambios ? { asesor: asesorPorId(cambios.asesor_asignado_id) } : {};
+    return HttpResponse.json({ ...aFicha(cliente), ...normalizados, ...asesor });
   }),
 
   http.get(`${BASE}/:id/historial`, ({ params }) => {

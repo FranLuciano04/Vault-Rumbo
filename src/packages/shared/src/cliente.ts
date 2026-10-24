@@ -11,6 +11,7 @@ export interface OpcionesCliente {
 export type Problema = components["schemas"]["Problema"];
 export type ErrorCampo = components["schemas"]["ErrorCampo"];
 export type UsuarioActual = components["schemas"]["UsuarioActual"];
+export type AsesorDelCliente = components["schemas"]["AsesorDelCliente"];
 export type Cliente = components["schemas"]["Cliente"];
 export type ClienteListado = components["schemas"]["ClienteListado"];
 type AltaGenerada = components["schemas"]["ClienteCrear"];

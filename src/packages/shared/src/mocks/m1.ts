@@ -7,6 +7,7 @@ import type {
   RequisitoDestino,
   Usuario,
 } from "../modelos";
+import { asesoresMock } from "./clientes";
 
 /** Columnas de auditoría de ejemplo (DEC-0008): las creó y editó la admin de ejemplo. */
 const auditoria = {
@@ -162,6 +163,7 @@ export const manejadoresM1: RequestHandler[] = [
   http.post("*/api/usuarios", async ({ request }) =>
     HttpResponse.json(await recurso(usuariosMock[2], undefined, request), { status: 201 }),
   ),
+  http.get("*/api/usuarios/asesores", () => HttpResponse.json(asesoresMock())),
   http.get("*/api/usuarios/:usuario_id", async ({ params }) =>
     HttpResponse.json(await recurso(usuariosMock[2], params["usuario_id"])),
   ),

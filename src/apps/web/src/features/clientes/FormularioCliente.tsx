@@ -1,15 +1,16 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { Cliente, ClienteEditar } from "@rumbo/shared";
 import { esquemaAltaCliente } from "@rumbo/shared/esquemas";
-import { useEditarCliente, useUsuarios } from "@rumbo/shared/hooks";
+import { useAsesores, useEditarCliente } from "@rumbo/shared/hooks";
 import type { AxiosInstance } from "axios";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Controller, type Control, type FieldError, useForm } from "react-hook-form";
 import { z } from "zod";
+import { CampoFormulario, CLASE_SELECT } from "@/components/CampoFormulario";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { CampoFormulario, CLASE_SELECT } from "../configuracion/CampoFormulario";
-import { aplicarErroresDelServidor } from "../configuracion/errores";
+import { aplicarErroresDelServidor } from "@/lib/errores";
+import { EditorEtiquetas } from "./EditorEtiquetas";
 import { ETIQUETA_SEGMENTO } from "./segmentos";
 
 // El formato lo fija el esquema del alta; el asesor viaja como texto ("" = sin asesor).
@@ -30,7 +31,12 @@ const CAMPOS = [
 ] as const;
 
 /** Solo los campos que cambiaron respecto de la ficha; es lo que viaja en el PATCH. */
-function cambiosDeLaFicha(datos: DatosFicha, ficha: Cliente, conAsesor: boolean): ClienteEditar {
+function cambiosDeLaFicha(
+  datos: DatosFicha,
+  etiquetas: string[],
+  ficha: Cliente,
+  conAsesor: boolean,
+): ClienteEditar {
   const nuevo = {
     nombre: datos.nombre,
     contacto: datos.contacto,
@@ -39,21 +45,26 @@ function cambiosDeLaFicha(datos: DatosFicha, ficha: Cliente, conAsesor: boolean)
     preferencias: datos.preferencias?.trim() || null,
     ...(conAsesor && { asesor_asignado_id: datos.asesor_asignado_id || null }),
   };
-  return Object.fromEntries(
+  const cambios: ClienteEditar = Object.fromEntries(
     Object.entries(nuevo).filter(([campo, valor]) => ficha[campo as keyof Cliente] !== valor),
   );
+  if (etiquetas.join("\n") !== ficha.etiquetas.join("\n")) cambios.etiquetas = etiquetas;
+  return cambios;
 }
 
-/** Asesor asignado (RF-150): solo lo pueden listar admin y dueño; el resto no lo ve. */
+/** Asesor asignado (RF-150): lo ven admin, dueño y empleado; el de baja se conserva como opción. */
 function SelectorAsesor({
   cliente,
+  actual,
   control,
 }: {
   cliente: AxiosInstance;
+  actual: Cliente["asesor"];
   control: Control<EntradaFicha, unknown, DatosFicha>;
 }) {
-  const { data: usuarios, isError } = useUsuarios(cliente, { por_pagina: 100 });
+  const { data: asesores, isError } = useAsesores(cliente);
   if (isError) return null;
+  const deBaja = asesores && actual && !asesores.some(({ id }) => id === actual.id);
   return (
     <CampoFormulario id="asesor" etiqueta="Asesor asignado">
       {(props) => (
@@ -63,13 +74,12 @@ function SelectorAsesor({
           render={({ field }) => (
             <select className={CLASE_SELECT} {...props} {...field}>
               <option value="">Sin asesor</option>
-              {usuarios?.items
-                .filter(({ activo }) => activo)
-                .map(({ id, nombre }) => (
-                  <option key={id} value={id}>
-                    {nombre}
-                  </option>
-                ))}
+              {deBaja && <option value={actual.id}>{`${actual.nombre} (de baja)`}</option>}
+              {asesores?.map(({ id, nombre }) => (
+                <option key={id} value={id}>
+                  {nombre}
+                </option>
+              ))}
             </select>
           )}
         />
@@ -88,10 +98,12 @@ export function FormularioCliente({
   cliente: AxiosInstance;
   ficha: Cliente;
   conAsesor: boolean;
-  alTerminar: () => void;
+  /** `guardo` es verdadero solo si hubo cambios y el servidor los aceptó. */
+  alTerminar: (guardo: boolean) => void;
 }) {
   const editar = useEditarCliente(cliente);
   const [error, setError] = useState<string | null>(null);
+  const [etiquetas, setEtiquetas] = useState(ficha.etiquetas);
   const formulario = useForm<EntradaFicha, unknown, DatosFicha>({
     resolver: zodResolver(esquemaFicha),
     defaultValues: {
@@ -104,17 +116,23 @@ export function FormularioCliente({
     },
   });
   const { errors } = formulario.formState;
+  const { setFocus } = formulario;
+
+  // Al abrir, el foco va al primer campo.
+  useEffect(() => {
+    setFocus("nombre");
+  }, [setFocus]);
 
   async function guardar(datos: DatosFicha) {
     setError(null);
-    const cambios = cambiosDeLaFicha(datos, ficha, conAsesor);
+    const cambios = cambiosDeLaFicha(datos, etiquetas, ficha, conAsesor);
     if (Object.keys(cambios).length === 0) {
-      alTerminar();
+      alTerminar(false);
       return;
     }
     try {
       await editar.mutateAsync({ id: ficha.id, cambios });
-      alTerminar();
+      alTerminar(true);
     } catch (falla) {
       setError(aplicarErroresDelServidor(falla, CAMPOS, formulario.setError));
     }
@@ -150,6 +168,7 @@ export function FormularioCliente({
           </select>
         )}
       </CampoFormulario>
+      <EditorEtiquetas etiquetas={etiquetas} alCambiar={setEtiquetas} />
       <CampoFormulario id="preferencias" etiqueta="Preferencias" error={errors.preferencias}>
         {(props) => (
           <textarea
@@ -160,7 +179,9 @@ export function FormularioCliente({
           />
         )}
       </CampoFormulario>
-      {conAsesor && <SelectorAsesor cliente={cliente} control={formulario.control} />}
+      {conAsesor && (
+        <SelectorAsesor cliente={cliente} actual={ficha.asesor} control={formulario.control} />
+      )}
       {error && (
         <p role="alert" className="text-sm font-medium text-destructive">
           {error}
@@ -170,7 +191,13 @@ export function FormularioCliente({
         <Button type="submit" disabled={editar.isPending}>
           Guardar
         </Button>
-        <Button type="button" variant="outline" onClick={alTerminar}>
+        <Button
+          type="button"
+          variant="outline"
+          onClick={() => {
+            alTerminar(false);
+          }}
+        >
           Cancelar
         </Button>
       </div>

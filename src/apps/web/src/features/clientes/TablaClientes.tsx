@@ -2,16 +2,10 @@ import type { ClienteListado } from "@rumbo/shared";
 import { ChevronRight } from "lucide-react";
 import { Link, useNavigate } from "react-router";
 import { formatearFecha } from "@/lib/formato";
+import { iniciales } from "@/lib/iniciales";
 import { ETIQUETA_SEGMENTO } from "./segmentos";
 
 const ENCABEZADOS = ["Cliente", "Segmento", "Etiquetas", "Asesor", "Último viaje", "Oportunidades"];
-
-export const iniciales = (nombre: string) =>
-  nombre
-    .split(/\s+/)
-    .slice(0, 2)
-    .map((palabra) => palabra.charAt(0).toUpperCase())
-    .join("");
 
 const SIN_DATO = <span className="text-muted-foreground">—</span>;
 

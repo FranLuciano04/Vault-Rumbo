@@ -251,6 +251,65 @@
         ]
       }
     },
+    "/api/usuarios/asesores": {
+      "get": {
+        "tags": [
+          "seguridad"
+        ],
+        "summary": "Listar los usuarios que pueden ser asesor de un cliente",
+        "description": "**Roles:** admin, dueno, empleado.\n\n**Casos de uso:** CU-03.",
+        "operationId": "listar_asesores",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/AsesorDelCliente"
+                  },
+                  "type": "array",
+                  "title": "Response Listar Asesores"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Falta el token, no es válido o el usuario no tiene acceso.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "El rol no alcanza.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "x-roles": [
+          "admin",
+          "dueno",
+          "empleado"
+        ],
+        "x-casos-de-uso": [
+          "CU-03"
+        ]
+      }
+    },
     "/api/usuarios/{usuario_id}": {
       "get": {
         "tags": [
@@ -2820,6 +2879,17 @@
               }
             ],
             "title": "Asesor Asignado Id"
+          },
+          "asesor": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AsesorDelCliente"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Nombre del asesor asignado, también si está de baja."
           }
         },
         "type": "object",
@@ -2836,7 +2906,8 @@
           "etiquetas",
           "preferencias",
           "no_recontactar",
-          "asesor_asignado_id"
+          "asesor_asignado_id",
+          "asesor"
         ],
         "title": "Cliente",
         "description": "Ficha del cliente: contacto, segmento, etiquetas y preferencias."
@@ -3104,7 +3175,8 @@
               {
                 "type": "null"
               }
-            ]
+            ],
+            "description": "Nombre del asesor asignado, también si está de baja."
           },
           "ultimo_viaje": {
             "anyOf": [

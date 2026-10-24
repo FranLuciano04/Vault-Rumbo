@@ -98,7 +98,7 @@ export function HistorialCliente({ cliente, id }: { cliente: AxiosInstance; id: 
           <Seccion titulo="Reseñas" vacio="Sin reseñas." hayItems={data.resenas.length > 0}>
             {data.resenas.map((r) => (
               <li key={r.id}>
-                <Link to={`/resenas/${r.id}`} className={CLASE_ENLACE}>
+                <Link to={`/hoteles/${r.hotel_id}?resena=${r.id}`} className={CLASE_ENLACE}>
                   <span>
                     <span className="font-medium">{r.puntaje} de 5</span> · {r.comentario}
                   </span>

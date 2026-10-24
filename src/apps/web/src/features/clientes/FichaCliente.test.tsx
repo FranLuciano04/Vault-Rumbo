@@ -98,7 +98,8 @@ describe("RF-006 historial", () => {
     expect(await screen.findByRole("heading", { name: "Camila Benítez" })).toBeInTheDocument();
     expect(screen.getByText("+54 9 11 5555-1234")).toBeInTheDocument();
     expect(screen.getByText(/camila\.benitez/)).toBeInTheDocument();
-    expect(screen.getByText("Pareja")).toBeInTheDocument();
+    const encabezado = screen.getByRole("heading", { name: "Camila Benítez" }).parentElement;
+    expect(within(encabezado as HTMLElement).getByText("Pareja")).toBeInTheDocument();
     expect(screen.getByText("Caribe")).toBeInTheDocument();
     expect(screen.getByText("luna de miel")).toBeInTheDocument();
     expect(screen.getByText("Hoteles todo incluido, vuelos directos.")).toBeInTheDocument();
@@ -656,8 +657,8 @@ describe("RF-031 etiquetas en el formulario de edición", () => {
     expect(registro.cuerpo).toBeNull();
   });
 
-  it(`RF-031 no deja agregar más de ${MAX_ETIQUETAS} etiquetas ni las manda`, async () => {
-    const llenas = Array.from({ length: MAX_ETIQUETAS }, (_, i) => `etiqueta ${i + 1}`);
+  it(`RF-031 no deja agregar más de ${String(MAX_ETIQUETAS)} etiquetas ni las manda`, async () => {
+    const llenas = Array.from({ length: MAX_ETIQUETAS }, (_, i) => `etiqueta ${String(i + 1)}`);
     fichaConAsesor(null, { etiquetas: llenas });
     const registro = capturarPatch();
     const usuario = await abrirEdicion();
@@ -674,7 +675,7 @@ describe("RF-031 etiquetas en el formulario de edición", () => {
     expect(registro.cuerpo).toBeNull();
   });
 
-  it(`RF-031 no deja agregar una etiqueta de más de ${MAX_LARGO_ETIQUETA} caracteres`, async () => {
+  it(`RF-031 no deja agregar una etiqueta de más de ${String(MAX_LARGO_ETIQUETA)} caracteres`, async () => {
     const registro = capturarPatch();
     const usuario = await abrirEdicion();
 
@@ -688,7 +689,7 @@ describe("RF-031 etiquetas en el formulario de edición", () => {
     expect(registro.cuerpo).toBeNull();
   });
 
-  it(`RF-031 acepta una etiqueta de exactamente ${MAX_LARGO_ETIQUETA} caracteres`, async () => {
+  it(`RF-031 acepta una etiqueta de exactamente ${String(MAX_LARGO_ETIQUETA)} caracteres`, async () => {
     const registro = capturarPatch();
     const usuario = await abrirEdicion();
     const justa = "y".repeat(MAX_LARGO_ETIQUETA);

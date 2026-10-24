@@ -2,13 +2,13 @@ import { ErrorApi, type UsuarioActual } from "@rumbo/shared";
 import { useCliente } from "@rumbo/shared/hooks";
 import type { AxiosInstance } from "axios";
 import { Pencil } from "lucide-react";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Link, useParams } from "react-router";
 import { Button } from "@/components/ui/button";
+import { iniciales } from "@/lib/iniciales";
 import { FormularioCliente } from "./FormularioCliente";
 import { HistorialCliente } from "./HistorialCliente";
 import { ETIQUETA_SEGMENTO } from "./segmentos";
-import { iniciales } from "./TablaClientes";
 
 const TITULO_TARJETA = "mb-3 text-xs font-medium tracking-wide text-muted-foreground uppercase";
 
@@ -30,6 +30,8 @@ export function FichaCliente({
   const { id = "" } = useParams();
   const { data: ficha, isPending, error } = useCliente(cliente, id);
   const [editando, setEditando] = useState(false);
+  const [actualizada, setActualizada] = useState(false);
+  const volverFoco = useRef(false);
 
   if (isPending) return <p role="status">Cargando la ficha…</p>;
   if (error) {
@@ -79,7 +81,14 @@ export function FichaCliente({
         </div>
         {!editando && (
           <Button
+            ref={(boton) => {
+              if (boton && volverFoco.current) {
+                boton.focus();
+                volverFoco.current = false;
+              }
+            }}
             onClick={() => {
+              setActualizada(false);
               setEditando(true);
             }}
           >
@@ -89,13 +98,21 @@ export function FichaCliente({
         )}
       </header>
 
+      {actualizada && (
+        <p role="status" className="text-sm font-medium text-muted-foreground">
+          Ficha actualizada
+        </p>
+      )}
+
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-[22rem_1fr]">
         {editando ? (
           <FormularioCliente
             cliente={cliente}
             ficha={ficha}
-            conAsesor={usuario.rol === "admin" || usuario.rol === "dueno"}
-            alTerminar={() => {
+            conAsesor={usuario.rol !== "freelance"}
+            alTerminar={(guardo) => {
+              volverFoco.current = true;
+              setActualizada(guardo);
               setEditando(false);
             }}
           />
@@ -106,6 +123,13 @@ export function FichaCliente({
               <dl className="flex flex-col gap-3">
                 <Dato titulo="Teléfono o email">{ficha.contacto}</Dato>
                 {ficha.instagram && <Dato titulo="Instagram">{`@${ficha.instagram}`}</Dato>}
+              </dl>
+            </section>
+            <section className="rounded-2xl border bg-card p-5">
+              <h2 className={TITULO_TARJETA}>Perfil</h2>
+              <dl className="flex flex-col gap-3">
+                <Dato titulo="Segmento">{ETIQUETA_SEGMENTO[ficha.segmento]}</Dato>
+                <Dato titulo="Asesor asignado">{ficha.asesor?.nombre ?? "Sin asesor"}</Dato>
               </dl>
             </section>
             {ficha.preferencias && (

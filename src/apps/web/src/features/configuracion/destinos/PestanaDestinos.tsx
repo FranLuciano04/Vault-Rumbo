@@ -3,7 +3,7 @@ import { useDarDeBajaDestino, useDestinos, useReactivarDestino } from "@rumbo/sh
 import type { AxiosInstance } from "axios";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { mensajeDeError } from "../errores";
+import { mensajeDeError } from "@/lib/errores";
 import { FormularioDestino } from "./FormularioDestino";
 import { RequisitosDestino } from "./RequisitosDestino";
 

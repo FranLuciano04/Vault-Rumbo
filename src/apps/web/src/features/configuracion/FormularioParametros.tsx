@@ -5,8 +5,8 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { CampoFormulario } from "./CampoFormulario";
-import { aplicarErroresDelServidor } from "./errores";
+import { CampoFormulario } from "@/components/CampoFormulario";
+import { aplicarErroresDelServidor } from "@/lib/errores";
 import { type DatosParametros, esquemaParametros } from "./esquemas";
 
 const CAMPOS: { id: string; nombre: keyof DatosParametros; etiqueta: string }[] = [

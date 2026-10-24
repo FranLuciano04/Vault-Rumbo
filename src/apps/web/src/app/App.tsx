@@ -21,7 +21,7 @@ export function App({ cliente }: { cliente: AxiosInstance }) {
             <Route path="configuracion" element={<SeccionConfiguracion cliente={cliente} />} />
             <Route path="clientes" element={<SeccionClientes cliente={cliente} />} />
             <Route path="clientes/:id" element={<SeccionFichaCliente cliente={cliente} />} />
-            <Route path=":seccion" element={<SeccionPendiente />} />
+            <Route path=":seccion/*" element={<SeccionPendiente />} />
           </Route>
         </Routes>
       </BrowserRouter>
