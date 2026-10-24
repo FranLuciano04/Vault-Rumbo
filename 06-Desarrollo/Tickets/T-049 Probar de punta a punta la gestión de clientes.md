@@ -3,7 +3,7 @@ id: T-049
 titulo: Probar de punta a punta la gestión de clientes
 modulo: M2 — Clientes
 capa: e2e
-estado: libre
+estado: tomado
 depende_de: [T-040, T-041, T-042, T-043, T-045, T-046, T-025]
 tamaño: S
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [CU-02, CU-03, RF-003, RF-151]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: FranLucianoo
+tomado_el: 24/10/26 15:42
+rama: feature/T-049-probar-de-punta-a-punta-la-gestion-de-cl
 pr:
 ---
 # T-049 Probar de punta a punta la gestión de clientes
