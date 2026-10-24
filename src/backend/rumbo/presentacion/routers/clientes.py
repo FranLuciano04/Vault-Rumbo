@@ -11,7 +11,6 @@ from rumbo.datos.modelos import SegmentoCliente
 from rumbo.negocio.errores import PosibleDuplicado
 from rumbo.negocio.servicios import clientes
 from rumbo.presentacion.dependencias import usuario_actual
-from rumbo.presentacion.errores import no_implementado
 from rumbo.presentacion.esquemas.clientes import (
     MAX_ETIQUETAS,
     Cliente,
@@ -178,5 +177,12 @@ async def editar_cliente(
     description=f"{_ROLES}\n\n**Casos de uso:** CU-03.",
     responses=_NO_ENCONTRADO,
 )
-async def obtener_historial_cliente(cliente_id: uuid.UUID) -> HistorialCliente:
-    raise no_implementado()
+async def obtener_historial_cliente(
+    cliente_id: uuid.UUID,
+    actor: Annotated[modelos.Usuario, Depends(usuario_actual)],
+    sesion: SesionDep,
+) -> HistorialCliente:
+    """Lo más reciente primero: oportunidades por alta, viajes por salida y reseñas por fecha."""
+    return HistorialCliente.model_validate(
+        await clientes.obtener_historial(sesion, actor, cliente_id), from_attributes=True
+    )
