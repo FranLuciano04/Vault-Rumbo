@@ -4,7 +4,7 @@ import { esquemaAltaCliente } from "@rumbo/shared/esquemas";
 import { useAsesores, useEditarCliente } from "@rumbo/shared/hooks";
 import type { AxiosInstance } from "axios";
 import { useEffect, useState } from "react";
-import { Controller, type Control, type FieldError, useForm } from "react-hook-form";
+import { Controller, type Control, type FieldError, useForm, useFormState } from "react-hook-form";
 import { z } from "zod";
 import { CampoFormulario, CLASE_SELECT } from "@/components/CampoFormulario";
 import { Button } from "@/components/ui/button";
@@ -68,10 +68,11 @@ export function SelectorAsesor({
   control: Control<EntradaFicha, unknown, DatosFicha>;
 }) {
   const { data: asesores, isError } = useAsesores(cliente);
+  const { errors } = useFormState({ control, name: "asesor_asignado_id" });
   if (isError) return null;
   const deBaja = asesores && actual && !asesores.some(({ id }) => id === actual.id);
   return (
-    <CampoFormulario id="asesor" etiqueta="Asesor asignado">
+    <CampoFormulario id="asesor" etiqueta="Asesor asignado" error={errors.asesor_asignado_id}>
       {(props) => (
         <Controller
           control={control}

@@ -46,7 +46,10 @@ function AvisoDuplicado({
         <p>{AVISO_CLIENTE_AJENO}</p>
       ) : (
         <>
-          <p>Ya existe un cliente con este contacto. Si es la misma persona, abrí su ficha.</p>
+          <p>
+            Ya hay clientes parecidos (mismo contacto o nombre). Si es la misma persona, abrí su
+            ficha.
+          </p>
           <ul className="flex flex-col gap-2">
             {candidatos.map(({ id, nombre, contacto }) => (
               <li key={id} className="flex items-center justify-between gap-3">
@@ -87,7 +90,6 @@ export function NuevoCliente({
   const conAsesor = usuario.rol !== "freelance";
   const [error, setError] = useState<string | null>(null);
   const [duplicados, setDuplicados] = useState<Cliente[] | null>(null);
-  const [enviado, setEnviado] = useState<DatosFicha | null>(null);
   const formulario = useForm<EntradaFicha, unknown, DatosFicha>({
     resolver: zodResolver(esquemaFicha),
     defaultValues: {
@@ -109,7 +111,6 @@ export function NuevoCliente({
   async function enviar(datos: DatosFicha, confirmarDuplicado: boolean) {
     setError(null);
     setDuplicados(null);
-    setEnviado(datos);
     try {
       const nuevo = await crear.mutateAsync({
         ...datosParaLaApi(datos, conAsesor),
@@ -184,11 +185,11 @@ export function NuevoCliente({
             {error}
           </p>
         )}
-        {duplicados && enviado && (
+        {duplicados && (
           <AvisoDuplicado
             candidatos={duplicados}
             enviando={crear.isPending}
-            alConfirmar={() => void enviar(enviado, true)}
+            alConfirmar={() => void formulario.handleSubmit((datos) => enviar(datos, true))()}
           />
         )}
         <div className="flex gap-2">

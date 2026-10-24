@@ -245,6 +245,28 @@ describe("RF-002 datos mínimos", () => {
     expect(screen.queryByText(/^Ficha del cliente/)).not.toBeInTheDocument();
   });
 
+  it("RF-002 muestra el 422 del asesor asignado en su campo", async () => {
+    servidor.use(
+      http.post("*/api/clientes", () =>
+        HttpResponse.json(
+          {
+            title: "Error de validación",
+            status: 422,
+            errores: [{ campo: "asesor_asignado_id", mensaje: "El asesor está dado de baja." }],
+          },
+          { status: 422, headers: { "content-type": "application/problem+json" } },
+        ),
+      ),
+    );
+    const usuario = userEvent.setup();
+    renderAlta();
+    await completar(usuario, "Ana Gómez", "ana@mail.test");
+
+    await usuario.click(registrar());
+
+    expect(await screen.findByText("El asesor está dado de baja.")).toBeInTheDocument();
+  });
+
   it.each(["admin", "dueno", "empleado"] as RolMock[])(
     "RF-002 %s ve el selector de asesor y manda el elegido",
     async (rol) => {
@@ -361,5 +383,21 @@ describe("RF-003 posible duplicado", () => {
 
     await screen.findByText("Familia Sosa");
     expect(screen.queryByText(/consultalo con un admin/i)).not.toBeInTheDocument();
+  });
+
+  it("RF-003 «Confirmar alta» manda lo que hay ahora en el formulario, no lo del primer envío", async () => {
+    const cuerpos: Record<string, unknown>[] = [];
+    servidor.use(altaConAviso(cuerpos, [sosa], "Ya existe un cliente con ese contacto."));
+    const usuario = await altaDuplicada();
+    await screen.findByRole("button", { name: /confirmar alta/i });
+
+    const contacto = await campo(/^contacto/i);
+    await usuario.clear(contacto);
+    await usuario.type(contacto, "otro@mail.test");
+    await usuario.click(screen.getByRole("button", { name: /confirmar alta/i }));
+
+    expect(await screen.findByText(`Ficha del cliente ${NUEVO_ID}`)).toBeInTheDocument();
+    expect(cuerpos).toHaveLength(2);
+    expect(cuerpos[1]).toMatchObject({ contacto: "otro@mail.test", confirmar_duplicado: true });
   });
 });
