@@ -6,7 +6,7 @@ import { ETIQUETA_SEGMENTO } from "./segmentos";
 
 const ENCABEZADOS = ["Cliente", "Segmento", "Etiquetas", "Asesor", "Último viaje", "Oportunidades"];
 
-const iniciales = (nombre: string) =>
+export const iniciales = (nombre: string) =>
   nombre
     .split(/\s+/)
     .slice(0, 2)

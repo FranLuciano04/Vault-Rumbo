@@ -31,6 +31,7 @@ const cliente = crearCliente({ baseURL: "http://localhost", obtenerToken: () => 
 const [camila, sosa] = clientesMock;
 if (!camila || !sosa) throw new Error("faltan clientes mock");
 
+const CAMILA_ID = camila.id;
 const TOMAS_ID = "e7b20d94-6a3f-4c15-9d8e-0b5a3f7c2e04";
 
 function renderFicha(id: string, rol: RolMock = "empleado") {
@@ -56,7 +57,7 @@ const problema = (status: number, title: string, extra: object = {}) =>
     { status, headers: { "content-type": "application/problem+json" } },
   );
 
-async function abrirEdicion(id = camila.id, rol: RolMock = "empleado") {
+async function abrirEdicion(id = CAMILA_ID, rol: RolMock = "empleado") {
   const usuario = userEvent.setup();
   renderFicha(id, rol);
   await usuario.click(await screen.findByRole("button", { name: /editar/i }));
@@ -134,7 +135,8 @@ describe("RF-006 historial", () => {
     renderFicha(sosa.id);
 
     await screen.findByRole("heading", { name: "Familia Sosa" });
-    expect(screen.queryByText(/@/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/^@/)).not.toBeInTheDocument();
+    expect(screen.queryByText("Instagram")).not.toBeInTheDocument();
   });
 
   it("RF-006 muestra un estado de carga mientras llega la ficha", async () => {
