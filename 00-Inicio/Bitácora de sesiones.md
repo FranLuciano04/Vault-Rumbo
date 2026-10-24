@@ -55,8 +55,12 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
   - **Review Opus:** dos rondas. 1 bloqueante, 5 importantes y 5 menores, todos arreglados. El chip «Mis clientes / Toda la agencia» quedó fuera de alcance.
 - **Checks:** shared, web (304 tests, 94,2 %) y mobile (65 tests, 97,2 %), con lint y typecheck en verde. CI del PR en verde.
 - **Commits:** d476ebc, c21fc59, 9cad9bb, 59e6404, 2dbb2dd, 49e00dd, 2ea4856 (merge de main), b20818b (merge del PR), b84c8f4 (grafo) y el de esta entrada.
+- **Arreglo posterior (DEC-0019):** el PR [#74](https://github.com/FranLuciano04/Vault-Rumbo/pull/74), de la rama `fix/mobile-reintento-4xx`, ya está mergeado con el CI en verde.
+  - Mobile dejó de reintentar los 4xx, así que una ficha 404 ahora se muestra enseguida.
+  - `crearQueryClient()` pasó de la web a `@rumbo/shared/query`, un subpath propio para no chocar con el mock de `./hooks`. Lo usan las dos apps.
+  - La review de Opus encontró 2 hallazgos menores y se arreglaron. `consultaYo` conserva su propio `retry` porque cambiarlo toca auth y lo volvería de riesgo alto.
+  - Commits: 77bcfa8, 9cc5210, 83da2b8 y 3b2b43f (el merge).
 - **Pendiente:**
-  - Mobile sigue reintentando los 4xx con `new QueryClient()`, así que una ficha 404 tarda unos 7 s; lo anotó Francisco desde T-049. Arreglarlo en una rama `fix/…` llevando `crearQueryClient()` a `@rumbo/shared` (DEC-0019).
   - Contrastar los textos con las pantallas 57 y 36 del prototipo.
   - Para cerrar M2 falta T-048.
 
