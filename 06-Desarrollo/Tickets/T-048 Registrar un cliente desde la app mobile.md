@@ -27,9 +27,9 @@ tags:: #tipo/ticket
 Se registra un cliente desde el teléfono, con el mismo aviso de posible duplicado que en la web.
 
 ## Criterios de aceptación
-- [ ] Formulario con validación de datos mínimos.
-- [ ] Aviso de posible duplicado con confirmación.
-- [ ] Tras el alta se abre la ficha.
+- [x] Formulario con validación de datos mínimos.
+- [x] Aviso de posible duplicado con confirmación.
+- [x] Tras el alta se abre la ficha.
 
 ## Tests esperados
 `describe('RF-002 datos mínimos mobile')`, `describe('RF-003 duplicado mobile')` con MSW.
