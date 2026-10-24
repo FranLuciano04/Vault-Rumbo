@@ -27,9 +27,9 @@ tags:: #tipo/ticket
 Los flujos de clientes funcionan contra el sistema real y la semilla de demo suma clientes ficticios.
 
 ## Criterios de aceptación
-- [ ] Alta con aviso de duplicado y confirmación.
-- [ ] Un `freelance` no ve el cliente de otro (404) y sí los suyos.
-- [ ] Edición inválida rechazada; semilla de demo de clientes registrada.
+- [x] Alta con aviso de duplicado y confirmación.
+- [x] Un `freelance` no ve el cliente de otro (404) y sí los suyos.
+- [x] Edición inválida rechazada; semilla de demo de clientes registrada.
 
 ## Tests esperados
 `e2e/clientes.spec.ts`: `RF-003 posible duplicado`, `RF-151 visibilidad del freelance`, `RF-007 edición`.
