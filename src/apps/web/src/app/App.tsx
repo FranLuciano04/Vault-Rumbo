@@ -7,6 +7,7 @@ import { RutaProtegida } from "./RutaProtegida";
 import { SeccionClientes } from "./SeccionClientes";
 import { SeccionConfiguracion } from "./SeccionConfiguracion";
 import { SeccionFichaCliente } from "./SeccionFichaCliente";
+import { SeccionNuevoCliente } from "./SeccionNuevoCliente";
 import { SeccionPendiente } from "./SeccionPendiente";
 
 export function App({ cliente }: { cliente: AxiosInstance }) {
@@ -20,6 +21,7 @@ export function App({ cliente }: { cliente: AxiosInstance }) {
             <Route index element={<Navigate to="/agenda" replace />} />
             <Route path="configuracion" element={<SeccionConfiguracion cliente={cliente} />} />
             <Route path="clientes" element={<SeccionClientes cliente={cliente} />} />
+            <Route path="clientes/nuevo" element={<SeccionNuevoCliente cliente={cliente} />} />
             <Route path="clientes/:id" element={<SeccionFichaCliente cliente={cliente} />} />
             <Route path=":seccion/*" element={<SeccionPendiente />} />
           </Route>

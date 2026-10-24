@@ -4,7 +4,7 @@ import { esquemaAltaCliente } from "@rumbo/shared/esquemas";
 import { useAsesores, useEditarCliente } from "@rumbo/shared/hooks";
 import type { AxiosInstance } from "axios";
 import { useEffect, useState } from "react";
-import { Controller, type Control, type FieldError, useForm } from "react-hook-form";
+import { Controller, type Control, type FieldError, useForm, useFormState } from "react-hook-form";
 import { z } from "zod";
 import { CampoFormulario, CLASE_SELECT } from "@/components/CampoFormulario";
 import { Button } from "@/components/ui/button";
@@ -14,14 +14,14 @@ import { EditorEtiquetas } from "./EditorEtiquetas";
 import { ETIQUETA_SEGMENTO } from "./segmentos";
 
 // El formato lo fija el esquema del alta; el asesor viaja como texto ("" = sin asesor).
-const esquemaFicha = esquemaAltaCliente
+export const esquemaFicha = esquemaAltaCliente
   .pick({ nombre: true, contacto: true, instagram: true, segmento: true, preferencias: true })
   .extend({ asesor_asignado_id: z.string() });
 
-type EntradaFicha = z.input<typeof esquemaFicha>;
-type DatosFicha = z.output<typeof esquemaFicha>;
+export type EntradaFicha = z.input<typeof esquemaFicha>;
+export type DatosFicha = z.output<typeof esquemaFicha>;
 
-const CAMPOS = [
+export const CAMPOS = [
   "nombre",
   "contacto",
   "instagram",
@@ -30,14 +30,9 @@ const CAMPOS = [
   "asesor_asignado_id",
 ] as const;
 
-/** Solo los campos que cambiaron respecto de la ficha; es lo que viaja en el PATCH. */
-function cambiosDeLaFicha(
-  datos: DatosFicha,
-  etiquetas: string[],
-  ficha: Cliente,
-  conAsesor: boolean,
-): ClienteEditar {
-  const nuevo = {
+/** Los datos del formulario como los espera la API, en el alta y en la edición. */
+export function datosParaLaApi(datos: DatosFicha, conAsesor: boolean) {
+  return {
     nombre: datos.nombre,
     contacto: datos.contacto,
     instagram: datos.instagram ?? null,
@@ -45,6 +40,16 @@ function cambiosDeLaFicha(
     preferencias: datos.preferencias?.trim() || null,
     ...(conAsesor && { asesor_asignado_id: datos.asesor_asignado_id || null }),
   };
+}
+
+/** Solo los campos que cambiaron respecto de la ficha; es lo que viaja en el PATCH. */
+function cambiosDeLaFicha(
+  datos: DatosFicha,
+  etiquetas: string[],
+  ficha: Cliente,
+  conAsesor: boolean,
+): ClienteEditar {
+  const nuevo = datosParaLaApi(datos, conAsesor);
   const cambios: ClienteEditar = Object.fromEntries(
     Object.entries(nuevo).filter(([campo, valor]) => ficha[campo as keyof Cliente] !== valor),
   );
@@ -53,7 +58,7 @@ function cambiosDeLaFicha(
 }
 
 /** Asesor asignado (RF-150): lo ven admin, dueño y empleado; el de baja se conserva como opción. */
-function SelectorAsesor({
+export function SelectorAsesor({
   cliente,
   actual,
   control,
@@ -63,10 +68,11 @@ function SelectorAsesor({
   control: Control<EntradaFicha, unknown, DatosFicha>;
 }) {
   const { data: asesores, isError } = useAsesores(cliente);
+  const { errors } = useFormState({ control, name: "asesor_asignado_id" });
   if (isError) return null;
   const deBaja = asesores && actual && !asesores.some(({ id }) => id === actual.id);
   return (
-    <CampoFormulario id="asesor" etiqueta="Asesor asignado">
+    <CampoFormulario id="asesor" etiqueta="Asesor asignado" error={errors.asesor_asignado_id}>
       {(props) => (
         <Controller
           control={control}

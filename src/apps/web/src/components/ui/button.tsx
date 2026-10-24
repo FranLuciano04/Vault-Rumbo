@@ -2,8 +2,9 @@ import { cva, type VariantProps } from "class-variance-authority";
 import type { ComponentProps } from "react";
 import { cn } from "@/lib/utils";
 
-// Botón de shadcn/ui (estilo new-york) con los tokens del prototipo; sin `asChild` hasta que haga falta.
-const variantesBoton = cva(
+// Botón de shadcn/ui (estilo new-york) con los tokens del prototipo; sin `asChild`: un enlace con aspecto
+// de botón usa `variantesBoton` directo.
+export const variantesBoton = cva(
   "inline-flex items-center justify-center gap-2 rounded-md text-sm font-medium whitespace-nowrap transition-colors outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
   {
     variants: {
