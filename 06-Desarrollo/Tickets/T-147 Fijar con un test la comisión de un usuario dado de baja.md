@@ -3,7 +3,7 @@ id: T-147
 titulo: Fijar con un test la comisión de un usuario dado de baja
 modulo: M1 — Usuarios y configuración
 capa: backend
-estado: tomado
+estado: hecho
 depende_de: [T-030]
 tamaño: XS
 riesgo: normal
@@ -42,4 +42,7 @@ Queda fijado con tests lo decidido el 22/10/26 en [[CU-13 Configurar porcentaje 
 ## Fuera de alcance
 - Cambiar el servicio.
 
-## Notas de implementación
+## Notas de implementación- **Implementación (24/10/26, Nahuel):** tres tests de caracterización en `tests/api/test_comision.py`, que verifican lo guardado en la base y no solo el 200; el del usuario inactivo comprueba además que el PUT no lo reactiva. Sin cambios en el servicio.
+  - **Mutaciones** (temporales, en `configurar_comision_por_defecto`; cada una hizo fallar solo su test): `if not usuario.activo: raise NoEncontrado`, `if usuario.id == actor.id: raise Conflicto` y `if usuario.rol == dueno and actor.rol == admin: raise Conflicto`.
+  - Sin verde ni refactor (no hay código). Review Opus: sin hallazgos.
+  - Modelos: tests sonnet, review opus.
