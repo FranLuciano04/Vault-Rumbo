@@ -16,7 +16,7 @@ tags:: #tipo/referencia
 |---|---|---|---|---|---|---|---|
 | M0 — Fundaciones | 38 | 38 | 0 | 0 | 0 | 0 | ✅ cerrado |
 | M1 — Usuarios y configuración | 19 | 14 | 0 | 4 | 1 | 0 | 🛠️ en curso |
-| M2 — Clientes | 15 | 8 | 2 | 3 | 2 | 0 | 🛠️ en curso |
+| M2 — Clientes | 15 | 9 | 1 | 3 | 2 | 0 | 🛠️ en curso |
 | M3 — Alertas | 11 | 0 | 0 | 2 | 9 | 0 | 🛠️ en curso |
 | M4 — Oportunidades y cotizaciones | 14 | 0 | 0 | 1 | 13 | 0 | 🛠️ en curso |
 | M5 — Hoteles y reseñas | 11 | 0 | 0 | 1 | 10 | 0 | 🛠️ en curso |
@@ -97,7 +97,7 @@ flowchart LR
     T039["T-039 · Publicar el contrato de clientes<br/><small>contrato</small>"]:::hecho
     T040["T-040 · Registrar clientes detectando duplicados<br/><small>backend</small>"]:::hecho
     T041["T-041 · Buscar clientes según la visibilidad del rol<br/><small>backend · ⚠️ riesgo alto</small>"]:::hecho
-    T042["T-042 · Editar la ficha del cliente<br/><small>backend</small><br/>👤 FranLucianoo"]:::tomado
+    T042["T-042 · Editar la ficha del cliente<br/><small>backend</small>"]:::hecho
     T043["T-043 · Mostrar el historial del cliente<br/><small>backend</small><br/>👤 palomap2003"]:::tomado
     T044["T-044 · Listar clientes en la web<br/><small>web</small>"]:::hecho
     T045["T-045 · Registrar un cliente en la web<br/><small>web</small>"]:::disponible
