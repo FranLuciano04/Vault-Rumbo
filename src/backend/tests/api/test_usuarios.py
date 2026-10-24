@@ -9,7 +9,7 @@ from collections.abc import Awaitable, Callable
 import pytest
 from fastapi import FastAPI
 from httpx import AsyncClient
-from sqlalchemy import func, select
+from sqlalchemy import func, select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from rumbo.core.errores import ServicioExterno
@@ -37,8 +37,16 @@ class GestorDeCuentasFalso:
         self.falla_al_crear = False
         self.falla_al_enviar_mail = False
         self.uid_forzado: str | None = None
+        # T-153: toda llamada al gestor, para probar "sin tocar Firebase".
+        self.llamadas: list[str] = []
+
+    async def buscar_uid_por_email(self, email: str) -> str | None:
+        """T-153 (supuesto de nombre): uid de la cuenta existente con ese email, o None."""
+        self.llamadas.append("buscar_uid_por_email")
+        return self.cuentas.get(email)
 
     async def crear_cuenta(self, email: str, nombre: str) -> str:
+        self.llamadas.append("crear_cuenta")
         if self.falla_al_crear:
             raise ServicioExterno("Firebase no responde")
         if email in self.cuentas:
@@ -169,22 +177,6 @@ async def test_rf146_email_duplicado_en_rumbo_409(
     assert firebase.cuentas == {}
     assert firebase.mails == []
     assert await _usuarios_con_email(sesion, "lucia@agencia.test") == 1
-
-
-async def test_rf146_email_duplicado_en_firebase_409(
-    cliente_como: ClienteComo, firebase: GestorDeCuentasFalso, sesion: AsyncSession
-) -> None:
-    c = await cliente_como("admin")
-    firebase.cuentas["lucia@agencia.test"] = "uid-preexistente"
-
-    r = await c.post(RUTA, json=_alta())
-
-    assert r.status_code == 409
-    assert r.headers["content-type"].startswith(PROBLEM_JSON)
-    assert firebase.cuentas == {"lucia@agencia.test": "uid-preexistente"}
-    assert firebase.borradas == []
-    assert firebase.mails == []
-    assert await _usuarios_con_email(sesion, "lucia@agencia.test") == 0
 
 
 async def test_rf144_falla_firebase_502_sin_usuario(
@@ -343,6 +335,226 @@ async def test_rf146_email_duplicado_en_rumbo_con_mayusculas_409_sin_tocar_fireb
     assert r.headers["content-type"].startswith(PROBLEM_JSON)
     assert firebase.cuentas == {}
     assert firebase.mails == []
+
+
+# ---------------------------------------------------------------- T-153: cuentas sin Usuario
+
+
+async def test_rf146_cuenta_huerfana_se_borra_y_se_crea_una_nueva(
+    cliente_como: ClienteComo, firebase: GestorDeCuentasFalso, sesion: AsyncSession
+) -> None:
+    """Pre-account hijacking: las credenciales de la cuenta huérfana podrían ser de otra
+    persona, así que no se reutiliza: se borra y se crea una nueva con uid nuevo."""
+    c = await cliente_como("admin")
+    firebase.cuentas["lucia@agencia.test"] = "uid-huerfano"
+
+    r = await c.post(RUTA, json=_alta())
+
+    assert r.status_code == 201, r.text
+    assert firebase.borradas == ["uid-huerfano"]
+    uid_nuevo = firebase.cuentas.get("lucia@agencia.test")
+    assert uid_nuevo is not None
+    assert uid_nuevo != "uid-huerfano"
+    guardado = await sesion.scalar(select(Usuario).where(Usuario.email == "lucia@agencia.test"))
+    assert guardado is not None
+    assert guardado.firebase_uid == uid_nuevo
+    assert firebase.mails == ["lucia@agencia.test"]
+
+
+async def test_rf146_cuenta_huerfana_se_borra_y_se_crea_una_nueva_sin_distinguir_mayusculas(
+    cliente_como: ClienteComo, firebase: GestorDeCuentasFalso, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("admin")
+    firebase.cuentas["lucia@agencia.test"] = "uid-huerfano"
+
+    r = await c.post(RUTA, json=_alta(email="Lucia@AGENCIA.test"))
+
+    assert r.status_code == 201, r.text
+    assert firebase.borradas == ["uid-huerfano"]
+    uid_nuevo = firebase.cuentas.get("lucia@agencia.test")
+    assert uid_nuevo is not None
+    assert uid_nuevo != "uid-huerfano"
+    guardado = await sesion.scalar(select(Usuario).where(Usuario.email == "lucia@agencia.test"))
+    assert guardado is not None
+    assert guardado.firebase_uid == uid_nuevo
+    assert firebase.mails == ["lucia@agencia.test"]
+
+
+async def test_rf146_email_con_usuario_sigue_409(
+    cliente_como: ClienteComo, firebase: GestorDeCuentasFalso, sesion: AsyncSession
+) -> None:
+    """Hay cuenta en Firebase y también `Usuario`: no es huérfana, no se reutiliza."""
+    c = await cliente_como("admin")
+    existente = await crear(
+        sesion, UsuarioFactory, email="lucia@agencia.test", firebase_uid="uid-de-lucia"
+    )
+    firebase.cuentas["lucia@agencia.test"] = "uid-de-lucia"
+
+    r = await c.post(RUTA, json=_alta())
+
+    assert r.status_code == 409
+    assert r.headers["content-type"].startswith(PROBLEM_JSON)
+    assert firebase.cuentas == {"lucia@agencia.test": "uid-de-lucia"}
+    assert firebase.borradas == []
+    assert firebase.mails == []
+    assert await _usuarios_con_email(sesion, "lucia@agencia.test") == 1
+    await sesion.refresh(existente)
+    assert existente.firebase_uid == "uid-de-lucia"
+
+
+@pytest.mark.parametrize("email", ["lucia@agencia.test", "Lucia@AGENCIA.test"])
+async def test_rf146_email_con_usuario_409_sin_llamar_a_firebase(
+    email: str, cliente_como: ClienteComo, firebase: GestorDeCuentasFalso, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("admin")
+    await crear(sesion, UsuarioFactory, email="lucia@agencia.test")
+
+    r = await c.post(RUTA, json=_alta(email=email))
+
+    assert r.status_code == 409
+    assert firebase.llamadas == []
+
+
+async def test_rf144_falla_la_base_al_recrear_borra_la_cuenta_nueva(
+    cliente_como: ClienteComo, firebase: GestorDeCuentasFalso, sesion: AsyncSession
+) -> None:
+    """La base falla de verdad: el uid de la cuenta nueva ya lo tiene otro `Usuario`. La
+    cuenta nueva la creó este pedido, así que se borra; la huérfana ya se había borrado."""
+    c = await cliente_como("admin")
+    await crear(sesion, UsuarioFactory, firebase_uid="uid-ocupado")
+    firebase.cuentas["lucia@agencia.test"] = "uid-huerfano"
+    firebase.uid_forzado = "uid-ocupado"
+
+    r = await c.post(RUTA, json=_alta())
+
+    assert r.status_code >= 400
+    assert firebase.borradas == ["uid-huerfano", "uid-ocupado"]
+    assert firebase.cuentas == {}
+    assert firebase.mails == []
+    assert await _usuarios_con_email(sesion, "lucia@agencia.test") == 0
+
+
+async def test_rf144_falla_el_mail_al_recrear_borra_la_cuenta_nueva(
+    cliente_como: ClienteComo, firebase: GestorDeCuentasFalso, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("admin")
+    firebase.cuentas["lucia@agencia.test"] = "uid-huerfano"
+    firebase.falla_al_enviar_mail = True
+
+    r = await c.post(RUTA, json=_alta())
+
+    assert r.status_code == 502
+    assert len(firebase.borradas) == 2
+    assert firebase.borradas[0] == "uid-huerfano"
+    assert firebase.borradas[1] != "uid-huerfano"
+    assert firebase.cuentas == {}
+    assert await _usuarios_con_email(sesion, "lucia@agencia.test") == 0
+
+
+class _GestorDondeLaCuentaDesapareceAntesDeBuscarla(GestorDeCuentasFalso):
+    async def buscar_uid_por_email(self, email: str) -> str | None:
+        await super().buscar_uid_por_email(email)
+        self.cuentas.pop(email, None)  # otro pedido (o el admin de Firebase) la borró
+        return None
+
+
+async def test_rf146_cuenta_que_desaparece_entre_crear_y_buscar_reintenta_crear_una_vez(
+    app_de_tests: FastAPI,
+    cliente_como: ClienteComo,
+    sesion: AsyncSession,
+) -> None:
+    gestor = _GestorDondeLaCuentaDesapareceAntesDeBuscarla()
+    app_de_tests.dependency_overrides[obtener_gestor_de_cuentas] = lambda: gestor
+    c = await cliente_como("admin")
+    gestor.cuentas["lucia@agencia.test"] = "uid-huerfano"
+
+    r = await c.post(RUTA, json=_alta())
+
+    assert r.status_code == 201, r.text
+    assert gestor.llamadas.count("crear_cuenta") == 2
+    assert gestor.borradas == []
+    uid_nuevo = gestor.cuentas.get("lucia@agencia.test")
+    assert uid_nuevo is not None
+    guardado = await sesion.scalar(select(Usuario).where(Usuario.email == "lucia@agencia.test"))
+    assert guardado is not None
+    assert guardado.firebase_uid == uid_nuevo
+    assert gestor.mails == ["lucia@agencia.test"]
+
+
+class _GestorQueMiraLosBloqueos(GestorDeCuentasFalso):
+    """En cada llamada que toca Firebase anota si la transacción del alta tiene tomado el
+    advisory lock del email (misma conexión que la sesión de test)."""
+
+    def __init__(self, sesion: AsyncSession) -> None:
+        super().__init__()
+        self.sesion = sesion
+        self.email_bloqueado: list[tuple[str, bool]] = []
+
+    async def _anotar_bloqueo(self, llamada: str, email: str) -> None:
+        bloqueado = await self.sesion.scalar(
+            text(
+                "SELECT EXISTS (SELECT 1 FROM pg_locks WHERE locktype = 'advisory'"
+                " AND granted AND pid = pg_backend_pid() AND objsubid = 1"
+                " AND ((classid::bigint << 32) | objid::bigint)"
+                " = hashtextextended(lower(:email), 0))"
+            ),
+            {"email": email},
+        )
+        self.email_bloqueado.append((llamada, bool(bloqueado)))
+
+    async def crear_cuenta(self, email: str, nombre: str) -> str:
+        await self._anotar_bloqueo("crear_cuenta", email)
+        return await super().crear_cuenta(email, nombre)
+
+    async def buscar_uid_por_email(self, email: str) -> str | None:
+        await self._anotar_bloqueo("buscar_uid_por_email", email)
+        return await super().buscar_uid_por_email(email)
+
+    async def borrar_cuenta(self, firebase_uid: str) -> None:
+        email = next(e for e, u in self.cuentas.items() if u == firebase_uid)
+        await self._anotar_bloqueo("borrar_cuenta", email)
+        await super().borrar_cuenta(firebase_uid)
+
+
+async def test_rf146_alta_bloquea_el_email_antes_de_tocar_firebase(
+    app_de_tests: FastAPI, cliente_como: ClienteComo, sesion: AsyncSession
+) -> None:
+    """Dos altas simultáneas del mismo email van de a una: la segunda espera el commit de la
+    primera, ve su `Usuario` y da 409, sin borrar la cuenta recién creada (T-153). El lock se
+    mantiene en todo el recambio de una cuenta huérfana."""
+    gestor = _GestorQueMiraLosBloqueos(sesion)
+    app_de_tests.dependency_overrides[obtener_gestor_de_cuentas] = lambda: gestor
+    c = await cliente_como("admin")
+    gestor.cuentas["lucia@agencia.test"] = "uid-huerfano"
+
+    r = await c.post(RUTA, json=_alta(email="Lucia@AGENCIA.test"))
+
+    assert r.status_code == 201, r.text
+    assert gestor.email_bloqueado == [
+        ("crear_cuenta", True),
+        ("buscar_uid_por_email", True),
+        ("borrar_cuenta", True),
+        ("crear_cuenta", True),
+    ]
+
+
+async def test_rf146_cuenta_de_firebase_de_otro_usuario_409_sin_borrarla(
+    cliente_como: ClienteComo, firebase: GestorDeCuentasFalso, sesion: AsyncSession
+) -> None:
+    """La cuenta de Firebase con el email del alta es de un `Usuario` cuyo email cambió en
+    Firebase sin que Rumbo lo sepa: no es huérfana, no se borra."""
+    c = await cliente_como("admin")
+    await crear(sesion, UsuarioFactory, email="otra@agencia.test", firebase_uid="uid-de-otra")
+    firebase.cuentas["lucia@agencia.test"] = "uid-de-otra"
+
+    r = await c.post(RUTA, json=_alta())
+
+    assert r.status_code == 409
+    assert r.headers["content-type"].startswith(PROBLEM_JSON)
+    assert firebase.borradas == []
+    assert firebase.cuentas == {"lucia@agencia.test": "uid-de-otra"}
+    assert firebase.mails == []
+    assert await _usuarios_con_email(sesion, "lucia@agencia.test") == 0
 
 
 class _GestorQueSeCancelaAlEnviarElMail(GestorDeCuentasFalso):
