@@ -50,7 +50,10 @@ export function crearCliente({ baseURL, obtenerToken }: OpcionesCliente): AxiosI
       const esperaJson = [undefined, "json"].includes(respuesta.config.responseType);
       const tieneCuerpo =
         respuesta.status !== 204 && respuesta.data != null && respuesta.data !== "";
-      if (esperaJson && tieneCuerpo && !/\bjson\b/i.test(tipo)) {
+      // Un objeto ya parseado sin content-type pasa; un string es lo que axios no pudo parsear.
+      const noEsJson =
+        (tipo !== "" && !/\bjson\b/i.test(tipo)) || typeof respuesta.data === "string";
+      if (esperaJson && tieneCuerpo && noEsJson) {
         const errorApi = new ErrorApi("La API no respondió");
         errorApi.status = respuesta.status;
         errorApi.title = errorApi.message;

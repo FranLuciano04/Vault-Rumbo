@@ -3,12 +3,16 @@
 # Requiere en src/.env (fuera de Git): RUMBO_FIREBASE_CREDENCIALES (ruta en el host al JSON de la
 # cuenta de servicio, fuera del repo), FIREBASE_PROJECT_ID real y las VITE_FIREBASE_* reales.
 # El JSON se monta en solo lectura; nunca entra en una imagen ni en Git. Ver src/infra/firebase.md.
-# No combinar con docker-compose.e2e.yml (el emulador y la credencial real son excluyentes).
+# No combinar con docker-compose.e2e.yml (el emulador y la credencial real son excluyentes); si alguien
+# lo combina igual, este archivo debe ir último: vacía el emulador y fuerza ENTORNO=produccion.
 
 services:
   api:
     environment: &credencial-firebase
       GOOGLE_APPLICATION_CREDENTIALS: /run/secrets/firebase-cuenta-de-servicio.json
+      # Gana sobre docker-compose.e2e.yml si se combinan: vacío = sin emulador (seguridad.py).
+      FIREBASE_AUTH_EMULATOR_HOST: ""
+      ENTORNO: produccion
     volumes: &montaje-firebase
       - type: bind
         source: ${RUMBO_FIREBASE_CREDENCIALES:?Falta RUMBO_FIREBASE_CREDENCIALES en src/.env (ruta al JSON de la cuenta de servicio de Firebase, ver src/infra/firebase.md)}

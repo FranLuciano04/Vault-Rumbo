@@ -11,7 +11,11 @@ const servidor = crearServidor(
     `${BASE}/auth/yo`,
     () => new HttpResponse(HTML, { status: 200, headers: { "content-type": "text/html" } }),
   ),
-  http.get(`${BASE}/sin-tipo`, () => new HttpResponse(HTML, { status: 200 })),
+  http.get(`${BASE}/sin-tipo`, () => {
+    const respuesta = new HttpResponse(HTML, { status: 200 });
+    respuesta.headers.delete("content-type");
+    return respuesta;
+  }),
   http.get(`${BASE}/ok`, () => HttpResponse.json({ ok: true })),
   http.get(
     `${BASE}/problema-json`,
