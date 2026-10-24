@@ -311,3 +311,53 @@ def test_dec0016_crear_cuenta_la_crea_si_no_existe(monkeypatch: pytest.MonkeyPat
 
     assert seguridad.crear_cuenta("a@rumbo.test", "Ana") == "u-2"
     assert creadas == [{"email": "a@rumbo.test", "display_name": "Ana", "app": "app"}]
+
+
+@pytest.mark.usefixtures("sin_emulador_en_el_proceso", "sin_apps_de_firebase")
+def test_rf148_app_firebase_corta_las_llamadas_con_timeout() -> None:
+    """La baja llama a Firebase con filas bloqueadas: no puede esperar los 120 s del SDK."""
+    app = seguridad._app_firebase(_config(firebase_project_id="demo-rumbo"))
+
+    assert app.options.get("httpTimeout") == seguridad._TIMEOUT_SEGUNDOS
+
+
+async def test_rf148_deshabilitar_cuenta_pide_disabled_a_firebase(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    llamadas: list[tuple[object, ...]] = []
+
+    def _actualizar(uid: str, **datos: object) -> object:
+        llamadas.append((uid, datos))
+        return SimpleNamespace(uid=uid)
+
+    monkeypatch.setattr(seguridad, "_app_firebase", lambda _config: "app")
+    monkeypatch.setattr(auth, "update_user", _actualizar)
+
+    await seguridad.GestorFirebase(_config()).deshabilitar_cuenta("u-1")
+
+    assert llamadas == [("u-1", {"disabled": True, "app": "app"})]
+
+
+async def test_rf148_deshabilitar_cuenta_inexistente_cuenta_como_deshabilitada(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    def _no_existe(uid: str, **_: object) -> object:
+        raise auth.UserNotFoundError("no existe")
+
+    monkeypatch.setattr(seguridad, "_app_firebase", lambda _config: "app")
+    monkeypatch.setattr(auth, "update_user", _no_existe)
+
+    await seguridad.GestorFirebase(_config()).deshabilitar_cuenta("u-borrada")  # no lanza
+
+
+async def test_rf148_falla_de_firebase_al_deshabilitar_da_servicio_externo(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    def _falla(uid: str, **_: object) -> object:
+        raise ValueError("sin proyecto")
+
+    monkeypatch.setattr(seguridad, "_app_firebase", lambda _config: "app")
+    monkeypatch.setattr(auth, "update_user", _falla)
+
+    with pytest.raises(ServicioExterno):
+        await seguridad.GestorFirebase(_config()).deshabilitar_cuenta("u-1")

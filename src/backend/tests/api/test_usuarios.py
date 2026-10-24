@@ -717,3 +717,70 @@ async def test_rf147_admin_reenvia_rol_dueno_sin_cambio_no_da_403(
     duena = await _recargar(sesion, duena)
     assert duena.rol == RolUsuario.dueno
     assert duena.acceso_redes is True
+
+
+async def test_rf147_admin_no_puede_autoasignarse_dueno_403(
+    cliente_como: ClienteComo, firebase: GestorDeCuentasFalso, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("admin")
+    await crear(sesion, UsuarioFactory, rol=RolUsuario.admin, activo=True)
+
+    r = await c.patch(f"{RUTA}/{c.usuario.id}", json={"rol": "dueno"})  # type: ignore[attr-defined]
+
+    assert r.status_code == 403
+    assert r.headers["content-type"].startswith(PROBLEM_JSON)
+    assert (await _recargar(sesion, c.usuario)).rol == RolUsuario.admin  # type: ignore[attr-defined]
+
+
+async def test_rf147_patch_mixto_con_rol_dueno_de_un_admin_403_no_cambia_el_nombre(
+    cliente_como: ClienteComo, firebase: GestorDeCuentasFalso, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("admin")
+    otro = await crear(sesion, UsuarioFactory, rol=RolUsuario.empleado, nombre="Lucia Perez")
+
+    r = await c.patch(f"{RUTA}/{otro.id}", json={"nombre": "Lucía Pérez", "rol": "dueno"})
+
+    assert r.status_code == 403
+    otro = await _recargar(sesion, otro)
+    assert otro.nombre == "Lucia Perez"
+    assert otro.rol == RolUsuario.empleado
+
+
+async def test_rf149_autobaja_del_unico_admin_409(
+    cliente_como: ClienteComo, firebase: GestorDeCuentasFalso, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("admin")
+    await crear(sesion, UsuarioFactory, rol=RolUsuario.empleado, activo=True)
+
+    r = await c.post(f"{RUTA}/{c.usuario.id}/baja")  # type: ignore[attr-defined]
+
+    assert r.status_code == 409
+    assert r.headers["content-type"].startswith(PROBLEM_JSON)
+    assert (await _recargar(sesion, c.usuario)).activo is True  # type: ignore[attr-defined]
+    assert firebase.deshabilitadas == []
+
+
+async def test_rf149_admin_se_baja_de_rol_con_otro_admin_activo_200(
+    cliente_como: ClienteComo, firebase: GestorDeCuentasFalso, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("admin")
+    await crear(sesion, UsuarioFactory, rol=RolUsuario.admin, activo=True)
+
+    r = await c.patch(f"{RUTA}/{c.usuario.id}", json={"rol": "empleado"})  # type: ignore[attr-defined]
+
+    assert r.status_code == 200, r.text
+    assert r.json()["rol"] == "empleado"
+    assert (await _recargar(sesion, c.usuario)).rol == RolUsuario.empleado  # type: ignore[attr-defined]
+
+
+async def test_rf148_baja_de_un_usuario_ya_inactivo_es_idempotente(
+    cliente_como: ClienteComo, firebase: GestorDeCuentasFalso, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("admin")
+    otro = await crear(sesion, UsuarioFactory, rol=RolUsuario.empleado, activo=False)
+
+    r = await c.post(f"{RUTA}/{otro.id}/baja")
+
+    assert r.status_code == 200, r.text
+    assert r.json()["activo"] is False
+    assert (await _recargar(sesion, otro)).activo is False

@@ -81,7 +81,11 @@ def _app_firebase(config: Settings) -> firebase_admin.App:
     try:
         return firebase_admin.get_app()
     except ValueError:
-        opciones = {"projectId": config.firebase_project_id} if config.firebase_project_id else None
+        # Sin `httpTimeout` el Admin SDK espera hasta 120 s; la baja llama a Firebase con filas
+        # de `Usuario` bloqueadas, así que se corta antes.
+        opciones: dict[str, object] = {"httpTimeout": _TIMEOUT_SEGUNDOS}
+        if config.firebase_project_id:
+            opciones["projectId"] = config.firebase_project_id
         return firebase_admin.initialize_app(_credencial(config), opciones)
 
 
