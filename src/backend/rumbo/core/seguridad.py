@@ -81,7 +81,11 @@ def _app_firebase(config: Settings) -> firebase_admin.App:
     try:
         return firebase_admin.get_app()
     except ValueError:
-        opciones = {"projectId": config.firebase_project_id} if config.firebase_project_id else None
+        # Sin `httpTimeout` el Admin SDK espera hasta 120 s; la baja llama a Firebase con filas
+        # de `Usuario` bloqueadas, así que se corta antes.
+        opciones: dict[str, object] = {"httpTimeout": _TIMEOUT_SEGUNDOS}
+        if config.firebase_project_id:
+            opciones["projectId"] = config.firebase_project_id
         return firebase_admin.initialize_app(_credencial(config), opciones)
 
 
@@ -150,6 +154,11 @@ class GestorDeCuentas(Protocol):
         """Compensación: borra la cuenta creada."""
         ...
 
+    async def deshabilitar_cuenta(self, firebase_uid: str) -> None:
+        """Deshabilita la cuenta en la baja de un `Usuario` (CU-25 A3). Lanza `ServicioExterno`
+        si Firebase falla."""
+        ...
+
     async def enviar_mail_restablecimiento(self, email: str) -> None:
         """Pide a Firebase que mande el mail para elegir la contraseña (no hay mails propios)."""
         ...
@@ -190,6 +199,15 @@ class GestorFirebase:
             return
         except _ERRORES_FIREBASE as error:
             raise ServicioExterno("No se pudo borrar la cuenta en Firebase.") from error
+
+    async def deshabilitar_cuenta(self, firebase_uid: str) -> None:
+        try:
+            await asyncio.to_thread(auth.update_user, firebase_uid, disabled=True, app=self._app())
+        except auth.UserNotFoundError:  # sin cuenta tampoco hay acceso: la baja sigue
+            return
+        except _ERRORES_FIREBASE as error:
+            logger.error("Firebase no pudo deshabilitar la cuenta (%s)", type(error).__name__)
+            raise ServicioExterno("No se pudo deshabilitar la cuenta en Firebase.") from error
 
     async def enviar_mail_restablecimiento(self, email: str) -> None:
         try:

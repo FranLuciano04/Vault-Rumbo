@@ -4454,6 +4454,12 @@
       },
       "UsuarioEditar": {
         "properties": {
+          "nombre": {
+            "type": "string",
+            "maxLength": 120,
+            "minLength": 1,
+            "title": "Nombre"
+          },
           "rol": {
             "type": "string",
             "enum": [
@@ -4471,7 +4477,7 @@
         },
         "type": "object",
         "title": "UsuarioEditar",
-        "description": "Cambio de rol o de acceso a redes (CU-25 A2)."
+        "description": "Corrección del nombre y cambio de rol o de acceso a redes (CU-25 A2). Asignar o quitar\nel rol `dueno` es solo de la dueña."
       },
       "ViajeDelCliente": {
         "properties": {

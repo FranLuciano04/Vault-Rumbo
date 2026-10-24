@@ -1,9 +1,12 @@
 """Repositorio del módulo seguridad: `Usuario` (CU-24, CU-25)."""
 
+import uuid
+
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from rumbo.datos.modelos import Usuario
+from rumbo.core.errores import NoEncontrado
+from rumbo.datos.modelos import RolUsuario, Usuario
 from rumbo.datos.repositorios.base import RepositorioBase, Visibilidad
 
 
@@ -40,3 +43,29 @@ class RepositorioUsuarios(RepositorioBase[Usuario]):
         pagina = consulta.order_by(Usuario.nombre, Usuario.id)
         filas = await sesion.scalars(pagina.offset(desplazamiento).limit(limite))
         return list(filas), total or 0
+
+    async def contar_admins_activos(self, sesion: AsyncSession, *, visibilidad: Visibilidad) -> int:
+        """Cuántos `admin` activos hay, bloqueando sus filas (en orden de id) hasta el fin de la
+        transacción: dos pedidos simultáneos no pueden dejar cada uno al otro como último admin
+        (RF-149)."""
+        consulta = select(Usuario.id).where(
+            Usuario.rol == RolUsuario.admin, Usuario.activo.is_(True)
+        )
+        consulta = visibilidad.aplicar(consulta, Usuario).order_by(Usuario.id).with_for_update()
+        return len((await sesion.scalars(consulta)).all())
+
+    async def obtener_bloqueado(
+        self, sesion: AsyncSession, id: uuid.UUID, *, visibilidad: Visibilidad
+    ) -> Usuario:
+        """Como `obtener`, pero bloquea la fila hasta el fin de la transacción y la relee aunque
+        ya esté en la sesión: los chequeos sobre su rol no ven un valor viejo."""
+        consulta = (
+            select(Usuario)
+            .where(Usuario.id == id)
+            .with_for_update()
+            .execution_options(populate_existing=True)
+        )
+        usuario = await sesion.scalar(visibilidad.aplicar(consulta, Usuario))
+        if usuario is None:
+            raise NoEncontrado(f"Usuario {id} no encontrado")
+        return usuario

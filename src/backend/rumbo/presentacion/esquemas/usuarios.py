@@ -43,7 +43,9 @@ class UsuarioCrear(Entrada):
 
 
 class UsuarioEditar(Edicion):
-    """Cambio de rol o de acceso a redes (CU-25 A2)."""
+    """Corrección del nombre y cambio de rol o de acceso a redes (CU-25 A2). Asignar o quitar
+    el rol `dueno` es solo de la dueña."""
 
+    nombre: str = omitible(min_length=1, max_length=120)
     rol: Rol = omitible()
     acceso_redes: bool = omitible()

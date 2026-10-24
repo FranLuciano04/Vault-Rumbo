@@ -9,7 +9,7 @@ from rumbo.core.db import SesionDep
 from rumbo.core.seguridad import GestorDeCuentas, obtener_gestor_de_cuentas
 from rumbo.datos import modelos
 from rumbo.negocio.servicios import seguridad
-from rumbo.presentacion.contrato import GESTION, no_implementado, operacion
+from rumbo.presentacion.contrato import GESTION, operacion
 from rumbo.presentacion.dependencias import usuario_actual
 from rumbo.presentacion.esquemas.usuarios import Usuario, UsuarioCrear, UsuarioEditar
 from rumbo.presentacion.paginacion import Pagina, ParametrosPagina, parametros_pagina
@@ -17,6 +17,7 @@ from rumbo.presentacion.paginacion import Pagina, ParametrosPagina, parametros_p
 router = APIRouter(prefix="/usuarios", tags=["seguridad"])
 
 ActorDep = Annotated[modelos.Usuario, Depends(usuario_actual)]
+GestorDep = Annotated[GestorDeCuentas, Depends(obtener_gestor_de_cuentas)]
 
 
 @router.get(
@@ -58,7 +59,7 @@ async def crear_usuario(
     datos: UsuarioCrear,
     actor: ActorDep,
     sesion: SesionDep,
-    gestor: Annotated[GestorDeCuentas, Depends(obtener_gestor_de_cuentas)],
+    gestor: GestorDep,
 ) -> Usuario:
     """CU-25 pasos 3 a 5 (RF-144): crea el usuario y su cuenta de Firebase, y Firebase le manda
     el mail para elegir la contraseña (DEC-0016). Si Firebase falla responde 502."""
@@ -90,9 +91,14 @@ async def obtener_usuario(usuario_id: uuid.UUID, actor: ActorDep, sesion: Sesion
     summary="Editar rol o accesos de un usuario",
     **operacion(GESTION, "CU-25", 404, 409, 422),
 )
-async def editar_usuario(usuario_id: uuid.UUID, datos: UsuarioEditar) -> Usuario:
-    """CU-25 A2 y A4 (RF-147): no se puede quitar el rol `admin` al último admin."""
-    raise no_implementado()
+async def editar_usuario(
+    usuario_id: uuid.UUID, datos: UsuarioEditar, actor: ActorDep, sesion: SesionDep
+) -> Usuario:
+    """CU-25 A2 y A4 (RF-147, RF-149): corrige nombre, rol o acceso a redes. No se le quita el
+    rol `admin` al último admin activo (409); asignar o quitar `dueno` es solo de la dueña."""
+    cambios = datos.model_dump(exclude_unset=True)
+    usuario = await seguridad.editar_usuario(sesion, actor, usuario_id, cambios)
+    return Usuario.model_validate(usuario)
 
 
 @router.post(
@@ -101,6 +107,13 @@ async def editar_usuario(usuario_id: uuid.UUID, datos: UsuarioEditar) -> Usuario
     summary="Dar de baja un usuario (baja lógica)",
     **operacion(GESTION, "CU-25", 404, 409),
 )
-async def dar_de_baja_usuario(usuario_id: uuid.UUID) -> Usuario:
-    """CU-25 A3 y A4 (RF-148): desactiva al usuario; no se da de baja al último admin."""
-    raise no_implementado()
+async def dar_de_baja_usuario(
+    usuario_id: uuid.UUID,
+    actor: ActorDep,
+    sesion: SesionDep,
+    gestor: GestorDep,
+) -> Usuario:
+    """CU-25 A3 y A4 (RF-148, RF-149): desactiva al usuario y deshabilita su cuenta de
+    Firebase; no se da de baja al último admin activo (409). Si Firebase falla responde 502."""
+    usuario = await seguridad.dar_de_baja_usuario(sesion, actor, gestor, usuario_id)
+    return Usuario.model_validate(usuario)

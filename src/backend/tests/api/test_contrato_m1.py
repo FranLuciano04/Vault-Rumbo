@@ -78,6 +78,8 @@ IMPLEMENTADAS = {
     ("GET", "/api/usuarios"),  # T-027
     ("POST", "/api/usuarios"),  # T-027
     ("GET", "/api/usuarios/{usuario_id}"),  # T-027
+    ("PATCH", "/api/usuarios/{usuario_id}"),  # T-028
+    ("POST", "/api/usuarios/{usuario_id}/baja"),  # T-028
     ("PUT", "/api/usuarios/{usuario_id}/comision-por-defecto"),  # T-030
     ("GET", "/api/configuracion"),  # T-029
     ("PUT", "/api/configuracion"),  # T-029
