@@ -370,6 +370,21 @@ async def test_rf087_editar_inexistente_da_404(cliente_como: Fabrica) -> None:
     assert r.headers["content-type"].startswith(PROBLEM_JSON)
 
 
+async def test_rf087_editar_requisito_de_baja_da_404(
+    cliente_como: Fabrica, sesion: AsyncSession
+) -> None:
+    destino = await _destino(sesion, nombre="Miami")
+    req = await _requisito(sesion, destino.id, activo=False, anticipacion_dias=30)
+    c = await cliente_como("admin")
+
+    r = await c.patch(_url(req.id), json={"anticipacion_dias": 90})
+
+    assert r.status_code == 404
+    assert r.headers["content-type"].startswith(PROBLEM_JSON)
+    await sesion.refresh(req)
+    assert req.anticipacion_dias == 30
+
+
 # --- Baja lógica (RF-088) ------------------------------------------------------------------
 
 

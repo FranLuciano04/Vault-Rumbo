@@ -21,7 +21,7 @@ from rumbo.datos.repositorios.destinos import RepositorioDestinos
 from rumbo.datos.repositorios.operadores import RepositorioOperadores
 from rumbo.datos.repositorios.requisitos import RepositorioRequisitos
 from rumbo.datos.repositorios.seguridad import RepositorioUsuarios
-from rumbo.negocio.errores import Conflicto
+from rumbo.negocio.errores import Conflicto, NoEncontrado
 from rumbo.negocio.politicas import exigir_rol, visibilidad
 
 _destinos = RepositorioDestinos()
@@ -172,10 +172,12 @@ async def crear_requisito(
 async def editar_requisito(
     sesion: AsyncSession, actor: Usuario, requisito_id: uuid.UUID, cambios: dict[str, Any]
 ) -> RequisitoDestino:
-    """Aplica solo los campos enviados (CU-15, RF-087). Las `Alerta` ya emitidas no se tocan:
-    guardan su propio texto y fecha."""
+    """Aplica solo los campos enviados (CU-15, RF-087). Uno de baja no se edita: es 404
+    (A3). Las `Alerta` ya emitidas no se tocan: guardan su propio texto y fecha."""
     exigir_rol(actor, RolUsuario.admin, RolUsuario.dueno)
     requisito = await _requisitos.obtener(sesion, requisito_id, visibilidad=visibilidad(actor))
+    if not requisito.activo:
+        raise NoEncontrado(f"RequisitoDestino {requisito_id} no encontrado")
     if "tipo" in cambios:
         cambios = {**cambios, "tipo": TipoRequisito(cambios["tipo"])}
     for campo, valor in cambios.items():

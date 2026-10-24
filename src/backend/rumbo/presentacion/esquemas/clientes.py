@@ -7,7 +7,7 @@ from typing import Annotated, Any
 from pydantic import BaseModel, BeforeValidator, ConfigDict, Field
 
 from rumbo.datos.modelos import EstadoOportunidad, EstadoResena, EstadoViaje, SegmentoCliente
-from rumbo.presentacion.esquemas.comunes import Auditoria, Entrada, Problema
+from rumbo.presentacion.esquemas.comunes import Auditoria, Edicion, Entrada, Problema, omitible
 
 Nombre = Annotated[str, Field(min_length=1, max_length=120)]
 Contacto = Annotated[str, Field(min_length=1, max_length=200)]
@@ -34,7 +34,6 @@ Instagram = Annotated[
     Annotated[str, Field(pattern=r"^[a-z0-9._]{1,30}$")] | None,
     BeforeValidator(_normalizar_instagram),
 ]
-_OMITIDO: Any = None  # valor por defecto de un campo que no admite `null` pero puede omitirse
 
 
 class AsesorDelCliente(BaseModel):
@@ -90,18 +89,16 @@ class ClienteCrear(Entrada):
     confirmar_duplicado: bool = False
 
 
-class ClienteEditar(BaseModel):
+class ClienteEditar(Edicion):
     """Edición parcial de la ficha (CU-03, CU-30): solo cambian los campos enviados."""
 
-    # Sin `None` en el tipo: omitir el campo lo deja igual, pero un `null` explícito es 422
-    # (CU-03 A2: la ficha no puede quedar sin nombre ni contacto).
-    nombre: Nombre = _OMITIDO
-    contacto: Contacto = _OMITIDO
+    nombre: Nombre = omitible()
+    contacto: Contacto = omitible()
     instagram: Instagram = None
-    segmento: SegmentoCliente = _OMITIDO
-    etiquetas: Etiquetas = _OMITIDO
+    segmento: SegmentoCliente = omitible()
+    etiquetas: Etiquetas = omitible()
     preferencias: str | None = None
-    no_recontactar: bool = _OMITIDO
+    no_recontactar: bool = omitible()
     asesor_asignado_id: uuid.UUID | None = None
 
 

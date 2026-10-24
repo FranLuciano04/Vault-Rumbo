@@ -189,6 +189,7 @@ IMPLEMENTADAS = {
     ("post", "/api/clientes"),  # T-040
     ("get", "/api/clientes"),  # T-041
     ("get", f"/api/clientes/{ID}"),  # T-041
+    ("patch", f"/api/clientes/{ID}"),  # T-042
 }
 OPERACIONES_501 = [op for op in OPERACIONES if op[:2] not in IMPLEMENTADAS]
 
@@ -291,7 +292,7 @@ async def test_cu03_editar_acepta_null_en_preferencias_y_asesor(
         f"/api/clientes/{ID}", json={"preferencias": None, "asesor_asignado_id": None}
     )
 
-    assert r.status_code == 501
+    assert r.status_code == 404  # el id no existe: el `null` pasó la validación (no es 422)
 
 
 async def test_cu03_a2_el_contrato_no_publica_como_nullable_lo_que_no_admite_null(
