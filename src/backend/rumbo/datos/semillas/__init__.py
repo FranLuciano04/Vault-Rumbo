@@ -4,7 +4,9 @@ from collections.abc import Awaitable, Callable
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from rumbo.datos.semillas.configuracion import sembrar_configuracion
+
 Semilla = Callable[[AsyncSession], Awaitable[None]]
 
-SEMILLAS: list[Semilla] = []
-"""Semillas registradas, en orden. En M0 no hay ninguna."""
+SEMILLAS: list[Semilla] = [sembrar_configuracion]
+"""Semillas registradas, en orden."""
