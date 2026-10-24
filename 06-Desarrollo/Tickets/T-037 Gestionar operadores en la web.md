@@ -3,7 +3,7 @@ id: T-037
 titulo: Gestionar operadores en la web
 modulo: M1 — Usuarios y configuración
 capa: web
-estado: tomado
+estado: libre
 depende_de: [T-036]
 tamaño: S
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: haiku
 modelo_review: opus
 trazabilidad: [CU-31, RF-093, RF-094, RF-095, RF-096, CU-25, RF-147]
 origen: plan
-asignado: palomap2003
-tomado_el: 24/10/26 11:35
-rama: feature/T-037-gestionar-operadores-en-la-web
+asignado:
+tomado_el:
+rama:
 pr:
 ---
 # T-037 Gestionar operadores en la web
