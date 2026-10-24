@@ -115,3 +115,35 @@ Cuentas de servicio → Claves, generar otra y actualizar los `.env`.
 
 **Web** (`src/apps/web/.env`; en el servidor, al construir la imagen): las `VITE_FIREBASE_*` del
 proyecto real y **sin** `VITE_FIREBASE_AUTH_EMULATOR_URL`.
+
+## 4. Levantar el Compose contra el proyecto real
+
+`src/docker-compose.firebase.yml` es un override para `src/docker-compose.yml`: monta en solo
+lectura el JSON de la cuenta de servicio en la `api` y el `scheduler` (en
+`/run/secrets/firebase-cuenta-de-servicio.json`) y define `GOOGLE_APPLICATION_CREDENTIALS`
+apuntando a ese archivo.
+
+1. Guardar el JSON **fuera del repo** (ver el checklist de la sección 2). Si se lo deja dentro de
+   `src/`, el `.gitignore` ya cubre `*cuenta-de-servicio*.json`, `*service-account*.json` y
+   `*-firebase-adminsdk-*.json`, pero no es lo recomendado.
+2. En `src/.env` (fuera de Git) definir `RUMBO_FIREBASE_CREDENCIALES=<ruta al JSON en el host>`,
+   `FIREBASE_PROJECT_ID` con el Project ID real y las `VITE_FIREBASE_*` reales (se incrustan en el
+   build de la web). Sin la primera, `docker compose` aborta con un mensaje que lo indica.
+3. Desde la raíz del repo:
+
+   ```bash
+   docker compose -f src/docker-compose.yml -f src/docker-compose.firebase.yml up -d --build
+   ```
+
+No combinarlo con `docker-compose.e2e.yml` (emulador y credencial real son excluyentes).
+
+### La API key web y el puerto de la web
+
+La clave web está restringida por referente a `http://localhost:5173/*` (sección 2), y Firebase
+rechaza `http://localhost/` (el puerto 80 del Compose) con `API_KEY_HTTP_REFERRER_BLOCKED`. No
+se arregla desde el repo; hay dos salidas:
+
+- **Publicar nginx en el 5173:** `RUMBO_HTTP_PORT=5173` en `src/.env` y la web en
+  <http://localhost:5173>. Hay que tener apagado `pnpm dev` (usa el mismo puerto).
+- **Ampliar la restricción:** en Google Cloud → APIs y servicios → Credenciales → «Browser key»,
+  sumar `http://localhost/*` a los sitios web permitidos (lo hace quien administra el proyecto).
