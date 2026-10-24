@@ -24,11 +24,6 @@ La **persona** de cada sesión es quien la corre, identificada por su identidad 
 ## Avisos pendientes por persona
 > Claude los lee al identificar a la persona (paso 1 de `CLAUDE.md`) y se los cuenta **apenas la saluda**, antes de cualquier otra tarea. Cuando la persona confirme que lo leyó o que lo hizo, **Claude borra su fila** en esa misma sesión, con un commit. Cuando no quede ninguna fila de alguien, se borra también su sección.
 
-### Francisco (`FranLucianoo`) y Nahuel (`Nahuel Viniegra`) — T-027
-- **22/10, de Paloma: PR [#45](https://github.com/FranLuciano04/Vault-Rumbo/pull/45)** (T-027, alta de usuarios con su cuenta de Firebase, ⚠️ riesgo alto). ✅ **Francisco lo mergeó el 23/10.** Quedan:
-  - ✅ **Envío real del mail probado** con `rumbo-9ff17` el 23/10 (Paloma). ✅ Y la cuenta entra a Rumbo con la API levantada (compose completo, 23/10): Clientes y Configuración cargan como dueña. ✅ Prueba con el emulador hecha el 23/10 (Paloma): alta, mail, contraseña y login de la cuenta nueva. **T-027 queda verificado por completo.**
-  - **Para la sync:** ~~si un `admin` puede crear una `dueno`~~ ✅ decidido el 23/10 por Francisco: **no**, solo la dueña crea o asigna `dueño` (CU-25; va en T-028), y ~~**T-153**~~ ✅ decidido el 23/10 por Francisco: se reutiliza la cuenta de Firebase sin `Usuario` (CU-25 A1).
-
 ## Formato
 Es **obligatorio** nombrar a la persona que hizo la sesión.
 ```
@@ -122,7 +117,7 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** que Codex escriba `06-Desarrollo/Reviews/M0 — review Codex.md`. Después, `/cerrar-modulo M0` fase B (triage y tickets de arreglo) y la aprobación del equipo para el tag `mod-0`.
 
 ## 23/10/26 — Nahuel (Claude Opus 5.5) — T-028 (PR abierto) y T-163: undici
-- **T-028** (M1, backend, ⚠️ alto): implementado en el PR #59, con el CI en verde. **Falta que otro integrante lo apruebe**; después se mergea con `/implementar-ticket T-028`.
+- **T-028** (M1, backend, ⚠️ alto): implementado en el PR #59, con el CI en verde. ✅ Aprobado y mergeado el 24/10.
   - PATCH de nombre, rol y acceso a redes. La baja es lógica: deshabilita Firebase y el pedido siguiente da 401. Si la operación deja al sistema sin admin, da 409.
   - Regla de la dueña ampliada por Nahuel y anotada en CU-25: un admin no asigna, no quita ni da de baja a una dueña (403).
   - Para la concurrencia se usa `FOR UPDATE`, siempre en orden: primero los admins y después el objetivo. El SDK de Firebase tiene timeout de 10 s.
@@ -130,7 +125,7 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **T-163** (hallazgo de T-028, pasado a M1 porque M0 está cerrado): override `undici ^8.12.2` por GHSA-xjj6-f33q-929c, que hacía fallar la auditoría del CI web en todos los PR. PR #60 mergeado. Para tomarlo se liberó T-028 y se retomó después.
 - **Commits:** T-028 0f624ef, 1723129, b794642, 45e69bc, 7c27e3d, 574379b, 480f595, dcabe39; T-163 8c10efb, 406c52c, 54f9320.
 - **Pendiente:**
-  - Aprobación del PR #59.
+  - ~~Aprobación del PR #59.~~ ✅ Mergeado el 24/10 (`116ff01`).
   - `#accion/decidir` en CU-25: si se protege a la última dueña activa.
   - Habilitar la edición del nombre en la web (T-035).
   - En esta PC, pytest necesita `--basetemp` porque el tmp de Windows da `PermissionError`.
