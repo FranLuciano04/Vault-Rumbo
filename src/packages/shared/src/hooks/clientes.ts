@@ -81,6 +81,11 @@ export function useEditarCliente(cliente: AxiosInstance) {
   return useMutation({
     mutationFn: async ({ id, cambios }: { id: string; cambios: ClienteEditar }) =>
       (await cliente.patch<Cliente>(`/api/clientes/${id}`, cambios)).data,
-    onSuccess: () => void queryClient.invalidateQueries({ queryKey: claveClientes }),
+    onSuccess: (ficha) => {
+      // La respuesta es la ficha ya guardada: se usa tal cual y solo se refrescan las listas.
+      queryClient.setQueryData([...claveClientes, ficha.id], ficha);
+      void queryClient.invalidateQueries({ queryKey: [...claveClientes, "buscar"] });
+      void queryClient.invalidateQueries({ queryKey: [...claveClientes, "etiquetas"] });
+    },
   });
 }

@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import type { AxiosInstance } from "axios";
+import type { AsesorDelCliente } from "../cliente";
 import type {
   ComisionPorDefecto,
   FiltrosListado,
@@ -19,6 +20,14 @@ export function useUsuarios(cliente: AxiosInstance, filtros: Omit<FiltrosListado
     queryKey: [...claveUsuarios, "lista", filtros],
     queryFn: async () =>
       (await cliente.get<Pagina<Usuario>>("/api/usuarios", { params: filtros })).data,
+  });
+}
+
+/** Asesores activos para asignar un cliente (`GET /api/usuarios/asesores`; todos menos el freelance). */
+export function useAsesores(cliente: AxiosInstance) {
+  return useQuery({
+    queryKey: [...claveUsuarios, "asesores"],
+    queryFn: async () => (await cliente.get<AsesorDelCliente[]>("/api/usuarios/asesores")).data,
   });
 }
 

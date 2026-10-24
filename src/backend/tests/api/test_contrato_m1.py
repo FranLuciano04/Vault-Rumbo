@@ -16,11 +16,13 @@ from rumbo.main import crear_app
 PROBLEM_JSON = "application/problem+json"
 TODOS = ("admin", "dueno", "empleado", "freelance")
 GESTION = ("admin", "dueno")
+SIN_FREELANCE = ("admin", "dueno", "empleado")
 
 # (método, ruta con prefijo /api, roles del contrato, módulo, CU)
 RUTAS: list[tuple[str, str, tuple[str, ...], str, str]] = [
     ("GET", "/api/usuarios", GESTION, "seguridad", "CU-25"),
     ("POST", "/api/usuarios", GESTION, "seguridad", "CU-25"),
+    ("GET", "/api/usuarios/asesores", SIN_FREELANCE, "seguridad", "CU-03"),
     ("GET", "/api/usuarios/{usuario_id}", GESTION, "seguridad", "CU-25"),
     ("PATCH", "/api/usuarios/{usuario_id}", GESTION, "seguridad", "CU-25"),
     ("POST", "/api/usuarios/{usuario_id}/baja", GESTION, "seguridad", "CU-25"),
@@ -48,6 +50,7 @@ RUTAS: list[tuple[str, str, tuple[str, ...], str, str]] = [
 RF_POR_RUTA = {
     ("GET", "/api/usuarios"): "RF-144",
     ("POST", "/api/usuarios"): "RF-144",
+    ("GET", "/api/usuarios/asesores"): "RF-007",
     ("GET", "/api/usuarios/{usuario_id}"): "RF-144",
     ("PATCH", "/api/usuarios/{usuario_id}"): "RF-147",
     ("POST", "/api/usuarios/{usuario_id}/baja"): "RF-148",
@@ -99,6 +102,7 @@ IMPLEMENTADAS = {
     ("PATCH", "/api/operadores/{operador_id}"),  # T-033
     ("POST", "/api/operadores/{operador_id}/baja"),  # T-033
     ("POST", "/api/operadores/{operador_id}/reactivar"),  # T-033
+    ("GET", "/api/usuarios/asesores"),  # T-046
 }
 CASOS_501 = [
     (m, r, rol) for m, r, roles, *_ in RUTAS for rol in roles if (m, r) not in IMPLEMENTADAS

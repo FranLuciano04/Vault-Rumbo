@@ -64,6 +64,9 @@ class Cliente(Auditoria):
     preferencias: str | None
     no_recontactar: bool
     asesor_asignado_id: uuid.UUID | None
+    asesor: AsesorDelCliente | None = Field(
+        description="Nombre del asesor asignado, también si está de baja."
+    )
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -71,7 +74,6 @@ class Cliente(Auditoria):
 class ClienteListado(Cliente):
     """Fila del listado (CU-03 paso 1): la ficha más su resumen."""
 
-    asesor: AsesorDelCliente | None
     ultimo_viaje: UltimoViajeDelCliente | None
     oportunidades_abiertas: int = Field(description="En `nueva`, `en_gestion` o `cotizada`.")
 
