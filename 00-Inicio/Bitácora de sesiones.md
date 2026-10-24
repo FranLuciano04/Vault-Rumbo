@@ -42,6 +42,11 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
+## 23/10/26 — Paloma (Claude Opus 5.5) — Rumbo completo andando en local con login real
+- **Hecho:** se levantó Rumbo con Docker y se entró con la cuenta de Google de Paloma (dueña ya cargada en la base; `--demo` todavía no carga nada porque ningún módulo registró semillas). Para que funcionara: nginx publicado en el 5173 (`RUMBO_HTTP_PORT=5173`, cortando `pnpm dev`) y la API recreada con `FIREBASE_PROJECT_ID` y un override local, fuera del repo, que monta la cuenta de servicio. Esas dos trabas quedaron como fallas 3 y 4 en [[Estado del proyecto#Pendientes técnicos]].
+- **Commits:** el de esta entrada.
+- **Pendiente:** que el equipo decida si las cuatro fallas pasan a ticket.
+
 ## 23/10/26 — Paloma (Claude Opus 5.5) — web local: Clientes en blanco
 - **Hecho:** se investigó por qué, con `pnpm dev`, Clientes quedaba en blanco. La API no estaba levantada y Vite devolvía `index.html` para `/api/...`. Se levantó Rumbo completo con Docker para comprobarlo: salud OK y `/auth/yo` en 401 sin token. Después se bajó, porque falta crear la dueña en la base nueva. Las dos fallas quedaron en [[Estado del proyecto#Pendientes técnicos]].
 - **Commits:** el de esta entrada.
