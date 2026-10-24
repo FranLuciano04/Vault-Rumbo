@@ -28,10 +28,13 @@ Si un alta de usuario deja una cuenta de Firebase sin `Usuario` en Rumbo, el adm
 
 > ✅ **Decidido el 23/10/26 (Francisco):** se reutiliza la cuenta de Firebase sin `Usuario` y se completa el alta. El email sigue siendo único: si ya tiene `Usuario`, da 409. CU-25 A1 ya está actualizado. El ticket se puede tomar.
 
+> ⚠️ **Cambiado el 24/10/26 (Paloma), por la review de seguridad:** la cuenta huérfana **no se reutiliza tal cual**, porque sus credenciales (contraseña, proveedor enlazado o sesiones) podrían ser de otra persona (*pre-account hijacking*). Se **borra y se crea una nueva**. CU-25 A1 ya está actualizado.
+
 ## Criterios de aceptación
-- [ ] Alta con un email que ya tiene cuenta en Firebase pero ningún `Usuario` en Rumbo → se reutiliza la cuenta (su uid), se crea el `Usuario` y Firebase manda el mail. No da 409.
+- [ ] Alta con un email que ya tiene cuenta en Firebase pero ningún `Usuario` en Rumbo → se borra esa cuenta y se crea una nueva (uid nuevo), se crea el `Usuario` y Firebase manda el mail. No da 409.
 - [ ] Email que ya tiene un `Usuario` en Rumbo → sigue dando 409, sin tocar Firebase.
-- [ ] Si falla el alta al reutilizar una cuenta, la cuenta **no** se borra, porque no la creó este pedido.
+- [ ] Si falla el alta después de recrear la cuenta, se borra la cuenta nueva, porque la creó este pedido (igual que en T-027).
+- [ ] Dos altas simultáneas con el mismo email no se pisan: la segunda no puede borrar la cuenta que acaba de crear la primera.
 
 ## Tests esperados
 `tests/api/test_usuarios.py`: `test_rf146_cuenta_huerfana_se_reutiliza`, `test_rf146_email_con_usuario_sigue_409` y `test_rf144_falla_al_reutilizar_no_borra_la_cuenta`. Con el `GestorDeCuentasFalso`.

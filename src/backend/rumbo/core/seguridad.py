@@ -156,7 +156,7 @@ class GestorDeCuentas(Protocol):
         ...
 
     async def borrar_cuenta(self, firebase_uid: str) -> None:
-        """Compensación: borra la cuenta creada."""
+        """Borra la cuenta: compensación del alta o cuenta previa sin `Usuario` (T-153)."""
         ...
 
     async def deshabilitar_cuenta(self, firebase_uid: str) -> None:

@@ -2,7 +2,7 @@
 
 import uuid
 
-from sqlalchemy import func, select
+from sqlalchemy import func, select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from rumbo.core.errores import NoEncontrado
@@ -25,6 +25,14 @@ class RepositorioUsuarios(RepositorioBase[Usuario]):
         `datos-iniciales`, que corre sin actor, y el chequeo de email libre del alta."""
         consulta = select(Usuario).where(func.lower(Usuario.email) == email.lower())
         return await sesion.scalar(consulta.limit(1))
+
+    async def bloquear_email(self, sesion: AsyncSession, email: str) -> None:
+        """Bloqueo transaccional (advisory lock) del email, sin distinguir mayúsculas, hasta el
+        fin de la transacción: dos altas simultáneas del mismo email van de a una (T-153)."""
+        await sesion.execute(
+            text("SELECT pg_advisory_xact_lock(hashtextextended(lower(:email), 0))"),
+            {"email": email},
+        )
 
     async def paginar(
         self,
