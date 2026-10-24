@@ -50,7 +50,7 @@ Cualquier rol registra un cliente con sus datos mínimos; si parece repetido, el
 
 ## Notas de implementación
 - **Duplicado (RF-003, CU-02 A1):** mismo contacto (sin distinguir mayúsculas) o mismo nombre sin distinguir mayúsculas ni tildes y con espacios colapsados (`translate` + `regexp_replace`, sin extensiones). El 409 trae hasta 10 candidatos (`ProblemaDuplicado`); `confirmar_duplicado: true` da el alta igual.
-- **Visibilidad:** la búsqueda de parecidos respeta la visibilidad por fila: un `freelance` no ve duplicados de otros asesores (sin fuga, con test). Costo: puede duplicar un cliente ajeno sin enterarse → **decisión de negocio pendiente** para la sync.
+- **Visibilidad:** la búsqueda de parecidos respeta la visibilidad por fila: un `freelance` no ve duplicados de otros asesores (sin fuga, con test). Costo: puede duplicar un cliente ajeno sin enterarse → ✅ decidido el 24/10/26 por Francisco: se le avisa sin mostrar datos ajenos (CU-02 A1). Se implementa en T-042.
 - **Asesor:** el `freelance` siempre queda como asesor aunque mande otro (RF-150). Para el resto, un `asesor_asignado_id` inexistente o inactivo da 422 (antes explotaba la FK con 500).
 - **Errores:** `ErrorDeDominio` lleva un `extra` serializable que el manejador genérico vuelca en el problem+json; se sumó `DatosInvalidos` (422 sobre un campo). El módulo común de errores no conoce módulos.
 - **Tests de soporte:** con autorización de Paloma, `tests/api/test_contrato_m2.py` suma `IMPLEMENTADAS = {("post", "/api/clientes")}` (commit verde, `--tocar-tests`). En el fix, autorizado por el orquestador, se completó `test_rf150_freelance_queda_asignado` y se sumaron tests de asesor inválido, no-fuga, tildes/espacios y tope.

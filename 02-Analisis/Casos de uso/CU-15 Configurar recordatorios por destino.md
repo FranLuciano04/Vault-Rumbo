@@ -33,7 +33,7 @@ Definir, por destino, qué formularios o requisitos deben recordarse (p. ej. vis
 ## Flujos alternativos
 - **A1 — Editar regla:** el admin modifica un [[RequisitoDestino]]; el sistema aplica el cambio a los [[Viaje|Viajes]] futuros (no reescribe [[Alerta|Alertas]] ya emitidas).
 - **A2 — Destino sin requisitos:** no se configura nada; los [[Viaje|Viajes]] a ese destino no generan [[Alerta|Alertas]] de formulario.
-- **A3 — Quitar un requisito:** el admin da de baja lógica un [[RequisitoDestino]] (`activo = false`); deja de generar la [[Alerta]] asociada en viajes nuevos.
+- **A3 — Quitar un requisito:** el admin da de baja lógica un [[RequisitoDestino]] (`activo = false`); deja de generar la [[Alerta]] asociada en viajes nuevos. Un requisito de baja **no se edita** (el sistema responde como si no existiera) y no se reactiva: si hace falta otra vez, se crea uno nuevo. (Decidido por Francisco el 24/10/26.)
 
 ## Postcondiciones
 - Quedan definidas las reglas de recordatorio por destino que alimentan la generación automática de [[Alerta|Alertas]] `formulario`.

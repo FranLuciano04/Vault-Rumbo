@@ -33,6 +33,15 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
+## 24/10/26 — Francisco (Claude Opus 5.5) — pendientes del 23/10 y dos decisiones
+- **Hecho:** repaso de los pendientes de la sesión del 23/10, que había quedado registrada aunque no se cerró. Se borró el aviso de T-027 (ya resuelto) y T-028 figura mergeado (PR #59).
+- **Decisiones de Francisco** (las había planteado Paloma, de T-040 y T-032):
+  - Al `freelance` se le avisa que ya hay un cliente con ese contacto en la agencia, sin mostrarle datos del otro cliente (CU-02 A1). ⚠️ Quién se queda con el cliente se confirma con la agencia.
+  - Un requisito de destino dado de baja no se edita: 404 (CU-15 A3).
+  - Las dos se implementan dentro de T-042, sin subtickets. El mensaje de la web va en T-045.
+- **Commits:** 9bfb34d y el de esta entrada.
+- **Pendiente:** las cuatro fallas para levantar Rumbo en local siguen sin decidir (Estado, *Pendientes técnicos*). Próximo ticket de Francisco: T-042.
+
 ## 23/10/26 — Paloma (Claude Opus 5.5) — T-027 probado con el Auth Emulator
 - **Hecho:** prueba de punta a punta de T-027 con el compose más `docker-compose.e2e.yml`, en un proyecto de Docker aparte (`-p rumbo-emu`) para no tocar el Rumbo con login real. Pasaron los 8 pasos: la dueña entra, `POST /usuarios` da 201, la cuenta aparece en el emulador, Firebase emite el código `PASSWORD_RESET`, la empleada elige la contraseña con el link y entra (`/auth/yo` con rol `empleado`), email repetido en mayúsculas → 409, empleada listando usuarios → 403 y la dueña lista los 2 usuarios. Después se bajó el proyecto y se borró su base. Resultado anotado en las notas del ticket.
 - **Commits:** el de esta entrada.

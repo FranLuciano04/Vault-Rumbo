@@ -10,7 +10,7 @@ riesgo: normal
 modelo_tests: sonnet
 modelo_impl: sonnet
 modelo_review: opus
-trazabilidad: [CU-03, CU-30, RF-002, RF-007, RF-008]
+trazabilidad: [CU-03, CU-30, RF-002, RF-007, RF-008, CU-02, RF-003, CU-15]
 origen: plan
 asignado:
 tomado_el:
@@ -47,3 +47,7 @@ Quien puede ver a un cliente edita su ficha (contacto, segmento, etiquetas, pref
 
 ## Notas de implementación
 - **Sumado el 22/10/26 (DEC-0017):** incluir el usuario de Instagram del cliente como campo **opcional**. No cuenta como contacto mínimo. El contrato lo expone desde T-149.
+- **Sumado el 24/10/26 (decisiones de Francisco, se absorben acá en vez de abrir subtickets):**
+  - **Duplicados para el `freelance` (CU-02 A1, RF-003):** si el alta de un freelance coincide con un cliente que no ve, el 409 avisa que ya hay un cliente con ese contacto en la agencia, **sin candidatos ni ningún dato ajeno**. Con `confirmar_duplicado: true`, el alta sale igual. Hay que cambiar el test de T-040 que fija que no se le avisa nada.
+  - **Requisito de destino de baja (CU-15 A3):** `editar_requisito` (`negocio/servicios/configuracion.py`) responde 404 si el requisito está de baja. Hoy da 200.
+  - De T-157: `test_rf031_edicion_acepta_20_etiquetas_de_80_caracteres` tiene que esperar el éxito, y `ClienteEditar` tiene que recortar los espacios.

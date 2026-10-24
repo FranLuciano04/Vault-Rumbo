@@ -53,5 +53,5 @@ Admin y dueña definen los requisitos de cada destino (visa, vacunación, docume
 - **Tests de soporte (`--tocar-tests`):** las 4 rutas en `IMPLEMENTADAS` de `test_contrato_m1.py` y `ruff format` de `test_requisitos.py` (solo saltos de línea; lo pedía el lint del CI).
 - **Desvío, autorizado por Paloma:** `concurrency = ["greenlet", "thread"]` en `[tool.coverage.run]` de `pyproject.toml`, que adelanta T-148. Sin eso, la cobertura de `negocio/` daba 79,93 % y el CI fallaba; con eso da 99 %. T-148 queda por cerrar solo verificando.
 - **Hallazgo importante, a un ticket aparte (decisión de Paloma):** un `anticipacion_dias` fuera del rango de INTEGER da 500 en vez de 422. Pasa lo mismo en `ConfiguracionEditar`. Ticket transversal: traducir el `DataError` de Postgres a 422.
-- **Menor, pendiente:** se puede editar un requisito dado de baja (200). No lo contradice CU-15, y no hay ruta para reactivarlo.
+- **Menor:** se puede editar un requisito dado de baja (200). No lo contradice CU-15, y no hay ruta para reactivarlo. ✅ Decidido el 24/10/26 por Francisco: pasa a 404 (CU-15 A3). Se implementa en T-042.
 - **Modelos:** tests sonnet, implementación/refactor/fix sonnet, review opus. Sin escalados.

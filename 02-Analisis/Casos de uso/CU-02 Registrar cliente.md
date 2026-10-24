@@ -32,6 +32,7 @@ El empleado da de alta un nuevo [[Cliente]] con sus datos de contacto y segmento
 
 ## Flujos alternativos
 - **A1 — Posible duplicado:** en el paso 3 el sistema detecta un `Cliente` con el mismo contacto (o nombre muy similar) → lo advierte y ofrece **abrir la ficha existente** ([[CU-03 Gestionar ficha del cliente]]) en lugar de crear una nueva.
+  - Si quien da el alta es un `freelance` y el parecido es con un cliente que no ve (de otro asesor), el sistema solo avisa que **ya hay un cliente con ese contacto en la agencia** y sugiere consultarlo con un admin, **sin mostrar ningún dato del otro cliente**. Puede confirmar el alta igual. (Decidido por Francisco el 24/10/26; ⚠️ quién se queda con el cliente cuando lo traen dos asesores es una regla del negocio a confirmar con la agencia.)
 - **A2 — Alta rápida desde una consulta:** el CU se invoca desde [[CU-04 Registrar consulta]] con los datos mínimos; la ficha se completa más tarde ([[CU-03 Gestionar ficha del cliente]]).
 - **A3 — Datos mínimos incompletos:** falta el nombre o un contacto válido → el sistema no guarda y pide completarlos.
 
