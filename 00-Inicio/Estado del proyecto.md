@@ -18,7 +18,7 @@ actualizado: 13/10/26
 >
 > 🏁 **23/10 — M0 Fundaciones cerrado.** El equipo lo aprobó y se puso el tag `mod-0`. El resumen está en [[Bitácora técnica]].
 >
-> 👉 **22/10 (Paloma):** **T-027** (alta de usuarios con su cuenta de Firebase) está hecho. Es de ⚠️ riesgo alto: Francisco mergeó el PR [#45](https://github.com/FranLuciano04/Vault-Rumbo/pull/45) el 23/10. Falta que Paloma pruebe a mano el envío real del mail con `rumbo-9ff17`. Se creó **T-153** (cuentas huérfanas), que ya se puede tomar.
+> 👉 **22/10 (Paloma):** **T-027** (alta de usuarios con su cuenta de Firebase) está hecho. Es de ⚠️ riesgo alto: Francisco mergeó el PR [#45](https://github.com/FranLuciano04/Vault-Rumbo/pull/45) el 23/10. ✅ Verificado a mano el 23/10 por Paloma, con `rumbo-9ff17` y con el Auth Emulator: se manda el mail, se elige la contraseña y la cuenta nueva entra a Rumbo. Se creó **T-153** (cuentas huérfanas), que ya se puede tomar.
 >
 > 👉 **22/10 (Paloma):** **T-151** está hecho y mergeado (PR [#42](https://github.com/FranLuciano04/Vault-Rumbo/pull/42)). Un entero que no entra en la base ahora responde 422 en todos los módulos. Los tests de API corren dentro de un savepoint (`tests/conftest.py`).
 >

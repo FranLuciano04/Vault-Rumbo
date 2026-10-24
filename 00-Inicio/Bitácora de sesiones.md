@@ -26,7 +26,7 @@ La **persona** de cada sesión es quien la corre, identificada por su identidad 
 
 ### Francisco (`FranLucianoo`) y Nahuel (`Nahuel Viniegra`) — T-027
 - **22/10, de Paloma: PR [#45](https://github.com/FranLuciano04/Vault-Rumbo/pull/45)** (T-027, alta de usuarios con su cuenta de Firebase, ⚠️ riesgo alto). ✅ **Francisco lo mergeó el 23/10.** Quedan:
-  - ✅ **Envío real del mail probado** con `rumbo-9ff17` el 23/10 (Paloma). ✅ Y la cuenta entra a Rumbo con la API levantada (compose completo, 23/10): Clientes y Configuración cargan como dueña. Falta la prueba con el emulador.
+  - ✅ **Envío real del mail probado** con `rumbo-9ff17` el 23/10 (Paloma). ✅ Y la cuenta entra a Rumbo con la API levantada (compose completo, 23/10): Clientes y Configuración cargan como dueña. ✅ Prueba con el emulador hecha el 23/10 (Paloma): alta, mail, contraseña y login de la cuenta nueva. **T-027 queda verificado por completo.**
   - **Para la sync:** ~~si un `admin` puede crear una `dueno`~~ ✅ decidido el 23/10 por Francisco: **no**, solo la dueña crea o asigna `dueño` (CU-25; va en T-028), y ~~**T-153**~~ ✅ decidido el 23/10 por Francisco: se reutiliza la cuenta de Firebase sin `Usuario` (CU-25 A1).
 
 ## Formato
@@ -37,6 +37,11 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Commits:** <hash>, <hash>
 - **Pendiente:** …
 ```
+
+## 23/10/26 — Paloma (Claude Opus 5.5) — T-027 probado con el Auth Emulator
+- **Hecho:** prueba de punta a punta de T-027 con el compose más `docker-compose.e2e.yml`, en un proyecto de Docker aparte (`-p rumbo-emu`) para no tocar el Rumbo con login real. Pasaron los 8 pasos: la dueña entra, `POST /usuarios` da 201, la cuenta aparece en el emulador, Firebase emite el código `PASSWORD_RESET`, la empleada elige la contraseña con el link y entra (`/auth/yo` con rol `empleado`), email repetido en mayúsculas → 409, empleada listando usuarios → 403 y la dueña lista los 2 usuarios. Después se bajó el proyecto y se borró su base. Resultado anotado en las notas del ticket.
+- **Commits:** el de esta entrada.
+- **Pendiente:** nada de T-027. Sigue abierto que el equipo decida si las cuatro fallas del Estado pasan a ticket.
 
 ## 23/10/26 — Paloma (Claude Opus 5.5) — Rumbo completo andando en local con login real
 - **Hecho:** se levantó Rumbo con Docker y se entró con la cuenta de Google de Paloma (dueña ya cargada en la base; `--demo` todavía no carga nada porque ningún módulo registró semillas). Para que funcionara: nginx publicado en el 5173 (`RUMBO_HTTP_PORT=5173`, cortando `pnpm dev`) y la API recreada con `FIREBASE_PROJECT_ID` y un override local, fuera del repo, que monta la cuenta de servicio. Esas dos trabas quedaron como fallas 3 y 4 en [[Estado del proyecto#Pendientes técnicos]].
