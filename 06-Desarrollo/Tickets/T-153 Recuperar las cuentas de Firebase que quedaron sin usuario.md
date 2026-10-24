@@ -3,7 +3,7 @@ id: T-153
 titulo: Recuperar las cuentas de Firebase que quedaron sin usuario
 modulo: M1 — Usuarios y configuración
 capa: backend
-estado: libre
+estado: tomado
 depende_de: [T-027]
 tamaño: S
 riesgo: alto
@@ -12,9 +12,9 @@ modelo_impl: opus
 modelo_review: sonnet
 trazabilidad: [CU-25, RF-144, RF-146, DEC-0016]
 origen: hallazgo T-027
-asignado:
-tomado_el:
-rama:
+asignado: palomap2003
+tomado_el: 24/10/26 15:39
+rama: feature/T-153-recuperar-las-cuentas-de-firebase-que-qu
 pr:
 ---
 # T-153 Recuperar las cuentas de Firebase que quedaron sin usuario
