@@ -43,6 +43,17 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
+## 24/10/26 — Francisco (Claude Opus 5.5) — T-049: e2e de clientes y semilla de demo
+- **Hecho:** T-049 (PR [#71](https://github.com/FranLuciano04/Vault-Rumbo/pull/71), mergeado con el CI en verde).
+  - **e2e:** `e2e/clientes.spec.ts` prueba contra el sistema real tres casos. El alta con duplicado y «Confirmar alta» (RF-003). Que el freelance vea los suyos y reciba 404 por un cliente ajeno (RF-151). Y que no se guarde un contacto inválido (RF-007).
+  - **Semilla:** `datos-iniciales --demo` ahora también carga 4 clientes ficticios, asignados a los usuarios de demo de M1.
+  - `elegirContrasena` pasó a `e2e/compose.ts`.
+  - **Falla arreglada en la rama (DEC-0019):** la web reintentaba 3 veces los 4xx, así que una ficha 404 tardaba unos 7 s. Ahora `crearQueryClient()` (`apps/web/src/lib/queryClient.ts`) no los reintenta.
+  - **Review Opus:** 0 bloqueantes, 0 importantes y 3 menores, anotados en el ticket. El de mobile, que tiene el mismo bug, se sumó a las notas de T-047.
+- **Checks:** backend 945 tests (96,9 %), web 315 (94,4 %), ruff, mypy, lint, typecheck, build y e2e en verde.
+- **Commits:** dbe88bb, 92a2947, fa77092, 09c775c, 338021d, fbb968c, cc1d187 (merge del PR), 1fc5277 (grafo) y el de esta entrada.
+- **Pendiente:** para cerrar M2 faltan T-047 y T-048 (mobile). Para cargar los clientes de demo en la base local, volver a correr `datos-iniciales --demo`, que es idempotente.
+
 ## 24/10/26 — Francisco (Claude Opus 5.5) — T-045: alta de clientes en la web
 - **Hecho:** T-045 (PR [#69](https://github.com/FranLuciano04/Vault-Rumbo/pull/69), mergeado con el CI en verde).
   - En el listado de Clientes hay un botón «Registrar cliente» que abre `/clientes/nuevo`.

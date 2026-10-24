@@ -1,6 +1,7 @@
 import { spawnSync } from "node:child_process";
 import { existsSync } from "node:fs";
 import path from "node:path";
+import { expect } from "@playwright/test";
 
 /** Raíz del workspace (`src/`): ahí viven los archivos del Compose. */
 export const RAIZ_SRC = path.resolve(import.meta.dirname, "../../..");
@@ -84,4 +85,29 @@ export async function crearCuentaEnEmulador(email: string, password: string): Pr
   if (!respuesta.ok && cuerpo.error?.message !== "EMAIL_EXISTS") {
     throw new Error(`No se pudo crear ${email} en el emulador: ${JSON.stringify(cuerpo)}`);
   }
+}
+
+/**
+ * El alta crea la cuenta sin contraseña y pide el mail de restablecimiento (DEC-0016). El
+ * emulador guarda el código de ese mail: se usa para elegir la contraseña como lo haría la persona.
+ */
+export async function elegirContrasena(email: string, password: string): Promise<void> {
+  // HTTP a propósito: el emulador escucha solo en 127.0.0.1 (docker-compose.e2e.yml).
+  // nosemgrep: typescript.react.security.react-insecure-request.react-insecure-request
+  const codigos = await fetch(`${EMULADOR}/emulator/v1/projects/demo-rumbo/oobCodes`);
+  const { oobCodes } = (await codigos.json()) as {
+    oobCodes: { email: string; oobCode: string; requestType: string }[];
+  };
+  const codigo = oobCodes.findLast((c) => c.email === email && c.requestType === "PASSWORD_RESET");
+  expect(codigo, `el emulador debería tener el mail de restablecimiento de ${email}`).toBeDefined();
+  // nosemgrep: typescript.react.security.react-insecure-request.react-insecure-request
+  const respuesta = await fetch(
+    `${EMULADOR}/identitytoolkit.googleapis.com/v1/accounts:resetPassword?key=demo-key`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ oobCode: codigo?.oobCode, newPassword: password }),
+    },
+  );
+  expect(respuesta.ok).toBe(true);
 }

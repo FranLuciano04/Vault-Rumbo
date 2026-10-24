@@ -62,3 +62,4 @@ Desde la pestaña Clientes se busca un cliente y se abre su ficha con el histori
   - implementación, refactor y fix: Sonnet
   - review (dos rondas): Opus
   - sin escalados
+- **Sumado el 24/10/26 (Francisco, de T-049):** mobile (`src/apps/mobile/app/_layout.tsx`) usa `new QueryClient()`, que reintenta los 4xx, así que una ficha 404 tarda unos 7 s en mostrarse. La web ya lo resolvió con `crearQueryClient()` (`apps/web/src/lib/queryClient.ts`). Conviene mover esa función a `@rumbo/shared`, usarla en las dos apps y alinear el `retry` propio de `consultaYo`.
