@@ -15,8 +15,8 @@ tags:: #tipo/referencia
 | Módulo | Tickets | Hechos | Tomados | Disponibles | Esperando | Bloqueados | Estado del módulo |
 |---|---|---|---|---|---|---|---|
 | M0 — Fundaciones | 38 | 38 | 0 | 0 | 0 | 0 | ✅ cerrado |
-| M1 — Usuarios y configuración | 19 | 13 | 1 | 4 | 1 | 0 | 🛠️ en curso |
-| M2 — Clientes | 15 | 8 | 0 | 5 | 2 | 0 | 🛠️ en curso |
+| M1 — Usuarios y configuración | 19 | 14 | 0 | 4 | 1 | 0 | 🛠️ en curso |
+| M2 — Clientes | 15 | 8 | 1 | 4 | 2 | 0 | 🛠️ en curso |
 | M3 — Alertas | 11 | 0 | 0 | 2 | 9 | 0 | 🛠️ en curso |
 | M4 — Oportunidades y cotizaciones | 14 | 0 | 0 | 1 | 13 | 0 | 🛠️ en curso |
 | M5 — Hoteles y reseñas | 11 | 0 | 0 | 1 | 10 | 0 | 🛠️ en curso |
@@ -75,7 +75,7 @@ flowchart LR
   subgraph M1["M1 — Usuarios y configuración"]
     T026["T-026 · Publicar el contrato de usuarios y configuración<br/><small>contrato</small>"]:::hecho
     T027["T-027 · Dar de alta usuarios con su cuenta de Firebase<br/><small>backend · ⚠️ riesgo alto</small>"]:::hecho
-    T028["T-028 · Editar el rol de un usuario protegiendo al último admin<br/><small>backend · ⚠️ riesgo alto</small><br/>👤 Nahuel Viniegra"]:::tomado
+    T028["T-028 · Editar el rol de un usuario protegiendo al último admin<br/><small>backend · ⚠️ riesgo alto</small>"]:::hecho
     T029["T-029 · Editar los parámetros del negocio<br/><small>backend</small>"]:::hecho
     T030["T-030 · Configurar la comisión por defecto de un vendedor<br/><small>backend · ⚠️ riesgo alto</small>"]:::hecho
     T031["T-031 · Gestionar el catálogo de destinos<br/><small>backend</small>"]:::hecho
@@ -97,7 +97,7 @@ flowchart LR
     T039["T-039 · Publicar el contrato de clientes<br/><small>contrato</small>"]:::hecho
     T040["T-040 · Registrar clientes detectando duplicados<br/><small>backend</small>"]:::hecho
     T041["T-041 · Buscar clientes según la visibilidad del rol<br/><small>backend · ⚠️ riesgo alto</small>"]:::hecho
-    T042["T-042 · Editar la ficha del cliente<br/><small>backend</small>"]:::disponible
+    T042["T-042 · Editar la ficha del cliente<br/><small>backend</small><br/>👤 FranLucianoo"]:::tomado
     T043["T-043 · Mostrar el historial del cliente<br/><small>backend</small>"]:::disponible
     T044["T-044 · Listar clientes en la web<br/><small>web</small>"]:::hecho
     T045["T-045 · Registrar un cliente en la web<br/><small>web</small>"]:::disponible

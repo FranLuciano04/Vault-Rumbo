@@ -3,7 +3,7 @@ id: T-042
 titulo: Editar la ficha del cliente
 modulo: M2 — Clientes
 capa: backend
-estado: libre
+estado: tomado
 depende_de: [T-040, T-041, T-149]
 tamaño: S
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [CU-03, CU-30, RF-002, RF-007, RF-008, CU-02, RF-003, CU-15]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: FranLucianoo
+tomado_el: 24/10/26 11:28
+rama: feature/T-042-editar-la-ficha-del-cliente
 pr:
 ---
 # T-042 Editar la ficha del cliente
