@@ -11,6 +11,7 @@ from rumbo.presentacion.esquemas.comunes import Problema
 TODOS = (RolUsuario.admin, RolUsuario.dueno, RolUsuario.empleado, RolUsuario.freelance)
 GESTION = (RolUsuario.admin, RolUsuario.dueno)
 
+_ESCRITURA = "**Escritura:** el responsable de la alerta, o admin o dueño (DEC-0005).\n\n"
 _ERRORES = {
     401: "Falta el token, no es válido o el usuario no tiene acceso.",
     403: "El rol no alcanza.",
@@ -20,14 +21,18 @@ _ERRORES = {
 }
 
 
-def operacion(roles: tuple[RolUsuario, ...], casos_de_uso: str, *errores: int) -> dict[str, Any]:
+def operacion(
+    roles: tuple[RolUsuario, ...], casos_de_uso: str, *errores: int, escritura: bool = False
+) -> dict[str, Any]:
     """Argumentos de ruta comunes: guardia de rol, descripción (`Roles` y `Casos de uso`) y las
-    respuestas de error problem+json (`401` siempre, `403` si no es para todos, más `errores`)."""
+    respuestas de error problem+json (`401` siempre, `403` si no es para todos, más `errores`).
+    Con `escritura`, la descripción suma la regla de DEC-0005 (responsable, admin o dueño)."""
     codigos = [401, *([403] if roles != TODOS else []), *errores]
     return {
         "dependencies": [Depends(usuario_actual if roles == TODOS else exigir_roles(*roles))],
         "description": (
-            f"**Roles:** {', '.join(r.value for r in roles)}.\n\n**Casos de uso:** {casos_de_uso}."
+            f"**Roles:** {', '.join(r.value for r in roles)}.\n\n"
+            f"{_ESCRITURA if escritura else ''}**Casos de uso:** {casos_de_uso}."
         ),
         "openapi_extra": {
             "x-roles": [r.value for r in roles],

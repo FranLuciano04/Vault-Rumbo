@@ -60,3 +60,15 @@ class Auditoria(BaseModel):
     )
     created_at: datetime = Field(json_schema_extra={"readOnly": True})
     updated_at: datetime = Field(json_schema_extra={"readOnly": True})
+
+
+def componer_con_auditoria(esquema: dict[str, Any]) -> None:
+    """Publica un esquema que hereda de `Auditoria` como `allOf` del `$ref` a `Auditoria` y sus
+    propiedades propias, tal como lo define el contrato. Va en `json_schema_extra` del modelo."""
+    propias = {n: p for n, p in esquema["properties"].items() if n not in Auditoria.model_fields}
+    requeridas = [n for n in esquema.get("required", []) if n in propias]
+    parte: dict[str, Any] = {"type": "object", "properties": propias, "required": requeridas}
+    if "description" in esquema:
+        parte["description"] = esquema.pop("description")
+    esquema.clear()
+    esquema["allOf"] = [parte, {"$ref": "#/components/schemas/Auditoria"}]

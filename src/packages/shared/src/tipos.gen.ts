@@ -569,10 +569,258 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/alertas": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Ver la agenda de alertas
+         * @description **Roles:** admin, dueno, empleado, freelance.
+         *
+         *     **Casos de uso:** CU-14, CU-30.
+         */
+        get: operations["listar_alertas"];
+        put?: never;
+        /**
+         * Crear un recordatorio manual
+         * @description **Roles:** admin, dueno, empleado, freelance.
+         *
+         *     **Casos de uso:** CU-28.
+         */
+        post: operations["crear_recordatorio"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/alertas/progreso-del-dia": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Ver el progreso del día de la agenda
+         * @description **Roles:** admin, dueno, empleado, freelance.
+         *
+         *     **Casos de uso:** CU-14.
+         */
+        get: operations["ver_progreso_del_dia"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/alertas/{alerta_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Ver una alerta
+         * @description **Roles:** admin, dueno, empleado, freelance.
+         *
+         *     **Casos de uso:** CU-14.
+         */
+        get: operations["obtener_alerta"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Editar fecha o descripción de un recordatorio
+         * @description **Roles:** admin, dueno, empleado, freelance.
+         *
+         *     **Escritura:** el responsable de la alerta, o admin o dueño (DEC-0005).
+         *
+         *     **Casos de uso:** CU-28.
+         */
+        patch: operations["editar_recordatorio"];
+        trace?: never;
+    };
+    "/api/alertas/{alerta_id}/vista": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Marcar una alerta como vista
+         * @description **Roles:** admin, dueno, empleado, freelance.
+         *
+         *     **Escritura:** el responsable de la alerta, o admin o dueño (DEC-0005).
+         *
+         *     **Casos de uso:** CU-14.
+         */
+        post: operations["marcar_alerta_vista"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/alertas/{alerta_id}/resolver": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Resolver una alerta
+         * @description **Roles:** admin, dueno, empleado, freelance.
+         *
+         *     **Escritura:** el responsable de la alerta, o admin o dueño (DEC-0005).
+         *
+         *     **Casos de uso:** CU-14.
+         */
+        post: operations["resolver_alerta"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/alertas/{alerta_id}/posponer": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Posponer una alerta
+         * @description **Roles:** admin, dueno, empleado, freelance.
+         *
+         *     **Escritura:** el responsable de la alerta, o admin o dueño (DEC-0005).
+         *
+         *     **Casos de uso:** CU-14, CU-30.
+         */
+        post: operations["posponer_alerta"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        Alerta: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            readonly id: string;
+            /**
+             * Propietario Id
+             * Format: uuid
+             * @description Dueño de la agenda donde aparece.
+             */
+            readonly propietario_id: string;
+            /**
+             * Viaje Id
+             * @description Origen.
+             */
+            readonly viaje_id: string | null;
+            /**
+             * Pago Id
+             * @description Origen.
+             */
+            readonly pago_id: string | null;
+            /**
+             * Oportunidad Id
+             * @description Origen.
+             */
+            readonly oportunidad_id: string | null;
+            /**
+             * Cliente Id
+             * @description Origen.
+             */
+            readonly cliente_id: string | null;
+            /**
+             * Viaje Hotel Id
+             * @description Origen: tramo del itinerario (pago al proveedor).
+             */
+            readonly viaje_hotel_id: string | null;
+            readonly tipo: components["schemas"]["TipoAlerta"];
+            /** Descripcion */
+            descripcion: string;
+            /**
+             * Fecha
+             * Format: date
+             * @description Cuándo dispara.
+             */
+            fecha: string;
+            readonly estado: components["schemas"]["EstadoAlerta"];
+            /**
+             * Resuelta En
+             * @description Cuándo se resolvió; vacío si no está resuelta.
+             */
+            readonly resuelta_en: string | null;
+            /** Cerrada Por Cancelacion */
+            readonly cerrada_por_cancelacion: boolean;
+        } & components["schemas"]["Auditoria"];
+        /**
+         * AlertaCrear
+         * @description Recordatorio manual (CU-28). Como máximo se asocia a una entidad.
+         */
+        AlertaCrear: {
+            /**
+             * Fecha
+             * Format: date
+             */
+            fecha: string;
+            /** Descripcion */
+            descripcion: string;
+            /** Viaje Id */
+            viaje_id?: string | null;
+            /** Cliente Id */
+            cliente_id?: string | null;
+            /** Oportunidad Id */
+            oportunidad_id?: string | null;
+        };
+        /**
+         * AlertaEditar
+         * @description Solo mientras está pendiente (CU-28 A2).
+         */
+        AlertaEditar: {
+            /**
+             * Fecha
+             * Format: date
+             */
+            fecha?: string;
+            /** Descripcion */
+            descripcion?: string;
+        };
+        /** AlertaPosponer */
+        AlertaPosponer: {
+            /**
+             * Fecha
+             * Format: date
+             * @description Nueva fecha, posterior a la actual.
+             */
+            fecha: string;
+        };
         /** AsesorDelCliente */
         AsesorDelCliente: {
             /**
@@ -853,6 +1101,11 @@ export interface components {
             mensaje: string;
         };
         /**
+         * EstadoAlerta
+         * @enum {string}
+         */
+        EstadoAlerta: "pendiente" | "vista" | "resuelta";
+        /**
          * EstadoOportunidad
          * @enum {string}
          */
@@ -1032,6 +1285,19 @@ export interface components {
             /** Duplicados */
             duplicados: components["schemas"]["Cliente"][];
         };
+        /**
+         * ProgresoDelDia
+         * @description Avance de la agenda de hoy del usuario actual (CU-14).
+         */
+        ProgresoDelDia: {
+            /** Resueltas Hoy */
+            resueltas_hoy: number;
+            /**
+             * Total Del Dia
+             * @description Las resueltas hoy más las que quedan para hoy.
+             */
+            total_del_dia: number;
+        };
         /** RequisitoDestino */
         RequisitoDestino: {
             /**
@@ -1143,6 +1409,11 @@ export interface components {
          * @enum {string}
          */
         SegmentoCliente: "familia" | "amigos" | "individual" | "pareja";
+        /**
+         * TipoAlerta
+         * @enum {string}
+         */
+        TipoAlerta: "pago" | "formulario" | "salida" | "insistencia" | "resena" | "manual" | "recontacto" | "viaje";
         /**
          * UltimoViajeDelCliente
          * @description Viaje no cancelado de salida más reciente entre los que ya salieron (hasta hoy).
@@ -1292,6 +1563,29 @@ export interface components {
              * Format: date
              */
             fecha_regreso: string;
+        };
+        /** @description Columnas de auditoría (DEC-0008): las completa el servidor, el cliente no las envía. */
+        Auditoria: {
+            /**
+             * Created By
+             * @description Usuario que creó el registro; vacío si lo hizo el proceso automático.
+             */
+            readonly created_by: string | null;
+            /**
+             * Updated By
+             * @description Usuario que lo modificó por última vez; vacío si fue el proceso automático.
+             */
+            readonly updated_by: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            readonly created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            readonly updated_at: string;
         };
         Pagina: {
             /** Items */
@@ -3041,6 +3335,459 @@ export interface operations {
                 };
             };
             /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+        };
+    };
+    listar_alertas: {
+        parameters: {
+            query?: {
+                /** @description Fin del período. */
+                hasta?: string | null;
+                estado?: components["schemas"]["EstadoAlerta"] | null;
+                tipo?: components["schemas"]["TipoAlerta"] | null;
+                /** @description Solo las pendientes con fecha posterior a hoy, para adelantar trabajo (CU-14 A5). */
+                proximas?: boolean;
+                /** @description Las de toda la agencia: solo admin y dueño (CU-14 A1). */
+                todas?: boolean;
+                /** @description Agenda de un responsable: solo admin y dueño (CU-14 A1). */
+                propietario_id?: string | null;
+                pagina?: number;
+                por_pagina?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Alertas. Por defecto, las propias pendientes hasta hoy; con `proximas=true`, las pendientes con fecha posterior a hoy (CU-14 A5). Los recontactos de CU-30 son las de tipo `recontacto`. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        items: components["schemas"]["Alerta"][];
+                        /** @description Cantidad total de resultados. */
+                        total: number;
+                        pagina: number;
+                        por_pagina: number;
+                    };
+                };
+            };
+            /** @description Falta el token, no es válido o el usuario no tiene acceso. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Datos inválidos. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+        };
+    };
+    crear_recordatorio: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AlertaCrear"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Alerta"];
+                };
+            };
+            /** @description Falta el token, no es válido o el usuario no tiene acceso. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Datos inválidos. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+        };
+    };
+    ver_progreso_del_dia: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProgresoDelDia"];
+                };
+            };
+            /** @description Falta el token, no es válido o el usuario no tiene acceso. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+        };
+    };
+    obtener_alerta: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                alerta_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Alerta"];
+                };
+            };
+            /** @description Falta el token, no es válido o el usuario no tiene acceso. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description No existe. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+        };
+    };
+    editar_recordatorio: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                alerta_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AlertaEditar"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Alerta"];
+                };
+            };
+            /** @description Falta el token, no es válido o el usuario no tiene acceso. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description El rol no alcanza. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description No existe. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Conflicto con el estado actual. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Datos inválidos. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+        };
+    };
+    marcar_alerta_vista: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                alerta_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Alerta"];
+                };
+            };
+            /** @description Falta el token, no es válido o el usuario no tiene acceso. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description El rol no alcanza. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description No existe. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Conflicto con el estado actual. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+        };
+    };
+    resolver_alerta: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                alerta_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Alerta"];
+                };
+            };
+            /** @description Falta el token, no es válido o el usuario no tiene acceso. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description El rol no alcanza. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description No existe. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Conflicto con el estado actual. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+        };
+    };
+    posponer_alerta: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                alerta_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AlertaPosponer"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Alerta"];
+                };
+            };
+            /** @description Falta el token, no es válido o el usuario no tiene acceso. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description El rol no alcanza. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description No existe. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Conflicto con el estado actual. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Datos inválidos. */
             422: {
                 headers: {
                     [name: string]: unknown;

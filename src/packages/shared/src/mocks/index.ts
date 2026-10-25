@@ -49,5 +49,6 @@ export function manejadorYo(rol: RolMock): RequestHandler {
   return http.get("*/api/auth/yo", () => HttpResponse.json(usuariosPorRol[rol]));
 }
 
+export * from "./alertas";
 export * from "./clientes";
 export * from "./m1";

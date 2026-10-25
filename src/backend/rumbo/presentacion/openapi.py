@@ -6,7 +6,7 @@ from fastapi import FastAPI
 from fastapi.openapi.utils import get_openapi
 
 from rumbo.presentacion.errores import PROBLEM_JSON
-from rumbo.presentacion.esquemas.comunes import Problema
+from rumbo.presentacion.esquemas.comunes import Auditoria, Problema
 from rumbo.presentacion.paginacion import Pagina
 
 _REF_PROBLEMA = "#/components/schemas/Problema"
@@ -41,6 +41,14 @@ def _publicar_problema(documento: dict[str, Any]) -> None:
     esquemas["Problema"] = esquema
 
 
+def _publicar_auditoria(documento: dict[str, Any]) -> None:
+    """Publica `Auditoria` para los esquemas que la componen con `allOf` (ver
+    `componer_con_auditoria`)."""
+    esquema = Auditoria.model_json_schema(ref_template="#/components/schemas/{model}")
+    esquema.pop("title", None)
+    documento["components"]["schemas"]["Auditoria"] = esquema
+
+
 def _quitar_esquemas_de_validacion_de_fastapi(documento: dict[str, Any]) -> None:
     """`HTTPValidationError` y `ValidationError` quedan huérfanos: el 422 usa `Problema`."""
     esquemas = documento["components"]["schemas"]
@@ -60,6 +68,7 @@ def registrar_openapi(app: FastAPI) -> None:
         if app.openapi_schema is None:
             documento = get_openapi(title=app.title, version=app.version, routes=app.routes)
             _publicar_problema(documento)
+            _publicar_auditoria(documento)
             _errores_como_problem_json(documento)
             _quitar_esquemas_de_validacion_de_fastapi(documento)
             _publicar_pagina_generica(documento)
