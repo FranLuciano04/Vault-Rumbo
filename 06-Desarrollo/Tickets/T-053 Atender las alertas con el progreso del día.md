@@ -3,7 +3,7 @@ id: T-053
 titulo: Atender las alertas con el progreso del día
 modulo: M3 — Alertas
 capa: backend
-estado: libre
+estado: tomado
 depende_de: [T-052]
 tamaño: S
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [CU-14, RF-076, RF-077, RF-155]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: FranLucianoo
+tomado_el: 25/10/26 17:34
+rama: feature/T-053-atender-las-alertas-con-el-progreso-del
 pr:
 ---
 # T-053 Atender las alertas con el progreso del día
