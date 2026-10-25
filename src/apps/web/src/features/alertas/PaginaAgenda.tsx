@@ -96,7 +96,7 @@ export function PaginaAgenda({
   };
 
   const pendientes = useAlertas(cliente, filtros);
-  const vistas = useAlertas(cliente, { ...filtros, estado: "vista" });
+  const vistas = useAlertas(cliente, { ...filtros, pagina: 1, estado: "vista" });
   const progreso = useProgresoDelDia(cliente);
   const marcarVista = useMarcarAlertaVista(cliente);
   const {
@@ -135,6 +135,8 @@ export function PaginaAgenda({
   const ultimaPagina = pendientes.data
     ? Math.max(1, Math.ceil(pendientes.data.total / pendientes.data.por_pagina))
     : 1;
+  // Si al bajar el total la página pedida queda fuera de rango (se resolvió la única de la última), retrocede.
+  if (pendientes.data && pagina > ultimaPagina) setPagina(ultimaPagina);
   const sinResolver = vistas.data?.total ?? 0;
   const hayVistas = !mostrarVistas && sinResolver > 0;
 
@@ -272,7 +274,7 @@ export function PaginaAgenda({
         aria-labelledby={proximas ? "pestana-Próximas" : "pestana-Pendientes"}
         className="flex flex-col gap-4"
       >
-        {pendientes.data && vistas.data && alertas.length === 0 && (
+        {pendientes.data && !vistas.isPending && alertas.length === 0 && (
           <div role="status" className="rounded-2xl border bg-card p-8 text-center">
             <h2 className="text-lg font-semibold">
               {proximas
@@ -294,7 +296,9 @@ export function PaginaAgenda({
                   {hayVistas && (
                     <Button
                       onClick={() => {
-                        setMostrarVistas(true);
+                        filtrar(() => {
+                          setMostrarVistas(true);
+                        });
                       }}
                     >
                       Ver las vistas
@@ -302,7 +306,9 @@ export function PaginaAgenda({
                   )}
                   <Button
                     onClick={() => {
-                      setProximas(true);
+                      filtrar(() => {
+                        setProximas(true);
+                      });
                     }}
                   >
                     Adelantar próximas

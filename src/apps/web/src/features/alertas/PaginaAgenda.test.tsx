@@ -238,6 +238,93 @@ describe("RF-074 agenda", () => {
     expect(within(pago).getByText(/registrar el cobro/i)).toBeInTheDocument();
   });
 
+  it("RF-074 A3: si falla la consulta de vistas igual muestra el estado vacío", async () => {
+    servidor.use(
+      http.get("*/api/alertas", ({ request }) =>
+        new URL(request.url).searchParams.get("estado") === "vista"
+          ? problema(500, "Error", "Falla.")
+          : sinAlertas(),
+      ),
+    );
+    renderAgenda("empleado");
+
+    expect(await screen.findByText(/estás al día/i)).toBeInTheDocument();
+  });
+
+  it("RF-074 al cambiar de filtro estando en la página 2 vuelve a la 1; las vistas piden siempre la 1", async () => {
+    const pedidos: URLSearchParams[] = [];
+    servidor.use(
+      http.get("*/api/alertas", ({ request }) => {
+        const parametros = new URL(request.url).searchParams;
+        pedidos.push(parametros);
+        const pagina = Number(parametros.get("pagina") ?? 1);
+        const items = parametros.get("estado") === "vista" ? [] : [alertasMock[1]];
+        return HttpResponse.json({ items, total: 150, pagina, por_pagina: 100 });
+      }),
+    );
+    const usuario = userEvent.setup();
+    renderAgenda("empleado");
+    await usuario.click(await screen.findByRole("button", { name: /siguiente/i }));
+    await waitFor(() => {
+      expect(pedidos.some((p) => p.get("pagina") === "2")).toBe(true);
+    });
+
+    await usuario.selectOptions(screen.getByRole("combobox", { name: /tipo/i }), "Formulario");
+
+    await waitFor(() => {
+      const conTipo = pedidos.filter((p) => p.get("tipo") === "formulario");
+      expect(conTipo.length).toBeGreaterThan(0);
+      expect(conTipo.every((p) => p.get("pagina") === "1")).toBe(true);
+    });
+    expect(
+      pedidos.filter((p) => p.get("estado") === "vista").every((p) => p.get("pagina") === "1"),
+    ).toBe(true);
+  });
+
+  it("RF-074 si el total baja y la página queda fuera de rango, vuelve a la última", async () => {
+    servidor.use(
+      http.get("*/api/alertas", ({ request }) => {
+        const parametros = new URL(request.url).searchParams;
+        const pagina = Number(parametros.get("pagina") ?? 1);
+        const vistas = parametros.get("estado") === "vista";
+        const items = vistas || pagina > 1 ? [] : [alertasMock[1]];
+        const total = vistas ? 0 : pagina > 1 ? 100 : 101;
+        return HttpResponse.json({ items, total, pagina, por_pagina: 100 });
+      }),
+    );
+    const usuario = userEvent.setup();
+    renderAgenda("empleado");
+    await usuario.click(await screen.findByRole("button", { name: /siguiente/i }));
+
+    expect(await screen.findByText(FORMULARIO)).toBeInTheDocument();
+    expect(screen.queryByText(/página 2/i)).not.toBeInTheDocument();
+  });
+
+  it("RF-074 una alerta de pago en dólares muestra el monto en US$", async () => {
+    const pago = alertasMock[0];
+    if (!pago?.contexto.pago) throw new Error("falta el pago del mock");
+    const enDolares = {
+      ...pago,
+      contexto: {
+        ...pago.contexto,
+        pago: { ...pago.contexto.pago, moneda: "USD", monto: "1500.00" },
+      },
+    };
+    servidor.use(
+      http.get("*/api/alertas", ({ request }) =>
+        HttpResponse.json(
+          new URL(request.url).searchParams.get("estado") === "vista"
+            ? { items: [], total: 0, pagina: 1, por_pagina: 100 }
+            : { items: [enDolares], total: 1, pagina: 1, por_pagina: 100 },
+        ),
+      ),
+    );
+    renderAgenda("empleado");
+    const f = await fila(PAGO);
+
+    expect(within(f).getByText(/^Viaje: Punta Cana/)).toHaveTextContent(/US\$ 1\.500,00/);
+  });
+
   it("RF-074 una alerta vista no ofrece posponer pero sí resolver", async () => {
     const usuario = userEvent.setup();
     renderAgenda("empleado");
