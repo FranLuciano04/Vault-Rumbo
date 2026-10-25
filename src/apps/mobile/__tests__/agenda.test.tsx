@@ -1,5 +1,5 @@
 import { act, fireEvent, waitFor } from "@testing-library/react-native";
-import { AppState } from "react-native";
+import { AccessibilityInfo, AppState } from "react-native";
 import { renderRouter } from "expo-router/testing-library";
 import { Slot } from "expo-router";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -518,6 +518,11 @@ describe("RF-074 agenda mobile: paginación, agencia y avisos", () => {
     await waitFor(() => {
       expect(llamadasResolver(ID_FORMULARIO)).toHaveLength(1);
     });
+    await act(async () => {
+      jest.advanceTimersByTime(ESPERA_DESHACER_MS * 2);
+      await Promise.resolve();
+    });
+    expect(llamadasResolver()).toHaveLength(1);
   });
 
   it("el pull-to-refresh limpia el error de una resolución rechazada", async () => {
@@ -539,5 +544,31 @@ describe("RF-074 agenda mobile: paginación, agencia y avisos", () => {
     await waitFor(() => {
       expect(vista.queryByText(motivo)).toBeNull();
     });
+  });
+
+  it("con páginas sin cargar los títulos muestran un piso («N+») y el pie cuenta lo cargado", async () => {
+    backend({ paginacion: { porPagina: 2, totalReal: 4 } });
+    const vista = await renderAgenda();
+    await vista.findByText(PAGO);
+
+    expect(vista.getByRole("header", { name: "Atrasadas · 2+" })).toBeTruthy();
+    expect(vista.getByText("Mostrando 2 de 4 alertas")).toBeTruthy();
+  });
+
+  it("para el dueño el aviso de vistas habla de la agencia", async () => {
+    backend({ rol: "dueno", alertas: [], resueltasInicial: 3, vistas: 1 });
+    const vista = await renderAgenda();
+
+    await vista.findByText("La agencia tiene 1 alerta vista sin resolver.");
+  });
+
+  it("anuncia «Alerta resuelta» para lectores de pantalla", async () => {
+    const anunciar = jest.spyOn(AccessibilityInfo, "announceForAccessibility");
+    backend();
+    const vista = await renderAgenda();
+    await vista.findByText(FORMULARIO);
+    await fireEvent.press(vista.getByRole("button", { name: `Resolver: ${FORMULARIO}` }));
+
+    expect(anunciar).toHaveBeenCalledWith("Alerta resuelta");
   });
 });

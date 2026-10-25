@@ -13,10 +13,24 @@ import {
   useYo,
 } from "@rumbo/shared/hooks";
 import { useEffect, useState } from "react";
-import { ActivityIndicator, AppState, FlatList, Pressable, Text, View } from "react-native";
+import {
+  AccessibilityInfo,
+  ActivityIndicator,
+  AppState,
+  FlatList,
+  Pressable,
+  Text,
+  View,
+} from "react-native";
 import { cliente } from "../../cliente";
 
 const POR_PAGINA = 100;
+const ERROR_AL_CARGAR = "No pudimos cargar la agenda. Probá de nuevo en unos minutos.";
+
+// VoiceOver en iOS no lee `accessibilityLiveRegion`: los avisos se anuncian también a mano.
+const anunciar = (texto: string) => {
+  AccessibilityInfo.announceForAccessibility(texto);
+};
 
 type Fila = { titulo: string } | { alerta: Alerta };
 
@@ -89,7 +103,8 @@ export function AgendaMobile() {
     useResolverConDeshacer(cliente);
   const [refrescando, setRefrescando] = useState(false);
 
-  // Si la app pasa a segundo plano dentro del plazo de gracia, la resolución sale igual.
+  // Si la app pasa a segundo plano dentro del plazo de gracia, la resolución sale igual. «inactive»
+  // cuenta a propósito: en iOS es el paso previo a cerrarse o a mostrar el selector de apps.
   useEffect(() => {
     const suscripcion = AppState.addEventListener("change", (estado) => {
       if (estado !== "active") enviarPendientes();
@@ -99,26 +114,42 @@ export function AgendaMobile() {
     };
   }, [enviarPendientes]);
 
+  const hayErrorAlCargar = alertas.isError;
+  useEffect(() => {
+    if (error) anunciar(error);
+  }, [error]);
+  useEffect(() => {
+    if (hayErrorAlCargar) anunciar(ERROR_AL_CARGAR);
+  }, [hayErrorAlCargar]);
+
   const hoy = hoyEnBuenosAires();
   const resueltasIds = new Set(resueltas.map((r) => r.alerta.id));
-  const cargadas = alertas.data?.pages.flatMap((pagina) => pagina.items) ?? [];
+  // Si la agenda cambia entre pedidos, una alerta puede venir en dos páginas: se queda una sola vez.
+  const cargadas = [
+    ...new Map(
+      (alertas.data?.pages.flatMap((pagina) => pagina.items) ?? []).map((a) => [a.id, a]),
+    ).values(),
+  ];
   const total = alertas.data?.pages[0]?.total ?? 0;
   const pendientes = cargadas
     .filter((a) => !resueltasIds.has(a.id))
     .sort((a, b) => a.fecha.localeCompare(b.fecha));
+  const faltanPorCargar = alertas.hasNextPage;
+  // Con páginas sin cargar, la cantidad es un piso: «100+».
+  const cantidad = (n: number) => `${String(n)}${faltanPorCargar ? "+" : ""}`;
   const atrasadas = pendientes.filter((a) => a.fecha < hoy);
   const deHoy = pendientes.filter((a) => a.fecha >= hoy);
   const filas: Fila[] = [
-    ...(atrasadas.length > 0 ? [{ titulo: `Atrasadas · ${String(atrasadas.length)}` }] : []),
+    ...(atrasadas.length > 0 ? [{ titulo: `Atrasadas · ${cantidad(atrasadas.length)}` }] : []),
     ...atrasadas.map((alerta) => ({ alerta })),
-    ...(deHoy.length > 0 ? [{ titulo: `Hoy · ${String(deHoy.length)}` }] : []),
+    ...(deHoy.length > 0 ? [{ titulo: `Hoy · ${cantidad(deHoy.length)}` }] : []),
     ...deHoy.map((alerta) => ({ alerta })),
   ];
-  const faltanPorCargar = alertas.hasNextPage;
   const sinResolver = vistas.data?.total ?? 0;
 
   const cargarMas = () => {
-    if (alertas.hasNextPage && !alertas.isFetchingNextPage) void alertas.fetchNextPage();
+    // Con un refetch en curso (p. ej. tras resolver) no se pide otra página: lo cancelaría.
+    if (alertas.hasNextPage && !alertas.isFetching) void alertas.fetchNextPage();
   };
   const reintentar = () => Promise.all([alertas.refetch(), vistas.refetch(), progreso.refetch()]);
   const refrescar = async () => {
@@ -176,9 +207,7 @@ export function AgendaMobile() {
           accessibilityLiveRegion="assertive"
           className="mb-3 flex-row items-center justify-between gap-3"
         >
-          <Text className="flex-1 text-sm font-medium text-red-700">
-            No pudimos cargar la agenda. Probá de nuevo en unos minutos.
-          </Text>
+          <Text className="flex-1 text-sm font-medium text-red-700">{ERROR_AL_CARGAR}</Text>
           <Pressable
             role="button"
             accessibilityLabel="Reintentar"
@@ -206,8 +235,8 @@ export function AgendaMobile() {
               </Text>
               {sinResolver > 0 && (
                 <Text className="text-center text-gray-500">
-                  Tenés {sinResolver} {sinResolver === 1 ? "alerta vista" : "alertas vistas"} sin
-                  resolver.
+                  {esDeAgencia ? "La agencia tiene" : "Tenés"} {sinResolver}{" "}
+                  {sinResolver === 1 ? "alerta vista" : "alertas vistas"} sin resolver.
                 </Text>
               )}
             </View>
@@ -217,12 +246,12 @@ export function AgendaMobile() {
           faltanPorCargar ? (
             <View className="items-center gap-2 py-4">
               <Text className="text-sm text-gray-500">
-                Mostrando {pendientes.length} de {total} alertas
+                Mostrando {cargadas.length} de {total} alertas
               </Text>
               <Pressable
                 role="button"
                 accessibilityLabel="Ver más alertas"
-                disabled={alertas.isFetchingNextPage}
+                disabled={alertas.isFetching}
                 onPress={cargarMas}
                 className="rounded-xl border border-input px-4 py-2"
               >
@@ -238,6 +267,7 @@ export function AgendaMobile() {
               hoy={hoy}
               mostrarResponsable={esDeAgencia}
               alResolver={() => {
+                anunciar("Alerta resuelta");
                 resolver(item.alerta);
               }}
             />
