@@ -24,6 +24,12 @@ La **persona** de cada sesión es quien la corre, identificada por su identidad 
 ## Avisos pendientes por persona
 > Claude los lee al identificar a la persona (paso 1 de `CLAUDE.md`) y se los cuenta **apenas la saluda**, antes de cualquier otra tarea. Cuando la persona confirme que lo leyó o que lo hizo, **Claude borra su fila** en esa misma sesión, con un commit. Cuando no quede ninguna fila de alguien, se borra también su sección.
 
+### Paloma (`palomap2003`) y Nahuel (`Nahuel Viniegra`) — el repo es público
+- **25/10, de Francisco: el repo [Vault-Rumbo](https://github.com/FranLuciano04/Vault-Rumbo) pasó a público.** GitHub Actions se había cortado porque se terminaron los minutos del plan Free; en los repos públicos los minutos son ilimitados.
+  - Antes se escaneó todo el historial, incluidas las ramas de los PR, y no hay secretos.
+  - Quedan visibles sus nombres y emails: los de los commits, y el de Paloma también en los metadatos de dos docx. Si quieren, activen *Keep my email addresses private* en GitHub y usen el email `noreply` en los commits nuevos.
+  - Nunca subir un `.env` ni una clave: ahora cualquiera lo vería al instante.
+
 ### Nahuel (`Nahuel Viniegra`) — DEC-0019 y fallas de entorno local
 - **24/10, de Paloma: [[DEC-0019 Las fallas se arreglan al encontrarlas|DEC-0019]]**, la decisión que tomamos en equipo. Una falla se arregla cuando se encuentra, sin crear un ticket:
   - si aparece durante un ticket, en su misma rama y PR;
@@ -45,6 +51,22 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Commits:** <hash>, <hash>
 - **Pendiente:** …
 ```
+
+## 25/10/26 — Francisco (Claude Opus 5.5) — T-048: alta de clientes en mobile; repo público
+- **Hecho:** T-048 (PR [#75](https://github.com/FranLuciano04/Vault-Rumbo/pull/75), mergeado con el CI en verde). **M2 queda completo y listo para `/cerrar-modulo`.**
+  - Desde la pestaña Clientes, «Nuevo cliente» abre `/clientes/nuevo`. Valida los datos mínimos, muestra el aviso de duplicado con «Ir al cliente existente» o «Confirmar alta», y el `freelance` no ve el selector de asesor. Tras el alta se abre la ficha.
+  - Desvío del prototipo (pantalla 58): un solo campo `contacto`, como en la web.
+  - Review Opus: 0 bloqueantes, 1 importante y 3 menores. Se arreglaron todos menos uno, anotado en el ticket: «Confirmar alta» después de editar no vuelve a pasar por el chequeo de duplicados (la web hace lo mismo).
+- **Checks:** mobile tiene 89 tests y 96,99 % de cobertura; lint y typecheck en verde. El CI del PR dio verde, con los e2e.
+- **CI cortado por facturación:** GitHub Actions dejó de correr («recent account payments have failed or your spending limit needs to be increased»), porque se gastaron los minutos del plan Free.
+  - Francisco **pasó el repo a público** para tener minutos ilimitados.
+  - Antes se escaneó todo: gitleaks y trufflehog sobre todos los commits y las ramas de los 75 PR, el texto de los 114 docx, pptx y pdf de la historia, los PR y los workflows. **No hay secretos.** El único hallazgo fue un falso positivo en `uv.lock`.
+  - Quedan públicos los nombres y emails del equipo (en los commits y los metadatos de los docx) y los links a la carpeta de Drive del PC1 y al Figma.
+- **Commits:** 71f7eeb (aviso), 7b67402, 00e4150, b1c821a, fda7c5f, 53e2e83, 6efeb38, 1c18854 (merge del PR), d7c6417 (grafo) y el de esta entrada.
+- **Pendiente:**
+  - `/cerrar-modulo M2`.
+  - Revisar los permisos de la carpeta de Drive y del archivo de Figma.
+  - Avisarle a la agencia que el repo es público.
 
 ## 24/10/26 — Nahuel (Claude Opus 5.5) — T-047: clientes en la app mobile
 - **Hecho:** T-047 (PR [#72](https://github.com/FranLuciano04/Vault-Rumbo/pull/72), mergeado con el CI en verde). Se tomó T-047 porque T-153 ya lo tenía Paloma.

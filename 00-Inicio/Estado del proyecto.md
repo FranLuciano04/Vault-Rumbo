@@ -36,6 +36,8 @@ actualizado: 13/10/26
 >
 > 👉 **21/10 (Paloma):** **T-141** (íconos de la barra lateral web, como en el prototipo) está hecho y mergeado (PR [#27](https://github.com/FranLuciano04/Vault-Rumbo/pull/27)).
 >
+> 👉 **25/10 (Francisco):** **T-048** (alta de clientes en la app mobile) está hecho y mergeado (PR [#75](https://github.com/FranLuciano04/Vault-Rumbo/pull/75)). **M2 tiene todos sus tickets hechos y queda listo para `/cerrar-modulo`** (review de Codex y tag `mod-2`). ⚠️ **El repo pasó a público el 25/10:** GitHub Actions se cortó por el límite de gasto del plan Free, y en los repos públicos los minutos son ilimitados. Antes se escaneó todo el historial (gitleaks y trufflehog, incluidas las ramas de los PR) y no hay secretos. Quedan públicos los nombres y emails del equipo, y los links de Drive (PC1) y Figma: hay que revisar sus permisos.
+>
 > 👉 **24/10 (Francisco):** **T-049** (e2e de clientes y semilla de demo) está hecho y mergeado (PR [#71](https://github.com/FranLuciano04/Vault-Rumbo/pull/71)). Destraba 6 tickets. `datos-iniciales --demo` ahora carga 4 clientes ficticios. Se arregló de paso (DEC-0019) que la web reintentaba los 4xx de la API. **A M2 le faltan T-047 y T-048 (mobile)** para pasar a la review de Codex.
 >
 > 👉 **24/10 (Francisco):** **T-045** (alta de clientes en la web) está hecho y mergeado (PR [#69](https://github.com/FranLuciano04/Vault-Rumbo/pull/69)). Destraba 7 tickets. El botón «Registrar cliente» del listado abre `/clientes/nuevo`. Ante un posible duplicado se ven los candidatos y se elige entre ir al existente o confirmar.
