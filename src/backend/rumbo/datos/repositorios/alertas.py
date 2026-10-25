@@ -5,8 +5,15 @@ from typing import Any
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from rumbo.datos.modelos import Alerta, EstadoAlerta, Oportunidad, Pago, Viaje, ViajeHotel
-from rumbo.datos.modelos.comercial import Cliente
+from rumbo.datos.modelos import (
+    Alerta,
+    Cliente,
+    EstadoAlerta,
+    Oportunidad,
+    Pago,
+    Viaje,
+    ViajeHotel,
+)
 from rumbo.datos.repositorios.base import RepositorioBase
 
 # columna de `Alerta` que apunta a cada entidad que puede originarla
