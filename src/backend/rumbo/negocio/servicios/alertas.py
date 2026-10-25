@@ -70,11 +70,6 @@ async def obtener_alerta(
     return await _con_contexto(sesion, actor, alerta)
 
 
-async def _atender(sesion: AsyncSession, actor: Usuario, alerta_id: uuid.UUID) -> Alerta:
-    """La alerta bloqueada para cambiarla; la ajena es `NoEncontrado` salvo para admin y dueño."""
-    return await _alertas.obtener_para_modificar(sesion, alerta_id, visibilidad=visibilidad(actor))
-
-
 async def _con_contexto(
     sesion: AsyncSession, actor: Usuario, alerta: Alerta
 ) -> tuple[Alerta, ContextoDeAlerta]:
@@ -86,7 +81,9 @@ async def marcar_vista(
     sesion: AsyncSession, actor: Usuario, alerta_id: uuid.UUID
 ) -> tuple[Alerta, ContextoDeAlerta]:
     """Pasa una alerta pendiente a vista (CU-14, RF-076)."""
-    alerta = await _atender(sesion, actor, alerta_id)
+    alerta = await _alertas.obtener_para_modificar(
+        sesion, alerta_id, visibilidad=visibilidad(actor)
+    )
     estado.marcar_vista(alerta)
     await sesion.flush()
     return await _con_contexto(sesion, actor, alerta)
@@ -96,10 +93,16 @@ async def resolver(
     sesion: AsyncSession, actor: Usuario, alerta_id: uuid.UUID
 ) -> tuple[Alerta, ContextoDeAlerta]:
     """Resuelve a mano una alerta pendiente o vista (CU-14, RF-076). La de pago no: se
-    resuelve sola al cobrar el `Pago` (CU-14 A2, RF-079)."""
-    alerta = await _atender(sesion, actor, alerta_id)
+    resuelve sola al cobrar el `Pago` o al registrar el pago al proveedor (CU-14 A2, CU-09 A4,
+    RF-079)."""
+    alerta = await _alertas.obtener_para_modificar(
+        sesion, alerta_id, visibilidad=visibilidad(actor)
+    )
     if alerta.tipo is TipoAlerta.pago:
-        raise Conflicto("Una alerta de pago no se resuelve a mano: se resuelve al cobrar el pago.")
+        cuando = (
+            "al registrar el pago al proveedor" if alerta.viaje_hotel_id else "al cobrar el pago"
+        )
+        raise Conflicto(f"Una alerta de pago no se resuelve a mano: se resuelve {cuando}.")
     estado.resolver(alerta, datetime.now(UTC))
     await sesion.flush()
     return await _con_contexto(sesion, actor, alerta)
@@ -109,7 +112,9 @@ async def posponer(
     sesion: AsyncSession, actor: Usuario, alerta_id: uuid.UUID, nueva_fecha: date
 ) -> tuple[Alerta, ContextoDeAlerta]:
     """Mueve una alerta pendiente a una fecha futura (CU-14, RF-077)."""
-    alerta = await _atender(sesion, actor, alerta_id)
+    alerta = await _alertas.obtener_para_modificar(
+        sesion, alerta_id, visibilidad=visibilidad(actor)
+    )
     estado.posponer(alerta, nueva_fecha)
     await sesion.flush()
     return await _con_contexto(sesion, actor, alerta)

@@ -34,10 +34,13 @@ from rumbo.negocio.servicios import alertas as servicio
 from tests.fabricas import (
     ClienteFactory,
     DestinoFactory,
+    HotelFactory,
+    OperadorFactory,
     OportunidadFactory,
     PagoFactory,
     UsuarioFactory,
     ViajeFactory,
+    ViajeHotelFactory,
     crear,
 )
 
@@ -625,6 +628,30 @@ async def test_rf079_alerta_de_pago_no_se_resuelve_a_mano(
     assert (await _progreso(c))["resueltas_hoy"] == 0
 
 
+async def test_rf079_alerta_de_pago_al_proveedor_se_resuelve_al_registrar_el_pago(
+    cliente_como: FabricaCliente, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("empleado")
+    yo = _propio(c)
+    destino = await crear(sesion, DestinoFactory)
+    viaje = await crear(
+        sesion,
+        ViajeFactory,
+        cliente_id=(await crear(sesion, ClienteFactory)).id,
+        destino_id=destino.id,
+        operador_id=(await crear(sesion, OperadorFactory)).id,
+        responsable_id=yo.id,
+    )
+    hotel = await crear(sesion, HotelFactory, destino_id=destino.id)
+    tramo = await crear(sesion, ViajeHotelFactory, viaje_id=viaje.id, hotel_id=hotel.id)
+    alerta = await _alerta(sesion, yo, hoy(), "pagar al hotel", TipoAlerta.pago, tramo)
+
+    r = await c.post(f"/api/alertas/{alerta.id}/resolver")
+
+    assert r.status_code == 409, r.text
+    assert "proveedor" in r.json()["detail"].lower()
+
+
 async def test_rf079_alerta_de_pago_si_se_puede_marcar_vista_y_posponer(
     cliente_como: FabricaCliente, sesion: AsyncSession
 ) -> None:
@@ -796,6 +823,7 @@ async def test_rf078_direccion_atiende_alertas_ajenas(
     assert r.status_code == 200, r.text
     assert r.json()["estado"] == estado
     assert r.json()["propietario_id"] == str(duenia.id)
+    assert r.json()["updated_by"] == str(c.usuario.id)  # type: ignore[attr-defined]
     assert r.json()["responsable"] == {"id": str(duenia.id), "nombre": "Sofía Méndez"}
 
 
