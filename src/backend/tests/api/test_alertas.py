@@ -297,3 +297,77 @@ async def test_rf074_vistas_ocultas_por_defecto_y_visibles_con_estado(
 
     assert _ids(por_defecto) == [str(pendiente.id)]
     assert _ids(solo_vistas) == [str(vista.id)]
+
+
+async def test_rf151_freelance_no_ve_el_contexto_de_un_origen_ajeno(
+    cliente_como: FabricaCliente, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("freelance")
+    otro = await crear(sesion, UsuarioFactory)
+    cliente = await crear(sesion, ClienteFactory, asesor_asignado_id=otro.id)
+    destino = await crear(sesion, DestinoFactory)
+    viaje = await crear(
+        sesion, ViajeFactory, cliente_id=cliente.id, destino_id=destino.id, responsable_id=otro.id
+    )
+    pago = await crear(sesion, PagoFactory, viaje_id=viaje.id)
+    alerta = await _alerta(sesion, _propio(c), hoy(), "pago", TipoAlerta.pago, pago)
+
+    detalle = await c.get(f"/api/alertas/{alerta.id}")
+    listado = await c.get("/api/alertas")
+
+    nulo = {"cliente": None, "oportunidad": None, "viaje": None, "pago": None}
+    assert detalle.json()["contexto"] == nulo
+    assert listado.json()["items"][0]["contexto"] == nulo
+
+
+async def test_rf075_pago_con_la_moneda_del_viaje(
+    cliente_como: FabricaCliente, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("empleado")
+    cliente = await crear(sesion, ClienteFactory)
+    destino = await crear(sesion, DestinoFactory)
+    viaje = await crear(
+        sesion,
+        ViajeFactory,
+        cliente_id=cliente.id,
+        destino_id=destino.id,
+        responsable_id=_propio(c).id,
+        moneda="USD",
+    )
+    pago = await crear(sesion, PagoFactory, viaje_id=viaje.id)
+    alerta = await _alerta(sesion, _propio(c), hoy(), "pago", TipoAlerta.pago, pago)
+
+    r = await c.get(f"/api/alertas/{alerta.id}")
+
+    assert r.json()["contexto"]["pago"]["moneda"] == "USD"
+
+
+async def test_rf074_filtra_por_tipo(cliente_como: FabricaCliente, sesion: AsyncSession) -> None:
+    c = await cliente_como("empleado")
+    yo = _propio(c)
+    recontacto = await _alerta(sesion, yo, hoy(), "re", TipoAlerta.recontacto)
+    await _alerta(sesion, yo, hoy(), "manual")
+
+    r = await c.get("/api/alertas", params={"tipo": "recontacto"})
+
+    assert _ids(r) == [str(recontacto.id)]
+
+
+async def test_rf154_hasta_es_tope_dentro_de_la_ventana(
+    cliente_como: FabricaCliente, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("empleado")
+    yo = _propio(c)
+    atrasada = await _alerta(sesion, yo, hoy() - timedelta(days=1), "atrasada")
+    de_hoy = await _alerta(sesion, yo, hoy(), "hoy")
+    manana = await _alerta(sesion, yo, hoy() + timedelta(days=1), "mañana")
+    await _alerta(sesion, yo, hoy() + timedelta(days=5), "lejana")
+    tope = str(hoy() + timedelta(days=3))
+
+    proximas = await c.get("/api/alertas", params={"proximas": "true", "hasta": tope})
+    del_dia = await c.get("/api/alertas", params={"hasta": tope})
+    antes = await c.get("/api/alertas", params={"hasta": str(hoy() - timedelta(days=1))})
+
+    assert _ids(proximas) == [str(manana.id)]
+    assert _ids(del_dia) == [str(atrasada.id), str(de_hoy.id)]
+    assert _ids(antes) == [str(atrasada.id)]

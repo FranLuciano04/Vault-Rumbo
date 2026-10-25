@@ -13,6 +13,7 @@ from rumbo.datos.modelos import (
     EstadoOportunidad,
     EstadoPago,
     EstadoViaje,
+    Moneda,
     TipoAlerta,
     TipoPago,
 )
@@ -58,6 +59,7 @@ class PagoDeAlerta(BaseModel):
     id: uuid.UUID
     tipo: TipoPago
     monto: Decimal
+    moneda: Moneda = Field(description="Moneda del viaje (DEC-0007).")
     vencimiento: date
     estado: EstadoPago
 

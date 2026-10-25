@@ -1160,6 +1160,11 @@ export interface components {
             /** Resenas */
             resenas: components["schemas"]["ResenaDelCliente"][];
         };
+        /**
+         * Moneda
+         * @enum {string}
+         */
+        Moneda: "ARS" | "USD";
         /** Operador */
         Operador: {
             /**
@@ -1302,6 +1307,8 @@ export interface components {
             tipo: components["schemas"]["TipoPago"];
             /** Monto */
             monto: string;
+            /** @description Moneda del viaje (DEC-0007). */
+            moneda: components["schemas"]["Moneda"];
             /**
              * Vencimiento
              * Format: date
@@ -3446,7 +3453,7 @@ export interface operations {
     listar_alertas: {
         parameters: {
             query?: {
-                /** @description Fin del período. */
+                /** @description Tope de fecha dentro de la ventana: sin `proximas`, las de fecha hasta el menor entre hoy y `hasta`; con `proximas`, las posteriores a hoy hasta `hasta` inclusive. */
                 hasta?: string | null;
                 estado?: components["schemas"]["EstadoAlerta"] | null;
                 tipo?: components["schemas"]["TipoAlerta"] | null;

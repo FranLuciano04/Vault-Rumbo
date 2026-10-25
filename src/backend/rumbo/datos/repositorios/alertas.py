@@ -13,6 +13,7 @@ from rumbo.datos.modelos import (
     Cliente,
     Destino,
     EstadoAlerta,
+    Moneda,
     Oportunidad,
     Pago,
     TipoAlerta,
@@ -49,6 +50,12 @@ class ViajeConDestino:
 
 
 @dataclass(frozen=True)
+class PagoConMoneda:
+    pago: Pago
+    moneda: Moneda  # la del viaje (DEC-0007)
+
+
+@dataclass(frozen=True)
 class ContextoDeAlerta:
     """El responsable de una `Alerta` y la cadena de su origen (RF-075): un `Pago` trae su
     `Viaje` y su `Cliente`; un `Viaje` o una `Oportunidad`, su `Cliente`."""
@@ -57,14 +64,23 @@ class ContextoDeAlerta:
     cliente: Cliente | None = None
     oportunidad: Oportunidad | None = None
     viaje: ViajeConDestino | None = None
-    pago: Pago | None = None
+    pago: PagoConMoneda | None = None
 
 
-async def _por_id[M](sesion: AsyncSession, modelo: type[M], ids: set[uuid.UUID]) -> dict[Any, M]:
-    """Filas de `modelo` con esos ids, en una consulta."""
+async def _por_id[M](
+    sesion: AsyncSession,
+    modelo: type[M],
+    ids: set[uuid.UUID],
+    visibilidad: Visibilidad | None = None,
+) -> dict[Any, M]:
+    """Filas de `modelo` con esos ids, en una consulta; las que `visibilidad` no deja ver no
+    salen (sin ella, salen todas)."""
     if not ids:
         return {}
-    filas = await sesion.scalars(select(modelo).where(modelo.id.in_(ids)))  # type: ignore[attr-defined]
+    consulta = select(modelo).where(modelo.id.in_(ids))  # type: ignore[attr-defined]
+    if visibilidad is not None:
+        consulta = visibilidad.aplicar(consulta, modelo)
+    filas = await sesion.scalars(consulta)
     return {fila.id: fila for fila in filas}  # type: ignore[attr-defined]
 
 
@@ -124,30 +140,37 @@ class RepositorioAlertas(RepositorioBase[Alerta]):
         return list(filas), total or 0
 
     async def contextos(
-        self, sesion: AsyncSession, alertas: list[Alerta]
+        self, sesion: AsyncSession, alertas: list[Alerta], *, visibilidad: Visibilidad
     ) -> dict[uuid.UUID, ContextoDeAlerta]:
-        """Contexto de cada `Alerta` en cinco consultas, sin importar cuántas sean. SIN filtro
-        de visibilidad: el que llama ya filtró las alertas, y el origen de una alerta propia se
-        muestra aunque el actor no vea la entidad."""
+        """Contexto de cada `Alerta` en siete consultas, sin importar cuántas sean. El origen
+        sale filtrado por `visibilidad` (RF-151): lo que el actor no ve queda en `None`, aunque
+        la alerta sea suya. El responsable y el destino (catálogo) salen siempre."""
         usuarios = await _por_id(sesion, Usuario, {a.propietario_id for a in alertas})
-        pagos = await _por_id(sesion, Pago, {a.pago_id for a in alertas if a.pago_id})
+        pagos = await _por_id(sesion, Pago, {a.pago_id for a in alertas if a.pago_id}, visibilidad)
         tramos = await _por_id(
-            sesion, ViajeHotel, {a.viaje_hotel_id for a in alertas if a.viaje_hotel_id}
+            sesion,
+            ViajeHotel,
+            {a.viaje_hotel_id for a in alertas if a.viaje_hotel_id},
+            visibilidad,
         )
         viaje_ids = {a.viaje_id for a in alertas if a.viaje_id}
         viaje_ids |= {p.viaje_id for p in pagos.values()} | {t.viaje_id for t in tramos.values()}
-        viajes = await _por_id(sesion, Viaje, viaje_ids)
+        viajes = await _por_id(sesion, Viaje, viaje_ids, visibilidad)
         destinos = await _por_id(sesion, Destino, {v.destino_id for v in viajes.values()})
         oportunidades = await _por_id(
-            sesion, Oportunidad, {a.oportunidad_id for a in alertas if a.oportunidad_id}
+            sesion,
+            Oportunidad,
+            {a.oportunidad_id for a in alertas if a.oportunidad_id},
+            visibilidad,
         )
         cliente_ids = {a.cliente_id for a in alertas if a.cliente_id}
         cliente_ids |= {v.cliente_id for v in viajes.values()}
         cliente_ids |= {o.cliente_id for o in oportunidades.values()}
-        clientes = await _por_id(sesion, Cliente, cliente_ids)
+        clientes = await _por_id(sesion, Cliente, cliente_ids, visibilidad)
 
         def contexto(alerta: Alerta) -> ContextoDeAlerta:
             pago = pagos.get(alerta.pago_id)
+            viaje_del_pago = pago and viajes.get(pago.viaje_id)
             tramo = tramos.get(alerta.viaje_hotel_id)
             viaje_id = alerta.viaje_id or (pago and pago.viaje_id) or (tramo and tramo.viaje_id)
             viaje = viajes.get(viaje_id)
@@ -164,7 +187,9 @@ class RepositorioAlertas(RepositorioBase[Alerta]):
                 viaje=None
                 if viaje is None
                 else ViajeConDestino(viaje, destinos[viaje.destino_id].nombre),
-                pago=pago,
+                pago=PagoConMoneda(pago, viaje_del_pago.moneda)
+                if pago and viaje_del_pago
+                else None,
             )
 
         return {a.id: contexto(a) for a in alertas}

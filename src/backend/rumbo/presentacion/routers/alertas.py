@@ -11,8 +11,8 @@ from sqlalchemy import inspect
 from rumbo.core.db import SesionDep
 from rumbo.datos import modelos
 from rumbo.datos.modelos import EstadoAlerta, TipoAlerta
-from rumbo.datos.repositorios.alertas import ContextoDeAlerta
 from rumbo.negocio.servicios import alertas
+from rumbo.negocio.servicios.alertas import ContextoDeAlerta
 from rumbo.presentacion.contrato import TODOS, no_implementado, operacion
 from rumbo.presentacion.dependencias import usuario_actual
 from rumbo.presentacion.esquemas.alertas import (
@@ -65,14 +65,29 @@ def _contexto(contexto: ContextoDeAlerta) -> ContextoAlerta:
     def de[E: BaseModel](esquema: type[E], origen: object | None) -> E | None:
         return None if origen is None else esquema.model_validate(origen, from_attributes=True)
 
-    viaje = contexto.viaje
+    viaje, pago = contexto.viaje, contexto.pago
     return ContextoAlerta(
         cliente=de(ClienteDeAlerta, contexto.cliente),
         oportunidad=de(OportunidadDeAlerta, contexto.oportunidad),
         viaje=None
         if viaje is None
-        else ViajeDeAlerta.model_validate({**vars(viaje.viaje), "destino": viaje.destino}),
-        pago=de(PagoDeAlerta, contexto.pago),
+        else ViajeDeAlerta(
+            id=viaje.viaje.id,
+            destino=viaje.destino,
+            estado=viaje.viaje.estado,
+            fecha_salida=viaje.viaje.fecha_salida,
+            fecha_regreso=viaje.viaje.fecha_regreso,
+        ),
+        pago=None
+        if pago is None
+        else PagoDeAlerta(
+            id=pago.pago.id,
+            tipo=pago.pago.tipo,
+            monto=pago.pago.monto,
+            moneda=pago.moneda,
+            vencimiento=pago.pago.vencimiento,
+            estado=pago.pago.estado,
+        ),
     )
 
 
@@ -101,7 +116,14 @@ async def listar_alertas(
     paginacion: PaginaDep,
     actor: ActorDep,
     sesion: SesionDep,
-    hasta: Annotated[date | None, Query(description="Fin del período.")] = None,
+    hasta: Annotated[
+        date | None,
+        Query(
+            description="Tope de fecha dentro de la ventana: sin `proximas`, las de fecha "
+            "hasta el menor entre hoy y `hasta`; con `proximas`, las posteriores a hoy hasta "
+            "`hasta` inclusive."
+        ),
+    ] = None,
     estado: Annotated[EstadoAlerta | None, Query()] = None,
     tipo: Annotated[TipoAlerta | None, Query()] = None,
     proximas: Annotated[

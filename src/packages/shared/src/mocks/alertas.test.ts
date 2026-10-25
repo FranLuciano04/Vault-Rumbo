@@ -97,7 +97,7 @@ describe("CU-14 listado de /api/alertas", () => {
   it("CU-14 propietario_id trae las de ese responsable en vez de la agenda de Ana", async () => {
     const ajena = alertasAjenasMock.find((a) => a.estado !== "resuelta") as Alerta;
 
-    const lista = await items(`?propietario_id=${ajena.propietario_id}&hasta=2026-12-31`);
+    const lista = await items(`?propietario_id=${ajena.propietario_id}`);
 
     expect(lista.length).toBeGreaterThan(0);
     expect(lista.every((a) => a.propietario_id === ajena.propietario_id)).toBe(true);
@@ -106,7 +106,7 @@ describe("CU-14 listado de /api/alertas", () => {
 
   it("CU-14 cada alerta mock trae el responsable y el contexto del origen", () => {
     for (const a of [...alertasMock, ...alertasAjenasMock]) {
-      expect(a.responsable).toEqual({ id: a.propietario_id, nombre: expect.any(String) });
+      expect(a.responsable).toEqual({ id: a.propietario_id, nombre: expect.any(String) as string });
       expect(Object.keys(a.contexto).sort()).toEqual(["cliente", "oportunidad", "pago", "viaje"]);
     }
   });

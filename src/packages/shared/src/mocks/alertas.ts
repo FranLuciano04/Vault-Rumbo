@@ -53,6 +53,7 @@ const pagoCamila = {
   id: "b1d2e3f4-a5b6-4c7d-8e9f-0a1b2c3d4e11",
   tipo: "cuota",
   monto: "450000.00",
+  moneda: "ARS",
   vencimiento: "2026-10-23",
   estado: "pendiente",
 } as const;
@@ -250,19 +251,17 @@ export const manejadoresAlertas: RequestHandler[] = [
     const estado = url.searchParams.get("estado");
     const tipo = url.searchParams.get("tipo");
     const proximas = url.searchParams.get("proximas") === "true";
-    const hasta = url.searchParams.get("hasta") ?? (proximas ? null : HOY_MOCK);
+    const hasta = url.searchParams.get("hasta");
     const pagina = Number(url.searchParams.get("pagina") ?? 1);
     const porPagina = Number(url.searchParams.get("por_pagina") ?? 20);
     const propietario = url.searchParams.get("propietario_id");
     const agenda = propietario ? [...alertasMock, ...alertasAjenasMock] : alertasMock;
-    const estadoBuscado = (a: Alerta) =>
-      estado ? a.estado === estado : proximas ? a.estado === "pendiente" : a.estado !== "resuelta";
     const filtradas = agenda.filter(
       (a) =>
         (!propietario || a.propietario_id === propietario) &&
-        estadoBuscado(a) &&
+        a.estado === (estado ?? "pendiente") &&
         (!tipo || a.tipo === tipo) &&
-        (!proximas || a.fecha > HOY_MOCK) &&
+        (proximas ? a.fecha > HOY_MOCK : a.fecha <= HOY_MOCK) &&
         (!hasta || a.fecha <= hasta),
     );
     const desde = (pagina - 1) * porPagina;

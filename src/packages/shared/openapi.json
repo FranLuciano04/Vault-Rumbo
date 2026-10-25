@@ -2778,10 +2778,10 @@
                   "type": "null"
                 }
               ],
-              "description": "Fin del período.",
+              "description": "Tope de fecha dentro de la ventana: sin `proximas`, las de fecha hasta el menor entre hoy y `hasta`; con `proximas`, las posteriores a hoy hasta `hasta` inclusive.",
               "title": "Hasta"
             },
-            "description": "Fin del período."
+            "description": "Tope de fecha dentro de la ventana: sin `proximas`, las de fecha hasta el menor entre hoy y `hasta`; con `proximas`, las posteriores a hoy hasta `hasta` inclusive."
           },
           {
             "name": "estado",
@@ -4747,6 +4747,14 @@
         "title": "HistorialCliente",
         "description": "Memoria del cliente (CU-03): sus oportunidades, viajes y reseñas."
       },
+      "Moneda": {
+        "type": "string",
+        "enum": [
+          "ARS",
+          "USD"
+        ],
+        "title": "Moneda"
+      },
       "Operador": {
         "properties": {
           "created_by": {
@@ -5120,6 +5128,10 @@
             "type": "string",
             "title": "Monto"
           },
+          "moneda": {
+            "$ref": "#/components/schemas/Moneda",
+            "description": "Moneda del viaje (DEC-0007)."
+          },
           "vencimiento": {
             "type": "string",
             "format": "date",
@@ -5134,6 +5146,7 @@
           "id",
           "tipo",
           "monto",
+          "moneda",
           "vencimiento",
           "estado"
         ],
