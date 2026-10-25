@@ -437,6 +437,24 @@ async def test_cu05_resolver_filtra_por_tipo(sesion: AsyncSession) -> None:
     assert manual.estado is m.EstadoAlerta.pendiente
 
 
+async def test_rn08_resolver_por_origen_sin_tipos_no_cierra_los_manuales(
+    sesion: AsyncSession,
+) -> None:
+    filas = await _cadena(sesion)
+    manual = await alertas.crear(
+        sesion, m.TipoAlerta.manual, FECHA, "Llamar", filas["usuario"], filas["oportunidad"]
+    )
+    insistencia = await alertas.crear(
+        sesion, m.TipoAlerta.insistencia, FECHA, "Insistir", filas["usuario"], filas["oportunidad"]
+    )
+
+    resueltas = await alertas.resolver_de_origen(sesion, filas["oportunidad"])
+
+    assert [r.id for r in resueltas] == [insistencia.id]
+    await sesion.refresh(manual)
+    assert manual.estado is m.EstadoAlerta.pendiente
+
+
 async def test_rf079_obtener_para_modificar_bloquea_la_fila(
     sesion: AsyncSession, motor: AsyncEngine
 ) -> None:

@@ -1,6 +1,7 @@
 """EST-Alerta: pendiente → vista → resuelta; posponer cambia la fecha (CU-14, RF-079)."""
 
 from datetime import date, datetime
+from typing import Any
 
 from rumbo.core.fechas import hoy as hoy_argentina
 from rumbo.datos.modelos import Alerta, EstadoAlerta
@@ -33,6 +34,13 @@ def reabrir(alerta: Alerta) -> None:
     alerta.estado = EstadoAlerta.pendiente
     alerta.resuelta_en = None
     alerta.cerrada_por_cancelacion = False
+
+
+def editar(alerta: Alerta, cambios: dict[str, Any]) -> None:
+    """Cambia la fecha o la descripción de una alerta pendiente (CU-28 A2)."""
+    _exigir(alerta, EstadoAlerta.pendiente, accion="editar")
+    for campo, valor in cambios.items():
+        setattr(alerta, campo, valor)
 
 
 def posponer(alerta: Alerta, nueva_fecha: date, hoy: date | None = None) -> None:

@@ -315,6 +315,11 @@ export const manejadoresAlertas: RequestHandler[] = [
   http.patch(`${BASE}/:id`, async ({ params, request }) => {
     const alerta = alertasMock.find((a) => a.id === params["id"]);
     if (!alerta) return noEncontrada();
+    if (alerta.tipo !== "manual") {
+      return respuestaProblema(409, "Conflicto", {
+        detail: "Solo se edita un recordatorio manual, no una alerta automática.",
+      });
+    }
     if (alerta.estado !== "pendiente") return transicionInvalida(alerta, "editar");
     return HttpResponse.json({ ...alerta, ...((await request.json()) as AlertaEditar) });
   }),

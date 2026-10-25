@@ -642,7 +642,7 @@ export interface paths {
          * Editar fecha o descripción de un recordatorio
          * @description **Roles:** admin, dueno, empleado, freelance.
          *
-         *     **Escritura:** el responsable de la alerta, o admin o dueño (DEC-0005).
+         *     **Escritura:** solo el responsable del recordatorio lo edita (DEC-0005); admin y dueño atienden las alertas ajenas pero no cambian su texto ni su fecha.
          *
          *     **Casos de uso:** CU-28.
          */
@@ -3530,6 +3530,15 @@ export interface operations {
             };
             /** @description Falta el token, no es válido o el usuario no tiene acceso. */
             401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description No existe. */
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };

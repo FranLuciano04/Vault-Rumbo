@@ -111,6 +111,16 @@ class RepositorioAlertas(RepositorioBase[Alerta]):
         consulta = consulta.with_for_update().execution_options(populate_existing=True)
         return list(await sesion.scalars(consulta))
 
+    async def obtener_origen[M: (Cliente, Oportunidad, Viaje)](
+        self, sesion: AsyncSession, modelo: type[M], id: uuid.UUID, *, visibilidad: Visibilidad
+    ) -> M:
+        """`Cliente`, `Oportunidad` o `Viaje` que el actor ve; si no existe o no lo ve,
+        `NoEncontrado` (404, nunca 403)."""
+        origen = (await _por_id(sesion, modelo, {id}, visibilidad)).get(id)
+        if origen is None:
+            raise NoEncontrado(f"{modelo.__name__} {id} no encontrado")
+        return origen
+
     async def obtener_para_modificar(
         self, sesion: AsyncSession, id: uuid.UUID, *, visibilidad: Visibilidad
     ) -> Alerta:

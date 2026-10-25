@@ -1,4 +1,4 @@
-"""Rutas del módulo alertas (CU-14, CU-28, CU-30). Las que siguen en 501 esperan su ticket."""
+"""Rutas del módulo alertas (CU-14, CU-28, CU-30)."""
 
 import uuid
 from datetime import date
@@ -13,7 +13,7 @@ from rumbo.datos import modelos
 from rumbo.datos.modelos import EstadoAlerta, TipoAlerta
 from rumbo.negocio.servicios import alertas
 from rumbo.negocio.servicios.alertas import ContextoDeAlerta
-from rumbo.presentacion.contrato import TODOS, no_implementado, operacion
+from rumbo.presentacion.contrato import TODOS, operacion
 from rumbo.presentacion.dependencias import usuario_actual
 from rumbo.presentacion.esquemas.alertas import (
     Alerta,
@@ -165,10 +165,20 @@ async def listar_alertas(
     operation_id="crear_recordatorio",
     summary="Crear un recordatorio manual",
     status_code=201,
-    **operacion(TODOS, "CU-28", 422),
+    **operacion(TODOS, "CU-28", 404, 422),
 )
-async def crear_recordatorio(datos: AlertaCrear) -> Alerta:
-    raise no_implementado()
+async def crear_recordatorio(datos: AlertaCrear, actor: ActorDep, sesion: SesionDep) -> Alerta:
+    return _alerta(
+        *await alertas.crear_recordatorio(
+            sesion,
+            actor,
+            datos.fecha,
+            datos.descripcion,
+            cliente_id=datos.cliente_id,
+            oportunidad_id=datos.oportunidad_id,
+            viaje_id=datos.viaje_id,
+        )
+    )
 
 
 # Antes que `/{alerta_id}`: si no, "progreso-del-dia" se leería como un id.
@@ -197,10 +207,27 @@ async def obtener_alerta(alerta_id: uuid.UUID, actor: ActorDep, sesion: SesionDe
     "/{alerta_id}",
     operation_id="editar_recordatorio",
     summary="Editar fecha o descripción de un recordatorio",
-    **operacion(TODOS, "CU-28", 403, 404, 409, 422, escritura=True),
+    **operacion(
+        TODOS,
+        "CU-28",
+        403,
+        404,
+        409,
+        422,
+        escritura=(
+            "solo el responsable del recordatorio lo edita (DEC-0005); admin y dueño atienden "
+            "las alertas ajenas pero no cambian su texto ni su fecha."
+        ),
+    ),
 )
-async def editar_recordatorio(alerta_id: uuid.UUID, cambios: AlertaEditar) -> Alerta:
-    raise no_implementado()
+async def editar_recordatorio(
+    alerta_id: uuid.UUID, cambios: AlertaEditar, actor: ActorDep, sesion: SesionDep
+) -> Alerta:
+    return _alerta(
+        *await alertas.editar_recordatorio(
+            sesion, actor, alerta_id, cambios.model_dump(exclude_unset=True)
+        )
+    )
 
 
 @router.post(

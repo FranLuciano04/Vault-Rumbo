@@ -3,12 +3,21 @@
 
 import uuid
 from datetime import UTC, date, datetime
+from typing import Any
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from rumbo.core.errores import Conflicto
 from rumbo.core.fechas import hoy, limites_del_dia
-from rumbo.datos.modelos import Alerta, EstadoAlerta, TipoAlerta, Usuario
+from rumbo.datos.modelos import (
+    Alerta,
+    Cliente,
+    EstadoAlerta,
+    Oportunidad,
+    TipoAlerta,
+    Usuario,
+    Viaje,
+)
 from rumbo.datos.repositorios.alertas import (
     ContextoDeAlerta as ContextoDeAlerta,  # el router lo toma de acá
 )
@@ -18,7 +27,7 @@ from rumbo.datos.repositorios.alertas import (
     columna_de_origen,
 )
 from rumbo.negocio.estados import alerta as estado
-from rumbo.negocio.politicas import es_direccion, visibilidad
+from rumbo.negocio.politicas import es_direccion, exigir_escritura, visibilidad
 
 _alertas = RepositorioAlertas()
 
@@ -178,8 +187,11 @@ async def resolver_de_origen(
 ) -> list[Alerta]:
     """Resuelve las alertas pendientes o vistas de `origen` (solo de esos `tipos`, si se
     piden) y devuelve las que cambiaron (RF-079). `por_cancelacion` las marca como cerradas por
-    la cancelación del `Viaje` (CU-27)."""
+    la cancelación del `Viaje` (CU-27). Sin `tipos` quedan fuera los recordatorios `manual`
+    asociados al origen: lo manual no se cierra solo (RN-08)."""
     await _con_id(sesion, origen)
+    if tipos is None:
+        tipos = tuple(t for t in TipoAlerta if t is not TipoAlerta.manual)
     abiertas = await _alertas.listar_de_origen(
         sesion, origen, (EstadoAlerta.pendiente, EstadoAlerta.vista), tipos
     )
@@ -207,3 +219,47 @@ async def reabrir_de_origen(
         estado.reabrir(alerta)
     await sesion.flush()
     return resueltas
+
+
+async def crear_recordatorio(
+    sesion: AsyncSession,
+    actor: Usuario,
+    fecha: date,
+    descripcion: str,
+    *,
+    cliente_id: uuid.UUID | None,
+    oportunidad_id: uuid.UUID | None,
+    viaje_id: uuid.UUID | None,
+) -> tuple[Alerta, ContextoDeAlerta]:
+    """Crea un recordatorio manual pendiente en la agenda de `actor` (CU-28, RF-080, RF-081).
+    Si lo asocia a un `Cliente`, una `Oportunidad` o un `Viaje`, tiene que verlo: si no, o si
+    no existe, `NoEncontrado`. Sin asociación es personal (CU-28 A1)."""
+    vista = visibilidad(actor)
+    origen: OrigenAlerta | None = None
+    if cliente_id:
+        origen = await _alertas.obtener_origen(sesion, Cliente, cliente_id, visibilidad=vista)
+    elif oportunidad_id:
+        origen = await _alertas.obtener_origen(
+            sesion, Oportunidad, oportunidad_id, visibilidad=vista
+        )
+    elif viaje_id:
+        origen = await _alertas.obtener_origen(sesion, Viaje, viaje_id, visibilidad=vista)
+    alerta = await crear(sesion, TipoAlerta.manual, fecha, descripcion, actor, origen)
+    return await _con_contexto(sesion, actor, alerta)
+
+
+async def editar_recordatorio(
+    sesion: AsyncSession, actor: Usuario, alerta_id: uuid.UUID, cambios: dict[str, Any]
+) -> tuple[Alerta, ContextoDeAlerta]:
+    """Cambia la fecha o la descripción de un recordatorio manual pendiente (CU-28 A2, RF-082).
+    Solo lo enviado cambia y solo lo edita su propietario (`SinPermiso` para admin o dueño sobre
+    una ajena). Una alerta automática es `Conflicto`; una vista o resuelta, `TransicionInvalida`."""
+    alerta = await _alertas.obtener_para_modificar(
+        sesion, alerta_id, visibilidad=visibilidad(actor)
+    )
+    exigir_escritura(actor, alerta)
+    if alerta.tipo is not TipoAlerta.manual:
+        raise Conflicto("Solo se edita un recordatorio manual, no una alerta automática.")
+    estado.editar(alerta, cambios)
+    await sesion.flush()
+    return await _con_contexto(sesion, actor, alerta)

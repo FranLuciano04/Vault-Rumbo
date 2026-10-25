@@ -28,6 +28,7 @@ const pendiente = deTipo("insistencia");
 const vista = deTipo("salida");
 const resuelta = deTipo("resena");
 const pago = deTipo("pago");
+const manual = deTipo("manual");
 
 async function items(consulta = ""): Promise<Alerta[]> {
   return ((await (await fetch(`${BASE}${consulta}`)).json()) as { items: Alerta[] }).items;
@@ -147,7 +148,7 @@ describe("CU-14 acciones sobre una alerta (EST-Alerta)", () => {
     expect(dos.status).toBe(422);
   });
 
-  it("CU-28 PATCH edita una pendiente y responde 409 si está vista o resuelta", async () => {
+  it("CU-28 PATCH edita un manual pendiente y responde 409 si es automática o no está pendiente", async () => {
     const editar = (id: string) =>
       fetch(`${BASE}/${id}`, {
         method: "PATCH",
@@ -155,7 +156,9 @@ describe("CU-14 acciones sobre una alerta (EST-Alerta)", () => {
         body: JSON.stringify({ descripcion: "Nuevo texto" }),
       });
 
-    expect(await (await editar(pendiente.id)).json()).toMatchObject({ descripcion: "Nuevo texto" });
+    expect(manual.estado).toBe("pendiente");
+    expect(await (await editar(manual.id)).json()).toMatchObject({ descripcion: "Nuevo texto" });
+    expect((await editar(pendiente.id)).status).toBe(409); // automática
     expect((await editar(vista.id)).status).toBe(409);
     expect((await editar(resuelta.id)).status).toBe(409);
   });
