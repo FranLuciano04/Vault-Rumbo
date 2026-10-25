@@ -66,9 +66,8 @@ async def obtener_alerta(
 ) -> tuple[Alerta, ContextoDeAlerta]:
     """Una alerta con su contexto (RF-075). La ajena para quien no es admin ni dueño es
     `NoEncontrado`, igual que una inexistente (RF-078)."""
-    vista = visibilidad(actor)
-    alerta = await _alertas.obtener(sesion, alerta_id, visibilidad=vista)
-    return alerta, (await _alertas.contextos(sesion, [alerta], visibilidad=vista))[alerta.id]
+    alerta = await _alertas.obtener(sesion, alerta_id, visibilidad=visibilidad(actor))
+    return await _con_contexto(sesion, actor, alerta)
 
 
 async def _atender(sesion: AsyncSession, actor: Usuario, alerta_id: uuid.UUID) -> Alerta:
@@ -79,9 +78,8 @@ async def _atender(sesion: AsyncSession, actor: Usuario, alerta_id: uuid.UUID) -
 async def _con_contexto(
     sesion: AsyncSession, actor: Usuario, alerta: Alerta
 ) -> tuple[Alerta, ContextoDeAlerta]:
-    await sesion.flush()
-    vista = visibilidad(actor)
-    return alerta, (await _alertas.contextos(sesion, [alerta], visibilidad=vista))[alerta.id]
+    contextos = await _alertas.contextos(sesion, [alerta], visibilidad=visibilidad(actor))
+    return alerta, contextos[alerta.id]
 
 
 async def marcar_vista(
@@ -90,6 +88,7 @@ async def marcar_vista(
     """Pasa una alerta pendiente a vista (CU-14, RF-076)."""
     alerta = await _atender(sesion, actor, alerta_id)
     estado.marcar_vista(alerta)
+    await sesion.flush()
     return await _con_contexto(sesion, actor, alerta)
 
 
@@ -102,6 +101,7 @@ async def resolver(
     if alerta.tipo is TipoAlerta.pago:
         raise Conflicto("Una alerta de pago no se resuelve a mano: se resuelve al cobrar el pago.")
     estado.resolver(alerta, datetime.now(UTC))
+    await sesion.flush()
     return await _con_contexto(sesion, actor, alerta)
 
 
@@ -111,6 +111,7 @@ async def posponer(
     """Mueve una alerta pendiente a una fecha futura (CU-14, RF-077)."""
     alerta = await _atender(sesion, actor, alerta_id)
     estado.posponer(alerta, nueva_fecha)
+    await sesion.flush()
     return await _con_contexto(sesion, actor, alerta)
 
 
