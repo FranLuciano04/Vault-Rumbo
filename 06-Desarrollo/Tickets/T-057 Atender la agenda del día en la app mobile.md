@@ -3,7 +3,7 @@ id: T-057
 titulo: Atender la agenda del día en la app mobile
 modulo: M3 — Alertas
 capa: mobile
-estado: libre
+estado: tomado
 depende_de: [T-050, T-022]
 tamaño: M
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [CU-14, RF-074, RF-076, RF-155, RNF-14]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: FranLucianoo
+tomado_el: 25/10/26 20:01
+rama: feature/T-057-atender-la-agenda-del-dia-en-la-app-mobi
 pr:
 ---
 # T-057 Atender la agenda del día en la app mobile
