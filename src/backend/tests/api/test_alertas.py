@@ -371,3 +371,58 @@ async def test_rf154_hasta_es_tope_dentro_de_la_ventana(
     assert _ids(proximas) == [str(manana.id)]
     assert _ids(del_dia) == [str(atrasada.id), str(de_hoy.id)]
     assert _ids(antes) == [str(atrasada.id)]
+
+
+@pytest.mark.parametrize("rol", ["empleado", "admin", "dueno"])
+async def test_rf151_sin_restriccion_de_lectura_el_contexto_viene_completo(
+    cliente_como: FabricaCliente, sesion: AsyncSession, rol: str
+) -> None:
+    c = await cliente_como(rol)
+    otro = await crear(sesion, UsuarioFactory)
+    cliente = await crear(sesion, ClienteFactory, asesor_asignado_id=otro.id)
+    destino = await crear(sesion, DestinoFactory)
+    viaje = await crear(
+        sesion,
+        ViajeFactory,
+        cliente_id=cliente.id,
+        destino_id=destino.id,
+        responsable_id=otro.id,
+        moneda="USD",
+    )
+    pago = await crear(sesion, PagoFactory, viaje_id=viaje.id)
+    alerta = await _alerta(sesion, _propio(c), hoy(), "pago", TipoAlerta.pago, pago)
+
+    r = await c.get(f"/api/alertas/{alerta.id}")
+
+    contexto = r.json()["contexto"]
+    assert contexto["cliente"]["id"] == str(cliente.id)
+    assert contexto["viaje"]["id"] == str(viaje.id)
+    assert contexto["pago"]["id"] == str(pago.id)
+    assert contexto["pago"]["moneda"] == "USD"
+
+
+async def test_rf151_freelance_responsable_del_viaje_ve_viaje_y_pago_pero_no_el_cliente(
+    cliente_como: FabricaCliente, sesion: AsyncSession
+) -> None:
+    """El freelance ve un viaje (y sus pagos) si es su `responsable_id`, aunque el cliente tenga
+    otro asesor; el cliente, en cambio, solo si es su asesor asignado (`_PROPIO_DEL_FREELANCE`)."""
+    c = await cliente_como("freelance")
+    otro = await crear(sesion, UsuarioFactory)
+    cliente = await crear(sesion, ClienteFactory, asesor_asignado_id=otro.id)
+    destino = await crear(sesion, DestinoFactory)
+    viaje = await crear(
+        sesion,
+        ViajeFactory,
+        cliente_id=cliente.id,
+        destino_id=destino.id,
+        responsable_id=_propio(c).id,
+    )
+    pago = await crear(sesion, PagoFactory, viaje_id=viaje.id)
+    alerta = await _alerta(sesion, _propio(c), hoy(), "pago", TipoAlerta.pago, pago)
+
+    r = await c.get(f"/api/alertas/{alerta.id}")
+
+    contexto = r.json()["contexto"]
+    assert contexto["viaje"]["id"] == str(viaje.id)
+    assert contexto["pago"]["id"] == str(pago.id)
+    assert contexto["cliente"] is None
