@@ -3,7 +3,7 @@ id: T-056
 titulo: Crear un recordatorio manual en la web
 modulo: M3 — Alertas
 capa: web
-estado: libre
+estado: tomado
 depende_de: [T-055]
 tamaño: S
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [CU-28, RF-080, RF-081, RF-082]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: FranLucianoo
+tomado_el: 25/10/26 19:25
+rama: feature/T-056-crear-un-recordatorio-manual-en-la-web
 pr:
 ---
 # T-056 Crear un recordatorio manual en la web
