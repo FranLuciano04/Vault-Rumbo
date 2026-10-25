@@ -1,4 +1,5 @@
 import type { HistorialCliente, SegmentoCliente } from "./cliente";
+import type { TipoAlerta } from "./modelos";
 
 /** Texto de cada segmento tal como se muestra; el orden es el de los chips del prototipo. */
 export const ETIQUETA_SEGMENTO: Record<SegmentoCliente, string> = {
@@ -26,4 +27,16 @@ export const ETIQUETA_ESTADO_VIAJE: Record<HistorialCliente["viajes"][number]["e
   en_curso: "En curso",
   finalizado: "Finalizado",
   cancelado: "Cancelado",
+};
+
+/** Texto de cada tipo de alerta de la agenda (CU-14). */
+export const ETIQUETA_TIPO_ALERTA: Record<TipoAlerta, string> = {
+  pago: "Pago",
+  formulario: "Formulario",
+  salida: "Salida",
+  insistencia: "Insistencia",
+  resena: "Reseña",
+  manual: "Recordatorio",
+  recontacto: "Recontacto",
+  viaje: "Viaje",
 };
