@@ -2828,18 +2828,6 @@
             "description": "Solo las pendientes con fecha posterior a hoy, para adelantar trabajo (CU-14 A5)."
           },
           {
-            "name": "todas",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "boolean",
-              "description": "Las de toda la agencia: solo admin y dueño (CU-14 A1).",
-              "default": false,
-              "title": "Todas"
-            },
-            "description": "Las de toda la agencia: solo admin y dueño (CU-14 A1)."
-          },
-          {
             "name": "propietario_id",
             "in": "query",
             "required": false,
@@ -2853,10 +2841,10 @@
                   "type": "null"
                 }
               ],
-              "description": "Agenda de un responsable: solo admin y dueño (CU-14 A1).",
+              "description": "Agenda de un responsable: solo admin y dueño (CU-14 A1); para el resto se ignora.",
               "title": "Propietario Id"
             },
-            "description": "Agenda de un responsable: solo admin y dueño (CU-14 A1)."
+            "description": "Agenda de un responsable: solo admin y dueño (CU-14 A1); para el resto se ignora."
           },
           {
             "name": "pagina",
@@ -2884,7 +2872,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Alertas. Por defecto, las propias pendientes hasta hoy; con `proximas=true`, las pendientes con fecha posterior a hoy (CU-14 A5). Los recontactos de CU-30 son las de tipo `recontacto`.",
+            "description": "Alertas. Por defecto, las propias pendientes hasta hoy (admin y dueño, las de toda la agencia); con `proximas=true`, las pendientes con fecha posterior a hoy (CU-14 A5). Los recontactos de CU-30 son las de tipo `recontacto`.",
             "content": {
               "application/json": {
                 "schema": {
@@ -3678,6 +3666,14 @@
                 "type": "boolean",
                 "title": "Cerrada Por Cancelacion",
                 "readOnly": true
+              },
+              "responsable": {
+                "$ref": "#/components/schemas/ResponsableAlerta",
+                "readOnly": true
+              },
+              "contexto": {
+                "$ref": "#/components/schemas/ContextoAlerta",
+                "readOnly": true
               }
             },
             "type": "object",
@@ -3694,7 +3690,9 @@
               "fecha",
               "estado",
               "resuelta_en",
-              "cerrada_por_cancelacion"
+              "cerrada_por_cancelacion",
+              "responsable",
+              "contexto"
             ],
             "description": "Aviso de la agenda de un usuario. A lo sumo uno de los cinco orígenes tiene valor;\nninguno en un recordatorio manual suelto."
           },
@@ -4027,6 +4025,25 @@
         ],
         "title": "ClienteCrear",
         "description": "Alta de un cliente (CU-02). `confirmar_duplicado` reintenta tras el aviso del 409 (A1)."
+      },
+      "ClienteDeAlerta": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "nombre": {
+            "type": "string",
+            "title": "Nombre"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "nombre"
+        ],
+        "title": "ClienteDeAlerta"
       },
       "ClienteEditar": {
         "properties": {
@@ -4393,6 +4410,59 @@
         "title": "ConfiguracionEditar",
         "description": "Parámetros del negocio: reemplazan a los vigentes (`PUT`)."
       },
+      "ContextoAlerta": {
+        "properties": {
+          "cliente": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ClienteDeAlerta"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "oportunidad": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/OportunidadDeAlerta"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "viaje": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ViajeDeAlerta"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "pago": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PagoDeAlerta"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "cliente",
+          "oportunidad",
+          "viaje",
+          "pago"
+        ],
+        "title": "ContextoAlerta",
+        "description": "Qué originó la alerta (RF-075): cada clave es `null` si no aplica. Un pago trae también\nsu viaje y su cliente; un viaje y una oportunidad, su cliente."
+      },
       "Destino": {
         "properties": {
           "created_by": {
@@ -4614,6 +4684,16 @@
         ],
         "title": "EstadoOportunidad"
       },
+      "EstadoPago": {
+        "type": "string",
+        "enum": [
+          "pendiente",
+          "pagado",
+          "vencido",
+          "anulado"
+        ],
+        "title": "EstadoPago"
+      },
       "EstadoResena": {
         "type": "string",
         "enum": [
@@ -4797,6 +4877,29 @@
         },
         "type": "object",
         "title": "OperadorEditar"
+      },
+      "OportunidadDeAlerta": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "destino_consultado": {
+            "type": "string",
+            "title": "Destino Consultado"
+          },
+          "estado": {
+            "$ref": "#/components/schemas/EstadoOportunidad"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "destino_consultado",
+          "estado"
+        ],
+        "title": "OportunidadDeAlerta"
       },
       "OportunidadDelCliente": {
         "properties": {
@@ -5002,6 +5105,39 @@
           "por_pagina"
         ],
         "title": "Pagina[Usuario]"
+      },
+      "PagoDeAlerta": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "tipo": {
+            "$ref": "#/components/schemas/TipoPago"
+          },
+          "monto": {
+            "type": "string",
+            "title": "Monto"
+          },
+          "vencimiento": {
+            "type": "string",
+            "format": "date",
+            "title": "Vencimiento"
+          },
+          "estado": {
+            "$ref": "#/components/schemas/EstadoPago"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "tipo",
+          "monto",
+          "vencimiento",
+          "estado"
+        ],
+        "title": "PagoDeAlerta"
       },
       "Problema": {
         "properties": {
@@ -5365,6 +5501,26 @@
         "title": "ResenaDelCliente",
         "description": "Reseña que dejó el cliente, tal como aparece en su historial."
       },
+      "ResponsableAlerta": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "nombre": {
+            "type": "string",
+            "title": "Nombre"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "nombre"
+        ],
+        "title": "ResponsableAlerta",
+        "description": "Usuario dueño de la agenda donde aparece la alerta."
+      },
       "SegmentoCliente": {
         "type": "string",
         "enum": [
@@ -5388,6 +5544,15 @@
           "viaje"
         ],
         "title": "TipoAlerta"
+      },
+      "TipoPago": {
+        "type": "string",
+        "enum": [
+          "sena",
+          "cuota",
+          "saldo"
+        ],
+        "title": "TipoPago"
       },
       "UltimoViajeDelCliente": {
         "properties": {
@@ -5634,6 +5799,42 @@
         "type": "object",
         "title": "UsuarioEditar",
         "description": "Corrección del nombre y cambio de rol o de acceso a redes (CU-25 A2). Asignar o quitar\nel rol `dueno` es solo de la dueña."
+      },
+      "ViajeDeAlerta": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "destino": {
+            "type": "string",
+            "title": "Destino",
+            "description": "Nombre del destino."
+          },
+          "estado": {
+            "$ref": "#/components/schemas/EstadoViaje"
+          },
+          "fecha_salida": {
+            "type": "string",
+            "format": "date",
+            "title": "Fecha Salida"
+          },
+          "fecha_regreso": {
+            "type": "string",
+            "format": "date",
+            "title": "Fecha Regreso"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "destino",
+          "estado",
+          "fecha_salida",
+          "fecha_regreso"
+        ],
+        "title": "ViajeDeAlerta"
       },
       "ViajeDelCliente": {
         "properties": {

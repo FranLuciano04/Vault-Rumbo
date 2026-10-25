@@ -44,7 +44,7 @@ export interface FiltrosListado {
   buscar?: string;
 }
 
-/** Filtros de la agenda (`GET /api/alertas`, CU-14): sin ellos, las propias pendientes hasta hoy. */
+/** Filtros de la agenda (`GET /api/alertas`, CU-14): sin ellos, las propias pendientes hasta hoy (admin y dueño, las de toda la agencia). */
 export interface FiltrosAlertas {
   /** Fin del período, `aaaa-mm-dd`. */
   hasta?: string;
@@ -52,9 +52,7 @@ export interface FiltrosAlertas {
   tipo?: TipoAlerta;
   /** Solo las pendientes con fecha posterior a hoy (CU-14 A5). */
   proximas?: boolean;
-  /** Las de toda la agencia: solo admin y dueño (CU-14 A1). */
-  todas?: boolean;
-  /** Agenda de un responsable: solo admin y dueño (CU-14 A1). */
+  /** Agenda de un responsable: solo admin y dueño (CU-14 A1); para el resto se ignora. */
   propietario_id?: string;
   pagina?: number;
   por_pagina?: number;

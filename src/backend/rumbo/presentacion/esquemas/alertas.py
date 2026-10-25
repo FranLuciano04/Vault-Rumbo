@@ -2,12 +2,20 @@
 
 import uuid
 from datetime import date, datetime
+from decimal import Decimal
 from typing import Self
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 from pydantic.json_schema import JsonDict
 
-from rumbo.datos.modelos import EstadoAlerta, TipoAlerta
+from rumbo.datos.modelos import (
+    EstadoAlerta,
+    EstadoOportunidad,
+    EstadoPago,
+    EstadoViaje,
+    TipoAlerta,
+    TipoPago,
+)
 from rumbo.presentacion.esquemas.comunes import (
     Auditoria,
     Edicion,
@@ -18,6 +26,50 @@ from rumbo.presentacion.esquemas.comunes import (
 
 _SOLO_LECTURA: JsonDict = {"readOnly": True}
 Descripcion = Field(min_length=1)
+
+
+class ResponsableAlerta(BaseModel):
+    """Usuario dueño de la agenda donde aparece la alerta."""
+
+    id: uuid.UUID
+    nombre: str
+
+
+class ClienteDeAlerta(BaseModel):
+    id: uuid.UUID
+    nombre: str
+
+
+class OportunidadDeAlerta(BaseModel):
+    id: uuid.UUID
+    destino_consultado: str
+    estado: EstadoOportunidad
+
+
+class ViajeDeAlerta(BaseModel):
+    id: uuid.UUID
+    destino: str = Field(description="Nombre del destino.")
+    estado: EstadoViaje
+    fecha_salida: date
+    fecha_regreso: date
+
+
+class PagoDeAlerta(BaseModel):
+    id: uuid.UUID
+    tipo: TipoPago
+    monto: Decimal
+    vencimiento: date
+    estado: EstadoPago
+
+
+class ContextoAlerta(BaseModel):
+    """Qué originó la alerta (RF-075): cada clave es `null` si no aplica. Un pago trae también
+    su viaje y su cliente; un viaje y una oportunidad, su cliente."""
+
+    cliente: ClienteDeAlerta | None
+    oportunidad: OportunidadDeAlerta | None
+    viaje: ViajeDeAlerta | None
+    pago: PagoDeAlerta | None
 
 
 class Alerta(Auditoria):
@@ -45,6 +97,8 @@ class Alerta(Auditoria):
         description="Cuándo se resolvió; vacío si no está resuelta.",
     )
     cerrada_por_cancelacion: bool = Field(json_schema_extra=_SOLO_LECTURA)
+    responsable: ResponsableAlerta = Field(json_schema_extra=_SOLO_LECTURA)
+    contexto: ContextoAlerta = Field(json_schema_extra=_SOLO_LECTURA)
 
     model_config = ConfigDict(from_attributes=True, json_schema_extra=componer_con_auditoria)
 

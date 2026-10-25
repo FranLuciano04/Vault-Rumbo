@@ -779,6 +779,8 @@ export interface components {
             readonly resuelta_en: string | null;
             /** Cerrada Por Cancelacion */
             readonly cerrada_por_cancelacion: boolean;
+            readonly responsable: components["schemas"]["ResponsableAlerta"];
+            readonly contexto: components["schemas"]["ContextoAlerta"];
         } & components["schemas"]["Auditoria"];
         /**
          * AlertaCrear
@@ -905,6 +907,16 @@ export interface components {
              * @default false
              */
             confirmar_duplicado: boolean;
+        };
+        /** ClienteDeAlerta */
+        ClienteDeAlerta: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Nombre */
+            nombre: string;
         };
         /**
          * ClienteEditar
@@ -1033,6 +1045,17 @@ export interface components {
             /** Recontacto Meses */
             recontacto_meses: number;
         };
+        /**
+         * ContextoAlerta
+         * @description Qué originó la alerta (RF-075): cada clave es `null` si no aplica. Un pago trae también
+         *     su viaje y su cliente; un viaje y una oportunidad, su cliente.
+         */
+        ContextoAlerta: {
+            cliente: components["schemas"]["ClienteDeAlerta"] | null;
+            oportunidad: components["schemas"]["OportunidadDeAlerta"] | null;
+            viaje: components["schemas"]["ViajeDeAlerta"] | null;
+            pago: components["schemas"]["PagoDeAlerta"] | null;
+        };
         /** Destino */
         Destino: {
             /**
@@ -1111,6 +1134,11 @@ export interface components {
          */
         EstadoOportunidad: "nueva" | "en_gestion" | "cotizada" | "ganada" | "perdida";
         /**
+         * EstadoPago
+         * @enum {string}
+         */
+        EstadoPago: "pendiente" | "pagado" | "vencido" | "anulado";
+        /**
          * EstadoResena
          * @enum {string}
          */
@@ -1179,6 +1207,17 @@ export interface components {
             nombre?: string;
             /** Contacto */
             contacto?: string | null;
+        };
+        /** OportunidadDeAlerta */
+        OportunidadDeAlerta: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Destino Consultado */
+            destino_consultado: string;
+            estado: components["schemas"]["EstadoOportunidad"];
         };
         /**
          * OportunidadDelCliente
@@ -1252,6 +1291,23 @@ export interface components {
             pagina: number;
             /** Por Pagina */
             por_pagina: number;
+        };
+        /** PagoDeAlerta */
+        PagoDeAlerta: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            tipo: components["schemas"]["TipoPago"];
+            /** Monto */
+            monto: string;
+            /**
+             * Vencimiento
+             * Format: date
+             */
+            vencimiento: string;
+            estado: components["schemas"]["EstadoPago"];
         };
         Problema: {
             /** Title */
@@ -1405,6 +1461,19 @@ export interface components {
             estado: components["schemas"]["EstadoResena"];
         };
         /**
+         * ResponsableAlerta
+         * @description Usuario dueño de la agenda donde aparece la alerta.
+         */
+        ResponsableAlerta: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Nombre */
+            nombre: string;
+        };
+        /**
          * SegmentoCliente
          * @enum {string}
          */
@@ -1414,6 +1483,11 @@ export interface components {
          * @enum {string}
          */
         TipoAlerta: "pago" | "formulario" | "salida" | "insistencia" | "resena" | "manual" | "recontacto" | "viaje";
+        /**
+         * TipoPago
+         * @enum {string}
+         */
+        TipoPago: "sena" | "cuota" | "saldo";
         /**
          * UltimoViajeDelCliente
          * @description Viaje no cancelado de salida más reciente entre los que ya salieron (hasta hoy).
@@ -1536,6 +1610,30 @@ export interface components {
             rol?: "admin" | "dueno" | "empleado" | "freelance";
             /** Acceso Redes */
             acceso_redes?: boolean;
+        };
+        /** ViajeDeAlerta */
+        ViajeDeAlerta: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Destino
+             * @description Nombre del destino.
+             */
+            destino: string;
+            estado: components["schemas"]["EstadoViaje"];
+            /**
+             * Fecha Salida
+             * Format: date
+             */
+            fecha_salida: string;
+            /**
+             * Fecha Regreso
+             * Format: date
+             */
+            fecha_regreso: string;
         };
         /**
          * ViajeDelCliente
@@ -3354,9 +3452,7 @@ export interface operations {
                 tipo?: components["schemas"]["TipoAlerta"] | null;
                 /** @description Solo las pendientes con fecha posterior a hoy, para adelantar trabajo (CU-14 A5). */
                 proximas?: boolean;
-                /** @description Las de toda la agencia: solo admin y dueño (CU-14 A1). */
-                todas?: boolean;
-                /** @description Agenda de un responsable: solo admin y dueño (CU-14 A1). */
+                /** @description Agenda de un responsable: solo admin y dueño (CU-14 A1); para el resto se ignora. */
                 propietario_id?: string | null;
                 pagina?: number;
                 por_pagina?: number;
@@ -3367,7 +3463,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Alertas. Por defecto, las propias pendientes hasta hoy; con `proximas=true`, las pendientes con fecha posterior a hoy (CU-14 A5). Los recontactos de CU-30 son las de tipo `recontacto`. */
+            /** @description Alertas. Por defecto, las propias pendientes hasta hoy (admin y dueño, las de toda la agencia); con `proximas=true`, las pendientes con fecha posterior a hoy (CU-14 A5). Los recontactos de CU-30 son las de tipo `recontacto`. */
             200: {
                 headers: {
                     [name: string]: unknown;

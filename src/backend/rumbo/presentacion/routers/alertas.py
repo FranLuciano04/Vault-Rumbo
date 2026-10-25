@@ -1,33 +1,48 @@
-"""Rutas del módulo alertas (CU-14, CU-28, CU-30). Stubs: responden 501 hasta su backend."""
+"""Rutas del módulo alertas (CU-14, CU-28, CU-30). Las que siguen en 501 esperan su ticket."""
 
 import uuid
 from datetime import date
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, Query
+from pydantic import BaseModel
+from sqlalchemy import inspect
 
+from rumbo.core.db import SesionDep
+from rumbo.datos import modelos
 from rumbo.datos.modelos import EstadoAlerta, TipoAlerta
+from rumbo.datos.repositorios.alertas import ContextoDeAlerta
+from rumbo.negocio.servicios import alertas
 from rumbo.presentacion.contrato import TODOS, no_implementado, operacion
+from rumbo.presentacion.dependencias import usuario_actual
 from rumbo.presentacion.esquemas.alertas import (
     Alerta,
     AlertaCrear,
     AlertaEditar,
     AlertaPosponer,
+    ClienteDeAlerta,
+    ContextoAlerta,
+    OportunidadDeAlerta,
+    PagoDeAlerta,
     ProgresoDelDia,
+    ResponsableAlerta,
+    ViajeDeAlerta,
 )
 from rumbo.presentacion.paginacion import Pagina, ParametrosPagina, parametros_pagina
 
 router = APIRouter(prefix="/alertas", tags=["alertas"])
 
 PaginaDep = Annotated[ParametrosPagina, Depends(parametros_pagina)]
+ActorDep = Annotated[modelos.Usuario, Depends(usuario_actual)]
+
 
 # La agenda publica su página inline, con `Alerta` por referencia, como en el contrato.
 _AGENDA = operacion(TODOS, "CU-14, CU-30", 422)
 _AGENDA["responses"][200] = {
     "description": (
-        "Alertas. Por defecto, las propias pendientes hasta hoy; con `proximas=true`, las "
-        "pendientes con fecha posterior a hoy (CU-14 A5). Los recontactos de CU-30 son las de "
-        "tipo `recontacto`."
+        "Alertas. Por defecto, las propias pendientes hasta hoy (admin y dueño, las de toda la "
+        "agencia); con `proximas=true`, las pendientes con fecha posterior a hoy (CU-14 A5). "
+        "Los recontactos de CU-30 son las de tipo `recontacto`."
     ),
     "content": {
         "application/json": {
@@ -46,6 +61,35 @@ _AGENDA["responses"][200] = {
 }
 
 
+def _contexto(contexto: ContextoDeAlerta) -> ContextoAlerta:
+    def de[E: BaseModel](esquema: type[E], origen: object | None) -> E | None:
+        return None if origen is None else esquema.model_validate(origen, from_attributes=True)
+
+    viaje = contexto.viaje
+    return ContextoAlerta(
+        cliente=de(ClienteDeAlerta, contexto.cliente),
+        oportunidad=de(OportunidadDeAlerta, contexto.oportunidad),
+        viaje=None
+        if viaje is None
+        else ViajeDeAlerta.model_validate({**vars(viaje.viaje), "destino": viaje.destino}),
+        pago=de(PagoDeAlerta, contexto.pago),
+    )
+
+
+def _alerta(alerta: modelos.Alerta, contexto: ContextoDeAlerta) -> Alerta:
+    """La `Alerta` del ORM con su responsable y su contexto, validada contra el contrato."""
+    columnas = {c.key: getattr(alerta, c.key) for c in inspect(modelos.Alerta).column_attrs}
+    return Alerta.model_validate(
+        {
+            **columnas,
+            "responsable": ResponsableAlerta.model_validate(
+                contexto.responsable, from_attributes=True
+            ),
+            "contexto": _contexto(contexto),
+        }
+    )
+
+
 @router.get(
     "",
     operation_id="listar_alertas",
@@ -55,6 +99,8 @@ _AGENDA["responses"][200] = {
 )
 async def listar_alertas(
     paginacion: PaginaDep,
+    actor: ActorDep,
+    sesion: SesionDep,
     hasta: Annotated[date | None, Query(description="Fin del período.")] = None,
     estado: Annotated[EstadoAlerta | None, Query()] = None,
     tipo: Annotated[TipoAlerta | None, Query()] = None,
@@ -65,15 +111,31 @@ async def listar_alertas(
             "(CU-14 A5)."
         ),
     ] = False,
-    todas: Annotated[
-        bool, Query(description="Las de toda la agencia: solo admin y dueño (CU-14 A1).")
-    ] = False,
     propietario_id: Annotated[
         uuid.UUID | None,
-        Query(description="Agenda de un responsable: solo admin y dueño (CU-14 A1)."),
+        Query(
+            description="Agenda de un responsable: solo admin y dueño (CU-14 A1); para el "
+            "resto se ignora."
+        ),
     ] = None,
 ) -> Pagina[Alerta]:
-    raise no_implementado()
+    items, total = await alertas.listar_agenda(
+        sesion,
+        actor,
+        proximas=proximas,
+        estado=estado,
+        tipo=tipo,
+        hasta=hasta,
+        propietario_id=propietario_id,
+        desplazamiento=paginacion.desplazamiento,
+        limite=paginacion.por_pagina,
+    )
+    return Pagina(
+        items=[_alerta(a, contexto) for a, contexto in items],
+        total=total,
+        pagina=paginacion.pagina,
+        por_pagina=paginacion.por_pagina,
+    )
 
 
 @router.post(
@@ -104,8 +166,8 @@ async def ver_progreso_del_dia() -> ProgresoDelDia:
     summary="Ver una alerta",
     **operacion(TODOS, "CU-14", 404),
 )
-async def obtener_alerta(alerta_id: uuid.UUID) -> Alerta:
-    raise no_implementado()
+async def obtener_alerta(alerta_id: uuid.UUID, actor: ActorDep, sesion: SesionDep) -> Alerta:
+    return _alerta(*await alertas.obtener_alerta(sesion, actor, alerta_id))
 
 
 @router.patch(

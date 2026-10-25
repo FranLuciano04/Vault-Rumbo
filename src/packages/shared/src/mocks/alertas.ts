@@ -22,12 +22,52 @@ const auditoria = {
 };
 const abierta = { resuelta_en: null, cerrada_por_cancelacion: false };
 
+/** Tomás Roldán, el `freelance` de `usuariosPorRol` (mismo motivo que arriba). */
+const otro_propietario_id = "e7b20d94-6a3f-4c15-9d8e-0b5a3f7c2e04";
+const ana = { id: propietario_id, nombre: "Ana Pérez" };
+const tomas = { id: otro_propietario_id, nombre: "Tomás Roldán" };
+
+const camila = { id: "3c1f6d2e-8a47-4b19-9e53-7d0a2b4c6e11", nombre: "Camila Benítez" };
+const joaquin = { id: "d4a8c6e2-5f19-4073-8b3a-2e1c9d7f0b33", nombre: "Joaquín Ramos" };
+const sosa = { id: "a9e3b7c1-4d26-4f58-8c0a-6b1d2e3f4a57", nombre: "Familia Sosa" };
+const viajeCamila = {
+  id: "f0a7c3d9-2b64-4e18-9c5d-8b1e6a4d2f55",
+  destino: "Punta Cana",
+  estado: "finalizado",
+  fecha_salida: "2026-09-01",
+  fecha_regreso: "2026-09-15",
+} as const;
+const viajeSosa = {
+  id: "e5f6a7b8-c9d0-4e1f-a2b3-c4d5e6f7a812",
+  destino: "Brasil",
+  estado: "confirmado",
+  fecha_salida: "2026-11-01",
+  fecha_regreso: "2026-11-15",
+} as const;
+const oportunidadJoaquin = {
+  id: "6b2d9f08-7e41-4c5a-8d13-0a9e3c5b7f44",
+  destino_consultado: "Europa",
+  estado: "cotizada",
+} as const;
+const pagoCamila = {
+  id: "b1d2e3f4-a5b6-4c7d-8e9f-0a1b2c3d4e11",
+  tipo: "cuota",
+  monto: "450000.00",
+  vencimiento: "2026-10-23",
+  estado: "pendiente",
+} as const;
+
+/** Un recordatorio manual suelto: ninguno de los cuatro orígenes. */
+const sinContexto = { cliente: null, oportunidad: null, viaje: null, pago: null };
+
 /** Agenda ficticia de la empleada: una alerta de cada tipo, en distintos estados y fechas. */
 export const alertasMock: Alerta[] = [
   {
     ...sinOrigen,
     ...abierta,
     ...auditoria,
+    responsable: ana,
+    contexto: { ...sinContexto, cliente: camila, viaje: viajeCamila, pago: pagoCamila },
     id: "c0a1f5d2-6e37-4b81-9a4c-1f2e3d4c5b01",
     propietario_id,
     tipo: "pago",
@@ -40,6 +80,8 @@ export const alertasMock: Alerta[] = [
     ...sinOrigen,
     ...abierta,
     ...auditoria,
+    responsable: ana,
+    contexto: { ...sinContexto, cliente: camila, viaje: viajeCamila },
     id: "c0a1f5d2-6e37-4b81-9a4c-1f2e3d4c5b02",
     propietario_id,
     tipo: "formulario",
@@ -52,6 +94,8 @@ export const alertasMock: Alerta[] = [
     ...sinOrigen,
     ...abierta,
     ...auditoria,
+    responsable: ana,
+    contexto: { ...sinContexto, cliente: sosa, viaje: viajeSosa },
     id: "c0a1f5d2-6e37-4b81-9a4c-1f2e3d4c5b03",
     propietario_id,
     tipo: "salida",
@@ -64,6 +108,8 @@ export const alertasMock: Alerta[] = [
     ...sinOrigen,
     ...abierta,
     ...auditoria,
+    responsable: ana,
+    contexto: { ...sinContexto, cliente: joaquin, oportunidad: oportunidadJoaquin },
     id: "c0a1f5d2-6e37-4b81-9a4c-1f2e3d4c5b04",
     propietario_id,
     tipo: "insistencia",
@@ -75,6 +121,8 @@ export const alertasMock: Alerta[] = [
   {
     ...sinOrigen,
     ...auditoria,
+    responsable: ana,
+    contexto: { ...sinContexto, cliente: camila, viaje: viajeCamila },
     id: "c0a1f5d2-6e37-4b81-9a4c-1f2e3d4c5b05",
     propietario_id,
     tipo: "resena",
@@ -89,6 +137,8 @@ export const alertasMock: Alerta[] = [
     ...sinOrigen,
     ...abierta,
     ...auditoria,
+    responsable: ana,
+    contexto: sinContexto,
     id: "c0a1f5d2-6e37-4b81-9a4c-1f2e3d4c5b06",
     propietario_id,
     tipo: "manual",
@@ -100,6 +150,8 @@ export const alertasMock: Alerta[] = [
     ...sinOrigen,
     ...abierta,
     ...auditoria,
+    responsable: ana,
+    contexto: { ...sinContexto, cliente: joaquin },
     id: "c0a1f5d2-6e37-4b81-9a4c-1f2e3d4c5b07",
     propietario_id,
     tipo: "recontacto",
@@ -112,6 +164,8 @@ export const alertasMock: Alerta[] = [
     ...sinOrigen,
     ...abierta,
     ...auditoria,
+    responsable: ana,
+    contexto: { ...sinContexto, cliente: sosa, viaje: viajeSosa },
     id: "c0a1f5d2-6e37-4b81-9a4c-1f2e3d4c5b08",
     propietario_id,
     tipo: "viaje",
@@ -122,15 +176,14 @@ export const alertasMock: Alerta[] = [
   },
 ];
 
-/** Tomás Roldán, el `freelance` de `usuariosPorRol` (mismo motivo que arriba). */
-const otro_propietario_id = "e7b20d94-6a3f-4c15-9d8e-0b5a3f7c2e04";
-
-/** Alertas de otro responsable: solo las ven admin y dueño (`todas` o `propietario_id`). */
+/** Alertas de otro responsable: solo las ven admin y dueño, con `propietario_id` (CU-14 A1). */
 export const alertasAjenasMock: Alerta[] = [
   {
     ...sinOrigen,
     ...abierta,
     ...auditoria,
+    responsable: tomas,
+    contexto: { ...sinContexto, cliente: joaquin, oportunidad: oportunidadJoaquin },
     id: "d1b2a6e3-7f48-4c92-8b5d-2a3f4e5d6c01",
     propietario_id: otro_propietario_id,
     tipo: "insistencia",
@@ -143,6 +196,8 @@ export const alertasAjenasMock: Alerta[] = [
     ...sinOrigen,
     ...abierta,
     ...auditoria,
+    responsable: tomas,
+    contexto: sinContexto,
     id: "d1b2a6e3-7f48-4c92-8b5d-2a3f4e5d6c02",
     propietario_id: otro_propietario_id,
     tipo: "manual",
@@ -153,6 +208,8 @@ export const alertasAjenasMock: Alerta[] = [
   {
     ...sinOrigen,
     ...auditoria,
+    responsable: tomas,
+    contexto: { ...sinContexto, cliente: camila },
     id: "d1b2a6e3-7f48-4c92-8b5d-2a3f4e5d6c03",
     propietario_id: otro_propietario_id,
     tipo: "recontacto",
@@ -197,10 +254,7 @@ export const manejadoresAlertas: RequestHandler[] = [
     const pagina = Number(url.searchParams.get("pagina") ?? 1);
     const porPagina = Number(url.searchParams.get("por_pagina") ?? 20);
     const propietario = url.searchParams.get("propietario_id");
-    const agenda =
-      url.searchParams.get("todas") === "true" || propietario
-        ? [...alertasMock, ...alertasAjenasMock]
-        : alertasMock;
+    const agenda = propietario ? [...alertasMock, ...alertasAjenasMock] : alertasMock;
     const estadoBuscado = (a: Alerta) =>
       estado ? a.estado === estado : proximas ? a.estado === "pendiente" : a.estado !== "resuelta";
     const filtradas = agenda.filter(
@@ -232,6 +286,8 @@ export const manejadoresAlertas: RequestHandler[] = [
     const nueva: Alerta = {
       ...sinOrigen,
       ...abierta,
+      responsable: ana,
+      contexto: sinContexto,
       id: crypto.randomUUID(),
       propietario_id,
       tipo: "manual",
