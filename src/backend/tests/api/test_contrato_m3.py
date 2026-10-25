@@ -22,10 +22,12 @@ OPERACIONES: list[tuple[str, str, dict[str, Any] | None]] = [
     ("post", f"/api/alertas/{ID}/resolver", None),
     ("post", f"/api/alertas/{ID}/posponer", {"fecha": "2026-12-01"}),
 ]
-# Las que todavía responden 501 (la agenda, T-052, y atender alertas con el progreso, T-053,
-# ya están implementadas).
+# Las que todavía responden 501 (ninguna: la agenda, T-052, atender alertas con el progreso,
+# T-053, y los recordatorios manuales, T-054, ya están implementadas).
 _IMPLEMENTADAS = {
     ("get", "/api/alertas"),
+    ("post", "/api/alertas"),
+    ("patch", f"/api/alertas/{ID}"),
     ("get", "/api/alertas/progreso-del-dia"),
     ("get", f"/api/alertas/{ID}"),
     ("post", f"/api/alertas/{ID}/vista"),
