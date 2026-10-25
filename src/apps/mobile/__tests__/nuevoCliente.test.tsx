@@ -471,17 +471,114 @@ describe("RF-003 duplicado mobile", () => {
     expect(vista.queryByText(/consultalo con un admin/i)).toBeNull();
   });
 
-  it("RF-003 «Confirmar alta» manda lo que hay ahora en el formulario, no lo del primer envío", async () => {
+  it("RF-003 editar el contacto tras el aviso oculta el aviso y el botón «Confirmar alta»", async () => {
     const vista = await altaDuplicada();
     await vista.findByRole("button", { name: /confirmar alta/i });
 
     await fireEvent.changeText(vista.getByLabelText(/^contacto/i), "otro@mail.test");
-    await fireEvent.press(vista.getByRole("button", { name: /confirmar alta/i }));
 
     await waitFor(() => {
-      expect(vista).toHavePathname(`/clientes/${NUEVO_ID}`);
+      expect(vista.queryByRole("button", { name: /confirmar alta/i })).toBeNull();
     });
-    expect(cuerpos).toHaveLength(2);
-    expect(cuerpos[1]).toMatchObject({ contacto: "otro@mail.test", confirmar_duplicado: true });
+    expect(vista.queryByRole("alert")).toBeNull();
+    expect(vista.queryByText("Familia Sosa")).toBeNull();
+  });
+
+  it("RF-003 editar el nombre tras el aviso también oculta el aviso", async () => {
+    const vista = await altaDuplicada();
+    await vista.findByRole("button", { name: /confirmar alta/i });
+
+    await fireEvent.changeText(vista.getByLabelText(/^nombre/i), "Otro nombre");
+
+    await waitFor(() => {
+      expect(vista.queryByRole("button", { name: /confirmar alta/i })).toBeNull();
+    });
+  });
+
+  it("RF-003 editar el Instagram tras el aviso también oculta el aviso", async () => {
+    const vista = await altaDuplicada();
+    await vista.findByRole("button", { name: /confirmar alta/i });
+
+    await fireEvent.changeText(vista.getByLabelText(/instagram \(opcional\)/i), "sosa.nueva");
+
+    await waitFor(() => {
+      expect(vista.queryByRole("button", { name: /confirmar alta/i })).toBeNull();
+    });
+  });
+
+  it("RF-003 cambiar el segmento tras el aviso también oculta el aviso", async () => {
+    const vista = await altaDuplicada();
+    await vista.findByRole("button", { name: /confirmar alta/i });
+
+    await fireEvent.press(vista.getByRole("button", { name: /^pareja$/i }));
+
+    await waitFor(() => {
+      expect(vista.queryByRole("button", { name: /confirmar alta/i })).toBeNull();
+    });
+  });
+
+  it("RF-003 cambiar el asesor tras el aviso también oculta el aviso", async () => {
+    const vista = await altaDuplicada();
+    await vista.findByRole("button", { name: /confirmar alta/i });
+
+    await fireEvent.press(await vista.findByRole("button", { name: ASESOR.nombre }));
+
+    await waitFor(() => {
+      expect(vista.queryByRole("button", { name: /confirmar alta/i })).toBeNull();
+    });
+  });
+
+  it("RF-003 si se edita mientras el alta está en vuelo, el 409 tardío no muestra el aviso", async () => {
+    let soltar = () => {};
+    const respuestaTardia = new Promise<void>((resolver) => {
+      soltar = resolver;
+    });
+    backend({
+      alta: async (_cuerpo, config) => {
+        await respuestaTardia;
+        return respuesta(
+          409,
+          {
+            title: "Conflicto",
+            status: 409,
+            detail: "Ya existe un cliente con ese contacto.",
+            duplicados: [sosa],
+          },
+          config,
+        );
+      },
+    });
+    const vista = await renderAlta();
+    await completar(vista, "Familia Sosa Nueva", sosa.contacto);
+    await fireEvent.press(registrar(vista));
+
+    await fireEvent.changeText(vista.getByLabelText(/^contacto/i), "otro@mail.test");
+    await act(async () => {
+      soltar();
+      await respuestaTardia;
+    });
+
+    await waitFor(() => {
+      expect(vista.queryByText("Familia Sosa")).toBeNull();
+    });
+    expect(vista.queryByRole("button", { name: /confirmar alta/i })).toBeNull();
+  });
+
+  it("RF-003 tras editar, volver a «Registrar cliente» hace un POST nuevo sin confirmar_duplicado", async () => {
+    const vista = await altaDuplicada();
+    await vista.findByRole("button", { name: /confirmar alta/i });
+
+    await fireEvent.changeText(vista.getByLabelText(/^contacto/i), "otro@mail.test");
+    await waitFor(() => {
+      expect(vista.queryByRole("button", { name: /confirmar alta/i })).toBeNull();
+    });
+    await fireEvent.press(registrar(vista));
+
+    await waitFor(() => {
+      expect(cuerpos).toHaveLength(2);
+    });
+    expect(cuerpos[1]).toMatchObject({ contacto: "otro@mail.test" });
+    expect(cuerpos[1]?.["confirmar_duplicado"] ?? false).toBe(false);
+    expect(await vista.findByRole("alert")).toBeTruthy();
   });
 });

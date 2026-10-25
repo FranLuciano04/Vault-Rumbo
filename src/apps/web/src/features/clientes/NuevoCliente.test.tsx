@@ -356,9 +356,7 @@ describe("RF-003 posible duplicado", () => {
 
   it("RF-003 el freelance, sin candidatos, ve el aviso de cliente ajeno y puede confirmar", async () => {
     const cuerpos: Record<string, unknown>[] = [];
-    servidor.use(
-      altaConAviso(cuerpos, [], "Ya hay un cliente con ese contacto en la agencia."),
-    );
+    servidor.use(altaConAviso(cuerpos, [], "Ya hay un cliente con ese contacto en la agencia."));
     const usuario = await altaDuplicada("freelance");
 
     expect(
@@ -385,7 +383,61 @@ describe("RF-003 posible duplicado", () => {
     expect(screen.queryByText(/consultalo con un admin/i)).not.toBeInTheDocument();
   });
 
-  it("RF-003 «Confirmar alta» manda lo que hay ahora en el formulario, no lo del primer envío", async () => {
+  it("RF-003 editar el contacto tras el aviso oculta el aviso y el botón «Confirmar alta»", async () => {
+    servidor.use(altaConAviso([], [sosa], "Ya existe un cliente con ese contacto."));
+    const usuario = await altaDuplicada();
+    await screen.findByRole("button", { name: /confirmar alta/i });
+
+    await usuario.type(await campo(/^contacto/i), "x");
+
+    await waitFor(() => {
+      expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+    });
+    expect(screen.queryByRole("button", { name: /confirmar alta/i })).not.toBeInTheDocument();
+    expect(screen.queryByText("Familia Sosa")).not.toBeInTheDocument();
+  });
+
+  it("RF-003 editar el nombre tras el aviso también oculta el aviso", async () => {
+    servidor.use(altaConAviso([], [sosa], "Ya existe un cliente con ese contacto."));
+    const usuario = await altaDuplicada();
+    await screen.findByRole("button", { name: /confirmar alta/i });
+
+    await usuario.type(await campo(/^nombre/i), "!");
+
+    await waitFor(() => {
+      expect(screen.queryByRole("button", { name: /confirmar alta/i })).not.toBeInTheDocument();
+    });
+  });
+
+  it("RF-003 editar el Instagram tras el aviso también oculta el aviso", async () => {
+    servidor.use(altaConAviso([], [sosa], "Ya existe un cliente con ese contacto."));
+    const usuario = await altaDuplicada();
+    await screen.findByRole("button", { name: /confirmar alta/i });
+
+    await usuario.type(await campo(/instagram \(opcional\)/i), "sosa.nueva");
+
+    await waitFor(() => {
+      expect(screen.queryByRole("button", { name: /confirmar alta/i })).not.toBeInTheDocument();
+    });
+  });
+
+  it("RF-003 cambiar el asesor tras el aviso también oculta el aviso", async () => {
+    servidor.use(altaConAviso([], [sosa], "Ya existe un cliente con ese contacto."));
+    const usuario = await altaDuplicada();
+    await screen.findByRole("button", { name: /confirmar alta/i });
+    await screen.findByRole("option", { name: "Lucía Fernández" });
+
+    await usuario.selectOptions(
+      screen.getByRole("combobox", { name: /asesor asignado/i }),
+      "Lucía Fernández",
+    );
+
+    await waitFor(() => {
+      expect(screen.queryByRole("button", { name: /confirmar alta/i })).not.toBeInTheDocument();
+    });
+  });
+
+  it("RF-003 tras editar, volver a «Registrar cliente» hace un POST nuevo sin confirmar_duplicado", async () => {
     const cuerpos: Record<string, unknown>[] = [];
     servidor.use(altaConAviso(cuerpos, [sosa], "Ya existe un cliente con ese contacto."));
     const usuario = await altaDuplicada();
@@ -394,10 +446,52 @@ describe("RF-003 posible duplicado", () => {
     const contacto = await campo(/^contacto/i);
     await usuario.clear(contacto);
     await usuario.type(contacto, "otro@mail.test");
-    await usuario.click(screen.getByRole("button", { name: /confirmar alta/i }));
+    await waitFor(() => {
+      expect(screen.queryByRole("button", { name: /confirmar alta/i })).not.toBeInTheDocument();
+    });
+    await usuario.click(registrar());
 
-    expect(await screen.findByText(`Ficha del cliente ${NUEVO_ID}`)).toBeInTheDocument();
+    expect(await screen.findByRole("alert")).toBeInTheDocument();
     expect(cuerpos).toHaveLength(2);
-    expect(cuerpos[1]).toMatchObject({ contacto: "otro@mail.test", confirmar_duplicado: true });
+    expect(cuerpos[1]).toMatchObject({ contacto: "otro@mail.test" });
+    expect(cuerpos[1]?.["confirmar_duplicado"] ?? false).toBe(false);
+  });
+
+  it("RF-003 editar el segmento tras el aviso también oculta el aviso", async () => {
+    servidor.use(altaConAviso([], [sosa], "Ya existe un cliente con ese contacto."));
+    const usuario = await altaDuplicada();
+    await screen.findByRole("button", { name: /confirmar alta/i });
+
+    await usuario.selectOptions(screen.getByRole("combobox", { name: /segmento/i }), "familia");
+
+    await waitFor(() => {
+      expect(screen.queryByRole("button", { name: /confirmar alta/i })).not.toBeInTheDocument();
+    });
+  });
+
+  it("RF-003 si se edita mientras el alta está en vuelo, el 409 tardío no muestra el aviso", async () => {
+    let soltar = () => {};
+    const respuestaTardia = new Promise<void>((resolver) => {
+      soltar = resolver;
+    });
+    let respondido = false;
+    servidor.use(
+      http.post("*/api/clientes", async () => {
+        await respuestaTardia;
+        respondido = true;
+        return conflicto({ detail: "Ya existe un cliente con ese contacto.", duplicados: [sosa] });
+      }),
+    );
+    const usuario = await altaDuplicada();
+
+    await usuario.type(await campo(/^contacto/i), "x");
+    soltar();
+
+    await waitFor(() => {
+      expect(respondido).toBe(true);
+    });
+    await new Promise((resolver) => setTimeout(resolver, 50));
+    expect(screen.queryByRole("button", { name: /confirmar alta/i })).not.toBeInTheDocument();
+    expect(screen.queryByText("Familia Sosa")).not.toBeInTheDocument();
   });
 });

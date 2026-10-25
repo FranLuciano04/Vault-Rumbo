@@ -3,7 +3,7 @@ import { ETIQUETA_SEGMENTO, ErrorApi, type Cliente, type UsuarioActual } from "@
 import { useCrearCliente } from "@rumbo/shared/hooks";
 import type { AxiosInstance } from "axios";
 import { TriangleAlert } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { type FieldError, useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router";
 import { CampoFormulario, CLASE_SELECT } from "@/components/CampoFormulario";
@@ -89,6 +89,8 @@ export function NuevoCliente({
   const conAsesor = usuario.rol !== "freelance";
   const [error, setError] = useState<string | null>(null);
   const [duplicados, setDuplicados] = useState<Cliente[] | null>(null);
+  // Cuenta las ediciones del formulario: un 409 de datos ya editados no se muestra.
+  const ediciones = useRef(0);
   const formulario = useForm<EntradaFicha, unknown, DatosFicha>({
     resolver: zodResolver(esquemaFicha),
     defaultValues: {
@@ -101,15 +103,27 @@ export function NuevoCliente({
     },
   });
   const { errors } = formulario.formState;
-  const { setFocus } = formulario;
+  const { setFocus, subscribe } = formulario;
 
   useEffect(() => {
     setFocus("nombre");
   }, [setFocus]);
 
+  // Editar cualquier campo tras el aviso obliga a volver a chequear (CU-02 A1).
+  useEffect(() => {
+    return subscribe({
+      formState: { values: true },
+      callback: () => {
+        ediciones.current += 1;
+        setDuplicados(null);
+      },
+    });
+  }, [subscribe]);
+
   async function enviar(datos: DatosFicha, confirmarDuplicado: boolean) {
     setError(null);
     setDuplicados(null);
+    const edicionesAlEnviar = ediciones.current;
     try {
       const nuevo = await crear.mutateAsync({
         ...datosParaLaApi(datos, conAsesor),
@@ -118,7 +132,7 @@ export function NuevoCliente({
       void navegar(`/clientes/${nuevo.id}`);
     } catch (falla) {
       if (falla instanceof ErrorApi && falla.status === 409 && falla.duplicados) {
-        setDuplicados(falla.duplicados);
+        if (ediciones.current === edicionesAlEnviar) setDuplicados(falla.duplicados);
         return;
       }
       setError(aplicarErroresDelServidor(falla, CAMPOS, formulario.setError));
