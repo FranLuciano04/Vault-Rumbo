@@ -49,3 +49,6 @@ Se cancela un viaje no finalizado: se anulan sus pagos pendientes, se cierran su
 - Reintegros de dinero (fuera de alcance).
 
 ## Notas de implementación
+- **De la review de T-051 (25/10/26):** las alertas de los Pagos anulados están ligadas por `pago_id`, no por `viaje_id`.
+  - Al cancelar (CU-27, paso 4), llamá a `servicios.alertas.resolver_de_origen(sesion, origen, por_cancelacion=True)` una vez por el Viaje y otra por cada Pago anulado.
+  - Al revertir (A3), llamá a `reabrir_de_origen(sesion, origen, solo_por_cancelacion=True)` con los mismos orígenes, así no vuelven las alertas resueltas por otro motivo.

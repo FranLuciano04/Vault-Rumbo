@@ -337,9 +337,9 @@ async def test_rf079_reabrir_por_origen_ignora_las_que_no_estan_resueltas(
 def test_rf079_posponer_a_fecha_igual_o_anterior_es_invalido() -> None:
     a = _alerta("pendiente", fecha=date(2026, 10, 20))
 
-    for nueva in (date(2026, 10, 20), date(2026, 10, 19)):
+    for nueva in (date(2026, 10, 20), date(2026, 10, 18)):
         with pytest.raises(DatosInvalidos):
-            est.posponer(a, nueva)
+            est.posponer(a, nueva, hoy=date(2026, 10, 15))
 
     assert a.fecha == date(2026, 10, 20)
 

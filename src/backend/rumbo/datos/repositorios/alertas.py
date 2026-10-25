@@ -57,5 +57,6 @@ class RepositorioAlertas(RepositorioBase[Alerta]):
             consulta = consulta.where(Alerta.tipo.in_(tipos))
         if por_cancelacion is not None:
             consulta = consulta.where(Alerta.cerrada_por_cancelacion == por_cancelacion)
-        consulta = consulta.order_by(Alerta.fecha, Alerta.id).with_for_update()
+        consulta = consulta.order_by(Alerta.fecha, Alerta.id)
+        consulta = consulta.with_for_update().execution_options(populate_existing=True)
         return list(await sesion.scalars(consulta))
