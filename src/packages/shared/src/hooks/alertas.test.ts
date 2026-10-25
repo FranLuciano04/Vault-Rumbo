@@ -9,6 +9,7 @@ import { alertasMock, manejadoresAlertas, progresoMock } from "../mocks/alertas"
 import {
   useAlerta,
   useAlertas,
+  useAlertasPorPaginas,
   useCrearRecordatorio,
   usePosponerAlerta,
   useProgresoDelDia,
@@ -38,6 +39,25 @@ describe("CU-14 hooks de alertas", () => {
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
     expect(result.current.data?.items.map((a) => a.tipo)).toEqual(["pago"]);
+  });
+
+  it("CU-14 useAlertasPorPaginas suma la página siguiente hasta cubrir el total", async () => {
+    const { result } = renderHook(() => useAlertasPorPaginas(cliente, { por_pagina: 1 }), {
+      wrapper: envoltorio,
+    });
+
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+    const total = result.current.data?.pages[0]?.total ?? 0;
+    expect(total).toBeGreaterThan(1);
+    expect(result.current.hasNextPage).toBe(true);
+
+    await act(async () => {
+      await result.current.fetchNextPage();
+    });
+    await waitFor(() => expect(result.current.data?.pages).toHaveLength(2));
+    expect(result.current.data?.pages[1]?.items[0]?.id).not.toBe(
+      result.current.data?.pages[0]?.items[0]?.id,
+    );
   });
 
   it("CU-14 useAlerta devuelve una alerta y no consulta sin id", async () => {

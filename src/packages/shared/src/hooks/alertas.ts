@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import type { AxiosInstance } from "axios";
 import type {
   Alerta,
@@ -20,6 +20,22 @@ export function useAlertas(cliente: AxiosInstance, filtros: FiltrosAlertas = {})
     queryKey: [...claveAlertas, "lista", filtros],
     queryFn: async () =>
       (await cliente.get<Pagina<Alerta>>("/api/alertas", { params: filtros })).data,
+  });
+}
+
+/** La agenda por páginas (`GET /api/alertas`): `fetchNextPage` suma la siguiente hasta cubrir el total. */
+export function useAlertasPorPaginas(cliente: AxiosInstance, filtros: FiltrosAlertas = {}) {
+  return useInfiniteQuery({
+    queryKey: [...claveAlertas, "lista-por-paginas", filtros],
+    initialPageParam: 1,
+    queryFn: async ({ pageParam }) =>
+      (
+        await cliente.get<Pagina<Alerta>>("/api/alertas", {
+          params: { ...filtros, pagina: pageParam },
+        })
+      ).data,
+    getNextPageParam: (ultima, todas) =>
+      todas.length * ultima.por_pagina < ultima.total ? todas.length + 1 : undefined,
   });
 }
 

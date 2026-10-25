@@ -2,7 +2,7 @@ import type { Alerta } from "../modelos";
 import { mensajeDeError } from "../errores";
 import { useResolverAlerta } from "./alertas";
 import type { AxiosInstance } from "axios";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 /** Tiempo de gracia para tocar «Deshacer» antes de que la resolución llegue al servidor (RF-076). */
 export const ESPERA_DESHACER_MS = 5_000;
@@ -48,20 +48,21 @@ export function useResolverConDeshacer(cliente: AxiosInstance) {
     enviarRef.current = enviar;
   });
 
-  useEffect(() => {
-    const pendientes = esperando.current;
-    return () => {
-      for (const { alerta, temporizador } of pendientes.values()) {
-        clearTimeout(temporizador);
-        enviarRef.current(alerta);
-      }
-    };
+  /** Envía ya lo que está esperando el tiempo de gracia (al irse de la pantalla o de la app). */
+  const enviarPendientes = useCallback(() => {
+    for (const { alerta, temporizador } of esperando.current.values()) {
+      clearTimeout(temporizador);
+      enviarRef.current(alerta);
+    }
   }, []);
+
+  useEffect(() => enviarPendientes, [enviarPendientes]);
 
   return {
     /** Las alertas resueltas que la lista no tiene que mostrar (esperando o recién enviadas). */
     resueltas,
     error,
+    enviarPendientes,
     limpiarError: () => {
       setError(null);
     },

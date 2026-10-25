@@ -1,4 +1,5 @@
 import { act, fireEvent, waitFor } from "@testing-library/react-native";
+import { AppState } from "react-native";
 import { renderRouter } from "expo-router/testing-library";
 import { Slot } from "expo-router";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -115,6 +116,11 @@ function backend(
     resueltasInicial?: number;
     falla?: number;
     rechazarResolver?: { status: number; detalle: string };
+    rol?: string;
+    /** Alertas vistas sin resolver (la consulta con `estado: "vista"`). */
+    vistas?: number;
+    /** Las alertas de `alertas` se sirven de a `porPagina`, y el total real es `totalReal`. */
+    paginacion?: { porPagina: number; totalReal: number };
   } = {},
 ) {
   const pendientes = [...(opciones.alertas ?? ALERTAS)] as { id: string }[];
@@ -123,6 +129,13 @@ function backend(
   mockHttp.mockImplementation((config) => {
     const url = config.url ?? "";
     if (opciones.falla) return respuesta(opciones.falla, {}, config);
+    if (url === "/api/auth/yo") {
+      return respuesta(
+        200,
+        { ...ANA, email: "ana@rumbo.test", rol: opciones.rol ?? "empleado", acceso_redes: false },
+        config,
+      );
+    }
     if (url === "/api/alertas/progreso-del-dia") {
       return respuesta(200, { resueltas_hoy: resueltas, total_del_dia: total }, config);
     }
@@ -139,6 +152,16 @@ function backend(
         resueltas += 1;
       }
       return respuesta(200, { id, estado: "resuelta" }, config);
+    }
+    if (url === "/api/alertas" && config.params?.["estado"] === "vista") {
+      const total = opciones.vistas ?? 0;
+      return respuesta(200, { items: [], total, pagina: 1, por_pagina: 1 }, config);
+    }
+    if (url === "/api/alertas" && opciones.paginacion) {
+      const { porPagina, totalReal } = opciones.paginacion;
+      const pagina = Number(config.params?.["pagina"] ?? 1);
+      const items = pendientes.slice((pagina - 1) * porPagina, pagina * porPagina);
+      return respuesta(200, { items, total: totalReal, pagina, por_pagina: porPagina }, config);
     }
     if (url === "/api/alertas") {
       return respuesta(
@@ -327,7 +350,7 @@ describe("RF-076 resolver con deshacer", () => {
 
     expect(vista.queryByText(FORMULARIO)).toBeNull();
     expect(vista.getByText("Alerta resuelta")).toBeTruthy();
-    expect(vista.getByRole("button", { name: "Deshacer" })).toBeTruthy();
+    expect(vista.getByRole("button", { name: `Deshacer: ${FORMULARIO}` })).toBeTruthy();
   });
 
   it("no envía el POST antes de que venza el plazo de gracia", async () => {
@@ -371,7 +394,7 @@ describe("RF-076 resolver con deshacer", () => {
     const vista = await renderAgenda();
     await resolverFormulario(vista);
 
-    await fireEvent.press(vista.getByRole("button", { name: "Deshacer" }));
+    await fireEvent.press(vista.getByRole("button", { name: `Deshacer: ${FORMULARIO}` }));
     await avanzar(ESPERA_DESHACER_MS * 2);
 
     expect(llamadasResolver()).toHaveLength(0);
@@ -401,5 +424,120 @@ describe("RF-076 resolver con deshacer", () => {
     expect(vista.queryByRole("button", { name: `Resolver: ${PAGO}` })).toBeNull();
     expect(vista.getByText(/se resuelve al registrar el cobro/i)).toBeTruthy();
     expect(vista.getByRole("button", { name: `Resolver: ${INSISTENCIA}` })).toBeTruthy();
+  });
+});
+
+describe("RF-074 agenda mobile: paginación, agencia y avisos", () => {
+  it("si hay más alertas que las cargadas muestra «mostrando N de total» y «Ver más» trae la siguiente página", async () => {
+    backend({ paginacion: { porPagina: 2, totalReal: 4 } });
+    const vista = await renderAgenda();
+    await vista.findByText(PAGO);
+
+    expect(vista.getByText("Mostrando 2 de 4 alertas")).toBeTruthy();
+    expect(vista.queryByText(FORMULARIO)).toBeNull();
+
+    await fireEvent.press(vista.getByRole("button", { name: "Ver más alertas" }));
+
+    await vista.findByText(FORMULARIO);
+    expect(vista.getByText(VIAJE)).toBeTruthy();
+    expect(vista.queryByText(/^Mostrando/)).toBeNull();
+    expect(vista.getByRole("header", { name: "Hoy · 2" })).toBeTruthy();
+  });
+
+  it("para el dueño muestra al responsable en cada fila y los textos de la agencia", async () => {
+    backend({ rol: "dueno" });
+    const vista = await renderAgenda();
+    await vista.findByText(PAGO);
+
+    await vista.findByText(/La agencia lleva 1 de 5/);
+    expect(vista.getAllByText(/· Ana Pérez$/)).toHaveLength(4);
+  });
+
+  it("para un empleado no muestra al responsable", async () => {
+    backend({ rol: "empleado" });
+    const vista = await renderAgenda();
+    await vista.findByText(PAGO);
+
+    expect(vista.queryByText(/· Ana Pérez$/)).toBeNull();
+  });
+
+  it("para el dueño, sin alertas, el vacío habla de la agencia", async () => {
+    backend({ rol: "dueno", alertas: [], resueltasInicial: 3 });
+    const vista = await renderAgenda();
+
+    await vista.findByText(/La agencia no tiene alertas pendientes/i);
+  });
+
+  it("sin pendientes pero con vistas sin resolver avisa cuántas son", async () => {
+    backend({ alertas: [], resueltasInicial: 3, vistas: 2 });
+    const vista = await renderAgenda();
+
+    await vista.findByText("Tenés 2 alertas vistas sin resolver.");
+  });
+
+  it("el progreso es una barra accesible con su valor", async () => {
+    backend({ resueltasInicial: 1 });
+    const vista = await renderAgenda();
+
+    const barra = await vista.findByRole("progressbar");
+    expect(barra.props.accessibilityValue).toEqual({ min: 0, max: 5, now: 1 });
+  });
+
+  it("el aviso «Alerta resuelta» se anuncia como región viva", async () => {
+    backend();
+    const vista = await renderAgenda();
+    await vista.findByText(FORMULARIO);
+    await fireEvent.press(vista.getByRole("button", { name: `Resolver: ${FORMULARIO}` }));
+
+    const aviso = vista.getByText("Alerta resuelta");
+    let nodo = aviso.parent;
+    while (nodo && nodo.props.accessibilityLiveRegion !== "polite") nodo = nodo.parent;
+    expect(nodo).toBeTruthy();
+  });
+
+  it("al pasar la app a segundo plano envía el POST sin esperar el plazo", async () => {
+    let cambiarEstado: ((estado: string) => void) | undefined;
+    jest.spyOn(AppState, "addEventListener").mockImplementation(((
+      _evento: string,
+      manejador: (estado: string) => void,
+    ) => {
+      cambiarEstado = manejador;
+      return { remove: jest.fn() };
+    }) as never);
+    backend();
+    const vista = await renderAgenda();
+    await vista.findByText(FORMULARIO);
+    await fireEvent.press(vista.getByRole("button", { name: `Resolver: ${FORMULARIO}` }));
+    expect(llamadasResolver()).toHaveLength(0);
+
+    await act(async () => {
+      cambiarEstado?.("background");
+      await Promise.resolve();
+    });
+
+    await waitFor(() => {
+      expect(llamadasResolver(ID_FORMULARIO)).toHaveLength(1);
+    });
+  });
+
+  it("el pull-to-refresh limpia el error de una resolución rechazada", async () => {
+    const motivo = "La alerta ya estaba resuelta por otra persona.";
+    backend({ rechazarResolver: { status: 409, detalle: motivo } });
+    const vista = await renderAgenda();
+    await vista.findByText(FORMULARIO);
+    await fireEvent.press(vista.getByRole("button", { name: `Resolver: ${FORMULARIO}` }));
+    await act(async () => {
+      jest.advanceTimersByTime(ESPERA_DESHACER_MS + 100);
+      await Promise.resolve();
+    });
+    await vista.findByText(motivo);
+
+    await act(async () => {
+      await fireEvent(vista.getByTestId("lista-alertas"), "refresh");
+    });
+
+    await waitFor(() => {
+      expect(vista.queryByText(motivo)).toBeNull();
+    });
   });
 });
