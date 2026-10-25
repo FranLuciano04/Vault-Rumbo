@@ -3,7 +3,7 @@ id: T-051
 titulo: Crear el servicio de alertas para los demás módulos
 modulo: M3 — Alertas
 capa: backend
-estado: libre
+estado: tomado
 depende_de: [T-007, T-012, T-011]
 tamaño: M
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [CU-14, RF-073, RF-079, DEC-0013]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: FranLucianoo
+tomado_el: 25/10/26 14:20
+rama: feature/T-051-crear-el-servicio-de-alertas-para-los-de
 pr:
 ---
 # T-051 Crear el servicio de alertas para los demás módulos
