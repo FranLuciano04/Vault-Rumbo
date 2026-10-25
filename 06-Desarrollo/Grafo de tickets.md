@@ -17,7 +17,7 @@ tags:: #tipo/referencia
 | M0 — Fundaciones | 38 | 38 | 0 | 0 | 0 | 0 | ✅ cerrado |
 | M1 — Usuarios y configuración | 19 | 19 | 0 | 0 | 0 | 0 | 🔍 listo para la review |
 | M2 — Clientes | 15 | 15 | 0 | 0 | 0 | 0 | 🔍 listo para la review |
-| M3 — Alertas | 11 | 4 | 0 | 3 | 4 | 0 | 🛠️ en curso |
+| M3 — Alertas | 11 | 4 | 1 | 2 | 4 | 0 | 🛠️ en curso |
 | M4 — Oportunidades y cotizaciones | 14 | 0 | 0 | 1 | 13 | 0 | 🛠️ en curso |
 | M5 — Hoteles y reseñas | 11 | 0 | 0 | 1 | 10 | 0 | 🛠️ en curso |
 | M6 — Viajes y economía | 24 | 0 | 0 | 3 | 21 | 0 | 🛠️ en curso |
@@ -115,7 +115,7 @@ flowchart LR
     T051["T-051 · Crear el servicio de alertas para los demás módulos<br/><small>backend</small>"]:::hecho
     T052["T-052 · Listar la agenda de alertas según el rol<br/><small>backend</small>"]:::hecho
     T053["T-053 · Atender las alertas con el progreso del día<br/><small>backend</small>"]:::hecho
-    T054["T-054 · Crear recordatorios manuales<br/><small>backend</small>"]:::disponible
+    T054["T-054 · Crear recordatorios manuales<br/><small>backend</small><br/>👤 FranLucianoo"]:::tomado
     T055["T-055 · Atender la agenda del día en la web<br/><small>web</small>"]:::disponible
     T056["T-056 · Crear un recordatorio manual en la web<br/><small>web</small>"]:::esperando
     T057["T-057 · Atender la agenda del día en la app mobile<br/><small>mobile</small>"]:::disponible

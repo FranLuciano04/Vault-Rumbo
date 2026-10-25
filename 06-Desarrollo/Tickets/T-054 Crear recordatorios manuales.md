@@ -3,7 +3,7 @@ id: T-054
 titulo: Crear recordatorios manuales
 modulo: M3 — Alertas
 capa: backend
-estado: libre
+estado: tomado
 depende_de: [T-050, T-051]
 tamaño: S
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [CU-28, RF-080, RF-081, RF-082]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: FranLucianoo
+tomado_el: 25/10/26 18:17
+rama: feature/T-054-crear-recordatorios-manuales
 pr:
 ---
 # T-054 Crear recordatorios manuales
