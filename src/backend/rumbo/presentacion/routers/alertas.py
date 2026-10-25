@@ -178,8 +178,9 @@ async def crear_recordatorio(datos: AlertaCrear) -> Alerta:
     summary="Ver el progreso del día de la agenda",
     **operacion(TODOS, "CU-14"),
 )
-async def ver_progreso_del_dia() -> ProgresoDelDia:
-    raise no_implementado()
+async def ver_progreso_del_dia(actor: ActorDep, sesion: SesionDep) -> ProgresoDelDia:
+    resueltas_hoy, total_del_dia = await alertas.progreso_del_dia(sesion, actor)
+    return ProgresoDelDia(resueltas_hoy=resueltas_hoy, total_del_dia=total_del_dia)
 
 
 @router.get(
@@ -208,8 +209,8 @@ async def editar_recordatorio(alerta_id: uuid.UUID, cambios: AlertaEditar) -> Al
     summary="Marcar una alerta como vista",
     **operacion(TODOS, "CU-14", 403, 404, 409, escritura=True),
 )
-async def marcar_alerta_vista(alerta_id: uuid.UUID) -> Alerta:
-    raise no_implementado()
+async def marcar_alerta_vista(alerta_id: uuid.UUID, actor: ActorDep, sesion: SesionDep) -> Alerta:
+    return _alerta(*await alertas.marcar_vista(sesion, actor, alerta_id))
 
 
 @router.post(
@@ -218,8 +219,8 @@ async def marcar_alerta_vista(alerta_id: uuid.UUID) -> Alerta:
     summary="Resolver una alerta",
     **operacion(TODOS, "CU-14", 403, 404, 409, escritura=True),
 )
-async def resolver_alerta(alerta_id: uuid.UUID) -> Alerta:
-    raise no_implementado()
+async def resolver_alerta(alerta_id: uuid.UUID, actor: ActorDep, sesion: SesionDep) -> Alerta:
+    return _alerta(*await alertas.resolver(sesion, actor, alerta_id))
 
 
 @router.post(
@@ -228,5 +229,7 @@ async def resolver_alerta(alerta_id: uuid.UUID) -> Alerta:
     summary="Posponer una alerta",
     **operacion(TODOS, "CU-14, CU-30", 403, 404, 409, 422, escritura=True),
 )
-async def posponer_alerta(alerta_id: uuid.UUID, datos: AlertaPosponer) -> Alerta:
-    raise no_implementado()
+async def posponer_alerta(
+    alerta_id: uuid.UUID, datos: AlertaPosponer, actor: ActorDep, sesion: SesionDep
+) -> Alerta:
+    return _alerta(*await alertas.posponer(sesion, actor, alerta_id, datos.fecha))

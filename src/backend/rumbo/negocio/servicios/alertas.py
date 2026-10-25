@@ -6,7 +6,8 @@ from datetime import UTC, date, datetime
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from rumbo.core.fechas import hoy
+from rumbo.core.errores import Conflicto
+from rumbo.core.fechas import hoy, limites_del_dia
 from rumbo.datos.modelos import Alerta, EstadoAlerta, TipoAlerta, Usuario
 from rumbo.datos.repositorios.alertas import (
     ContextoDeAlerta as ContextoDeAlerta,  # el router lo toma de acá
@@ -68,6 +69,60 @@ async def obtener_alerta(
     vista = visibilidad(actor)
     alerta = await _alertas.obtener(sesion, alerta_id, visibilidad=vista)
     return alerta, (await _alertas.contextos(sesion, [alerta], visibilidad=vista))[alerta.id]
+
+
+async def _atender(sesion: AsyncSession, actor: Usuario, alerta_id: uuid.UUID) -> Alerta:
+    """La alerta bloqueada para cambiarla; la ajena es `NoEncontrado` salvo para admin y dueño."""
+    return await _alertas.obtener_para_modificar(sesion, alerta_id, visibilidad=visibilidad(actor))
+
+
+async def _con_contexto(
+    sesion: AsyncSession, actor: Usuario, alerta: Alerta
+) -> tuple[Alerta, ContextoDeAlerta]:
+    await sesion.flush()
+    vista = visibilidad(actor)
+    return alerta, (await _alertas.contextos(sesion, [alerta], visibilidad=vista))[alerta.id]
+
+
+async def marcar_vista(
+    sesion: AsyncSession, actor: Usuario, alerta_id: uuid.UUID
+) -> tuple[Alerta, ContextoDeAlerta]:
+    """Pasa una alerta pendiente a vista (CU-14, RF-076)."""
+    alerta = await _atender(sesion, actor, alerta_id)
+    estado.marcar_vista(alerta)
+    return await _con_contexto(sesion, actor, alerta)
+
+
+async def resolver(
+    sesion: AsyncSession, actor: Usuario, alerta_id: uuid.UUID
+) -> tuple[Alerta, ContextoDeAlerta]:
+    """Resuelve a mano una alerta pendiente o vista (CU-14, RF-076). La de pago no: se
+    resuelve sola al cobrar el `Pago` (CU-14 A2, RF-079)."""
+    alerta = await _atender(sesion, actor, alerta_id)
+    if alerta.tipo is TipoAlerta.pago:
+        raise Conflicto("Una alerta de pago no se resuelve a mano: se resuelve al cobrar el pago.")
+    estado.resolver(alerta, datetime.now(UTC))
+    return await _con_contexto(sesion, actor, alerta)
+
+
+async def posponer(
+    sesion: AsyncSession, actor: Usuario, alerta_id: uuid.UUID, nueva_fecha: date
+) -> tuple[Alerta, ContextoDeAlerta]:
+    """Mueve una alerta pendiente a una fecha futura (CU-14, RF-077)."""
+    alerta = await _atender(sesion, actor, alerta_id)
+    estado.posponer(alerta, nueva_fecha)
+    return await _con_contexto(sesion, actor, alerta)
+
+
+async def progreso_del_dia(sesion: AsyncSession, actor: Usuario) -> tuple[int, int]:
+    """`(resueltas_hoy, total_del_dia)` del actor; admin y dueño, de toda la agencia (RF-155).
+    El total son las resueltas hoy más las pendientes y vistas de fecha `<= hoy`; el día es el
+    de Argentina."""
+    dia = hoy()
+    desde, hasta = limites_del_dia(dia)
+    return await _alertas.contar_del_dia(
+        sesion, hoy=dia, desde=desde, hasta=hasta, visibilidad=visibilidad(actor)
+    )
 
 
 async def _con_id(sesion: AsyncSession, origen: OrigenAlerta) -> None:

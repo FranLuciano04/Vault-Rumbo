@@ -2,12 +2,13 @@
 
 import uuid
 from dataclasses import dataclass
-from datetime import date
+from datetime import date, datetime
 from typing import Any
 
-from sqlalchemy import func, select
+from sqlalchemy import and_, func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from rumbo.core.errores import NoEncontrado
 from rumbo.datos.modelos import (
     Alerta,
     Cliente,
@@ -109,6 +110,45 @@ class RepositorioAlertas(RepositorioBase[Alerta]):
         consulta = consulta.order_by(Alerta.fecha, Alerta.id)
         consulta = consulta.with_for_update().execution_options(populate_existing=True)
         return list(await sesion.scalars(consulta))
+
+    async def obtener_para_modificar(
+        self, sesion: AsyncSession, id: uuid.UUID, *, visibilidad: Visibilidad
+    ) -> Alerta:
+        """Como `obtener`, pero bloqueada hasta el fin de la transacción y releída de la base,
+        para no chocar con un cierre automático concurrente (`resolver_de_origen`)."""
+        consulta = visibilidad.aplicar(select(Alerta).where(Alerta.id == id), Alerta)
+        consulta = consulta.with_for_update().execution_options(populate_existing=True)
+        alerta = await sesion.scalar(consulta)
+        if alerta is None:
+            raise NoEncontrado(f"Alerta {id} no encontrada")
+        return alerta
+
+    async def contar_del_dia(
+        self,
+        sesion: AsyncSession,
+        *,
+        hoy: date,
+        desde: datetime,
+        hasta: datetime,
+        visibilidad: Visibilidad,
+    ) -> tuple[int, int]:
+        """`(resueltas_hoy, total_del_dia)`: las resueltas entre `desde` y `hasta` (el día de
+        negocio) y esas más las pendientes o vistas de fecha `<= hoy`."""
+        resueltas_hoy = (
+            Alerta.estado == EstadoAlerta.resuelta,
+            Alerta.resuelta_en >= desde,
+            Alerta.resuelta_en < hasta,
+        )
+        abiertas = (
+            Alerta.estado.in_((EstadoAlerta.pendiente, EstadoAlerta.vista)),
+            Alerta.fecha <= hoy,
+        )
+        consulta = visibilidad.aplicar(select(Alerta), Alerta).with_only_columns(
+            func.count().filter(*resueltas_hoy),
+            func.count().filter(or_(and_(*resueltas_hoy), and_(*abiertas))),
+        )
+        resueltas, total = (await sesion.execute(consulta)).one()
+        return resueltas, total
 
     async def paginar(
         self,
