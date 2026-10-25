@@ -24,6 +24,12 @@ La **persona** de cada sesión es quien la corre, identificada por su identidad 
 ## Avisos pendientes por persona
 > Claude los lee al identificar a la persona (paso 1 de `CLAUDE.md`) y se los cuenta **apenas la saluda**, antes de cualquier otra tarea. Cuando la persona confirme que lo leyó o que lo hizo, **Claude borra su fila** en esa misma sesión, con un commit. Cuando no quede ninguna fila de alguien, se borra también su sección.
 
+### Nahuel (`Nahuel Viniegra`) — cerrar M1 y M2 con la review de Codex
+- **25/10, de Francisco: M1 y M2 tienen todos sus tickets hechos y mergeados** (`tickets.mjs modulo M1` y `modulo M2` dan ✅). Falta el cierre formal, que hacés vos porque te encargás de las reviews con Codex:
+  - Correr `/cerrar-modulo M1` y `/cerrar-modulo M2`, que arman el pedido de review para Codex.
+  - Arreglar los hallazgos confirmados en ramas `fix/…` (DEC-0019).
+  - Con la aprobación del equipo, poner los tags `mod-1` y `mod-2`. Hoy solo existe `mod-0`.
+
 ### Paloma (`palomap2003`) y Nahuel (`Nahuel Viniegra`) — el repo es público
 - **25/10, de Francisco: el repo [Vault-Rumbo](https://github.com/FranLuciano04/Vault-Rumbo) pasó a público.** GitHub Actions se había cortado porque se terminaron los minutos del plan Free; en los repos públicos los minutos son ilimitados.
   - Antes se escaneó todo el historial, incluidas las ramas de los PR, y no hay secretos.
