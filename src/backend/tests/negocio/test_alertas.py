@@ -13,7 +13,7 @@ from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from rumbo.datos import modelos as m
-from rumbo.negocio.errores import TransicionInvalida
+from rumbo.negocio.errores import DatosInvalidos, TransicionInvalida
 from rumbo.negocio.estados import alerta as est
 from rumbo.negocio.servicios import alertas
 from tests import fabricas as f
@@ -126,7 +126,7 @@ def test_rf079_t7_vista_vuelve_a_pendiente_por_correccion() -> None:
 def test_rf079_t8_posponer_cambia_la_fecha_y_deja_pendiente() -> None:
     a = _alerta("pendiente", fecha=date(2026, 10, 20))
 
-    est.posponer(a, date(2026, 10, 21))
+    est.posponer(a, date(2026, 10, 21), hoy=date(2026, 10, 20))
 
     assert a.fecha == date(2026, 10, 21)
     assert a.estado is m.EstadoAlerta.pendiente
@@ -329,3 +329,108 @@ async def test_rf079_reabrir_por_origen_ignora_las_que_no_estan_resueltas(
     assert reabiertas == []
     await sesion.refresh(pendiente)
     assert pendiente.estado is m.EstadoAlerta.pendiente
+
+
+# --- fix de la review de T-051 -------------------------------------------------------------
+
+
+def test_rf079_posponer_a_fecha_igual_o_anterior_es_invalido() -> None:
+    a = _alerta("pendiente", fecha=date(2026, 10, 20))
+
+    for nueva in (date(2026, 10, 20), date(2026, 10, 19)):
+        with pytest.raises(DatosInvalidos):
+            est.posponer(a, nueva)
+
+    assert a.fecha == date(2026, 10, 20)
+
+
+def test_rf079_posponer_una_vencida_a_una_fecha_aun_pasada_es_invalido() -> None:
+    a = _alerta("pendiente", fecha=date(2026, 10, 10))
+
+    with pytest.raises(DatosInvalidos):
+        est.posponer(a, date(2026, 10, 15), hoy=date(2026, 10, 25))
+
+    est.posponer(a, date(2026, 10, 26), hoy=date(2026, 10, 25))
+    assert a.fecha == date(2026, 10, 26)
+
+
+async def test_rf079_resolver_con_origen_sin_flush_no_toca_alertas_ajenas(
+    sesion: AsyncSession,
+) -> None:
+    filas = await _cadena(sesion)
+    ajena = await alertas.crear(
+        sesion, m.TipoAlerta.manual, FECHA, "Llamar", filas["usuario"], None
+    )
+    nuevo = f.ClienteFactory.build(asesor_asignado_id=filas["usuario"].id)
+    sesion.add(nuevo)
+
+    assert await alertas.resolver_de_origen(sesion, nuevo) == []
+
+    await sesion.refresh(ajena)
+    assert ajena.estado is m.EstadoAlerta.pendiente
+
+
+async def test_rf073_crear_con_origen_sin_flush_guarda_el_origen(sesion: AsyncSession) -> None:
+    usuario = await f.crear(sesion, f.UsuarioFactory)
+    nuevo = f.ClienteFactory.build(asesor_asignado_id=usuario.id)
+    sesion.add(nuevo)
+
+    a = await alertas.crear(sesion, m.TipoAlerta.recontacto, FECHA, "Saludar", usuario, nuevo)
+
+    assert nuevo.id is not None
+    assert a.cliente_id == nuevo.id
+
+
+async def test_rf073_origen_de_un_tipo_ajeno_es_un_error_claro(sesion: AsyncSession) -> None:
+    usuario = await f.crear(sesion, f.UsuarioFactory)
+
+    with pytest.raises(TypeError):
+        await alertas.crear(
+            sesion,
+            m.TipoAlerta.manual,
+            FECHA,
+            "x",
+            usuario,
+            usuario,  # type: ignore[arg-type]
+        )
+
+
+async def test_cu27_resolver_por_cancelacion_marca_y_reabrir_solo_esas(
+    sesion: AsyncSession,
+) -> None:
+    filas = await _cadena(sesion)
+    a_mano = await alertas.crear(
+        sesion, m.TipoAlerta.pago, FECHA, "A mano", filas["usuario"], filas["viaje"]
+    )
+    est.resolver(a_mano, AHORA)
+    cancelada = await alertas.crear(
+        sesion, m.TipoAlerta.viaje, FECHA, "Salida", filas["usuario"], filas["viaje"]
+    )
+
+    await alertas.resolver_de_origen(sesion, filas["viaje"], por_cancelacion=True)
+    assert cancelada.cerrada_por_cancelacion is True
+    reabiertas = await alertas.reabrir_de_origen(sesion, filas["viaje"], solo_por_cancelacion=True)
+
+    assert [r.id for r in reabiertas] == [cancelada.id]
+    await sesion.refresh(a_mano)
+    assert a_mano.estado is m.EstadoAlerta.resuelta
+    assert cancelada.estado is m.EstadoAlerta.pendiente
+    assert cancelada.cerrada_por_cancelacion is False
+
+
+async def test_cu05_resolver_filtra_por_tipo(sesion: AsyncSession) -> None:
+    filas = await _cadena(sesion)
+    insistencia = await alertas.crear(
+        sesion, m.TipoAlerta.insistencia, FECHA, "Insistir", filas["usuario"], filas["oportunidad"]
+    )
+    manual = await alertas.crear(
+        sesion, m.TipoAlerta.manual, FECHA, "Llamar", filas["usuario"], filas["oportunidad"]
+    )
+
+    resueltas = await alertas.resolver_de_origen(
+        sesion, filas["oportunidad"], (m.TipoAlerta.insistencia,)
+    )
+
+    assert [r.id for r in resueltas] == [insistencia.id]
+    await sesion.refresh(manual)
+    assert manual.estado is m.EstadoAlerta.pendiente

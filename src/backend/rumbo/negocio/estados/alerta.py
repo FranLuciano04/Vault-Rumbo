@@ -2,6 +2,7 @@
 
 from datetime import date, datetime
 
+from rumbo.core.fechas import hoy as hoy_argentina
 from rumbo.datos.modelos import Alerta, EstadoAlerta
 from rumbo.negocio.errores import DatosInvalidos, TransicionInvalida
 
@@ -34,9 +35,10 @@ def reabrir(alerta: Alerta) -> None:
     alerta.cerrada_por_cancelacion = False
 
 
-def posponer(alerta: Alerta, nueva_fecha: date) -> None:
-    """Solo una pendiente, y a un día posterior al actual."""
+def posponer(alerta: Alerta, nueva_fecha: date, hoy: date | None = None) -> None:
+    """Solo una pendiente, y a un día posterior a su fecha y a `hoy`, para que una vencida no
+    quede otra vez vencida. Sin `hoy` se usa el día de Argentina (`core.fechas.hoy()`)."""
     _exigir(alerta, EstadoAlerta.pendiente, accion="posponer")
-    if nueva_fecha <= alerta.fecha:
-        raise DatosInvalidos("fecha", "La nueva fecha tiene que ser posterior a la actual.")
+    if nueva_fecha <= max(alerta.fecha, hoy or hoy_argentina()):
+        raise DatosInvalidos("fecha", "La nueva fecha tiene que ser posterior a hoy y a la actual.")
     alerta.fecha = nueva_fecha
