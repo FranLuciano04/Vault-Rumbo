@@ -3,12 +3,13 @@ import type { Alerta } from "@rumbo/shared";
 import { esquemaRecordatorio, type DatosRecordatorio } from "@rumbo/shared/esquemas";
 import { useCrearRecordatorio, useEditarRecordatorio } from "@rumbo/shared/hooks";
 import type { AxiosInstance } from "axios";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { CampoFormulario } from "@/components/CampoFormulario";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { aplicarErroresDelServidor } from "@/lib/errores";
+import { AsociarCliente } from "./AsociarCliente";
 
 /** Entidad a la que queda asociado un recordatorio nuevo (CU-28): una sola, ya elegida por quien lo abre. */
 export interface AsociadoRecordatorio {
@@ -40,23 +41,42 @@ export function FormularioRecordatorio({
   const crear = useCrearRecordatorio(cliente);
   const editar = useEditarRecordatorio(cliente);
   const [error, setError] = useState<string | null>(null);
+  const [conCliente, setConCliente] = useState(false);
+  const [elegido, setElegido] = useState<AsociadoRecordatorio | null>(null);
+  const formRef = useRef<HTMLFormElement>(null);
+  const asociadoFinal = asociado ?? elegido;
+  // La asociación se elige solo en el alta y cuando quien abre el formulario no la fijó.
+  const eligeAsociado = !asociado && !alerta;
   const formulario = useForm<DatosRecordatorio>({
     resolver: zodResolver(esquemaRecordatorio),
     defaultValues: { descripcion: alerta?.descripcion ?? "", fecha: alerta?.fecha ?? "" },
   });
   const { errors, isSubmitting } = formulario.formState;
+  const { setFocus } = formulario;
+
+  useEffect(() => {
+    if (typeof formRef.current?.scrollIntoView === "function") {
+      formRef.current.scrollIntoView({ block: "nearest" });
+    }
+    setFocus("descripcion");
+  }, [setFocus]);
 
   async function enviar({ descripcion, fecha }: DatosRecordatorio) {
     setError(null);
+    if (conCliente && !asociadoFinal) {
+      setError("Elegí un cliente o dejá el recordatorio como personal.");
+      return;
+    }
     try {
       const guardada = alerta
         ? await editar.mutateAsync({ id: alerta.id, cambios: { descripcion, fecha } })
         : await crear.mutateAsync({
             descripcion,
             fecha,
-            ...(asociado && { [`${asociado.tipo}_id`]: asociado.id }),
+            ...(asociadoFinal && { [`${asociadoFinal.tipo}_id`]: asociadoFinal.id }),
           });
-      alGuardar?.(guardada);
+      // Con la fecha enviada: es la que ve quien guarda, para avisarle.
+      alGuardar?.({ ...guardada, fecha });
     } catch (falla) {
       setError(aplicarErroresDelServidor(falla, CAMPOS, formulario.setError));
     }
@@ -64,6 +84,7 @@ export function FormularioRecordatorio({
 
   return (
     <form
+      ref={formRef}
       noValidate
       aria-label={alerta ? "Editar recordatorio" : "Nuevo recordatorio"}
       className="flex flex-col gap-4 rounded-2xl border bg-card p-5"
@@ -78,7 +99,18 @@ export function FormularioRecordatorio({
       <CampoFormulario id="fecha" etiqueta="Fecha" error={errors.fecha}>
         {(props) => <Input type="date" {...props} {...formulario.register("fecha")} />}
       </CampoFormulario>
-      {asociado && <p className="text-sm text-muted-foreground">Asociado a: {asociado.etiqueta}</p>}
+      {eligeAsociado && (
+        <AsociarCliente
+          cliente={cliente}
+          conCliente={conCliente}
+          elegido={elegido}
+          alCambiarModo={setConCliente}
+          alElegir={setElegido}
+        />
+      )}
+      {asociadoFinal && (
+        <p className="text-sm text-muted-foreground">Asociado a: {asociadoFinal.etiqueta}</p>
+      )}
       {error && (
         <p role="alert" className="text-sm font-medium text-destructive">
           {error}

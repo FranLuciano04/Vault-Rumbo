@@ -10,12 +10,14 @@ import { Check, Plus } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { mensajeDeError } from "@/lib/errores";
+import { useVolverFoco } from "@/lib/useVolverFoco";
 import { cn } from "@/lib/utils";
 import { hoyEnBuenosAires } from "./fechas";
 import { FiltroResponsable } from "./FiltroResponsable";
 import { FilaAlerta } from "./FilaAlerta";
 import { FormularioRecordatorio } from "./FormularioRecordatorio";
 import { useResolverConDeshacer } from "./useResolverConDeshacer";
+import { avisoRecordatorio } from "./avisoRecordatorio";
 
 const TIPOS = Object.keys(ETIQUETA_TIPO_ALERTA) as TipoAlerta[];
 
@@ -94,6 +96,17 @@ export function PaginaAgenda({
   const [pagina, setPagina] = useState(1);
   // `null` = formulario cerrado; `{}` = alta; `{ alerta }` = edición de un recordatorio.
   const [recordatorio, setRecordatorio] = useState<{ alerta?: Alerta } | null>(null);
+  const [aviso, setAviso] = useState<string | null>(null);
+  const foco = useVolverFoco();
+  const abrirRecordatorio = (abierto: { alerta?: Alerta }) => {
+    foco.recordar();
+    setAviso(null);
+    setRecordatorio(abierto);
+  };
+  const cerrarRecordatorio = () => {
+    setRecordatorio(null);
+    foco.volver();
+  };
   const filtros = {
     por_pagina: POR_PAGINA,
     pagina,
@@ -146,7 +159,7 @@ export function PaginaAgenda({
       alerta.estado === "pendiente" &&
       alerta.propietario_id === usuario.id,
     alEditar: (alerta) => {
-      setRecordatorio({ alerta });
+      abrirRecordatorio({ alerta });
     },
   };
   const errorAccion =
@@ -170,7 +183,7 @@ export function PaginaAgenda({
         </div>
         <Button
           onClick={() => {
-            setRecordatorio({});
+            abrirRecordatorio({});
           }}
         >
           <Plus aria-hidden="true" className="size-4" />
@@ -184,13 +197,17 @@ export function PaginaAgenda({
           key={recordatorio.alerta?.id ?? "nuevo"}
           cliente={cliente}
           {...(recordatorio.alerta && { alerta: recordatorio.alerta })}
-          alCerrar={() => {
-            setRecordatorio(null);
-          }}
-          alGuardar={() => {
-            setRecordatorio(null);
+          alCerrar={cerrarRecordatorio}
+          alGuardar={({ fecha }) => {
+            setAviso(avisoRecordatorio(recordatorio.alerta ? "actualizado" : "creado", fecha));
+            cerrarRecordatorio();
           }}
         />
+      )}
+      {aviso && (
+        <p role="status" className="text-sm font-medium text-muted-foreground">
+          {aviso}
+        </p>
       )}
 
       {progreso.data && (
@@ -360,7 +377,7 @@ export function PaginaAgenda({
                   <Button
                     variant="outline"
                     onClick={() => {
-                      setRecordatorio({});
+                      abrirRecordatorio({});
                     }}
                   >
                     Crear recordatorio

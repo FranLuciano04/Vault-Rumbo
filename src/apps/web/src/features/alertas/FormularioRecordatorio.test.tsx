@@ -198,7 +198,7 @@ describe("RF-080 recordatorio", () => {
   it("RF-080 si la entidad asociada no existe o no se ve, muestra el aviso del 404", async () => {
     servidor.use(
       http.post("*/api/alertas", () =>
-        problema(404, { detail: "No encontramos el cliente asociado." }),
+        problema(404, { detail: `Cliente ${CLIENTE_ID} no encontrado` }),
       ),
     );
     const usuario = userEvent.setup();
@@ -208,10 +208,31 @@ describe("RF-080 recordatorio", () => {
 
     await usuario.click(guardar());
 
-    expect(await screen.findByRole("alert")).toHaveTextContent(
-      "No encontramos el cliente asociado.",
-    );
+    const aviso = await screen.findByRole("alert");
+    expect(aviso).toHaveTextContent("Lo que querés guardar ya no existe o no lo podés ver.");
+    expect(aviso).not.toHaveTextContent(CLIENTE_ID);
     expect(alGuardar).not.toHaveBeenCalled();
+  });
+
+  it("RF-080 al abrirse enfoca la descripción", async () => {
+    renderFormulario();
+
+    expect(await descripcion()).toHaveFocus();
+  });
+
+  it("RF-080 elegir «Cliente» sin elegir uno no guarda y avisa", async () => {
+    const cuerpos: Record<string, unknown>[] = [];
+    servidor.use(altaCapturada(cuerpos));
+    const usuario = userEvent.setup();
+    renderFormulario();
+    await usuario.type(await descripcion(), "Llamar");
+    ponerFecha("2026-11-02");
+    await usuario.selectOptions(screen.getByLabelText(/asociar a/i), "cliente");
+
+    await usuario.click(guardar());
+
+    expect(await screen.findByRole("alert")).toHaveTextContent(/elegí un cliente/i);
+    expect(cuerpos).toHaveLength(0);
   });
 
   it("RF-080 Cancelar cierra sin mandar nada", async () => {

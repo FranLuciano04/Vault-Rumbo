@@ -1,8 +1,10 @@
 import { crearCliente } from "@rumbo/shared";
 import {
   alertasMock,
+  clientesMock,
   crearServidor,
   manejadoresAlertas,
+  manejadoresClientes,
   usuariosPorRol,
   type RolMock,
 } from "@rumbo/shared/mocks";
@@ -14,7 +16,7 @@ import { MemoryRouter } from "react-router";
 import { afterAll, afterEach, beforeAll, beforeEach, vi } from "vitest";
 import { PaginaAgenda } from "./PaginaAgenda";
 
-const servidor = crearServidor(...manejadoresAlertas);
+const servidor = crearServidor(...manejadoresAlertas, ...manejadoresClientes);
 beforeAll(() => {
   servidor.listen({ onUnhandledRequest: "error" });
 });
@@ -93,6 +95,51 @@ describe("RF-080 recordatorio", () => {
     });
   });
 
+  it("RF-080 crea un recordatorio asociado a un cliente buscado y avisa", async () => {
+    const camila = clientesMock[0];
+    if (!camila) throw new Error("falta un cliente mock");
+    const cuerpos: Record<string, unknown>[] = [];
+    servidor.use(
+      http.post("*/api/alertas", async ({ request }) => {
+        cuerpos.push((await request.json()) as Record<string, unknown>);
+        return HttpResponse.json({}, { status: 201 });
+      }),
+    );
+    const usuario = usuarioConReloj();
+    renderAgenda();
+    await usuario.click(await screen.findByRole("button", { name: /nuevo recordatorio/i }));
+    await usuario.type(await campoDescripcion(), "Mandar el itinerario");
+    fireEvent.change(screen.getByLabelText(/^fecha/i), { target: { value: "2026-11-02" } });
+    await usuario.selectOptions(screen.getByLabelText(/asociar a/i), "cliente");
+    await usuario.type(screen.getByLabelText(/buscar cliente/i), "Camila");
+    await usuario.click(
+      await screen.findByRole("button", { name: new RegExp(`^${camila.nombre} · `) }),
+    );
+    expect(screen.getByText(`Asociado a: ${camila.nombre}`)).toBeInTheDocument();
+
+    await usuario.click(screen.getByRole("button", { name: /^guardar/i }));
+
+    await waitFor(() => {
+      expect(cuerpos).toHaveLength(1);
+    });
+    expect(cuerpos[0]).toMatchObject({ cliente_id: camila.id, fecha: "2026-11-02" });
+    expect(await screen.findByRole("status")).toHaveTextContent(
+      "Recordatorio creado para el 02/11/26",
+    );
+  });
+
+  it("RF-080 enfoca la descripción al abrir y devuelve el foco al botón al cancelar", async () => {
+    const usuario = usuarioConReloj();
+    renderAgenda();
+    const nuevo = await screen.findByRole("button", { name: /nuevo recordatorio/i });
+    await usuario.click(nuevo);
+
+    expect(await campoDescripcion()).toHaveFocus();
+    await usuario.click(screen.getByRole("button", { name: /cancelar/i }));
+
+    expect(nuevo).toHaveFocus();
+  });
+
   it("RF-080 el estado vacío ofrece «Crear recordatorio» habilitado", async () => {
     servidor.use(
       http.get("*/api/alertas", () =>
@@ -135,6 +182,7 @@ describe("RF-082 edición", () => {
       expect(cuerpos).toHaveLength(1);
     });
     expect(cuerpos[0]).toMatchObject({ descripcion: "Llamar a Ana el viernes" });
+    expect(await screen.findByText(/^Recordatorio actualizado para el /)).toBeInTheDocument();
   });
 
   it("RF-082 no se ofrece editar una alerta automática", async () => {

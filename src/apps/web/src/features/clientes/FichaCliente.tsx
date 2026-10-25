@@ -6,6 +6,8 @@ import { useRef, useState } from "react";
 import { Link, useParams } from "react-router";
 import { Button } from "@/components/ui/button";
 import { iniciales } from "@/lib/iniciales";
+import { useVolverFoco } from "@/lib/useVolverFoco";
+import { avisoRecordatorio } from "@/features/alertas/avisoRecordatorio";
 import { FormularioRecordatorio } from "@/features/alertas/FormularioRecordatorio";
 import { FormularioCliente } from "./FormularioCliente";
 import { HistorialCliente } from "./HistorialCliente";
@@ -32,6 +34,8 @@ export function FichaCliente({
   const [editando, setEditando] = useState(false);
   const [actualizada, setActualizada] = useState(false);
   const [recordando, setRecordando] = useState(false);
+  const [avisoRecordatorioGuardado, setAvisoRecordatorioGuardado] = useState<string | null>(null);
+  const focoRecordatorio = useVolverFoco();
   const volverFoco = useRef(false);
 
   if (isPending) return <p role="status">Cargando la ficha…</p>;
@@ -85,6 +89,8 @@ export function FichaCliente({
             <Button
               variant="outline"
               onClick={() => {
+                focoRecordatorio.recordar();
+                setAvisoRecordatorioGuardado(null);
                 setRecordando(true);
               }}
             >
@@ -116,11 +122,19 @@ export function FichaCliente({
           asociado={{ tipo: "cliente", id: ficha.id, etiqueta: ficha.nombre }}
           alCerrar={() => {
             setRecordando(false);
+            focoRecordatorio.volver();
           }}
-          alGuardar={() => {
+          alGuardar={({ fecha }) => {
+            setAvisoRecordatorioGuardado(avisoRecordatorio("creado", fecha));
             setRecordando(false);
+            focoRecordatorio.volver();
           }}
         />
+      )}
+      {avisoRecordatorioGuardado && (
+        <p role="status" className="text-sm font-medium text-muted-foreground">
+          {avisoRecordatorioGuardado}
+        </p>
       )}
 
       {actualizada && (
