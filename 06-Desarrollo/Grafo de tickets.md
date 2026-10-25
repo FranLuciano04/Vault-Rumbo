@@ -17,11 +17,11 @@ tags:: #tipo/referencia
 | M0 — Fundaciones | 38 | 38 | 0 | 0 | 0 | 0 | ✅ cerrado |
 | M1 — Usuarios y configuración | 19 | 19 | 0 | 0 | 0 | 0 | 🔍 listo para la review |
 | M2 — Clientes | 15 | 15 | 0 | 0 | 0 | 0 | 🔍 listo para la review |
-| M3 — Alertas | 11 | 0 | 1 | 1 | 9 | 0 | 🛠️ en curso |
+| M3 — Alertas | 11 | 1 | 0 | 1 | 9 | 0 | 🛠️ en curso |
 | M4 — Oportunidades y cotizaciones | 14 | 0 | 0 | 1 | 13 | 0 | 🛠️ en curso |
 | M5 — Hoteles y reseñas | 11 | 0 | 0 | 1 | 10 | 0 | 🛠️ en curso |
 | M6 — Viajes y economía | 24 | 0 | 0 | 3 | 21 | 0 | 🛠️ en curso |
-| M7 — Proceso diario y CRM proactivo | 9 | 0 | 0 | 0 | 9 | 0 | 🛠️ en curso |
+| M7 — Proceso diario y CRM proactivo | 9 | 0 | 0 | 1 | 8 | 0 | 🛠️ en curso |
 | M8 — Calendario, dashboard y reportes | 10 | 0 | 0 | 1 | 9 | 0 | 🛠️ en curso |
 | M9 — Redes e IA | 6 | 0 | 0 | 1 | 5 | 0 | 🛠️ en curso |
 | M10 — Despliegue on-premise | 5 | 0 | 0 | 1 | 4 | 0 | 🛠️ en curso |
@@ -112,7 +112,7 @@ flowchart LR
   end
   subgraph M3["M3 — Alertas"]
     T050["T-050 · Publicar el contrato de alertas<br/><small>contrato</small>"]:::disponible
-    T051["T-051 · Crear el servicio de alertas para los demás módulos<br/><small>backend</small><br/>👤 FranLucianoo"]:::tomado
+    T051["T-051 · Crear el servicio de alertas para los demás módulos<br/><small>backend</small>"]:::hecho
     T052["T-052 · Listar la agenda de alertas según el rol<br/><small>backend</small>"]:::esperando
     T053["T-053 · Atender las alertas con el progreso del día<br/><small>backend</small>"]:::esperando
     T054["T-054 · Crear recordatorios manuales<br/><small>backend</small>"]:::esperando
@@ -179,7 +179,7 @@ flowchart LR
     T109["T-109 · Probar de punta a punta las excepciones del viaje<br/><small>e2e</small>"]:::esperando
   end
   subgraph M7["M7 — Proceso diario y CRM proactivo"]
-    T110["T-110 · Armar el proceso diario idempotente<br/><small>backend · ⚠️ riesgo alto</small>"]:::esperando
+    T110["T-110 · Armar el proceso diario idempotente<br/><small>backend · ⚠️ riesgo alto</small>"]:::disponible
     T111["T-111 · Vencer pagos y cotizaciones en el proceso diario<br/><small>backend · ⚠️ riesgo alto</small>"]:::esperando
     T112["T-112 · Sugerir el avance de los viajes en el proceso diario<br/><small>backend · ⚠️ riesgo alto</small>"]:::esperando
     T113["T-113 · Detectar clientes inactivos para sugerir el recontacto<br/><small>backend · ⚠️ riesgo alto</small>"]:::esperando
