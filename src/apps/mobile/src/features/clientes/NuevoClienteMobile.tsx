@@ -180,15 +180,19 @@ export function NuevoClienteMobile() {
   const [errores, setErrores] = useState<Errores>({});
   const [aviso, setAviso] = useState<string | null>(null);
   const [duplicados, setDuplicados] = useState<Cliente[] | null>(null);
+  // Cuenta las ediciones: un 409 de datos ya editados no se muestra.
+  const ediciones = useRef(0);
 
-  // Editar cualquier campo tras el aviso obliga a volver a chequear (CU-02 A1, DEC-0020).
+  // Editar cualquier campo tras el aviso obliga a volver a chequear (CU-02 A1).
   function editado() {
+    ediciones.current += 1;
     setDuplicados(null);
   }
 
   async function enviar(confirmarDuplicado: boolean) {
     setAviso(null);
     setDuplicados(null);
+    const edicionesAlEnviar = ediciones.current;
     const datos = esquemaFormulario.safeParse({ ...texto.current, segmento });
     if (!datos.success) {
       const delCampo: Errores = {};
@@ -214,7 +218,7 @@ export function NuevoClienteMobile() {
         return;
       }
       if (falla.status === 409 && falla.duplicados) {
-        setDuplicados(falla.duplicados);
+        if (ediciones.current === edicionesAlEnviar) setDuplicados(falla.duplicados);
         return;
       }
       if (falla.status === 422 && falla.errores.length > 0) {
@@ -281,6 +285,7 @@ export function NuevoClienteMobile() {
               texto={etiqueta}
               elegida={segmento === valor}
               alElegir={() => {
+                if (segmento === valor) return;
                 setSegmento(valor as SegmentoCliente);
                 editado();
               }}
@@ -293,6 +298,7 @@ export function NuevoClienteMobile() {
         <SelectorAsesor
           elegido={asesorId}
           alElegir={(id) => {
+            if (id === asesorId) return;
             setAsesorId(id);
             editado();
           }}

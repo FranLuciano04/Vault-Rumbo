@@ -528,6 +528,42 @@ describe("RF-003 duplicado mobile", () => {
     });
   });
 
+  it("RF-003 si se edita mientras el alta está en vuelo, el 409 tardío no muestra el aviso", async () => {
+    let soltar = () => {};
+    const respuestaTardia = new Promise<void>((resolver) => {
+      soltar = resolver;
+    });
+    backend({
+      alta: async (_cuerpo, config) => {
+        await respuestaTardia;
+        return respuesta(
+          409,
+          {
+            title: "Conflicto",
+            status: 409,
+            detail: "Ya existe un cliente con ese contacto.",
+            duplicados: [sosa],
+          },
+          config,
+        );
+      },
+    });
+    const vista = await renderAlta();
+    await completar(vista, "Familia Sosa Nueva", sosa.contacto);
+    await fireEvent.press(registrar(vista));
+
+    await fireEvent.changeText(vista.getByLabelText(/^contacto/i), "otro@mail.test");
+    await act(async () => {
+      soltar();
+      await respuestaTardia;
+    });
+
+    await waitFor(() => {
+      expect(vista.queryByText("Familia Sosa")).toBeNull();
+    });
+    expect(vista.queryByRole("button", { name: /confirmar alta/i })).toBeNull();
+  });
+
   it("RF-003 tras editar, volver a «Registrar cliente» hace un POST nuevo sin confirmar_duplicado", async () => {
     const vista = await altaDuplicada();
     await vista.findByRole("button", { name: /confirmar alta/i });

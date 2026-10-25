@@ -356,9 +356,7 @@ describe("RF-003 posible duplicado", () => {
 
   it("RF-003 el freelance, sin candidatos, ve el aviso de cliente ajeno y puede confirmar", async () => {
     const cuerpos: Record<string, unknown>[] = [];
-    servidor.use(
-      altaConAviso(cuerpos, [], "Ya hay un cliente con ese contacto en la agencia."),
-    );
+    servidor.use(altaConAviso(cuerpos, [], "Ya hay un cliente con ese contacto en la agencia."));
     const usuario = await altaDuplicada("freelance");
 
     expect(
@@ -457,5 +455,43 @@ describe("RF-003 posible duplicado", () => {
     expect(cuerpos).toHaveLength(2);
     expect(cuerpos[1]).toMatchObject({ contacto: "otro@mail.test" });
     expect(cuerpos[1]?.["confirmar_duplicado"] ?? false).toBe(false);
+  });
+
+  it("RF-003 editar el segmento tras el aviso también oculta el aviso", async () => {
+    servidor.use(altaConAviso([], [sosa], "Ya existe un cliente con ese contacto."));
+    const usuario = await altaDuplicada();
+    await screen.findByRole("button", { name: /confirmar alta/i });
+
+    await usuario.selectOptions(screen.getByRole("combobox", { name: /segmento/i }), "familia");
+
+    await waitFor(() => {
+      expect(screen.queryByRole("button", { name: /confirmar alta/i })).not.toBeInTheDocument();
+    });
+  });
+
+  it("RF-003 si se edita mientras el alta está en vuelo, el 409 tardío no muestra el aviso", async () => {
+    let soltar = () => {};
+    const respuestaTardia = new Promise<void>((resolver) => {
+      soltar = resolver;
+    });
+    let respondido = false;
+    servidor.use(
+      http.post("*/api/clientes", async () => {
+        await respuestaTardia;
+        respondido = true;
+        return conflicto({ detail: "Ya existe un cliente con ese contacto.", duplicados: [sosa] });
+      }),
+    );
+    const usuario = await altaDuplicada();
+
+    await usuario.type(await campo(/^contacto/i), "x");
+    soltar();
+
+    await waitFor(() => {
+      expect(respondido).toBe(true);
+    });
+    await new Promise((resolver) => setTimeout(resolver, 50));
+    expect(screen.queryByRole("button", { name: /confirmar alta/i })).not.toBeInTheDocument();
+    expect(screen.queryByText("Familia Sosa")).not.toBeInTheDocument();
   });
 });
