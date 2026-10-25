@@ -22,6 +22,10 @@ OPERACIONES: list[tuple[str, str, dict[str, Any] | None]] = [
     ("post", f"/api/alertas/{ID}/resolver", None),
     ("post", f"/api/alertas/{ID}/posponer", {"fecha": "2026-12-01"}),
 ]
+# Las que todavía responden 501 (las de lectura de la agenda se implementaron en T-052).
+OPERACIONES_STUB = [
+    op for op in OPERACIONES if op[0] != "get" or op[1] == "/api/alertas/progreso-del-dia"
+]
 RUTAS_CONTRATO = [
     ("get", "/api/alertas"),
     ("post", "/api/alertas"),
@@ -94,13 +98,11 @@ async def test_cu14_listar_publica_filtros_y_paginacion(contrato: dict[str, Any]
         "estado",
         "tipo",
         "proximas",
-        "todas",
         "propietario_id",
     } <= set(parametros)
     assert parametros["por_pagina"]["schema"]["maximum"] == 100
     assert parametros["pagina"]["schema"]["minimum"] == 1
     assert parametros["proximas"]["schema"]["type"] == "boolean"
-    assert parametros["todas"]["schema"]["type"] == "boolean"
     assert {"type": "string", "format": "uuid"} in parametros["propietario_id"]["schema"]["anyOf"]
     assert "422" in operacion["responses"]
     esquema = operacion["responses"]["200"]["content"]["application/json"]["schema"]
@@ -225,7 +227,7 @@ async def test_rf155_sin_token_responde_401_problem_json(
 
 
 @pytest.mark.parametrize("rol", ROLES)
-@pytest.mark.parametrize(("metodo", "ruta", "cuerpo"), OPERACIONES)
+@pytest.mark.parametrize(("metodo", "ruta", "cuerpo"), OPERACIONES_STUB)
 async def test_rf155_con_token_de_cualquier_rol_responde_501_problem_json(
     cliente_como: FabricaCliente,
     rol: str,
@@ -242,7 +244,7 @@ async def test_rf155_con_token_de_cualquier_rol_responde_501_problem_json(
     assert r.json()["status"] == 501
 
 
-async def test_cu14_listar_con_filtros_validos_llega_al_501(cliente_como: FabricaCliente) -> None:
+async def test_cu14_listar_con_filtros_validos_responde_200(cliente_como: FabricaCliente) -> None:
     c = await cliente_como("empleado")
 
     r = await c.get(
@@ -252,14 +254,14 @@ async def test_cu14_listar_con_filtros_validos_llega_al_501(cliente_como: Fabric
             "estado": "pendiente",
             "tipo": "recontacto",
             "proximas": "true",
-            "todas": "false",
             "propietario_id": ID,
             "pagina": 2,
             "por_pagina": 50,
         },
     )
 
-    assert r.status_code == 501
+    assert r.status_code == 200
+    assert r.json()["items"] == []
 
 
 @pytest.mark.parametrize(
@@ -270,7 +272,6 @@ async def test_cu14_listar_con_filtros_validos_llega_al_501(cliente_como: Fabric
         {"estado": "archivada"},
         {"tipo": "otro"},
         {"proximas": "quizas"},
-        {"todas": "quizas"},
         {"propietario_id": "no-es-uuid"},
         {"hasta": "no-es-fecha"},
     ],

@@ -46,3 +46,4 @@ Cada noche se detectan los clientes fieles sin actividad hace `recontacto_meses`
 - La decisión sobre la sugerencia (ticket siguiente).
 
 ## Notas de implementación
+- **De la review de T-052 (25/10/26):** la `descripcion` de una alerta no pasa por el filtro de visibilidad. Si se reasigna un cliente o un viaje, el contexto deja de mostrarle esos datos al freelance, pero el texto le sigue llegando. Por eso las alertas que se generan solas no ponen en la `descripcion` datos del origen, como el nombre del cliente o un monto: esos datos ya van en `contexto`. También se puede hacer que, al reasignar, se muevan las alertas abiertas.

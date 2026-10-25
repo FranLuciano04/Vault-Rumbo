@@ -1,14 +1,73 @@
-"""Servicio de alertas para los demás módulos (CU-14, RF-073, RF-079)."""
+"""Servicio de alertas: la agenda de cada usuario y las operaciones que usan los demás módulos
+(CU-14, RF-073, RF-074, RF-079)."""
 
+import uuid
 from datetime import UTC, date, datetime
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from rumbo.core.fechas import hoy
 from rumbo.datos.modelos import Alerta, EstadoAlerta, TipoAlerta, Usuario
-from rumbo.datos.repositorios.alertas import OrigenAlerta, RepositorioAlertas, columna_de_origen
+from rumbo.datos.repositorios.alertas import (
+    ContextoDeAlerta as ContextoDeAlerta,  # el router lo toma de acá
+)
+from rumbo.datos.repositorios.alertas import (
+    OrigenAlerta,
+    RepositorioAlertas,
+    columna_de_origen,
+)
 from rumbo.negocio.estados import alerta as estado
+from rumbo.negocio.politicas import es_direccion, visibilidad
 
 _alertas = RepositorioAlertas()
+
+
+async def listar_agenda(
+    sesion: AsyncSession,
+    actor: Usuario,
+    *,
+    proximas: bool,
+    estado: EstadoAlerta | None,
+    tipo: TipoAlerta | None,
+    hasta: date | None,
+    propietario_id: uuid.UUID | None,
+    desplazamiento: int,
+    limite: int,
+) -> tuple[list[tuple[Alerta, ContextoDeAlerta]], int]:
+    """Página de la agenda con el contexto de cada alerta, y el total (CU-14, RF-074, RF-154).
+
+    Por defecto las pendientes de fecha `<= hoy`; con `proximas`, las de fecha posterior. Admin y
+    dueño ven toda la agencia y filtran por `propietario_id` (RF-078); el resto ve solo las suyas
+    e ignora `propietario_id`. `hasta` es un tope dentro de la ventana: sin `proximas`,
+    `fecha <= min(hoy, hasta)`; con `proximas`, `hoy < fecha <= hasta`. El contexto sale
+    filtrado por la visibilidad del actor (RF-151)."""
+    if not es_direccion(actor):
+        propietario_id = None
+    vista = visibilidad(actor)
+    pagina, total = await _alertas.paginar(
+        sesion,
+        hoy=hoy(),
+        proximas=proximas,
+        estado=estado or EstadoAlerta.pendiente,
+        tipo=tipo,
+        hasta=hasta,
+        propietario_id=propietario_id,
+        desplazamiento=desplazamiento,
+        limite=limite,
+        visibilidad=vista,
+    )
+    contextos = await _alertas.contextos(sesion, pagina, visibilidad=vista)
+    return [(a, contextos[a.id]) for a in pagina], total
+
+
+async def obtener_alerta(
+    sesion: AsyncSession, actor: Usuario, alerta_id: uuid.UUID
+) -> tuple[Alerta, ContextoDeAlerta]:
+    """Una alerta con su contexto (RF-075). La ajena para quien no es admin ni dueño es
+    `NoEncontrado`, igual que una inexistente (RF-078)."""
+    vista = visibilidad(actor)
+    alerta = await _alertas.obtener(sesion, alerta_id, visibilidad=vista)
+    return alerta, (await _alertas.contextos(sesion, [alerta], visibilidad=vista))[alerta.id]
 
 
 async def _con_id(sesion: AsyncSession, origen: OrigenAlerta) -> None:
