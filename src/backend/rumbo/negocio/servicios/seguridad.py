@@ -21,8 +21,12 @@ _usuarios = RepositorioUsuarios()
 _EMAIL_EN_USO = "Ya existe un usuario con ese email."
 # Roles de los que siempre tiene que quedar un `Usuario` activo (CU-25 A4 y A5, RF-149).
 _ULTIMO_PROTEGIDO = {
-    RolUsuario.admin: "Es el único administrador activo: asigná otro antes de cambiarlo.",
-    RolUsuario.dueno: "Es la única dueña activa: asigná otra antes de cambiarla.",
+    RolUsuario.admin: (
+        "Es el único administrador activo: asigná otro antes de quitarle el rol o darlo de baja."
+    ),
+    RolUsuario.dueno: (
+        "Es la única dueña activa: asigná otra antes de quitarle el rol o darla de baja."
+    ),
 }
 
 
