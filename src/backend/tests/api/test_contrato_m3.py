@@ -22,10 +22,17 @@ OPERACIONES: list[tuple[str, str, dict[str, Any] | None]] = [
     ("post", f"/api/alertas/{ID}/resolver", None),
     ("post", f"/api/alertas/{ID}/posponer", {"fecha": "2026-12-01"}),
 ]
-# Las que todavía responden 501 (las de lectura de la agenda se implementaron en T-052).
-OPERACIONES_STUB = [
-    op for op in OPERACIONES if op[0] != "get" or op[1] == "/api/alertas/progreso-del-dia"
-]
+# Las que todavía responden 501 (la agenda, T-052, y atender alertas con el progreso, T-053,
+# ya están implementadas).
+_IMPLEMENTADAS = {
+    ("get", "/api/alertas"),
+    ("get", "/api/alertas/progreso-del-dia"),
+    ("get", f"/api/alertas/{ID}"),
+    ("post", f"/api/alertas/{ID}/vista"),
+    ("post", f"/api/alertas/{ID}/resolver"),
+    ("post", f"/api/alertas/{ID}/posponer"),
+}
+OPERACIONES_STUB = [op for op in OPERACIONES if (op[0], op[1]) not in _IMPLEMENTADAS]
 RUTAS_CONTRATO = [
     ("get", "/api/alertas"),
     ("post", "/api/alertas"),

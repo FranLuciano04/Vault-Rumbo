@@ -134,7 +134,8 @@ class AlertaPosponer(Entrada):
 
 
 class ProgresoDelDia(BaseModel):
-    """Avance de la agenda de hoy del usuario actual (CU-14)."""
+    """Avance de la agenda de hoy del usuario actual, o de toda la agencia para admin y dueño
+    (CU-14)."""
 
     resueltas_hoy: int = Field(ge=0)
     total_del_dia: int = Field(ge=0, description="Las resueltas hoy más las que quedan para hoy.")

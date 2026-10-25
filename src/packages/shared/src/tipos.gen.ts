@@ -1350,7 +1350,8 @@ export interface components {
         };
         /**
          * ProgresoDelDia
-         * @description Avance de la agenda de hoy del usuario actual (CU-14).
+         * @description Avance de la agenda de hoy del usuario actual, o de toda la agencia para admin y dueño
+         *     (CU-14).
          */
         ProgresoDelDia: {
             /** Resueltas Hoy */

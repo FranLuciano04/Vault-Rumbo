@@ -9,12 +9,13 @@ from datetime import UTC, date, datetime
 from typing import Any
 
 import pytest
-from sqlalchemy import text
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import event, text
+from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession
 
 from rumbo.datos import modelos as m
 from rumbo.negocio.errores import DatosInvalidos, TransicionInvalida
 from rumbo.negocio.estados import alerta as est
+from rumbo.negocio.politicas import visibilidad
 from rumbo.negocio.servicios import alertas
 from tests import fabricas as f
 
@@ -434,3 +435,26 @@ async def test_cu05_resolver_filtra_por_tipo(sesion: AsyncSession) -> None:
     assert [r.id for r in resueltas] == [insistencia.id]
     await sesion.refresh(manual)
     assert manual.estado is m.EstadoAlerta.pendiente
+
+
+async def test_rf079_obtener_para_modificar_bloquea_la_fila(
+    sesion: AsyncSession, motor: AsyncEngine
+) -> None:
+    """Lee con `FOR UPDATE` para no chocar con un cierre automático concurrente (T-051)."""
+    usuario = await f.crear(sesion, f.UsuarioFactory)
+    alerta = await alertas.crear(sesion, m.TipoAlerta.manual, FECHA, "x", usuario)
+    sentencias: list[str] = []
+
+    def capturar(_conn: Any, _cursor: Any, sentencia: str, *_resto: Any) -> None:
+        sentencias.append(sentencia)
+
+    motor_sync = motor.sync_engine
+    event.listen(motor_sync, "before_cursor_execute", capturar)
+    try:
+        await alertas._alertas.obtener_para_modificar(
+            sesion, alerta.id, visibilidad=visibilidad(usuario)
+        )
+    finally:
+        event.remove(motor_sync, "before_cursor_execute", capturar)
+
+    assert any("FOR UPDATE" in sentencia for sentencia in sentencias)
