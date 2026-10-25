@@ -5,6 +5,7 @@ import { useState } from "react";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router";
 import { PaginaLogin } from "@/features/seguridad/PaginaLogin";
 import { RutaProtegida } from "./RutaProtegida";
+import { SeccionAgenda } from "./SeccionAgenda";
 import { SeccionClientes } from "./SeccionClientes";
 import { SeccionConfiguracion } from "./SeccionConfiguracion";
 import { SeccionFichaCliente } from "./SeccionFichaCliente";
@@ -20,6 +21,7 @@ export function App({ cliente }: { cliente: AxiosInstance }) {
           <Route path="/login" element={<PaginaLogin cliente={cliente} />} />
           <Route element={<RutaProtegida cliente={cliente} />}>
             <Route index element={<Navigate to="/agenda" replace />} />
+            <Route path="agenda" element={<SeccionAgenda cliente={cliente} />} />
             <Route path="configuracion" element={<SeccionConfiguracion cliente={cliente} />} />
             <Route path="clientes" element={<SeccionClientes cliente={cliente} />} />
             <Route path="clientes/nuevo" element={<SeccionNuevoCliente cliente={cliente} />} />
