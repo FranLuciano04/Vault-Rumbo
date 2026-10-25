@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ErrorApi, type Alerta } from "@rumbo/shared";
+import type { Alerta } from "@rumbo/shared";
 import { esquemaRecordatorio, type DatosRecordatorio } from "@rumbo/shared/esquemas";
 import { useCrearRecordatorio, useEditarRecordatorio } from "@rumbo/shared/hooks";
 import type { AxiosInstance } from "axios";
@@ -8,7 +8,7 @@ import { useForm } from "react-hook-form";
 import { CampoFormulario } from "@/components/CampoFormulario";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { aplicarErroresDelServidor, mensajeDeError } from "@/lib/errores";
+import { aplicarErroresDelServidor } from "@/lib/errores";
 
 /** Entidad a la que queda asociado un recordatorio nuevo (CU-28): una sola, ya elegida por quien lo abre. */
 export interface AsociadoRecordatorio {
@@ -58,11 +58,7 @@ export function FormularioRecordatorio({
           });
       alGuardar?.(guardada);
     } catch (falla) {
-      setError(
-        falla instanceof ErrorApi && falla.status === 404
-          ? mensajeDeError(falla)
-          : aplicarErroresDelServidor(falla, CAMPOS, formulario.setError),
-      );
+      setError(aplicarErroresDelServidor(falla, CAMPOS, formulario.setError));
     }
   }
 
