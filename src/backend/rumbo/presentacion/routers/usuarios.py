@@ -110,8 +110,9 @@ async def obtener_usuario(usuario_id: uuid.UUID, actor: ActorDep, sesion: Sesion
 async def editar_usuario(
     usuario_id: uuid.UUID, datos: UsuarioEditar, actor: ActorDep, sesion: SesionDep
 ) -> Usuario:
-    """CU-25 A2 y A4 (RF-147, RF-149): corrige nombre, rol o acceso a redes. No se le quita el
-    rol `admin` al último admin activo (409); asignar o quitar `dueno` es solo de la dueña."""
+    """CU-25 A2, A4 y A5 (RF-147, RF-149): corrige nombre, rol o acceso a redes. No se le quita
+    el rol `admin` al último admin activo ni el rol `dueno` a la última dueña activa (409);
+    asignar o quitar `dueno` es solo de la dueña."""
     cambios = datos.model_dump(exclude_unset=True)
     usuario = await seguridad.editar_usuario(sesion, actor, usuario_id, cambios)
     return Usuario.model_validate(usuario)
@@ -129,7 +130,8 @@ async def dar_de_baja_usuario(
     sesion: SesionDep,
     gestor: GestorDep,
 ) -> Usuario:
-    """CU-25 A3 y A4 (RF-148, RF-149): desactiva al usuario y deshabilita su cuenta de
-    Firebase; no se da de baja al último admin activo (409). Si Firebase falla responde 502."""
+    """CU-25 A3, A4 y A5 (RF-148, RF-149): desactiva al usuario y deshabilita su cuenta de
+    Firebase; no se da de baja al último admin activo ni a la última dueña activa (409). Si
+    Firebase falla responde 502."""
     usuario = await seguridad.dar_de_baja_usuario(sesion, actor, gestor, usuario_id)
     return Usuario.model_validate(usuario)
