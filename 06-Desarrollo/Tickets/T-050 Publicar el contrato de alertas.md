@@ -3,7 +3,7 @@ id: T-050
 titulo: Publicar el contrato de alertas
 modulo: M3 — Alertas
 capa: contrato
-estado: libre
+estado: tomado
 depende_de: [T-015]
 tamaño: S
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [CU-14, CU-28]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: FranLucianoo
+tomado_el: 25/10/26 14:50
+rama: feature/T-050-publicar-el-contrato-de-alertas
 pr:
 ---
 # T-050 Publicar el contrato de alertas

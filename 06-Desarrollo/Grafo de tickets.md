@@ -17,7 +17,7 @@ tags:: #tipo/referencia
 | M0 — Fundaciones | 38 | 38 | 0 | 0 | 0 | 0 | ✅ cerrado |
 | M1 — Usuarios y configuración | 19 | 19 | 0 | 0 | 0 | 0 | 🔍 listo para la review |
 | M2 — Clientes | 15 | 15 | 0 | 0 | 0 | 0 | 🔍 listo para la review |
-| M3 — Alertas | 11 | 1 | 0 | 1 | 9 | 0 | 🛠️ en curso |
+| M3 — Alertas | 11 | 1 | 1 | 0 | 9 | 0 | 🛠️ en curso |
 | M4 — Oportunidades y cotizaciones | 14 | 0 | 0 | 1 | 13 | 0 | 🛠️ en curso |
 | M5 — Hoteles y reseñas | 11 | 0 | 0 | 1 | 10 | 0 | 🛠️ en curso |
 | M6 — Viajes y economía | 24 | 0 | 0 | 3 | 21 | 0 | 🛠️ en curso |
@@ -111,7 +111,7 @@ flowchart LR
     T157["T-157 · Completar el listado de clientes en la web<br/><small>web</small>"]:::hecho
   end
   subgraph M3["M3 — Alertas"]
-    T050["T-050 · Publicar el contrato de alertas<br/><small>contrato</small>"]:::disponible
+    T050["T-050 · Publicar el contrato de alertas<br/><small>contrato</small><br/>👤 FranLucianoo"]:::tomado
     T051["T-051 · Crear el servicio de alertas para los demás módulos<br/><small>backend</small>"]:::hecho
     T052["T-052 · Listar la agenda de alertas según el rol<br/><small>backend</small>"]:::esperando
     T053["T-053 · Atender las alertas con el progreso del día<br/><small>backend</small>"]:::esperando
