@@ -642,6 +642,8 @@ export interface paths {
          * Editar fecha o descripción de un recordatorio
          * @description **Roles:** admin, dueno, empleado, freelance.
          *
+         *     **Escritura:** el responsable de la alerta, o admin o dueño (DEC-0005).
+         *
          *     **Casos de uso:** CU-28.
          */
         patch: operations["editar_recordatorio"];
@@ -659,6 +661,8 @@ export interface paths {
         /**
          * Marcar una alerta como vista
          * @description **Roles:** admin, dueno, empleado, freelance.
+         *
+         *     **Escritura:** el responsable de la alerta, o admin o dueño (DEC-0005).
          *
          *     **Casos de uso:** CU-14.
          */
@@ -682,6 +686,8 @@ export interface paths {
          * Resolver una alerta
          * @description **Roles:** admin, dueno, empleado, freelance.
          *
+         *     **Escritura:** el responsable de la alerta, o admin o dueño (DEC-0005).
+         *
          *     **Casos de uso:** CU-14.
          */
         post: operations["resolver_alerta"];
@@ -703,6 +709,8 @@ export interface paths {
         /**
          * Posponer una alerta
          * @description **Roles:** admin, dueno, empleado, freelance.
+         *
+         *     **Escritura:** el responsable de la alerta, o admin o dueño (DEC-0005).
          *
          *     **Casos de uso:** CU-14, CU-30.
          */
@@ -3348,6 +3356,8 @@ export interface operations {
                 proximas?: boolean;
                 /** @description Las de toda la agencia: solo admin y dueño (CU-14 A1). */
                 todas?: boolean;
+                /** @description Agenda de un responsable: solo admin y dueño (CU-14 A1). */
+                propietario_id?: string | null;
                 pagina?: number;
                 por_pagina?: number;
             };
@@ -3357,7 +3367,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Alertas de la agenda. */
+            /** @description Alertas. Por defecto, las propias pendientes hasta hoy; con `proximas=true`, las pendientes con fecha posterior a hoy (CU-14 A5). Los recontactos de CU-30 son las de tipo `recontacto`. */
             200: {
                 headers: {
                     [name: string]: unknown;

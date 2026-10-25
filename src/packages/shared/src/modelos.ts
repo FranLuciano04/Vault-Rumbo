@@ -54,6 +54,8 @@ export interface FiltrosAlertas {
   proximas?: boolean;
   /** Las de toda la agencia: solo admin y dueño (CU-14 A1). */
   todas?: boolean;
+  /** Agenda de un responsable: solo admin y dueño (CU-14 A1). */
+  propietario_id?: string;
   pagina?: number;
   por_pagina?: number;
 }

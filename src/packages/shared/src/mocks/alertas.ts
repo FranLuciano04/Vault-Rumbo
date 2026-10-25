@@ -122,6 +122,49 @@ export const alertasMock: Alerta[] = [
   },
 ];
 
+/** Tomás Roldán, el `freelance` de `usuariosPorRol` (mismo motivo que arriba). */
+const otro_propietario_id = "e7b20d94-6a3f-4c15-9d8e-0b5a3f7c2e04";
+
+/** Alertas de otro responsable: solo las ven admin y dueño (`todas` o `propietario_id`). */
+export const alertasAjenasMock: Alerta[] = [
+  {
+    ...sinOrigen,
+    ...abierta,
+    ...auditoria,
+    id: "d1b2a6e3-7f48-4c92-8b5d-2a3f4e5d6c01",
+    propietario_id: otro_propietario_id,
+    tipo: "insistencia",
+    descripcion: "Insistir con la cotización a la Familia Sosa (Brasil).",
+    fecha: "2026-10-24",
+    estado: "pendiente",
+    oportunidad_id: "6b2d9f08-7e41-4c5a-8d13-0a9e3c5b7f44",
+  },
+  {
+    ...sinOrigen,
+    ...abierta,
+    ...auditoria,
+    id: "d1b2a6e3-7f48-4c92-8b5d-2a3f4e5d6c02",
+    propietario_id: otro_propietario_id,
+    tipo: "manual",
+    descripcion: "Mandarle el itinerario a Joaquín Ramos.",
+    fecha: "2026-10-27",
+    estado: "pendiente",
+  },
+  {
+    ...sinOrigen,
+    ...auditoria,
+    id: "d1b2a6e3-7f48-4c92-8b5d-2a3f4e5d6c03",
+    propietario_id: otro_propietario_id,
+    tipo: "recontacto",
+    descripcion: "Recontactar a Camila Benítez.",
+    fecha: "2026-10-25",
+    estado: "resuelta",
+    resuelta_en: "2026-10-25T11:20:00Z",
+    cerrada_por_cancelacion: false,
+    cliente_id: "3c1f6d2e-8a47-4b19-9e53-7d0a2b4c6e11",
+  },
+];
+
 /** Resueltas hoy sobre el total del día (las resueltas hoy más las que vencen hasta hoy). */
 export function progresoMock(): ProgresoDelDia {
   const resueltas = alertasMock.filter((a) => a.estado === "resuelta").length;
@@ -137,8 +180,10 @@ function noEncontrada() {
   });
 }
 
-function yaResuelta() {
-  return respuestaProblema(409, "Conflicto", { detail: "La alerta ya está resuelta." });
+function transicionInvalida(alerta: Alerta, accion: string) {
+  return respuestaProblema(409, "Conflicto", {
+    detail: `No se puede ${accion} una alerta ${alerta.estado}.`,
+  });
 }
 
 /** Handlers MSW de las rutas de `/api/alertas` (CU-14, CU-28, CU-30). */
@@ -151,10 +196,16 @@ export const manejadoresAlertas: RequestHandler[] = [
     const hasta = url.searchParams.get("hasta") ?? (proximas ? null : HOY_MOCK);
     const pagina = Number(url.searchParams.get("pagina") ?? 1);
     const porPagina = Number(url.searchParams.get("por_pagina") ?? 20);
+    const propietario = url.searchParams.get("propietario_id");
+    const agenda =
+      url.searchParams.get("todas") === "true" || propietario
+        ? [...alertasMock, ...alertasAjenasMock]
+        : alertasMock;
     const estadoBuscado = (a: Alerta) =>
       estado ? a.estado === estado : proximas ? a.estado === "pendiente" : a.estado !== "resuelta";
-    const filtradas = alertasMock.filter(
+    const filtradas = agenda.filter(
       (a) =>
+        (!propietario || a.propietario_id === propietario) &&
         estadoBuscado(a) &&
         (!tipo || a.tipo === tipo) &&
         (!proximas || a.fecha > HOY_MOCK) &&
@@ -209,22 +260,28 @@ export const manejadoresAlertas: RequestHandler[] = [
   http.patch(`${BASE}/:id`, async ({ params, request }) => {
     const alerta = alertasMock.find((a) => a.id === params["id"]);
     if (!alerta) return noEncontrada();
-    if (alerta.estado === "resuelta") return yaResuelta();
+    if (alerta.estado !== "pendiente") return transicionInvalida(alerta, "editar");
     return HttpResponse.json({ ...alerta, ...((await request.json()) as AlertaEditar) });
   }),
 
   http.post(`${BASE}/:id/vista`, ({ params }) => {
     const alerta = alertasMock.find((a) => a.id === params["id"]);
     if (!alerta) return noEncontrada();
-    return alerta.estado === "resuelta"
-      ? yaResuelta()
-      : HttpResponse.json({ ...alerta, estado: "vista" });
+    return alerta.estado === "pendiente"
+      ? HttpResponse.json({ ...alerta, estado: "vista" })
+      : transicionInvalida(alerta, "marcar como vista");
   }),
 
   http.post(`${BASE}/:id/resolver`, ({ params }) => {
     const alerta = alertasMock.find((a) => a.id === params["id"]);
     if (!alerta) return noEncontrada();
-    if (alerta.estado === "resuelta") return yaResuelta();
+    if (alerta.estado === "resuelta") return transicionInvalida(alerta, "resolver");
+    // El pago se resuelve al registrar el cobro, no a mano (CU-14 A2).
+    if (alerta.tipo === "pago") {
+      return respuestaProblema(409, "Conflicto", {
+        detail: "La alerta de un pago se resuelve al registrar el cobro.",
+      });
+    }
     return HttpResponse.json({
       ...alerta,
       estado: "resuelta",
@@ -235,11 +292,11 @@ export const manejadoresAlertas: RequestHandler[] = [
   http.post(`${BASE}/:id/posponer`, async ({ params, request }) => {
     const alerta = alertasMock.find((a) => a.id === params["id"]);
     if (!alerta) return noEncontrada();
-    if (alerta.estado === "resuelta") return yaResuelta();
+    if (alerta.estado !== "pendiente") return transicionInvalida(alerta, "posponer");
     const { fecha } = (await request.json()) as AlertaPosponer;
-    if (fecha <= alerta.fecha) {
+    if (fecha <= (alerta.fecha > HOY_MOCK ? alerta.fecha : HOY_MOCK)) {
       return respuestaProblema(422, "Datos inválidos", {
-        detail: "La nueva fecha tiene que ser posterior a la actual.",
+        detail: "La nueva fecha tiene que ser posterior a hoy y a la actual.",
       });
     }
     return HttpResponse.json({ ...alerta, fecha });

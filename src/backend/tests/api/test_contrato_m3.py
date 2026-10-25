@@ -87,13 +87,21 @@ async def test_cu14_listar_publica_filtros_y_paginacion(contrato: dict[str, Any]
     operacion = contrato["paths"]["/api/alertas"]["get"]
     parametros = {p["name"]: p for p in operacion["parameters"]}
 
-    assert {"pagina", "por_pagina", "hasta", "estado", "tipo", "proximas", "todas"} <= set(
-        parametros
-    )
+    assert {
+        "pagina",
+        "por_pagina",
+        "hasta",
+        "estado",
+        "tipo",
+        "proximas",
+        "todas",
+        "propietario_id",
+    } <= set(parametros)
     assert parametros["por_pagina"]["schema"]["maximum"] == 100
     assert parametros["pagina"]["schema"]["minimum"] == 1
     assert parametros["proximas"]["schema"]["type"] == "boolean"
     assert parametros["todas"]["schema"]["type"] == "boolean"
+    assert {"type": "string", "format": "uuid"} in parametros["propietario_id"]["schema"]["anyOf"]
     assert "422" in operacion["responses"]
     esquema = operacion["responses"]["200"]["content"]["application/json"]["schema"]
     assert _nombre(esquema["properties"]["items"]["items"]["$ref"]) == "Alerta"
@@ -245,6 +253,7 @@ async def test_cu14_listar_con_filtros_validos_llega_al_501(cliente_como: Fabric
             "tipo": "recontacto",
             "proximas": "true",
             "todas": "false",
+            "propietario_id": ID,
             "pagina": 2,
             "por_pagina": 50,
         },
@@ -262,6 +271,7 @@ async def test_cu14_listar_con_filtros_validos_llega_al_501(cliente_como: Fabric
         {"tipo": "otro"},
         {"proximas": "quizas"},
         {"todas": "quizas"},
+        {"propietario_id": "no-es-uuid"},
         {"hasta": "no-es-fecha"},
     ],
 )
@@ -283,6 +293,7 @@ async def test_cu14_listar_con_filtros_invalidos_responde_422(
         {"fecha": "2026-11-05"},
         {"descripcion": "Llamar"},
         {**CUERPO_CREAR, "fecha": "mañana"},
+        {**CUERPO_CREAR, "viaje_id": ID, "cliente_id": ID},
     ],
 )
 async def test_cu28_crear_con_cuerpo_invalido_responde_422(

@@ -47,3 +47,7 @@ Cada persona ve su agenda del día y las próximas alertas; admin y dueña ven l
 - Atender alertas (ticket siguiente).
 
 ## Notas de implementación
+- **De la review de T-050 (25/10/26):**
+  - **El contexto del origen y el responsable todavía no están en el contrato.** `Alerta` solo trae los ids. Este ticket los suma al contrato en la misma rama: por ejemplo, un `responsable` embebido (`id` y `nombre`) y un `contexto` del origen en el detalle y, si la agenda lo necesita (pantallas 3 y 49), también en el listado. Así la web no tiene que hacer un pedido por alerta. Se regeneran los tipos y se actualizan los mocks MSW.
+  - **La página del listado es inline.** `GET /api/alertas` usa `response_model=None` para publicar la página inline del PC1. Por eso FastAPI no valida la respuesta. Hay que devolver un `Pagina[Alerta]` ya validado (construir el modelo Pydantic), no filas ORM sueltas.
+  - **Filtro por responsable.** `propietario_id` quedó en el contrato desde T-050 y solo es para admin y dueño.

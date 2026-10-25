@@ -24,7 +24,11 @@ PaginaDep = Annotated[ParametrosPagina, Depends(parametros_pagina)]
 # La agenda publica su página inline, con `Alerta` por referencia, como en el contrato.
 _AGENDA = operacion(TODOS, "CU-14, CU-30", 422)
 _AGENDA["responses"][200] = {
-    "description": "Alertas de la agenda.",
+    "description": (
+        "Alertas. Por defecto, las propias pendientes hasta hoy; con `proximas=true`, las "
+        "pendientes con fecha posterior a hoy (CU-14 A5). Los recontactos de CU-30 son las de "
+        "tipo `recontacto`."
+    ),
     "content": {
         "application/json": {
             "schema": {
@@ -64,9 +68,11 @@ async def listar_alertas(
     todas: Annotated[
         bool, Query(description="Las de toda la agencia: solo admin y dueño (CU-14 A1).")
     ] = False,
+    propietario_id: Annotated[
+        uuid.UUID | None,
+        Query(description="Agenda de un responsable: solo admin y dueño (CU-14 A1)."),
+    ] = None,
 ) -> Pagina[Alerta]:
-    """Por defecto, las propias pendientes hasta hoy; los recontactos de CU-30 son las de tipo
-    `recontacto`."""
     raise no_implementado()
 
 
@@ -106,10 +112,9 @@ async def obtener_alerta(alerta_id: uuid.UUID) -> Alerta:
     "/{alerta_id}",
     operation_id="editar_recordatorio",
     summary="Editar fecha o descripción de un recordatorio",
-    **operacion(TODOS, "CU-28", 403, 404, 409, 422),
+    **operacion(TODOS, "CU-28", 403, 404, 409, 422, escritura=True),
 )
 async def editar_recordatorio(alerta_id: uuid.UUID, cambios: AlertaEditar) -> Alerta:
-    """Escritura: el responsable del registro, o admin o dueño (DEC-0005)."""
     raise no_implementado()
 
 
@@ -117,10 +122,9 @@ async def editar_recordatorio(alerta_id: uuid.UUID, cambios: AlertaEditar) -> Al
     "/{alerta_id}/vista",
     operation_id="marcar_alerta_vista",
     summary="Marcar una alerta como vista",
-    **operacion(TODOS, "CU-14", 403, 404, 409),
+    **operacion(TODOS, "CU-14", 403, 404, 409, escritura=True),
 )
 async def marcar_alerta_vista(alerta_id: uuid.UUID) -> Alerta:
-    """Escritura: el responsable del registro, o admin o dueño (DEC-0005)."""
     raise no_implementado()
 
 
@@ -128,10 +132,9 @@ async def marcar_alerta_vista(alerta_id: uuid.UUID) -> Alerta:
     "/{alerta_id}/resolver",
     operation_id="resolver_alerta",
     summary="Resolver una alerta",
-    **operacion(TODOS, "CU-14", 403, 404, 409),
+    **operacion(TODOS, "CU-14", 403, 404, 409, escritura=True),
 )
 async def resolver_alerta(alerta_id: uuid.UUID) -> Alerta:
-    """Escritura: el responsable del registro, o admin o dueño (DEC-0005)."""
     raise no_implementado()
 
 
@@ -139,8 +142,7 @@ async def resolver_alerta(alerta_id: uuid.UUID) -> Alerta:
     "/{alerta_id}/posponer",
     operation_id="posponer_alerta",
     summary="Posponer una alerta",
-    **operacion(TODOS, "CU-14, CU-30", 403, 404, 409, 422),
+    **operacion(TODOS, "CU-14, CU-30", 403, 404, 409, 422, escritura=True),
 )
 async def posponer_alerta(alerta_id: uuid.UUID, datos: AlertaPosponer) -> Alerta:
-    """Escritura: el responsable del registro, o admin o dueño (DEC-0005)."""
     raise no_implementado()

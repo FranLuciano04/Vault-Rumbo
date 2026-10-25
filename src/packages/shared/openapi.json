@@ -2840,6 +2840,25 @@
             "description": "Las de toda la agencia: solo admin y dueño (CU-14 A1)."
           },
           {
+            "name": "propietario_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Agenda de un responsable: solo admin y dueño (CU-14 A1).",
+              "title": "Propietario Id"
+            },
+            "description": "Agenda de un responsable: solo admin y dueño (CU-14 A1)."
+          },
+          {
             "name": "pagina",
             "in": "query",
             "required": false,
@@ -2865,7 +2884,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Alertas de la agenda.",
+            "description": "Alertas. Por defecto, las propias pendientes hasta hoy; con `proximas=true`, las pendientes con fecha posterior a hoy (CU-14 A5). Los recontactos de CU-30 son las de tipo `recontacto`.",
             "content": {
               "application/json": {
                 "schema": {
@@ -3126,7 +3145,7 @@
           "alertas"
         ],
         "summary": "Editar fecha o descripción de un recordatorio",
-        "description": "**Roles:** admin, dueno, empleado, freelance.\n\n**Casos de uso:** CU-28.",
+        "description": "**Roles:** admin, dueno, empleado, freelance.\n\n**Escritura:** el responsable de la alerta, o admin o dueño (DEC-0005).\n\n**Casos de uso:** CU-28.",
         "operationId": "editar_recordatorio",
         "security": [
           {
@@ -3234,7 +3253,7 @@
           "alertas"
         ],
         "summary": "Marcar una alerta como vista",
-        "description": "**Roles:** admin, dueno, empleado, freelance.\n\n**Casos de uso:** CU-14.",
+        "description": "**Roles:** admin, dueno, empleado, freelance.\n\n**Escritura:** el responsable de la alerta, o admin o dueño (DEC-0005).\n\n**Casos de uso:** CU-14.",
         "operationId": "marcar_alerta_vista",
         "security": [
           {
@@ -3332,7 +3351,7 @@
           "alertas"
         ],
         "summary": "Resolver una alerta",
-        "description": "**Roles:** admin, dueno, empleado, freelance.\n\n**Casos de uso:** CU-14.",
+        "description": "**Roles:** admin, dueno, empleado, freelance.\n\n**Escritura:** el responsable de la alerta, o admin o dueño (DEC-0005).\n\n**Casos de uso:** CU-14.",
         "operationId": "resolver_alerta",
         "security": [
           {
@@ -3430,7 +3449,7 @@
           "alertas"
         ],
         "summary": "Posponer una alerta",
-        "description": "**Roles:** admin, dueno, empleado, freelance.\n\n**Casos de uso:** CU-14, CU-30.",
+        "description": "**Roles:** admin, dueno, empleado, freelance.\n\n**Escritura:** el responsable de la alerta, o admin o dueño (DEC-0005).\n\n**Casos de uso:** CU-14, CU-30.",
         "operationId": "posponer_alerta",
         "security": [
           {
