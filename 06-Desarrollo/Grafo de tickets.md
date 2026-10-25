@@ -17,7 +17,7 @@ tags:: #tipo/referencia
 | M0 — Fundaciones | 38 | 38 | 0 | 0 | 0 | 0 | ✅ cerrado |
 | M1 — Usuarios y configuración | 19 | 19 | 0 | 0 | 0 | 0 | 🔍 listo para la review |
 | M2 — Clientes | 15 | 15 | 0 | 0 | 0 | 0 | 🔍 listo para la review |
-| M3 — Alertas | 11 | 6 | 1 | 1 | 3 | 0 | 🛠️ en curso |
+| M3 — Alertas | 11 | 7 | 0 | 2 | 2 | 0 | 🛠️ en curso |
 | M4 — Oportunidades y cotizaciones | 14 | 0 | 0 | 1 | 13 | 0 | 🛠️ en curso |
 | M5 — Hoteles y reseñas | 11 | 0 | 0 | 1 | 10 | 0 | 🛠️ en curso |
 | M6 — Viajes y economía | 24 | 0 | 0 | 3 | 21 | 0 | 🛠️ en curso |
@@ -117,11 +117,11 @@ flowchart LR
     T053["T-053 · Atender las alertas con el progreso del día<br/><small>backend</small>"]:::hecho
     T054["T-054 · Crear recordatorios manuales<br/><small>backend</small>"]:::hecho
     T055["T-055 · Atender la agenda del día en la web<br/><small>web</small>"]:::hecho
-    T056["T-056 · Crear un recordatorio manual en la web<br/><small>web</small><br/>👤 FranLucianoo"]:::tomado
+    T056["T-056 · Crear un recordatorio manual en la web<br/><small>web</small>"]:::hecho
     T057["T-057 · Atender la agenda del día en la app mobile<br/><small>mobile</small>"]:::disponible
     T058["T-058 · Posponer una alerta desde su detalle en la app mobile<br/><small>mobile</small>"]:::esperando
     T059["T-059 · Crear un recordatorio manual desde la app mobile<br/><small>mobile</small>"]:::esperando
-    T060["T-060 · Probar de punta a punta la agenda de alertas<br/><small>e2e</small>"]:::esperando
+    T060["T-060 · Probar de punta a punta la agenda de alertas<br/><small>e2e</small>"]:::disponible
   end
   subgraph M4["M4 — Oportunidades y cotizaciones"]
     T061["T-061 · Publicar el contrato de oportunidades y cotizaciones<br/><small>contrato</small>"]:::disponible
