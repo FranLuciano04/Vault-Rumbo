@@ -101,11 +101,21 @@ export function NuevoCliente({
     },
   });
   const { errors } = formulario.formState;
-  const { setFocus } = formulario;
+  const { setFocus, subscribe } = formulario;
 
   useEffect(() => {
     setFocus("nombre");
   }, [setFocus]);
+
+  // Editar cualquier campo tras el aviso obliga a volver a chequear (CU-02 A1, DEC-0020).
+  useEffect(() => {
+    return subscribe({
+      formState: { values: true },
+      callback: () => {
+        setDuplicados(null);
+      },
+    });
+  }, [subscribe]);
 
   async function enviar(datos: DatosFicha, confirmarDuplicado: boolean) {
     setError(null);

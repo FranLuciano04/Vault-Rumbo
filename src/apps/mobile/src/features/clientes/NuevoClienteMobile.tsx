@@ -181,6 +181,11 @@ export function NuevoClienteMobile() {
   const [aviso, setAviso] = useState<string | null>(null);
   const [duplicados, setDuplicados] = useState<Cliente[] | null>(null);
 
+  // Editar cualquier campo tras el aviso obliga a volver a chequear (CU-02 A1, DEC-0020).
+  function editado() {
+    setDuplicados(null);
+  }
+
   async function enviar(confirmarDuplicado: boolean) {
     setAviso(null);
     setDuplicados(null);
@@ -248,6 +253,7 @@ export function NuevoClienteMobile() {
         error={errores.nombre}
         onChangeText={(valor) => {
           texto.current.nombre = valor;
+          editado();
         }}
       />
       <Campo
@@ -255,6 +261,7 @@ export function NuevoClienteMobile() {
         error={errores.contacto}
         onChangeText={(valor) => {
           texto.current.contacto = valor;
+          editado();
         }}
       />
       <Campo
@@ -262,6 +269,7 @@ export function NuevoClienteMobile() {
         error={errores.instagram}
         onChangeText={(valor) => {
           texto.current.instagram = valor;
+          editado();
         }}
       />
       <View>
@@ -274,6 +282,7 @@ export function NuevoClienteMobile() {
               elegida={segmento === valor}
               alElegir={() => {
                 setSegmento(valor as SegmentoCliente);
+                editado();
               }}
             />
           ))}
@@ -283,7 +292,10 @@ export function NuevoClienteMobile() {
       {conAsesor && (
         <SelectorAsesor
           elegido={asesorId}
-          alElegir={setAsesorId}
+          alElegir={(id) => {
+            setAsesorId(id);
+            editado();
+          }}
           error={errores.asesor_asignado_id}
         />
       )}
