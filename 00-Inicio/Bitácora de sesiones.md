@@ -101,7 +101,16 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
   - Review (opus) en dos rondas. La primera encontró 1 bloqueante (la agenda cortaba en 20 alertas sin avisar) y tests que pasaban por casualidad. Todo quedó arreglado.
   - Web: 341 tests, con 94,84 % de cobertura.
   - Commits: 52eda3f, b6a9648, 207cbbe, 1840699 y 3ff96b1.
-- **Pendiente:** el resto de las pantallas de M3 (T-057 mobile, T-056, T-058 y T-059). Después, el e2e T-060 y `/cerrar-modulo M3`.
+- **T-056** (PR [#84](https://github.com/FranLuciano04/Vault-Rumbo/pull/84), mergeado con el CI en verde): recordatorios en la web.
+  - El formulario sirve para crear y para editar. Se abre desde la agenda, con el selector «Personal / Cliente» y buscador, o desde la ficha del cliente, con el cliente ya asociado.
+  - «Editar» solo aparece en un recordatorio propio y pendiente.
+  - El foco va al formulario al abrirlo y vuelve al botón al cerrarlo. Al guardar aparece un aviso.
+  - Un 404 se muestra con un texto propio del front en todos los formularios.
+  - Review (opus): 0 bloqueantes y 3 importantes, todos arreglados.
+  - **Falla arreglada (DEC-0019):** el e2e de login era frágil (`getByText` del nombre en toda la página) y falló por el filtro «Responsable» de T-055. Ahora busca dentro del `banner`.
+  - Web: 368 tests.
+  - Commits: 6494872, 8867bca, 76db10c, aae5226, el del e2e y e2d8ca9.
+- **Pendiente:** T-057 (agenda en mobile), T-058 y T-059. Después, el e2e T-060 y `/cerrar-modulo M3`.
 
 ## 25/10/26 — Francisco (Claude Opus 5.5) — tres decisiones abiertas cerradas y dos arreglos
 - **Decisiones** (commit 15abf2d):

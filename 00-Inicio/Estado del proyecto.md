@@ -38,6 +38,8 @@ actualizado: 13/10/26
 >
 > 👉 **25/10 (Francisco):** **T-048** (alta de clientes en la app mobile) está hecho y mergeado (PR [#75](https://github.com/FranLuciano04/Vault-Rumbo/pull/75)). **M2 tiene todos sus tickets hechos y queda listo para `/cerrar-modulo`** (review de Codex y tag `mod-2`). ⚠️ **El repo pasó a público el 25/10:** GitHub Actions se cortó por el límite de gasto del plan Free, y en los repos públicos los minutos son ilimitados. Antes se escaneó todo el historial (gitleaks y trufflehog, incluidas las ramas de los PR) y no hay secretos. Quedan públicos los nombres y emails del equipo, y los links de Drive (PC1) y Figma. Francisco ya revisó esos permisos y avisó a la agencia, al equipo y a la cátedra.
 >
+> 👉 **25/10 (Francisco):** **T-056** (recordatorios en la web) está hecho y mergeado (PR [#84](https://github.com/FranLuciano04/Vault-Rumbo/pull/84)). La web de M3 está completa. Quedan T-057, T-058 y T-059 (mobile) y el e2e T-060.
+>
 > 👉 **25/10 (Francisco):** **T-055** (la agenda del día en la web) está hecho y mergeado (PR [#83](https://github.com/FranLuciano04/Vault-Rumbo/pull/83)). `/agenda` es la página de inicio, con progreso, «Deshacer», posponer, próximas y la vista de la agencia. Quedan T-056 (recordatorio en la web), T-057 (agenda en mobile), T-058, T-059 y T-060.
 >
 > 👉 **25/10 (Francisco):** **T-054** (recordatorios manuales) está hecho y mergeado (PR [#82](https://github.com/FranLuciano04/Vault-Rumbo/pull/82)). **El backend de M3 está completo.** Enmienda de [[DEC-0005 Autenticación y modelo de roles|DEC-0005]]: la dirección atiende las alertas ajenas, pero no edita los recordatorios ajenos. Quedan las pantallas: T-055 (web) y T-057 (mobile).
