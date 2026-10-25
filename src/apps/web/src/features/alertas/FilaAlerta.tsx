@@ -1,4 +1,10 @@
-import { ETIQUETA_TIPO_ALERTA, formatearFecha, formatearImporte, type Alerta } from "@rumbo/shared";
+import {
+  diasDeAtraso,
+  ETIQUETA_TIPO_ALERTA,
+  formatearFecha,
+  lineaDeContexto,
+  type Alerta,
+} from "@rumbo/shared";
 import { usePosponerAlerta } from "@rumbo/shared/hooks";
 import type { AxiosInstance } from "axios";
 import { Check, Clock, Eye, Pencil } from "lucide-react";
@@ -7,18 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { mensajeDeError } from "@/lib/errores";
-import { diaSiguiente, diasDeAtraso } from "./fechas";
-
-/** Viaje, oportunidad, cliente y pago de la alerta, como en la pantalla 3 del prototipo. */
-function lineaDeContexto({ contexto }: Alerta): string[] {
-  return [
-    contexto.viaje && `Viaje: ${contexto.viaje.destino}`,
-    contexto.oportunidad && `Oportunidad: ${contexto.oportunidad.destino_consultado}`,
-    contexto.cliente?.nombre,
-    contexto.pago &&
-      `${formatearImporte(contexto.pago.monto, contexto.pago.moneda)} · vence ${formatearFecha(contexto.pago.vencimiento)}`,
-  ].flatMap((parte) => (parte ? [parte] : []));
-}
+import { diaSiguiente } from "./fechas";
 
 function Plazo({ fecha, hoy }: { fecha: string; hoy: string }) {
   if (fecha === hoy) return null;

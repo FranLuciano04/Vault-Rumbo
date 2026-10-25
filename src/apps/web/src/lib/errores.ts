@@ -1,14 +1,9 @@
-import { ErrorApi } from "@rumbo/shared";
+import { ERROR_AL_GUARDAR, ErrorApi } from "@rumbo/shared";
 import type { FieldValues, Path, UseFormSetError } from "react-hook-form";
 
-export const ERROR_AL_GUARDAR = "No pudimos guardar los cambios. Probá de nuevo en unos minutos.";
+export { ERROR_AL_GUARDAR, mensajeDeError } from "@rumbo/shared";
 
 const NO_EXISTE = "Lo que querés guardar ya no existe o no lo podés ver.";
-
-/** Texto para avisar una acción que falló: el `detail` del problema o el mensaje genérico. */
-export function mensajeDeError(falla: unknown): string {
-  return falla instanceof ErrorApi && falla.detail ? falla.detail : ERROR_AL_GUARDAR;
-}
 
 /**
  * Vuelca en sus campos los errores 422 del servidor (RNF-12). Devuelve el texto para el aviso
