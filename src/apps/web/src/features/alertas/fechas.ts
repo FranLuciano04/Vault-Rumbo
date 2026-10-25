@@ -9,3 +9,8 @@ export function hoyEnBuenosAires(): string {
 export function diasDeAtraso(fecha: string, hoy: string): number {
   return Math.round((Date.parse(hoy) - Date.parse(fecha)) / 86_400_000);
 }
+
+/** El día siguiente a `fecha` (`aaaa-mm-dd`). */
+export function diaSiguiente(fecha: string): string {
+  return new Date(Date.parse(fecha) + 86_400_000).toISOString().slice(0, 10);
+}

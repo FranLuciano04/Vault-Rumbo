@@ -18,6 +18,11 @@ const servidor = crearServidor(...manejadoresAlertas);
 beforeAll(() => {
   servidor.listen({ onUnhandledRequest: "error" });
 });
+// El «hoy» de los mocks (HOY_MOCK), para que los grupos de la agenda no dependan del día real.
+const HOY = new Date("2026-10-25T12:00:00-03:00");
+beforeEach(() => {
+  vi.useFakeTimers({ toFake: ["Date"], now: HOY });
+});
 afterEach(() => {
   servidor.resetHandlers();
   vi.useRealTimers();
@@ -28,7 +33,15 @@ afterAll(() => {
 
 const cliente = crearCliente({ baseURL: "http://localhost", obtenerToken: () => "token" });
 
+const asesores = [
+  { id: "a1c4e7f0-3d58-4b92-b6a3-8f0e2d1c4b03", nombre: "Ana Pérez" },
+  { id: "e7b20d94-6a3f-4c15-9d8e-0b5a3f7c2e04", nombre: "Tomás Roldán" },
+];
+
 function renderAgenda(rol: RolMock = "empleado") {
+  if (rol === "admin" || rol === "dueno") {
+    servidor.use(http.get("*/api/usuarios/asesores", () => HttpResponse.json(asesores)));
+  }
   return render(
     <QueryClientProvider
       client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}
@@ -79,8 +92,7 @@ function problema(status: number, titulo: string, detalle: string) {
   );
 }
 
-const sinAlertas = () =>
-  HttpResponse.json({ items: [], total: 0, pagina: 1, por_pagina: 20 });
+const sinAlertas = () => HttpResponse.json({ items: [], total: 0, pagina: 1, por_pagina: 20 });
 
 describe("RF-074 agenda", () => {
   it("RF-074 lista las alertas pendientes hasta hoy con su descripción", async () => {
@@ -105,8 +117,9 @@ describe("RF-074 agenda", () => {
     const pago = await fila(PAGO);
 
     expect(within(pago).getByText(/pago/i)).toBeInTheDocument();
-    expect(within(pago).getByText(/Camila Benítez/)).toBeInTheDocument();
-    expect(within(pago).getByText(/Punta Cana/)).toBeInTheDocument();
+    const contexto = within(pago).getByText(/^Viaje: Punta Cana/);
+    expect(contexto).toHaveTextContent(/Camila Benítez/);
+    expect(contexto).toHaveTextContent(/\$ 450\.000,00 · vence 23\/10\/26/);
   });
 
   it("RF-074 ordena por fecha: la más atrasada primero", async () => {
@@ -124,8 +137,15 @@ describe("RF-074 agenda", () => {
     renderAgenda("empleado");
     await screen.findByText(PAGO);
 
-    expect(screen.getByText(/^atrasadas/i)).toBeInTheDocument();
-    expect(screen.getByText(/^hoy/i)).toBeInTheDocument();
+    const atrasadas = screen.getByRole("heading", { name: /^atrasadas · \d+/i });
+    const deHoy = screen.getByRole("heading", { name: /^hoy · \d+/i });
+    expect(atrasadas).toHaveTextContent("Atrasadas · 2");
+    expect(deHoy).toHaveTextContent("Hoy · 2");
+    const seccion = (encabezado: HTMLElement) => encabezado.closest("section") as HTMLElement;
+    expect(within(seccion(atrasadas)).getByText(PAGO)).toBeInTheDocument();
+    expect(within(seccion(atrasadas)).getByText(INSISTENCIA)).toBeInTheDocument();
+    expect(within(seccion(deHoy)).getByText(FORMULARIO)).toBeInTheDocument();
+    expect(within(seccion(deHoy)).getByText(VIAJE)).toBeInTheDocument();
   });
 
   it("RF-155 muestra el progreso del día: resueltas sobre el total", async () => {
@@ -218,8 +238,99 @@ describe("RF-074 agenda", () => {
     expect(within(pago).getByText(/registrar el cobro/i)).toBeInTheDocument();
   });
 
+  it("RF-074 una alerta vista no ofrece posponer pero sí resolver", async () => {
+    const usuario = userEvent.setup();
+    renderAgenda("empleado");
+    await screen.findByText(PAGO);
+    await usuario.click(screen.getByRole("switch", { name: /mostrar vistas/i }));
+    const vista = await fila(SALIDA_VISTA);
+
+    expect(within(vista).queryByRole("button", { name: /posponer/i })).not.toBeInTheDocument();
+    expect(within(vista).getByRole("button", { name: /resolver/i })).toBeInTheDocument();
+  });
+
+  it("RF-074 si hay más alertas que las de la página, ofrece pasar a la siguiente", async () => {
+    const pedidos: URLSearchParams[] = [];
+    servidor.use(
+      http.get("*/api/alertas", ({ request }) => {
+        const parametros = new URL(request.url).searchParams;
+        pedidos.push(parametros);
+        const pagina = Number(parametros.get("pagina") ?? 1);
+        const items =
+          parametros.get("estado") === "vista" ? [] : alertasMock.slice(pagina - 1, pagina);
+        return HttpResponse.json({ items, total: 150, pagina, por_pagina: 100 });
+      }),
+    );
+    const usuario = userEvent.setup();
+    renderAgenda("empleado");
+
+    expect(await screen.findByText(/mostrando 1 de 150 alertas/i)).toBeInTheDocument();
+    expect(pedidos[0]?.get("por_pagina")).toBe("100");
+    await usuario.click(screen.getByRole("button", { name: /siguiente/i }));
+    await waitFor(() => {
+      expect(pedidos.some((p) => p.get("pagina") === "2")).toBe(true);
+    });
+  });
+
+  it("RF-074 A3: con alertas vistas sin resolver no dice que está al día y permite verlas", async () => {
+    servidor.use(
+      http.get("*/api/alertas", ({ request }) => {
+        const vistas = new URL(request.url).searchParams.get("estado") === "vista";
+        const items = vistas ? alertasMock.filter((a) => a.estado === "vista") : [];
+        return HttpResponse.json({ items, total: items.length, pagina: 1, por_pagina: 100 });
+      }),
+    );
+    const usuario = userEvent.setup();
+    renderAgenda("empleado");
+
+    expect(await screen.findByText(/tenés 1 alerta vista sin resolver/i)).toBeInTheDocument();
+    expect(screen.queryByText(/estás al día/i)).not.toBeInTheDocument();
+    await usuario.click(screen.getByRole("button", { name: /ver las vistas/i }));
+    expect(await screen.findByText(SALIDA_VISTA)).toBeInTheDocument();
+  });
+
+  it("RF-078 A3: la agenda vacía de la agencia lo dice con un texto de agencia", async () => {
+    servidor.use(http.get("*/api/alertas", sinAlertas));
+    renderAgenda("admin");
+
+    expect(
+      await screen.findByText(/la agencia no tiene alertas pendientes para hoy/i),
+    ).toBeInTheDocument();
+  });
+
+  it("RF-074 las acciones se nombran con la descripción de la alerta", async () => {
+    renderAgenda("empleado");
+    const f = await fila(FORMULARIO);
+
+    for (const accion of ["Resolver", "Posponer", "Marcar como vista"]) {
+      expect(
+        within(f).getByRole("button", { name: `${accion}: ${FORMULARIO}` }),
+      ).toBeInTheDocument();
+    }
+    expect(screen.getByRole("tab", { name: /pendientes/i })).toHaveAttribute(
+      "aria-controls",
+      screen.getByRole("tabpanel").id,
+    );
+  });
+
+  it("RF-074 si falla la consulta de vistas con el switch activo, lo avisa", async () => {
+    servidor.use(
+      http.get("*/api/alertas", ({ request }) =>
+        new URL(request.url).searchParams.get("estado") === "vista"
+          ? problema(500, "Error", "Falla.")
+          : HttpResponse.json({ items: [alertasMock[1]], total: 1, pagina: 1, por_pagina: 100 }),
+      ),
+    );
+    const usuario = userEvent.setup();
+    renderAgenda("empleado");
+    await screen.findByText(FORMULARIO);
+    await usuario.click(screen.getByRole("switch", { name: /mostrar vistas/i }));
+
+    expect(await screen.findByText(/no pudimos cargar las alertas vistas/i)).toBeInTheDocument();
+  });
+
   it("RF-074 A2: si el servidor rechaza resolver con 409, muestra el motivo y conserva la alerta", async () => {
-    vi.useFakeTimers({ shouldAdvanceTime: true });
+    vi.useFakeTimers({ shouldAdvanceTime: true, now: HOY });
     servidor.use(
       http.post("*/api/alertas/:id/resolver", () =>
         problema(409, "Conflicto", "Motivo del conflicto."),
@@ -241,7 +352,7 @@ describe("RF-074 agenda", () => {
 
 describe("RF-076 resolver con deshacer", () => {
   beforeEach(() => {
-    vi.useFakeTimers({ shouldAdvanceTime: true });
+    vi.useFakeTimers({ shouldAdvanceTime: true, now: HOY });
   });
 
   it("RF-076 al resolver avisa «Alerta resuelta» con «Deshacer» y todavía no envía", async () => {
@@ -298,6 +409,16 @@ describe("RF-076 resolver con deshacer", () => {
 });
 
 describe("RF-077 posponer", () => {
+  it("RF-077 la nueva fecha no puede ser anterior al día siguiente a hoy", async () => {
+    const usuario = userEvent.setup();
+    renderAgenda("empleado");
+    const f = await fila(FORMULARIO);
+
+    await usuario.click(within(f).getByRole("button", { name: /posponer/i }));
+
+    expect(await screen.findByLabelText(/nueva fecha/i)).toHaveAttribute("min", "2026-10-26");
+  });
+
   it("RF-077 pide la nueva fecha y envía la reprogramación", async () => {
     const pedidos: Pedido[] = [];
     servidor.use(registrarPost("posponer", pedidos));
@@ -334,6 +455,35 @@ describe("RF-077 posponer", () => {
 });
 
 describe("RF-078 agenda de la agencia", () => {
+  it("RF-078 el filtro «Responsable» pide la agenda de ese asesor", async () => {
+    const pedidos: URLSearchParams[] = [];
+    servidor.use(
+      http.get("*/api/alertas", ({ request }) => {
+        pedidos.push(new URL(request.url).searchParams);
+        return sinAlertas();
+      }),
+    );
+    const usuario = userEvent.setup();
+    renderAgenda("admin");
+    await screen.findByRole("option", { name: "Tomás Roldán" });
+
+    await usuario.selectOptions(
+      screen.getByRole("combobox", { name: /responsable/i }),
+      "Tomás Roldán",
+    );
+
+    await waitFor(() => {
+      expect(pedidos.some((p) => p.get("propietario_id") === asesores[1]?.id)).toBe(true);
+    });
+  });
+
+  it("RF-078 el empleado no tiene el filtro «Responsable»", async () => {
+    renderAgenda("empleado");
+    await screen.findByText(PAGO);
+
+    expect(screen.queryByRole("combobox", { name: /responsable/i })).not.toBeInTheDocument();
+  });
+
   it.each<RolMock>(["admin", "dueno"])(
     "RF-078 %s ve el responsable de cada alerta y el progreso de la agencia",
     async (rol) => {
@@ -350,7 +500,9 @@ describe("RF-078 agenda de la agencia", () => {
   it("RF-078 admin ve las alertas de otro responsable que devuelve el servidor", async () => {
     servidor.use(
       http.get("*/api/alertas", () => {
-        const propias = alertasMock.filter((a) => a.estado === "pendiente" && a.fecha <= "2026-10-25");
+        const propias = alertasMock.filter(
+          (a) => a.estado === "pendiente" && a.fecha <= "2026-10-25",
+        );
         const items = [
           ...propias,
           {

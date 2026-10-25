@@ -1,4 +1,4 @@
-import { ETIQUETA_TIPO_ALERTA, formatearFecha, type Alerta } from "@rumbo/shared";
+import { ETIQUETA_TIPO_ALERTA, formatearFecha, formatearImporte, type Alerta } from "@rumbo/shared";
 import { usePosponerAlerta } from "@rumbo/shared/hooks";
 import type { AxiosInstance } from "axios";
 import { Check, Clock, Eye } from "lucide-react";
@@ -7,22 +7,17 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { mensajeDeError } from "@/lib/errores";
-import { diasDeAtraso } from "./fechas";
+import { diaSiguiente, diasDeAtraso } from "./fechas";
 
-/** Viaje, oportunidad y cliente de la alerta, sin repetir lo que la descripción ya nombra. */
-function lineaDeContexto({ contexto, descripcion }: Alerta): string {
+/** Viaje, oportunidad, cliente y pago de la alerta, como en la pantalla 3 del prototipo. */
+function lineaDeContexto({ contexto }: Alerta): string[] {
   return [
-    contexto.viaje && { prefijo: "Viaje: ", nombre: contexto.viaje.destino },
-    contexto.oportunidad && {
-      prefijo: "Oportunidad: ",
-      nombre: contexto.oportunidad.destino_consultado,
-    },
-    contexto.cliente && { prefijo: "", nombre: contexto.cliente.nombre },
-  ]
-    .flatMap((parte) =>
-      parte && !descripcion.includes(parte.nombre) ? [`${parte.prefijo}${parte.nombre}`] : [],
-    )
-    .join(" · ");
+    contexto.viaje && `Viaje: ${contexto.viaje.destino}`,
+    contexto.oportunidad && `Oportunidad: ${contexto.oportunidad.destino_consultado}`,
+    contexto.cliente?.nombre,
+    contexto.pago &&
+      `${formatearImporte(contexto.pago.monto, contexto.pago.moneda)} · vence ${formatearFecha(contexto.pago.vencimiento)}`,
+  ].flatMap((parte) => (parte ? [parte] : []));
 }
 
 function Plazo({ fecha, hoy }: { fecha: string; hoy: string }) {
@@ -40,10 +35,12 @@ function Plazo({ fecha, hoy }: { fecha: string; hoy: string }) {
 function FormularioPosponer({
   cliente,
   alerta,
+  hoy,
   alCerrar,
 }: {
   cliente: AxiosInstance;
   alerta: Alerta;
+  hoy: string;
   alCerrar: () => void;
 }) {
   const [fecha, setFecha] = useState("");
@@ -61,6 +58,7 @@ function FormularioPosponer({
         <Input
           id={`posponer-${alerta.id}`}
           type="date"
+          min={diaSiguiente(alerta.fecha > hoy ? alerta.fecha : hoy)}
           required
           className="h-9 w-44"
           value={fecha}
@@ -95,6 +93,7 @@ export function FilaAlerta({
   mostrarResponsable,
   alResolver,
   alMarcarVista,
+  marcandoVista,
 }: {
   cliente: AxiosInstance;
   alerta: Alerta;
@@ -102,12 +101,14 @@ export function FilaAlerta({
   mostrarResponsable: boolean;
   alResolver: () => void;
   alMarcarVista: () => void;
+  marcandoVista: boolean;
 }) {
   const [posponiendo, setPosponiendo] = useState(false);
   const esPago = alerta.tipo === "pago";
-  const detalle = [lineaDeContexto(alerta), mostrarResponsable && alerta.responsable.nombre]
+  const detalle = [...lineaDeContexto(alerta), mostrarResponsable && alerta.responsable.nombre]
     .filter(Boolean)
     .join(" · ");
+  const sobre = (accion: string) => `${accion}: ${alerta.descripcion}`;
   return (
     <li className="rounded-xl px-3 py-3 hover:bg-muted/50">
       <div className="flex items-center justify-between gap-3">
@@ -124,29 +125,32 @@ export function FilaAlerta({
         <div className="flex shrink-0 items-center gap-2">
           <Plazo fecha={alerta.fecha} hoy={hoy} />
           {!esPago && (
-            <Button size="sm" variant="outline" aria-label="Resolver" onClick={alResolver}>
+            <Button size="sm" variant="outline" aria-label={sobre("Resolver")} onClick={alResolver}>
               <Check aria-hidden="true" />
             </Button>
           )}
-          <Button
-            size="sm"
-            variant="outline"
-            aria-label="Posponer"
-            onClick={() => {
-              setPosponiendo(true);
-            }}
-          >
-            <Clock aria-hidden="true" />
-          </Button>
           {alerta.estado === "pendiente" && (
-            <Button
-              size="sm"
-              variant="ghost"
-              aria-label="Marcar como vista"
-              onClick={alMarcarVista}
-            >
-              <Eye aria-hidden="true" />
-            </Button>
+            <>
+              <Button
+                size="sm"
+                variant="outline"
+                aria-label={sobre("Posponer")}
+                onClick={() => {
+                  setPosponiendo(true);
+                }}
+              >
+                <Clock aria-hidden="true" />
+              </Button>
+              <Button
+                size="sm"
+                variant="ghost"
+                aria-label={sobre("Marcar como vista")}
+                disabled={marcandoVista}
+                onClick={alMarcarVista}
+              >
+                <Eye aria-hidden="true" />
+              </Button>
+            </>
           )}
         </div>
       </div>
@@ -154,6 +158,7 @@ export function FilaAlerta({
         <FormularioPosponer
           cliente={cliente}
           alerta={alerta}
+          hoy={hoy}
           alCerrar={() => {
             setPosponiendo(false);
           }}

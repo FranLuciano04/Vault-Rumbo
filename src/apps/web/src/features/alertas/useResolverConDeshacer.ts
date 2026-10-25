@@ -62,6 +62,9 @@ export function useResolverConDeshacer(cliente: AxiosInstance) {
     /** Las alertas resueltas que la lista no tiene que mostrar (esperando o recién enviadas). */
     resueltas,
     error,
+    limpiarError: () => {
+      setError(null);
+    },
     resolver: (alerta: Alerta) => {
       setError(null);
       setResueltas((actuales) => [...actuales, { alerta, enviada: false }]);

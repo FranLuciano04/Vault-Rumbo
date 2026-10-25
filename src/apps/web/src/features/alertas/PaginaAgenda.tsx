@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { mensajeDeError } from "@/lib/errores";
 import { cn } from "@/lib/utils";
 import { hoyEnBuenosAires } from "./fechas";
+import { FiltroResponsable } from "./FiltroResponsable";
 import { FilaAlerta } from "./FilaAlerta";
 import { useResolverConDeshacer } from "./useResolverConDeshacer";
 
@@ -19,12 +20,15 @@ const TIPOS = Object.keys(ETIQUETA_TIPO_ALERTA) as TipoAlerta[];
 
 const porFecha = (a: Alerta, b: Alerta) => a.fecha.localeCompare(b.fecha);
 
+const POR_PAGINA = 100;
+
 interface AccionesDeLista {
   cliente: AxiosInstance;
   hoy: string;
   mostrarResponsable: boolean;
   alResolver: (alerta: Alerta) => void;
   alMarcarVista: (alerta: Alerta) => void;
+  marcandoVista: boolean;
 }
 
 function ListaDeAlertas({
@@ -76,13 +80,32 @@ export function PaginaAgenda({
   const [proximas, setProximas] = useState(false);
   const [mostrarVistas, setMostrarVistas] = useState(false);
   const [tipo, setTipo] = useState<TipoAlerta | "">("");
-  const filtros = { ...(tipo && { tipo }), ...(proximas && { proximas }) };
+  const [responsable, setResponsable] = useState("");
+  const [pagina, setPagina] = useState(1);
+  const filtros = {
+    por_pagina: POR_PAGINA,
+    pagina,
+    ...(tipo && { tipo }),
+    ...(responsable && { propietario_id: responsable }),
+    ...(proximas && { proximas }),
+  };
+  // Todo cambio de filtro vuelve a la primera página.
+  const filtrar = (cambio: () => void) => {
+    cambio();
+    setPagina(1);
+  };
 
   const pendientes = useAlertas(cliente, filtros);
   const vistas = useAlertas(cliente, { ...filtros, estado: "vista" });
   const progreso = useProgresoDelDia(cliente);
   const marcarVista = useMarcarAlertaVista(cliente);
-  const { resueltas, error: errorAlResolver, resolver, deshacer } = useResolverConDeshacer(cliente);
+  const {
+    resueltas,
+    error: errorAlResolver,
+    limpiarError,
+    resolver,
+    deshacer,
+  } = useResolverConDeshacer(cliente);
 
   const porcentaje = progreso.data?.total_del_dia
     ? (progreso.data.resueltas_hoy / progreso.data.total_del_dia) * 100
@@ -103,11 +126,17 @@ export function PaginaAgenda({
     mostrarResponsable: esDeAgencia,
     alResolver: resolver,
     alMarcarVista: (alerta) => {
-      marcarVista.mutate(alerta.id);
+      marcarVista.mutate(alerta.id, { onSuccess: limpiarError });
     },
+    marcandoVista: marcarVista.isPending,
   };
   const errorAccion =
     errorAlResolver ?? (marcarVista.isError ? mensajeDeError(marcarVista.error) : null);
+  const ultimaPagina = pendientes.data
+    ? Math.max(1, Math.ceil(pendientes.data.total / pendientes.data.por_pagina))
+    : 1;
+  const sinResolver = vistas.data?.total ?? 0;
+  const hayVistas = !mostrarVistas && sinResolver > 0;
 
   return (
     <div className="flex flex-col gap-4">
@@ -151,11 +180,15 @@ export function PaginaAgenda({
           ].map(({ etiqueta, esProximas }) => (
             <Button
               key={etiqueta}
+              id={`pestana-${etiqueta}`}
               role="tab"
+              aria-controls="panel-agenda"
               aria-selected={proximas === esProximas}
               variant={proximas === esProximas ? "default" : "ghost"}
               onClick={() => {
-                setProximas(esProximas);
+                filtrar(() => {
+                  setProximas(esProximas);
+                });
               }}
             >
               {etiqueta}
@@ -194,7 +227,9 @@ export function PaginaAgenda({
             className="h-9 rounded-md border border-input bg-background px-3 text-sm"
             value={tipo}
             onChange={(e) => {
-              setTipo(e.target.value as TipoAlerta | "");
+              filtrar(() => {
+                setTipo(e.target.value as TipoAlerta | "");
+              });
             }}
           >
             <option value="">Tipo: todos</option>
@@ -204,6 +239,17 @@ export function PaginaAgenda({
               </option>
             ))}
           </select>
+          {esDeAgencia && (
+            <FiltroResponsable
+              cliente={cliente}
+              valor={responsable}
+              alCambiar={(id) => {
+                filtrar(() => {
+                  setResponsable(id);
+                });
+              }}
+            />
+          )}
         </div>
       </div>
 
@@ -212,62 +258,117 @@ export function PaginaAgenda({
           {errorAccion}
         </p>
       )}
+      {mostrarVistas && vistas.isError && (
+        <p role="alert">No pudimos cargar las alertas vistas. Probá de nuevo en unos minutos.</p>
+      )}
       {pendientes.isPending && <p role="status">Cargando alertas…</p>}
       {pendientes.isError && (
         <p role="alert">No pudimos cargar las alertas. Probá de nuevo en unos minutos.</p>
       )}
 
-      {pendientes.data && alertas.length === 0 && (
-        <div role="status" className="rounded-2xl border bg-card p-8 text-center">
-          <h2 className="text-lg font-semibold">
-            {proximas ? "No hay alertas próximas" : "¡Estás al día!"}
-          </h2>
-          {!proximas && (
-            <>
-              <p className="mt-1 text-sm text-muted-foreground">
-                No tenés alertas pendientes para hoy. Podés adelantar trabajo o dejar un
-                recordatorio.
-              </p>
-              <div className="mt-4 flex justify-center gap-2">
-                <Button
-                  onClick={() => {
-                    setProximas(true);
-                  }}
-                >
-                  Adelantar próximas
-                </Button>
-                {/* El alta del recordatorio la trae T-056. */}
-                <Button variant="outline" disabled>
-                  Crear recordatorio
-                </Button>
-              </div>
-            </>
-          )}
-        </div>
-      )}
+      <div
+        id="panel-agenda"
+        role="tabpanel"
+        aria-labelledby={proximas ? "pestana-Próximas" : "pestana-Pendientes"}
+        className="flex flex-col gap-4"
+      >
+        {pendientes.data && vistas.data && alertas.length === 0 && (
+          <div role="status" className="rounded-2xl border bg-card p-8 text-center">
+            <h2 className="text-lg font-semibold">
+              {proximas
+                ? "No hay alertas próximas"
+                : hayVistas
+                  ? "No hay alertas nuevas"
+                  : "¡Estás al día!"}
+            </h2>
+            {!proximas && (
+              <>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  {hayVistas
+                    ? `Tenés ${String(sinResolver)} ${sinResolver === 1 ? "alerta vista" : "alertas vistas"} sin resolver.`
+                    : esDeAgencia
+                      ? "La agencia no tiene alertas pendientes para hoy."
+                      : "No tenés alertas pendientes para hoy. Podés adelantar trabajo o dejar un recordatorio."}
+                </p>
+                <div className="mt-4 flex justify-center gap-2">
+                  {hayVistas && (
+                    <Button
+                      onClick={() => {
+                        setMostrarVistas(true);
+                      }}
+                    >
+                      Ver las vistas
+                    </Button>
+                  )}
+                  <Button
+                    onClick={() => {
+                      setProximas(true);
+                    }}
+                  >
+                    Adelantar próximas
+                  </Button>
+                  {/* El alta del recordatorio la trae T-056. */}
+                  <Button variant="outline" disabled>
+                    Crear recordatorio
+                  </Button>
+                </div>
+              </>
+            )}
+          </div>
+        )}
 
-      {alertas.length > 0 && (
-        <div className="rounded-2xl border bg-card p-2">
-          {proximas ? (
-            <ListaDeAlertas alertas={alertas} {...acciones} />
-          ) : (
-            <>
-              {atrasadas.length > 0 && (
+        {alertas.length > 0 && (
+          <div className="rounded-2xl border bg-card p-2">
+            {proximas ? (
+              <ListaDeAlertas alertas={alertas} {...acciones} />
+            ) : (
+              <>
+                {atrasadas.length > 0 && (
+                  <ListaDeAlertas
+                    titulo={`Atrasadas · ${String(atrasadas.length)}`}
+                    alertas={atrasadas}
+                    {...acciones}
+                  />
+                )}
                 <ListaDeAlertas
-                  titulo={`Atrasadas · ${String(atrasadas.length)}`}
-                  alertas={atrasadas}
+                  titulo={`Hoy · ${String(deHoy.length)}`}
+                  alertas={deHoy}
                   {...acciones}
                 />
-              )}
-              <ListaDeAlertas
-                titulo={`Para hoy · ${String(deHoy.length)}`}
-                alertas={deHoy}
-                {...acciones}
-              />
-            </>
-          )}
-        </div>
-      )}
+              </>
+            )}
+          </div>
+        )}
+
+        {ultimaPagina > 1 && (
+          <div className="flex items-center justify-between text-sm text-muted-foreground">
+            <span>
+              Página {pagina} de {ultimaPagina}: mostrando {pendientes.data?.items.length} de{" "}
+              {pendientes.data?.total} alertas
+            </span>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                disabled={pagina <= 1}
+                onClick={() => {
+                  setPagina(pagina - 1);
+                }}
+              >
+                Anterior
+              </Button>
+              <Button
+                variant="outline"
+                disabled={pagina >= ultimaPagina}
+                onClick={() => {
+                  setPagina(pagina + 1);
+                }}
+              >
+                Siguiente
+              </Button>
+            </div>
+          </div>
+        )}
+      </div>
 
       <div
         aria-live="polite"
@@ -289,6 +390,7 @@ export function PaginaAgenda({
                 size="sm"
                 variant="outline"
                 className="text-foreground"
+                aria-label={`Deshacer: ${alerta.descripcion}`}
                 onClick={() => {
                   deshacer(alerta.id);
                 }}
