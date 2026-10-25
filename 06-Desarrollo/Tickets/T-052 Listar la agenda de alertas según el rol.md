@@ -3,7 +3,7 @@ id: T-052
 titulo: Listar la agenda de alertas según el rol
 modulo: M3 — Alertas
 capa: backend
-estado: libre
+estado: tomado
 depende_de: [T-050, T-051]
 tamaño: M
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [CU-14, RF-074, RF-075, RF-078, RF-154]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: FranLucianoo
+tomado_el: 25/10/26 15:27
+rama: feature/T-052-listar-la-agenda-de-alertas-segun-el-rol
 pr:
 ---
 # T-052 Listar la agenda de alertas según el rol
