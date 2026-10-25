@@ -48,9 +48,20 @@ export function ListaClientes() {
 
   return (
     <View testID="pantalla-clientes" className="flex-1 bg-white px-4 pt-12">
-      <Text role="heading" className="mb-3 text-xl font-bold text-primary">
-        Clientes
-      </Text>
+      <View className="mb-3 flex-row items-center justify-between">
+        <Text role="heading" className="text-xl font-bold text-primary">
+          Clientes
+        </Text>
+        <Pressable
+          role="button"
+          onPress={() => {
+            router.push("/clientes/nuevo");
+          }}
+          className="rounded-xl bg-primary px-4 py-2"
+        >
+          <Text className="font-semibold text-primary-foreground">Nuevo cliente</Text>
+        </Pressable>
+      </View>
       <TextInput
         accessibilityLabel="Buscar cliente"
         placeholder="Buscar por nombre, contacto o etiqueta"

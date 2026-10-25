@@ -1,9 +1,10 @@
 import { ETIQUETA_SEGMENTO, ErrorApi, enlaceLlamada, normalizarTelefonoAR } from "@rumbo/shared";
 import { useCliente } from "@rumbo/shared/hooks";
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { useLocalSearchParams } from "expo-router";
 import { Linking, Pressable, ScrollView, Text, View } from "react-native";
 import { cliente } from "../../cliente";
 import { HistorialClienteMobile } from "./HistorialClienteMobile";
+import { VolverAClientes } from "./VolverAClientes";
 
 function BotonContacto({ titulo, destino }: { titulo: string; destino: string }) {
   return (
@@ -32,22 +33,6 @@ function AccionesContacto({ contacto }: { contacto: string }) {
   );
 }
 
-function Volver() {
-  const router = useRouter();
-  return (
-    <Pressable
-      role="button"
-      accessibilityLabel="Volver"
-      onPress={() => {
-        if (router.canGoBack()) router.back();
-        else router.replace("/clientes");
-      }}
-    >
-      <Text className="text-primary">‹ Clientes</Text>
-    </Pressable>
-  );
-}
-
 /** Ficha del cliente para el teléfono (RF-006, CU-03): datos, acciones de contacto e historial. */
 export function FichaClienteMobile() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -56,7 +41,7 @@ export function FichaClienteMobile() {
   if (isPending)
     return (
       <View className="flex-1 gap-4 bg-white p-6 pt-12">
-        <Volver />
+        <VolverAClientes />
         <Text role="status">Cargando…</Text>
       </View>
     );
@@ -64,7 +49,7 @@ export function FichaClienteMobile() {
     const noEncontrado = error instanceof ErrorApi && error.status === 404;
     return (
       <View className="flex-1 gap-4 bg-white p-6 pt-12">
-        <Volver />
+        <VolverAClientes />
         <Text role={noEncontrado ? "heading" : "alert"}>
           {noEncontrado
             ? "Cliente no encontrado."
@@ -80,7 +65,7 @@ export function FichaClienteMobile() {
       className="flex-1 bg-white"
       contentContainerClassName="gap-5 p-4 pt-12"
     >
-      <Volver />
+      <VolverAClientes />
       <View className="gap-1">
         <Text role="heading" className="text-2xl font-bold">
           {ficha.nombre}
