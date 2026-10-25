@@ -57,3 +57,4 @@ Desde la agenda (o desde un cliente, oportunidad o viaje) se crea un recordatori
   - Importantes: faltaba asociar desde la agenda, no se manejaba el foco y no había test de la ficha.
   - Menores: el 404 técnico y la falta de aviso al guardar.
 - **Modelos:** sonnet en tests, implementación y refactor; opus en la review. No hubo escalados.
+- **Falla arreglada (DEC-0019):** el e2e «RF-140 la dueña inicia sesión» buscaba el nombre en toda la página con `getByText` y era frágil. Desde T-055, ese nombre también aparece en el filtro «Responsable» de la agenda. En T-055 pasó solo porque la lista todavía no había cargado; en este PR falló. Ahora el e2e busca el nombre y el rol dentro del `banner` del Shell.

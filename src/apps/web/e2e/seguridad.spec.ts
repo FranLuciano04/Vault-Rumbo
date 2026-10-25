@@ -14,8 +14,8 @@ test.describe("CU-24 Iniciar sesión", () => {
 
     // Tras entrar, la raíz redirige a la primera sección del rol (agenda).
     await expect(page).toHaveURL(/\/agenda$/);
-    await expect(page.getByText(DUENA.nombre)).toBeVisible();
-    await expect(page.getByText("Dueño", { exact: true })).toBeVisible();
+    await expect(page.getByRole("banner").getByText(DUENA.nombre)).toBeVisible();
+    await expect(page.getByRole("banner").getByText("Dueño", { exact: true })).toBeVisible();
     await expect(page.getByRole("button", { name: "Cerrar sesión" })).toBeVisible();
   });
 
