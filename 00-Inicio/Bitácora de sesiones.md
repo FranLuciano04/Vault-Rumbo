@@ -83,7 +83,16 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
   - Review (opus): 0 bloqueantes, 0 importantes y 6 menores, de los que se arreglaron 5.
   - Backend: 1134 tests, con 96,93 % de cobertura.
   - Commits: 1fdfaba, c7fbacd, eb5c56e, a599825 y 3131a11.
-- **Pendiente:** seguir con M3. Quedan libres T-054 (recordatorios manuales) y las pantallas T-055 (web) y T-057 (mobile).
+- **T-054** (PR [#82](https://github.com/FranLuciano04/Vault-Rumbo/pull/82), mergeado con el CI en verde): recordatorios manuales.
+  - Un recordatorio se asocia a un registro que la persona puede ver; si no lo ve, da 404.
+  - Solo se edita un recordatorio `manual` y `pendiente`, y solo lo edita su propietario.
+  - **Decisión de Francisco, registrada como enmienda de DEC-0005:** admin y dueña *atienden* las alertas ajenas (vista, resolver, posponer), pero no *editan* el texto ni la fecha de un recordatorio ajeno (403).
+  - `resolver_de_origen` ya no cierra los recordatorios `manual` (RN-08).
+  - Review (opus): 0 bloqueantes, 2 importantes y 4 menores, todos arreglados.
+  - Backend: 1160 tests, con 96,95 % de cobertura.
+  - Commits: 87741a2, c4d5b1e, d7ace0b y 38e94cf.
+- **El backend de M3 quedó completo:** ya no queda ninguna ruta de alertas en 501.
+- **Pendiente:** las pantallas de M3: T-055 (web), T-057 (mobile), T-056, T-058 y T-059. Después, el e2e T-060 y `/cerrar-modulo M3`.
 
 ## 25/10/26 — Francisco (Claude Opus 5.5) — tres decisiones abiertas cerradas y dos arreglos
 - **Decisiones** (commit 15abf2d):
