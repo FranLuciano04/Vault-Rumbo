@@ -24,6 +24,12 @@ La **persona** de cada sesión es quien la corre, identificada por su identidad 
 ## Avisos pendientes por persona
 > Claude los lee al identificar a la persona (paso 1 de `CLAUDE.md`) y se los cuenta **apenas la saluda**, antes de cualquier otra tarea. Cuando la persona confirme que lo leyó o que lo hizo, **Claude borra su fila** en esa misma sesión, con un commit. Cuando no quede ninguna fila de alguien, se borra también su sección.
 
+### Paloma (`palomap2003`) y Nahuel (`Nahuel Viniegra`) — aprobar el PR #76
+- **25/10, de Francisco: el PR [#76](https://github.com/FranLuciano04/Vault-Rumbo/pull/76) necesita la aprobación de uno de los dos** (⚠️ riesgo alto, permisos). Protege a la última `dueño` activa: quitarle el rol o darla de baja responde 409, igual que con el último admin (CU-25 A5, decidido el 25/10).
+  - Como solo una `dueño` puede crear o asignar a otra, si no quedara ninguna nadie podría volver a crearla.
+  - La review de seguridad no encontró bloqueantes. El CI está en verde.
+  - Cuando lo aprueben, Francisco lo mergea.
+
 ### Nahuel (`Nahuel Viniegra`) — cerrar M1 y M2 con la review de Codex
 - **25/10, de Francisco: M1 y M2 tienen todos sus tickets hechos y mergeados** (`tickets.mjs modulo M1` y `modulo M2` dan ✅). Falta el cierre formal, que hacés vos porque te encargás de las reviews con Codex:
   - Correr `/cerrar-modulo M1` y `/cerrar-modulo M2`, que arman el pedido de review para Codex.
@@ -57,6 +63,21 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Commits:** <hash>, <hash>
 - **Pendiente:** …
 ```
+
+## 25/10/26 — Francisco (Claude Opus 5.5) — tres decisiones abiertas cerradas y dos arreglos
+- **Decisiones** (commit 15abf2d):
+  1. **CU-25 A5:** se protege a la última `dueño` activa.
+  2. **[[DEC-0020 Cliente traído por dos asesores|DEC-0020]]** (formalizada): si dos asesores traen al mismo cliente, cada uno conserva su registro y la dueña o un admin reasigna el asesor. No cambia el código.
+  3. **CU-02 A1:** si se edita el formulario después del aviso de duplicado, hay que volver a chequear.
+- **`fix/ultima-duena`** (PR [#76](https://github.com/FranLuciano04/Vault-Rumbo/pull/76), ⚠️ riesgo alto, **espera la aprobación de Paloma o Nahuel**): el 409 cubre al último admin y a la última dueña. Admins y dueñas activos se bloquean en una sola consulta ordenada por id.
+  - La review de seguridad (sonnet) no encontró bloqueantes ni importantes.
+  - Backend: 961 tests en verde, con 96,47 % de cobertura. El CI está en verde.
+  - Commits: d98af10, 241e8b5 y 59332e6.
+- **`fix/duplicado-tras-editar`** (PR [#77](https://github.com/FranLuciano04/Vault-Rumbo/pull/77), mergeado con el CI en verde): en la web y en mobile, cualquier edición después del aviso lo oculta.
+  - La review (opus) encontró un hallazgo importante: un 409 que llegaba después de editar con el alta en vuelo mostraba el aviso viejo. Se arregló con un contador de ediciones.
+  - Web: 303 tests, con 95,37 % de cobertura. Mobile: 95 tests, con 97,14 %.
+  - Commits: 0912f48, 3f4a103, d1b63b1 y 48b0b58 (merge).
+- **Pendiente:** mergear el #76 cuando lo aprueben y seguir con M3.
 
 ## 25/10/26 — Francisco (Claude Opus 5.5) — T-048: alta de clientes en mobile; repo público
 - **Hecho:** T-048 (PR [#75](https://github.com/FranLuciano04/Vault-Rumbo/pull/75), mergeado con el CI en verde). **M2 queda completo y listo para `/cerrar-modulo`.**

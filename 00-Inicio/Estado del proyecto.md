@@ -39,9 +39,9 @@ actualizado: 13/10/26
 > 👉 **25/10 (Francisco):** **T-048** (alta de clientes en la app mobile) está hecho y mergeado (PR [#75](https://github.com/FranLuciano04/Vault-Rumbo/pull/75)). **M2 tiene todos sus tickets hechos y queda listo para `/cerrar-modulo`** (review de Codex y tag `mod-2`). ⚠️ **El repo pasó a público el 25/10:** GitHub Actions se cortó por el límite de gasto del plan Free, y en los repos públicos los minutos son ilimitados. Antes se escaneó todo el historial (gitleaks y trufflehog, incluidas las ramas de los PR) y no hay secretos. Quedan públicos los nombres y emails del equipo, y los links de Drive (PC1) y Figma. Francisco ya revisó esos permisos y avisó a la agencia, al equipo y a la cátedra.
 >
 > 👉 **25/10 (Francisco): se cerraron tres decisiones abiertas.**
-> 1. **CU-25 A5:** no se le puede quitar el rol a la última `dueño` activa ni darla de baja (409), igual que con el último admin. Se arregla en la rama `fix/ultima-duena`. Es de ⚠️ riesgo alto y necesita la aprobación de otro integrante.
+> 1. **CU-25 A5:** no se le puede quitar el rol a la última `dueño` activa ni darla de baja (409), igual que con el último admin. PR [#76](https://github.com/FranLuciano04/Vault-Rumbo/pull/76), de ⚠️ riesgo alto: espera la aprobación de Paloma o Nahuel.
 > 2. **[[DEC-0020 Cliente traído por dos asesores|DEC-0020]]:** si dos asesores traen al mismo cliente, cada uno conserva su registro y la dueña o un admin reasigna el asesor. No hay cambios de código.
-> 3. **CU-02 A1:** si se edita el formulario después del aviso de duplicado, el aviso se oculta y hay que volver a «Registrar cliente». Se arregla en la rama `fix/duplicado-tras-editar`, para la web y la app.
+> 3. **CU-02 A1:** si se edita el formulario después del aviso de duplicado, el aviso se oculta y hay que volver a «Registrar cliente». Arreglado en la web y en mobile (PR [#77](https://github.com/FranLuciano04/Vault-Rumbo/pull/77), mergeado).
 >
 > 👉 **24/10 (Francisco):** **T-049** (e2e de clientes y semilla de demo) está hecho y mergeado (PR [#71](https://github.com/FranLuciano04/Vault-Rumbo/pull/71)). Destraba 6 tickets. `datos-iniciales --demo` ahora carga 4 clientes ficticios. Se arregló de paso (DEC-0019) que la web reintentaba los 4xx de la API. **A M2 le faltan T-047 y T-048 (mobile)** para pasar a la review de Codex.
 >
