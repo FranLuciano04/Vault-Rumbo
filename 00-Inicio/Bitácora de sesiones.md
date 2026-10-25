@@ -110,7 +110,16 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
   - **Falla arreglada (DEC-0019):** el e2e de login era frágil (`getByText` del nombre en toda la página) y falló por el filtro «Responsable» de T-055. Ahora busca dentro del `banner`.
   - Web: 368 tests.
   - Commits: 6494872, 8867bca, 76db10c, aae5226, el del e2e y e2d8ca9.
-- **Pendiente:** T-057 (agenda en mobile), T-058 y T-059. Después, el e2e T-060 y `/cerrar-modulo M3`.
+- **T-057** (PR [#85](https://github.com/FranLuciano04/Vault-Rumbo/pull/85), mergeado con el CI en verde): la agenda en mobile.
+  - Muestra las secciones Atrasadas y Hoy con el contexto de cada alerta, y el progreso del día.
+  - La lista se carga de a páginas (`useAlertasPorPaginas`, con «Ver más»).
+  - Resolver tiene «Deshacer», y la resolución se envía igual si la app pasa a segundo plano.
+  - Admin y dueña ven toda la agencia, con el responsable de cada alerta. Tiene accesibilidad en Android e iOS.
+  - La lógica que comparte con la web pasó a `@rumbo/shared`.
+  - Review (opus) en dos rondas. La primera encontró 1 bloqueante: la lista se cortaba a las 100 alertas, como en la web. La segunda encontró 1 importante: una carrera de «Ver más» con la recarga. Las dos quedaron arregladas.
+  - Mobile: 125 tests, con 97,71 % de cobertura.
+  - Commits: d6f4a64, edb11b9, b303b81, 835ad2e, 8681deb y 6f3dba0.
+- **Pendiente:** T-058 (posponer desde el detalle en mobile), T-059 (recordatorio en mobile) y el e2e T-060. Después, `/cerrar-modulo M3`.
 
 ## 25/10/26 — Francisco (Claude Opus 5.5) — tres decisiones abiertas cerradas y dos arreglos
 - **Decisiones** (commit 15abf2d):
