@@ -4,3 +4,5 @@ export * from "./modelos";
 export * from "./etiquetas";
 export * from "./formato";
 export * from "./telefono";
+export * from "./alertas";
+export * from "./errores";

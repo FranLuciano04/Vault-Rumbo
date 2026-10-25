@@ -1,5 +1,6 @@
 import {
   ETIQUETA_TIPO_ALERTA,
+  hoyEnBuenosAires,
   type Alerta,
   type TipoAlerta,
   type UsuarioActual,
@@ -12,7 +13,6 @@ import { Button } from "@/components/ui/button";
 import { mensajeDeError } from "@/lib/errores";
 import { useVolverFoco } from "@/lib/useVolverFoco";
 import { cn } from "@/lib/utils";
-import { hoyEnBuenosAires } from "./fechas";
 import { FiltroResponsable } from "./FiltroResponsable";
 import { FilaAlerta } from "./FilaAlerta";
 import { FormularioRecordatorio } from "./FormularioRecordatorio";
