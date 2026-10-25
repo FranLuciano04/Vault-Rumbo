@@ -2983,6 +2983,16 @@
               }
             }
           },
+          "404": {
+            "description": "No existe.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
           "422": {
             "description": "Datos inválidos.",
             "content": {
