@@ -22,6 +22,10 @@ OPERACIONES: list[tuple[str, str, dict[str, Any] | None]] = [
     ("post", f"/api/alertas/{ID}/resolver", None),
     ("post", f"/api/alertas/{ID}/posponer", {"fecha": "2026-12-01"}),
 ]
+# Las que todavía responden 501 (las de lectura de la agenda se implementaron en T-052).
+OPERACIONES_STUB = [
+    op for op in OPERACIONES if op[0] != "get" or op[1] == "/api/alertas/progreso-del-dia"
+]
 RUTAS_CONTRATO = [
     ("get", "/api/alertas"),
     ("post", "/api/alertas"),
@@ -223,7 +227,7 @@ async def test_rf155_sin_token_responde_401_problem_json(
 
 
 @pytest.mark.parametrize("rol", ROLES)
-@pytest.mark.parametrize(("metodo", "ruta", "cuerpo"), OPERACIONES)
+@pytest.mark.parametrize(("metodo", "ruta", "cuerpo"), OPERACIONES_STUB)
 async def test_rf155_con_token_de_cualquier_rol_responde_501_problem_json(
     cliente_como: FabricaCliente,
     rol: str,
@@ -240,7 +244,7 @@ async def test_rf155_con_token_de_cualquier_rol_responde_501_problem_json(
     assert r.json()["status"] == 501
 
 
-async def test_cu14_listar_con_filtros_validos_llega_al_501(cliente_como: FabricaCliente) -> None:
+async def test_cu14_listar_con_filtros_validos_responde_200(cliente_como: FabricaCliente) -> None:
     c = await cliente_como("empleado")
 
     r = await c.get(
@@ -256,7 +260,8 @@ async def test_cu14_listar_con_filtros_validos_llega_al_501(cliente_como: Fabric
         },
     )
 
-    assert r.status_code == 501
+    assert r.status_code == 200
+    assert r.json()["items"] == []
 
 
 @pytest.mark.parametrize(
