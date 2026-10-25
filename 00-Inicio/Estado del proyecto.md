@@ -38,10 +38,12 @@ actualizado: 13/10/26
 >
 > 👉 **25/10 (Francisco):** **T-048** (alta de clientes en la app mobile) está hecho y mergeado (PR [#75](https://github.com/FranLuciano04/Vault-Rumbo/pull/75)). **M2 tiene todos sus tickets hechos y queda listo para `/cerrar-modulo`** (review de Codex y tag `mod-2`). ⚠️ **El repo pasó a público el 25/10:** GitHub Actions se cortó por el límite de gasto del plan Free, y en los repos públicos los minutos son ilimitados. Antes se escaneó todo el historial (gitleaks y trufflehog, incluidas las ramas de los PR) y no hay secretos. Quedan públicos los nombres y emails del equipo, y los links de Drive (PC1) y Figma. Francisco ya revisó esos permisos y avisó a la agencia, al equipo y a la cátedra.
 >
+> 👉 **25/10 (Francisco):** **T-050** (contrato de alertas, PR [#79](https://github.com/FranLuciano04/Vault-Rumbo/pull/79)) y **T-052** (agenda según el rol, PR [#80](https://github.com/FranLuciano04/Vault-Rumbo/pull/80)) están hechos y mergeados. La agenda trae el responsable y el contexto del origen, filtrados por visibilidad. Admin y dueña ven por defecto toda la agencia (CU-14 A1). Quedan libres T-053, T-054 y las pantallas T-055 y T-057. ✅ El PR #76 (la última dueña) ya lo mergeó Nahuel.
+>
 > 👉 **25/10 (Francisco):** **T-051** (servicio de alertas para los demás módulos) está hecho y mergeado (PR [#78](https://github.com/FranLuciano04/Vault-Rumbo/pull/78)). Destraba 26 tickets. Los cierres automáticos de M4, M5 y M6 usan `resolver_de_origen` y `reabrir_de_origen`, con filtro por tipo y marca de cancelación.
 >
 > 👉 **25/10 (Francisco): se cerraron tres decisiones abiertas.**
-> 1. **CU-25 A5:** no se le puede quitar el rol a la última `dueño` activa ni darla de baja (409), igual que con el último admin. PR [#76](https://github.com/FranLuciano04/Vault-Rumbo/pull/76), de ⚠️ riesgo alto: espera la aprobación de Paloma o Nahuel.
+> 1. **CU-25 A5:** no se le puede quitar el rol a la última `dueño` activa ni darla de baja (409), igual que con el último admin. PR [#76](https://github.com/FranLuciano04/Vault-Rumbo/pull/76), ✅ aprobado y mergeado por Nahuel.
 > 2. **[[DEC-0020 Cliente traído por dos asesores|DEC-0020]]:** si dos asesores traen al mismo cliente, cada uno conserva su registro y la dueña o un admin reasigna el asesor. No hay cambios de código.
 > 3. **CU-02 A1:** si se edita el formulario después del aviso de duplicado, el aviso se oculta y hay que volver a «Registrar cliente». Arreglado en la web y en mobile (PR [#77](https://github.com/FranLuciano04/Vault-Rumbo/pull/77), mergeado).
 >

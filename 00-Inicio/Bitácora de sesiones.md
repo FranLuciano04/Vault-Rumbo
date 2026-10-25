@@ -24,12 +24,6 @@ La **persona** de cada sesión es quien la corre, identificada por su identidad 
 ## Avisos pendientes por persona
 > Claude los lee al identificar a la persona (paso 1 de `CLAUDE.md`) y se los cuenta **apenas la saluda**, antes de cualquier otra tarea. Cuando la persona confirme que lo leyó o que lo hizo, **Claude borra su fila** en esa misma sesión, con un commit. Cuando no quede ninguna fila de alguien, se borra también su sección.
 
-### Paloma (`palomap2003`) y Nahuel (`Nahuel Viniegra`) — aprobar el PR #76
-- **25/10, de Francisco: el PR [#76](https://github.com/FranLuciano04/Vault-Rumbo/pull/76) necesita la aprobación de uno de los dos** (⚠️ riesgo alto, permisos). Protege a la última `dueño` activa: quitarle el rol o darla de baja responde 409, igual que con el último admin (CU-25 A5, decidido el 25/10).
-  - Como solo una `dueño` puede crear o asignar a otra, si no quedara ninguna nadie podría volver a crearla.
-  - La review de seguridad no encontró bloqueantes. El CI está en verde.
-  - Cuando lo aprueben, Francisco lo mergea.
-
 ### Nahuel (`Nahuel Viniegra`) — cerrar M1 y M2 con la review de Codex
 - **25/10, de Francisco: M1 y M2 tienen todos sus tickets hechos y mergeados** (`tickets.mjs modulo M1` y `modulo M2` dan ✅). Falta el cierre formal, que hacés vos porque te encargás de las reviews con Codex:
   - Correr `/cerrar-modulo M1` y `/cerrar-modulo M2`, que arman el pedido de review para Codex.
@@ -63,6 +57,26 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Commits:** <hash>, <hash>
 - **Pendiente:** …
 ```
+
+## 25/10/26 — Francisco (Claude Opus 5.5) — T-050 y T-052: contrato y agenda de alertas
+- **T-050** (PR [#79](https://github.com/FranLuciano04/Vault-Rumbo/pull/79), mergeado con el CI en verde): el contrato de alertas.
+  - Son 8 rutas stub (501) con tipos, hooks y mocks MSW. Los mocks respetan EST-Alerta e incluyen alertas de otro responsable.
+  - Se agregó el filtro `propietario_id`.
+  - `Alerta` compone `Auditoria` con `allOf`, como el PC1. Queda como convención para los esquemas nuevos.
+  - Review (opus): 0 bloqueantes y 4 importantes, todos arreglados o pasados a T-052.
+- **T-052** (PR [#80](https://github.com/FranLuciano04/Vault-Rumbo/pull/80), mergeado con el CI en verde): la agenda según el rol.
+  - **Decisión:** admin y dueña ven toda la agencia por defecto. Lo piden CU-14 A1 y la pantalla 49, que tienen más autoridad que el texto que se había derivado del contrato. Por eso se quitó `todas`.
+  - `Alerta` trae `responsable` y `contexto` (cliente, oportunidad, viaje y pago con su moneda), filtrados por la visibilidad de quien pide.
+  - Review (opus) en dos rondas. La primera encontró 1 bloqueante: el contexto le mostraba al freelance datos ajenos. Está arreglado.
+  - Backend: 1107 tests, con 96,88 % de cobertura.
+- **PR #76** (la última dueña): **lo aprobó y mergeó Nahuel.**
+- **Notas en tickets futuros:**
+  - T-053: el endpoint bloquea la alerta.
+  - T-099: cómo resolver y reabrir las alertas por cancelación.
+  - T-110 y T-113: la descripción no lleva datos del origen.
+- **Commits de T-050:** b7a25e0, 4f026c9, b8b27e7 y e342f41.
+- **Commits de T-052:** 06ea836, a3a4c35, ab50639, 90b878c, 6af5a4f y 8167d2c.
+- **Pendiente:** seguir con M3. T-053 (atender alertas) y T-054 (recordatorios manuales) quedan libres.
 
 ## 25/10/26 — Francisco (Claude Opus 5.5) — tres decisiones abiertas cerradas y dos arreglos
 - **Decisiones** (commit 15abf2d):
