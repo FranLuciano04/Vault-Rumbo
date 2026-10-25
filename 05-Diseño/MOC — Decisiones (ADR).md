@@ -30,6 +30,7 @@ tags:: #tipo/modulo #estado/formalizado
 - [[DEC-0017 Contacto mínimo del cliente]] (formalizada el 22/10/26): el contacto mínimo es teléfono/WhatsApp o email; el usuario de Instagram se guarda como dato opcional.
 - [[DEC-0018 Revocación de sesiones de Firebase]] (formalizada el 23/10/26): la API no comprueba la revocación del token en cada pedido; el acceso se corta con `Usuario.activo` y se acepta una ventana de hasta 1 h para los cortes hechos solo en Firebase.
 - [[DEC-0019 Las fallas se arreglan al encontrarlas]] (formalizada el 24/10/26): una falla se arregla en el ticket en curso o en una rama `fix/…`, sin crear un ticket; vale también para los hallazgos de Codex. Reemplaza en parte a DEC-0014.
+- [[DEC-0020 Cliente traído por dos asesores]] (formalizada el 25/10/26): cuando dos asesores traen al mismo cliente, cada uno conserva su registro y la dueña o un admin resuelve el duplicado reasignando el asesor. El sistema no fusiona nada solo.
 
 ## Todas (Dataview)
 ```dataview
