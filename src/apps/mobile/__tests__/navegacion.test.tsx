@@ -12,6 +12,11 @@ const mockEstado: { actual: { data?: unknown; error?: unknown; isPending: boolea
 };
 
 jest.mock("@rumbo/shared/hooks", () => ({ useYo: () => mockEstado.actual }));
+// La agenda real (T-057) usa otros hooks, el cliente y Firebase: acá solo importa que la pestaña abre.
+jest.mock("../src/features/alertas/AgendaMobile", () => {
+  const { View } = jest.requireActual<typeof import("react-native")>("react-native");
+  return { AgendaMobile: () => <View testID="pantalla-agenda" /> };
+});
 
 const usuario = {
   id: "a1c4e7f0-3d58-4b92-b6a3-8f0e2d1c4b03",

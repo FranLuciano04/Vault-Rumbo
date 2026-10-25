@@ -316,6 +316,7 @@ describe("RF-076 resolver con deshacer", () => {
   const avanzar = async (ms: number) => {
     await act(async () => {
       jest.advanceTimersByTime(ms);
+      await Promise.resolve();
     });
   };
 
