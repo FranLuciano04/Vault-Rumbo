@@ -77,7 +77,15 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
   - La review (opus) encontró un hallazgo importante: un 409 que llegaba después de editar con el alta en vuelo mostraba el aviso viejo. Se arregló con un contador de ediciones.
   - Web: 303 tests, con 95,37 % de cobertura. Mobile: 95 tests, con 97,14 %.
   - Commits: 0912f48, 3f4a103, d1b63b1 y 48b0b58 (merge).
-- **Pendiente:** mergear el #76 cuando lo aprueben y seguir con M3.
+- **T-051** (PR [#78](https://github.com/FranLuciano04/Vault-Rumbo/pull/78), mergeado con el CI en verde): el servicio de alertas para los demás módulos.
+  - Los estados siguen EST-Alerta.
+  - Ofrece `crear`, `resolver_de_origen(…, tipos=, por_cancelacion=)` y `reabrir_de_origen(…, solo_por_cancelacion=)`. Bloquea las filas con `FOR UPDATE`.
+  - Posponer se compara contra la fecha más tardía entre la de la alerta y hoy, en hora de Argentina.
+  - Review (opus) en dos rondas. La primera encontró 1 bloqueante: un origen sin `id` resolvía alertas de toda la empresa. También 4 importantes, todos arreglados.
+  - Notas en T-053 y T-099 para los tickets que siguen.
+  - Backend: 997 tests y 96,54 % de cobertura.
+  - Commits: da54b4b, d4faf0a, 832d299, a31b35c, c4a90d6 y c26d93c.
+- **Pendiente:** mergear el #76 cuando lo aprueben y seguir con M3. T-051 destrabó 26 tickets.
 
 ## 25/10/26 — Francisco (Claude Opus 5.5) — T-048: alta de clientes en mobile; repo público
 - **Hecho:** T-048 (PR [#75](https://github.com/FranLuciano04/Vault-Rumbo/pull/75), mergeado con el CI en verde). **M2 queda completo y listo para `/cerrar-modulo`.**
