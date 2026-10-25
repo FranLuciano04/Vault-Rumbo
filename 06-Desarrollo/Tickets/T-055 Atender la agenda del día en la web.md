@@ -3,7 +3,7 @@ id: T-055
 titulo: Atender la agenda del día en la web
 modulo: M3 — Alertas
 capa: web
-estado: libre
+estado: tomado
 depende_de: [T-050, T-020]
 tamaño: M
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [CU-14, RF-074, RF-076, RF-077, RF-078, RF-154, RF-155]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: FranLucianoo
+tomado_el: 25/10/26 18:47
+rama: feature/T-055-atender-la-agenda-del-dia-en-la-web
 pr:
 ---
 # T-055 Atender la agenda del día en la web
