@@ -48,3 +48,4 @@ Desde la agenda se marca una alerta como vista, se la resuelve o se la pospone, 
 
 ## Notas de implementación
 - **Del plan:** Confirmar en CU-14 A2 si la alerta de pago se puede resolver a mano; si el CU dice otra cosa, manda el CU.
+- **De la review de T-051 (25/10/26):** el endpoint que marca vista, resuelve o pospone una alerta tiene que leerla con `FOR UPDATE` (`with_for_update()` y `populate_existing`). Si no, puede chocar con un cierre automático que corre al mismo tiempo (`resolver_de_origen`), violar `alerta_resuelta_en_ck` y responder 500 en lugar de 409. Para posponer se usa `estados.alerta.posponer`, que por defecto compara contra `core.fechas.hoy()`.

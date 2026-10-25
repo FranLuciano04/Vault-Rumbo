@@ -3,7 +3,7 @@ id: T-051
 titulo: Crear el servicio de alertas para los demás módulos
 modulo: M3 — Alertas
 capa: backend
-estado: tomado
+estado: hecho
 depende_de: [T-007, T-012, T-011]
 tamaño: M
 riesgo: normal
@@ -27,9 +27,9 @@ tags:: #tipo/ticket
 Los demás módulos crean, resuelven y reabren alertas a través de un único servicio, y los estados de la alerta siguen EST-Alerta.
 
 ## Criterios de aceptación
-- [ ] `negocio/estados/alerta.py` aplica EST-Alerta (pendiente → vista → resuelta, posponer cambia la fecha); una transición inválida lanza `TransicionInvalida`.
-- [ ] `servicios/alertas.py` ofrece `crear(tipo, fecha, descripcion, propietario, origen)`, `resolver_de_origen(origen)` y `reabrir_de_origen(origen)`; respeta el `CHECK` de un solo origen.
-- [ ] Resolver completa `resuelta_en`; reabrir lo vacía.
+- [x] `negocio/estados/alerta.py` aplica EST-Alerta (pendiente → vista → resuelta, posponer cambia la fecha); una transición inválida lanza `TransicionInvalida`.
+- [x] `servicios/alertas.py` ofrece `crear(tipo, fecha, descripcion, propietario, origen)`, `resolver_de_origen(origen)` y `reabrir_de_origen(origen)`; respeta el `CHECK` de un solo origen.
+- [x] Resolver completa `resuelta_en`; reabrir lo vacía.
 
 ## Tests esperados
 `tests/negocio/test_alertas.py`: `test_rf073_tipos_de_alerta`, `test_rf079_resolver_por_origen`, reabrir, transiciones inválidas.
@@ -50,3 +50,20 @@ Los demás módulos crean, resuelven y reabren alertas a través de un único se
 - Endpoints (tickets siguientes).
 
 ## Notas de implementación
+- **Implementación (25/10/26):**
+  - `negocio/estados/alerta.py`: las transiciones de EST-Alerta. Una transición inválida lanza `TransicionInvalida`. `posponer(alerta, nueva_fecha, hoy=None)` exige `nueva_fecha > max(alerta.fecha, hoy)`, donde `hoy` vale por defecto `core.fechas.hoy()`. Si no se cumple, lanza `DatosInvalidos` (422).
+  - `negocio/servicios/alertas.py`: `crear`, `resolver_de_origen(sesion, origen, tipos=None, *, por_cancelacion=False)` y `reabrir_de_origen(sesion, origen, *, solo_por_cancelacion=False)`. Las operaciones son idempotentes y devuelven solo las alertas que cambiaron.
+  - `datos/repositorios/alertas.py`: `listar_de_origen` bloquea las filas con `FOR UPDATE` y usa `populate_existing`. No filtra por visibilidad: solo lo usan otros servicios, nunca endpoints.
+  - Un origen sin `id` se guarda primero con `flush`, y si sigue sin `id` da `ValueError`. Un tipo de origen que no está en el mapa da `TypeError`.
+- **Supuestos:** `origen` es la entidad ORM (`OrigenAlerta`) y `propietario` es un `Usuario`. `reabrir_de_origen` sin la marca reabre todas las resueltas.
+- **Review (opus), dos rondas.**
+  - Primera ronda: 1 bloqueante, 4 importantes y 2 menores, todos arreglados.
+    - Bloqueante: un origen sin `id` resolvía alertas de toda la empresa.
+    - Importante: no se podía cumplir CU-27 (paso 4 y A3).
+    - Importante: faltaba filtrar por tipo, para CU-05 y CU-08.
+    - Importante: se podía posponer a una fecha pasada.
+    - Importante: faltaba el bloqueo de filas.
+  - Segunda ronda: 2 menores, arreglados.
+  - Quedaron notas en T-053 (el endpoint tiene que bloquear la alerta) y en T-099 (cómo resolver y reabrir por cancelación).
+- **Tests autorizados:** se agregaron tests y se ajustaron dos de posponer para que no dependan del reloj.
+- **Modelos:** sonnet en tests, implementación y refactor; opus en la review. No hubo escalados.
