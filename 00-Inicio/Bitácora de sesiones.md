@@ -76,7 +76,14 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
   - T-110 y T-113: la descripción no lleva datos del origen.
 - **Commits de T-050:** b7a25e0, 4f026c9, b8b27e7 y e342f41.
 - **Commits de T-052:** 06ea836, a3a4c35, ab50639, 90b878c, 6af5a4f y 8167d2c.
-- **Pendiente:** seguir con M3. T-053 (atender alertas) y T-054 (recordatorios manuales) quedan libres.
+- **T-053** (PR [#81](https://github.com/FranLuciano04/Vault-Rumbo/pull/81), mergeado con el CI en verde): atender las alertas.
+  - `vista`, `resolver` y `posponer` leen la alerta con `FOR UPDATE`.
+  - La alerta de pago no se resuelve a mano: da 409 con el motivo según el origen (cobro o pago al proveedor).
+  - El progreso del día va en hora de Argentina: el de toda la agencia para admin y dueña, el propio para el resto.
+  - Review (opus): 0 bloqueantes, 0 importantes y 6 menores, de los que se arreglaron 5.
+  - Backend: 1134 tests, con 96,93 % de cobertura.
+  - Commits: 1fdfaba, c7fbacd, eb5c56e, a599825 y 3131a11.
+- **Pendiente:** seguir con M3. Quedan libres T-054 (recordatorios manuales) y las pantallas T-055 (web) y T-057 (mobile).
 
 ## 25/10/26 — Francisco (Claude Opus 5.5) — tres decisiones abiertas cerradas y dos arreglos
 - **Decisiones** (commit 15abf2d):
