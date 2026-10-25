@@ -6,15 +6,18 @@ import {
 } from "@rumbo/shared";
 import { useAlertas, useMarcarAlertaVista, useProgresoDelDia } from "@rumbo/shared/hooks";
 import type { AxiosInstance } from "axios";
-import { Check } from "lucide-react";
+import { Check, Plus } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { mensajeDeError } from "@/lib/errores";
+import { useVolverFoco } from "@/lib/useVolverFoco";
 import { cn } from "@/lib/utils";
 import { hoyEnBuenosAires } from "./fechas";
 import { FiltroResponsable } from "./FiltroResponsable";
 import { FilaAlerta } from "./FilaAlerta";
+import { FormularioRecordatorio } from "./FormularioRecordatorio";
 import { useResolverConDeshacer } from "./useResolverConDeshacer";
+import { avisoRecordatorio } from "./avisoRecordatorio";
 
 const TIPOS = Object.keys(ETIQUETA_TIPO_ALERTA) as TipoAlerta[];
 
@@ -29,6 +32,8 @@ interface AccionesDeLista {
   alResolver: (alerta: Alerta) => void;
   alMarcarVista: (alerta: Alerta) => void;
   marcandoVista: boolean;
+  puedeEditar: (alerta: Alerta) => boolean;
+  alEditar: (alerta: Alerta) => void;
 }
 
 function ListaDeAlertas({
@@ -36,6 +41,8 @@ function ListaDeAlertas({
   alertas,
   alResolver,
   alMarcarVista,
+  puedeEditar,
+  alEditar,
   ...resto
 }: { titulo?: string; alertas: Alerta[] } & AccionesDeLista) {
   return (
@@ -56,6 +63,11 @@ function ListaDeAlertas({
             alMarcarVista={() => {
               alMarcarVista(alerta);
             }}
+            {...(puedeEditar(alerta) && {
+              alEditar: () => {
+                alEditar(alerta);
+              },
+            })}
             {...resto}
           />
         ))}
@@ -82,6 +94,19 @@ export function PaginaAgenda({
   const [tipo, setTipo] = useState<TipoAlerta | "">("");
   const [responsable, setResponsable] = useState("");
   const [pagina, setPagina] = useState(1);
+  // `null` = formulario cerrado; `{}` = alta; `{ alerta }` = edición de un recordatorio.
+  const [recordatorio, setRecordatorio] = useState<{ alerta?: Alerta } | null>(null);
+  const [aviso, setAviso] = useState<string | null>(null);
+  const foco = useVolverFoco();
+  const abrirRecordatorio = (abierto: { alerta?: Alerta }) => {
+    foco.recordar();
+    setAviso(null);
+    setRecordatorio(abierto);
+  };
+  const cerrarRecordatorio = () => {
+    setRecordatorio(null);
+    foco.volver();
+  };
   const filtros = {
     por_pagina: POR_PAGINA,
     pagina,
@@ -129,6 +154,13 @@ export function PaginaAgenda({
       marcarVista.mutate(alerta.id, { onSuccess: limpiarError });
     },
     marcandoVista: marcarVista.isPending,
+    puedeEditar: (alerta) =>
+      alerta.tipo === "manual" &&
+      alerta.estado === "pendiente" &&
+      alerta.propietario_id === usuario.id,
+    alEditar: (alerta) => {
+      abrirRecordatorio({ alerta });
+    },
   };
   const errorAccion =
     errorAlResolver ?? (marcarVista.isError ? mensajeDeError(marcarVista.error) : null);
@@ -142,12 +174,41 @@ export function PaginaAgenda({
 
   return (
     <div className="flex flex-col gap-4">
-      <div>
-        <p className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
-          {esDeAgencia ? "Principal · Toda la agencia" : "Principal"}
-        </p>
-        <h1 className="text-3xl font-semibold">Agenda del día</h1>
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <p className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
+            {esDeAgencia ? "Principal · Toda la agencia" : "Principal"}
+          </p>
+          <h1 className="text-3xl font-semibold">Agenda del día</h1>
+        </div>
+        <Button
+          onClick={() => {
+            abrirRecordatorio({});
+          }}
+        >
+          <Plus aria-hidden="true" className="size-4" />
+          Nuevo recordatorio
+        </Button>
       </div>
+
+      {recordatorio && (
+        <FormularioRecordatorio
+          // La clave reinicia el formulario al pasar de un recordatorio a otro.
+          key={recordatorio.alerta?.id ?? "nuevo"}
+          cliente={cliente}
+          {...(recordatorio.alerta && { alerta: recordatorio.alerta })}
+          alCerrar={cerrarRecordatorio}
+          alGuardar={({ fecha }) => {
+            setAviso(avisoRecordatorio(recordatorio.alerta ? "actualizado" : "creado", fecha));
+            cerrarRecordatorio();
+          }}
+        />
+      )}
+      {aviso && (
+        <p role="status" className="text-sm font-medium text-muted-foreground">
+          {aviso}
+        </p>
+      )}
 
       {progreso.data && (
         <div className="rounded-2xl bg-primary p-5 text-primary-foreground">
@@ -313,8 +374,12 @@ export function PaginaAgenda({
                   >
                     Adelantar próximas
                   </Button>
-                  {/* El alta del recordatorio la trae T-056. */}
-                  <Button variant="outline" disabled>
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      abrirRecordatorio({});
+                    }}
+                  >
                     Crear recordatorio
                   </Button>
                 </div>

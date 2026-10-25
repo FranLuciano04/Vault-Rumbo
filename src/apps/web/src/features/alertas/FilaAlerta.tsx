@@ -1,7 +1,7 @@
 import { ETIQUETA_TIPO_ALERTA, formatearFecha, formatearImporte, type Alerta } from "@rumbo/shared";
 import { usePosponerAlerta } from "@rumbo/shared/hooks";
 import type { AxiosInstance } from "axios";
-import { Check, Clock, Eye } from "lucide-react";
+import { Check, Clock, Eye, Pencil } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -94,6 +94,7 @@ export function FilaAlerta({
   alResolver,
   alMarcarVista,
   marcandoVista,
+  alEditar,
 }: {
   cliente: AxiosInstance;
   alerta: Alerta;
@@ -102,6 +103,8 @@ export function FilaAlerta({
   alResolver: () => void;
   alMarcarVista: () => void;
   marcandoVista: boolean;
+  /** Solo para el recordatorio manual pendiente propio (CU-28). */
+  alEditar?: () => void;
 }) {
   const [posponiendo, setPosponiendo] = useState(false);
   const esPago = alerta.tipo === "pago";
@@ -127,6 +130,11 @@ export function FilaAlerta({
           {!esPago && (
             <Button size="sm" variant="outline" aria-label={sobre("Resolver")} onClick={alResolver}>
               <Check aria-hidden="true" />
+            </Button>
+          )}
+          {alEditar && (
+            <Button size="sm" variant="ghost" aria-label={sobre("Editar")} onClick={alEditar}>
+              <Pencil aria-hidden="true" />
             </Button>
           )}
           {alerta.estado === "pendiente" && (

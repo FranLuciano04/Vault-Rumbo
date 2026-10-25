@@ -3,7 +3,7 @@ id: T-056
 titulo: Crear un recordatorio manual en la web
 modulo: M3 — Alertas
 capa: web
-estado: tomado
+estado: hecho
 depende_de: [T-055]
 tamaño: S
 riesgo: normal
@@ -27,9 +27,9 @@ tags:: #tipo/ticket
 Desde la agenda (o desde un cliente, oportunidad o viaje) se crea un recordatorio y se edita mientras está pendiente.
 
 ## Criterios de aceptación
-- [ ] Formulario con descripción, fecha y asociación opcional.
-- [ ] Edición de un recordatorio pendiente.
-- [ ] Errores del servidor en sus campos.
+- [x] Formulario con descripción, fecha y asociación opcional.
+- [x] Edición de un recordatorio pendiente.
+- [x] Errores del servidor en sus campos.
 
 ## Tests esperados
 `describe('RF-080 recordatorio')`, `describe('RF-082 edición')` con MSW.
@@ -45,3 +45,16 @@ Desde la agenda (o desde un cliente, oportunidad o viaje) se crea un recordatori
 - —
 
 ## Notas de implementación
+- **Implementación (25/10/26):** `FormularioRecordatorio`, en `features/alertas/`, sirve para crear y para editar.
+  - **Campos:** descripción, fecha y una asociación opcional.
+  - **Asociación:** si el formulario se abre desde la ficha del cliente, el cliente queda fijo («Asociado a: …»). Desde la agenda hay un selector «Personal / Cliente» con buscador (`AsociarCliente`, sobre `useClientes({buscar})`). Viaje y oportunidad se suman cuando tengan su pantalla.
+  - **Validación y errores:** usa `esquemaRecordatorio`. Los 422 se muestran en cada campo y los 409 y 403 en un aviso.
+  - **En la agenda:** está el botón «Nuevo recordatorio» y se habilitó «Crear recordatorio» en el estado vacío. «Editar» aparece solo en un recordatorio manual, pendiente y propio.
+  - **Foco y aviso:** al abrir, el foco va a Descripción; al cerrar, vuelve al botón que lo abrió (`lib/useVolverFoco.ts`). Al guardar aparece «Recordatorio creado/actualizado para el dd/mm/aa».
+- **Cambio transversal:** `aplicarErroresDelServidor` (`lib/errores.ts`) ahora muestra ante un 404 el texto fijo «Lo que querés guardar ya no existe o no lo podés ver.», en lugar del mensaje genérico. El `detail` técnico del backend no se muestra. Afecta a los 9 formularios que usan el helper.
+- **Desvíos del prototipo (pantalla 6):** el formulario es una tarjeta dentro de la página, no un modal (no hay `Dialog` en `components/ui`), y la fecha arranca vacía. La review sugirió precargar hoy, pero eso choca con un test del rojo y es menor, así que quedó como pendiente.
+- **Review (opus):** 0 bloqueantes, 3 importantes y 3 menores. Se arreglaron todos menos la fecha precargada.
+  - Importantes: faltaba asociar desde la agenda, no se manejaba el foco y no había test de la ficha.
+  - Menores: el 404 técnico y la falta de aviso al guardar.
+- **Modelos:** sonnet en tests, implementación y refactor; opus en la review. No hubo escalados.
+- **Falla arreglada (DEC-0019):** el e2e «RF-140 la dueña inicia sesión» buscaba el nombre en toda la página con `getByText` y era frágil. Desde T-055, ese nombre también aparece en el filtro «Responsable» de la agenda. En T-055 pasó solo porque la lista todavía no había cargado; en este PR falló. Ahora el e2e busca el nombre y el rol dentro del `banner` del Shell.
