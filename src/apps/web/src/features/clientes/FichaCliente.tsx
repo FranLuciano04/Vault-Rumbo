@@ -1,11 +1,12 @@
 import { ETIQUETA_SEGMENTO, ErrorApi, type UsuarioActual } from "@rumbo/shared";
 import { useCliente } from "@rumbo/shared/hooks";
 import type { AxiosInstance } from "axios";
-import { Pencil } from "lucide-react";
+import { BellPlus, Pencil } from "lucide-react";
 import { useRef, useState } from "react";
 import { Link, useParams } from "react-router";
 import { Button } from "@/components/ui/button";
 import { iniciales } from "@/lib/iniciales";
+import { FormularioRecordatorio } from "@/features/alertas/FormularioRecordatorio";
 import { FormularioCliente } from "./FormularioCliente";
 import { HistorialCliente } from "./HistorialCliente";
 
@@ -30,6 +31,7 @@ export function FichaCliente({
   const { data: ficha, isPending, error } = useCliente(cliente, id);
   const [editando, setEditando] = useState(false);
   const [actualizada, setActualizada] = useState(false);
+  const [recordando, setRecordando] = useState(false);
   const volverFoco = useRef(false);
 
   if (isPending) return <p role="status">Cargando la ficha…</p>;
@@ -79,23 +81,47 @@ export function FichaCliente({
           </div>
         </div>
         {!editando && (
-          <Button
-            ref={(boton) => {
-              if (boton && volverFoco.current) {
-                boton.focus();
-                volverFoco.current = false;
-              }
-            }}
-            onClick={() => {
-              setActualizada(false);
-              setEditando(true);
-            }}
-          >
-            <Pencil aria-hidden="true" className="size-4" />
-            Editar ficha
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setRecordando(true);
+              }}
+            >
+              <BellPlus aria-hidden="true" className="size-4" />
+              Nuevo recordatorio
+            </Button>
+            <Button
+              ref={(boton) => {
+                if (boton && volverFoco.current) {
+                  boton.focus();
+                  volverFoco.current = false;
+                }
+              }}
+              onClick={() => {
+                setActualizada(false);
+                setEditando(true);
+              }}
+            >
+              <Pencil aria-hidden="true" className="size-4" />
+              Editar ficha
+            </Button>
+          </div>
         )}
       </header>
+
+      {recordando && (
+        <FormularioRecordatorio
+          cliente={cliente}
+          asociado={{ tipo: "cliente", id: ficha.id, etiqueta: ficha.nombre }}
+          alCerrar={() => {
+            setRecordando(false);
+          }}
+          alGuardar={() => {
+            setRecordando(false);
+          }}
+        />
+      )}
 
       {actualizada && (
         <p role="status" className="text-sm font-medium text-muted-foreground">
