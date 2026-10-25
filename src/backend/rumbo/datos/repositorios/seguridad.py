@@ -1,6 +1,7 @@
 """Repositorio del módulo seguridad: `Usuario` (CU-24, CU-25)."""
 
 import uuid
+from collections import Counter
 
 from sqlalchemy import func, select, text
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -60,15 +61,16 @@ class RepositorioUsuarios(RepositorioBase[Usuario]):
         )
         return list(await sesion.scalars(consulta))
 
-    async def contar_admins_activos(self, sesion: AsyncSession, *, visibilidad: Visibilidad) -> int:
-        """Cuántos `admin` activos hay, bloqueando sus filas (en orden de id) hasta el fin de la
-        transacción: dos pedidos simultáneos no pueden dejar cada uno al otro como último admin
-        (RF-149)."""
-        consulta = select(Usuario.id).where(
-            Usuario.rol == RolUsuario.admin, Usuario.activo.is_(True)
-        )
+    async def contar_activos_por_rol(
+        self, sesion: AsyncSession, *roles: RolUsuario, visibilidad: Visibilidad
+    ) -> Counter[RolUsuario]:
+        """Cuántos usuarios activos hay de cada uno de `roles`, bloqueando sus filas en una sola
+        consulta (en orden de id) hasta el fin de la transacción: dos pedidos simultáneos no
+        pueden dejar cada uno al otro como último admin o última dueña, ni trabarse entre sí
+        (RF-149, CU-25 A5)."""
+        consulta = select(Usuario.rol).where(Usuario.rol.in_(roles), Usuario.activo.is_(True))
         consulta = visibilidad.aplicar(consulta, Usuario).order_by(Usuario.id).with_for_update()
-        return len((await sesion.scalars(consulta)).all())
+        return Counter((await sesion.scalars(consulta)).all())
 
     async def obtener_bloqueado(
         self, sesion: AsyncSession, id: uuid.UUID, *, visibilidad: Visibilidad

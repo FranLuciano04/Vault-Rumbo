@@ -2,6 +2,7 @@
 
 import logging
 import uuid
+from collections import Counter
 from collections.abc import Callable
 from typing import Any
 
@@ -18,6 +19,11 @@ logger = logging.getLogger(__name__)
 
 _usuarios = RepositorioUsuarios()
 _EMAIL_EN_USO = "Ya existe un usuario con ese email."
+# Roles de los que siempre tiene que quedar un `Usuario` activo (CU-25 A4 y A5, RF-149).
+_ULTIMO_PROTEGIDO = {
+    RolUsuario.admin: "Es el único administrador activo: asigná otro antes de cambiarlo.",
+    RolUsuario.dueno: "Es la única dueña activa: asigná otra antes de cambiarla.",
+}
 
 
 async def usuario_con_acceso(sesion: AsyncSession, firebase_uid: str) -> Usuario | None:
@@ -147,17 +153,17 @@ async def editar_usuario(
     """Aplica solo los campos enviados: `nombre`, `rol` y `acceso_redes` (CU-25 A2, RF-147).
 
     Asignar o quitar el rol `dueno` es solo de la dueña (403 para el admin); reenviar el rol
-    que ya tiene no es un cambio. Quitarle el rol al último `admin` activo da `Conflicto` (A4,
-    RF-149).
+    que ya tiene no es un cambio. Quitarle el rol al último `admin` activo o a la última `dueno`
+    activa da `Conflicto` (A4, A5, RF-149).
     """
-    usuario, admins_activos = await _bloquear_para_cambiar(sesion, actor, usuario_id)
+    usuario, activos = await _bloquear_para_cambiar(sesion, actor, usuario_id)
     if "rol" in cambios:
         rol = RolUsuario(cambios["rol"])
         cambios = {**cambios, "rol": rol}
         if rol is not usuario.rol:
             if RolUsuario.dueno in (rol, usuario.rol):
                 exigir_rol(actor, RolUsuario.dueno)
-            _exigir_otro_admin_activo(usuario, admins_activos)
+            _exigir_que_no_sea_el_ultimo(usuario, activos)
     for campo, valor in cambios.items():
         setattr(usuario, campo, valor)
     await sesion.flush()
@@ -171,14 +177,15 @@ async def dar_de_baja_usuario(
     siguiente el usuario recibe 401 (CU-25 A3, RF-148, DEC-0016).
 
     A una dueña solo la da de baja otra dueña (403 para el admin). Bajar al último `admin`
-    activo da `Conflicto` (A4, RF-149). La cuenta se deshabilita antes de tocar la base: si
-    Firebase falla, responde 502 y el usuario sigue activo; si después falla la base, la cuenta
-    queda deshabilitada y la baja se puede reintentar.
+    activo o a la última `dueno` activa da `Conflicto` (A4, A5, RF-149). La cuenta se
+    deshabilita antes de tocar la base: si Firebase falla, responde 502 y el usuario sigue
+    activo; si después falla la base, la cuenta queda deshabilitada y la baja se puede
+    reintentar.
     """
-    usuario, admins_activos = await _bloquear_para_cambiar(sesion, actor, usuario_id)
+    usuario, activos = await _bloquear_para_cambiar(sesion, actor, usuario_id)
     if usuario.rol is RolUsuario.dueno:
         exigir_rol(actor, RolUsuario.dueno)
-    _exigir_otro_admin_activo(usuario, admins_activos)
+    _exigir_que_no_sea_el_ultimo(usuario, activos)
     await gestor.deshabilitar_cuenta(usuario.firebase_uid)
     usuario.activo = False
     await sesion.flush()
@@ -187,24 +194,27 @@ async def dar_de_baja_usuario(
 
 async def _bloquear_para_cambiar(
     sesion: AsyncSession, actor: Usuario, usuario_id: uuid.UUID
-) -> tuple[Usuario, int]:
-    """El `Usuario` a editar o dar de baja, releído y bloqueado, y cuántos `admin` activos hay.
+) -> tuple[Usuario, Counter[RolUsuario]]:
+    """El `Usuario` a editar o dar de baja, releído y bloqueado, y cuántos `admin` y `dueno`
+    activos hay.
 
-    Bloquea siempre en el mismo orden, primero los admin activos (por id) y después el
-    objetivo, para que dos cambios simultáneos no se traben entre sí (deadlock) ni decidan
-    con un rol viejo (RF-147, RF-149).
+    Bloquea siempre en el mismo orden, primero los admin y dueno activos juntos (por id) y
+    después el objetivo, para que dos cambios simultáneos no se traben entre sí (deadlock) ni
+    decidan con un rol viejo (RF-147, RF-149, CU-25 A5).
     """
     exigir_rol(actor, RolUsuario.admin, RolUsuario.dueno)
     filtro = visibilidad(actor)
-    admins_activos = await _usuarios.contar_admins_activos(sesion, visibilidad=filtro)
+    activos = await _usuarios.contar_activos_por_rol(sesion, *_ULTIMO_PROTEGIDO, visibilidad=filtro)
     usuario = await _usuarios.obtener_bloqueado(sesion, usuario_id, visibilidad=filtro)
-    return usuario, admins_activos
+    return usuario, activos
 
 
-def _exigir_otro_admin_activo(usuario: Usuario, admins_activos: int) -> None:
-    """`Conflicto` si `usuario` es el único `admin` activo: el sistema nunca queda sin uno."""
-    if usuario.rol is RolUsuario.admin and usuario.activo and admins_activos <= 1:
-        raise Conflicto("Es el único administrador activo: asigná otro antes de cambiarlo.")
+def _exigir_que_no_sea_el_ultimo(usuario: Usuario, activos: Counter[RolUsuario]) -> None:
+    """`Conflicto` si `usuario` es el único activo de su rol entre los que no pueden faltar
+    (`admin` y `dueno`): el sistema nunca queda sin uno (A4, A5, RF-149)."""
+    mensaje = _ULTIMO_PROTEGIDO.get(usuario.rol)
+    if mensaje is not None and usuario.activo and activos[usuario.rol] <= 1:
+        raise Conflicto(mensaje)
 
 
 async def _crear_cuenta_nueva(
