@@ -92,7 +92,16 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
   - Backend: 1160 tests, con 96,95 % de cobertura.
   - Commits: 87741a2, c4d5b1e, d7ace0b y 38e94cf.
 - **El backend de M3 quedó completo:** ya no queda ninguna ruta de alertas en 501.
-- **Pendiente:** las pantallas de M3: T-055 (web), T-057 (mobile), T-056, T-058 y T-059. Después, el e2e T-060 y `/cerrar-modulo M3`.
+- **T-055** (PR [#83](https://github.com/FranLuciano04/Vault-Rumbo/pull/83), mergeado con el CI en verde): la agenda del día en la web.
+  - Es la página de inicio y muestra el progreso del día.
+  - Pestañas: Pendientes (dividida en Atrasadas y Hoy) y Próximas.
+  - Tiene el switch «Mostrar vistas» y filtros por tipo y, para la dirección, por responsable.
+  - Resolver tiene «Deshacer» (5 s). Posponer solo se ofrece en las pendientes.
+  - Muestra el contexto con el pago y su moneda, y pagina de a 100.
+  - Review (opus) en dos rondas. La primera encontró 1 bloqueante (la agenda cortaba en 20 alertas sin avisar) y tests que pasaban por casualidad. Todo quedó arreglado.
+  - Web: 341 tests, con 94,84 % de cobertura.
+  - Commits: 52eda3f, b6a9648, 207cbbe, 1840699 y 3ff96b1.
+- **Pendiente:** el resto de las pantallas de M3 (T-057 mobile, T-056, T-058 y T-059). Después, el e2e T-060 y `/cerrar-modulo M3`.
 
 ## 25/10/26 — Francisco (Claude Opus 5.5) — tres decisiones abiertas cerradas y dos arreglos
 - **Decisiones** (commit 15abf2d):
