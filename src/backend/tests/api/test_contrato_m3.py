@@ -1,4 +1,4 @@
-"""T-050: contrato del módulo alertas (CU-14, CU-28, CU-30): rutas, token, roles y 501."""
+"""T-050: contrato del módulo alertas (CU-14, CU-28, CU-30): rutas, token y roles."""
 
 from collections.abc import Awaitable, Callable
 from typing import Any
@@ -22,19 +22,6 @@ OPERACIONES: list[tuple[str, str, dict[str, Any] | None]] = [
     ("post", f"/api/alertas/{ID}/resolver", None),
     ("post", f"/api/alertas/{ID}/posponer", {"fecha": "2026-12-01"}),
 ]
-# Las que todavía responden 501 (ninguna: la agenda, T-052, atender alertas con el progreso,
-# T-053, y los recordatorios manuales, T-054, ya están implementadas).
-_IMPLEMENTADAS = {
-    ("get", "/api/alertas"),
-    ("post", "/api/alertas"),
-    ("patch", f"/api/alertas/{ID}"),
-    ("get", "/api/alertas/progreso-del-dia"),
-    ("get", f"/api/alertas/{ID}"),
-    ("post", f"/api/alertas/{ID}/vista"),
-    ("post", f"/api/alertas/{ID}/resolver"),
-    ("post", f"/api/alertas/{ID}/posponer"),
-}
-OPERACIONES_STUB = [op for op in OPERACIONES if (op[0], op[1]) not in _IMPLEMENTADAS]
 RUTAS_CONTRATO = [
     ("get", "/api/alertas"),
     ("post", "/api/alertas"),
@@ -233,24 +220,6 @@ async def test_rf155_sin_token_responde_401_problem_json(
 
     assert r.status_code == 401
     assert r.headers["content-type"].startswith(PROBLEM_JSON)
-
-
-@pytest.mark.parametrize("rol", ROLES)
-@pytest.mark.parametrize(("metodo", "ruta", "cuerpo"), OPERACIONES_STUB)
-async def test_rf155_con_token_de_cualquier_rol_responde_501_problem_json(
-    cliente_como: FabricaCliente,
-    rol: str,
-    metodo: str,
-    ruta: str,
-    cuerpo: dict[str, Any] | None,
-) -> None:
-    c = await cliente_como(rol)
-
-    r = await c.request(metodo, ruta, json=cuerpo)
-
-    assert r.status_code == 501
-    assert r.headers["content-type"].startswith(PROBLEM_JSON)
-    assert r.json()["status"] == 501
 
 
 async def test_cu14_listar_con_filtros_validos_responde_200(cliente_como: FabricaCliente) -> None:

@@ -3143,7 +3143,7 @@
           "alertas"
         ],
         "summary": "Editar fecha o descripción de un recordatorio",
-        "description": "**Roles:** admin, dueno, empleado, freelance.\n\n**Escritura:** el responsable de la alerta, o admin o dueño (DEC-0005).\n\n**Casos de uso:** CU-28.",
+        "description": "**Roles:** admin, dueno, empleado, freelance.\n\n**Escritura:** solo el responsable del recordatorio lo edita (DEC-0005); admin y dueño atienden las alertas ajenas pero no cambian su texto ni su fecha.\n\n**Casos de uso:** CU-28.",
         "operationId": "editar_recordatorio",
         "security": [
           {

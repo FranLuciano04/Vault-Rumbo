@@ -21,18 +21,27 @@ _ERRORES = {
 }
 
 
+def _regla(escritura: bool | str) -> str:
+    return f"**Escritura:** {escritura}\n\n" if escritura else ""
+
+
 def operacion(
-    roles: tuple[RolUsuario, ...], casos_de_uso: str, *errores: int, escritura: bool = False
+    roles: tuple[RolUsuario, ...],
+    casos_de_uso: str,
+    *errores: int,
+    escritura: bool | str = False,
 ) -> dict[str, Any]:
     """Argumentos de ruta comunes: guardia de rol, descripción (`Roles` y `Casos de uso`) y las
     respuestas de error problem+json (`401` siempre, `403` si no es para todos, más `errores`).
-    Con `escritura`, la descripción suma la regla de DEC-0005 (responsable, admin o dueño)."""
+    Con `escritura`, la descripción suma la regla de DEC-0005 (responsable, admin o dueño);
+    si es un texto, suma ese en su lugar (una regla de escritura más estricta)."""
+    regla = _ESCRITURA if escritura is True else _regla(escritura)
     codigos = [401, *([403] if roles != TODOS else []), *errores]
     return {
         "dependencies": [Depends(usuario_actual if roles == TODOS else exigir_roles(*roles))],
         "description": (
             f"**Roles:** {', '.join(r.value for r in roles)}.\n\n"
-            f"{_ESCRITURA if escritura else ''}**Casos de uso:** {casos_de_uso}."
+            f"{regla}**Casos de uso:** {casos_de_uso}."
         ),
         "openapi_extra": {
             "x-roles": [r.value for r in roles],

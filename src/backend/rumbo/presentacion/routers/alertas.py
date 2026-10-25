@@ -207,7 +207,18 @@ async def obtener_alerta(alerta_id: uuid.UUID, actor: ActorDep, sesion: SesionDe
     "/{alerta_id}",
     operation_id="editar_recordatorio",
     summary="Editar fecha o descripción de un recordatorio",
-    **operacion(TODOS, "CU-28", 403, 404, 409, 422, escritura=True),
+    **operacion(
+        TODOS,
+        "CU-28",
+        403,
+        404,
+        409,
+        422,
+        escritura=(
+            "solo el responsable del recordatorio lo edita (DEC-0005); admin y dueño atienden "
+            "las alertas ajenas pero no cambian su texto ni su fecha."
+        ),
+    ),
 )
 async def editar_recordatorio(
     alerta_id: uuid.UUID, cambios: AlertaEditar, actor: ActorDep, sesion: SesionDep

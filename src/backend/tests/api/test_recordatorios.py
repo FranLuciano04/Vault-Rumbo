@@ -8,7 +8,8 @@ Decisiones del test-writer donde el contrato o el CU no lo dicen:
 - `PATCH /api/alertas/{id}` sobre una alerta que NO es `manual` (automática) da 409: el
   contrato lo declara para «conflicto con el estado actual» y el recurso existe y es visible;
   no es un dato inválido (422). El detalle del problema nombra el recordatorio manual.
-- Editar una alerta ajena: empleado y freelance reciben 404 (RF-078); admin y dueño pueden.
+- Editar una alerta ajena: empleado y freelance reciben 404 (RF-078); admin y dueño la ven pero
+  solo su propietario edita texto y fecha (DEC-0005): 403.
 """
 
 from collections.abc import Awaitable, Callable
@@ -43,7 +44,7 @@ def _manana() -> str:
     return str(hoy() + timedelta(days=1))
 
 
-async def _manual(sesion: AsyncSession, propietario: Usuario, **kw: object) -> Alerta:
+async def _manual(sesion: AsyncSession, propietario: Usuario) -> Alerta:
     return await servicio.crear(
         sesion, TipoAlerta.manual, hoy() + timedelta(days=2), "Llamar a Ana", propietario, None
     )
@@ -77,6 +78,7 @@ async def test_rf080_crear_recordatorio_manual_pendiente_y_propio(
     assert cuerpo["fecha"] == _manana()
     assert cuerpo["descripcion"] == "Llamar a Ana"
     assert cuerpo["propietario_id"] == str(yo.id)
+    assert cuerpo["created_by"] == str(yo.id)
     assert cuerpo["responsable"] == {"id": str(yo.id), "nombre": yo.nombre}
     assert cuerpo["contexto"] == NULO
 
@@ -294,6 +296,7 @@ async def test_rf082_editar_descripcion_de_un_pendiente(
 
     assert r.status_code == 200, r.text
     assert r.json()["descripcion"] == "Llamar a Ana y a Juan"
+    assert r.json()["updated_by"] == str(yo.id)
     assert r.json()["fecha"] == str(alerta.fecha)
     assert r.json()["responsable"] == {"id": str(yo.id), "nombre": yo.nombre}
     assert r.json()["contexto"] == NULO
@@ -379,7 +382,7 @@ async def test_rf078_editar_alerta_ajena_es_404(
 
 
 @pytest.mark.parametrize("rol", ["admin", "dueno"])
-async def test_rf078_direccion_edita_el_recordatorio_de_otro(
+async def test_rf078_direccion_no_edita_el_recordatorio_de_otro_es_403(
     cliente_como: FabricaCliente, sesion: AsyncSession, rol: str
 ) -> None:
     c = await cliente_como(rol)
@@ -388,10 +391,9 @@ async def test_rf078_direccion_edita_el_recordatorio_de_otro(
 
     r = await c.patch(f"/api/alertas/{ajena.id}", json={"descripcion": "Reasignada"})
 
-    assert r.status_code == 200, r.text
-    assert r.json()["descripcion"] == "Reasignada"
-    assert r.json()["propietario_id"] == str(duenia.id)  # el dueño de la agenda no cambia
-    assert r.json()["responsable"] == {"id": str(duenia.id), "nombre": "Sofía Méndez"}
+    assert r.status_code == 403, r.text
+    assert r.headers["content-type"].startswith(PROBLEM_JSON)
+    assert (await c.get(f"/api/alertas/{ajena.id}")).json()["descripcion"] == "Llamar a Ana"
 
 
 async def test_rf082_editar_inexistente_es_404(cliente_como: FabricaCliente) -> None:

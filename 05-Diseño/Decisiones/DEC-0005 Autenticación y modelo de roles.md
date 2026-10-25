@@ -5,7 +5,7 @@ modulo: [seguridad]
 decisores: [Francisco]
 fecha_aprobacion: 11/09/26
 supersede:
-actualizado: 11/09/26
+actualizado: 25/10/26
 ---
 # DEC-0005 Autenticación y modelo de roles
 
@@ -31,7 +31,7 @@ La **propiedad de un registro no restringe su lectura**; solo habilita la vista 
 | [[Cliente]] | Toda la agencia | Toda la agencia | `asesor_asignado` **opcional** → filtro "mis clientes" |
 | [[Oportunidad]] | Toda la agencia | Responsable + `admin`/`dueño` | `responsable` (quien la registró) |
 | [[Viaje]] · [[Pago]] | Toda la agencia (calendario global) | Responsable + `admin`/`dueño` | `responsable` del viaje |
-| [[Alerta]] | **Propias por defecto** (agenda del día); `admin`/`dueño` ven todas | Propietario | Propietario (quien la recibe/creó) |
+| [[Alerta]] | **Propias por defecto** (agenda del día); `admin`/`dueño` ven todas | Propietario (`admin`/`dueño` también atienden; ver enmienda 25/10/26) | Propietario (quien la recibe/creó) |
 | [[Hotel]] · [[Reseña]] · [[Destino]] · [[ContenidoRed]] | Compartido (todos) | Compartido; **acciones sensibles = `admin`** (moderar reseña, ABM de destinos, config) | — |
 
 **Principio general:** *lectura global para colaborar · propiedad para responsabilidad y filtro personal · escritura mayormente abierta, salvo configuración y moderación que quedan en `admin`.*
@@ -52,6 +52,12 @@ Para sostener la propiedad sin bloquear la lectura, las entidades operativas lle
 El relevamiento de la agencia ([[Relevamiento — respuestas de la agencia (17-09)]], bloque 6) resolvió el mecanismo de autenticación y agregó un rol. **Sellado en la sync del 17/09** vía [[DEC-0008 Autenticación propia y rol de vendedor freelance]]:
 - **Mecanismo:** autenticación **propia con usuario y contraseña individual** (para auditar quién hizo cada acción, con `created_by`/`updated_by`). Google OAuth queda opcional/futuro.
 - **Nuevo rol `freelance`** (vendedor externo) con **visibilidad restringida** (solo lo suyo): es la **excepción** al patrón *lectura global* de esta DEC, que sigue vigente para `empleado`/`admin`/`dueño`.
+
+## Enmienda 25/10/26 — la dirección atiende alertas ajenas (Francisco)
+La tabla dice que la escritura de una [[Alerta]] es del propietario. El contrato del PC1 decía «el responsable de la alerta, o admin o dueño», y la pantalla 49 del prototipo muestra a la admin resolviendo y posponiendo alertas de otra persona. La contradicción apareció en la review de T-054 y se resolvió así:
+- **Atender** (marcar vista, resolver o posponer): el propietario, **o `admin`/`dueño`** sobre cualquier alerta de la agencia. Así quedó implementado en T-053.
+- **Editar el texto o la fecha de un recordatorio manual** ([[CU-28 Crear recordatorio manual]]): **solo el propietario**. Si `admin` o `dueño` lo intentan sobre un recordatorio ajeno, reciben 403. Empleado y freelance no ven las alertas ajenas, así que reciben 404. Implementado en T-054.
+- El resto de la tabla no cambia.
 
 ## Pendientes (resueltos)
 - **Mecanismo de autenticación:** ✅ **resuelto** en [[DEC-0008 Autenticación propia y rol de vendedor freelance]] (usuario/contraseña individual, sellado 17/09).

@@ -642,7 +642,7 @@ export interface paths {
          * Editar fecha o descripción de un recordatorio
          * @description **Roles:** admin, dueno, empleado, freelance.
          *
-         *     **Escritura:** el responsable de la alerta, o admin o dueño (DEC-0005).
+         *     **Escritura:** solo el responsable del recordatorio lo edita (DEC-0005); admin y dueño atienden las alertas ajenas pero no cambian su texto ni su fecha.
          *
          *     **Casos de uso:** CU-28.
          */

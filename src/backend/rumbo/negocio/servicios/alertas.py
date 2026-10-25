@@ -27,7 +27,7 @@ from rumbo.datos.repositorios.alertas import (
     columna_de_origen,
 )
 from rumbo.negocio.estados import alerta as estado
-from rumbo.negocio.politicas import es_direccion, visibilidad
+from rumbo.negocio.politicas import es_direccion, exigir_escritura, visibilidad
 
 _alertas = RepositorioAlertas()
 
@@ -187,8 +187,11 @@ async def resolver_de_origen(
 ) -> list[Alerta]:
     """Resuelve las alertas pendientes o vistas de `origen` (solo de esos `tipos`, si se
     piden) y devuelve las que cambiaron (RF-079). `por_cancelacion` las marca como cerradas por
-    la cancelación del `Viaje` (CU-27)."""
+    la cancelación del `Viaje` (CU-27). Sin `tipos` quedan fuera los recordatorios `manual`
+    asociados al origen: lo manual no se cierra solo (RN-08)."""
     await _con_id(sesion, origen)
+    if tipos is None:
+        tipos = tuple(t for t in TipoAlerta if t is not TipoAlerta.manual)
     abiertas = await _alertas.listar_de_origen(
         sesion, origen, (EstadoAlerta.pendiente, EstadoAlerta.vista), tipos
     )
@@ -249,15 +252,14 @@ async def editar_recordatorio(
     sesion: AsyncSession, actor: Usuario, alerta_id: uuid.UUID, cambios: dict[str, Any]
 ) -> tuple[Alerta, ContextoDeAlerta]:
     """Cambia la fecha o la descripción de un recordatorio manual pendiente (CU-28 A2, RF-082).
-    Solo lo enviado cambia. Una alerta automática, vista o resuelta es `Conflicto`."""
+    Solo lo enviado cambia y solo lo edita su propietario (`SinPermiso` para admin o dueño sobre
+    una ajena). Una alerta automática es `Conflicto`; una vista o resuelta, `TransicionInvalida`."""
     alerta = await _alertas.obtener_para_modificar(
         sesion, alerta_id, visibilidad=visibilidad(actor)
     )
+    exigir_escritura(actor, alerta)
     if alerta.tipo is not TipoAlerta.manual:
         raise Conflicto("Solo se edita un recordatorio manual, no una alerta automática.")
-    if alerta.estado is not EstadoAlerta.pendiente:
-        raise Conflicto(f"Solo se edita un recordatorio pendiente, no uno {alerta.estado.value}.")
-    for campo, valor in cambios.items():
-        setattr(alerta, campo, valor)
+    estado.editar(alerta, cambios)
     await sesion.flush()
     return await _con_contexto(sesion, actor, alerta)
