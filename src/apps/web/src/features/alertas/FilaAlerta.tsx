@@ -7,7 +7,7 @@ import {
 } from "@rumbo/shared";
 import { usePosponerAlerta } from "@rumbo/shared/hooks";
 import type { AxiosInstance } from "axios";
-import { Check, Clock, Eye, Pencil } from "lucide-react";
+import { Check, Clock, Eye, Pencil, PanelRightOpen } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -27,7 +27,7 @@ function Plazo({ fecha, hoy }: { fecha: string; hoy: string }) {
   );
 }
 
-function FormularioPosponer({
+export function FormularioPosponer({
   cliente,
   alerta,
   hoy,
@@ -90,6 +90,7 @@ export function FilaAlerta({
   alMarcarVista,
   marcandoVista,
   alEditar,
+  alVerDetalle,
 }: {
   cliente: AxiosInstance;
   alerta: Alerta;
@@ -100,6 +101,7 @@ export function FilaAlerta({
   marcandoVista: boolean;
   /** Solo para el recordatorio manual pendiente propio (CU-28). */
   alEditar?: () => void;
+  alVerDetalle: () => void;
 }) {
   const [posponiendo, setPosponiendo] = useState(false);
   const esPago = alerta.tipo === "pago";
@@ -122,6 +124,14 @@ export function FilaAlerta({
         </div>
         <div className="flex shrink-0 items-center gap-2">
           <Plazo fecha={alerta.fecha} hoy={hoy} />
+          <Button
+            size="sm"
+            variant="ghost"
+            aria-label={sobre("Ver detalle")}
+            onClick={alVerDetalle}
+          >
+            <PanelRightOpen aria-hidden="true" />
+          </Button>
           {!esPago && (
             <Button size="sm" variant="outline" aria-label={sobre("Resolver")} onClick={alResolver}>
               <Check aria-hidden="true" />

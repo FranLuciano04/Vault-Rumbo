@@ -113,13 +113,13 @@ async function abrirDetalle(descripcion: string) {
 describe("RF-075 detalle de la alerta", () => {
   it("RF-075 al elegir la alerta abre el panel y pide su detalle a GET /api/alertas/{id}", async () => {
     const pedidos: string[] = [];
+    servirRequisitos();
     servidor.use(
       http.get("*/api/alertas/:id", ({ params }) => {
         pedidos.push(String(params["id"]));
         return HttpResponse.json(alertasMock.find((a) => a.id === params["id"]));
       }),
     );
-    servirRequisitos();
     renderAgenda();
 
     const { panel } = await abrirDetalle(FORMULARIO);
@@ -295,7 +295,7 @@ describe("RF-076 acciones desde el detalle", () => {
   function registrarPost(accion: "resolver" | "posponer" | "vista", pedidos: unknown[]) {
     return http.post(`*/api/alertas/:id/${accion}`, async ({ params, request }) => {
       const texto = await request.text();
-      pedidos.push({ id: String(params["id"]), cuerpo: texto ? JSON.parse(texto) : null });
+      pedidos.push({ id: String(params["id"]), cuerpo: texto ? (JSON.parse(texto) as unknown) : null });
       const alerta = alertasMock.find((a) => a.id === params["id"]);
       return HttpResponse.json({ ...alerta, estado: accion === "vista" ? "vista" : "resuelta" });
     });

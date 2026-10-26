@@ -15,6 +15,7 @@ import { useVolverFoco } from "@/lib/useVolverFoco";
 import { cn } from "@/lib/utils";
 import { FiltroResponsable } from "./FiltroResponsable";
 import { FilaAlerta } from "./FilaAlerta";
+import { PanelDetalleAlerta } from "./PanelDetalleAlerta";
 import { FormularioRecordatorio } from "./FormularioRecordatorio";
 import { useResolverConDeshacer } from "./useResolverConDeshacer";
 import { avisoRecordatorio } from "./avisoRecordatorio";
@@ -61,6 +62,7 @@ interface AccionesDeLista {
   marcandoVista: boolean;
   puedeEditar: (alerta: Alerta) => boolean;
   alEditar: (alerta: Alerta) => void;
+  alVerDetalle: (alerta: Alerta) => void;
 }
 
 function ListaDeAlertas({
@@ -70,6 +72,7 @@ function ListaDeAlertas({
   alMarcarVista,
   puedeEditar,
   alEditar,
+  alVerDetalle,
   ...resto
 }: { titulo?: string; alertas: Alerta[] } & AccionesDeLista) {
   return (
@@ -89,6 +92,9 @@ function ListaDeAlertas({
             }}
             alMarcarVista={() => {
               alMarcarVista(alerta);
+            }}
+            alVerDetalle={() => {
+              alVerDetalle(alerta);
             }}
             {...(puedeEditar(alerta) && {
               alEditar: () => {
@@ -134,6 +140,11 @@ export function PaginaAgenda({
   };
   const cerrarRecordatorio = () => {
     setRecordatorio(null);
+    foco.volver();
+  };
+  const [detalleId, setDetalleId] = useState<string | null>(null);
+  const cerrarDetalle = () => {
+    setDetalleId(null);
     foco.volver();
   };
   const filtros = {
@@ -196,6 +207,10 @@ export function PaginaAgenda({
       alerta.propietario_id === usuario.id,
     alEditar: (alerta) => {
       abrirRecordatorio({ alerta });
+    },
+    alVerDetalle: (alerta) => {
+      foco.recordar();
+      setDetalleId(alerta.id);
     },
   };
   const errorAccion =
@@ -495,6 +510,22 @@ export function PaginaAgenda({
           </div>
         )}
       </div>
+
+      {detalleId && (
+        <PanelDetalleAlerta
+          key={detalleId}
+          cliente={cliente}
+          alertaId={detalleId}
+          hoy={hoy}
+          alCerrar={cerrarDetalle}
+          alResolver={(alerta) => {
+            resolver(alerta);
+            setDetalleId(null);
+          }}
+          alMarcarVista={acciones.alMarcarVista}
+          marcandoVista={marcarVista.isPending}
+        />
+      )}
 
       <div
         aria-live="polite"
