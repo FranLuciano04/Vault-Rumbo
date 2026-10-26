@@ -3,7 +3,7 @@ id: T-061
 titulo: Publicar el contrato de oportunidades y cotizaciones
 modulo: M4 — Oportunidades y cotizaciones
 capa: contrato
-estado: tomado
+estado: hecho
 depende_de: [T-015]
 tamaño: M
 riesgo: normal
@@ -49,3 +49,11 @@ Existen los esquemas y routers stub (`501`) de oportunidades (embudo, consulta, 
 - `confirmar-reserva` (contrato de M6).
 
 ## Notas de implementación
+- **Modelos:** tests, verde, refactor y fix con sonnet; review con opus. No hubo escalados. El refactor no cambió nada.
+- **Contrato:** las 16 rutas del PC1 coinciden (11 bajo `/oportunidades` y 5 bajo `/cotizaciones`, todas con tag `oportunidades`). `operacion_de_viaje` de `contrato.py` pasó a llamarse `operacion_de_registro` porque ahora sirve también a M4; es solo un renombre.
+- **Desvíos del PC1, que la review aprobó:** `operationId` en `snake_case` (como M6); la insistencia devuelve la `Alerta` de M3; `max_length=200` en `destino_consultado` (sale de la base) y `minLength` en `concepto` y en la descripción de la insistencia.
+- **Mocks:** embudo con una oportunidad en cada uno de los 5 estados. La «cotizada» de Joaquín Ramos (Europa) usa el mismo id que las alertas ficticias. `reactivar` lleva de `perdida` a `en_gestion` (EST-Oportunidad T8).
+- **Hallazgos de la review:** 0 bloqueantes, 2 importantes y 4 menores. Se arreglaron los 2 importantes (`reactivar` iba a `nueva`; `useRegistrarConsulta` no invalidaba alertas y clientes, CU-30) y 2 menores (`ItemCotizacion` hereda de `Entrada` para recortar espacios; comentario de emitir). Se autorizó sumar al test el caso de un `concepto` de solo espacios.
+- **Para el backend de M4:** el esquema no valida `fecha_hasta_tentativa >= fecha_desde_tentativa` (la base tiene el CHECK: hoy daría 500, no 422) ni que `motivo_perdida="otro"` traiga detalle. El servicio tiene que devolver 422 en los dos casos (el mock de `perder` ya lo hace).
+- **Deuda de mocks (previa):** los ids de cliente no coinciden entre mocks de M2, M3, M4 y M6 (por ejemplo «Familia Sosa» y el historial de Camila).
+- **Checks:** un test de la web falló una vez al correr en paralelo con la suite del backend y pasó en dos corridas posteriores (416/416).
