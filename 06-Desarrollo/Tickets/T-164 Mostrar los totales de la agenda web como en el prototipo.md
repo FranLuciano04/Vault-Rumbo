@@ -3,7 +3,7 @@ id: T-164
 titulo: Mostrar los totales de la agenda web como en el prototipo
 modulo: M3 — Alertas
 capa: web
-estado: libre
+estado: tomado
 depende_de: [T-055]
 tamaño: S
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [CU-14, RF-074, RF-154]
 origen: hallazgo T-055
-asignado:
-tomado_el:
-rama:
+asignado: FranLucianoo
+tomado_el: 25/10/26 21:03
+rama: feature/T-164-mostrar-los-totales-de-la-agenda-web-com
 pr:
 ---
 # T-164 Mostrar los totales de la agenda web como en el prototipo

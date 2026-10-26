@@ -17,7 +17,7 @@ tags:: #tipo/referencia
 | M0 — Fundaciones | 38 | 38 | 0 | 0 | 0 | 0 | ✅ cerrado |
 | M1 — Usuarios y configuración | 19 | 19 | 0 | 0 | 0 | 0 | 🔍 listo para la review |
 | M2 — Clientes | 15 | 15 | 0 | 0 | 0 | 0 | 🔍 listo para la review |
-| M3 — Alertas | 11 | 8 | 0 | 3 | 0 | 0 | 🛠️ en curso |
+| M3 — Alertas | 14 | 8 | 1 | 4 | 1 | 0 | 🛠️ en curso |
 | M4 — Oportunidades y cotizaciones | 14 | 0 | 0 | 1 | 13 | 0 | 🛠️ en curso |
 | M5 — Hoteles y reseñas | 11 | 0 | 0 | 1 | 10 | 0 | 🛠️ en curso |
 | M6 — Viajes y economía | 24 | 0 | 0 | 3 | 21 | 0 | 🛠️ en curso |
@@ -121,7 +121,10 @@ flowchart LR
     T057["T-057 · Atender la agenda del día en la app mobile<br/><small>mobile</small>"]:::hecho
     T058["T-058 · Posponer una alerta desde su detalle en la app mobile<br/><small>mobile</small>"]:::disponible
     T059["T-059 · Crear un recordatorio manual desde la app mobile<br/><small>mobile</small>"]:::disponible
-    T060["T-060 · Probar de punta a punta la agenda de alertas<br/><small>e2e</small>"]:::disponible
+    T060["T-060 · Probar de punta a punta la agenda de alertas<br/><small>e2e</small>"]:::esperando
+    T164["T-164 · Mostrar los totales de la agenda web como en el prototipo<br/><small>web</small><br/>👤 FranLucianoo"]:::tomado
+    T165["T-165 · Filtrar la agenda mobile con chips como en el prototipo<br/><small>mobile</small>"]:::disponible
+    T166["T-166 · Mostrar el detalle de la alerta en un panel lateral de la agenda web<br/><small>web</small>"]:::disponible
   end
   subgraph M4["M4 — Oportunidades y cotizaciones"]
     T061["T-061 · Publicar el contrato de oportunidades y cotizaciones<br/><small>contrato</small>"]:::disponible
@@ -335,6 +338,8 @@ flowchart LR
   T055 --> T060
   T056 --> T060
   T025 --> T060
+  T164 --> T060
+  T166 --> T060
   T015 --> T061
   T061 --> T062
   T040 --> T062
@@ -528,6 +533,10 @@ flowchart LR
   T044 --> T157
   T155 --> T157
   T156 --> T157
+  T055 --> T164
+  T057 --> T165
+  T055 --> T166
+  T032 --> T166
   classDef hecho fill:#c8e6c9,stroke:#2e7d32,color:#1b5e20
   classDef tomado fill:#fff3cd,stroke:#b8860b,color:#5d4300
   classDef disponible fill:#dbeafe,stroke:#1d4ed8,color:#1e3a8a
