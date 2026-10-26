@@ -18,6 +18,16 @@ import { FilaAlerta } from "./FilaAlerta";
 import { FormularioRecordatorio } from "./FormularioRecordatorio";
 import { useResolverConDeshacer } from "./useResolverConDeshacer";
 import { avisoRecordatorio } from "./avisoRecordatorio";
+import { diaAnterior, useTotalesAgenda } from "./useTotalesAgenda";
+
+type Pestana = "todas" | "atrasadas" | "hoy" | "proximas";
+
+const PESTANAS: { clave: Pestana; etiqueta: string }[] = [
+  { clave: "todas", etiqueta: "Todas" },
+  { clave: "atrasadas", etiqueta: "Atrasadas" },
+  { clave: "hoy", etiqueta: "Hoy" },
+  { clave: "proximas", etiqueta: "Próximas" },
+];
 
 const TIPOS = Object.keys(ETIQUETA_TIPO_ALERTA) as TipoAlerta[];
 
@@ -89,7 +99,9 @@ export function PaginaAgenda({
   usuario: UsuarioActual;
 }) {
   const esDeAgencia = usuario.rol === "admin" || usuario.rol === "dueno";
-  const [proximas, setProximas] = useState(false);
+  const [pestana, setPestana] = useState<Pestana>("todas");
+  const proximas = pestana === "proximas";
+  const hoy = hoyEnBuenosAires();
   const [mostrarVistas, setMostrarVistas] = useState(false);
   const [tipo, setTipo] = useState<TipoAlerta | "">("");
   const [responsable, setResponsable] = useState("");
@@ -113,6 +125,8 @@ export function PaginaAgenda({
     ...(tipo && { tipo }),
     ...(responsable && { propietario_id: responsable }),
     ...(proximas && { proximas }),
+    ...(pestana === "atrasadas" && { hasta: diaAnterior(hoy) }),
+    ...(pestana === "hoy" && { hasta: hoy }),
   };
   // Todo cambio de filtro vuelve a la primera página.
   const filtrar = (cambio: () => void) => {
@@ -123,6 +137,7 @@ export function PaginaAgenda({
   const pendientes = useAlertas(cliente, filtros);
   const vistas = useAlertas(cliente, { ...filtros, pagina: 1, estado: "vista" });
   const progreso = useProgresoDelDia(cliente);
+  const totales = useTotalesAgenda(cliente, hoy, responsable);
   const marcarVista = useMarcarAlertaVista(cliente);
   const {
     resueltas,
@@ -135,13 +150,12 @@ export function PaginaAgenda({
   const porcentaje = progreso.data?.total_del_dia
     ? (progreso.data.resueltas_hoy / progreso.data.total_del_dia) * 100
     : 0;
-  const hoy = hoyEnBuenosAires();
   const resueltasIds = new Set(resueltas.map((r) => r.alerta.id));
   const alertas = [
     ...(pendientes.data?.items ?? []),
     ...(mostrarVistas ? (vistas.data?.items ?? []) : []),
   ]
-    .filter((a) => !resueltasIds.has(a.id))
+    .filter((a) => !resueltasIds.has(a.id) && (pestana !== "hoy" || a.fecha === hoy))
     .sort(porFecha);
   const atrasadas = alertas.filter((a) => a.fecha < hoy);
   const deHoy = alertas.filter((a) => a.fecha >= hoy);
@@ -210,51 +224,65 @@ export function PaginaAgenda({
         </p>
       )}
 
-      {progreso.data && (
-        <div className="rounded-2xl bg-primary p-5 text-primary-foreground">
-          <p className="text-xs font-medium tracking-wide uppercase opacity-80">Progreso del día</p>
-          <p className="text-xl font-semibold">
-            {esDeAgencia ? "La agencia lleva" : "Llevás"} {progreso.data.resueltas_hoy} de{" "}
-            {progreso.data.total_del_dia} alertas resueltas
-          </p>
-          <div
-            role="progressbar"
-            aria-label="Progreso del día"
-            aria-valuemin={0}
-            aria-valuenow={progreso.data.resueltas_hoy}
-            aria-valuemax={progreso.data.total_del_dia}
-            className="mt-3 h-2 overflow-hidden rounded-full bg-primary-foreground/25"
-          >
+      <div className="flex flex-wrap gap-4">
+        {progreso.data && (
+          <div className="min-w-64 flex-1 rounded-2xl bg-primary p-5 text-primary-foreground">
+            <p className="text-xs font-medium tracking-wide uppercase opacity-80">
+              Progreso del día
+            </p>
+            <p className="text-xl font-semibold">
+              {esDeAgencia ? "La agencia lleva" : "Llevás"} {progreso.data.resueltas_hoy} de{" "}
+              {progreso.data.total_del_dia} alertas resueltas
+            </p>
             <div
-              className="h-full bg-primary-foreground"
-              style={{
-                width: `${String(porcentaje)}%`,
-              }}
-            />
+              role="progressbar"
+              aria-label="Progreso del día"
+              aria-valuemin={0}
+              aria-valuenow={progreso.data.resueltas_hoy}
+              aria-valuemax={progreso.data.total_del_dia}
+              className="mt-3 h-2 overflow-hidden rounded-full bg-primary-foreground/25"
+            >
+              <div
+                className="h-full bg-primary-foreground"
+                style={{
+                  width: `${String(porcentaje)}%`,
+                }}
+              />
+            </div>
           </div>
+        )}
+        <div role="group" aria-label="Totales de la agenda" className="flex gap-4">
+          {[
+            { rotulo: "Atrasadas", total: totales.atrasadas },
+            { rotulo: "Para hoy", total: totales.hoy },
+          ].map(({ rotulo, total }) => (
+            <div key={rotulo} className="min-w-32 rounded-2xl border bg-card p-5">
+              <p className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
+                {rotulo}
+              </p>
+              <p className="text-3xl font-semibold">{total ?? "–"}</p>
+            </div>
+          ))}
         </div>
-      )}
+      </div>
 
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div role="tablist" aria-label="Alertas" className="flex rounded-lg border bg-card p-1">
-          {[
-            { etiqueta: "Pendientes", esProximas: false },
-            { etiqueta: "Próximas", esProximas: true },
-          ].map(({ etiqueta, esProximas }) => (
+          {PESTANAS.map(({ clave, etiqueta }) => (
             <Button
-              key={etiqueta}
-              id={`pestana-${etiqueta}`}
+              key={clave}
+              id={`pestana-${clave}`}
               role="tab"
               aria-controls="panel-agenda"
-              aria-selected={proximas === esProximas}
-              variant={proximas === esProximas ? "default" : "ghost"}
+              aria-selected={pestana === clave}
+              variant={pestana === clave ? "default" : "ghost"}
               onClick={() => {
                 filtrar(() => {
-                  setProximas(esProximas);
+                  setPestana(clave);
                 });
               }}
             >
-              {etiqueta}
+              {etiqueta} <span className="tabular-nums">{totales[clave] ?? "–"}</span>
             </Button>
           ))}
         </div>
@@ -332,7 +360,7 @@ export function PaginaAgenda({
       <div
         id="panel-agenda"
         role="tabpanel"
-        aria-labelledby={proximas ? "pestana-Próximas" : "pestana-Pendientes"}
+        aria-labelledby={`pestana-${pestana}`}
         className="flex flex-col gap-4"
       >
         {pendientes.data && !vistas.isPending && alertas.length === 0 && (
@@ -368,7 +396,7 @@ export function PaginaAgenda({
                   <Button
                     onClick={() => {
                       filtrar(() => {
-                        setProximas(true);
+                        setPestana("proximas");
                       });
                     }}
                   >
@@ -390,7 +418,7 @@ export function PaginaAgenda({
 
         {alertas.length > 0 && (
           <div className="rounded-2xl border bg-card p-2">
-            {proximas ? (
+            {pestana !== "todas" ? (
               <ListaDeAlertas alertas={alertas} {...acciones} />
             ) : (
               <>
