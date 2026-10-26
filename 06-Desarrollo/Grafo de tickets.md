@@ -20,7 +20,7 @@ tags:: #tipo/referencia
 | M3 — Alertas | 14 | 9 | 0 | 4 | 1 | 0 | 🛠️ en curso |
 | M4 — Oportunidades y cotizaciones | 14 | 0 | 0 | 1 | 13 | 0 | 🛠️ en curso |
 | M5 — Hoteles y reseñas | 11 | 0 | 0 | 1 | 10 | 0 | 🛠️ en curso |
-| M6 — Viajes y economía | 24 | 0 | 1 | 2 | 21 | 0 | 🛠️ en curso |
+| M6 — Viajes y economía | 24 | 1 | 0 | 3 | 20 | 0 | 🛠️ en curso |
 | M7 — Proceso diario y CRM proactivo | 9 | 0 | 0 | 1 | 8 | 0 | 🛠️ en curso |
 | M8 — Calendario, dashboard y reportes | 10 | 0 | 0 | 1 | 9 | 0 | 🛠️ en curso |
 | M9 — Redes e IA | 6 | 0 | 0 | 1 | 5 | 0 | 🛠️ en curso |
@@ -156,7 +156,7 @@ flowchart LR
     T085["T-085 · Probar de punta a punta el catálogo de hoteles<br/><small>e2e</small>"]:::esperando
   end
   subgraph M6["M6 — Viajes y economía"]
-    T086["T-086 · Publicar el contrato de viajes y economía<br/><small>contrato</small><br/>👤 palomap2003"]:::tomado
+    T086["T-086 · Publicar el contrato de viajes y economía<br/><small>contrato</small>"]:::hecho
     T087["T-087 · Implementar la máquina de estados del viaje<br/><small>backend · ⚠️ riesgo alto</small>"]:::disponible
     T088["T-088 · Implementar los estados del pago<br/><small>backend · ⚠️ riesgo alto</small>"]:::disponible
     T089["T-089 · Confirmar la reserva creando el viaje<br/><small>backend · ⚠️ riesgo alto</small>"]:::esperando
@@ -170,7 +170,7 @@ flowchart LR
     T097["T-097 · Armar el itinerario de hoteles del viaje<br/><small>backend</small>"]:::esperando
     T098["T-098 · Registrar el pago al proveedor de cada tramo<br/><small>backend · ⚠️ riesgo alto</small>"]:::esperando
     T099["T-099 · Cancelar un viaje con su reversión<br/><small>backend · ⚠️ riesgo alto</small>"]:::esperando
-    T100["T-100 · Listar los viajes en la web<br/><small>web</small>"]:::esperando
+    T100["T-100 · Listar los viajes en la web<br/><small>web</small>"]:::disponible
     T101["T-101 · Confirmar la reserva desde la oportunidad en la web<br/><small>web</small>"]:::esperando
     T102["T-102 · Registrar la economía desde la ficha del viaje en la web<br/><small>web</small>"]:::esperando
     T103["T-103 · Definir el plan de cuotas en la web<br/><small>web</small>"]:::esperando
