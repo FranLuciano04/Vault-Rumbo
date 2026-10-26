@@ -146,11 +146,16 @@ OPERACIONES: list[tuple[str, str, str, Any, str, set[str]]] = [
         {"403", "404", "409"},
     ),
 ]
-# Las que todavía responden 501 (listar, ver y editar oportunidades se implementaron en T-063).
+# Las que todavía responden 501 (listar, ver y editar oportunidades se implementaron en T-063;
+# las acciones de estado en T-064).
 IMPLEMENTADAS = {
     ("get", "/api/oportunidades"),
     ("get", "/api/oportunidades/{oportunidad_id}"),
     ("patch", "/api/oportunidades/{oportunidad_id}"),
+    ("post", "/api/oportunidades/{oportunidad_id}/en-gestion"),
+    ("post", "/api/oportunidades/{oportunidad_id}/perder"),
+    ("post", "/api/oportunidades/{oportunidad_id}/reactivar"),
+    ("post", "/api/oportunidades/{oportunidad_id}/ganar"),
 }
 OPERACIONES_STUB = [
     (m, c, cuerpo) for m, r, c, cuerpo, _, _ in OPERACIONES if (m, r) not in IMPLEMENTADAS
@@ -704,11 +709,13 @@ async def test_cu05_perder_por_otro_sin_detalle_responde_422(
         {"motivo_perdida": "precio", "motivo_perdida_detalle": ""},
     ],
 )
-async def test_cu05_perder_con_detalle_valido_o_motivo_distinto_llega_al_501(
+async def test_cu05_perder_con_detalle_valido_o_motivo_distinto_pasa_el_esquema(
     cliente_como: FabricaCliente, cuerpo: dict[str, Any]
 ) -> None:
+    """El esquema lo acepta; con un id inexistente la respuesta es 404, no 422."""
     c = await cliente_como("empleado")
 
     r = await c.post(f"/api/oportunidades/{ID}/perder", json=cuerpo)
 
-    assert r.status_code == 501
+    assert r.status_code == 404
+    assert r.headers["content-type"].startswith(PROBLEM_JSON)
