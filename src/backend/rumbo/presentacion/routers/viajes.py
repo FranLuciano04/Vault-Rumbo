@@ -11,7 +11,7 @@ from rumbo.presentacion.contrato import (
     TODOS,
     no_implementado,
     operacion,
-    operacion_de_viaje,
+    operacion_de_registro,
     respuesta_pagina,
 )
 from rumbo.presentacion.esquemas.viajes import Cancelacion, ConfirmarReserva, Tramo, Viaje
@@ -33,7 +33,7 @@ _LISTADO["responses"][200] = respuesta_pagina(
     operation_id="confirmar_reserva",
     summary="Confirmar la reserva y crear el viaje",
     status_code=201,
-    **operacion_de_viaje(403, 404, 409, 422, casos_de_uso="CU-07, CU-10, CU-11"),
+    **operacion_de_registro(403, 404, 409, 422, casos_de_uso="CU-07, CU-10, CU-11"),
 )
 async def confirmar_reserva(oportunidad_id: uuid.UUID, datos: ConfirmarReserva) -> Viaje:
     raise no_implementado()
@@ -65,7 +65,7 @@ async def listar_viajes(
     "/viajes/{viaje_id}",
     operation_id="obtener_viaje",
     summary="Ver la ficha del viaje, con economía y saldo",
-    **operacion_de_viaje(404, casos_de_uso="CU-08, CU-10, CU-12", escritura=False),
+    **operacion_de_registro(404, casos_de_uso="CU-08, CU-10, CU-12", escritura=False),
 )
 async def obtener_viaje(viaje_id: uuid.UUID) -> Viaje:
     raise no_implementado()
@@ -75,7 +75,7 @@ async def obtener_viaje(viaje_id: uuid.UUID) -> Viaje:
     "/viajes/{viaje_id}/iniciar",
     operation_id="iniciar_viaje",
     summary="Pasar el viaje a en curso",
-    **operacion_de_viaje(403, 404, 409, casos_de_uso="CU-08"),
+    **operacion_de_registro(403, 404, 409, casos_de_uso="CU-08"),
 )
 async def iniciar_viaje(viaje_id: uuid.UUID) -> Viaje:
     raise no_implementado()
@@ -85,7 +85,7 @@ async def iniciar_viaje(viaje_id: uuid.UUID) -> Viaje:
     "/viajes/{viaje_id}/finalizar",
     operation_id="finalizar_viaje",
     summary="Pasar el viaje a finalizado",
-    **operacion_de_viaje(403, 404, 409, casos_de_uso="CU-08"),
+    **operacion_de_registro(403, 404, 409, casos_de_uso="CU-08"),
 )
 async def finalizar_viaje(viaje_id: uuid.UUID) -> Viaje:
     raise no_implementado()
@@ -95,7 +95,7 @@ async def finalizar_viaje(viaje_id: uuid.UUID) -> Viaje:
     "/viajes/{viaje_id}/corregir-estado",
     operation_id="corregir_estado_viaje",
     summary="Volver al estado anterior por un error de carga",
-    **operacion_de_viaje(403, 404, 409, casos_de_uso="CU-08"),
+    **operacion_de_registro(403, 404, 409, casos_de_uso="CU-08"),
 )
 async def corregir_estado_viaje(viaje_id: uuid.UUID) -> Viaje:
     raise no_implementado()
@@ -105,7 +105,7 @@ async def corregir_estado_viaje(viaje_id: uuid.UUID) -> Viaje:
     "/viajes/{viaje_id}/cancelar",
     operation_id="cancelar_viaje",
     summary="Cancelar el viaje",
-    **operacion_de_viaje(403, 404, 409, 422, casos_de_uso="CU-27"),
+    **operacion_de_registro(403, 404, 409, 422, casos_de_uso="CU-27"),
 )
 async def cancelar_viaje(viaje_id: uuid.UUID, datos: Cancelacion) -> Viaje:
     raise no_implementado()
@@ -115,7 +115,7 @@ async def cancelar_viaje(viaje_id: uuid.UUID, datos: Cancelacion) -> Viaje:
     "/viajes/{viaje_id}/revertir-cancelacion",
     operation_id="revertir_cancelacion",
     summary="Revertir la cancelación",
-    **operacion_de_viaje(403, 404, 409, casos_de_uso="CU-27"),
+    **operacion_de_registro(403, 404, 409, casos_de_uso="CU-27"),
 )
 async def revertir_cancelacion(viaje_id: uuid.UUID) -> Viaje:
     raise no_implementado()
@@ -125,7 +125,7 @@ async def revertir_cancelacion(viaje_id: uuid.UUID) -> Viaje:
     "/viajes/{viaje_id}/itinerario",
     operation_id="obtener_itinerario",
     summary="Ver el itinerario de hoteles",
-    **operacion_de_viaje(404, casos_de_uso="CU-09", escritura=False),
+    **operacion_de_registro(404, casos_de_uso="CU-09", escritura=False),
 )
 async def obtener_itinerario(viaje_id: uuid.UUID) -> list[Tramo]:
     raise no_implementado()
@@ -136,7 +136,7 @@ async def obtener_itinerario(viaje_id: uuid.UUID) -> list[Tramo]:
     operation_id="agregar_tramo",
     summary="Agregar un hotel al itinerario",
     status_code=201,
-    **operacion_de_viaje(403, 404, 409, 422, casos_de_uso="CU-09"),
+    **operacion_de_registro(403, 404, 409, 422, casos_de_uso="CU-09"),
 )
 async def agregar_tramo(viaje_id: uuid.UUID, datos: Tramo) -> Tramo:
     raise no_implementado()
@@ -146,7 +146,7 @@ async def agregar_tramo(viaje_id: uuid.UUID, datos: Tramo) -> Tramo:
     "/tramos/{tramo_id}",
     operation_id="editar_tramo",
     summary="Editar un tramo o marcar pagado al proveedor",
-    **operacion_de_viaje(403, 404, 409, 422, casos_de_uso="CU-09"),
+    **operacion_de_registro(403, 404, 409, 422, casos_de_uso="CU-09"),
 )
 async def editar_tramo(tramo_id: uuid.UUID, cambios: Tramo) -> Tramo:
     raise no_implementado()
@@ -157,7 +157,7 @@ async def editar_tramo(tramo_id: uuid.UUID, cambios: Tramo) -> Tramo:
     operation_id="quitar_tramo",
     summary="Quitar un hotel del itinerario",
     status_code=204,
-    **operacion_de_viaje(403, 404, casos_de_uso="CU-09"),
+    **operacion_de_registro(403, 404, casos_de_uso="CU-09"),
 )
 async def quitar_tramo(tramo_id: uuid.UUID) -> None:
     """Quita el tramo; su alerta se cierra."""

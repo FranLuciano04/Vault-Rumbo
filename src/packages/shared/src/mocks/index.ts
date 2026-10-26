@@ -54,3 +54,4 @@ export * from "./clientes";
 export * from "./m1";
 export * from "./economia";
 export * from "./viajes";
+export * from "./oportunidades";

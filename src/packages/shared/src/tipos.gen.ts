@@ -721,6 +721,360 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/oportunidades": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Listar oportunidades (embudo)
+         * @description **Roles:** admin, dueno, empleado, freelance.
+         *
+         *     **Visibilidad:** freelance, solo lo propio (DEC-0008).
+         *
+         *     **Casos de uso:** CU-05.
+         */
+        get: operations["listar_oportunidades"];
+        put?: never;
+        /**
+         * Registrar una consulta
+         * @description **Roles:** admin, dueno, empleado, freelance.
+         *
+         *     **Casos de uso:** CU-04, CU-30.
+         */
+        post: operations["registrar_consulta"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/oportunidades/{oportunidad_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Ver una oportunidad
+         * @description **Roles:** admin, dueno, empleado, freelance.
+         *
+         *     **Visibilidad:** freelance, solo lo propio (DEC-0008).
+         *
+         *     **Casos de uso:** CU-05.
+         */
+        get: operations["obtener_oportunidad"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Editar una oportunidad o sus notas de seguimiento
+         * @description **Roles:** admin, dueno, empleado, freelance.
+         *
+         *     **Visibilidad:** freelance, solo lo propio (DEC-0008).
+         *
+         *     **Escritura:** el responsable del registro, o admin o dueño (DEC-0005).
+         *
+         *     **Casos de uso:** CU-05.
+         */
+        patch: operations["editar_oportunidad"];
+        trace?: never;
+    };
+    "/api/oportunidades/{oportunidad_id}/en-gestion": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Pasar la oportunidad a en gestión
+         * @description **Roles:** admin, dueno, empleado, freelance.
+         *
+         *     **Visibilidad:** freelance, solo lo propio (DEC-0008).
+         *
+         *     **Escritura:** el responsable del registro, o admin o dueño (DEC-0005).
+         *
+         *     **Casos de uso:** CU-05.
+         */
+        post: operations["tomar_oportunidad"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/oportunidades/{oportunidad_id}/insistencias": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Agendar una insistencia
+         * @description **Roles:** admin, dueno, empleado, freelance.
+         *
+         *     **Visibilidad:** freelance, solo lo propio (DEC-0008).
+         *
+         *     **Escritura:** el responsable del registro, o admin o dueño (DEC-0005).
+         *
+         *     **Casos de uso:** CU-05.
+         */
+        post: operations["agendar_insistencia"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/oportunidades/{oportunidad_id}/perder": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Cerrar la oportunidad como perdida
+         * @description **Roles:** admin, dueno, empleado, freelance.
+         *
+         *     **Visibilidad:** freelance, solo lo propio (DEC-0008).
+         *
+         *     **Escritura:** el responsable del registro, o admin o dueño (DEC-0005).
+         *
+         *     **Casos de uso:** CU-05.
+         */
+        post: operations["perder_oportunidad"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/oportunidades/{oportunidad_id}/reactivar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Reactivar una oportunidad perdida
+         * @description **Roles:** admin, dueno, empleado, freelance.
+         *
+         *     **Visibilidad:** freelance, solo lo propio (DEC-0008).
+         *
+         *     **Escritura:** el responsable del registro, o admin o dueño (DEC-0005).
+         *
+         *     **Casos de uso:** CU-05.
+         */
+        post: operations["reactivar_oportunidad"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/oportunidades/{oportunidad_id}/ganar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Cerrar como ganada sin cotización formal (venta directa)
+         * @description **Roles:** admin, dueno, empleado, freelance.
+         *
+         *     **Visibilidad:** freelance, solo lo propio (DEC-0008).
+         *
+         *     **Escritura:** el responsable del registro, o admin o dueño (DEC-0005).
+         *
+         *     **Casos de uso:** CU-05.
+         */
+        post: operations["ganar_oportunidad_sin_cotizacion"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/oportunidades/{oportunidad_id}/cotizaciones": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Listar las cotizaciones (versiones) de una oportunidad
+         * @description **Roles:** admin, dueno, empleado, freelance.
+         *
+         *     **Visibilidad:** freelance, solo lo propio (DEC-0008).
+         *
+         *     **Casos de uso:** CU-06.
+         */
+        get: operations["listar_cotizaciones"];
+        put?: never;
+        /**
+         * Emitir una cotización o una nueva versión
+         * @description **Roles:** admin, dueno, empleado, freelance.
+         *
+         *     **Visibilidad:** freelance, solo lo propio (DEC-0008).
+         *
+         *     **Escritura:** el responsable del registro, o admin o dueño (DEC-0005).
+         *
+         *     **Casos de uso:** CU-06.
+         */
+        post: operations["emitir_cotizacion"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/cotizaciones/{cotizacion_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Ver una cotización
+         * @description **Roles:** admin, dueno, empleado, freelance.
+         *
+         *     **Visibilidad:** freelance, solo lo propio (DEC-0008).
+         *
+         *     **Casos de uso:** CU-06.
+         */
+        get: operations["obtener_cotizacion"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/cotizaciones/{cotizacion_id}/documento": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Descargar el documento de la cotización
+         * @description **Roles:** admin, dueno, empleado, freelance.
+         *
+         *     **Visibilidad:** freelance, solo lo propio (DEC-0008).
+         *
+         *     **Casos de uso:** CU-06.
+         */
+        get: operations["descargar_cotizacion"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/cotizaciones/{cotizacion_id}/enviar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Marcar la cotización como enviada
+         * @description **Roles:** admin, dueno, empleado, freelance.
+         *
+         *     **Visibilidad:** freelance, solo lo propio (DEC-0008).
+         *
+         *     **Escritura:** el responsable del registro, o admin o dueño (DEC-0005).
+         *
+         *     **Casos de uso:** CU-06.
+         */
+        post: operations["marcar_cotizacion_enviada"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/cotizaciones/{cotizacion_id}/aceptar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Registrar que el cliente aceptó la cotización
+         * @description **Roles:** admin, dueno, empleado, freelance.
+         *
+         *     **Visibilidad:** freelance, solo lo propio (DEC-0008).
+         *
+         *     **Escritura:** el responsable del registro, o admin o dueño (DEC-0005).
+         *
+         *     **Casos de uso:** CU-06.
+         */
+        post: operations["aceptar_cotizacion"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/cotizaciones/{cotizacion_id}/rechazar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Registrar que el cliente rechazó la cotización
+         * @description **Roles:** admin, dueno, empleado, freelance.
+         *
+         *     **Visibilidad:** freelance, solo lo propio (DEC-0008).
+         *
+         *     **Escritura:** el responsable del registro, o admin o dueño (DEC-0005).
+         *
+         *     **Casos de uso:** CU-06.
+         */
+        post: operations["rechazar_cotizacion"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/oportunidades/{oportunidad_id}/confirmar-reserva": {
         parameters: {
             query?: never;
@@ -1297,6 +1651,11 @@ export interface components {
             /** Nombre */
             nombre: string;
         };
+        /**
+         * CanalOportunidad
+         * @enum {string}
+         */
+        CanalOportunidad: "instagram" | "whatsapp" | "presencial";
         /** Cancelacion */
         Cancelacion: {
             /** Motivo Cancelacion */
@@ -1587,6 +1946,50 @@ export interface components {
             viaje: components["schemas"]["ViajeDeAlerta"] | null;
             pago: components["schemas"]["PagoDeAlerta"] | null;
         };
+        Cotizacion: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            readonly id: string;
+            /**
+             * Oportunidad Id
+             * Format: uuid
+             */
+            readonly oportunidad_id: string;
+            /**
+             * Fecha
+             * Format: date
+             * @description Fecha de emisión.
+             */
+            readonly fecha: string;
+            moneda: components["schemas"]["Moneda"];
+            /** Items */
+            items: components["schemas"]["ItemCotizacion"][];
+            /**
+             * Total
+             * Format: decimal
+             * @description Suma de los ítems; la calcula el servidor.
+             * @example 1000000.00
+             */
+            readonly total: string;
+            /**
+             * Validez Hasta
+             * Format: date
+             * @description Fecha de emisión más la vigencia configurada (1 mes por defecto).
+             */
+            readonly validez_hasta: string;
+            readonly estado: components["schemas"]["EstadoCotizacion"];
+        } & components["schemas"]["Auditoria"];
+        /**
+         * CotizacionCrear
+         * @description Cada envío crea una versión nueva; las anteriores quedan en el historial (CU-06 A1).
+         */
+        CotizacionCrear: {
+            moneda: components["schemas"]["Moneda"];
+            /** Items */
+            items: components["schemas"]["ItemCotizacion"][];
+        };
         /** Destino */
         Destino: {
             /**
@@ -1690,6 +2093,11 @@ export interface components {
          */
         EstadoAlerta: "pendiente" | "vista" | "resuelta";
         /**
+         * EstadoCotizacion
+         * @enum {string}
+         */
+        EstadoCotizacion: "borrador" | "enviada" | "aceptada" | "rechazada" | "vencida";
+        /**
          * EstadoOportunidad
          * @enum {string}
          */
@@ -1727,10 +2135,43 @@ export interface components {
             resenas: components["schemas"]["ResenaDelCliente"][];
         };
         /**
+         * Insistencia
+         * @description Agenda un recontacto: crea una alerta para el responsable (CU-05).
+         */
+        Insistencia: {
+            /**
+             * Fecha
+             * Format: date
+             * @description Cuándo volver a contactar.
+             */
+            fecha: string;
+            /** Descripcion */
+            descripcion: string;
+        };
+        /** ItemCotizacion */
+        ItemCotizacion: {
+            /**
+             * Concepto
+             * @description Aéreo, alojamiento, traslados, excursiones…
+             */
+            concepto: string;
+            /**
+             * Precio
+             * Format: decimal
+             * @example 1000000.00
+             */
+            precio: string;
+        };
+        /**
          * Moneda
          * @enum {string}
          */
         Moneda: "ARS" | "USD";
+        /**
+         * MotivoPerdida
+         * @enum {string}
+         */
+        MotivoPerdida: "precio" | "fechas_disponibilidad" | "desistio" | "otra_agencia" | "sin_respuesta" | "otro";
         /** Operador */
         Operador: {
             /**
@@ -1779,6 +2220,70 @@ export interface components {
             /** Contacto */
             contacto?: string | null;
         };
+        Oportunidad: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            readonly id: string;
+            /**
+             * Cliente Id
+             * Format: uuid
+             */
+            cliente_id: string;
+            /**
+             * Responsable Id
+             * Format: uuid
+             * @description Quien la registró o la sigue; define la vista personal (DEC-0005).
+             */
+            responsable_id: string;
+            canal: components["schemas"]["CanalOportunidad"];
+            /**
+             * Destino Consultado
+             * @description Texto libre; se normaliza a un Destino al confirmar la reserva (DEC-0006).
+             */
+            destino_consultado: string;
+            /** Fecha Desde Tentativa */
+            fecha_desde_tentativa: string | null;
+            /** Fecha Hasta Tentativa */
+            fecha_hasta_tentativa: string | null;
+            /** Pasajeros */
+            pasajeros: number;
+            readonly estado: components["schemas"]["EstadoOportunidad"];
+            readonly motivo_perdida: components["schemas"]["MotivoPerdida"] | null;
+            /**
+             * Motivo Perdida Detalle
+             * @description Texto libre si el motivo es «otro».
+             */
+            readonly motivo_perdida_detalle: string | null;
+            /**
+             * Notas
+             * @description Notas de la consulta y del seguimiento.
+             */
+            notas: string | null;
+        } & components["schemas"]["Auditoria"];
+        /**
+         * OportunidadCrear
+         * @description Registra una consulta (CU-04). El responsable es el usuario que la registra.
+         */
+        OportunidadCrear: {
+            /**
+             * Cliente Id
+             * Format: uuid
+             */
+            cliente_id: string;
+            canal: components["schemas"]["CanalOportunidad"];
+            /** Destino Consultado */
+            destino_consultado: string;
+            /** Fecha Desde Tentativa */
+            fecha_desde_tentativa?: string | null;
+            /** Fecha Hasta Tentativa */
+            fecha_hasta_tentativa?: string | null;
+            /** Pasajeros */
+            pasajeros: number;
+            /** Notas */
+            notas?: string | null;
+        };
         /** OportunidadDeAlerta */
         OportunidadDeAlerta: {
             /**
@@ -1807,6 +2312,38 @@ export interface components {
             fecha_desde_tentativa: string | null;
             /** Fecha Hasta Tentativa */
             fecha_hasta_tentativa: string | null;
+        };
+        /**
+         * OportunidadEditar
+         * @description Solo se envían los campos que cambian.
+         */
+        OportunidadEditar: {
+            canal?: components["schemas"]["CanalOportunidad"];
+            /** Destino Consultado */
+            destino_consultado?: string;
+            /** Fecha Desde Tentativa */
+            fecha_desde_tentativa?: string | null;
+            /** Fecha Hasta Tentativa */
+            fecha_hasta_tentativa?: string | null;
+            /** Pasajeros */
+            pasajeros?: number;
+            /** Notas */
+            notas?: string | null;
+            /**
+             * Responsable Id
+             * Format: uuid
+             * @description Reasignar el responsable: solo admin o dueño.
+             */
+            responsable_id?: string;
+        };
+        /** OportunidadPerder */
+        OportunidadPerder: {
+            motivo_perdida: components["schemas"]["MotivoPerdida"];
+            /**
+             * Motivo Perdida Detalle
+             * @description Obligatorio si el motivo es «otro».
+             */
+            motivo_perdida_detalle?: string | null;
         };
         /** Pagina[ClienteListado] */
         Pagina_ClienteListado_: {
@@ -4675,6 +5212,972 @@ export interface operations {
                 };
             };
             /** @description Datos inválidos. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+        };
+    };
+    listar_oportunidades: {
+        parameters: {
+            query?: {
+                /** @description Solo las oportunidades que tengo asignadas. */
+                mios?: boolean;
+                estado?: components["schemas"]["EstadoOportunidad"] | null;
+                cliente_id?: string | null;
+                pagina?: number;
+                por_pagina?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Oportunidades (el embudo). Ordenadas por la última modificación; con `mios=true`, solo las que tengo asignadas. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        items: components["schemas"]["Oportunidad"][];
+                        /** @description Cantidad total de resultados. */
+                        total: number;
+                        pagina: number;
+                        por_pagina: number;
+                    };
+                };
+            };
+            /** @description Falta el token, no es válido o el usuario no tiene acceso. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Datos inválidos. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+        };
+    };
+    registrar_consulta: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OportunidadCrear"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Oportunidad"];
+                };
+            };
+            /** @description Falta el token, no es válido o el usuario no tiene acceso. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Datos inválidos. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+        };
+    };
+    obtener_oportunidad: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                oportunidad_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Oportunidad"];
+                };
+            };
+            /** @description Falta el token, no es válido o el usuario no tiene acceso. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description No existe. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+        };
+    };
+    editar_oportunidad: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                oportunidad_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OportunidadEditar"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Oportunidad"];
+                };
+            };
+            /** @description Falta el token, no es válido o el usuario no tiene acceso. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description El rol no alcanza. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description No existe. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Datos inválidos. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+        };
+    };
+    tomar_oportunidad: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                oportunidad_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Oportunidad"];
+                };
+            };
+            /** @description Falta el token, no es válido o el usuario no tiene acceso. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description El rol no alcanza. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description No existe. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Conflicto con el estado actual. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+        };
+    };
+    agendar_insistencia: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                oportunidad_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["Insistencia"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Alerta"];
+                };
+            };
+            /** @description Falta el token, no es válido o el usuario no tiene acceso. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description El rol no alcanza. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description No existe. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Datos inválidos. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+        };
+    };
+    perder_oportunidad: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                oportunidad_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OportunidadPerder"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Oportunidad"];
+                };
+            };
+            /** @description Falta el token, no es válido o el usuario no tiene acceso. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description El rol no alcanza. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description No existe. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Conflicto con el estado actual. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Datos inválidos. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+        };
+    };
+    reactivar_oportunidad: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                oportunidad_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Oportunidad"];
+                };
+            };
+            /** @description Falta el token, no es válido o el usuario no tiene acceso. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description El rol no alcanza. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description No existe. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Conflicto con el estado actual. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+        };
+    };
+    ganar_oportunidad_sin_cotizacion: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                oportunidad_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Oportunidad"];
+                };
+            };
+            /** @description Falta el token, no es válido o el usuario no tiene acceso. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description El rol no alcanza. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description No existe. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Conflicto con el estado actual. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+        };
+    };
+    listar_cotizaciones: {
+        parameters: {
+            query?: {
+                pagina?: number;
+                por_pagina?: number;
+            };
+            header?: never;
+            path: {
+                oportunidad_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Versiones de la cotización, de la más reciente a la más antigua. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        items: components["schemas"]["Cotizacion"][];
+                        /** @description Cantidad total de resultados. */
+                        total: number;
+                        pagina: number;
+                        por_pagina: number;
+                    };
+                };
+            };
+            /** @description Falta el token, no es válido o el usuario no tiene acceso. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description No existe. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Datos inválidos. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+        };
+    };
+    emitir_cotizacion: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                oportunidad_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CotizacionCrear"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Cotizacion"];
+                };
+            };
+            /** @description Falta el token, no es válido o el usuario no tiene acceso. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description El rol no alcanza. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description No existe. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Conflicto con el estado actual. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Datos inválidos. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+        };
+    };
+    obtener_cotizacion: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                cotizacion_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Cotizacion"];
+                };
+            };
+            /** @description Falta el token, no es válido o el usuario no tiene acceso. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description No existe. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+        };
+    };
+    descargar_cotizacion: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                cotizacion_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Documento para enviar al cliente. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/pdf": string;
+                };
+            };
+            /** @description Falta el token, no es válido o el usuario no tiene acceso. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description No existe. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+        };
+    };
+    marcar_cotizacion_enviada: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                cotizacion_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Cotizacion"];
+                };
+            };
+            /** @description Falta el token, no es válido o el usuario no tiene acceso. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description El rol no alcanza. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description No existe. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Conflicto con el estado actual. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+        };
+    };
+    aceptar_cotizacion: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                cotizacion_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Cotizacion"];
+                };
+            };
+            /** @description Falta el token, no es válido o el usuario no tiene acceso. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description El rol no alcanza. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description No existe. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Conflicto con el estado actual. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+        };
+    };
+    rechazar_cotizacion: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                cotizacion_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Cotizacion"];
+                };
+            };
+            /** @description Falta el token, no es válido o el usuario no tiene acceso. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description El rol no alcanza. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description No existe. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Conflicto con el estado actual. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Validation Error */
             422: {
                 headers: {
                     [name: string]: unknown;

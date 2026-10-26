@@ -91,10 +91,12 @@ def no_implementado() -> HTTPException:
     return HTTPException(status_code=501, detail="Todavía no está implementado.")
 
 
-def operacion_de_viaje(*errores: int, casos_de_uso: str, escritura: bool = True) -> dict[str, Any]:
-    """`operacion` de una ruta sobre un viaje o sus pagos, para todos los roles: suma la
-    visibilidad del `freelance` (DEC-0008) y, si `escritura`, que escribe el responsable del
-    registro, o admin o dueño (DEC-0005)."""
+def operacion_de_registro(
+    *errores: int, casos_de_uso: str, escritura: bool = True
+) -> dict[str, Any]:
+    """`operacion` de una ruta sobre un registro con responsable (oportunidad, cotización, viaje o
+    pago), para todos los roles: suma la visibilidad del `freelance` (DEC-0008) y, si `escritura`,
+    que escribe el responsable del registro, o admin o dueño (DEC-0005)."""
     return operacion(
         TODOS,
         casos_de_uso,
