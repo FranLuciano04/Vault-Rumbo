@@ -40,7 +40,7 @@ const viajeCamila = {
 } as const;
 const viajeSosa = {
   id: "e5f6a7b8-c9d0-4e1f-a2b3-c4d5e6f7a812",
-  destino_id: "4b7e1c93-5d20-4a86-9f1b-3c8d2e6a0b57",
+  destino_id: "9c1d2e3f-4a5b-4c6d-8e7f-0a1b2c3d4e03",
   destino: "Brasil",
   estado: "confirmado",
   fecha_salida: "2026-11-01",

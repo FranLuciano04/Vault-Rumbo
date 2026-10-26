@@ -3,6 +3,7 @@ import type { HistorialCliente } from "../cliente";
 import { alertasAjenasMock, alertasMock } from "./alertas";
 import { clientesMock, manejadoresClientes } from "./clientes";
 import { crearServidor } from "./index";
+import { destinosMock } from "./m1";
 import { cotizacionesMock, oportunidadesMock } from "./oportunidades";
 import { viajesMock } from "./viajes";
 
@@ -93,12 +94,37 @@ describe("RF-031 consistencia referencial de los mocks: viajes", () => {
       const v = viajesMock.find((x) => x.id === id);
       expect(v, `alerta ${a.id}: viaje ${id}`).toBeDefined();
       expect(a.contexto.cliente?.id, `alerta ${a.id}: cliente del viaje`).toBe(v?.cliente_id);
+      const ctx = a.contexto.viaje;
+      if (ctx) {
+        expect(ctx.fecha_salida, `alerta ${a.id}: salida`).toBe(v?.fecha_salida);
+        expect(ctx.fecha_regreso, `alerta ${a.id}: regreso`).toBe(v?.fecha_regreso);
+      }
     }
     for (const cliente of clientesMock) {
       for (const h of (await historialDe(cliente.id)).viajes) {
         const v = viajesMock.find((x) => x.id === h.id);
         expect(v, `${cliente.nombre}: viaje ${h.id}`).toBeDefined();
         expect(v?.cliente_id, `${cliente.nombre}: viaje ${h.id}`).toBe(cliente.id);
+        expect(h.fecha_salida, `${cliente.nombre}: viaje ${h.id}`).toBe(v?.fecha_salida);
+        expect(h.fecha_regreso, `${cliente.nombre}: viaje ${h.id}`).toBe(v?.fecha_regreso);
+      }
+    }
+  });
+});
+
+describe("RF-031 consistencia referencial de los mocks: destinos", () => {
+  it("RF-031 todo destino_id de los viajes, las alertas y el historial existe en destinosMock", async () => {
+    const destinos = new Set(destinosMock.map((d) => d.id));
+    for (const v of viajesMock) {
+      expect(destinos.has(v.destino_id), `viaje ${v.id}: destino ${v.destino_id}`).toBe(true);
+    }
+    for (const a of todasLasAlertas) {
+      const id = a.contexto.viaje?.destino_id;
+      if (id) expect(destinos.has(id), `alerta ${a.id}: destino ${id}`).toBe(true);
+    }
+    for (const cliente of clientesMock) {
+      for (const h of (await historialDe(cliente.id)).viajes) {
+        expect(destinos.has(h.destino_id), `${cliente.nombre}: viaje ${h.id}`).toBe(true);
       }
     }
   });

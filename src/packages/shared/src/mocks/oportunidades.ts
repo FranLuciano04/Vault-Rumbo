@@ -100,8 +100,8 @@ export const oportunidadesMock: Oportunidad[] = [
     id: idPuntaCanaGanada,
     cliente_id: camila,
     destino_consultado: "Punta Cana",
-    fecha_desde_tentativa: "2026-02-10",
-    fecha_hasta_tentativa: "2026-02-20",
+    fecha_desde_tentativa: "2026-09-01",
+    fecha_hasta_tentativa: "2026-09-15",
     estado: "ganada",
   }),
   oportunidad({
