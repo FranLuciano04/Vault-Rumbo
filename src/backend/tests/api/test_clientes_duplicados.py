@@ -315,3 +315,44 @@ async def test_rf003_dos_altas_simultaneas_confirmadas_crean_las_dos_dec_0020(
 
     assert (r1.status_code, r2.status_code) == (201, 201), (r1.text, r2.text)
     assert await _filas_de_la_carrera(motor) == 2
+
+
+NOMBRE_CARRERA = "Carrera Por Nombre"
+
+
+async def test_rf003_dos_altas_simultaneas_del_mismo_nombre_dan_un_201_y_un_409(
+    motor: AsyncEngine,
+    app_concurrente: tuple[FastAPI, list[Usuario]],
+    verificador_falso: VerificadorFalso,
+    buscar_parecidos_sincronizado: None,
+) -> None:
+    app, (u1, u2) = app_concurrente
+    async with (
+        _cliente_http(app, verificador_falso, u1) as c1,
+        _cliente_http(app, verificador_falso, u2) as c2,
+    ):
+        r1, r2 = await asyncio.gather(
+            c1.post(
+                "/api/clientes",
+                json={"nombre": NOMBRE_CARRERA, "contacto": CONTACTO_CARRERA, "segmento": "pareja"},
+            ),
+            c2.post(
+                "/api/clientes",
+                json={
+                    "nombre": "  carrera  por NOMBRE ",
+                    "contacto": "otro.carrera.h05@mail.test",
+                    "segmento": "pareja",
+                },
+            ),
+        )
+
+    assert sorted([r1.status_code, r2.status_code]) == [201, 409], (r1.text, r2.text)
+    # Las filas se borran acá y no en un fixture: tienen que irse antes que los usuarios.
+    async with crear_fabrica_sesiones(motor)() as s:
+        creados = Cliente.nombre.ilike("%carrera%por%")
+        filas = (
+            await s.execute(select(func.count()).select_from(Cliente).where(creados))
+        ).scalar_one()
+        await s.execute(delete(Cliente).where(creados))
+        await s.commit()
+    assert filas == 1

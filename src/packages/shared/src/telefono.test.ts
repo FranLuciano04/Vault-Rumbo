@@ -46,3 +46,13 @@ describe("enlaceLlamada", () => {
     },
   );
 });
+
+describe("espacios Unicode (los mismos que el \s de JavaScript)", () => {
+  it.each([" ", " ", "　", " ", "﻿"])("%j separa dígitos como un espacio", (espacio) => {
+    expect(normalizarTelefonoAR(`11${espacio}4567${espacio}8901`)).toBe("5491145678901");
+  });
+
+  it("los dígitos que no son ASCII no cuentan", () => {
+    expect(normalizarTelefonoAR("١١٤٥٦٧٨٩٠١")).toBeNull();
+  });
+});

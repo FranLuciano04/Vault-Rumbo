@@ -315,3 +315,22 @@ describe("RF-002 validación de entrada del mock de clientes (CU-02 A3, CU-03 A2
     expect(((await res.json()) as Problema).status).toBe(422);
   });
 });
+
+describe("CU-30 y cuerpo del 422 en el mock de clientes", () => {
+  it("CU-30 PATCH con no_recontactar lo aplica", async () => {
+    const res = await editar({ no_recontactar: true });
+
+    expect(res.status).toBe(200);
+    expect(await res.json()).toMatchObject({ no_recontactar: true });
+  });
+
+  it("RF-002 el 422 trae title y detail como el backend", async () => {
+    const res = await alta({ nombre: "Nuevo", contacto: "123" });
+
+    expect(res.status).toBe(422);
+    expect(await res.json()).toMatchObject({
+      title: "Datos inválidos",
+      detail: "Los datos enviados no son válidos.",
+    });
+  });
+});

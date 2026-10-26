@@ -7,7 +7,11 @@ import type {
   ClienteListado,
   HistorialCliente,
 } from "../cliente";
-import { esquemaAltaCliente, normalizarInstagram } from "../esquemas/clientes";
+import {
+  esquemaAltaCliente,
+  esquemaEdicionCliente,
+  normalizarInstagram,
+} from "../esquemas/clientes";
 import { normalizarTelefonoAR } from "../telefono";
 import { usuariosPorRol } from "./index";
 import { respuestaProblema } from "./problema";
@@ -148,7 +152,8 @@ function claveContacto(contacto: string): string {
 }
 
 function datosInvalidos(issues: { path: PropertyKey[]; message: string }[]) {
-  return respuestaProblema(422, "Los datos enviados no son válidos.", {
+  return respuestaProblema(422, "Datos inválidos", {
+    detail: "Los datos enviados no son válidos.",
     errores: issues.map((i) => ({ campo: i.path.join("."), mensaje: i.message })),
   });
 }
@@ -247,7 +252,7 @@ export const manejadoresClientes: RequestHandler[] = [
   http.patch(`${BASE}/:id`, async ({ params, request }) => {
     const cliente = clientesMock.find((c) => c.id === params["id"]);
     if (!cliente) return noEncontrado();
-    const validacion = esquemaAltaCliente.partial().safeParse(await request.json());
+    const validacion = esquemaEdicionCliente.safeParse(await request.json());
     if (!validacion.success) return datosInvalidos(validacion.error.issues);
     const cambios: ClienteEditar = validacion.data;
     const normalizados =
