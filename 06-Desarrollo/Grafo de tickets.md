@@ -17,11 +17,11 @@ tags:: #tipo/referencia
 | M0 — Fundaciones | 38 | 38 | 0 | 0 | 0 | 0 | ✅ cerrado |
 | M1 — Usuarios y configuración | 19 | 19 | 0 | 0 | 0 | 0 | 🔍 listo para la review |
 | M2 — Clientes | 15 | 15 | 0 | 0 | 0 | 0 | 🔍 listo para la review |
-| M3 — Alertas | 14 | 9 | 1 | 3 | 1 | 0 | 🛠️ en curso |
+| M3 — Alertas | 14 | 10 | 0 | 3 | 1 | 0 | 🛠️ en curso |
 | M4 — Oportunidades y cotizaciones | 14 | 0 | 0 | 1 | 13 | 0 | 🛠️ en curso |
 | M5 — Hoteles y reseñas | 11 | 0 | 0 | 1 | 10 | 0 | 🛠️ en curso |
 | M6 — Viajes y economía | 24 | 1 | 0 | 3 | 20 | 0 | 🛠️ en curso |
-| M7 — Proceso diario y CRM proactivo | 9 | 0 | 0 | 1 | 8 | 0 | 🛠️ en curso |
+| M7 — Proceso diario y CRM proactivo | 9 | 0 | 0 | 2 | 7 | 0 | 🛠️ en curso |
 | M8 — Calendario, dashboard y reportes | 10 | 0 | 0 | 1 | 9 | 0 | 🛠️ en curso |
 | M9 — Redes e IA | 6 | 0 | 0 | 1 | 5 | 0 | 🛠️ en curso |
 | M10 — Despliegue on-premise | 5 | 0 | 0 | 1 | 4 | 0 | 🛠️ en curso |
@@ -119,7 +119,7 @@ flowchart LR
     T055["T-055 · Atender la agenda del día en la web<br/><small>web</small>"]:::hecho
     T056["T-056 · Crear un recordatorio manual en la web<br/><small>web</small>"]:::hecho
     T057["T-057 · Atender la agenda del día en la app mobile<br/><small>mobile</small>"]:::hecho
-    T058["T-058 · Posponer una alerta desde su detalle en la app mobile<br/><small>mobile</small><br/>👤 palomap2003"]:::tomado
+    T058["T-058 · Posponer una alerta desde su detalle en la app mobile<br/><small>mobile</small>"]:::hecho
     T059["T-059 · Crear un recordatorio manual desde la app mobile<br/><small>mobile</small>"]:::disponible
     T060["T-060 · Probar de punta a punta la agenda de alertas<br/><small>e2e</small>"]:::esperando
     T164["T-164 · Mostrar los totales de la agenda web como en el prototipo<br/><small>web</small>"]:::hecho
@@ -189,7 +189,7 @@ flowchart LR
     T114["T-114 · Registrar la decisión sobre una sugerencia de recontacto<br/><small>backend</small>"]:::esperando
     T115["T-115 · Programar el proceso diario en el Compose<br/><small>infra</small>"]:::esperando
     T116["T-116 · Atender una sugerencia de recontacto en la web<br/><small>web</small>"]:::esperando
-    T117["T-117 · Atender una sugerencia de recontacto en la app mobile<br/><small>mobile</small>"]:::esperando
+    T117["T-117 · Atender una sugerencia de recontacto en la app mobile<br/><small>mobile</small>"]:::disponible
     T118["T-118 · Probar de punta a punta el proceso diario<br/><small>e2e</small>"]:::esperando
   end
   subgraph M8["M8 — Calendario, dashboard y reportes"]
