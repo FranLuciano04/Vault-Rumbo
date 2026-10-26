@@ -377,6 +377,92 @@ async def test_rf154_hasta_es_tope_dentro_de_la_ventana(
     assert _ids(antes) == [str(atrasada.id)]
 
 
+async def test_rf154_desde_filtra_fecha_mayor_o_igual(
+    cliente_como: FabricaCliente, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("empleado")
+    yo = _propio(c)
+    await _alerta(sesion, yo, hoy() - timedelta(days=3), "muy atrasada")
+    ayer = await _alerta(sesion, yo, hoy() - timedelta(days=1), "ayer")
+    de_hoy = await _alerta(sesion, yo, hoy(), "hoy")
+    await _alerta(sesion, yo, hoy() + timedelta(days=1), "mañana")
+
+    r = await c.get("/api/alertas", params={"desde": str(hoy() - timedelta(days=1))})
+
+    assert r.status_code == 200, r.text
+    assert _ids(r) == [str(ayer.id), str(de_hoy.id)]  # inclusive; sin proximas sigue topeado en hoy
+    assert r.json()["total"] == 2
+
+
+async def test_rf154_desde_y_hasta_hoy_devuelve_solo_las_de_hoy(
+    cliente_como: FabricaCliente, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("empleado")
+    yo = _propio(c)
+    for dias in (3, 2, 1):
+        await _alerta(sesion, yo, hoy() - timedelta(days=dias), f"atrasada {dias}")
+    de_hoy = await _alerta(sesion, yo, hoy(), "hoy")
+    await _alerta(sesion, yo, hoy() + timedelta(days=1), "mañana")
+
+    r = await c.get("/api/alertas", params={"desde": str(hoy()), "hasta": str(hoy())})
+
+    assert _ids(r) == [str(de_hoy.id)]
+    assert r.json()["total"] == 1
+
+
+async def test_rf154_desde_se_combina_con_proximas(
+    cliente_como: FabricaCliente, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("empleado")
+    yo = _propio(c)
+    await _alerta(sesion, yo, hoy() + timedelta(days=1), "mañana")
+    pasado = await _alerta(sesion, yo, hoy() + timedelta(days=2), "pasado mañana")
+    lejana = await _alerta(sesion, yo, hoy() + timedelta(days=6), "lejana")
+    await _alerta(sesion, yo, hoy(), "hoy")
+
+    r = await c.get(
+        "/api/alertas",
+        params={"proximas": "true", "desde": str(hoy() + timedelta(days=2))},
+    )
+    acotada = await c.get(
+        "/api/alertas",
+        params={
+            "proximas": "true",
+            "desde": str(hoy() + timedelta(days=2)),
+            "hasta": str(hoy() + timedelta(days=3)),
+        },
+    )
+
+    assert _ids(r) == [str(pasado.id), str(lejana.id)]
+    assert _ids(acotada) == [str(pasado.id)]
+
+
+async def test_rf154_desde_no_trae_atrasadas_cuando_hay_muchas(
+    cliente_como: FabricaCliente, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("empleado")
+    yo = _propio(c)
+    for i in range(3):
+        await _alerta(sesion, yo, hoy() - timedelta(days=1 + i), f"atrasada {i}")
+    de_hoy = await _alerta(sesion, yo, hoy(), "hoy")
+
+    r = await c.get(
+        "/api/alertas",
+        params={"desde": str(hoy()), "hasta": str(hoy()), "por_pagina": 1, "pagina": 1},
+    )
+
+    assert _ids(r) == [str(de_hoy.id)]  # la primera página ya es la de hoy
+    assert r.json()["total"] == 1
+
+
+async def test_rf154_desde_invalido_es_422(cliente_como: FabricaCliente) -> None:
+    c = await cliente_como("empleado")
+
+    r = await c.get("/api/alertas", params={"desde": "no-es-fecha"})
+
+    assert r.status_code == 422
+
+
 @pytest.mark.parametrize("rol", ["empleado", "admin", "dueno"])
 async def test_rf151_sin_restriccion_de_lectura_el_contexto_viene_completo(
     cliente_como: FabricaCliente, sesion: AsyncSession, rol: str

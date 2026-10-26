@@ -71,21 +71,27 @@ function servidorConTotales(pedidos: URLSearchParams[]) {
       const propietario = p.get("propietario_id");
       const proximas = p.get("proximas") === "true";
       const hasta = p.get("hasta");
+      const desde = p.get("desde");
       if (p.get("estado") === "vista") {
         return HttpResponse.json({ items: [], total: 0, pagina, por_pagina: porPagina });
       }
       const t = propietario ? TOTALES.responsable : TOTALES.agencia;
       const total = proximas
         ? t.proximas
-        : hasta === AYER_ISO
-          ? t.atrasadas
-          : t.atrasadas + t.hoy;
+        : desde === HOY_ISO && hasta === HOY_ISO
+          ? t.hoy
+          : hasta === AYER_ISO
+            ? t.atrasadas
+            : t.atrasadas + t.hoy;
       const items = todasLasAlertas
         .filter(
           (a) =>
             a.estado === "pendiente" &&
             (!propietario || a.propietario_id === propietario) &&
-            (proximas ? a.fecha > HOY_ISO : a.fecha <= (hasta && hasta < HOY_ISO ? hasta : HOY_ISO)),
+            (!desde || a.fecha >= desde) &&
+            (proximas
+              ? a.fecha > HOY_ISO
+              : a.fecha <= (hasta && hasta < HOY_ISO ? hasta : HOY_ISO)),
         )
         .slice((pagina - 1) * porPagina, pagina * porPagina);
       return HttpResponse.json({ items, total, pagina, por_pagina: porPagina });
@@ -255,10 +261,10 @@ describe("RF-154 pestañas con contador", () => {
   });
 
   /**
-   * Decisión: la API no tiene «desde», así que «Hoy» pide `hasta=<hoy>` (sin `proximas`) y filtra en
-   * el cliente las de `fecha === hoy`. Su contador es total(hasta=hoy) - total(hasta=ayer).
+   * Decisión: «Hoy» pide `desde=<hoy>&hasta=<hoy>` (sin `proximas`) y muestra lo que devuelve el
+   * servidor, sin filtrar en el cliente. Su contador es el `total` de ese mismo pedido.
    */
-  it("RF-154 «Hoy» pide hasta=hoy y lista solo las de la fecha de hoy", async () => {
+  it("RF-154 «Hoy» pide desde=hoy y hasta=hoy y lista solo las de la fecha de hoy", async () => {
     const pedidos: URLSearchParams[] = [];
     servidorConTotales(pedidos);
     const usuario = userEvent.setup();
@@ -276,9 +282,59 @@ describe("RF-154 pestañas con contador", () => {
     expect(screen.queryByText(INSISTENCIA)).not.toBeInTheDocument();
     expect(
       pedidos.some(
-        (p) => p.get("por_pagina") === "100" && p.get("hasta") === HOY_ISO && !p.get("proximas"),
+        (p) =>
+          p.get("por_pagina") === "100" &&
+          p.get("desde") === HOY_ISO &&
+          p.get("hasta") === HOY_ISO &&
+          !p.get("proximas"),
       ),
     ).toBe(true);
+  });
+
+  it("RF-154 «Hoy» lista las de hoy aunque haya más de 100 atrasadas", async () => {
+    const modelo = alertasMock.find((a) => a.fecha === HOY_ISO && a.estado === "pendiente");
+    if (!modelo) throw new Error("falta una alerta de hoy en el mock");
+    const atrasadas = Array.from({ length: 150 }, (_, i) => ({
+      ...modelo,
+      id: `00000000-0000-4000-8000-${String(i).padStart(12, "0")}`,
+      fecha: AYER_ISO,
+      descripcion: `Atrasada ${String(i)}`,
+    }));
+    const deHoy = {
+      ...modelo,
+      id: "ffffffff-0000-4000-8000-000000000001",
+      descripcion: "Única de hoy",
+    };
+    const todas = [...atrasadas, deHoy];
+    servidor.use(
+      http.get("*/api/alertas", ({ request }) => {
+        const p = new URL(request.url).searchParams;
+        const pagina = Number(p.get("pagina") ?? 1);
+        const porPagina = Number(p.get("por_pagina") ?? 20);
+        const desde = p.get("desde");
+        const hasta = p.get("hasta") ?? HOY_ISO;
+        const filtradas =
+          p.get("estado") === "vista" || p.get("proximas") === "true"
+            ? []
+            : todas.filter((a) => (!desde || a.fecha >= desde) && a.fecha <= hasta);
+        return HttpResponse.json({
+          items: filtradas.slice((pagina - 1) * porPagina, pagina * porPagina),
+          total: filtradas.length,
+          pagina,
+          por_pagina: porPagina,
+        });
+      }),
+    );
+    const usuario = userEvent.setup();
+    renderAgenda("empleado");
+    await waitFor(() => {
+      expect(pestana("Hoy")).toHaveTextContent("1");
+    });
+
+    await usuario.click(pestana("Hoy"));
+
+    expect(await screen.findByText("Única de hoy")).toBeInTheDocument();
+    expect(screen.queryByText("Atrasada 0")).not.toBeInTheDocument();
   });
 
   it("RF-154 «Próximas» pide proximas=true y lista las posteriores a hoy", async () => {
@@ -293,9 +349,9 @@ describe("RF-154 pestañas con contador", () => {
 
     expect(await screen.findByText(MANUAL_PROXIMA)).toBeInTheDocument();
     expect(screen.queryByText(PAGO)).not.toBeInTheDocument();
-    expect(
-      pedidos.some((p) => p.get("por_pagina") === "100" && p.get("proximas") === "true"),
-    ).toBe(true);
+    expect(pedidos.some((p) => p.get("por_pagina") === "100" && p.get("proximas") === "true")).toBe(
+      true,
+    );
   });
 
   it("RF-154 volver a «Todas» muestra de nuevo atrasadas y de hoy", async () => {
