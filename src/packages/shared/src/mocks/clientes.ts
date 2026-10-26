@@ -10,6 +10,7 @@ import type {
 import { normalizarInstagram } from "../esquemas/clientes";
 import { usuariosPorRol } from "./index";
 import { respuestaProblema } from "./problema";
+import { normalizarTexto } from "./utilidades";
 
 /** Clientes ficticios que respetan el esquema `Cliente`. */
 export const clientesMock: ClienteListado[] = [
@@ -122,17 +123,6 @@ function asesorPorId(id: string | null | undefined): AsesorDelCliente | null {
   return asesoresMock().find((a) => a.id === id) ?? null;
 }
 
-/** Clave de una etiqueta: minúsculas, sin tildes y con los espacios colapsados (como el backend). */
-function claveEtiqueta(etiqueta: string): string {
-  return etiqueta
-    .normalize("NFD")
-    .replace(/\p{M}/gu, "")
-    .toLowerCase()
-    .split(/\s+/)
-    .filter(Boolean)
-    .join(" ");
-}
-
 /** La ficha que devuelve el backend: `Cliente`, sin el resumen que solo trae el listado. */
 export function aFicha(listado: ClienteListado): Cliente {
   const ficha: Partial<ClienteListado> = { ...listado };
@@ -164,7 +154,7 @@ export const manejadoresClientes: RequestHandler[] = [
           c.nombre.toLowerCase().includes(buscar) ||
           c.contacto.toLowerCase().includes(buscar)) &&
         etiquetas.every((e) =>
-          c.etiquetas.some((propia) => claveEtiqueta(propia) === claveEtiqueta(e)),
+          c.etiquetas.some((propia) => normalizarTexto(propia) === normalizarTexto(e)),
         ) &&
         (!segmento || c.segmento === segmento) &&
         (!mios || c.asesor_asignado_id === usuariosPorRol.empleado.id),
@@ -182,7 +172,7 @@ export const manejadoresClientes: RequestHandler[] = [
     HttpResponse.json(
       [
         ...new Map(
-          clientesMock.flatMap((c) => c.etiquetas).map((e) => [claveEtiqueta(e), e] as const),
+          clientesMock.flatMap((c) => c.etiquetas).map((e) => [normalizarTexto(e), e] as const),
         ),
       ]
         .sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))
