@@ -261,8 +261,10 @@ export const manejadoresM1: RequestHandler[] = [
   http.post("*/api/destinos/:destino_id/reactivar", async ({ params }) =>
     HttpResponse.json({ ...(await recurso(destinosMock[2], params["destino_id"])), activo: true }),
   ),
-  http.get("*/api/destinos/:destino_id/requisitos", () =>
-    HttpResponse.json(pagina(requisitosMock)),
+  http.get("*/api/destinos/:destino_id/requisitos", ({ params }) =>
+    HttpResponse.json(
+      pagina(requisitosMock.filter((requisito) => requisito.destino_id === params["destino_id"])),
+    ),
   ),
   http.post("*/api/destinos/:destino_id/requisitos", async ({ params, request }) =>
     HttpResponse.json(

@@ -160,7 +160,9 @@ export function PestanaDestinos({ cliente }: { cliente: AxiosInstance }) {
           </>
         ))
       )}
-      {conRequisitos && <RequisitosDestino cliente={cliente} destino={conRequisitos} />}
+      {conRequisitos && (
+        <RequisitosDestino key={conRequisitos.id} cliente={cliente} destino={conRequisitos} />
+      )}
     </div>
   );
 }
