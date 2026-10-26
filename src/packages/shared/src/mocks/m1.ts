@@ -1,13 +1,8 @@
 import { http, HttpResponse, type RequestHandler } from "msw";
-import type {
-  Configuracion,
-  Destino,
-  Operador,
-  Pagina,
-  RequisitoDestino,
-  Usuario,
-} from "../modelos";
+import type { Configuracion, Destino, Operador, RequisitoDestino, Usuario } from "../modelos";
 import { asesoresMock } from "./clientes";
+import { respuestaProblema } from "./problema";
+import { normalizarTexto, pagina } from "./utilidades";
 
 /** Columnas de auditoría de ejemplo (DEC-0008): las creó y editó la admin de ejemplo. */
 const auditoria = {
@@ -206,8 +201,110 @@ export const operadoresMock: [Operador, Operador, Operador] = [
   },
 ];
 
-function pagina<T>(items: T[]): Pagina<T> {
-  return { items, total: items.length, pagina: 1, por_pagina: 20 };
+const ROLES = ["admin", "dueno", "empleado", "freelance"];
+const TIPOS_COMISION = ["porcentaje", "importe"];
+const PATRON_EMAIL = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
+const PATRON_IMPORTE = /^\d{1,12}(\.\d{1,2})?$/;
+
+type Cuerpo = Record<string, unknown>;
+
+function invalido(detail: string) {
+  return respuestaProblema(422, "Datos inválidos", { detail });
+}
+
+function conflicto(detail: string) {
+  return respuestaProblema(409, "Conflicto", { detail });
+}
+
+/** Cuerpo del pedido; los esquemas del backend recortan los textos (`str_strip_whitespace`). */
+async function cuerpoDe(pedido: Request): Promise<Cuerpo> {
+  const cuerpo = (await pedido
+    .clone()
+    .json()
+    .catch(() => ({}))) as Cuerpo;
+  return Object.fromEntries(
+    Object.entries(cuerpo).map(([clave, valor]) => [
+      clave,
+      typeof valor === "string" ? valor.trim() : valor,
+    ]),
+  );
+}
+
+/** Texto obligatorio de 1 a `max` caracteres, como `Field(min_length=1, max_length=max)`. */
+const textoValido = (valor: unknown, max: number) =>
+  typeof valor === "string" && valor.length >= 1 && valor.length <= max;
+
+/** Listado con `activo` (`null` = sin filtrar si no viene), `buscar` (si se pasa `textos`) y paginación. */
+function listado<T extends { activo: boolean }>(
+  todos: readonly T[],
+  url: URL,
+  activoPorDefecto: boolean | null,
+  textos?: (item: T) => string[],
+) {
+  const parametro = url.searchParams.get("activo");
+  const activo = parametro === null ? activoPorDefecto : parametro === "true";
+  const buscar = textos ? normalizarTexto(url.searchParams.get("buscar") ?? "") : "";
+  return pagina(
+    todos.filter(
+      (item) =>
+        (activo === null || item.activo === activo) &&
+        (!buscar || textos?.(item).some((texto) => normalizarTexto(texto).includes(buscar))),
+    ),
+    url,
+  );
+}
+
+/** El nombre ya lo tiene otra fila (activa o no), sin mayúsculas, tildes ni espacios de más. */
+const nombreRepetido = (
+  todos: readonly { id: string; nombre: string }[],
+  nombre: unknown,
+  propioId?: string | readonly string[],
+) =>
+  typeof nombre === "string" &&
+  todos.some((x) => x.id !== propioId && normalizarTexto(x.nombre) === normalizarTexto(nombre));
+
+/** Quitar el rol admin o dar de baja al único admin activo dejaría al sistema sin quién lo administre. */
+const eraUltimoAdmin = (id: string | readonly string[] | undefined) =>
+  usuariosMock.some((u) => u.id === id && u.rol === "admin" && u.activo) &&
+  !usuariosMock.some((u) => u.id !== id && u.rol === "admin" && u.activo);
+
+const sinUltimoAdmin = () => conflicto("Tiene que quedar al menos un usuario admin activo.");
+
+/** Mismas reglas que `UsuarioCrear`. */
+function errorAltaUsuario(c: Cuerpo): string | null {
+  if (!textoValido(c["nombre"], 120)) return "El nombre es obligatorio (hasta 120 caracteres).";
+  if (!textoValido(c["email"], 254) || !PATRON_EMAIL.test(c["email"] as string))
+    return "El email no es válido.";
+  if (!ROLES.includes(c["rol"] as string)) return "El rol no es válido.";
+  return null;
+}
+
+/** Mismas reglas que `ConfiguracionEditar`: el PUT reemplaza los tres valores. */
+function errorConfiguracion(c: Cuerpo): string | null {
+  const entero = (valor: unknown, minimo: number) =>
+    typeof valor === "number" && Number.isInteger(valor) && valor >= minimo;
+  if (!entero(c["vigencia_cotizacion_meses"], 1)) return "La vigencia debe ser de 1 mes o más.";
+  if (!entero(c["anticipacion_salida_dias"], 0)) return "La anticipación no puede ser negativa.";
+  if (!entero(c["recontacto_meses"], 1)) return "El recontacto debe ser de 1 mes o más.";
+  return null;
+}
+
+/** Mismas reglas que `ComisionPorDefecto`: tipo y valor van juntos, valor ≥ 0 con 2 decimales. */
+function errorComision(c: Cuerpo): string | null {
+  const { comision_default_tipo: tipo, comision_default_valor: valor } = c;
+  if (tipo === undefined || valor === undefined) return "Faltan el tipo y el valor de la comisión.";
+  if (tipo !== null && !TIPOS_COMISION.includes(tipo as string)) return "El tipo no es válido.";
+  if ((tipo === null) !== (valor === null))
+    return "El tipo y el valor de la comisión van juntos o ninguno.";
+  if (valor === null) return null;
+  if (
+    (typeof valor !== "string" && typeof valor !== "number") ||
+    !PATRON_IMPORTE.test(String(valor))
+  )
+    return "El valor debe ser positivo, con hasta 2 decimales.";
+  if (tipo === "porcentaje" && Number(valor) > 100)
+    return "Un porcentaje de comisión no puede superar 100.";
+  return null;
 }
 
 /** Recurso de ejemplo con el id de la URL; si hay cuerpo (alta o edición), lo superpone. */
@@ -226,45 +323,63 @@ async function recurso<T extends { id: string }>(
 /** Handlers MSW de usuarios y configuración (CU-25, CU-06, CU-13, CU-15, CU-26, CU-31). */
 export const manejadoresM1: RequestHandler[] = [
   // Usuarios
-  http.get("*/api/usuarios", () => HttpResponse.json(pagina(usuariosMock))),
-  http.post("*/api/usuarios", async ({ request }) =>
-    HttpResponse.json(await recurso(usuariosMock[2], undefined, request), { status: 201 }),
-  ),
+  http.get("*/api/usuarios", ({ request }) => listado(usuariosMock, new URL(request.url), null)),
+  http.post("*/api/usuarios", async ({ request }) => {
+    const cuerpo = await cuerpoDe(request);
+    const error = errorAltaUsuario(cuerpo);
+    if (error) return invalido(error);
+    const email = (cuerpo["email"] as string).toLowerCase();
+    if (usuariosMock.some((u) => u.email.toLowerCase() === email))
+      return conflicto("Ya existe un usuario con ese email.");
+    return HttpResponse.json(await recurso(usuariosMock[2], undefined, request), { status: 201 });
+  }),
   http.get("*/api/usuarios/asesores", () => HttpResponse.json(asesoresMock())),
   http.get("*/api/usuarios/:usuario_id", async ({ params }) =>
     HttpResponse.json(await recurso(usuariosMock[2], params["usuario_id"])),
   ),
-  http.patch("*/api/usuarios/:usuario_id", async ({ params, request }) =>
-    HttpResponse.json(await recurso(usuariosMock[2], params["usuario_id"], request)),
-  ),
-  http.post("*/api/usuarios/:usuario_id/baja", async ({ params }) =>
-    HttpResponse.json({
+  http.patch("*/api/usuarios/:usuario_id", async ({ params, request }) => {
+    const { rol } = await cuerpoDe(request);
+    if (rol !== undefined && rol !== "admin" && eraUltimoAdmin(params["usuario_id"]))
+      return sinUltimoAdmin();
+    return HttpResponse.json(await recurso(usuariosMock[2], params["usuario_id"], request));
+  }),
+  http.post("*/api/usuarios/:usuario_id/baja", async ({ params }) => {
+    if (eraUltimoAdmin(params["usuario_id"])) return sinUltimoAdmin();
+    return HttpResponse.json({
       ...(await recurso(usuariosMock[2], params["usuario_id"])),
       activo: false,
-    }),
-  ),
-  http.put("*/api/usuarios/:usuario_id/comision-por-defecto", async ({ params, request }) =>
-    HttpResponse.json(await recurso(usuariosMock[2], params["usuario_id"], request)),
-  ),
+    });
+  }),
+  http.put("*/api/usuarios/:usuario_id/comision-por-defecto", async ({ params, request }) => {
+    const error = errorComision(await cuerpoDe(request));
+    if (error) return invalido(error);
+    return HttpResponse.json(await recurso(usuariosMock[2], params["usuario_id"], request));
+  }),
   // Parámetros del negocio
   http.get("*/api/configuracion", () => HttpResponse.json(configuracionMock)),
-  http.put("*/api/configuracion", async ({ request }) =>
-    HttpResponse.json({
-      ...configuracionMock,
-      ...((await request.json().catch(() => ({}))) as Partial<Configuracion>),
-    }),
-  ),
+  http.put("*/api/configuracion", async ({ request }) => {
+    const cuerpo = await cuerpoDe(request);
+    const error = errorConfiguracion(cuerpo);
+    if (error) return invalido(error);
+    return HttpResponse.json({ ...configuracionMock, ...(cuerpo as Partial<Configuracion>) });
+  }),
   // Destinos y sus requisitos
-  http.get("*/api/destinos", () => HttpResponse.json(pagina(destinosMock))),
-  http.post("*/api/destinos", async ({ request }) =>
-    HttpResponse.json(await recurso(destinosMock[0], undefined, request), { status: 201 }),
+  http.get("*/api/destinos", ({ request }) =>
+    listado(destinosMock, new URL(request.url), true, (d) => [d.nombre, d.pais]),
   ),
+  http.post("*/api/destinos", async ({ request }) => {
+    if (nombreRepetido(destinosMock, (await cuerpoDe(request))["nombre"]))
+      return conflicto("Ya existe un destino con ese nombre.");
+    return HttpResponse.json(await recurso(destinosMock[0], undefined, request), { status: 201 });
+  }),
   http.get("*/api/destinos/:destino_id", async ({ params }) =>
     HttpResponse.json(await recurso(destinosMock[0], params["destino_id"])),
   ),
-  http.patch("*/api/destinos/:destino_id", async ({ params, request }) =>
-    HttpResponse.json(await recurso(destinosMock[0], params["destino_id"], request)),
-  ),
+  http.patch("*/api/destinos/:destino_id", async ({ params, request }) => {
+    if (nombreRepetido(destinosMock, (await cuerpoDe(request))["nombre"], params["destino_id"]))
+      return conflicto("Ya existe un destino con ese nombre.");
+    return HttpResponse.json(await recurso(destinosMock[0], params["destino_id"], request));
+  }),
   http.post("*/api/destinos/:destino_id/baja", async ({ params }) =>
     HttpResponse.json({
       ...(await recurso(destinosMock[0], params["destino_id"])),
@@ -274,13 +389,12 @@ export const manejadoresM1: RequestHandler[] = [
   http.post("*/api/destinos/:destino_id/reactivar", async ({ params }) =>
     HttpResponse.json({ ...(await recurso(destinosMock[2], params["destino_id"])), activo: true }),
   ),
-  http.get("*/api/destinos/:destino_id/requisitos", ({ params }) =>
-    HttpResponse.json(
-      pagina(
-        [...requisitosMock, requisitoOtroDestinoMock].filter(
-          (requisito) => requisito.destino_id === params["destino_id"],
-        ),
+  http.get("*/api/destinos/:destino_id/requisitos", ({ params, request }) =>
+    pagina(
+      [...requisitosMock, requisitoOtroDestinoMock].filter(
+        (requisito) => requisito.destino_id === params["destino_id"],
       ),
+      new URL(request.url),
     ),
   ),
   http.post("*/api/destinos/:destino_id/requisitos", async ({ params, request }) =>
@@ -302,16 +416,24 @@ export const manejadoresM1: RequestHandler[] = [
     }),
   ),
   // Operadores
-  http.get("*/api/operadores", () => HttpResponse.json(pagina(operadoresMock))),
-  http.post("*/api/operadores", async ({ request }) =>
-    HttpResponse.json(await recurso(operadoresMock[0], undefined, request), { status: 201 }),
+  http.get("*/api/operadores", ({ request }) =>
+    listado(operadoresMock, new URL(request.url), true, (o) => [o.nombre]),
   ),
+  http.post("*/api/operadores", async ({ request }) => {
+    if (nombreRepetido(operadoresMock, (await cuerpoDe(request))["nombre"]))
+      return conflicto("Ya existe un operador con ese nombre.");
+    return HttpResponse.json(await recurso(operadoresMock[0], undefined, request), {
+      status: 201,
+    });
+  }),
   http.get("*/api/operadores/:operador_id", async ({ params }) =>
     HttpResponse.json(await recurso(operadoresMock[0], params["operador_id"])),
   ),
-  http.patch("*/api/operadores/:operador_id", async ({ params, request }) =>
-    HttpResponse.json(await recurso(operadoresMock[0], params["operador_id"], request)),
-  ),
+  http.patch("*/api/operadores/:operador_id", async ({ params, request }) => {
+    if (nombreRepetido(operadoresMock, (await cuerpoDe(request))["nombre"], params["operador_id"]))
+      return conflicto("Ya existe un operador con ese nombre.");
+    return HttpResponse.json(await recurso(operadoresMock[0], params["operador_id"], request));
+  }),
   http.post("*/api/operadores/:operador_id/baja", async ({ params }) =>
     HttpResponse.json({
       ...(await recurso(operadoresMock[0], params["operador_id"])),

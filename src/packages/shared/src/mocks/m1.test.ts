@@ -14,6 +14,7 @@ type Esquema = {
   $ref?: string;
   type?: string | string[];
   enum?: unknown[];
+  format?: string;
   required?: string[];
   properties?: Record<string, Esquema>;
   items?: Esquema;
@@ -129,6 +130,7 @@ function ejemplo(esquema: Esquema): unknown {
       (e.required ?? []).map((campo) => [campo, ejemplo(props[campo] as Esquema)]),
     );
   }
+  if (e.format === "email") return "nuevo@rumbo.test";
   if (tipo === "array") return [];
   if (tipo === "integer" || tipo === "number") return 1;
   if (tipo === "boolean") return true;
@@ -440,8 +442,7 @@ describe("RF-022 PUT /api/configuracion valida los rangos del esquema (H-02)", (
   it.each(["vigencia_cotizacion_meses", "anticipacion_salida_dias", "recontacto_meses"])(
     "RF-022 si falta %s da 422 (el PUT reemplaza los tres)",
     async (campo) => {
-      const cuerpo: Record<string, number> = { ...valido };
-      delete cuerpo[campo];
+      const cuerpo = Object.fromEntries(Object.entries(valido).filter(([c]) => c !== campo));
 
       await esProblema(await enviar("PUT", "/configuracion", cuerpo), 422);
     },

@@ -13,6 +13,7 @@ import type {
   OportunidadPerder,
 } from "../modelos";
 import { respuestaProblema } from "./problema";
+import { pagina } from "./utilidades";
 import { auditoriaMock } from "./viajes";
 
 /** Ana Pérez, la empleada de `usuariosPorRol`; no se importa de ahí porque `index` carga este archivo. */
@@ -189,18 +190,6 @@ export function cotizacionNoEncontrada() {
 
 function conflicto(detail: string) {
   return respuestaProblema(409, "Conflicto", { detail });
-}
-
-function pagina(todos: unknown[], url: URL) {
-  const numero = Number(url.searchParams.get("pagina") ?? 1);
-  const porPagina = Number(url.searchParams.get("por_pagina") ?? 20);
-  const salto = (numero - 1) * porPagina;
-  return HttpResponse.json({
-    items: todos.slice(salto, salto + porPagina),
-    total: todos.length,
-    pagina: numero,
-    por_pagina: porPagina,
-  });
 }
 
 /** `POST /api/oportunidades/{id}/{accion}`: los estados de partida admitidos y el que resulta (CU-05). */
