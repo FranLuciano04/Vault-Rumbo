@@ -77,6 +77,12 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
   1. La corrección del viaje sigue a EST-Viaje T7: sale de `en curso` y de `finalizado`. Al deshacer un finalizado, se cierra la alerta de reseña.
   2. El monto de un pago se cambia rebalanceando los pagos no cobrados o dividiendo el pago; el `PATCH` solo reprograma el vencimiento.
   - Se alinearon CU-08 A2, CU-11 A3, RF-042, RF-065, EST-Viaje, EST-Pago y T-087. No hay cambios de código.
+- **T-058** (PR [#88](https://github.com/FranLuciano04/Vault-Rumbo/pull/88), mergeado con el CI en verde): el detalle de la alerta en mobile, con posponer.
+  - El detalle está en `app/(pestanas)/agenda/[id].tsx`, dentro del stack de Agenda. **Aviso para mobile:** una pestaña con `href: null` no se puede navegar en expo-router 58. Fue el bloqueante de la review, y los tests no lo veían porque armaban las rutas sin Tabs.
+  - Posponer ofrece las 3 opciones rápidas de la pantalla 54, contadas desde `max(fecha, hoy)` y solo para alertas pendientes, igual que el backend y la web.
+  - `datosDeContexto` en `@rumbo/shared` arma el contexto en pares, y `lineaDeContexto` se arma desde ahí.
+  - Review (opus) en 2 rondas: 1 bloqueante, 2 importantes y 2 menores, todos arreglados.
+  - Commits: 4571bf1, 29da0fd, 411f643, e598333, d847969 y 3afcc61.
 - **Pendiente:** nada.
 
 ## 25/10/26 — Francisco (Claude Opus 5.5) — T-050 y T-052: contrato y agenda de alertas
