@@ -64,6 +64,20 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
+## 26/10/26 — Paloma (Claude Opus 5.5) — T-061: contrato de oportunidades y cotizaciones
+- **T-061** (PR [#90](https://github.com/FranLuciano04/Vault-Rumbo/pull/90), mergeado con el CI en verde): las 16 rutas de M4 están publicadas y responden 501.
+  - Shared tiene los tipos, los hooks de las 16 operaciones y los mocks con un embudo ficticio: una oportunidad en cada uno de los 5 estados.
+  - En `contrato.py`, `operacion_de_viaje` pasó a llamarse `operacion_de_registro`. Es solo un renombre.
+  - Review (opus): 0 bloqueantes, 2 importantes y 4 menores. Se arreglaron los importantes y 2 menores:
+    - en el mock, reactivar llevaba la oportunidad a `nueva` y ahora la lleva a `en_gestion` (EST-Oportunidad T8);
+    - registrar una consulta ahora refresca alertas y clientes (CU-30).
+  - Backend: 1553 tests, con 97,26 % de cobertura.
+  - Commits: 1cfbf89, 0928d4a, 9d332fd y 3185a36.
+- **Pendiente:**
+  - El backend de M4 tiene que devolver 422 cuando las fechas tentativas están invertidas y cuando el motivo de pérdida es «otro» sin detalle.
+  - Los ids de cliente no coinciden entre los mocks de M2, M3, M4 y M6. Es deuda previa a este ticket.
+- **Entorno:** los tests del backend necesitan Docker Desktop con `postgres-test` (puerto 5433). Se levanta con `docker compose -f src/docker-compose.dev.yml --env-file src/.env up -d --wait postgres-test`.
+
 ## 26/10/26 — Paloma (Claude Opus 5.5) — T-166: panel lateral de la alerta en la web
 - **T-166** (PR [#89](https://github.com/FranLuciano04/Vault-Rumbo/pull/89), mergeado con el CI en verde): «Ver detalle» abre un panel lateral modal.
   - Muestra el detalle de la alerta, su contexto y los requisitos del destino.
