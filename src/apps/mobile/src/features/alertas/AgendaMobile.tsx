@@ -71,7 +71,7 @@ function FilaAlerta({
           role="link"
           accessibilityLabel={`Ver detalle: ${alerta.descripcion}`}
           onPress={() => {
-            router.push(`/alertas/${alerta.id}`);
+            router.push(`/agenda/${alerta.id}`);
           }}
         >
           <Text className="text-base font-medium">{alerta.descripcion}</Text>

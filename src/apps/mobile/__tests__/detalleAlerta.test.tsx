@@ -1,6 +1,6 @@
 import { fireEvent, waitFor } from "@testing-library/react-native";
 import { renderRouter } from "expo-router/testing-library";
-import { Slot } from "expo-router";
+import { Slot, Stack, Tabs } from "expo-router";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AgendaMobile } from "../src/features/alertas/AgendaMobile";
 import { DetalleAlertaMobile } from "../src/features/alertas/DetalleAlertaMobile";
@@ -72,6 +72,10 @@ const RECORDATORIO = "Llamar a la aerolínea por el cambio de equipaje.";
 const ID_PAGO = "al-1";
 const ID_FORMULARIO = "al-3";
 const ID_SUELTA = "al-9";
+const ID_VISTA = "al-7";
+const ID_FUTURA = "al-8";
+const VISTA = "Confirmar el traslado con el operador.";
+const FUTURA = "Reconfirmar el vuelo antes de salir.";
 
 const ALERTAS = [
   alerta(ID_PAGO, "pago", PAGO, "2026-10-23", {
@@ -85,6 +89,9 @@ const ALERTAS = [
   }),
   // Recordatorio manual sin ningún origen: no tiene ficha de cliente a la que ir.
   alerta(ID_SUELTA, "manual", RECORDATORIO, "2026-10-25", {}),
+  { ...alerta(ID_VISTA, "manual", VISTA, "2026-10-25", {}), estado: "vista" },
+  // Pospuesta a una fecha futura: no está en la agenda de hoy, pero se abre por su id.
+  alerta(ID_FUTURA, "manual", FUTURA, "2026-11-10", {}),
 ];
 
 function respuesta(status: number, data: unknown, config: unknown) {
@@ -96,7 +103,9 @@ function respuesta(status: number, data: unknown, config: unknown) {
 
 /** Backend falso: posponer cambia la fecha; la agenda solo trae las alertas hasta hoy. */
 function backend(opciones: { rechazarPosponer?: { status: number; detalle: string } } = {}) {
-  const alertas = ALERTAS.map((a) => ({ ...a })) as (ReturnType<typeof alerta> & { fecha: string })[];
+  const alertas = ALERTAS.map((a) => ({ ...a })) as (ReturnType<typeof alerta> & {
+    fecha: string;
+  })[];
   mockHttp.mockImplementation((config) => {
     const url = config.url ?? "";
     if (url === "/api/auth/yo") {
@@ -133,7 +142,7 @@ function backend(opciones: { rechazarPosponer?: { status: number; detalle: strin
       return respuesta(200, { items: [], total: 0, pagina: 1, por_pagina: 1 }, config);
     }
     if (url === "/api/alertas") {
-      const vigentes = alertas.filter((a) => a.fecha <= "2026-10-25");
+      const vigentes = alertas.filter((a) => a.fecha <= "2026-10-25" && a.estado === "pendiente");
       return respuesta(
         200,
         { items: vigentes, total: vigentes.length, pagina: 1, por_pagina: 20 },
@@ -157,15 +166,31 @@ function FichaFalsa() {
   return null;
 }
 
-/** Rutas: agenda en `/`, detalle en `/alertas/[id]` y la ficha del cliente en `/clientes/[id]`. */
-function renderApp(initialUrl = "/") {
+function Pestanas() {
+  return (
+    <Tabs screenOptions={{ headerShown: false }}>
+      <Tabs.Screen name="agenda" />
+      <Tabs.Screen name="clientes" />
+    </Tabs>
+  );
+}
+function Pila() {
+  return <Stack screenOptions={{ headerShown: false }} />;
+}
+
+/** Rutas como en la app: pestañas, la agenda con su pila (`/agenda/[id]`) y la ficha en `/clientes/[id]`. */
+function renderApp(initialUrl = "/agenda") {
   queryClient.clear();
   return renderRouter(
     {
       _layout: Raiz,
-      index: AgendaMobile,
-      "alertas/[id]": DetalleAlertaMobile,
-      "clientes/[id]": FichaFalsa,
+      "(pestanas)/_layout": Pestanas,
+      "(pestanas)/agenda/_layout": Pila,
+      "(pestanas)/agenda/index": AgendaMobile,
+      "(pestanas)/agenda/[id]": DetalleAlertaMobile,
+      "(pestanas)/clientes/_layout": Pila,
+      "(pestanas)/clientes/index": FichaFalsa,
+      "(pestanas)/clientes/[id]": FichaFalsa,
     },
     { initialUrl },
   );
@@ -191,29 +216,32 @@ afterEach(() => {
 describe("RF-075 detalle", () => {
   it("al tocar una alerta de la agenda se abre su detalle", async () => {
     backend();
-    const vista = await renderApp("/");
+    const vista = await renderApp("/agenda");
 
     await fireEvent.press(await vista.findByText(FORMULARIO));
 
     await waitFor(() => {
-      expect(vista).toHavePathname(`/alertas/${ID_FORMULARIO}`);
+      expect(vista).toHavePathname(`/agenda/${ID_FORMULARIO}`);
     });
     expect(await vista.findByText(FORMULARIO)).toBeTruthy();
   });
 
   it("muestra el tipo, la descripción y el contexto del origen: viaje y cliente", async () => {
     backend();
-    const vista = await renderApp(`/alertas/${ID_PAGO}`);
+    const vista = await renderApp(`/agenda/${ID_PAGO}`);
 
     await vista.findByText(PAGO);
     expect(vista.getByText("Pago")).toBeTruthy();
-    expect(vista.getByText(/Punta Cana/)).toBeTruthy();
-    expect(vista.getByText(/Camila Benítez/)).toBeTruthy();
+    expect(vista.getByText("Viaje")).toBeTruthy();
+    expect(vista.getByText("Punta Cana")).toBeTruthy();
+    expect(vista.getByText("Cliente")).toBeTruthy();
+    expect(vista.getByText("Camila Benítez")).toBeTruthy();
+    expect(vista.getByText("Importe")).toBeTruthy();
   });
 
   it("una alerta atrasada indica hace cuántos días venció", async () => {
     backend();
-    const vista = await renderApp(`/alertas/${ID_PAGO}`);
+    const vista = await renderApp(`/agenda/${ID_PAGO}`);
 
     await vista.findByText(PAGO);
     expect(vista.getByText("Hace 2 días")).toBeTruthy();
@@ -221,7 +249,7 @@ describe("RF-075 detalle", () => {
 
   it("pide la alerta por su id", async () => {
     backend();
-    const vista = await renderApp(`/alertas/${ID_FORMULARIO}`);
+    const vista = await renderApp(`/agenda/${ID_FORMULARIO}`);
     await vista.findByText(FORMULARIO);
 
     const pedidos = mockHttp.mock.calls.map(([c]) => c.url);
@@ -230,7 +258,7 @@ describe("RF-075 detalle", () => {
 
   it("«Ver cliente» abre la ficha del cliente de la alerta", async () => {
     backend();
-    const vista = await renderApp(`/alertas/${ID_FORMULARIO}`);
+    const vista = await renderApp(`/agenda/${ID_FORMULARIO}`);
     await vista.findByText(FORMULARIO);
 
     await fireEvent.press(vista.getByRole("button", { name: /ver cliente/i }));
@@ -242,7 +270,7 @@ describe("RF-075 detalle", () => {
 
   it("un recordatorio sin cliente no ofrece «Ver cliente»", async () => {
     backend();
-    const vista = await renderApp(`/alertas/${ID_SUELTA}`);
+    const vista = await renderApp(`/agenda/${ID_SUELTA}`);
 
     await vista.findByText(RECORDATORIO);
     expect(vista.queryByRole("button", { name: /ver cliente/i })).toBeNull();
@@ -250,14 +278,14 @@ describe("RF-075 detalle", () => {
 
   it("mientras carga muestra un indicador de carga", async () => {
     mockHttp.mockImplementation(() => new Promise(() => undefined));
-    const vista = await renderApp(`/alertas/${ID_PAGO}`);
+    const vista = await renderApp(`/agenda/${ID_PAGO}`);
 
     expect(vista.getByLabelText(/cargando/i)).toBeTruthy();
   });
 
   it("si la alerta no existe avisa con un error accesible", async () => {
     backend();
-    const vista = await renderApp("/alertas/no-existe");
+    const vista = await renderApp("/agenda/no-existe");
 
     await vista.findByRole("alert");
     expect(vista.getByText(/no encontramos la alerta|no pudimos cargar/i)).toBeTruthy();
@@ -266,7 +294,7 @@ describe("RF-075 detalle", () => {
 
 describe("RF-077 posponer mobile", () => {
   const abrirPosponer = async (id: string) => {
-    const vista = await renderApp(`/alertas/${id}`);
+    const vista = await renderApp(`/agenda/${id}`);
     await vista.findByRole("button", { name: /posponer/i });
     await fireEvent.press(vista.getByRole("button", { name: /posponer/i }));
     return vista;
@@ -304,7 +332,7 @@ describe("RF-077 posponer mobile", () => {
     await fireEvent.press(await vista.findByRole("button", { name: "Mañana · 26/10/26" }));
 
     await waitFor(() => {
-      expect(vista).toHavePathname("/");
+      expect(vista).toHavePathname("/agenda");
     });
     await vista.findByText(PAGO);
     await waitFor(() => {
@@ -320,7 +348,24 @@ describe("RF-077 posponer mobile", () => {
 
     expect(vista.queryByText("Posponer alerta")).toBeNull();
     expect(llamadasPosponer()).toHaveLength(0);
-    expect(vista).toHavePathname(`/alertas/${ID_FORMULARIO}`);
+    expect(vista).toHavePathname(`/agenda/${ID_FORMULARIO}`);
+  });
+
+  it("las opciones salen de la fecha de la alerta cuando es posterior a hoy", async () => {
+    backend();
+    const vista = await abrirPosponer(ID_FUTURA);
+
+    expect(await vista.findByRole("button", { name: "Mañana · 11/11/26" })).toBeTruthy();
+    expect(vista.getByRole("button", { name: "En 3 días · 13/11/26" })).toBeTruthy();
+    expect(vista.getByRole("button", { name: "En una semana · 17/11/26" })).toBeTruthy();
+  });
+
+  it("una alerta que no está pendiente no ofrece «Posponer»", async () => {
+    backend();
+    const vista = await renderApp(`/agenda/${ID_VISTA}`);
+
+    await vista.findByText(VISTA);
+    expect(vista.queryByRole("button", { name: /posponer/i })).toBeNull();
   });
 
   it("si el servidor rechaza la fecha muestra el motivo y se queda en el detalle", async () => {
@@ -332,6 +377,43 @@ describe("RF-077 posponer mobile", () => {
 
     await vista.findByText(motivo);
     expect(vista.getByRole("alert")).toBeTruthy();
-    expect(vista).toHavePathname(`/alertas/${ID_FORMULARIO}`);
+    expect(vista).toHavePathname(`/agenda/${ID_FORMULARIO}`);
+  });
+});
+
+describe("navegación del detalle", () => {
+  it("abrir una alerta, volver, abrir otra y volver deja la agenda sin detalles apilados", async () => {
+    backend();
+    const vista = await renderApp("/agenda");
+
+    await fireEvent.press(await vista.findByText(FORMULARIO));
+    await waitFor(() => {
+      expect(vista).toHavePathname(`/agenda/${ID_FORMULARIO}`);
+    });
+    await fireEvent.press(await vista.findByRole("button", { name: "Volver" }));
+    await waitFor(() => {
+      expect(vista).toHavePathname("/agenda");
+    });
+
+    await fireEvent.press(await vista.findByText(RECORDATORIO));
+    await waitFor(() => {
+      expect(vista).toHavePathname(`/agenda/${ID_SUELTA}`);
+    });
+    await fireEvent.press(await vista.findByRole("button", { name: "Volver" }));
+    await waitFor(() => {
+      expect(vista).toHavePathname("/agenda");
+    });
+    expect(vista.queryByRole("button", { name: "Volver" })).toBeNull();
+  });
+
+  it("«Volver» desde un detalle abierto por enlace lleva a la agenda", async () => {
+    backend();
+    const vista = await renderApp(`/agenda/${ID_FORMULARIO}`);
+
+    await fireEvent.press(await vista.findByRole("button", { name: "Volver" }));
+
+    await waitFor(() => {
+      expect(vista).toHavePathname("/agenda");
+    });
   });
 });

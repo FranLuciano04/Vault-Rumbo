@@ -41,8 +41,6 @@ export default function LayoutPestanas() {
           options={{ title: titulo, tabBarButton: crearBotonPestana(titulo) }}
         />
       ))}
-      {/* El detalle de una alerta se abre desde la agenda: no tiene pestaña propia. */}
-      <Tabs.Screen name="alertas" options={{ href: null }} />
     </Tabs>
   );
 }

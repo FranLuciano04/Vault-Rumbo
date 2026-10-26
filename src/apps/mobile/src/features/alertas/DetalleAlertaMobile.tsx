@@ -3,8 +3,8 @@ import {
   ErrorApi,
   ETIQUETA_TIPO_ALERTA,
   formatearFecha,
+  formatearImporte,
   hoyEnBuenosAires,
-  lineaDeContexto,
   mensajeDeError,
   type Alerta,
 } from "@rumbo/shared";
@@ -28,18 +28,25 @@ function sumarDias(fecha: string, dias: number): string {
   return new Date(Date.parse(fecha) + dias * MILISEGUNDOS_POR_DIA).toISOString().slice(0, 10);
 }
 
-/** Contexto del origen sin repetir lo que la descripción ya dice (p. ej. el cliente y el destino). */
-function contextoNuevo(alerta: Alerta): string[] {
-  return lineaDeContexto(alerta).filter(
-    (linea) => !alerta.descripcion.includes(linea.replace(/^(Viaje|Oportunidad): /, "")),
-  );
+/** Origen de la alerta como pares etiqueta/valor (pantalla 53 del prototipo). */
+function datosDeContexto({ contexto }: Alerta): { etiqueta: string; valor: string }[] {
+  const { viaje, oportunidad, cliente: cl, pago } = contexto;
+  return [
+    viaje && { etiqueta: "Viaje", valor: viaje.destino },
+    oportunidad && { etiqueta: "Oportunidad", valor: oportunidad.destino_consultado },
+    cl && { etiqueta: "Cliente", valor: cl.nombre },
+    pago && {
+      etiqueta: "Importe",
+      valor: `${formatearImporte(pago.monto, pago.moneda)} · vence ${formatearFecha(pago.vencimiento)}`,
+    },
+  ].flatMap((dato) => (dato ? [dato] : []));
 }
 
 function useVolverALaAgenda() {
   const router = useRouter();
   return () => {
     if (router.canGoBack()) router.back();
-    else router.replace("/");
+    else router.replace("/agenda");
   };
 }
 
@@ -92,6 +99,8 @@ export function DetalleAlertaMobile() {
 
   const hoy = hoyEnBuenosAires();
   const atraso = diasDeAtraso(alerta.fecha, hoy);
+  // El backend exige una fecha posterior a la de la alerta y a hoy: las opciones salen de la mayor.
+  const base = alerta.fecha > hoy ? alerta.fecha : hoy;
   const clienteDeLaAlerta = alerta.contexto.cliente;
 
   const elegir = (fecha: string) => {
@@ -117,7 +126,12 @@ export function DetalleAlertaMobile() {
           Hace {atraso} {atraso === 1 ? "día" : "días"}
         </Text>
       )}
-      <Text className="text-sm text-gray-500">{contextoNuevo(alerta).join(" · ")}</Text>
+      {datosDeContexto(alerta).map(({ etiqueta, valor }) => (
+        <View key={etiqueta} className="flex-row gap-2">
+          <Text className="text-sm text-gray-500">{etiqueta}</Text>
+          <Text className="text-sm font-medium">{valor}</Text>
+        </View>
+      ))}
       {clienteDeLaAlerta && (
         <Pressable
           role="button"
@@ -130,7 +144,7 @@ export function DetalleAlertaMobile() {
           <Text className="font-semibold text-primary-foreground">Ver cliente</Text>
         </Pressable>
       )}
-      {!eligiendo ? (
+      {alerta.estado !== "pendiente" ? null : !eligiendo ? (
         <Pressable
           role="button"
           accessibilityLabel="Posponer"
@@ -147,7 +161,7 @@ export function DetalleAlertaMobile() {
             Posponer alerta
           </Text>
           {OPCIONES_POSPONER.map(({ etiqueta, dias }) => {
-            const fecha = sumarDias(hoy, dias);
+            const fecha = sumarDias(base, dias);
             const titulo = `${etiqueta} · ${formatearFecha(fecha)}`;
             return (
               <Pressable
