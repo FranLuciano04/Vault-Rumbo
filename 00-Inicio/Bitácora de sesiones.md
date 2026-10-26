@@ -58,6 +58,19 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
+## 25/10/26 — Paloma (Claude Opus 5.5) — T-086: contrato de viajes y economía
+- **T-086** (PR [#87](https://github.com/FranLuciano04/Vault-Rumbo/pull/87), mergeado con el CI en verde): el contrato de M6.
+  - Son 20 rutas stub (501) de `viajes` y `economia`, con esquemas, roles y 409 por estado. Tiene tipos, hooks y mocks MSW, con un viaje en cada uno de los 6 estados.
+  - Los importes viajan como texto decimal: `Importe`, `TipoCambio`, `DecimalConSigno` y `Fraccion`, en `esquemas/comunes.py`.
+  - Desvíos del PC1 que aprobó la review: el itinerario es `Tramo[]`, y `ganancia` y `margen` aceptan negativos (CU-10 A3).
+  - Review (opus): 0 bloqueantes, 2 importantes y 5 menores, todos arreglados.
+  - Backend: 1368 tests, con 97,13 % de cobertura.
+- **Entorno:** la base de tests necesita Docker Desktop prendido (`docker compose -f src/docker-compose.dev.yml up -d`). `pnpm` no está en el PATH de esta PC: se usa `corepack pnpm`.
+- **Commits:** f5cc81b, b8d6453, 5dd963f, 44800e7 y 9ca85f1. También 62e0817 (se borró el aviso del repo público para Paloma).
+- **Pendiente:**
+  - Para la sync: CU-08 A2 contradice a EST-Viaje T7 (corregir el estado desde `finalizado`). Hace falta una `DEC-` antes del backend de CU-08.
+  - CU-11 A3 permite editar el monto de un pago, pero `PagoReprogramar` solo trae el vencimiento.
+
 ## 25/10/26 — Francisco (Claude Opus 5.5) — T-050 y T-052: contrato y agenda de alertas
 - **T-050** (PR [#79](https://github.com/FranLuciano04/Vault-Rumbo/pull/79), mergeado con el CI en verde): el contrato de alertas.
   - Son 8 rutas stub (501) con tipos, hooks y mocks MSW. Los mocks respetan EST-Alerta e incluyen alertas de otro responsable.
