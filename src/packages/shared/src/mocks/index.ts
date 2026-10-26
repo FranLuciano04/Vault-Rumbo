@@ -52,3 +52,5 @@ export function manejadorYo(rol: RolMock): RequestHandler {
 export * from "./alertas";
 export * from "./clientes";
 export * from "./m1";
+export * from "./economia";
+export * from "./viajes";

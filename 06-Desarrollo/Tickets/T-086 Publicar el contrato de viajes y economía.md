@@ -3,7 +3,7 @@ id: T-086
 titulo: Publicar el contrato de viajes y economía
 modulo: M6 — Viajes y economía
 capa: contrato
-estado: tomado
+estado: hecho
 depende_de: [T-015]
 tamaño: M
 riesgo: normal
@@ -51,3 +51,17 @@ Existen los esquemas y routers stub (`501`) de viajes (reserva, ficha, estados, 
 - La lógica.
 
 ## Notas de implementación
+- **Modelos:** tests, verde, refactor y fix con sonnet; review con opus. No hubo escalados. El refactor no cambió nada.
+- **Importes:** viajan como texto decimal con tres tipos en `esquemas/comunes.py`: `Importe` (2 decimales, ≥ 0), `TipoCambio` (4 decimales, > 0) y `DecimalConSigno` (`ganancia` y `margen`). Además, `Fraccion` (0 a 1, 4 decimales) para `porcentaje_pagado`, por un hallazgo de la review.
+- **`contrato.py`:** se suman `respuesta_pagina`, `operacion_de_viaje`, `ESCRITURA_DEL_REGISTRO` y el parámetro `visibilidad` de `operacion()`. No cambia lo que ya publicaban M1 a M3.
+- **Desvíos del contrato del PC1, que la review aprobó:**
+  1. `GET /viajes/{id}/itinerario` devuelve `Tramo[]`, porque un itinerario es una lista que puede estar vacía (CU-09 A1 y A5).
+  2. `Tramo` es un modelo con `extra="allow"` y todavía no fija los campos de `viaje_hotel`.
+  3. Los campos nulables de `Viaje` y `Pago` salen requeridos y nulables, igual que en `Alerta`.
+  4. `ganancia` y `margen` aceptan valores negativos (CU-10 A3). El patrón del PC1 no permitía una pérdida.
+  5. La comisión en porcentaje se limita a 0–100 (CU-13).
+- **Mocks:** hay un viaje en cada uno de los 6 estados. `corregir-estado` solo acepta `en_curso` → `confirmado` y `finalizado` → `en_curso` (EST-Viaje T7). `estado_previo` se usa solo en la cancelación (DEC-0013). Revertir un cobro o reprogramar un pago lo deja `vencido` si la fecha ya pasó, y el plan de pagos conserva los cobros.
+- **Hallazgos de la review:** 0 bloqueantes, 2 importantes y 5 menores, todos arreglados. Se autorizó tocar el test para fijar los 4 decimales de `porcentaje_pagado`, para que los cuerpos de tramo tengan forma de hotel (DEC-0003) y para partir una docstring larga (E501).
+- **⚠️ Para el equipo:**
+  - CU-08 A2 permite corregir el estado «mientras el viaje no esté `finalizado`/`cancelado`», y EST-Viaje T7 permite corregirlo desde `finalizado`. Hay que resolverlo con una `DEC-` antes del backend de CU-08. El mock sigue a EST-Viaje.
+  - CU-11 A3 permite editar el monto de un pago, pero `PagoReprogramar` solo trae `vencimiento`, igual que en el PC1. Queda para el backend de CU-11.

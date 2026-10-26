@@ -4,7 +4,15 @@ from rumbo.core.config import get_settings
 from rumbo.core.seguridad import emulador_configurado
 from rumbo.presentacion.errores import registrar_manejadores
 from rumbo.presentacion.openapi import registrar_openapi
-from rumbo.presentacion.routers import alertas, clientes, configuracion, seguridad, usuarios
+from rumbo.presentacion.routers import (
+    alertas,
+    clientes,
+    configuracion,
+    economia,
+    seguridad,
+    usuarios,
+    viajes,
+)
 
 router_base = APIRouter(prefix="/api")
 
@@ -27,6 +35,8 @@ def crear_app() -> FastAPI:
         configuracion.router,
         clientes.router,
         alertas.router,
+        viajes.router,
+        economia.router,
     ):
         app.include_router(router, prefix="/api")
     return app

@@ -28,6 +28,26 @@ export type ProgresoDelDia = Esquemas["ProgresoDelDia"];
 export type TipoAlerta = Esquemas["TipoAlerta"];
 export type EstadoAlerta = Esquemas["EstadoAlerta"];
 
+/** Viajes (M6): la reserva, la ficha con su economía y saldo, el estado, la cancelación y el itinerario. */
+export type Viaje = Esquemas["Viaje"];
+export type ConfirmarReserva = Esquemas["ConfirmarReserva"];
+export type Cancelacion = Esquemas["Cancelacion"];
+export type Tramo = Esquemas["Tramo"];
+export type EstadoViaje = Esquemas["EstadoViaje"];
+export type CategoriaViaje = Esquemas["CategoriaViaje"];
+
+/** Economía y cobros (M6): control económico, plan de pagos y checklist de pagos. */
+export type EconomiaViaje = Esquemas["EconomiaViaje"];
+export type PlanDePagos = Esquemas["PlanDePagos"];
+export type PagoPlanItem = Esquemas["PagoPlanItem"];
+export type Pago = Esquemas["Pago"];
+export type PagoReprogramar = Esquemas["PagoReprogramar"];
+export type PagoDividir = Esquemas["PagoDividir"];
+export type CobroRegistrar = Esquemas["CobroRegistrar"];
+export type EstadoPago = Esquemas["EstadoPago"];
+export type TipoPago = Esquemas["TipoPago"];
+export type FormaPago = Esquemas["FormaPago"];
+
 /** Listado paginado: `{items, total, pagina, por_pagina}`. */
 export interface Pagina<T> {
   items: T[];
@@ -56,6 +76,20 @@ export interface FiltrosAlertas {
   proximas?: boolean;
   /** Agenda de un responsable: solo admin y dueño (CU-14 A1); para el resto se ignora. */
   propietario_id?: string;
+  pagina?: number;
+  por_pagina?: number;
+}
+
+/** Filtros del listado de viajes (`GET /api/viajes`, CU-08). */
+export interface FiltrosViajes {
+  /** Solo los viajes que tengo asignados. */
+  mios?: boolean;
+  /** Fecha de salida desde, `aaaa-mm-dd`. */
+  desde?: string;
+  /** Fecha de salida hasta, `aaaa-mm-dd`. */
+  hasta?: string;
+  estado?: EstadoViaje;
+  cliente_id?: string;
   pagina?: number;
   por_pagina?: number;
 }

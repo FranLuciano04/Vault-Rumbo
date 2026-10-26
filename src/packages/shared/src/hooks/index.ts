@@ -7,3 +7,5 @@ export * from "./useYo";
 export * from "./alertas";
 export * from "./clientes";
 export * from "./useResolverConDeshacer";
+export * from "./economia";
+export * from "./viajes";
