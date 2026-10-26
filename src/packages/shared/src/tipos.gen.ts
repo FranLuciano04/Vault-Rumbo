@@ -2326,7 +2326,7 @@ export interface components {
             fecha_regreso: string;
             categoria: components["schemas"]["CategoriaViaje"];
             readonly estado: components["schemas"]["EstadoViaje"];
-            /** @description Estado al que vuelve corregir-estado, o revertir-cancelacion si cancelado. */
+            /** @description Estado en que estaba antes de cancelarse: al que vuelve revertir-cancelacion. Vacío si no está cancelado. */
             readonly estado_previo: components["schemas"]["EstadoViaje"] | null;
             /** Motivo Cancelacion */
             readonly motivo_cancelacion: string | null;
@@ -2382,7 +2382,7 @@ export interface components {
              * Porcentaje Pagado
              * Format: decimal
              * @description Porción del precio de venta ya cobrada. Lo calcula la API (CU-12).
-             * @example 1000000.00
+             * @example 0.3333
              */
             readonly porcentaje_pagado: string;
         } & components["schemas"]["Auditoria"];

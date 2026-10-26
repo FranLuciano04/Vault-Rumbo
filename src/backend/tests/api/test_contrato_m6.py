@@ -1,5 +1,6 @@
 """T-086: contrato de viajes y economía (CU-07 a CU-12, CU-27): rutas, esquemas, token, roles y 501."""
 
+import re
 from collections.abc import Awaitable, Callable
 from typing import Any
 
@@ -7,6 +8,13 @@ import pytest
 from httpx import AsyncClient
 
 PROBLEM_JSON = "application/problem+json"
+TRAMO = {
+    "hotel_id": "3f6c9b1e-2a47-4d58-8e10-5b7a9c0d1e22",
+    "check_in": "2027-02-10",
+    "check_out": "2027-02-15",
+    "orden": 1,
+    "vencimiento_pago_proveedor": "2027-01-20",
+}
 ID = "0b8f7a52-4c1e-4f0a-9a57-1d2f6c3b7a01"
 ROLES = ["admin", "dueno", "empleado", "freelance"]
 FabricaCliente = Callable[[str], Awaitable[AsyncClient]]
@@ -104,7 +112,7 @@ OPERACIONES: list[tuple[str, str, str, Any, str, set[str]]] = [
         "post",
         "/api/viajes/{viaje_id}/itinerario",
         f"/api/viajes/{ID}/itinerario",
-        {"tipo": "vuelo"},
+        TRAMO,
         "viajes",
         {"403", "404", "409", "422"},
     ),
@@ -112,7 +120,7 @@ OPERACIONES: list[tuple[str, str, str, Any, str, set[str]]] = [
         "patch",
         "/api/tramos/{tramo_id}",
         f"/api/tramos/{ID}",
-        {"tipo": "hotel"},
+        TRAMO,
         "viajes",
         {"403", "404", "409", "422"},
     ),
@@ -383,6 +391,17 @@ async def test_cu10_campos_calculados_y_de_estado_del_viaje_son_de_solo_lectura(
     propiedades, _ = _componer(contrato, "Viaje")
 
     assert propiedades[campo]["readOnly"] is True
+
+
+async def test_cu12_porcentaje_pagado_es_una_fraccion_de_cuatro_decimales(
+    contrato: dict[str, Any],
+) -> None:
+    propiedades, _ = _componer(contrato, "Viaje")
+
+    patron = propiedades["porcentaje_pagado"]["pattern"]
+    assert re.fullmatch(patron, "0.3333")
+    assert re.fullmatch(patron, "1.0000")
+    assert not re.fullmatch(patron, "1.5")
 
 
 async def test_cu10_viaje_tiene_moneda_ars_o_usd(contrato: dict[str, Any]) -> None:

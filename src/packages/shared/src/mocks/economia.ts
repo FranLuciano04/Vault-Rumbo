@@ -8,8 +8,9 @@ import type {
   PlanDePagos,
   Viaje,
 } from "../modelos";
+import { HOY_MOCK } from "./alertas";
 import { respuestaProblema } from "./problema";
-import { auditoriaMock, idViajeMock, viajeNoEncontrado, viajesMock } from "./viajes";
+import { auditoriaMock, ganancia, idViajeMock, viajeNoEncontrado, viajesMock } from "./viajes";
 
 /** Un pago pendiente del plan; `cobrado` y `anulado` lo pasan a los otros estados. */
 function pendiente(
@@ -141,6 +142,10 @@ function conflicto(detail: string) {
 
 const pesos = (n: number) => n.toFixed(2);
 
+/** Un pago sin cobrar vence si su fecha ya pasó (EST-Pago T6). */
+const sinCobrar = (vencimiento: string): Pago["estado"] =>
+  vencimiento < HOY_MOCK ? "vencido" : "pendiente";
+
 /** El pago y su viaje; `undefined` si alguno no existe. */
 function buscar(id: string | readonly string[] | undefined) {
   const pago = todosLosPagos.find((p) => p.id === id);
@@ -157,13 +162,13 @@ export const manejadoresEconomia: RequestHandler[] = [
       return viajeNoModificable(viaje, "No se edita la economía");
     }
     const datos = (await request.json()) as EconomiaViaje;
-    const ganancia = Number(datos.precio_venta) - Number(datos.costo);
     return HttpResponse.json({
       ...viaje,
       precio_venta: datos.precio_venta,
       costo: datos.costo,
-      ganancia: pesos(ganancia),
-      margen: (ganancia / Number(datos.precio_venta)).toFixed(4),
+      ...ganancia(datos.precio_venta, datos.costo),
+      operador_id: datos.operador_id ?? viaje.operador_id,
+      vendedor_id: datos.vendedor_id ?? viaje.vendedor_id,
       comision_tipo: datos.comision_tipo ?? viaje.comision_tipo,
       comision_vendedor: datos.comision_vendedor ?? viaje.comision_vendedor,
     });
@@ -178,13 +183,23 @@ export const manejadoresEconomia: RequestHandler[] = [
     const viaje = viajesMock.find((v) => v.id === params["id"]);
     if (!viaje) return viajeNoEncontrado();
     const { pagos } = (await request.json()) as PlanDePagos;
-    const suma = pagos.reduce((total, p) => total + Number(p.monto), 0);
+    // Los pagos cobrados y los anulados se conservan; solo se reemplazan los sin cobrar (CU-11 A5).
+    const conservados = (pagosPorViajeMock[viaje.id] ?? []).filter(
+      (p) => p.estado === "pagado" || p.estado === "anulado",
+    );
+    const cobrados = conservados.filter((p) => p.estado === "pagado");
+    const suma = [...cobrados.map((p) => p.monto), ...pagos.map((p) => p.monto)].reduce(
+      (total, monto) => total + Number(monto),
+      0,
+    );
     if (pesos(suma) !== pesos(Number(viaje.precio_venta))) {
       return datosInvalidos("La suma de los pagos tiene que ser igual al precio de venta.");
     }
-    return HttpResponse.json(
-      pagos.map((p) => pendiente(crypto.randomUUID(), viaje.id, p.tipo, p.monto, p.vencimiento)),
-    );
+    const nuevos = pagos.map((p) => {
+      const pago = pendiente(crypto.randomUUID(), viaje.id, p.tipo, p.monto, p.vencimiento);
+      return { ...pago, estado: sinCobrar(p.vencimiento) };
+    });
+    return HttpResponse.json([...conservados, ...nuevos]);
   }),
 
   http.patch(`${BASE}/:id`, async ({ params, request }) => {
@@ -194,7 +209,10 @@ export const manejadoresEconomia: RequestHandler[] = [
       return conflicto(`No se reprograma un pago ${encontrado.pago.estado}.`);
     }
     const { vencimiento } = (await request.json()) as PagoReprogramar;
-    return HttpResponse.json({ ...encontrado.pago, estado: "pendiente", vencimiento });
+    if (vencimiento <= HOY_MOCK) {
+      return datosInvalidos("El nuevo vencimiento tiene que ser posterior a hoy.");
+    }
+    return HttpResponse.json({ ...encontrado.pago, estado: sinCobrar(vencimiento), vencimiento });
   }),
 
   http.post(`${BASE}/:id/anular`, ({ params }) => {
@@ -274,7 +292,7 @@ export const manejadoresEconomia: RequestHandler[] = [
     }
     return HttpResponse.json({
       ...encontrado.pago,
-      estado: "pendiente",
+      estado: sinCobrar(encontrado.pago.vencimiento),
       forma_pago: null,
       moneda_pago: null,
       tipo_cambio: null,

@@ -10,11 +10,11 @@ from pydantic import BaseModel, ConfigDict, Field, WithJsonSchema
 TipoComision = Literal["importe", "porcentaje"]  # el porcentaje es sobre la ganancia (DEC-0007)
 
 
-def _texto_decimal(patron: str) -> WithJsonSchema:
+def _texto_decimal(patron: str, ejemplo: str = "1000000.00") -> WithJsonSchema:
     """Los importes viajan como texto decimal, no como número (DEC-0007): evita errores de punto
     flotante."""
     return WithJsonSchema(
-        {"type": "string", "format": "decimal", "pattern": patron, "examples": ["1000000.00"]}
+        {"type": "string", "format": "decimal", "pattern": patron, "examples": [ejemplo]}
     )
 
 
@@ -27,6 +27,11 @@ TipoCambio = Annotated[
     Decimal,
     Field(gt=0, max_digits=14, decimal_places=4),
     _texto_decimal(r"^\d+(\.\d{1,4})?$"),
+]
+Fraccion = Annotated[  # de 0 a 1, con 4 decimales: porcentaje_pagado (0.3333 = 33,33 %)
+    Decimal,
+    Field(ge=0, le=1, max_digits=5, decimal_places=4),
+    _texto_decimal(r"^(0(\.\d{1,4})?|1(\.0{1,4})?)$", "0.3333"),
 ]
 DecimalConSigno = Annotated[Decimal, _texto_decimal(r"^-?\d+(\.\d{1,4})?$")]  # ganancia y margen
 

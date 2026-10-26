@@ -68,7 +68,6 @@ export const viajesMock: Viaje[] = [
     cliente_id: camila,
     destino_id: "9c1d2e3f-4a5b-4c6d-8e7f-0a1b2c3d4e02",
     estado: "vendido",
-    estado_previo: "reservado",
     fecha_salida: "2027-01-10",
     fecha_regreso: "2027-01-24",
     precio_venta: "1800000.00",
@@ -86,7 +85,6 @@ export const viajesMock: Viaje[] = [
     cliente_id: sosa,
     destino_id: "9c1d2e3f-4a5b-4c6d-8e7f-0a1b2c3d4e03",
     estado: "confirmado",
-    estado_previo: "vendido",
     categoria: "grupal",
     fecha_salida: "2026-11-01",
     fecha_regreso: "2026-11-15",
@@ -105,7 +103,6 @@ export const viajesMock: Viaje[] = [
     cliente_id: camila,
     destino_id: "9c1d2e3f-4a5b-4c6d-8e7f-0a1b2c3d4e04",
     estado: "en_curso",
-    estado_previo: "confirmado",
     fecha_salida: "2026-10-20",
     fecha_regreso: "2026-10-30",
     precio_venta: "900000.00",
@@ -122,7 +119,6 @@ export const viajesMock: Viaje[] = [
     cliente_id: camila,
     destino_id: "9c1d2e3f-4a5b-4c6d-8e7f-0a1b2c3d4e05",
     estado: "finalizado",
-    estado_previo: "en_curso",
     fecha_salida: "2026-09-01",
     fecha_regreso: "2026-09-15",
     precio_venta: "2400000.00",
@@ -152,23 +148,27 @@ export const viajesMock: Viaje[] = [
   }),
 ];
 
-/** Itinerario ficticio del viaje de la Familia Sosa: el esquema del tramo se fija con el backend (CU-09). */
+/** Itinerario ficticio del viaje de la Familia Sosa, con los nombres de CU-09 y del ER (`Tramo` acepta cualquier objeto hasta el backend). */
 export const tramosMock: Tramo[] = [
   {
     id: "b3c4d5e6-f7a8-4b9c-8d0e-1f2a3b4c5d01",
-    viaje_id: "e5f6a7b8-c9d0-4e1f-a2b3-c4d5e6f7a812",
-    hotel: "Hotel Copacabana Palace",
-    fecha_ingreso: "2026-11-01",
-    fecha_egreso: "2026-11-08",
-    pagado_al_proveedor: true,
+    viaje_id: idViajeMock.confirmado,
+    hotel_id: "5e6f7a8b-9c0d-4e1f-8a2b-3c4d5e6f7a01",
+    check_in: "2026-11-01",
+    check_out: "2026-11-08",
+    orden: 1,
+    vencimiento_pago_proveedor: "2026-10-15",
+    pago_proveedor_realizado: true,
   },
   {
     id: "b3c4d5e6-f7a8-4b9c-8d0e-1f2a3b4c5d02",
-    viaje_id: "e5f6a7b8-c9d0-4e1f-a2b3-c4d5e6f7a812",
-    hotel: "Pousada Ipanema",
-    fecha_ingreso: "2026-11-08",
-    fecha_egreso: "2026-11-15",
-    pagado_al_proveedor: false,
+    viaje_id: idViajeMock.confirmado,
+    hotel_id: "5e6f7a8b-9c0d-4e1f-8a2b-3c4d5e6f7a02",
+    check_in: "2026-11-08",
+    check_out: "2026-11-15",
+    orden: 2,
+    vencimiento_pago_proveedor: "2026-10-30",
+    pago_proveedor_realizado: false,
   },
 ];
 
@@ -200,20 +200,39 @@ function transicion(
   });
 }
 
+/** Estados a los que se puede volver por un error de carga: `en_curso` y `finalizado` (EST-Viaje T7). */
+const corregibles: Partial<Record<EstadoViaje, EstadoViaje>> = {
+  en_curso: "confirmado",
+  finalizado: "en_curso",
+};
+
+/** Ganancia y margen del viaje (DEC-0007); el margen es `null` con precio de venta 0. */
+export function ganancia(precio_venta: string, costo: string) {
+  const g = Number(precio_venta) - Number(costo);
+  return {
+    ganancia: g.toFixed(2),
+    margen: Number(precio_venta) === 0 ? null : (g / Number(precio_venta)).toFixed(4),
+  };
+}
+
 /** Handlers MSW de viajes e itinerario (CU-07, CU-08, CU-09, CU-27). */
 export const manejadoresViajes: RequestHandler[] = [
-  http.post("*/api/oportunidades/:id/confirmar-reserva", async ({ request }) => {
+  http.post("*/api/oportunidades/:id/confirmar-reserva", async ({ params, request }) => {
     const datos = (await request.json()) as ConfirmarReserva;
     if (datos.fecha_regreso < datos.fecha_salida) {
       return respuestaProblema(422, "Datos inválidos", {
         detail: "El regreso no puede ser anterior a la salida.",
       });
     }
-    const { precio_venta, costo } = datos.economia;
+    const { precio_venta, costo, operador_id: operador, vendedor_id: vendedor } = datos.economia;
     return HttpResponse.json(
       viaje({
         id: crypto.randomUUID(),
+        oportunidad_id: String(params["id"]),
         cliente_id: joaquin,
+        responsable_id: datos.responsable_id ?? responsable_id,
+        operador_id: operador ?? operador_id,
+        vendedor_id: vendedor ?? vendedor_id,
         destino_id: datos.destino_id,
         fecha_salida: datos.fecha_salida,
         fecha_regreso: datos.fecha_regreso,
@@ -221,6 +240,9 @@ export const manejadoresViajes: RequestHandler[] = [
         moneda: datos.moneda ?? "ARS",
         precio_venta,
         costo,
+        ...ganancia(precio_venta, costo),
+        comision_tipo: datos.economia.comision_tipo ?? "porcentaje",
+        comision_vendedor: datos.economia.comision_vendedor ?? "10.00",
         saldo_pendiente: precio_venta,
       }),
       { status: 201 },
@@ -256,16 +278,15 @@ export const manejadoresViajes: RequestHandler[] = [
     return v ? HttpResponse.json(v) : viajeNoEncontrado();
   }),
 
-  transicion("iniciar", "confirmado", () => ({ estado: "en_curso", estado_previo: "confirmado" })),
-  transicion("finalizar", "en_curso", () => ({ estado: "finalizado", estado_previo: "en_curso" })),
+  transicion("iniciar", "confirmado", () => ({ estado: "en_curso" })),
+  transicion("finalizar", "en_curso", () => ({ estado: "finalizado" })),
 
   http.post(`${BASE}/:id/corregir-estado`, ({ params }) => {
     const v = viajesMock.find((x) => x.id === params["id"]);
     if (!v) return viajeNoEncontrado();
-    if (!v.estado_previo || v.estado === "cancelado") {
-      return conflicto("El viaje no tiene un estado anterior al que volver.");
-    }
-    return HttpResponse.json({ ...v, estado: v.estado_previo, estado_previo: null });
+    const anterior = corregibles[v.estado];
+    if (!anterior) return conflicto(`No se corrige el estado de un viaje ${v.estado}.`);
+    return HttpResponse.json({ ...v, estado: anterior });
   }),
 
   http.post(`${BASE}/:id/cancelar`, async ({ params, request }) => {

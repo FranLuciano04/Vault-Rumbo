@@ -3,8 +3,9 @@ DEC-0007, DEC-0013)."""
 
 import uuid
 from datetime import date
+from typing import Self
 
-from pydantic import ConfigDict, Field
+from pydantic import ConfigDict, Field, model_validator
 from pydantic.json_schema import JsonDict
 
 from rumbo.datos.modelos import EstadoPago, FormaPago, Moneda, TipoPago
@@ -32,6 +33,17 @@ class EconomiaViaje(Entrada):
         default=None,
         description="Si se omite, se toma el valor por defecto del vendedor (CU-13).",
     )
+
+    @model_validator(mode="after")
+    def _porcentaje_hasta_cien(self) -> Self:
+        """Misma regla que la comisión por defecto del vendedor (CU-13, DEC-0007)."""
+        if (
+            self.comision_tipo == "porcentaje"
+            and self.comision_vendedor is not None
+            and self.comision_vendedor > 100
+        ):
+            raise ValueError("Un porcentaje de comisión no puede superar 100.")
+        return self
 
 
 class PagoPlanItem(Entrada):

@@ -12,6 +12,7 @@ from rumbo.presentacion.esquemas.comunes import (
     Auditoria,
     DecimalConSigno,
     Entrada,
+    Fraccion,
     Importe,
     TipoComision,
     componer_con_auditoria,
@@ -39,7 +40,8 @@ class Viaje(Auditoria):
     estado: EstadoViaje = Field(json_schema_extra=_SOLO_LECTURA)
     estado_previo: EstadoViaje | None = Field(
         json_schema_extra=_SOLO_LECTURA,
-        description="Estado al que vuelve corregir-estado, o revertir-cancelacion si cancelado.",
+        description="Estado en que estaba antes de cancelarse: al que vuelve revertir-cancelacion. "
+        "Vacío si no está cancelado.",
     )
     motivo_cancelacion: str | None = Field(json_schema_extra=_SOLO_LECTURA)
     fecha_cancelacion: date | None = Field(json_schema_extra=_SOLO_LECTURA)
@@ -64,7 +66,7 @@ class Viaje(Auditoria):
         description="Suma de los pagos no cobrados, en la moneda del viaje. Lo calcula la API "
         "(CU-12).",
     )
-    porcentaje_pagado: Importe = Field(
+    porcentaje_pagado: Fraccion = Field(
         json_schema_extra=_SOLO_LECTURA,
         description="Porción del precio de venta ya cobrada. Lo calcula la API (CU-12).",
     )

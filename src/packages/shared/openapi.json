@@ -8442,7 +8442,7 @@
                     "type": "null"
                   }
                 ],
-                "description": "Estado al que vuelve corregir-estado, o revertir-cancelacion si cancelado.",
+                "description": "Estado en que estaba antes de cancelarse: al que vuelve revertir-cancelacion. Vacío si no está cancelado.",
                 "readOnly": true
               },
               "motivo_cancelacion": {
@@ -8554,13 +8554,13 @@
               },
               "porcentaje_pagado": {
                 "type": "string",
-                "pattern": "^\\d+(\\.\\d{1,4})?$",
+                "pattern": "^(0(\\.\\d{1,4})?|1(\\.0{1,4})?)$",
                 "format": "decimal",
                 "title": "Porcentaje Pagado",
                 "description": "Porción del precio de venta ya cobrada. Lo calcula la API (CU-12).",
                 "readOnly": true,
                 "examples": [
-                  "1000000.00"
+                  "0.3333"
                 ]
               }
             },
