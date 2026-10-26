@@ -48,6 +48,20 @@ export type EstadoPago = Esquemas["EstadoPago"];
 export type TipoPago = Esquemas["TipoPago"];
 export type FormaPago = Esquemas["FormaPago"];
 
+/** Oportunidades y cotizaciones (M4): la consulta, su seguimiento y las versiones de la cotización. */
+export type Oportunidad = Esquemas["Oportunidad"];
+export type OportunidadCrear = Esquemas["OportunidadCrear"];
+export type OportunidadEditar = Esquemas["OportunidadEditar"];
+export type OportunidadPerder = Esquemas["OportunidadPerder"];
+export type Insistencia = Esquemas["Insistencia"];
+export type Cotizacion = Esquemas["Cotizacion"];
+export type CotizacionCrear = Esquemas["CotizacionCrear"];
+export type ItemCotizacion = Esquemas["ItemCotizacion"];
+export type EstadoOportunidad = Esquemas["EstadoOportunidad"];
+export type CanalOportunidad = Esquemas["CanalOportunidad"];
+export type MotivoPerdida = Esquemas["MotivoPerdida"];
+export type EstadoCotizacion = Esquemas["EstadoCotizacion"];
+
 /** Listado paginado: `{items, total, pagina, por_pagina}`. */
 export interface Pagina<T> {
   items: T[];
@@ -89,6 +103,16 @@ export interface FiltrosViajes {
   /** Fecha de salida hasta, `aaaa-mm-dd`. */
   hasta?: string;
   estado?: EstadoViaje;
+  cliente_id?: string;
+  pagina?: number;
+  por_pagina?: number;
+}
+
+/** Filtros del embudo (`GET /api/oportunidades`, CU-05). */
+export interface FiltrosOportunidades {
+  /** Solo las oportunidades que tengo asignadas. */
+  mios?: boolean;
+  estado?: EstadoOportunidad;
   cliente_id?: string;
   pagina?: number;
   por_pagina?: number;
