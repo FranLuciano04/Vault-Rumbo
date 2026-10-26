@@ -15,6 +15,7 @@ import {
 import { normalizarTelefonoAR } from "../telefono";
 import { usuariosPorRol } from "./index";
 import { respuestaProblema } from "./problema";
+import { normalizarTexto } from "./utilidades";
 
 /** Clientes ficticios que respetan el esquema `Cliente`. */
 export const clientesMock: ClienteListado[] = [
@@ -127,17 +128,6 @@ function asesorPorId(id: string | null | undefined): AsesorDelCliente | null {
   return asesoresMock().find((a) => a.id === id) ?? null;
 }
 
-/** Clave de un texto (etiqueta, nombre): minúsculas, sin tildes y espacios colapsados (como el backend). */
-function claveTexto(etiqueta: string): string {
-  return etiqueta
-    .normalize("NFD")
-    .replace(/\p{M}/gu, "")
-    .toLowerCase()
-    .split(/\s+/)
-    .filter(Boolean)
-    .join(" ");
-}
-
 /** La ficha que devuelve el backend: `Cliente`, sin el resumen que solo trae el listado. */
 export function aFicha(listado: ClienteListado): Cliente {
   const ficha: Partial<ClienteListado> = { ...listado };
@@ -187,7 +177,7 @@ export const manejadoresClientes: RequestHandler[] = [
           c.nombre.toLowerCase().includes(buscar) ||
           c.contacto.toLowerCase().includes(buscar)) &&
         etiquetas.every((e) =>
-          c.etiquetas.some((propia) => claveTexto(propia) === claveTexto(e)),
+          c.etiquetas.some((propia) => normalizarTexto(propia) === normalizarTexto(e)),
         ) &&
         (!segmento || c.segmento === segmento) &&
         (!mios || c.asesor_asignado_id === usuariosPorRol.empleado.id),
@@ -203,7 +193,11 @@ export const manejadoresClientes: RequestHandler[] = [
 
   http.get(`${BASE}/etiquetas`, () =>
     HttpResponse.json(
-      [...new Map(clientesMock.flatMap((c) => c.etiquetas).map((e) => [claveTexto(e), e] as const))]
+      [
+        ...new Map(
+          clientesMock.flatMap((c) => c.etiquetas).map((e) => [normalizarTexto(e), e] as const),
+        ),
+      ]
         .sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))
         .map(([, etiqueta]) => etiqueta),
     ),
@@ -216,7 +210,7 @@ export const manejadoresClientes: RequestHandler[] = [
     const duplicados = clientesMock.filter(
       (c) =>
         claveContacto(c.contacto) === claveContacto(datos.contacto) ||
-        claveTexto(c.nombre) === claveTexto(datos.nombre),
+        normalizarTexto(c.nombre) === normalizarTexto(datos.nombre),
     );
     if (duplicados.length > 0 && !datos.confirmar_duplicado) {
       return respuestaProblema(409, "Conflicto", {

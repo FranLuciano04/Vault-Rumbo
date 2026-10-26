@@ -1,15 +1,18 @@
-"""Servicio del módulo oportunidades: embudo, detalle y edición (CU-05)."""
+"""Servicio del módulo oportunidades: embudo, detalle, edición y estados (CU-05)."""
 
 import uuid
+from collections.abc import Callable
 from typing import Any
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from rumbo.datos.modelos import EstadoOportunidad, Oportunidad, RolUsuario, Usuario
+from rumbo.datos.modelos import EstadoOportunidad, MotivoPerdida, Oportunidad, RolUsuario, Usuario
 from rumbo.datos.repositorios.oportunidades import RepositorioOportunidades
 from rumbo.datos.repositorios.seguridad import RepositorioUsuarios
 from rumbo.negocio.errores import DatosInvalidos, NoEncontrado
+from rumbo.negocio.estados import oportunidad as estado
 from rumbo.negocio.politicas import exigir_escritura, exigir_rol, visibilidad
+from rumbo.negocio.servicios.alertas import resolver_de_origen
 
 _oportunidades = RepositorioOportunidades()
 _usuarios = RepositorioUsuarios()
@@ -51,7 +54,9 @@ async def editar_oportunidad(
     """Aplica solo los campos enviados a los datos y las notas (CU-05, RF-016). No toca el
     `estado`: eso va por las acciones. Edita el responsable, admin o dueño (DEC-0005); reasignar
     `responsable_id` es solo de admin y dueño, y el nuevo tiene que ser un `Usuario` activo."""
-    oportunidad = await obtener_oportunidad(sesion, actor, oportunidad_id)
+    oportunidad = await _oportunidades.obtener_para_modificar(
+        sesion, oportunidad_id, visibilidad=visibilidad(actor)
+    )
     exigir_escritura(actor, oportunidad)
     if cambios.get("responsable_id", oportunidad.responsable_id) != oportunidad.responsable_id:
         exigir_rol(actor, RolUsuario.admin, RolUsuario.dueno)
@@ -67,6 +72,69 @@ async def editar_oportunidad(
         raise DatosInvalidos(campo, "La fecha hasta no puede ser anterior a la fecha desde.")
     for campo, valor in cambios.items():
         setattr(oportunidad, campo, valor)
+    await sesion.flush()
+    await sesion.refresh(oportunidad)
+    return oportunidad
+
+
+async def pasar_a_en_gestion(
+    sesion: AsyncSession, actor: Usuario, oportunidad_id: uuid.UUID
+) -> Oportunidad:
+    """El responsable toma una consulta nueva (CU-05, EST-Oportunidad T2)."""
+    return await _transicionar(sesion, actor, oportunidad_id, estado.pasar_a_en_gestion)
+
+
+async def perder_oportunidad(
+    sesion: AsyncSession,
+    actor: Usuario,
+    oportunidad_id: uuid.UUID,
+    motivo: MotivoPerdida,
+    detalle: str | None,
+) -> Oportunidad:
+    """Cierra como perdida con su motivo (CU-05 A2, RF-017) y resuelve las alertas automáticas
+    que quedaban abiertas (RN-08)."""
+    return await _transicionar(
+        sesion,
+        actor,
+        oportunidad_id,
+        lambda o: estado.perder(o, motivo, detalle),
+        resolver_alertas=True,
+    )
+
+
+async def reactivar_oportunidad(
+    sesion: AsyncSession, actor: Usuario, oportunidad_id: uuid.UUID
+) -> Oportunidad:
+    """Una perdida vuelve a en gestión (CU-05 A3, RF-020)."""
+    return await _transicionar(sesion, actor, oportunidad_id, estado.reactivar)
+
+
+async def ganar_oportunidad(
+    sesion: AsyncSession, actor: Usuario, oportunidad_id: uuid.UUID
+) -> Oportunidad:
+    """Venta directa sin cotización formal: queda ganada, lista para confirmar la reserva
+    (CU-05 A4, RF-016); resuelve las alertas automáticas abiertas (RN-08)."""
+    return await _transicionar(sesion, actor, oportunidad_id, estado.ganar, resolver_alertas=True)
+
+
+async def _transicionar(
+    sesion: AsyncSession,
+    actor: Usuario,
+    oportunidad_id: uuid.UUID,
+    transicion: Callable[[Oportunidad], None],
+    *,
+    resolver_alertas: bool = False,
+) -> Oportunidad:
+    """Aplica una transición de EST-Oportunidad: una que el actor no ve es 404, una ajena sin
+    permiso de escritura 403 (DEC-0005) y una inválida 409. Al cerrarla, las alertas pendientes
+    de la oportunidad se resuelven salvo las `manual` (RN-08)."""
+    oportunidad = await _oportunidades.obtener_para_modificar(
+        sesion, oportunidad_id, visibilidad=visibilidad(actor)
+    )
+    exigir_escritura(actor, oportunidad)
+    transicion(oportunidad)
+    if resolver_alertas:
+        await resolver_de_origen(sesion, oportunidad)
     await sesion.flush()
     await sesion.refresh(oportunidad)
     return oportunidad

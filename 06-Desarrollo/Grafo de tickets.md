@@ -17,8 +17,8 @@ tags:: #tipo/referencia
 | M0 — Fundaciones | 38 | 38 | 0 | 0 | 0 | 0 | ✅ cerrado |
 | M1 — Usuarios y configuración | 19 | 19 | 0 | 0 | 0 | 0 | 🔍 listo para la review |
 | M2 — Clientes | 15 | 15 | 0 | 0 | 0 | 0 | 🔍 listo para la review |
-| M3 — Alertas | 14 | 11 | 0 | 3 | 0 | 0 | 🛠️ en curso |
-| M4 — Oportunidades y cotizaciones | 14 | 2 | 1 | 3 | 8 | 0 | 🛠️ en curso |
+| M3 — Alertas | 14 | 11 | 1 | 2 | 0 | 0 | 🛠️ en curso |
+| M4 — Oportunidades y cotizaciones | 14 | 3 | 0 | 5 | 6 | 0 | 🛠️ en curso |
 | M5 — Hoteles y reseñas | 11 | 0 | 0 | 1 | 10 | 0 | 🛠️ en curso |
 | M6 — Viajes y economía | 24 | 1 | 0 | 3 | 20 | 0 | 🛠️ en curso |
 | M7 — Proceso diario y CRM proactivo | 9 | 0 | 0 | 2 | 7 | 0 | 🛠️ en curso |
@@ -120,7 +120,7 @@ flowchart LR
     T056["T-056 · Crear un recordatorio manual en la web<br/><small>web</small>"]:::hecho
     T057["T-057 · Atender la agenda del día en la app mobile<br/><small>mobile</small>"]:::hecho
     T058["T-058 · Posponer una alerta desde su detalle en la app mobile<br/><small>mobile</small>"]:::hecho
-    T059["T-059 · Crear un recordatorio manual desde la app mobile<br/><small>mobile</small>"]:::disponible
+    T059["T-059 · Crear un recordatorio manual desde la app mobile<br/><small>mobile</small><br/>👤 palomap2003"]:::tomado
     T060["T-060 · Probar de punta a punta la agenda de alertas<br/><small>e2e</small>"]:::disponible
     T164["T-164 · Mostrar los totales de la agenda web como en el prototipo<br/><small>web</small>"]:::hecho
     T165["T-165 · Filtrar la agenda mobile con chips como en el prototipo<br/><small>mobile</small>"]:::disponible
@@ -130,9 +130,9 @@ flowchart LR
     T061["T-061 · Publicar el contrato de oportunidades y cotizaciones<br/><small>contrato</small>"]:::hecho
     T062["T-062 · Registrar una consulta como oportunidad<br/><small>backend</small>"]:::disponible
     T063["T-063 · Listar las oportunidades del embudo<br/><small>backend</small>"]:::hecho
-    T064["T-064 · Implementar los estados de la oportunidad<br/><small>backend · ⚠️ riesgo alto</small><br/>👤 palomap2003"]:::tomado
-    T065["T-065 · Agendar insistencias en el seguimiento de la oportunidad<br/><small>backend</small>"]:::esperando
-    T066["T-066 · Emitir cotizaciones versionadas con su vigencia<br/><small>backend · ⚠️ riesgo alto</small>"]:::esperando
+    T064["T-064 · Implementar los estados de la oportunidad<br/><small>backend · ⚠️ riesgo alto</small>"]:::hecho
+    T065["T-065 · Agendar insistencias en el seguimiento de la oportunidad<br/><small>backend</small>"]:::disponible
+    T066["T-066 · Emitir cotizaciones versionadas con su vigencia<br/><small>backend · ⚠️ riesgo alto</small>"]:::disponible
     T067["T-067 · Registrar la respuesta del cliente a la cotización<br/><small>backend · ⚠️ riesgo alto</small>"]:::esperando
     T068["T-068 · Generar el documento PDF de la cotización<br/><small>backend</small>"]:::esperando
     T069["T-069 · Registrar una consulta en la web<br/><small>web</small>"]:::disponible
