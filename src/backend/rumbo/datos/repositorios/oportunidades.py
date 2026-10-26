@@ -5,6 +5,7 @@ import uuid
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from rumbo.core.errores import NoEncontrado
 from rumbo.datos.modelos import EstadoOportunidad, Oportunidad
 from rumbo.datos.repositorios.base import RepositorioBase, Visibilidad
 
@@ -36,3 +37,17 @@ class RepositorioOportunidades(RepositorioBase[Oportunidad]):
         pagina = consulta.order_by(Oportunidad.updated_at.desc(), Oportunidad.id)
         filas = await sesion.scalars(pagina.offset(desplazamiento).limit(limite))
         return list(filas), total or 0
+
+    async def obtener_para_modificar(
+        self, sesion: AsyncSession, id: uuid.UUID, *, visibilidad: Visibilidad
+    ) -> Oportunidad:
+        """Como `obtener`, pero bloqueada hasta el fin de la transacción y releída de la base,
+        para que dos cambios simultáneos no partan del mismo estado (EST-Oportunidad)."""
+        consulta = visibilidad.aplicar(select(Oportunidad).where(Oportunidad.id == id), Oportunidad)
+        consulta = consulta.with_for_update(of=Oportunidad).execution_options(
+            populate_existing=True
+        )
+        oportunidad = await sesion.scalar(consulta)
+        if oportunidad is None:
+            raise NoEncontrado(f"Oportunidad {id} no encontrada")
+        return oportunidad

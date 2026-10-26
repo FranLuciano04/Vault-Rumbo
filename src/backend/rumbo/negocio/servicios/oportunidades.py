@@ -54,7 +54,9 @@ async def editar_oportunidad(
     """Aplica solo los campos enviados a los datos y las notas (CU-05, RF-016). No toca el
     `estado`: eso va por las acciones. Edita el responsable, admin o dueño (DEC-0005); reasignar
     `responsable_id` es solo de admin y dueño, y el nuevo tiene que ser un `Usuario` activo."""
-    oportunidad = await obtener_oportunidad(sesion, actor, oportunidad_id)
+    oportunidad = await _oportunidades.obtener_para_modificar(
+        sesion, oportunidad_id, visibilidad=visibilidad(actor)
+    )
     exigir_escritura(actor, oportunidad)
     if cambios.get("responsable_id", oportunidad.responsable_id) != oportunidad.responsable_id:
         exigir_rol(actor, RolUsuario.admin, RolUsuario.dueno)
@@ -126,7 +128,9 @@ async def _transicionar(
     """Aplica una transición de EST-Oportunidad: una que el actor no ve es 404, una ajena sin
     permiso de escritura 403 (DEC-0005) y una inválida 409. Al cerrarla, las alertas pendientes
     de la oportunidad se resuelven salvo las `manual` (RN-08)."""
-    oportunidad = await obtener_oportunidad(sesion, actor, oportunidad_id)
+    oportunidad = await _oportunidades.obtener_para_modificar(
+        sesion, oportunidad_id, visibilidad=visibilidad(actor)
+    )
     exigir_escritura(actor, oportunidad)
     transicion(oportunidad)
     if resolver_alertas:

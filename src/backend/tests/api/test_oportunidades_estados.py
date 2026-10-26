@@ -165,6 +165,14 @@ async def test_rf017_perder_resuelve_las_insistencias_pendientes(
         oportunidad_id=op.id,
         tipo=TipoAlerta.insistencia,
     )
+    insistencia_vista = await crear(
+        sesion,
+        AlertaFactory,
+        propietario_id=usuario.id,
+        oportunidad_id=op.id,
+        tipo=TipoAlerta.insistencia,
+        estado=EstadoAlerta.vista,
+    )
     manual = await crear(
         sesion,
         AlertaFactory,
@@ -177,8 +185,10 @@ async def test_rf017_perder_resuelve_las_insistencias_pendientes(
 
     assert r.status_code == 200
     await sesion.refresh(insistencia)
+    await sesion.refresh(insistencia_vista)
     await sesion.refresh(manual)
     assert insistencia.estado is EstadoAlerta.resuelta
+    assert insistencia_vista.estado is EstadoAlerta.resuelta
     assert manual.estado is EstadoAlerta.pendiente  # lo manual no se cierra solo (RN-08)
 
 
@@ -223,7 +233,7 @@ async def test_rf020_reactivar_si_no_esta_perdida_409(
 # ---------- ganar sin cotización (T4, A4) ----------
 
 
-@pytest.mark.parametrize("origen", [E.nueva, E.en_gestion])
+@pytest.mark.parametrize("origen", [E.nueva, E.en_gestion, E.cotizada])
 async def test_rf016_ganar_sin_cotizacion(
     cliente_como: FabricaCliente, sesion: AsyncSession, origen: E
 ) -> None:
@@ -265,10 +275,43 @@ async def test_rf016_ganar_resuelve_las_insistencias_pendientes(
         oportunidad_id=op.id,
         tipo=TipoAlerta.insistencia,
     )
+    insistencia_vista = await crear(
+        sesion,
+        AlertaFactory,
+        propietario_id=usuario.id,
+        oportunidad_id=op.id,
+        tipo=TipoAlerta.insistencia,
+        estado=EstadoAlerta.vista,
+    )
 
     r = await c.post(_url(op, "ganar"))
 
     assert r.status_code == 200
+    await sesion.refresh(insistencia)
+    await sesion.refresh(insistencia_vista)
+    assert insistencia.estado is EstadoAlerta.resuelta
+    assert insistencia_vista.estado is EstadoAlerta.resuelta
+
+
+async def test_rf020_reactivar_no_reabre_las_alertas_resueltas_al_perder(
+    cliente_como: FabricaCliente, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("empleado")
+    usuario = c.usuario  # type: ignore[attr-defined]
+    op = await _op(sesion, usuario.id, E.en_gestion)
+    insistencia = await crear(
+        sesion,
+        AlertaFactory,
+        propietario_id=usuario.id,
+        oportunidad_id=op.id,
+        tipo=TipoAlerta.insistencia,
+    )
+
+    perdida = await c.post(_url(op, "perder"), json={"motivo_perdida": "precio"})
+    reactivada = await c.post(_url(op, "reactivar"))
+
+    assert perdida.status_code == 200
+    assert reactivada.status_code == 200
     await sesion.refresh(insistencia)
     assert insistencia.estado is EstadoAlerta.resuelta
 
@@ -369,3 +412,41 @@ async def test_cu05_accion_sobre_inexistente_404(
 
     assert r.status_code == 404
     assert r.headers["content-type"].startswith(PROBLEM_JSON)
+
+
+# ---------- el permiso se chequea antes que el estado (RF-151) ----------
+
+
+@pytest.mark.parametrize(
+    ("accion", "cuerpo", "origen"),
+    [
+        ("en-gestion", None, E.ganada),
+        ("en-gestion", None, E.perdida),
+        ("en-gestion", None, E.en_gestion),
+        ("perder", {"motivo_perdida": "precio"}, E.ganada),
+        ("perder", {"motivo_perdida": "precio"}, E.perdida),
+        ("reactivar", None, E.nueva),
+        ("reactivar", None, E.ganada),
+        ("ganar", None, E.ganada),
+        ("ganar", None, E.perdida),
+    ],
+    ids=lambda v: v.value if isinstance(v, E) else None,
+)
+async def test_rf151_sin_permiso_gana_el_403_al_409(
+    cliente_como: FabricaCliente,
+    sesion: AsyncSession,
+    accion: str,
+    cuerpo: dict[str, Any] | None,
+    origen: E,
+) -> None:
+    """Un empleado no responsable sobre una transición inválida recibe 403, no 409: si no, el
+    409 le revelaría el estado de una oportunidad que no puede tocar."""
+    c = await cliente_como("empleado")
+    otro = await crear(sesion, UsuarioFactory)
+    op = await _op(sesion, otro.id, origen)
+
+    r = await c.post(_url(op, accion), json=cuerpo)
+
+    assert r.status_code == 403
+    await sesion.refresh(op)
+    assert op.estado is origen
