@@ -6,7 +6,10 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, Query, Response
 
+from rumbo.core.db import SesionDep
+from rumbo.datos import modelos
 from rumbo.datos.modelos import EstadoOportunidad
+from rumbo.negocio.servicios import oportunidades
 from rumbo.presentacion.contrato import (
     TODOS,
     no_implementado,
@@ -14,6 +17,7 @@ from rumbo.presentacion.contrato import (
     operacion_de_registro,
     respuesta_pagina,
 )
+from rumbo.presentacion.dependencias import usuario_actual
 from rumbo.presentacion.esquemas.alertas import Alerta
 from rumbo.presentacion.esquemas.oportunidades import (
     Cotizacion,
@@ -29,6 +33,7 @@ from rumbo.presentacion.paginacion import Pagina, ParametrosPagina, parametros_p
 router = APIRouter(tags=["oportunidades"])
 
 PaginaDep = Annotated[ParametrosPagina, Depends(parametros_pagina)]
+ActorDep = Annotated[modelos.Usuario, Depends(usuario_actual)]
 
 
 class DocumentoPdf(Response):
@@ -66,11 +71,27 @@ _REACTIVAR["description"] = (
 )
 async def listar_oportunidades(
     paginacion: PaginaDep,
+    actor: ActorDep,
+    sesion: SesionDep,
     mios: Annotated[bool, Query(description="Solo las oportunidades que tengo asignadas.")] = False,
     estado: Annotated[EstadoOportunidad | None, Query()] = None,
     cliente_id: Annotated[uuid.UUID | None, Query()] = None,
 ) -> Pagina[Oportunidad]:
-    raise no_implementado()
+    items, total = await oportunidades.listar_oportunidades(
+        sesion,
+        actor,
+        estado=estado,
+        cliente_id=cliente_id,
+        mios=mios,
+        desplazamiento=paginacion.desplazamiento,
+        limite=paginacion.por_pagina,
+    )
+    return Pagina(
+        items=[Oportunidad.model_validate(o) for o in items],
+        total=total,
+        pagina=paginacion.pagina,
+        por_pagina=paginacion.por_pagina,
+    )
 
 
 @router.post(
@@ -90,8 +111,12 @@ async def registrar_consulta(datos: OportunidadCrear) -> Oportunidad:
     summary="Ver una oportunidad",
     **operacion_de_registro(404, casos_de_uso="CU-05", escritura=False),
 )
-async def obtener_oportunidad(oportunidad_id: uuid.UUID) -> Oportunidad:
-    raise no_implementado()
+async def obtener_oportunidad(
+    oportunidad_id: uuid.UUID, actor: ActorDep, sesion: SesionDep
+) -> Oportunidad:
+    return Oportunidad.model_validate(
+        await oportunidades.obtener_oportunidad(sesion, actor, oportunidad_id)
+    )
 
 
 @router.patch(
@@ -100,8 +125,13 @@ async def obtener_oportunidad(oportunidad_id: uuid.UUID) -> Oportunidad:
     summary="Editar una oportunidad o sus notas de seguimiento",
     **operacion_de_registro(403, 404, 422, casos_de_uso="CU-05"),
 )
-async def editar_oportunidad(oportunidad_id: uuid.UUID, cambios: OportunidadEditar) -> Oportunidad:
-    raise no_implementado()
+async def editar_oportunidad(
+    oportunidad_id: uuid.UUID, cambios: OportunidadEditar, actor: ActorDep, sesion: SesionDep
+) -> Oportunidad:
+    oportunidad = await oportunidades.editar_oportunidad(
+        sesion, actor, oportunidad_id, cambios.model_dump(exclude_unset=True)
+    )
+    return Oportunidad.model_validate(oportunidad)
 
 
 @router.post(
