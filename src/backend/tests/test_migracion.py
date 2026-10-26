@@ -242,3 +242,34 @@ def test_rnf07_la_migracion_inicial_reproduce_las_sentencias_de_rumbo_sql() -> N
     assert _sentencias("; ".join(modulo._SENTENCIAS)) == _sentencias(
         rumbo_sql.read_text(encoding="utf-8")
     )
+
+
+# --- 0005: relleno de la clave canónica del contacto ------------------------------------------
+
+
+async def test_rf003_la_migracion_0005_rellena_la_clave_de_los_clientes_existentes(
+    url_vacia: str,
+) -> None:
+    assert correr_alembic(url_vacia, "upgrade", "0004").returncode == 0
+    motor = create_async_engine(url_vacia, poolclass=NullPool)
+    try:
+        async with motor.begin() as c:
+            for contacto in ("011 15-5555-1234", "Ana@Mail.Test", "sin dato"):
+                await c.execute(
+                    text(
+                        "INSERT INTO cliente (id, nombre, contacto, segmento) "
+                        "VALUES (gen_random_uuid(), 'X', :contacto, 'familia')"
+                    ),
+                    {"contacto": contacto},
+                )
+    finally:
+        await motor.dispose()
+
+    _upgrade(url_vacia)
+
+    filas = await _consultar(url_vacia, "SELECT contacto, contacto_clave FROM cliente")
+    assert dict(filas) == {
+        "011 15-5555-1234": "5491155551234",
+        "Ana@Mail.Test": "ana@mail.test",
+        "sin dato": "sin dato",
+    }

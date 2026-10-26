@@ -4,13 +4,24 @@ import uuid
 from datetime import date
 from typing import Annotated, Any
 
-from pydantic import BaseModel, BeforeValidator, ConfigDict, Field
+from pydantic import AfterValidator, BaseModel, BeforeValidator, ConfigDict, Field
 
+from rumbo.core.contacto import es_contacto_valido
 from rumbo.datos.modelos import EstadoOportunidad, EstadoResena, EstadoViaje, SegmentoCliente
 from rumbo.presentacion.esquemas.comunes import Auditoria, Edicion, Entrada, Problema, omitible
 
 Nombre = Annotated[str, Field(min_length=1, max_length=120)]
 Contacto = Annotated[str, Field(min_length=1, max_length=200)]
+
+
+def _exigir_telefono_o_email(contacto: str) -> str:
+    if not es_contacto_valido(contacto):
+        raise ValueError("Ingresá un teléfono o un email válido.")
+    return contacto
+
+
+# El de entrada exige teléfono o email (RF-002); el de salida no, por los datos ya guardados.
+ContactoEntrada = Annotated[Contacto, AfterValidator(_exigir_telefono_o_email)]
 # Topes de las etiquetas: los usan el alta, la edición y el filtro de `GET /clientes`.
 MAX_ETIQUETAS = 20
 MAX_LARGO_ETIQUETA = 80
@@ -82,7 +93,7 @@ class ClienteCrear(Entrada):
     """Alta de un cliente (CU-02). `confirmar_duplicado` reintenta tras el aviso del 409 (A1)."""
 
     nombre: Nombre
-    contacto: Contacto
+    contacto: ContactoEntrada
     instagram: Instagram = None
     segmento: SegmentoCliente
     etiquetas: Etiquetas = []
@@ -95,7 +106,7 @@ class ClienteEditar(Edicion):
     """Edición parcial de la ficha (CU-03, CU-30): solo cambian los campos enviados."""
 
     nombre: Nombre = omitible()
-    contacto: Contacto = omitible()
+    contacto: ContactoEntrada = omitible()
     instagram: Instagram = None
     segmento: SegmentoCliente = omitible()
     etiquetas: Etiquetas = omitible()

@@ -18,8 +18,9 @@ from sqlalchemy import (
 )
 from sqlalchemy.dialects.postgresql import ARRAY, JSONB
 from sqlalchemy.ext.mutable import MutableList
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.orm import Mapped, mapped_column, relationship, validates
 
+from rumbo.core.contacto import clave_contacto
 from rumbo.datos.modelos.base import AuditoriaMixin, Base, IdMixin
 from rumbo.datos.modelos.catalogos import Usuario
 from rumbo.datos.modelos.enums import (
@@ -44,6 +45,8 @@ class Cliente(IdMixin, AuditoriaMixin, Base):
     asesor_asignado_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("usuario.id"))
     nombre: Mapped[str] = mapped_column(String(120))
     contacto: Mapped[str] = mapped_column(String(200))  # teléfono/WhatsApp o email (DEC-0017)
+    # Clave canónica de `contacto` (la fija `_fijar_contacto_clave`): con ella se buscan duplicados.
+    contacto_clave: Mapped[str] = mapped_column(String(200), index=True)
     instagram: Mapped[str | None] = mapped_column(String(30))  # usuario normalizado (DEC-0017)
     segmento: Mapped[SegmentoCliente]
     etiquetas: Mapped[list[str]] = mapped_column(
@@ -54,6 +57,11 @@ class Cliente(IdMixin, AuditoriaMixin, Base):
     # Cargado con el cliente en la misma consulta (join): la ficha y el listado muestran su nombre,
     # también si el asesor está de baja. Tras cambiar `asesor_asignado_id` hay que releerlo.
     asesor: Mapped[Usuario | None] = relationship(lazy="joined", foreign_keys=[asesor_asignado_id])
+
+    @validates("contacto")
+    def _fijar_contacto_clave(self, _campo: str, contacto: str) -> str:
+        self.contacto_clave = clave_contacto(contacto)
+        return contacto
 
 
 class Oportunidad(IdMixin, AuditoriaMixin, Base):

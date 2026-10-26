@@ -7,7 +7,12 @@ import type {
   ClienteListado,
   HistorialCliente,
 } from "../cliente";
-import { normalizarInstagram } from "../esquemas/clientes";
+import {
+  esquemaAltaCliente,
+  esquemaEdicionCliente,
+  normalizarInstagram,
+} from "../esquemas/clientes";
+import { normalizarTelefonoAR } from "../telefono";
 import { usuariosPorRol } from "./index";
 import { respuestaProblema } from "./problema";
 import { normalizarTexto } from "./utilidades";
@@ -131,6 +136,18 @@ export function aFicha(listado: ClienteListado): Cliente {
   return ficha as Cliente;
 }
 
+/** Clave para comparar contactos: el teléfono canónico o el texto en minúsculas (como el backend). */
+function claveContacto(contacto: string): string {
+  return normalizarTelefonoAR(contacto) ?? contacto.trim().toLowerCase();
+}
+
+function datosInvalidos(issues: { path: PropertyKey[]; message: string }[]) {
+  return respuestaProblema(422, "Datos inválidos", {
+    detail: "Los datos enviados no son válidos.",
+    errores: issues.map((i) => ({ campo: i.path.join("."), mensaje: i.message })),
+  });
+}
+
 function noEncontrado() {
   return respuestaProblema(404, "No encontrado", {
     detail: "El cliente no existe o no lo podés ver.",
@@ -148,6 +165,12 @@ export const manejadoresClientes: RequestHandler[] = [
     const mios = url.searchParams.get("mios") === "true";
     const pagina = Number(url.searchParams.get("pagina") ?? 1);
     const porPagina = Number(url.searchParams.get("por_pagina") ?? 20);
+    if (!Number.isInteger(pagina) || pagina < 1) {
+      return datosInvalidos([{ path: ["pagina"], message: "Tiene que ser mayor o igual a 1." }]);
+    }
+    if (!Number.isInteger(porPagina) || porPagina < 1 || porPagina > 100) {
+      return datosInvalidos([{ path: ["por_pagina"], message: "Tiene que estar entre 1 y 100." }]);
+    }
     const filtrados = clientesMock.filter(
       (c) =>
         (!buscar ||
@@ -181,11 +204,17 @@ export const manejadoresClientes: RequestHandler[] = [
   ),
 
   http.post(BASE, async ({ request }) => {
-    const datos = (await request.json()) as ClienteCrear;
-    const duplicados = clientesMock.filter((c) => c.contacto === datos.contacto);
+    const validacion = esquemaAltaCliente.safeParse(await request.json());
+    if (!validacion.success) return datosInvalidos(validacion.error.issues);
+    const datos: ClienteCrear = validacion.data;
+    const duplicados = clientesMock.filter(
+      (c) =>
+        claveContacto(c.contacto) === claveContacto(datos.contacto) ||
+        normalizarTexto(c.nombre) === normalizarTexto(datos.nombre),
+    );
     if (duplicados.length > 0 && !datos.confirmar_duplicado) {
       return respuestaProblema(409, "Conflicto", {
-        detail: "Ya existe un cliente con ese contacto.",
+        detail: "Ya hay clientes con el mismo contacto o nombre. Confirmá para crearlo.",
         duplicados: duplicados.map(aFicha),
       });
     }
@@ -217,7 +246,9 @@ export const manejadoresClientes: RequestHandler[] = [
   http.patch(`${BASE}/:id`, async ({ params, request }) => {
     const cliente = clientesMock.find((c) => c.id === params["id"]);
     if (!cliente) return noEncontrado();
-    const cambios = (await request.json()) as ClienteEditar;
+    const validacion = esquemaEdicionCliente.safeParse(await request.json());
+    if (!validacion.success) return datosInvalidos(validacion.error.issues);
+    const cambios: ClienteEditar = validacion.data;
     const normalizados =
       "instagram" in cambios
         ? { ...cambios, instagram: normalizarInstagram(cambios.instagram) as string | null }

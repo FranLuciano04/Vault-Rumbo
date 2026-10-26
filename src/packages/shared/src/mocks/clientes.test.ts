@@ -191,3 +191,146 @@ describe("RF-031 filtros y auditoría de los mocks", () => {
     );
   });
 });
+
+// --- Fix de la review de M2 (H-07): el mock aplica las mismas reglas que la API ---------------
+
+type Problema = {
+  status: number;
+  duplicados?: unknown[];
+  errores?: { campo: string; mensaje: string }[];
+};
+
+const alta = (cuerpo: Record<string, unknown>) =>
+  fetch(BASE, {
+    method: "POST",
+    headers: json,
+    body: JSON.stringify({ segmento: "individual", ...cuerpo }),
+  });
+
+const editar = (cuerpo: Record<string, unknown>) =>
+  fetch(`${BASE}/${String(clientesMock[0]?.["id"])}`, {
+    method: "PATCH",
+    headers: json,
+    body: JSON.stringify(cuerpo),
+  });
+
+async function esProblema422(res: Response, campo: string) {
+  expect(res.status).toBe(422);
+  expect(res.headers.get("content-type")).toContain("application/problem+json");
+  const cuerpo = (await res.json()) as Problema;
+  expect(cuerpo.status).toBe(422);
+  expect(cuerpo.errores?.map((e) => e.campo)).toContain(campo);
+}
+
+describe("RF-003 duplicados del POST /api/clientes en el mock (CU-02 A1)", () => {
+  it.each([
+    ["con otras mayúsculas", "CAMILA BENÍTEZ"],
+    ["sin tildes", "camila benitez"],
+    ["con espacios de más", "  Camila    Benítez  "],
+  ])("RF-003 el mismo nombre %s es duplicado aunque el contacto sea otro", async (_caso, nombre) => {
+    const res = await alta({ nombre, contacto: "otro@mail.test" });
+
+    expect(res.status).toBe(409);
+    expect(res.headers.get("content-type")).toContain("application/problem+json");
+    const cuerpo = (await res.json()) as Problema;
+    expect(cuerpo.status).toBe(409);
+    expect(cuerpo.duplicados).toEqual([aFicha(clientesMock[0] as ClienteListado)]);
+  });
+
+  it.each(["+54 9 11 5555-1234", "5491155551234", "011 15-5555-1234", "11 5555 1234"])(
+    "RF-003 el teléfono %s es el mismo que +54 9 11 5555-1234 (clave canónica)",
+    async (contacto) => {
+      const res = await alta({ nombre: "Otra Persona", contacto });
+
+      expect(res.status).toBe(409);
+      const cuerpo = (await res.json()) as Problema;
+      expect(cuerpo.duplicados).toEqual([aFicha(clientesMock[0] as ClienteListado)]);
+    },
+  );
+
+  it("RF-003 un teléfono distinto no es duplicado", async () => {
+    const res = await alta({ nombre: "Otra Persona", contacto: "11 5555 1235" });
+
+    expect(res.status).toBe(201);
+  });
+
+  it("RF-003 el email sin distinguir mayúsculas es duplicado", async () => {
+    const res = await alta({ nombre: "Otra Persona", contacto: "SOSA.Familia@Mail.TEST" });
+
+    expect(res.status).toBe(409);
+    const cuerpo = (await res.json()) as Problema;
+    expect(cuerpo.duplicados).toEqual([aFicha(clientesMock[1] as ClienteListado)]);
+  });
+
+  it("RF-003 con confirmar_duplicado=true el duplicado por nombre se crea (DEC-0020)", async () => {
+    const res = await alta({
+      nombre: "camila benitez",
+      contacto: "otro@mail.test",
+      confirmar_duplicado: true,
+    });
+
+    expect(res.status).toBe(201);
+  });
+});
+
+describe("RF-002 validación de entrada del mock de clientes (CU-02 A3, CU-03 A2)", () => {
+  it.each([
+    ["falta el nombre", { contacto: "nuevo@mail.test" }, "nombre"],
+    ["el nombre está vacío", { nombre: "   ", contacto: "nuevo@mail.test" }, "nombre"],
+    ["falta el contacto", { nombre: "Nuevo Cliente" }, "contacto"],
+    ["el contacto no es teléfono ni email", { nombre: "Nuevo", contacto: "sin contacto" }, "contacto"],
+    ["el contacto es muy corto", { nombre: "Nuevo", contacto: "123" }, "contacto"],
+    ["el email está incompleto", { nombre: "Nuevo", contacto: "ana@" }, "contacto"],
+  ])("RF-002 POST responde 422 problem+json si %s", async (_caso, cuerpo, campo) => {
+    await esProblema422(await alta(cuerpo), campo);
+  });
+
+  it("RF-002 PATCH con nombre null responde 422 problem+json", async () => {
+    await esProblema422(await editar({ nombre: null }), "nombre");
+  });
+
+  it.each(["sin contacto", "123", "@ana", "ana@"])(
+    "RF-002 PATCH con el contacto inválido «%s» responde 422 problem+json",
+    async (contacto) => {
+      await esProblema422(await editar({ contacto }), "contacto");
+    },
+  );
+
+  it("RF-002 PATCH con un segmento inválido responde 422 problem+json", async () => {
+    await esProblema422(await editar({ segmento: "otro" }), "segmento");
+  });
+
+  it("RF-002 PATCH con un teléfono válido sigue respondiendo 200", async () => {
+    const res = await editar({ contacto: "+54 9 11 4444-5555" });
+
+    expect(res.status).toBe(200);
+    expect(await res.json()).toMatchObject({ contacto: "+54 9 11 4444-5555" });
+  });
+
+  it("RF-005 GET /api/clientes con por_pagina=0 responde 422 problem+json", async () => {
+    const res = await fetch(`${BASE}?por_pagina=0`);
+
+    expect(res.status).toBe(422);
+    expect(res.headers.get("content-type")).toContain("application/problem+json");
+    expect(((await res.json()) as Problema).status).toBe(422);
+  });
+});
+
+describe("CU-30 y cuerpo del 422 en el mock de clientes", () => {
+  it("CU-30 PATCH con no_recontactar lo aplica", async () => {
+    const res = await editar({ no_recontactar: true });
+
+    expect(res.status).toBe(200);
+    expect(await res.json()).toMatchObject({ no_recontactar: true });
+  });
+
+  it("RF-002 el 422 trae title y detail como el backend", async () => {
+    const res = await alta({ nombre: "Nuevo", contacto: "123" });
+
+    expect(res.status).toBe(422);
+    expect(await res.json()).toMatchObject({
+      title: "Datos inválidos",
+      detail: "Los datos enviados no son válidos.",
+    });
+  });
+});

@@ -119,6 +119,7 @@ TABLAS: dict[str, tuple[str, set[str]]] = {
             "nombre",
             "contacto",
             "instagram",  # posterior a rumbo.sql: migración 0003 (T-149, DEC-0017)
+            "contacto_clave",  # posterior a rumbo.sql: migración 0005 (H-03 de M2, RF-003)
             "segmento",
             "etiquetas",
             "preferencias",

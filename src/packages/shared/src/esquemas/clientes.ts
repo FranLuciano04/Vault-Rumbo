@@ -46,4 +46,10 @@ export const esquemaAltaCliente = z.object({
   confirmar_duplicado: z.boolean().optional(),
 });
 
+/** Formato de la edición parcial de un cliente (CU-03, CU-30): los mismos campos del alta, todos opcionales. */
+export const esquemaEdicionCliente = esquemaAltaCliente
+  .omit({ confirmar_duplicado: true })
+  .extend({ no_recontactar: z.boolean() })
+  .partial();
+
 export type DatosAltaCliente = z.infer<typeof esquemaAltaCliente>;
