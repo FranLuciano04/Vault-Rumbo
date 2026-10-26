@@ -46,6 +46,12 @@ La **persona** de cada sesión es quien la corre, identificada por su identidad 
   - `pnpm dev` ya llega a la API; el destino se cambia con `RUMBO_API_PROXY` en `apps/web/.env`.
   - Para el compose contra el Firebase real se usa `-f src/docker-compose.firebase.yml`, con `RUMBO_FIREBASE_CREDENCIALES` en `src/.env`, y se publica en el 5173 (`RUMBO_HTTP_PORT=5173`). No se amplía la restricción de la API key (ver `src/infra/firebase.md`).
 
+### Francisco (`FranLucianoo`) y Nahuel (`Nahuel Viniegra`) — DEC-0021
+- **25/10, de Paloma: [[DEC-0021 Correcciones del viaje y monto de un pago|DEC-0021]]**, que resuelve dos contradicciones del PC1 que encontró la review de T-086:
+  - **Corregir el estado del viaje:** se sigue a EST-Viaje T7 (la resolución de Nahuel del 21/09). Solo se corrige desde `en curso` y `finalizado`, y al deshacer un finalizado se cierra la alerta de reseña. Se cambió el texto de CU-08 A2 y de RF-042.
+  - **Monto de un pago:** `PATCH /pagos/{id}` solo reprograma el vencimiento. Los montos se cambian rebalanceando los pagos no cobrados o dividiendo el pago. Se cambiaron CU-11 A3, RF-065 y EST-Pago.
+  - No hay cambios de código. T-087 tiene un criterio nuevo.
+
 ### Nahuel (`Nahuel Viniegra`) — T-153
 - **24/10, de Paloma: el PR [#73](https://github.com/FranLuciano04/Vault-Rumbo/pull/73) (T-153) ya está mergeado** (⚠️ riesgo alto, auth). Hay un **cambio de decisión**: el 23/10 Francisco había decidido que la cuenta de Firebase sin `Usuario` se reutilizaba. La review de seguridad lo marcó como bloqueante (*pre-account hijacking*: la cuenta conserva la contraseña, los proveedores o las sesiones de quien la haya creado). Paloma decidió que esa cuenta se **borra y se crea una nueva**. CU-25 A1 se actualiza en el mismo PR. Además, el alta toma un lock por email, y nunca se borra una cuenta cuyo uid es de un `Usuario`.
 
@@ -67,9 +73,11 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
   - Backend: 1368 tests, con 97,13 % de cobertura.
 - **Entorno:** la base de tests necesita Docker Desktop prendido (`docker compose -f src/docker-compose.dev.yml up -d`). `pnpm` no está en el PATH de esta PC: se usa `corepack pnpm`.
 - **Commits:** f5cc81b, b8d6453, 5dd963f, 44800e7 y 9ca85f1. También 62e0817 (se borró el aviso del repo público para Paloma).
-- **Pendiente:**
-  - Para la sync: CU-08 A2 contradice a EST-Viaje T7 (corregir el estado desde `finalizado`). Hace falta una `DEC-` antes del backend de CU-08.
-  - CU-11 A3 permite editar el monto de un pago, pero `PagoReprogramar` solo trae el vencimiento.
+- **Decisión ([[DEC-0021 Correcciones del viaje y monto de un pago|DEC-0021]], Paloma):** se resolvieron en la misma sesión las dos contradicciones que encontró la review, para no dejarlas para la sync.
+  1. La corrección del viaje sigue a EST-Viaje T7: sale de `en curso` y de `finalizado`. Al deshacer un finalizado, se cierra la alerta de reseña.
+  2. El monto de un pago se cambia rebalanceando los pagos no cobrados o dividiendo el pago; el `PATCH` solo reprograma el vencimiento.
+  - Se alinearon CU-08 A2, CU-11 A3, RF-042, RF-065, EST-Viaje, EST-Pago y T-087. No hay cambios de código.
+- **Pendiente:** nada.
 
 ## 25/10/26 — Francisco (Claude Opus 5.5) — T-050 y T-052: contrato y agenda de alertas
 - **T-050** (PR [#79](https://github.com/FranLuciano04/Vault-Rumbo/pull/79), mergeado con el CI en verde): el contrato de alertas.

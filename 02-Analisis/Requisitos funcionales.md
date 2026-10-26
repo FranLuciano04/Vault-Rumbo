@@ -311,7 +311,7 @@ Cada requisito funcional está identificado, es verificable y se realiza en uno 
 - **Entidades:** [[Alerta]] · [[Viaje]] · [[Reseña]]
 
 #### RF-042 — Corregir el estado del viaje cargado por error
-- **Descripción:** el sistema permite retroceder el [[Viaje]] al estado inmediato anterior cuando se cargó por error, siempre que el retroceso sea coherente y el viaje no esté `finalizado` ni `cancelado`.
+- **Descripción:** el sistema permite retroceder el [[Viaje]] al estado inmediato anterior cuando se cargó por error, solo si es un paso manual: `en curso → confirmado` o `finalizado → en curso`. Al deshacer un `finalizado`, cierra la [[Alerta]] de `reseña` si sigue sin atender. Los estados que produjo un cobro se deshacen revirtiendo el cobro, y `cancelado`, revirtiendo la cancelación ([[DEC-0021 Correcciones del viaje y monto de un pago|DEC-0021]]).
 - **Actor:** empleado · **Tipo:** modificación · **Prioridad:** media
 - **Casos de uso:** [[CU-08 Gestionar estado del viaje]]
 - **Entidades:** [[Viaje]]
@@ -454,7 +454,7 @@ Cada requisito funcional está identificado, es verificable y se realiza en uno 
 - **Entidades:** [[Pago]]
 
 #### RF-065 — Reprogramar un pago no cobrado
-- **Descripción:** mientras un [[Pago]] no esté cobrado ni anulado —es decir, `pendiente` o `vencido`—, el sistema permite editar su monto o su vencimiento y reagenda su [[Alerta]]. Si estaba `vencido` y la fecha nueva es futura, vuelve a `pendiente`.
+- **Descripción:** mientras un [[Pago]] no esté cobrado ni anulado —es decir, `pendiente` o `vencido`—, el sistema permite cambiar su vencimiento y reagenda su [[Alerta]]. Los montos se cambian rebalanceando los pagos no cobrados o dividiendo el pago, para que el plan siga sumando el precio de venta ([[DEC-0021 Correcciones del viaje y monto de un pago|DEC-0021]]). Si estaba `vencido` y la fecha nueva es futura, vuelve a `pendiente`.
 - **Actor:** empleado · **Tipo:** modificación · **Prioridad:** alta
 - **Casos de uso:** [[CU-11 Definir plan de cuotas]]
 - **Entidades:** [[Pago]] · [[Alerta]]

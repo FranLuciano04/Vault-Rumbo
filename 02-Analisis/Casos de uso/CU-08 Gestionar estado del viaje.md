@@ -34,7 +34,7 @@ El empleado sigue y hace avanzar el [[Viaje]] por su ciclo de vida (`reservado �
 
 ## Flujos alternativos
 - **A1 — Sugerencia por fecha, confirmación manual:** el sistema propone `en curso`/`finalizado` según las fechas, pero **no lo fuerza**. Ej.: si el último vuelo está **retrasado**, el empleado **mantiene el viaje `en curso`** aunque la fecha de regreso ya haya pasado, y lo marca `finalizado` recién cuando realmente terminó.
-- **A2 — Corrección de estado:** el empleado retrocede al estado inmediato anterior si se cargó por error (mientras sea coherente y el viaje no esté `finalizado`/`cancelado`).
+- **A2 — Corrección de estado:** si se cargó por error un paso manual, el empleado lo deshace y el viaje vuelve al estado inmediato anterior: `en curso → confirmado` o `finalizado → en curso`. Al deshacer un `finalizado`, se cierra la [[Alerta]] de `reseña` si sigue sin atender. Los estados que produjo un cobro (`vendido`, `confirmado`) se deshacen revirtiendo el cobro ([[CU-12 Registrar cobro de un pago]] A3), y `cancelado`, con la reversión de [[CU-27 Cancelar viaje]] A3 ([[DEC-0021 Correcciones del viaje y monto de un pago|DEC-0021]]).
 - **A3 — Cancelación:** el empleado cancela el [[Viaje]] → se deriva a [[CU-27 Cancelar viaje]] (estado `cancelado`).
 
 ## Postcondiciones

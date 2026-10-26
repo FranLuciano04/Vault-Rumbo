@@ -62,6 +62,6 @@ Existen los esquemas y routers stub (`501`) de viajes (reserva, ficha, estados, 
   5. La comisión en porcentaje se limita a 0–100 (CU-13).
 - **Mocks:** hay un viaje en cada uno de los 6 estados. `corregir-estado` solo acepta `en_curso` → `confirmado` y `finalizado` → `en_curso` (EST-Viaje T7). `estado_previo` se usa solo en la cancelación (DEC-0013). Revertir un cobro o reprogramar un pago lo deja `vencido` si la fecha ya pasó, y el plan de pagos conserva los cobros.
 - **Hallazgos de la review:** 0 bloqueantes, 2 importantes y 5 menores, todos arreglados. Se autorizó tocar el test para fijar los 4 decimales de `porcentaje_pagado`, para que los cuerpos de tramo tengan forma de hotel (DEC-0003) y para partir una docstring larga (E501).
-- **⚠️ Para el equipo:**
+- **✅ Resuelto en [[DEC-0021 Correcciones del viaje y monto de un pago|DEC-0021]] (25/10/26, Paloma):**
   - CU-08 A2 permite corregir el estado «mientras el viaje no esté `finalizado`/`cancelado`», y EST-Viaje T7 permite corregirlo desde `finalizado`. Hay que resolverlo con una `DEC-` antes del backend de CU-08. El mock sigue a EST-Viaje.
   - CU-11 A3 permite editar el monto de un pago, pero `PagoReprogramar` solo trae `vencimiento`, igual que en el PC1. Queda para el backend de CU-11.

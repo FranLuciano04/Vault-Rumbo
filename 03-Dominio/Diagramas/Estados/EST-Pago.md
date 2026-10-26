@@ -61,7 +61,7 @@ El diagrama de abajo se dibujó el 21/09/26 siguiendo estas convenciones, comune
 - **`Σ montos = precioVenta`** sobre los [[Pago|Pagos]] **no anulados**, en la **moneda de referencia** del [[Viaje]] ([[CU-11 Definir plan de cuotas]] paso 4 y A4).
 - **Multimoneda por cobro:** el plan se denomina íntegro en `Viaje.moneda`; la moneda real (`moneda_pago`) y el `tipo_cambio` se eligen recién **al cobrar** (T2/T4). El **% pagado** y el saldo se calculan siempre sobre los `monto` planificados ([[DEC-0007 Modelo económico — ganancia, margen y comisión de vendedor]]).
 - 🔑 **`vencido` es "`pendiente` con la fecha pasada"** (resuelto 21/09). Sigue siendo exigible: es un aviso de atraso, no una baja. La baja es `anulado`. **Toda regla de los CU que diga `pendiente` aplica también a `vencido`.**
-- **Se puede reprogramar** monto o vencimiento mientras el `Pago` **no esté cobrado ni anulado**; el sistema reagenda su [[Alerta]] ([[CU-11 Definir plan de cuotas]] A3). Si sigue `pendiente` no cambia de estado (auto-transición); si estaba `vencido` y la fecha nueva es futura, vuelve a `pendiente` (T9).
+- **Se puede reprogramar el vencimiento** mientras el `Pago` **no esté cobrado ni anulado**. Los montos se cambian rebalanceando los pagos no cobrados o dividiendo el pago, para que siga cumpliéndose `Σ montos = precioVenta` ([[DEC-0021 Correcciones del viaje y monto de un pago|DEC-0021]]); el sistema reagenda su [[Alerta]] ([[CU-11 Definir plan de cuotas]] A3). Si sigue `pendiente` no cambia de estado (auto-transición); si estaba `vencido` y la fecha nueva es futura, vuelve a `pendiente` (T9).
 - **T3 es una transición sin actor humano**: la corre el [[DGM-ACT — Proceso automático diario|proceso automático diario]] (00:00), igual que [[EST-Cotización]] T5 (`enviada → vencida`).
 
 ## Para qué se creó cada transición poco obvia
@@ -77,7 +77,7 @@ El diagrama de abajo se dibujó el 21/09/26 siguiendo estas convenciones, comune
 ### T9 `vencido → pendiente` — se refinancia una cuota atrasada
 **Situación.** La cuota venció el 10/09 y el cliente pide pasarla al 10/10. El empleado le cambia el `vencimiento` ([[CU-11 Definir plan de cuotas]] A3).
 **Por qué "des-vence".** Con la fecha nueva **ya no está en mora**: la regla es siempre la misma, `vencido` es `pendiente` con la fecha pasada. Al correr la fecha a futuro, la condición deja de cumplirse.
-**Qué más pasa.** Se reagenda su [[Alerta]] de vencimiento. Si la cuota estaba `pendiente` y solo se le corrige el monto o la fecha, **no cambia de estado**.
+**Qué más pasa.** Se reagenda su [[Alerta]] de vencimiento. Si la cuota estaba `pendiente` y solo se le corrige la fecha, **no cambia de estado**.
 
 ### T7 y T8 desde `vencido` — anular una cuota que ya está en mora
 **Situación (T7).** Un viaje con la cuota 2 vencida el 10/09 se cancela el 15/09.

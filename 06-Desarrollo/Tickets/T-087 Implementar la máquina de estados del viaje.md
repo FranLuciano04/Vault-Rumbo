@@ -29,7 +29,8 @@ tags:: #tipo/ticket
 ## Criterios de aceptación
 - [ ] Cada transición de EST-Viaje está implementada (reservado → vendido por primer cobro, vendido → confirmado por saldo cero, en curso, finalizado, corrección al estado anterior, cancelación y su reversión) y las inválidas lanzan `TransicionInvalida`.
 - [ ] Ofrece los ganchos `al_registrar_cobro` y `al_revertir_cobro` que usa economía (CU-12 A0, A2, A3).
-- [ ] Guarda el estado anterior necesario para corregir o revertir.
+- [ ] Guarda el estado anterior necesario para revertir la cancelación (`estado_previo`, DEC-0013). La corrección no lo usa: deduce el destino de la transición.
+- [ ] La corrección solo sale de `en curso` (→ `confirmado`) y de `finalizado` (→ `en curso`); al deshacer un `finalizado`, cierra la alerta de `reseña` si sigue sin atender ([[DEC-0021 Correcciones del viaje y monto de un pago|DEC-0021]]).
 
 ## Tests esperados
 `tests/negocio/test_estados_viaje.py`: una prueba por transición válida e inválida de EST-Viaje, nombradas por RF (`test_rf038_primer_cobro_pasa_a_vendido`, `test_rf042_corregir_estado`, …).
