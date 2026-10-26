@@ -73,9 +73,13 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
     - registrar una consulta ahora refresca alertas y clientes (CU-30).
   - Backend: 1553 tests, con 97,26 % de cobertura.
   - Commits: 1cfbf89, 0928d4a, 9d332fd y 3185a36.
-- **Pendiente:**
-  - El backend de M4 tiene que devolver 422 cuando las fechas tentativas están invertidas y cuando el motivo de pérdida es «otro» sin detalle.
-  - Los ids de cliente no coinciden entre los mocks de M2, M3, M4 y M6. Es deuda previa a este ticket.
+- **Pendientes de T-061, resueltos el mismo día** en el PR [#91](https://github.com/FranLuciano04/Vault-Rumbo/pull/91) (rama `fix/…`, DEC-0019):
+  - El esquema responde 422 cuando las fechas tentativas vienen invertidas y cuando el motivo de pérdida es «otro» sin detalle. El PATCH con una sola fecha quedó como criterio de T-063.
+  - Los ids de cliente, viaje, oportunidad y destino quedaron consistentes entre los mocks de M2, M3, M4 y M6, y los fija `mocks/consistencia.test.ts`.
+  - `destinosMock` pasó de 3 a 9 destinos, con nombres ficticios.
+  - Review (opus): 0 bloqueantes, 1 importante y 2 menores, todos arreglados.
+  - Commits: 3e859f5, ad4c0e8 y 7f722ad.
+- **Pendiente:** nada.
 - **Entorno:** los tests del backend necesitan Docker Desktop con `postgres-test` (puerto 5433). Se levanta con `docker compose -f src/docker-compose.dev.yml --env-file src/.env up -d --wait postgres-test`.
 
 ## 26/10/26 — Paloma (Claude Opus 5.5) — T-166: panel lateral de la alerta en la web
