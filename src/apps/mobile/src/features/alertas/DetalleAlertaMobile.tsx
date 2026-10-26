@@ -2,11 +2,10 @@ import {
   diasDeAtraso,
   ErrorApi,
   ETIQUETA_TIPO_ALERTA,
+  datosDeContexto,
   formatearFecha,
-  formatearImporte,
   hoyEnBuenosAires,
   mensajeDeError,
-  type Alerta,
 } from "@rumbo/shared";
 import { useAlerta, usePosponerAlerta } from "@rumbo/shared/hooks";
 import { useLocalSearchParams, useRouter } from "expo-router";
@@ -26,20 +25,6 @@ const OPCIONES_POSPONER = [
 /** `aaaa-mm-dd` de `dias` días después de `fecha` (también `aaaa-mm-dd`). */
 function sumarDias(fecha: string, dias: number): string {
   return new Date(Date.parse(fecha) + dias * MILISEGUNDOS_POR_DIA).toISOString().slice(0, 10);
-}
-
-/** Origen de la alerta como pares etiqueta/valor (pantalla 53 del prototipo). */
-function datosDeContexto({ contexto }: Alerta): { etiqueta: string; valor: string }[] {
-  const { viaje, oportunidad, cliente: cl, pago } = contexto;
-  return [
-    viaje && { etiqueta: "Viaje", valor: viaje.destino },
-    oportunidad && { etiqueta: "Oportunidad", valor: oportunidad.destino_consultado },
-    cl && { etiqueta: "Cliente", valor: cl.nombre },
-    pago && {
-      etiqueta: "Importe",
-      valor: `${formatearImporte(pago.monto, pago.moneda)} · vence ${formatearFecha(pago.vencimiento)}`,
-    },
-  ].flatMap((dato) => (dato ? [dato] : []));
 }
 
 function useVolverALaAgenda() {
