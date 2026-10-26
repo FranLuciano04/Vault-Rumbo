@@ -64,6 +64,17 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
+## 26/10/26 — Paloma (Claude Opus 5.5) — T-063: embudo de oportunidades
+- **T-063** (PR [#92](https://github.com/FranLuciano04/Vault-Rumbo/pull/92), mergeado con el CI en verde): el listado, el detalle y el PATCH de oportunidades.
+  - **Edición:** edita el responsable, o admin y dueño. Un empleado que no es el responsable recibe 403. El freelance recibe 404 si la oportunidad es ajena y 403 si la ve pero no es el responsable.
+  - **Reasignación:** solo admin y dueño. El nuevo responsable tiene que estar activo.
+  - **PATCH:** ignora `estado`. Una fecha sola fuera de orden respecto de la guardada da 422.
+  - **Contrato:** `test_contrato_m4.py` sacó esas tres rutas del 501, igual que en T-052.
+  - **Review (opus):** 0 bloqueantes, 1 importante y 3 menores. El importante: faltaban los tests de permisos del PATCH, y se sumaron 6. Todos los hallazgos quedaron arreglados o aclarados.
+  - **Backend:** 1586 tests, con 98,81 % de cobertura en `negocio/` y 97,35 % en total.
+  - **Commits:** c4d5310, 8815072, 739154a, 19c01a0 y 81daa17.
+- **Pendiente:** el contrato no tiene un filtro para ver el embudo de otro responsable. Si hace falta, es un cambio de contrato (anotado en el ticket).
+
 ## 26/10/26 — Paloma (Claude Opus 5.5) — T-061: contrato de oportunidades y cotizaciones
 - **T-061** (PR [#90](https://github.com/FranLuciano04/Vault-Rumbo/pull/90), mergeado con el CI en verde): las 16 rutas de M4 están publicadas y responden 501.
   - Shared tiene los tipos, los hooks de las 16 operaciones y los mocks con un embudo ficticio: una oportunidad en cada uno de los 5 estados.
