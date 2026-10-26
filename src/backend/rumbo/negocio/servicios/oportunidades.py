@@ -1,0 +1,86 @@
+"""Servicio del módulo oportunidades: embudo, detalle y edición (CU-05)."""
+
+import uuid
+from typing import Any
+
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from rumbo.datos.modelos import EstadoOportunidad, Oportunidad, RolUsuario, Usuario
+from rumbo.datos.repositorios.oportunidades import RepositorioOportunidades
+from rumbo.datos.repositorios.seguridad import RepositorioUsuarios
+from rumbo.negocio.errores import DatosInvalidos, NoEncontrado
+from rumbo.negocio.politicas import exigir_escritura, exigir_rol, visibilidad
+
+_oportunidades = RepositorioOportunidades()
+_usuarios = RepositorioUsuarios()
+
+
+async def listar_oportunidades(
+    sesion: AsyncSession,
+    actor: Usuario,
+    *,
+    estado: EstadoOportunidad | None,
+    cliente_id: uuid.UUID | None,
+    mios: bool,
+    desplazamiento: int,
+    limite: int,
+) -> tuple[list[Oportunidad], int]:
+    """Página del embudo y el total (CU-05, RF-016). `mios` deja las que el actor tiene a cargo;
+    lo que ve cada rol lo decide `visibilidad`: el `freelance` solo lo suyo (RF-151)."""
+    return await _oportunidades.paginar(
+        sesion,
+        estado=estado,
+        cliente_id=cliente_id,
+        responsable_id=actor.id if mios else None,
+        desplazamiento=desplazamiento,
+        limite=limite,
+        visibilidad=visibilidad(actor),
+    )
+
+
+async def obtener_oportunidad(
+    sesion: AsyncSession, actor: Usuario, oportunidad_id: uuid.UUID
+) -> Oportunidad:
+    """Una `Oportunidad` (CU-05). Una que el actor no ve es `NoEncontrado` (RF-151)."""
+    return await _oportunidades.obtener(sesion, oportunidad_id, visibilidad=visibilidad(actor))
+
+
+async def editar_oportunidad(
+    sesion: AsyncSession, actor: Usuario, oportunidad_id: uuid.UUID, cambios: dict[str, Any]
+) -> Oportunidad:
+    """Aplica solo los campos enviados a los datos y las notas (CU-05, RF-016). No toca el
+    `estado`: eso va por las acciones. Edita el responsable, admin o dueño (DEC-0005); reasignar
+    `responsable_id` es solo de admin y dueño, y el nuevo tiene que ser un `Usuario` activo."""
+    oportunidad = await obtener_oportunidad(sesion, actor, oportunidad_id)
+    exigir_escritura(actor, oportunidad)
+    if cambios.get("responsable_id", oportunidad.responsable_id) != oportunidad.responsable_id:
+        exigir_rol(actor, RolUsuario.admin, RolUsuario.dueno)
+        await _exigir_responsable_activo(sesion, actor, cambios["responsable_id"])
+    desde = cambios.get("fecha_desde_tentativa", oportunidad.fecha_desde_tentativa)
+    hasta = cambios.get("fecha_hasta_tentativa", oportunidad.fecha_hasta_tentativa)
+    if desde is not None and hasta is not None and hasta < desde:
+        campo = (
+            "fecha_hasta_tentativa"
+            if "fecha_hasta_tentativa" in cambios
+            else "fecha_desde_tentativa"
+        )
+        raise DatosInvalidos(campo, "La fecha hasta no puede ser anterior a la fecha desde.")
+    for campo, valor in cambios.items():
+        setattr(oportunidad, campo, valor)
+    await sesion.flush()
+    await sesion.refresh(oportunidad)
+    return oportunidad
+
+
+async def _exigir_responsable_activo(
+    sesion: AsyncSession, actor: Usuario, responsable_id: uuid.UUID
+) -> None:
+    """El nuevo responsable tiene que ser un `Usuario` activo; si no, 422 sobre ese campo."""
+    try:
+        responsable = await _usuarios.obtener(
+            sesion, responsable_id, visibilidad=visibilidad(actor)
+        )
+    except NoEncontrado:
+        responsable = None
+    if responsable is None or not responsable.activo:
+        raise DatosInvalidos("responsable_id", "El responsable no existe o está de baja.")

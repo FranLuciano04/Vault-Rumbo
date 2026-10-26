@@ -146,6 +146,15 @@ OPERACIONES: list[tuple[str, str, str, Any, str, set[str]]] = [
         {"403", "404", "409"},
     ),
 ]
+# Las que todavía responden 501 (listar, ver y editar oportunidades se implementaron en T-063).
+IMPLEMENTADAS = {
+    ("get", "/api/oportunidades"),
+    ("get", "/api/oportunidades/{oportunidad_id}"),
+    ("patch", "/api/oportunidades/{oportunidad_id}"),
+}
+OPERACIONES_STUB = [
+    (m, c, cuerpo) for m, r, c, cuerpo, _, _ in OPERACIONES if (m, r) not in IMPLEMENTADAS
+]
 RUTAS_CONTRATO = [(m, r, cu, errores) for m, r, _, _, cu, errores in OPERACIONES]
 OPERACIONES_HTTP = [(m, c, cuerpo) for m, _, c, cuerpo, _, _ in OPERACIONES]
 RUTAS_CON_409 = [(m, r) for m, r, _, _, _, e in OPERACIONES if "409" in e]
@@ -514,7 +523,7 @@ async def test_cu05_sin_token_responde_401_problem_json(
 
 
 @pytest.mark.parametrize("rol", ROLES)
-@pytest.mark.parametrize(("metodo", "ruta", "cuerpo"), OPERACIONES_HTTP)
+@pytest.mark.parametrize(("metodo", "ruta", "cuerpo"), OPERACIONES_STUB)
 async def test_cu05_con_token_de_cualquier_rol_responde_501_problem_json(
     cliente_como: FabricaCliente, rol: str, metodo: str, ruta: str, cuerpo: Any
 ) -> None:
@@ -631,23 +640,40 @@ async def test_cu04_fechas_tentativas_invertidas_responden_422(
 
 
 @pytest.mark.parametrize(
-    ("metodo", "ruta", "cuerpo"),
+    "cuerpo",
     [
-        ("post", "/api/oportunidades", {**CREAR, **FECHAS_IGUALES}),
-        ("patch", f"/api/oportunidades/{ID}", FECHAS_IGUALES),
-        ("post", "/api/oportunidades", {**CREAR, "fecha_desde_tentativa": "2027-03-05"}),
-        ("patch", f"/api/oportunidades/{ID}", {"fecha_hasta_tentativa": "2020-01-01"}),
-        ("patch", f"/api/oportunidades/{ID}", {"fecha_desde_tentativa": "2030-01-01"}),
+        {**CREAR, **FECHAS_IGUALES},
+        {**CREAR, "fecha_desde_tentativa": "2027-03-05"},
     ],
 )
-async def test_cu04_fechas_tentativas_iguales_o_incompletas_llegan_al_501(
-    cliente_como: FabricaCliente, metodo: str, ruta: str, cuerpo: dict[str, Any]
+async def test_cu04_fechas_tentativas_iguales_o_incompletas_al_crear_llegan_al_501(
+    cliente_como: FabricaCliente, cuerpo: dict[str, Any]
 ) -> None:
     c = await cliente_como("empleado")
 
-    r = await c.request(metodo, ruta, json=cuerpo)
+    r = await c.post("/api/oportunidades", json=cuerpo)
 
     assert r.status_code == 501
+
+
+@pytest.mark.parametrize(
+    "cuerpo",
+    [
+        FECHAS_IGUALES,
+        {"fecha_hasta_tentativa": "2020-01-01"},
+        {"fecha_desde_tentativa": "2030-01-01"},
+    ],
+)
+async def test_cu04_fechas_tentativas_iguales_o_incompletas_al_editar_pasan_el_esquema(
+    cliente_como: FabricaCliente, cuerpo: dict[str, Any]
+) -> None:
+    """El esquema las acepta; con un id inexistente la respuesta es 404, no 422."""
+    c = await cliente_como("empleado")
+
+    r = await c.patch(f"/api/oportunidades/{ID}", json=cuerpo)
+
+    assert r.status_code == 404
+    assert r.headers["content-type"].startswith(PROBLEM_JSON)
 
 
 @pytest.mark.parametrize(
