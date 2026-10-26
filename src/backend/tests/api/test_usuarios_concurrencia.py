@@ -6,6 +6,9 @@ resto de los tests corre en una transacción que se revierte), así que el fixtu
 lo que crea. Determinista: la primera transacción hace su cambio y queda abierta con los bloqueos
 tomados; la segunda arranca recién entonces y se espera, mirando `pg_blocking_pids`, a que quede
 trabada en la base (o a que termine, si no hay bloqueo) antes de confirmar la primera.
+
+Como hacen commit real y exigen que no haya ningún `admin` ni `dueno` activo confirmado en la
+base, ningún otro test debe hacer commit real de usuarios con esos roles (o debe borrarlos).
 """
 
 import asyncio
@@ -100,21 +103,23 @@ async def crear_confirmado(motor: AsyncEngine) -> AsyncIterator[CrearUsuario]:
 
 async def _esperar_bloqueada_o_terminada(
     observador: AsyncConnection, pid: int, tarea: asyncio.Task[Usuario]
-) -> None:
-    """Vuelve cuando la conexión `pid` está esperando un bloqueo de otra o cuando `tarea` ya
-    terminó (sin bloqueo no hay a quién esperar). Si no pasa ninguna de las dos, falla."""
+) -> bool:
+    """`True` cuando la conexión `pid` está esperando un bloqueo de otra; `False` si `tarea`
+    terminó antes (sin bloqueo no hay a quién esperar). Si no pasa ninguna de las dos, falla."""
     bucle = asyncio.get_running_loop()
     limite = bucle.time() + _ESPERA_MAXIMA
     while bucle.time() < limite:
         if tarea.done():
-            return
+            return False
         bloqueadores = await observador.scalar(
             text("SELECT cardinality(pg_blocking_pids(:pid))"), {"pid": pid}
         )
         if bloqueadores:
-            return
+            return True
         await asyncio.sleep(_PASO)
     tarea.cancel()
+    # que un error secundario de la tarea cancelada no tape el motivo real
+    await asyncio.gather(tarea, return_exceptions=True)
     pytest.fail("la segunda transacción ni se bloqueó ni terminó: no se forzó la superposición")
 
 
@@ -122,9 +127,10 @@ async def _en_paralelo(
     motor: AsyncEngine,
     primero: tuple[Cambio, uuid.UUID, uuid.UUID],
     segundo: tuple[Cambio, uuid.UUID, uuid.UUID],
-) -> Usuario | BaseException:
+) -> tuple[Usuario | BaseException, bool]:
     """Corre los dos cambios superpuestos y confirma el que salga bien. El primero tiene que
-    salir bien; devuelve el resultado del segundo (el `Usuario` o la excepción)."""
+    salir bien; devuelve el resultado del segundo (el `Usuario` o la excepción) y si llegó a
+    quedar bloqueado esperando al primero."""
     cambio_1, actor_1, objetivo_1 = primero
     cambio_2, actor_2, objetivo_2 = segundo
     async with (
@@ -140,7 +146,7 @@ async def _en_paralelo(
 
         # la segunda arranca mientras la primera sigue abierta
         tarea = asyncio.create_task(cambio_2(segunda, actor_2, objetivo_2))
-        await _esperar_bloqueada_o_terminada(observador, pid_segunda, tarea)
+        se_bloqueo = await _esperar_bloqueada_o_terminada(observador, pid_segunda, tarea)
         await primera.commit()
 
         resultado = (await asyncio.gather(tarea, return_exceptions=True))[0]
@@ -148,7 +154,20 @@ async def _en_paralelo(
             await segunda.rollback()
         else:
             await segunda.commit()
-    return resultado
+    return resultado, se_bloqueo
+
+
+def _por_que_no_hubo_conflicto(
+    resultado: Usuario | BaseException, se_bloqueo: bool, sin_bloqueo: str
+) -> str:
+    """Mensaje de la aserción cuando el segundo cambio no dio `Conflicto`. Distingue un error
+    inesperado (se muestra primero su `repr`) de un cambio que salió bien."""
+    momento = "después de esperar al primero" if se_bloqueo else "sin quedar bloqueado"
+    if isinstance(resultado, BaseException):
+        return f"{resultado!r}: el segundo cambio falló con otro error ({momento}), no con 409"
+    if se_bloqueo:
+        return "el segundo cambio esperó al primero pero salió bien: no volvió a contar"
+    return f"el segundo cambio salió bien {momento}: {sin_bloqueo}"
 
 
 @pytest.mark.parametrize(("cambio_1", "cambio_2"), COMBINACIONES)
@@ -160,10 +179,12 @@ async def test_rf149_dos_cambios_simultaneos_no_dejan_sin_admin(
     admin_a = await crear_confirmado(RolUsuario.admin)
     admin_b = await crear_confirmado(RolUsuario.admin)
 
-    resultado = await _en_paralelo(motor, (cambio_1, duena, admin_a), (cambio_2, duena, admin_b))
+    resultado, se_bloqueo = await _en_paralelo(
+        motor, (cambio_1, duena, admin_a), (cambio_2, duena, admin_b)
+    )
 
-    assert isinstance(resultado, Conflicto), (
-        f"el segundo cambio no dio 409 sino {resultado!r}: sin bloqueo los dos ven dos admins"
+    assert isinstance(resultado, Conflicto), _por_que_no_hubo_conflicto(
+        resultado, se_bloqueo, "sin bloqueo los dos ven dos admins"
     )
     assert await _activos_con_rol(motor, RolUsuario.admin) == {admin_b}
 
@@ -177,11 +198,11 @@ async def test_cu25_a5_dos_cambios_simultaneos_no_dejan_sin_duena(
     duena_a = await crear_confirmado(RolUsuario.dueno)
     duena_b = await crear_confirmado(RolUsuario.dueno)
 
-    resultado = await _en_paralelo(
+    resultado, se_bloqueo = await _en_paralelo(
         motor, (cambio_1, duena_a, duena_b), (cambio_2, duena_b, duena_a)
     )
 
-    assert isinstance(resultado, Conflicto), (
-        f"el segundo cambio no dio 409 sino {resultado!r}: sin bloqueo las dos ven dos dueñas"
+    assert isinstance(resultado, Conflicto), _por_que_no_hubo_conflicto(
+        resultado, se_bloqueo, "sin bloqueo las dos ven dos dueñas"
     )
     assert await _activos_con_rol(motor, RolUsuario.dueno) == {duena_a}
