@@ -721,6 +721,470 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/oportunidades/{oportunidad_id}/confirmar-reserva": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Confirmar la reserva y crear el viaje
+         * @description **Roles:** admin, dueno, empleado, freelance.
+         *
+         *     **Visibilidad:** freelance, solo lo propio (DEC-0008).
+         *
+         *     **Escritura:** el responsable del registro, o admin o dueño (DEC-0005).
+         *
+         *     **Casos de uso:** CU-07, CU-10, CU-11.
+         */
+        post: operations["confirmar_reserva"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/viajes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Listar viajes
+         * @description **Roles:** admin, dueno, empleado, freelance.
+         *
+         *     **Visibilidad:** freelance, solo lo propio (DEC-0008).
+         *
+         *     **Casos de uso:** CU-08.
+         */
+        get: operations["listar_viajes"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/viajes/{viaje_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Ver la ficha del viaje, con economía y saldo
+         * @description **Roles:** admin, dueno, empleado, freelance.
+         *
+         *     **Visibilidad:** freelance, solo lo propio (DEC-0008).
+         *
+         *     **Casos de uso:** CU-08, CU-10, CU-12.
+         */
+        get: operations["obtener_viaje"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/viajes/{viaje_id}/iniciar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Pasar el viaje a en curso
+         * @description **Roles:** admin, dueno, empleado, freelance.
+         *
+         *     **Visibilidad:** freelance, solo lo propio (DEC-0008).
+         *
+         *     **Escritura:** el responsable del registro, o admin o dueño (DEC-0005).
+         *
+         *     **Casos de uso:** CU-08.
+         */
+        post: operations["iniciar_viaje"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/viajes/{viaje_id}/finalizar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Pasar el viaje a finalizado
+         * @description **Roles:** admin, dueno, empleado, freelance.
+         *
+         *     **Visibilidad:** freelance, solo lo propio (DEC-0008).
+         *
+         *     **Escritura:** el responsable del registro, o admin o dueño (DEC-0005).
+         *
+         *     **Casos de uso:** CU-08.
+         */
+        post: operations["finalizar_viaje"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/viajes/{viaje_id}/corregir-estado": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Volver al estado anterior por un error de carga
+         * @description **Roles:** admin, dueno, empleado, freelance.
+         *
+         *     **Visibilidad:** freelance, solo lo propio (DEC-0008).
+         *
+         *     **Escritura:** el responsable del registro, o admin o dueño (DEC-0005).
+         *
+         *     **Casos de uso:** CU-08.
+         */
+        post: operations["corregir_estado_viaje"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/viajes/{viaje_id}/cancelar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Cancelar el viaje
+         * @description **Roles:** admin, dueno, empleado, freelance.
+         *
+         *     **Visibilidad:** freelance, solo lo propio (DEC-0008).
+         *
+         *     **Escritura:** el responsable del registro, o admin o dueño (DEC-0005).
+         *
+         *     **Casos de uso:** CU-27.
+         */
+        post: operations["cancelar_viaje"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/viajes/{viaje_id}/revertir-cancelacion": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Revertir la cancelación
+         * @description **Roles:** admin, dueno, empleado, freelance.
+         *
+         *     **Visibilidad:** freelance, solo lo propio (DEC-0008).
+         *
+         *     **Escritura:** el responsable del registro, o admin o dueño (DEC-0005).
+         *
+         *     **Casos de uso:** CU-27.
+         */
+        post: operations["revertir_cancelacion"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/viajes/{viaje_id}/itinerario": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Ver el itinerario de hoteles
+         * @description **Roles:** admin, dueno, empleado, freelance.
+         *
+         *     **Visibilidad:** freelance, solo lo propio (DEC-0008).
+         *
+         *     **Casos de uso:** CU-09.
+         */
+        get: operations["obtener_itinerario"];
+        put?: never;
+        /**
+         * Agregar un hotel al itinerario
+         * @description **Roles:** admin, dueno, empleado, freelance.
+         *
+         *     **Visibilidad:** freelance, solo lo propio (DEC-0008).
+         *
+         *     **Escritura:** el responsable del registro, o admin o dueño (DEC-0005).
+         *
+         *     **Casos de uso:** CU-09.
+         */
+        post: operations["agregar_tramo"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/tramos/{tramo_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Quitar un hotel del itinerario
+         * @description **Roles:** admin, dueno, empleado, freelance.
+         *
+         *     **Visibilidad:** freelance, solo lo propio (DEC-0008).
+         *
+         *     **Escritura:** el responsable del registro, o admin o dueño (DEC-0005).
+         *
+         *     **Casos de uso:** CU-09.
+         */
+        delete: operations["quitar_tramo"];
+        options?: never;
+        head?: never;
+        /**
+         * Editar un tramo o marcar pagado al proveedor
+         * @description **Roles:** admin, dueno, empleado, freelance.
+         *
+         *     **Visibilidad:** freelance, solo lo propio (DEC-0008).
+         *
+         *     **Escritura:** el responsable del registro, o admin o dueño (DEC-0005).
+         *
+         *     **Casos de uso:** CU-09.
+         */
+        patch: operations["editar_tramo"];
+        trace?: never;
+    };
+    "/api/viajes/{viaje_id}/economia": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Registrar la economía del viaje
+         * @description **Roles:** admin, dueno, empleado, freelance.
+         *
+         *     **Visibilidad:** freelance, solo lo propio (DEC-0008).
+         *
+         *     **Escritura:** el responsable del registro, o admin o dueño (DEC-0005).
+         *
+         *     **Casos de uso:** CU-10.
+         */
+        put: operations["registrar_economia"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/viajes/{viaje_id}/pagos": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Ver el plan de pagos y su checklist
+         * @description **Roles:** admin, dueno, empleado, freelance.
+         *
+         *     **Visibilidad:** freelance, solo lo propio (DEC-0008).
+         *
+         *     **Casos de uso:** CU-11, CU-12.
+         */
+        get: operations["listar_pagos"];
+        /**
+         * Definir o rebalancear el plan de pagos
+         * @description **Roles:** admin, dueno, empleado, freelance.
+         *
+         *     **Visibilidad:** freelance, solo lo propio (DEC-0008).
+         *
+         *     **Escritura:** el responsable del registro, o admin o dueño (DEC-0005).
+         *
+         *     **Casos de uso:** CU-11.
+         */
+        put: operations["definir_plan_de_pagos"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/pagos/{pago_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Reprogramar el vencimiento de un pago
+         * @description **Roles:** admin, dueno, empleado, freelance.
+         *
+         *     **Visibilidad:** freelance, solo lo propio (DEC-0008).
+         *
+         *     **Escritura:** el responsable del registro, o admin o dueño (DEC-0005).
+         *
+         *     **Casos de uso:** CU-11.
+         */
+        patch: operations["reprogramar_pago"];
+        trace?: never;
+    };
+    "/api/pagos/{pago_id}/anular": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Anular un pago (baja lógica)
+         * @description **Roles:** admin, dueno, empleado, freelance.
+         *
+         *     **Visibilidad:** freelance, solo lo propio (DEC-0008).
+         *
+         *     **Escritura:** el responsable del registro, o admin o dueño (DEC-0005).
+         *
+         *     **Casos de uso:** CU-11.
+         */
+        post: operations["anular_pago"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/pagos/{pago_id}/dividir": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Dividir un pago para cobrar una parte
+         * @description **Roles:** admin, dueno, empleado, freelance.
+         *
+         *     **Visibilidad:** freelance, solo lo propio (DEC-0008).
+         *
+         *     **Escritura:** el responsable del registro, o admin o dueño (DEC-0005).
+         *
+         *     **Casos de uso:** CU-11.
+         */
+        post: operations["dividir_pago"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/pagos/{pago_id}/cobrar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Registrar el cobro de un pago
+         * @description **Roles:** admin, dueno, empleado, freelance.
+         *
+         *     **Visibilidad:** freelance, solo lo propio (DEC-0008).
+         *
+         *     **Escritura:** el responsable del registro, o admin o dueño (DEC-0005).
+         *
+         *     **Casos de uso:** CU-12.
+         */
+        post: operations["registrar_cobro"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/pagos/{pago_id}/revertir-cobro": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Revertir un cobro cargado por error
+         * @description **Roles:** admin, dueno, empleado, freelance.
+         *
+         *     **Visibilidad:** freelance, solo lo propio (DEC-0008).
+         *
+         *     **Escritura:** el responsable del registro, o admin o dueño (DEC-0005).
+         *
+         *     **Casos de uso:** CU-12.
+         */
+        post: operations["revertir_cobro"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -833,6 +1297,21 @@ export interface components {
             /** Nombre */
             nombre: string;
         };
+        /** Cancelacion */
+        Cancelacion: {
+            /** Motivo Cancelacion */
+            motivo_cancelacion: string;
+            /**
+             * Fecha Cancelacion
+             * Format: date
+             */
+            fecha_cancelacion: string;
+        };
+        /**
+         * CategoriaViaje
+         * @enum {string}
+         */
+        CategoriaViaje: "grupal" | "individual";
         /**
          * Cliente
          * @description Ficha del cliente: contacto, segmento, etiquetas y preferencias.
@@ -994,6 +1473,24 @@ export interface components {
             oportunidades_abiertas: number;
         };
         /**
+         * CobroRegistrar
+         * @description El servidor calcula monto_cobrado y actualiza el estado del viaje (CU-12 A0 y A2).
+         */
+        CobroRegistrar: {
+            /**
+             * Fecha Cobro
+             * Format: date
+             */
+            fecha_cobro: string;
+            forma_pago: components["schemas"]["FormaPago"];
+            moneda_pago: components["schemas"]["Moneda"];
+            /**
+             * Tipo Cambio
+             * @description Obligatorio si moneda_pago difiere de la moneda del viaje.
+             */
+            tipo_cambio?: string | null;
+        };
+        /**
          * ComisionPorDefecto
          * @description Comisión por defecto de un vendedor; ambos en `null` la quita. No recalcula los viajes
          *     ya registrados (DEC-0013).
@@ -1044,6 +1541,40 @@ export interface components {
             anticipacion_salida_dias: number;
             /** Recontacto Meses */
             recontacto_meses: number;
+        };
+        /**
+         * ConfirmarReserva
+         * @description Crea en una sola transacción el viaje en estado reservado, su economía, el plan de pagos y
+         *     las alertas de formularios, salida y vencimientos, y cierra la oportunidad como ganada
+         *     (CU-07, CU-10, CU-11).
+         */
+        ConfirmarReserva: {
+            /**
+             * Destino Id
+             * Format: uuid
+             * @description Del catálogo de destinos.
+             */
+            destino_id: string;
+            /**
+             * Fecha Salida
+             * Format: date
+             */
+            fecha_salida: string;
+            /**
+             * Fecha Regreso
+             * Format: date
+             */
+            fecha_regreso: string;
+            categoria: components["schemas"]["CategoriaViaje"];
+            /**
+             * Responsable Id
+             * @description Por defecto, el responsable de la oportunidad.
+             */
+            responsable_id?: string | null;
+            /** @description Se toma de la cotización aceptada; solo se envía en la venta directa (CU-07 A1). */
+            moneda?: components["schemas"]["Moneda"] | null;
+            economia: components["schemas"]["EconomiaViaje"];
+            plan_de_pagos: components["schemas"]["PlanDePagos"];
         };
         /**
          * ContextoAlerta
@@ -1116,6 +1647,36 @@ export interface components {
             /** Notas */
             notas?: string | null;
         };
+        /**
+         * EconomiaViaje
+         * @description Control económico del viaje (CU-10). Los importes van en la moneda del viaje.
+         */
+        EconomiaViaje: {
+            /**
+             * Precio Venta
+             * Format: decimal
+             * @example 1000000.00
+             */
+            precio_venta: string;
+            /**
+             * Costo
+             * Format: decimal
+             * @description Costo del operador.
+             * @example 1000000.00
+             */
+            costo: string;
+            /** Operador Id */
+            operador_id?: string | null;
+            /** Vendedor Id */
+            vendedor_id?: string | null;
+            /** Comision Tipo */
+            comision_tipo?: ("importe" | "porcentaje") | null;
+            /**
+             * Comision Vendedor
+             * @description Si se omite, se toma el valor por defecto del vendedor (CU-13).
+             */
+            comision_vendedor?: string | null;
+        };
         /** ErrorCampo */
         ErrorCampo: {
             /** Campo */
@@ -1148,6 +1709,11 @@ export interface components {
          * @enum {string}
          */
         EstadoViaje: "reservado" | "vendido" | "confirmado" | "en_curso" | "finalizado" | "cancelado";
+        /**
+         * FormaPago
+         * @enum {string}
+         */
+        FormaPago: "efectivo" | "transferencia" | "tarjeta_credito" | "tarjeta_debito" | "cheque" | "deposito";
         /**
          * HistorialCliente
          * @description Memoria del cliente (CU-03): sus oportunidades, viajes y reseñas.
@@ -1297,6 +1863,49 @@ export interface components {
             /** Por Pagina */
             por_pagina: number;
         };
+        Pago: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            readonly id: string;
+            /**
+             * Viaje Id
+             * Format: uuid
+             */
+            readonly viaje_id: string;
+            /**
+             * Monto
+             * Format: decimal
+             * @description Planificado, en la moneda del viaje.
+             * @example 1000000.00
+             */
+            monto: string;
+            tipo: components["schemas"]["TipoPago"];
+            /**
+             * Vencimiento
+             * Format: date
+             */
+            vencimiento: string;
+            readonly estado: components["schemas"]["EstadoPago"];
+            readonly forma_pago: components["schemas"]["FormaPago"] | null;
+            readonly moneda_pago: components["schemas"]["Moneda"] | null;
+            /**
+             * Tipo Cambio
+             * @description Si la moneda del cobro difiere de la del viaje.
+             */
+            readonly tipo_cambio: string | null;
+            /**
+             * Monto Cobrado
+             * @description Importe real recibido, en moneda_pago.
+             */
+            readonly monto_cobrado: string | null;
+            /**
+             * Fecha Cobro
+             * @description Fecha efectiva del cobro.
+             */
+            readonly fecha_cobro: string | null;
+        } & components["schemas"]["Auditoria"];
         /** PagoDeAlerta */
         PagoDeAlerta: {
             /**
@@ -1315,6 +1924,54 @@ export interface components {
              */
             vencimiento: string;
             estado: components["schemas"]["EstadoPago"];
+        };
+        /** PagoDividir */
+        PagoDividir: {
+            /**
+             * Monto Ahora
+             * Format: decimal
+             * @description Parte que se va a cobrar ahora; el resto queda en un pago nuevo.
+             * @example 1000000.00
+             */
+            monto_ahora: string;
+            /**
+             * Vencimiento Resto
+             * Format: date
+             * @description Vencimiento del pago con el resto.
+             */
+            vencimiento_resto: string;
+        };
+        /** PagoPlanItem */
+        PagoPlanItem: {
+            /**
+             * Monto
+             * Format: decimal
+             * @description En la moneda del viaje.
+             * @example 1000000.00
+             */
+            monto: string;
+            tipo: components["schemas"]["TipoPago"];
+            /**
+             * Vencimiento
+             * Format: date
+             */
+            vencimiento: string;
+        };
+        /** PagoReprogramar */
+        PagoReprogramar: {
+            /**
+             * Vencimiento
+             * Format: date
+             */
+            vencimiento: string;
+        };
+        /**
+         * PlanDePagos
+         * @description La suma de los montos tiene que ser igual al precio de venta del viaje (CU-11).
+         */
+        PlanDePagos: {
+            /** Pagos */
+            pagos: components["schemas"]["PagoPlanItem"][];
         };
         Problema: {
             /** Title */
@@ -1497,6 +2154,14 @@ export interface components {
          */
         TipoPago: "sena" | "cuota" | "saldo";
         /**
+         * Tramo
+         * @description Hotel del itinerario. Esquema preliminar: acepta cualquier objeto hasta que el ticket de
+         *     backend de CU-09 fije sus campos.
+         */
+        Tramo: {
+            [key: string]: unknown;
+        };
+        /**
          * UltimoViajeDelCliente
          * @description Viaje no cancelado de salida más reciente entre los que ya salieron (hasta hoy).
          */
@@ -1619,6 +2284,108 @@ export interface components {
             /** Acceso Redes */
             acceso_redes?: boolean;
         };
+        Viaje: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            readonly id: string;
+            /**
+             * Cliente Id
+             * Format: uuid
+             */
+            readonly cliente_id: string;
+            /**
+             * Oportunidad Id
+             * @description Oportunidad de origen.
+             */
+            readonly oportunidad_id: string | null;
+            /**
+             * Destino Id
+             * Format: uuid
+             */
+            destino_id: string;
+            /** Operador Id */
+            operador_id: string | null;
+            /**
+             * Responsable Id
+             * Format: uuid
+             */
+            responsable_id: string;
+            /** Vendedor Id */
+            vendedor_id: string | null;
+            /**
+             * Fecha Salida
+             * Format: date
+             */
+            fecha_salida: string;
+            /**
+             * Fecha Regreso
+             * Format: date
+             */
+            fecha_regreso: string;
+            categoria: components["schemas"]["CategoriaViaje"];
+            readonly estado: components["schemas"]["EstadoViaje"];
+            /** @description Estado al que vuelve corregir-estado, o revertir-cancelacion si cancelado. */
+            readonly estado_previo: components["schemas"]["EstadoViaje"] | null;
+            /** Motivo Cancelacion */
+            readonly motivo_cancelacion: string | null;
+            /** Fecha Cancelacion */
+            readonly fecha_cancelacion: string | null;
+            /** @description Se fija al confirmar la reserva (DEC-0013). */
+            readonly moneda: components["schemas"]["Moneda"];
+            /**
+             * Precio Venta
+             * Format: decimal
+             * @example 1000000.00
+             */
+            precio_venta: string;
+            /**
+             * Costo
+             * Format: decimal
+             * @description Costo del operador.
+             * @example 1000000.00
+             */
+            costo: string;
+            /**
+             * Ganancia
+             * Format: decimal
+             * @description precio_venta − costo.
+             * @example 1000000.00
+             */
+            readonly ganancia: string;
+            /**
+             * Margen
+             * @description ganancia / precio_venta, como fracción (0.25 = 25 %).
+             */
+            readonly margen: string | null;
+            /**
+             * Comision Tipo
+             * @enum {string}
+             */
+            comision_tipo: "importe" | "porcentaje";
+            /**
+             * Comision Vendedor
+             * Format: decimal
+             * @description Importe, o porcentaje sobre la ganancia, según comision_tipo.
+             * @example 1000000.00
+             */
+            comision_vendedor: string;
+            /**
+             * Saldo Pendiente
+             * Format: decimal
+             * @description Suma de los pagos no cobrados, en la moneda del viaje. Lo calcula la API (CU-12).
+             * @example 1000000.00
+             */
+            readonly saldo_pendiente: string;
+            /**
+             * Porcentaje Pagado
+             * Format: decimal
+             * @description Porción del precio de venta ya cobrada. Lo calcula la API (CU-12).
+             * @example 1000000.00
+             */
+            readonly porcentaje_pagado: string;
+        } & components["schemas"]["Auditoria"];
         /** ViajeDeAlerta */
         ViajeDeAlerta: {
             /**
@@ -3901,6 +4668,1296 @@ export interface operations {
                 };
             };
             /** @description Datos inválidos. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+        };
+    };
+    confirmar_reserva: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                oportunidad_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ConfirmarReserva"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Viaje"];
+                };
+            };
+            /** @description Falta el token, no es válido o el usuario no tiene acceso. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description El rol no alcanza. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description No existe. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Conflicto con el estado actual. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Datos inválidos. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+        };
+    };
+    listar_viajes: {
+        parameters: {
+            query?: {
+                /** @description Solo los viajes que tengo asignados. */
+                mios?: boolean;
+                /** @description Fecha de salida desde esta fecha, inclusive. */
+                desde?: string | null;
+                /** @description Fecha de salida hasta esta fecha, inclusive. */
+                hasta?: string | null;
+                estado?: components["schemas"]["EstadoViaje"] | null;
+                cliente_id?: string | null;
+                pagina?: number;
+                por_pagina?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Viajes. Ordenados por fecha de salida; con `mios=true`, solo los que tengo asignados. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        items: components["schemas"]["Viaje"][];
+                        /** @description Cantidad total de resultados. */
+                        total: number;
+                        pagina: number;
+                        por_pagina: number;
+                    };
+                };
+            };
+            /** @description Falta el token, no es válido o el usuario no tiene acceso. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Datos inválidos. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+        };
+    };
+    obtener_viaje: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                viaje_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Viaje"];
+                };
+            };
+            /** @description Falta el token, no es válido o el usuario no tiene acceso. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description No existe. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+        };
+    };
+    iniciar_viaje: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                viaje_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Viaje"];
+                };
+            };
+            /** @description Falta el token, no es válido o el usuario no tiene acceso. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description El rol no alcanza. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description No existe. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Conflicto con el estado actual. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+        };
+    };
+    finalizar_viaje: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                viaje_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Viaje"];
+                };
+            };
+            /** @description Falta el token, no es válido o el usuario no tiene acceso. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description El rol no alcanza. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description No existe. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Conflicto con el estado actual. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+        };
+    };
+    corregir_estado_viaje: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                viaje_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Viaje"];
+                };
+            };
+            /** @description Falta el token, no es válido o el usuario no tiene acceso. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description El rol no alcanza. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description No existe. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Conflicto con el estado actual. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+        };
+    };
+    cancelar_viaje: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                viaje_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["Cancelacion"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Viaje"];
+                };
+            };
+            /** @description Falta el token, no es válido o el usuario no tiene acceso. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description El rol no alcanza. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description No existe. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Conflicto con el estado actual. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Datos inválidos. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+        };
+    };
+    revertir_cancelacion: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                viaje_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Viaje"];
+                };
+            };
+            /** @description Falta el token, no es válido o el usuario no tiene acceso. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description El rol no alcanza. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description No existe. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Conflicto con el estado actual. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+        };
+    };
+    obtener_itinerario: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                viaje_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Tramo"][];
+                };
+            };
+            /** @description Falta el token, no es válido o el usuario no tiene acceso. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description No existe. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+        };
+    };
+    agregar_tramo: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                viaje_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["Tramo"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Tramo"];
+                };
+            };
+            /** @description Falta el token, no es válido o el usuario no tiene acceso. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description El rol no alcanza. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description No existe. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Conflicto con el estado actual. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Datos inválidos. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+        };
+    };
+    quitar_tramo: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tramo_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Falta el token, no es válido o el usuario no tiene acceso. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description El rol no alcanza. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description No existe. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+        };
+    };
+    editar_tramo: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tramo_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["Tramo"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Tramo"];
+                };
+            };
+            /** @description Falta el token, no es válido o el usuario no tiene acceso. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description El rol no alcanza. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description No existe. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Conflicto con el estado actual. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Datos inválidos. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+        };
+    };
+    registrar_economia: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                viaje_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EconomiaViaje"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Viaje"];
+                };
+            };
+            /** @description Falta el token, no es válido o el usuario no tiene acceso. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description El rol no alcanza. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description No existe. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Conflicto con el estado actual. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Datos inválidos. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+        };
+    };
+    listar_pagos: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                viaje_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Pago"][];
+                };
+            };
+            /** @description Falta el token, no es válido o el usuario no tiene acceso. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description No existe. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+        };
+    };
+    definir_plan_de_pagos: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                viaje_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PlanDePagos"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Pago"][];
+                };
+            };
+            /** @description Falta el token, no es válido o el usuario no tiene acceso. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description El rol no alcanza. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description No existe. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Datos inválidos. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+        };
+    };
+    reprogramar_pago: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                pago_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PagoReprogramar"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Pago"];
+                };
+            };
+            /** @description Falta el token, no es válido o el usuario no tiene acceso. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description El rol no alcanza. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description No existe. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Conflicto con el estado actual. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Datos inválidos. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+        };
+    };
+    anular_pago: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                pago_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Pago"];
+                };
+            };
+            /** @description Falta el token, no es válido o el usuario no tiene acceso. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description El rol no alcanza. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description No existe. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Conflicto con el estado actual. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+        };
+    };
+    dividir_pago: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                pago_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PagoDividir"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Pago"][];
+                };
+            };
+            /** @description Falta el token, no es válido o el usuario no tiene acceso. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description El rol no alcanza. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description No existe. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Conflicto con el estado actual. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Datos inválidos. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+        };
+    };
+    registrar_cobro: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                pago_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CobroRegistrar"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Pago"];
+                };
+            };
+            /** @description Falta el token, no es válido o el usuario no tiene acceso. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description El rol no alcanza. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description No existe. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Conflicto con el estado actual. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Datos inválidos. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+        };
+    };
+    revertir_cobro: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                pago_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Pago"];
+                };
+            };
+            /** @description Falta el token, no es válido o el usuario no tiene acceso. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description El rol no alcanza. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description No existe. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Conflicto con el estado actual. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Validation Error */
             422: {
                 headers: {
                     [name: string]: unknown;

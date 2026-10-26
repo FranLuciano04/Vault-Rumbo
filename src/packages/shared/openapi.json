@@ -3549,6 +3549,2079 @@
           "CU-30"
         ]
       }
+    },
+    "/api/oportunidades/{oportunidad_id}/confirmar-reserva": {
+      "post": {
+        "tags": [
+          "viajes"
+        ],
+        "summary": "Confirmar la reserva y crear el viaje",
+        "description": "**Roles:** admin, dueno, empleado, freelance.\n\n**Visibilidad:** freelance, solo lo propio (DEC-0008).\n\n**Escritura:** el responsable del registro, o admin o dueño (DEC-0005).\n\n**Casos de uso:** CU-07, CU-10, CU-11.",
+        "operationId": "confirmar_reserva",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "oportunidad_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Oportunidad Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConfirmarReserva"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Viaje"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Falta el token, no es válido o el usuario no tiene acceso.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "El rol no alcanza.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No existe.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflicto con el estado actual.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Datos inválidos.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        },
+        "x-roles": [
+          "admin",
+          "dueno",
+          "empleado",
+          "freelance"
+        ],
+        "x-casos-de-uso": [
+          "CU-07",
+          "CU-10",
+          "CU-11"
+        ]
+      }
+    },
+    "/api/viajes": {
+      "get": {
+        "tags": [
+          "viajes"
+        ],
+        "summary": "Listar viajes",
+        "description": "**Roles:** admin, dueno, empleado, freelance.\n\n**Visibilidad:** freelance, solo lo propio (DEC-0008).\n\n**Casos de uso:** CU-08.",
+        "operationId": "listar_viajes",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "mios",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "Solo los viajes que tengo asignados.",
+              "default": false,
+              "title": "Mios"
+            },
+            "description": "Solo los viajes que tengo asignados."
+          },
+          {
+            "name": "desde",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Fecha de salida desde esta fecha, inclusive.",
+              "title": "Desde"
+            },
+            "description": "Fecha de salida desde esta fecha, inclusive."
+          },
+          {
+            "name": "hasta",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Fecha de salida hasta esta fecha, inclusive.",
+              "title": "Hasta"
+            },
+            "description": "Fecha de salida hasta esta fecha, inclusive."
+          },
+          {
+            "name": "estado",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/EstadoViaje"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Estado"
+            }
+          },
+          {
+            "name": "cliente_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Cliente Id"
+            }
+          },
+          {
+            "name": "pagina",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1,
+              "title": "Pagina"
+            }
+          },
+          {
+            "name": "por_pagina",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "default": 20,
+              "title": "Por Pagina"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Viajes. Ordenados por fecha de salida; con `mios=true`, solo los que tengo asignados.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Viaje"
+                      }
+                    },
+                    "total": {
+                      "type": "integer",
+                      "description": "Cantidad total de resultados."
+                    },
+                    "pagina": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "por_pagina": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "maximum": 100
+                    }
+                  },
+                  "required": [
+                    "items",
+                    "total",
+                    "pagina",
+                    "por_pagina"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Falta el token, no es válido o el usuario no tiene acceso.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Datos inválidos.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        },
+        "x-roles": [
+          "admin",
+          "dueno",
+          "empleado",
+          "freelance"
+        ],
+        "x-casos-de-uso": [
+          "CU-08"
+        ]
+      }
+    },
+    "/api/viajes/{viaje_id}": {
+      "get": {
+        "tags": [
+          "viajes"
+        ],
+        "summary": "Ver la ficha del viaje, con economía y saldo",
+        "description": "**Roles:** admin, dueno, empleado, freelance.\n\n**Visibilidad:** freelance, solo lo propio (DEC-0008).\n\n**Casos de uso:** CU-08, CU-10, CU-12.",
+        "operationId": "obtener_viaje",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "viaje_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Viaje Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Viaje"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Falta el token, no es válido o el usuario no tiene acceso.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No existe.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        },
+        "x-roles": [
+          "admin",
+          "dueno",
+          "empleado",
+          "freelance"
+        ],
+        "x-casos-de-uso": [
+          "CU-08",
+          "CU-10",
+          "CU-12"
+        ]
+      }
+    },
+    "/api/viajes/{viaje_id}/iniciar": {
+      "post": {
+        "tags": [
+          "viajes"
+        ],
+        "summary": "Pasar el viaje a en curso",
+        "description": "**Roles:** admin, dueno, empleado, freelance.\n\n**Visibilidad:** freelance, solo lo propio (DEC-0008).\n\n**Escritura:** el responsable del registro, o admin o dueño (DEC-0005).\n\n**Casos de uso:** CU-08.",
+        "operationId": "iniciar_viaje",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "viaje_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Viaje Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Viaje"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Falta el token, no es válido o el usuario no tiene acceso.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "El rol no alcanza.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No existe.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflicto con el estado actual.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        },
+        "x-roles": [
+          "admin",
+          "dueno",
+          "empleado",
+          "freelance"
+        ],
+        "x-casos-de-uso": [
+          "CU-08"
+        ]
+      }
+    },
+    "/api/viajes/{viaje_id}/finalizar": {
+      "post": {
+        "tags": [
+          "viajes"
+        ],
+        "summary": "Pasar el viaje a finalizado",
+        "description": "**Roles:** admin, dueno, empleado, freelance.\n\n**Visibilidad:** freelance, solo lo propio (DEC-0008).\n\n**Escritura:** el responsable del registro, o admin o dueño (DEC-0005).\n\n**Casos de uso:** CU-08.",
+        "operationId": "finalizar_viaje",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "viaje_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Viaje Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Viaje"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Falta el token, no es válido o el usuario no tiene acceso.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "El rol no alcanza.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No existe.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflicto con el estado actual.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        },
+        "x-roles": [
+          "admin",
+          "dueno",
+          "empleado",
+          "freelance"
+        ],
+        "x-casos-de-uso": [
+          "CU-08"
+        ]
+      }
+    },
+    "/api/viajes/{viaje_id}/corregir-estado": {
+      "post": {
+        "tags": [
+          "viajes"
+        ],
+        "summary": "Volver al estado anterior por un error de carga",
+        "description": "**Roles:** admin, dueno, empleado, freelance.\n\n**Visibilidad:** freelance, solo lo propio (DEC-0008).\n\n**Escritura:** el responsable del registro, o admin o dueño (DEC-0005).\n\n**Casos de uso:** CU-08.",
+        "operationId": "corregir_estado_viaje",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "viaje_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Viaje Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Viaje"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Falta el token, no es válido o el usuario no tiene acceso.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "El rol no alcanza.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No existe.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflicto con el estado actual.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        },
+        "x-roles": [
+          "admin",
+          "dueno",
+          "empleado",
+          "freelance"
+        ],
+        "x-casos-de-uso": [
+          "CU-08"
+        ]
+      }
+    },
+    "/api/viajes/{viaje_id}/cancelar": {
+      "post": {
+        "tags": [
+          "viajes"
+        ],
+        "summary": "Cancelar el viaje",
+        "description": "**Roles:** admin, dueno, empleado, freelance.\n\n**Visibilidad:** freelance, solo lo propio (DEC-0008).\n\n**Escritura:** el responsable del registro, o admin o dueño (DEC-0005).\n\n**Casos de uso:** CU-27.",
+        "operationId": "cancelar_viaje",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "viaje_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Viaje Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Cancelacion"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Viaje"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Falta el token, no es válido o el usuario no tiene acceso.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "El rol no alcanza.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No existe.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflicto con el estado actual.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Datos inválidos.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        },
+        "x-roles": [
+          "admin",
+          "dueno",
+          "empleado",
+          "freelance"
+        ],
+        "x-casos-de-uso": [
+          "CU-27"
+        ]
+      }
+    },
+    "/api/viajes/{viaje_id}/revertir-cancelacion": {
+      "post": {
+        "tags": [
+          "viajes"
+        ],
+        "summary": "Revertir la cancelación",
+        "description": "**Roles:** admin, dueno, empleado, freelance.\n\n**Visibilidad:** freelance, solo lo propio (DEC-0008).\n\n**Escritura:** el responsable del registro, o admin o dueño (DEC-0005).\n\n**Casos de uso:** CU-27.",
+        "operationId": "revertir_cancelacion",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "viaje_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Viaje Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Viaje"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Falta el token, no es válido o el usuario no tiene acceso.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "El rol no alcanza.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No existe.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflicto con el estado actual.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        },
+        "x-roles": [
+          "admin",
+          "dueno",
+          "empleado",
+          "freelance"
+        ],
+        "x-casos-de-uso": [
+          "CU-27"
+        ]
+      }
+    },
+    "/api/viajes/{viaje_id}/itinerario": {
+      "get": {
+        "tags": [
+          "viajes"
+        ],
+        "summary": "Ver el itinerario de hoteles",
+        "description": "**Roles:** admin, dueno, empleado, freelance.\n\n**Visibilidad:** freelance, solo lo propio (DEC-0008).\n\n**Casos de uso:** CU-09.",
+        "operationId": "obtener_itinerario",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "viaje_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Viaje Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Tramo"
+                  },
+                  "title": "Response Obtener Itinerario"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Falta el token, no es válido o el usuario no tiene acceso.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No existe.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        },
+        "x-roles": [
+          "admin",
+          "dueno",
+          "empleado",
+          "freelance"
+        ],
+        "x-casos-de-uso": [
+          "CU-09"
+        ]
+      },
+      "post": {
+        "tags": [
+          "viajes"
+        ],
+        "summary": "Agregar un hotel al itinerario",
+        "description": "**Roles:** admin, dueno, empleado, freelance.\n\n**Visibilidad:** freelance, solo lo propio (DEC-0008).\n\n**Escritura:** el responsable del registro, o admin o dueño (DEC-0005).\n\n**Casos de uso:** CU-09.",
+        "operationId": "agregar_tramo",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "viaje_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Viaje Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Tramo"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Tramo"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Falta el token, no es válido o el usuario no tiene acceso.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "El rol no alcanza.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No existe.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflicto con el estado actual.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Datos inválidos.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        },
+        "x-roles": [
+          "admin",
+          "dueno",
+          "empleado",
+          "freelance"
+        ],
+        "x-casos-de-uso": [
+          "CU-09"
+        ]
+      }
+    },
+    "/api/tramos/{tramo_id}": {
+      "patch": {
+        "tags": [
+          "viajes"
+        ],
+        "summary": "Editar un tramo o marcar pagado al proveedor",
+        "description": "**Roles:** admin, dueno, empleado, freelance.\n\n**Visibilidad:** freelance, solo lo propio (DEC-0008).\n\n**Escritura:** el responsable del registro, o admin o dueño (DEC-0005).\n\n**Casos de uso:** CU-09.",
+        "operationId": "editar_tramo",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "tramo_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Tramo Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Tramo"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Tramo"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Falta el token, no es válido o el usuario no tiene acceso.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "El rol no alcanza.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No existe.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflicto con el estado actual.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Datos inválidos.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        },
+        "x-roles": [
+          "admin",
+          "dueno",
+          "empleado",
+          "freelance"
+        ],
+        "x-casos-de-uso": [
+          "CU-09"
+        ]
+      },
+      "delete": {
+        "tags": [
+          "viajes"
+        ],
+        "summary": "Quitar un hotel del itinerario",
+        "description": "**Roles:** admin, dueno, empleado, freelance.\n\n**Visibilidad:** freelance, solo lo propio (DEC-0008).\n\n**Escritura:** el responsable del registro, o admin o dueño (DEC-0005).\n\n**Casos de uso:** CU-09.",
+        "operationId": "quitar_tramo",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "tramo_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Tramo Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Falta el token, no es válido o el usuario no tiene acceso.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "El rol no alcanza.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No existe.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        },
+        "x-roles": [
+          "admin",
+          "dueno",
+          "empleado",
+          "freelance"
+        ],
+        "x-casos-de-uso": [
+          "CU-09"
+        ]
+      }
+    },
+    "/api/viajes/{viaje_id}/economia": {
+      "put": {
+        "tags": [
+          "economia"
+        ],
+        "summary": "Registrar la economía del viaje",
+        "description": "**Roles:** admin, dueno, empleado, freelance.\n\n**Visibilidad:** freelance, solo lo propio (DEC-0008).\n\n**Escritura:** el responsable del registro, o admin o dueño (DEC-0005).\n\n**Casos de uso:** CU-10.",
+        "operationId": "registrar_economia",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "viaje_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Viaje Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EconomiaViaje"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Viaje"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Falta el token, no es válido o el usuario no tiene acceso.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "El rol no alcanza.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No existe.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflicto con el estado actual.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Datos inválidos.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        },
+        "x-roles": [
+          "admin",
+          "dueno",
+          "empleado",
+          "freelance"
+        ],
+        "x-casos-de-uso": [
+          "CU-10"
+        ]
+      }
+    },
+    "/api/viajes/{viaje_id}/pagos": {
+      "get": {
+        "tags": [
+          "economia"
+        ],
+        "summary": "Ver el plan de pagos y su checklist",
+        "description": "**Roles:** admin, dueno, empleado, freelance.\n\n**Visibilidad:** freelance, solo lo propio (DEC-0008).\n\n**Casos de uso:** CU-11, CU-12.",
+        "operationId": "listar_pagos",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "viaje_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Viaje Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Pago"
+                  },
+                  "title": "Response Listar Pagos"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Falta el token, no es válido o el usuario no tiene acceso.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No existe.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        },
+        "x-roles": [
+          "admin",
+          "dueno",
+          "empleado",
+          "freelance"
+        ],
+        "x-casos-de-uso": [
+          "CU-11",
+          "CU-12"
+        ]
+      },
+      "put": {
+        "tags": [
+          "economia"
+        ],
+        "summary": "Definir o rebalancear el plan de pagos",
+        "description": "**Roles:** admin, dueno, empleado, freelance.\n\n**Visibilidad:** freelance, solo lo propio (DEC-0008).\n\n**Escritura:** el responsable del registro, o admin o dueño (DEC-0005).\n\n**Casos de uso:** CU-11.",
+        "operationId": "definir_plan_de_pagos",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "viaje_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Viaje Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PlanDePagos"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Pago"
+                  },
+                  "title": "Response Definir Plan De Pagos"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Falta el token, no es válido o el usuario no tiene acceso.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "El rol no alcanza.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No existe.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Datos inválidos.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        },
+        "x-roles": [
+          "admin",
+          "dueno",
+          "empleado",
+          "freelance"
+        ],
+        "x-casos-de-uso": [
+          "CU-11"
+        ]
+      }
+    },
+    "/api/pagos/{pago_id}": {
+      "patch": {
+        "tags": [
+          "economia"
+        ],
+        "summary": "Reprogramar el vencimiento de un pago",
+        "description": "**Roles:** admin, dueno, empleado, freelance.\n\n**Visibilidad:** freelance, solo lo propio (DEC-0008).\n\n**Escritura:** el responsable del registro, o admin o dueño (DEC-0005).\n\n**Casos de uso:** CU-11.",
+        "operationId": "reprogramar_pago",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "pago_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Pago Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PagoReprogramar"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pago"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Falta el token, no es válido o el usuario no tiene acceso.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "El rol no alcanza.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No existe.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflicto con el estado actual.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Datos inválidos.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        },
+        "x-roles": [
+          "admin",
+          "dueno",
+          "empleado",
+          "freelance"
+        ],
+        "x-casos-de-uso": [
+          "CU-11"
+        ]
+      }
+    },
+    "/api/pagos/{pago_id}/anular": {
+      "post": {
+        "tags": [
+          "economia"
+        ],
+        "summary": "Anular un pago (baja lógica)",
+        "description": "**Roles:** admin, dueno, empleado, freelance.\n\n**Visibilidad:** freelance, solo lo propio (DEC-0008).\n\n**Escritura:** el responsable del registro, o admin o dueño (DEC-0005).\n\n**Casos de uso:** CU-11.",
+        "operationId": "anular_pago",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "pago_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Pago Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pago"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Falta el token, no es válido o el usuario no tiene acceso.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "El rol no alcanza.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No existe.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflicto con el estado actual.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        },
+        "x-roles": [
+          "admin",
+          "dueno",
+          "empleado",
+          "freelance"
+        ],
+        "x-casos-de-uso": [
+          "CU-11"
+        ]
+      }
+    },
+    "/api/pagos/{pago_id}/dividir": {
+      "post": {
+        "tags": [
+          "economia"
+        ],
+        "summary": "Dividir un pago para cobrar una parte",
+        "description": "**Roles:** admin, dueno, empleado, freelance.\n\n**Visibilidad:** freelance, solo lo propio (DEC-0008).\n\n**Escritura:** el responsable del registro, o admin o dueño (DEC-0005).\n\n**Casos de uso:** CU-11.",
+        "operationId": "dividir_pago",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "pago_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Pago Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PagoDividir"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Pago"
+                  },
+                  "minItems": 2,
+                  "maxItems": 2,
+                  "title": "Response Dividir Pago"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Falta el token, no es válido o el usuario no tiene acceso.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "El rol no alcanza.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No existe.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflicto con el estado actual.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Datos inválidos.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        },
+        "x-roles": [
+          "admin",
+          "dueno",
+          "empleado",
+          "freelance"
+        ],
+        "x-casos-de-uso": [
+          "CU-11"
+        ]
+      }
+    },
+    "/api/pagos/{pago_id}/cobrar": {
+      "post": {
+        "tags": [
+          "economia"
+        ],
+        "summary": "Registrar el cobro de un pago",
+        "description": "**Roles:** admin, dueno, empleado, freelance.\n\n**Visibilidad:** freelance, solo lo propio (DEC-0008).\n\n**Escritura:** el responsable del registro, o admin o dueño (DEC-0005).\n\n**Casos de uso:** CU-12.",
+        "operationId": "registrar_cobro",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "pago_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Pago Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CobroRegistrar"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pago"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Falta el token, no es válido o el usuario no tiene acceso.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "El rol no alcanza.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No existe.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflicto con el estado actual.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Datos inválidos.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        },
+        "x-roles": [
+          "admin",
+          "dueno",
+          "empleado",
+          "freelance"
+        ],
+        "x-casos-de-uso": [
+          "CU-12"
+        ]
+      }
+    },
+    "/api/pagos/{pago_id}/revertir-cobro": {
+      "post": {
+        "tags": [
+          "economia"
+        ],
+        "summary": "Revertir un cobro cargado por error",
+        "description": "**Roles:** admin, dueno, empleado, freelance.\n\n**Visibilidad:** freelance, solo lo propio (DEC-0008).\n\n**Escritura:** el responsable del registro, o admin o dueño (DEC-0005).\n\n**Casos de uso:** CU-12.",
+        "operationId": "revertir_cobro",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "pago_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Pago Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pago"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Falta el token, no es válido o el usuario no tiene acceso.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "El rol no alcanza.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No existe.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflicto con el estado actual.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        },
+        "x-roles": [
+          "admin",
+          "dueno",
+          "empleado",
+          "freelance"
+        ],
+        "x-casos-de-uso": [
+          "CU-12"
+        ]
+      }
     }
   },
   "components": {
@@ -3818,6 +5891,34 @@
           "nombre"
         ],
         "title": "AsesorDelCliente"
+      },
+      "Cancelacion": {
+        "properties": {
+          "motivo_cancelacion": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Motivo Cancelacion"
+          },
+          "fecha_cancelacion": {
+            "type": "string",
+            "format": "date",
+            "title": "Fecha Cancelacion"
+          }
+        },
+        "type": "object",
+        "required": [
+          "motivo_cancelacion",
+          "fecha_cancelacion"
+        ],
+        "title": "Cancelacion"
+      },
+      "CategoriaViaje": {
+        "type": "string",
+        "enum": [
+          "grupal",
+          "individual"
+        ],
+        "title": "CategoriaViaje"
       },
       "Cliente": {
         "properties": {
@@ -4282,6 +6383,46 @@
         "title": "ClienteListado",
         "description": "Fila del listado (CU-03 paso 1): la ficha más su resumen."
       },
+      "CobroRegistrar": {
+        "properties": {
+          "fecha_cobro": {
+            "type": "string",
+            "format": "date",
+            "title": "Fecha Cobro"
+          },
+          "forma_pago": {
+            "$ref": "#/components/schemas/FormaPago"
+          },
+          "moneda_pago": {
+            "$ref": "#/components/schemas/Moneda"
+          },
+          "tipo_cambio": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^\\d+(\\.\\d{1,4})?$",
+                "format": "decimal",
+                "examples": [
+                  "1000000.00"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tipo Cambio",
+            "description": "Obligatorio si moneda_pago difiere de la moneda del viaje."
+          }
+        },
+        "type": "object",
+        "required": [
+          "fecha_cobro",
+          "forma_pago",
+          "moneda_pago"
+        ],
+        "title": "CobroRegistrar",
+        "description": "El servidor calcula monto_cobrado y actualiza el estado del viaje (CU-12 A0 y A2)."
+      },
       "ComisionPorDefecto": {
         "properties": {
           "comision_default_tipo": {
@@ -4419,6 +6560,70 @@
         ],
         "title": "ConfiguracionEditar",
         "description": "Parámetros del negocio: reemplazan a los vigentes (`PUT`)."
+      },
+      "ConfirmarReserva": {
+        "properties": {
+          "destino_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Destino Id",
+            "description": "Del catálogo de destinos."
+          },
+          "fecha_salida": {
+            "type": "string",
+            "format": "date",
+            "title": "Fecha Salida"
+          },
+          "fecha_regreso": {
+            "type": "string",
+            "format": "date",
+            "title": "Fecha Regreso"
+          },
+          "categoria": {
+            "$ref": "#/components/schemas/CategoriaViaje"
+          },
+          "responsable_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Responsable Id",
+            "description": "Por defecto, el responsable de la oportunidad."
+          },
+          "moneda": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Moneda"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Se toma de la cotización aceptada; solo se envía en la venta directa (CU-07 A1)."
+          },
+          "economia": {
+            "$ref": "#/components/schemas/EconomiaViaje"
+          },
+          "plan_de_pagos": {
+            "$ref": "#/components/schemas/PlanDePagos"
+          }
+        },
+        "type": "object",
+        "required": [
+          "destino_id",
+          "fecha_salida",
+          "fecha_regreso",
+          "categoria",
+          "economia",
+          "plan_de_pagos"
+        ],
+        "title": "ConfirmarReserva",
+        "description": "Crea en una sola transacción el viaje en estado reservado, su economía, el plan de pagos y\nlas alertas de formularios, salida y vencimientos, y cierra la oportunidad como ganada\n(CU-07, CU-10, CU-11)."
       },
       "ContextoAlerta": {
         "properties": {
@@ -4656,6 +6861,92 @@
         "type": "object",
         "title": "DestinoEditar"
       },
+      "EconomiaViaje": {
+        "properties": {
+          "precio_venta": {
+            "type": "string",
+            "pattern": "^\\d+(\\.\\d{1,4})?$",
+            "format": "decimal",
+            "title": "Precio Venta",
+            "examples": [
+              "1000000.00"
+            ]
+          },
+          "costo": {
+            "type": "string",
+            "pattern": "^\\d+(\\.\\d{1,4})?$",
+            "format": "decimal",
+            "title": "Costo",
+            "description": "Costo del operador.",
+            "examples": [
+              "1000000.00"
+            ]
+          },
+          "operador_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Operador Id"
+          },
+          "vendedor_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vendedor Id"
+          },
+          "comision_tipo": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "importe",
+                  "porcentaje"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Comision Tipo"
+          },
+          "comision_vendedor": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^\\d+(\\.\\d{1,4})?$",
+                "format": "decimal",
+                "examples": [
+                  "1000000.00"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Comision Vendedor",
+            "description": "Si se omite, se toma el valor por defecto del vendedor (CU-13)."
+          }
+        },
+        "type": "object",
+        "required": [
+          "precio_venta",
+          "costo"
+        ],
+        "title": "EconomiaViaje",
+        "description": "Control económico del viaje (CU-10). Los importes van en la moneda del viaje."
+      },
       "ErrorCampo": {
         "properties": {
           "campo": {
@@ -4723,6 +7014,18 @@
           "cancelado"
         ],
         "title": "EstadoViaje"
+      },
+      "FormaPago": {
+        "type": "string",
+        "enum": [
+          "efectivo",
+          "transferencia",
+          "tarjeta_credito",
+          "tarjeta_debito",
+          "cheque",
+          "deposito"
+        ],
+        "title": "FormaPago"
       },
       "HistorialCliente": {
         "properties": {
@@ -5124,6 +7427,138 @@
         ],
         "title": "Pagina[Usuario]"
       },
+      "Pago": {
+        "allOf": [
+          {
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid",
+                "title": "Id",
+                "readOnly": true
+              },
+              "viaje_id": {
+                "type": "string",
+                "format": "uuid",
+                "title": "Viaje Id",
+                "readOnly": true
+              },
+              "monto": {
+                "type": "string",
+                "pattern": "^\\d+(\\.\\d{1,4})?$",
+                "format": "decimal",
+                "title": "Monto",
+                "description": "Planificado, en la moneda del viaje.",
+                "examples": [
+                  "1000000.00"
+                ]
+              },
+              "tipo": {
+                "$ref": "#/components/schemas/TipoPago"
+              },
+              "vencimiento": {
+                "type": "string",
+                "format": "date",
+                "title": "Vencimiento"
+              },
+              "estado": {
+                "$ref": "#/components/schemas/EstadoPago",
+                "readOnly": true
+              },
+              "forma_pago": {
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/FormaPago"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "readOnly": true
+              },
+              "moneda_pago": {
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/Moneda"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "readOnly": true
+              },
+              "tipo_cambio": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "pattern": "^\\d+(\\.\\d{1,4})?$",
+                    "format": "decimal",
+                    "examples": [
+                      "1000000.00"
+                    ]
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Tipo Cambio",
+                "description": "Si la moneda del cobro difiere de la del viaje.",
+                "readOnly": true
+              },
+              "monto_cobrado": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "pattern": "^\\d+(\\.\\d{1,4})?$",
+                    "format": "decimal",
+                    "examples": [
+                      "1000000.00"
+                    ]
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Monto Cobrado",
+                "description": "Importe real recibido, en moneda_pago.",
+                "readOnly": true
+              },
+              "fecha_cobro": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "format": "date"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Fecha Cobro",
+                "description": "Fecha efectiva del cobro.",
+                "readOnly": true
+              }
+            },
+            "type": "object",
+            "required": [
+              "id",
+              "viaje_id",
+              "monto",
+              "tipo",
+              "vencimiento",
+              "estado",
+              "forma_pago",
+              "moneda_pago",
+              "tipo_cambio",
+              "monto_cobrado",
+              "fecha_cobro"
+            ],
+            "description": "Cuota del plan de pagos de un viaje; el checklist de cobros de CU-12."
+          },
+          {
+            "$ref": "#/components/schemas/Auditoria"
+          }
+        ]
+      },
       "PagoDeAlerta": {
         "properties": {
           "id": {
@@ -5161,6 +7596,93 @@
           "estado"
         ],
         "title": "PagoDeAlerta"
+      },
+      "PagoDividir": {
+        "properties": {
+          "monto_ahora": {
+            "type": "string",
+            "pattern": "^\\d+(\\.\\d{1,4})?$",
+            "format": "decimal",
+            "title": "Monto Ahora",
+            "description": "Parte que se va a cobrar ahora; el resto queda en un pago nuevo.",
+            "examples": [
+              "1000000.00"
+            ]
+          },
+          "vencimiento_resto": {
+            "type": "string",
+            "format": "date",
+            "title": "Vencimiento Resto",
+            "description": "Vencimiento del pago con el resto."
+          }
+        },
+        "type": "object",
+        "required": [
+          "monto_ahora",
+          "vencimiento_resto"
+        ],
+        "title": "PagoDividir"
+      },
+      "PagoPlanItem": {
+        "properties": {
+          "monto": {
+            "type": "string",
+            "pattern": "^\\d+(\\.\\d{1,4})?$",
+            "format": "decimal",
+            "title": "Monto",
+            "description": "En la moneda del viaje.",
+            "examples": [
+              "1000000.00"
+            ]
+          },
+          "tipo": {
+            "$ref": "#/components/schemas/TipoPago"
+          },
+          "vencimiento": {
+            "type": "string",
+            "format": "date",
+            "title": "Vencimiento"
+          }
+        },
+        "type": "object",
+        "required": [
+          "monto",
+          "tipo",
+          "vencimiento"
+        ],
+        "title": "PagoPlanItem"
+      },
+      "PagoReprogramar": {
+        "properties": {
+          "vencimiento": {
+            "type": "string",
+            "format": "date",
+            "title": "Vencimiento"
+          }
+        },
+        "type": "object",
+        "required": [
+          "vencimiento"
+        ],
+        "title": "PagoReprogramar"
+      },
+      "PlanDePagos": {
+        "properties": {
+          "pagos": {
+            "items": {
+              "$ref": "#/components/schemas/PagoPlanItem"
+            },
+            "type": "array",
+            "minItems": 1,
+            "title": "Pagos"
+          }
+        },
+        "type": "object",
+        "required": [
+          "pagos"
+        ],
+        "title": "PlanDePagos",
+        "description": "La suma de los montos tiene que ser igual al precio de venta del viaje (CU-11)."
       },
       "Problema": {
         "properties": {
@@ -5577,6 +8099,13 @@
         ],
         "title": "TipoPago"
       },
+      "Tramo": {
+        "properties": {},
+        "additionalProperties": true,
+        "type": "object",
+        "title": "Tramo",
+        "description": "Hotel del itinerario. Esquema preliminar: acepta cualquier objeto hasta que el ticket de\nbackend de CU-09 fije sus campos."
+      },
       "UltimoViajeDelCliente": {
         "properties": {
           "fecha_salida": {
@@ -5822,6 +8351,251 @@
         "type": "object",
         "title": "UsuarioEditar",
         "description": "Corrección del nombre y cambio de rol o de acceso a redes (CU-25 A2). Asignar o quitar\nel rol `dueno` es solo de la dueña."
+      },
+      "Viaje": {
+        "allOf": [
+          {
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid",
+                "title": "Id",
+                "readOnly": true
+              },
+              "cliente_id": {
+                "type": "string",
+                "format": "uuid",
+                "title": "Cliente Id",
+                "readOnly": true
+              },
+              "oportunidad_id": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Oportunidad Id",
+                "description": "Oportunidad de origen.",
+                "readOnly": true
+              },
+              "destino_id": {
+                "type": "string",
+                "format": "uuid",
+                "title": "Destino Id"
+              },
+              "operador_id": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Operador Id"
+              },
+              "responsable_id": {
+                "type": "string",
+                "format": "uuid",
+                "title": "Responsable Id"
+              },
+              "vendedor_id": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Vendedor Id"
+              },
+              "fecha_salida": {
+                "type": "string",
+                "format": "date",
+                "title": "Fecha Salida"
+              },
+              "fecha_regreso": {
+                "type": "string",
+                "format": "date",
+                "title": "Fecha Regreso"
+              },
+              "categoria": {
+                "$ref": "#/components/schemas/CategoriaViaje"
+              },
+              "estado": {
+                "$ref": "#/components/schemas/EstadoViaje",
+                "readOnly": true
+              },
+              "estado_previo": {
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/EstadoViaje"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "description": "Estado al que vuelve corregir-estado, o revertir-cancelacion si cancelado.",
+                "readOnly": true
+              },
+              "motivo_cancelacion": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Motivo Cancelacion",
+                "readOnly": true
+              },
+              "fecha_cancelacion": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "format": "date"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Fecha Cancelacion",
+                "readOnly": true
+              },
+              "moneda": {
+                "$ref": "#/components/schemas/Moneda",
+                "description": "Se fija al confirmar la reserva (DEC-0013).",
+                "readOnly": true
+              },
+              "precio_venta": {
+                "type": "string",
+                "pattern": "^\\d+(\\.\\d{1,4})?$",
+                "format": "decimal",
+                "title": "Precio Venta",
+                "examples": [
+                  "1000000.00"
+                ]
+              },
+              "costo": {
+                "type": "string",
+                "pattern": "^\\d+(\\.\\d{1,4})?$",
+                "format": "decimal",
+                "title": "Costo",
+                "description": "Costo del operador.",
+                "examples": [
+                  "1000000.00"
+                ]
+              },
+              "ganancia": {
+                "type": "string",
+                "pattern": "^-?\\d+(\\.\\d{1,4})?$",
+                "format": "decimal",
+                "title": "Ganancia",
+                "description": "precio_venta − costo.",
+                "readOnly": true,
+                "examples": [
+                  "1000000.00"
+                ]
+              },
+              "margen": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "pattern": "^-?\\d+(\\.\\d{1,4})?$",
+                    "format": "decimal",
+                    "examples": [
+                      "1000000.00"
+                    ]
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Margen",
+                "description": "ganancia / precio_venta, como fracción (0.25 = 25 %).",
+                "readOnly": true
+              },
+              "comision_tipo": {
+                "type": "string",
+                "enum": [
+                  "importe",
+                  "porcentaje"
+                ],
+                "title": "Comision Tipo"
+              },
+              "comision_vendedor": {
+                "type": "string",
+                "pattern": "^\\d+(\\.\\d{1,4})?$",
+                "format": "decimal",
+                "title": "Comision Vendedor",
+                "description": "Importe, o porcentaje sobre la ganancia, según comision_tipo.",
+                "examples": [
+                  "1000000.00"
+                ]
+              },
+              "saldo_pendiente": {
+                "type": "string",
+                "pattern": "^\\d+(\\.\\d{1,4})?$",
+                "format": "decimal",
+                "title": "Saldo Pendiente",
+                "description": "Suma de los pagos no cobrados, en la moneda del viaje. Lo calcula la API (CU-12).",
+                "readOnly": true,
+                "examples": [
+                  "1000000.00"
+                ]
+              },
+              "porcentaje_pagado": {
+                "type": "string",
+                "pattern": "^\\d+(\\.\\d{1,4})?$",
+                "format": "decimal",
+                "title": "Porcentaje Pagado",
+                "description": "Porción del precio de venta ya cobrada. Lo calcula la API (CU-12).",
+                "readOnly": true,
+                "examples": [
+                  "1000000.00"
+                ]
+              }
+            },
+            "type": "object",
+            "required": [
+              "id",
+              "cliente_id",
+              "oportunidad_id",
+              "destino_id",
+              "operador_id",
+              "responsable_id",
+              "vendedor_id",
+              "fecha_salida",
+              "fecha_regreso",
+              "categoria",
+              "estado",
+              "estado_previo",
+              "motivo_cancelacion",
+              "fecha_cancelacion",
+              "moneda",
+              "precio_venta",
+              "costo",
+              "ganancia",
+              "margen",
+              "comision_tipo",
+              "comision_vendedor",
+              "saldo_pendiente",
+              "porcentaje_pagado"
+            ],
+            "description": "Ficha del viaje con su economía y su saldo. Los importes van en la moneda del viaje."
+          },
+          {
+            "$ref": "#/components/schemas/Auditoria"
+          }
+        ]
       },
       "ViajeDeAlerta": {
         "properties": {
