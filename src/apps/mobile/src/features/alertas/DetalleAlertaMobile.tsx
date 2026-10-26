@@ -30,35 +30,23 @@ function sumarDias(fecha: string, dias: number): string {
 
 /** Contexto del origen sin repetir lo que la descripción ya dice (p. ej. el cliente y el destino). */
 function contextoNuevo(alerta: Alerta): string[] {
-  const { cliente: cl, viaje, oportunidad } = alerta.contexto;
-  const datos = [
-    viaje && { valor: viaje.destino, linea: `Viaje: ${viaje.destino}` },
-    oportunidad && {
-      valor: oportunidad.destino_consultado,
-      linea: `Oportunidad: ${oportunidad.destino_consultado}`,
-    },
-    cl && { valor: cl.nombre, linea: cl.nombre },
-  ];
-  const pago = lineaDeContexto(alerta).filter((linea) => linea.includes(" · vence "));
-  return [
-    ...datos.flatMap((dato) =>
-      dato && !alerta.descripcion.includes(dato.valor) ? [dato.linea] : [],
-    ),
-    ...pago,
-  ];
+  return lineaDeContexto(alerta).filter(
+    (linea) => !alerta.descripcion.includes(linea.replace(/^(Viaje|Oportunidad): /, "")),
+  );
+}
+
+function useVolverALaAgenda() {
+  const router = useRouter();
+  return () => {
+    if (router.canGoBack()) router.back();
+    else router.replace("/");
+  };
 }
 
 function Volver() {
-  const router = useRouter();
+  const volver = useVolverALaAgenda();
   return (
-    <Pressable
-      role="button"
-      accessibilityLabel="Volver"
-      onPress={() => {
-        if (router.canGoBack()) router.back();
-        else router.replace("/");
-      }}
-    >
+    <Pressable role="button" accessibilityLabel="Volver" onPress={volver}>
       <Text className="text-primary">‹ Agenda</Text>
     </Pressable>
   );
@@ -80,6 +68,7 @@ function Pantalla({ children }: { children: React.ReactNode }) {
 export function DetalleAlertaMobile() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
+  const volverALaAgenda = useVolverALaAgenda();
   const { data: alerta, error, isPending } = useAlerta(cliente, id);
   const posponer = usePosponerAlerta(cliente);
   const [eligiendo, setEligiendo] = useState(false);
@@ -109,10 +98,7 @@ export function DetalleAlertaMobile() {
     posponer.mutate(
       { id: alerta.id, fecha },
       {
-        onSuccess: () => {
-          if (router.canGoBack()) router.back();
-          else router.replace("/");
-        },
+        onSuccess: volverALaAgenda,
       },
     );
   };
