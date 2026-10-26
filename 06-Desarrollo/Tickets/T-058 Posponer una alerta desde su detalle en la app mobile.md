@@ -3,7 +3,7 @@ id: T-058
 titulo: Posponer una alerta desde su detalle en la app mobile
 modulo: M3 — Alertas
 capa: mobile
-estado: libre
+estado: tomado
 depende_de: [T-057]
 tamaño: S
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [CU-14, RF-075, RF-077]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: palomap2003
+tomado_el: 25/10/26 22:51
+rama: feature/T-058-posponer-una-alerta-desde-su-detalle-en
 pr:
 ---
 # T-058 Posponer una alerta desde su detalle en la app mobile
