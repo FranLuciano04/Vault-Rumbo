@@ -30,7 +30,7 @@ La **persona** de cada sesión es quien la corre, identificada por su identidad 
   - Arreglar los hallazgos confirmados en ramas `fix/…` (DEC-0019).
   - Con la aprobación del equipo, poner los tags `mod-1` y `mod-2`. Hoy solo existe `mod-0`.
 
-### Paloma (`palomap2003`) y Nahuel (`Nahuel Viniegra`) — el repo es público
+### Nahuel (`Nahuel Viniegra`) — el repo es público
 - **25/10, de Francisco: el repo [Vault-Rumbo](https://github.com/FranLuciano04/Vault-Rumbo) pasó a público.** GitHub Actions se había cortado porque se terminaron los minutos del plan Free; en los repos públicos los minutos son ilimitados.
   - Antes se escaneó todo el historial, incluidas las ramas de los PR, y no hay secretos.
   - Quedan visibles sus nombres y emails: los de los commits, y el de Paloma también en los metadatos de dos docx. Si quieren, activen *Keep my email addresses private* en GitHub y usen el email `noreply` en los commits nuevos.
