@@ -127,9 +127,15 @@ export function NuevoRecordatorioMobile() {
       });
       router.replace("/agenda");
     } catch (falla) {
-      if (falla instanceof ErrorApi && falla.status === 404) {
+      if (!(falla instanceof ErrorApi)) {
+        setAviso(ERROR_AL_GUARDAR);
+        return;
+      }
+      if (falla.status === 404) {
         setAviso(NO_EXISTE);
-      } else if (falla instanceof ErrorApi && falla.status === 422 && falla.errores.length > 0) {
+        return;
+      }
+      if (falla.status === 422 && falla.errores.length > 0) {
         const delCampo: Errores = {};
         const restantes: string[] = [];
         for (const { campo, mensaje } of falla.errores) {
@@ -138,11 +144,13 @@ export function NuevoRecordatorioMobile() {
         }
         setErrores(delCampo);
         setAviso(restantes.length > 0 ? restantes.join(" ") : null);
-      } else if (falla instanceof ErrorApi && [403, 409].includes(falla.status) && falla.detail) {
-        setAviso(falla.detail);
-      } else {
-        setAviso(ERROR_AL_GUARDAR);
+        return;
       }
+      setAviso(
+        (falla.status === 409 || falla.status === 403) && falla.detail
+          ? falla.detail
+          : ERROR_AL_GUARDAR,
+      );
     }
   }
 
