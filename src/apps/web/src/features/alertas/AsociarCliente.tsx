@@ -1,11 +1,11 @@
-import { useClientes } from "@rumbo/shared/hooks";
+import { useClientes, useDebouncedValue } from "@rumbo/shared/hooks";
 import type { AxiosInstance } from "axios";
 import { useState } from "react";
 import { CLASE_SELECT } from "@/components/CampoFormulario";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useDebouncedValue } from "@/lib/useDebouncedValue";
+
 import type { AsociadoRecordatorio } from "./FormularioRecordatorio";
 
 function ResultadosClientes({

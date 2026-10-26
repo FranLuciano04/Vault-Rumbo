@@ -1,11 +1,13 @@
-import DateTimePicker, { type DateTimePickerEvent } from "@react-native-community/datetimepicker";
-import { ERROR_AL_GUARDAR, ErrorApi, formatearFecha } from "@rumbo/shared";
+import DateTimePicker from "@react-native-community/datetimepicker";
+import { ERROR_AL_GUARDAR, ErrorApi, formatearFecha, hoyEnBuenosAires } from "@rumbo/shared";
 import { esquemaRecordatorio } from "@rumbo/shared/esquemas";
-import { useClientes, useCrearRecordatorio } from "@rumbo/shared/hooks";
+import { useClientes, useCrearRecordatorio, useDebouncedValue } from "@rumbo/shared/hooks";
 import { useRouter } from "expo-router";
-import { useState } from "react";
-import { Pressable, ScrollView, Text, TextInput, View } from "react-native";
+import { useCallback, useState } from "react";
+import { Platform, Pressable, ScrollView, Text, TextInput, View } from "react-native";
 import { cliente } from "../../cliente";
+import { MensajeError } from "../../componentes/MensajeError";
+import { Opcion } from "../../componentes/Opcion";
 
 const NO_EXISTE = "Lo que querés guardar ya no existe o no lo podés ver.";
 const ELEGIR_CLIENTE = "Elegí un cliente o dejá el recordatorio como personal.";
@@ -21,33 +23,6 @@ const deIsoLocal = (iso: string) => {
 
 type Errores = { descripcion?: string; fecha?: string };
 type ClienteElegido = { id: string; nombre: string };
-
-function MensajeError({ texto }: { texto?: string }) {
-  return texto ? <Text className="mt-1 text-sm text-red-700">{texto}</Text> : null;
-}
-
-function Opcion({
-  texto,
-  elegida,
-  alElegir,
-}: {
-  texto: string;
-  elegida: boolean;
-  alElegir: () => void;
-}) {
-  return (
-    <Pressable
-      role="button"
-      accessibilityState={{ selected: elegida }}
-      onPress={alElegir}
-      className={`rounded-full border px-4 py-2 ${elegida ? "border-primary bg-primary" : "border-input"}`}
-    >
-      <Text className={elegida ? "font-semibold text-primary-foreground" : "text-gray-700"}>
-        {texto}
-      </Text>
-    </Pressable>
-  );
-}
 
 function ResultadosClientes({
   buscar,
@@ -86,10 +61,13 @@ export function NuevoRecordatorioMobile() {
   const crear = useCrearRecordatorio(cliente);
   const [descripcion, setDescripcion] = useState("");
   const [fecha, setFecha] = useState("");
+  // Valor inicial estable: si cambiara en cada render, el selector de Android se reabriría.
+  const [fechaInicial] = useState(() => new Date());
   const [eligiendoFecha, setEligiendoFecha] = useState(false);
   const [conCliente, setConCliente] = useState(false);
   const [elegido, setElegido] = useState<ClienteElegido | null>(null);
   const [busqueda, setBusqueda] = useState("");
+  const buscar = useDebouncedValue(busqueda.trim());
   const [errores, setErrores] = useState<Errores>({});
   const [aviso, setAviso] = useState<string | null>(null);
 
@@ -98,10 +76,13 @@ export function NuevoRecordatorioMobile() {
     else router.replace("/agenda");
   };
 
-  function alElegirFecha(evento: DateTimePickerEvent, elegida?: Date) {
+  const alElegirFecha = useCallback((_evento: unknown, elegida: Date) => {
     setEligiendoFecha(false);
-    if (evento.type === "set" && elegida) setFecha(aIsoLocal(elegida));
-  }
+    setFecha(aIsoLocal(elegida));
+  }, []);
+  const alCerrarSelector = useCallback(() => {
+    setEligiendoFecha(false);
+  }, []);
 
   async function enviar() {
     setAviso(null);
@@ -125,7 +106,11 @@ export function NuevoRecordatorioMobile() {
         fecha: datos.data.fecha,
         ...(elegido && { cliente_id: elegido.id }),
       });
-      router.replace("/agenda");
+      // Solo una fecha futura se avisa: la agenda del día no la muestra todavía.
+      router.dismissTo({
+        pathname: "/agenda",
+        params: datos.data.fecha > hoyEnBuenosAires() ? { recordatorio: datos.data.fecha } : {},
+      });
     } catch (falla) {
       if (!(falla instanceof ErrorApi)) {
         setAviso(ERROR_AL_GUARDAR);
@@ -188,15 +173,18 @@ export function NuevoRecordatorioMobile() {
         </Pressable>
         {eligiendoFecha && (
           <DateTimePicker
-            value={fecha ? deIsoLocal(fecha) : new Date()}
+            value={fecha ? deIsoLocal(fecha) : fechaInicial}
             mode="date"
-            // `onChange` está deprecado en 9.x, pero sigue siendo la API que cubren los tests.
-            // eslint-disable-next-line @typescript-eslint/no-deprecated
-            onChange={alElegirFecha}
+            display={Platform.OS === "ios" ? "inline" : "default"}
+            onValueChange={alElegirFecha}
+            onDismiss={alCerrarSelector}
           />
         )}
         <MensajeError texto={errores.fecha} />
       </View>
+      <Text className="-mt-2 text-sm text-gray-500">
+        El recordatorio aparece en tu agenda el día elegido.
+      </Text>
       <View>
         <Text className="mb-1 text-sm font-medium text-gray-700">Asociar a</Text>
         <View className="flex-row flex-wrap gap-2">
@@ -226,9 +214,7 @@ export function NuevoRecordatorioMobile() {
             onChangeText={setBusqueda}
             className="rounded-xl border border-input px-4 py-3"
           />
-          {busqueda.trim() !== "" && (
-            <ResultadosClientes buscar={busqueda.trim()} alElegir={setElegido} />
-          )}
+          {buscar !== "" && <ResultadosClientes buscar={buscar} alElegir={setElegido} />}
         </View>
       )}
       {elegido && (

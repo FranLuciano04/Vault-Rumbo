@@ -39,3 +39,8 @@ export function lineaDeContexto(alerta: Alerta): string[] {
     etiqueta === "Viaje" || etiqueta === "Oportunidad" ? `${etiqueta}: ${valor}` : valor,
   );
 }
+
+/** Aviso al guardar un recordatorio (CU-28), con la fecha en `dd/mm/aa`. */
+export function avisoRecordatorio(accion: "creado" | "actualizado", fecha: string): string {
+  return `Recordatorio ${accion} para el ${formatearFecha(fecha)}`;
+}

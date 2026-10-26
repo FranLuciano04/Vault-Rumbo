@@ -1,4 +1,5 @@
 import {
+  avisoRecordatorio,
   diasDeAtraso,
   ETIQUETA_TIPO_ALERTA,
   hoyEnBuenosAires,
@@ -12,7 +13,7 @@ import {
   useResolverConDeshacer,
   useYo,
 } from "@rumbo/shared/hooks";
-import { useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
   AccessibilityInfo,
@@ -105,6 +106,9 @@ function FilaAlerta({
  */
 export function AgendaMobile() {
   const router = useRouter();
+  // Al volver de crear un recordatorio con fecha futura, `recordatorio` trae esa fecha.
+  const { recordatorio } = useLocalSearchParams<{ recordatorio?: string }>();
+  const avisoCreado = recordatorio ? avisoRecordatorio("creado", recordatorio) : null;
   const yo = useYo(cliente);
   const esDeAgencia = yo.data?.rol === "admin" || yo.data?.rol === "dueno";
   const alertas = useAlertasPorPaginas(cliente, { por_pagina: POR_PAGINA });
@@ -126,6 +130,9 @@ export function AgendaMobile() {
   }, [enviarPendientes]);
 
   const hayErrorAlCargar = alertas.isError;
+  useEffect(() => {
+    if (avisoCreado) anunciar(avisoCreado);
+  }, [avisoCreado]);
   useEffect(() => {
     if (error) anunciar(error);
   }, [error]);
@@ -210,6 +217,16 @@ export function AgendaMobile() {
             <View className="h-full bg-white" style={{ width: `${String(porcentaje)}%` }} />
           </View>
         </View>
+      )}
+      {avisoCreado && (
+        <Text
+          accessible
+          role="status"
+          accessibilityLiveRegion="polite"
+          className="mb-3 text-sm font-medium text-green-800"
+        >
+          {avisoCreado}
+        </Text>
       )}
       {error && (
         <Text

@@ -1,7 +1,8 @@
 import { fireEvent, waitFor } from "@testing-library/react-native";
 import { renderRouter } from "expo-router/testing-library";
-import { Slot } from "expo-router";
+import { Slot, Stack, router } from "expo-router";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { formatearFecha, hoyEnBuenosAires } from "@rumbo/shared";
 import { AgendaMobile } from "../src/features/alertas/AgendaMobile";
 import { NuevoRecordatorioMobile } from "../src/features/alertas/NuevoRecordatorioMobile";
 
@@ -21,33 +22,39 @@ jest.mock("../src/cliente", () => {
 // El selector nativo no corre en jest: se reemplaza por un componente falso con dos botones, uno que
 // elige la fecha de `mockFechaElegida` (año, mes 1-12, día) y otro que cancela el selector.
 let mockFechaElegida: [number, number, number] = [2026, 11, 2];
-jest.mock(
-  "@react-native-community/datetimepicker",
-  () => {
-    const { Pressable, Text, View } = jest.requireActual<typeof import("react-native")>("react-native");
-    const { createElement } = jest.requireActual<typeof import("react")>("react");
-    const boton = (testID: string, texto: string, alPresionar: () => void) =>
-      createElement(
-        Pressable,
-        { testID, role: "button", onPress: alPresionar },
-        createElement(Text, null, texto),
-      );
-    const Falso = ({ onChange }: { onChange: (evento: { type: string }, fecha?: Date) => void }) =>
-      createElement(
-        View,
-        null,
-        boton("selector-fecha-aceptar", "Aceptar fecha", () => {
-          const [anio, mes, dia] = mockFechaElegida;
-          onChange({ type: "set" }, new Date(anio, mes - 1, dia, 12));
-        }),
-        boton("selector-fecha-cancelar", "Cancelar selector", () => {
-          onChange({ type: "dismissed" });
-        }),
-      );
-    return { __esModule: true, default: Falso };
-  },
-  { virtual: true },
-);
+jest.mock("@react-native-community/datetimepicker", () => {
+  const { Pressable, Text, View } =
+    jest.requireActual<typeof import("react-native")>("react-native");
+  const { createElement } = jest.requireActual<typeof import("react")>("react");
+  const boton = (testID: string, texto: string, alPresionar: () => void) =>
+    createElement(
+      Pressable,
+      { testID, role: "button", onPress: alPresionar },
+      createElement(Text, null, texto),
+    );
+  const Falso = ({
+    onValueChange,
+    onDismiss,
+  }: {
+    onValueChange: (evento: unknown, fecha: Date) => void;
+    onDismiss: () => void;
+  }) =>
+    createElement(
+      View,
+      null,
+      boton("selector-fecha-aceptar", "Aceptar fecha", () => {
+        const [anio, mes, dia] = mockFechaElegida;
+        onValueChange(
+          { nativeEvent: { timestamp: 0, utcOffset: 0 } },
+          new Date(anio, mes - 1, dia, 12),
+        );
+      }),
+      boton("selector-fecha-cancelar", "Cancelar selector", () => {
+        onDismiss();
+      }),
+    );
+  return { __esModule: true, default: Falso };
+});
 
 const ANA = { id: "a1c4e7f0-3d58-4b92-b6a3-8f0e2d1c4b03", nombre: "Ana Pérez" };
 const CLIENTE_ID = "3c1f6d2e-8a47-4b19-9e53-7d0a2b4c6e11";
@@ -117,14 +124,17 @@ function backend(opciones: { alta?: (config: Config) => Promise<unknown> } = {})
       if (config.params?.["estado"] === "vista") {
         return respuesta(200, { items: [], total: 0, pagina: 1, por_pagina: 1 }, config);
       }
+      // Como el backend: la agenda trae las alertas con fecha hasta hoy.
+      const deHoy = pendientes.filter((a) => String(a["fecha"]) <= hoyEnBuenosAires());
       return respuesta(
         200,
-        { items: pendientes, total: pendientes.length, pagina: 1, por_pagina: 100 },
+        { items: deHoy, total: deHoy.length, pagina: 1, por_pagina: 100 },
         config,
       );
     }
     if (url === "/api/clientes") {
-      const buscar = String(config.params?.["buscar"] ?? "").toLowerCase();
+      const valor = config.params?.["buscar"];
+      const buscar = typeof valor === "string" ? valor.toLowerCase() : "";
       const items = buscar && camila.nombre.toLowerCase().includes(buscar) ? [camila] : [];
       return respuesta(200, { items, total: items.length, pagina: 1, por_pagina: 5 }, config);
     }
@@ -146,11 +156,14 @@ function Raiz() {
   );
 }
 
-function renderRecordatorio(initialUrl = "/agenda/nuevo") {
+const PilaAgenda = () => <Stack screenOptions={{ headerShown: false }} />;
+
+function renderRecordatorio(initialUrl = "/agenda/nuevo", conPila = false) {
   queryClient.clear();
   return renderRouter(
     {
       _layout: Raiz,
+      ...(conPila && { "(pestanas)/agenda/_layout": PilaAgenda }),
       "(pestanas)/agenda/index": AgendaMobile,
       "(pestanas)/agenda/nuevo": NuevoRecordatorioMobile,
     },
@@ -160,6 +173,10 @@ function renderRecordatorio(initialUrl = "/agenda/nuevo") {
 type Vista = Awaited<ReturnType<typeof renderRecordatorio>>;
 
 const guardar = (vista: Vista) => vista.getByRole("button", { name: /^guardar/i });
+const hoy = (): [number, number, number] => {
+  const [anio, mes, dia] = hoyEnBuenosAires().split("-").map(Number);
+  return [anio ?? 0, mes ?? 0, dia ?? 0];
+};
 const botonFecha = (vista: Vista) => vista.getByRole("button", { name: /^fecha/i });
 /** Abre el selector y elige el día indicado (año, mes 1-12, día). */
 async function elegirFecha(vista: Vista, dia: [number, number, number] = [2026, 11, 2]) {
@@ -382,7 +399,7 @@ describe("RF-080 recordatorio mobile", () => {
   it("RF-080 tras guardar vuelve a la agenda y el recordatorio aparece en ella", async () => {
     backend();
     const vista = await renderRecordatorio();
-    await completar(vista, "Llamar a Ana");
+    await completar(vista, "Llamar a Ana", hoy());
 
     await fireEvent.press(guardar(vista));
 
@@ -390,6 +407,72 @@ describe("RF-080 recordatorio mobile", () => {
       expect(vista).toHavePathname("/agenda");
     });
     expect(await vista.findByText("Llamar a Ana")).toBeTruthy();
+  });
+
+  it("RF-080 con una fecha futura vuelve a la agenda y avisa «Recordatorio creado para el dd/mm/aa»", async () => {
+    backend();
+    const vista = await renderRecordatorio();
+    await completar(vista, "Reconfirmar el vuelo", [2099, 1, 15]);
+
+    await fireEvent.press(guardar(vista));
+
+    await waitFor(() => {
+      expect(vista).toHavePathname("/agenda");
+    });
+    expect(
+      await vista.findByText(`Recordatorio creado para el ${formatearFecha("2099-01-15")}`),
+    ).toBeTruthy();
+    expect(vista.queryByText("Reconfirmar el vuelo")).toBeNull();
+  });
+
+  it("RF-080 el formulario explica cuándo aparece el recordatorio", async () => {
+    backend();
+    const vista = await renderRecordatorio();
+
+    expect(
+      await vista.findByText("El recordatorio aparece en tu agenda el día elegido."),
+    ).toBeTruthy();
+  });
+
+  it("RF-080 desde la agenda, guardar no deja dos agendas apiladas", async () => {
+    backend();
+    const vista = await renderRecordatorio("/agenda", true);
+    await fireEvent.press(await vista.findByRole("button", { name: /nuevo recordatorio/i }));
+    await completar(vista, "Llamar a Ana", hoy());
+
+    await fireEvent.press(guardar(vista));
+
+    await waitFor(() => {
+      expect(vista).toHavePathname("/agenda");
+    });
+    await vista.findByText("Llamar a Ana");
+    expect(router.canGoBack()).toBe(false);
+  });
+
+  it("RF-080 escribir el nombre del cliente dispara una sola búsqueda, no una por letra", async () => {
+    backend();
+    const vista = await renderRecordatorio();
+    await fireEvent.press(await vista.findByRole("button", { name: /^cliente$/i }));
+    const campo = await vista.findByLabelText(/buscar cliente/i);
+
+    for (const parcial of ["C", "Ca", "Cam", "Cami", "Camil", "Camila"]) {
+      await fireEvent.changeText(campo, parcial);
+    }
+    await vista.findByRole("button", { name: /Camila Benítez/ });
+    // Espera real para que una búsqueda tardía por letra tenga tiempo de salir.
+    const inicio = Date.now();
+    await waitFor(
+      () => {
+        if (Date.now() - inicio < 600) throw new Error("todavía no pasó el debounce");
+      },
+      { timeout: 3000, interval: 50 },
+    );
+
+    const busquedas = mockHttp.mock.calls
+      .map(([c]) => c)
+      .filter((c) => c.url === "/api/clientes" && c.params?.["buscar"])
+      .map((c) => c.params?.["buscar"]);
+    expect(busquedas).toEqual(["Camila"]);
   });
 
   it("RF-080 Cancelar vuelve a la agenda sin mandar nada", async () => {
