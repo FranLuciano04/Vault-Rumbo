@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { afterAll, afterEach, beforeAll, describe, expect, it } from "vitest";
 import { crearServidor } from "./index";
-import { manejadoresM1 } from "./m1";
+import { destinosMock, manejadoresM1, requisitoOtroDestinoMock, requisitosMock } from "./m1";
 
 type Esquema = {
   $ref?: string;
@@ -152,7 +152,13 @@ describe("RF-151 mocks MSW de usuarios y configuración respetan el contrato", (
       const op = operacion(metodo, ruta);
       expect(op, `${metodo} ${ruta} falta en openapi.json`).toBeDefined();
       const exito = codigoExito(op as Operacion);
-      const url = "http://localhost/api" + ruta.replace(/\{[^}]+\}/g, ID);
+      const idDestino = requisitosMock[0].destino_id;
+      const url =
+        "http://localhost/api" +
+        (ruta === "/destinos/{destino_id}/requisitos"
+          ? ruta.replace("{destino_id}", idDestino)
+          : ruta
+        ).replace(/\{[^}]+\}/g, ID);
       const entrada = (op as Operacion).requestBody?.content["application/json"]?.schema;
 
       const res = await fetch(url, {
@@ -178,5 +184,34 @@ describe("RF-151 mocks MSW de usuarios y configuración respetan el contrato", (
       expect(cuerpo.items.length, ruta).toBeGreaterThan(0);
       expect(cuerpo.total, ruta).toBeGreaterThanOrEqual(cuerpo.items.length);
     }
+  });
+});
+
+describe("RF-086 el mock de requisitos filtra por destino_id (H-02)", () => {
+  type Pagina = { items: { destino_id: string }[]; total: number };
+
+  it("RF-086 devuelve solo los requisitos del destino pedido", async () => {
+    const destino = requisitosMock[0].destino_id;
+    const res = await fetch(`http://localhost/api/destinos/${destino}/requisitos`);
+    const cuerpo = (await res.json()) as Pagina;
+
+    expect(cuerpo.items.length).toBeGreaterThan(0);
+    expect(cuerpo.items.every((r) => r.destino_id === destino)).toBe(true);
+    expect(cuerpo.items.map((r) => r.destino_id)).not.toContain(
+      requisitoOtroDestinoMock.destino_id,
+    );
+    expect(cuerpo.total).toBe(cuerpo.items.length);
+  });
+
+  it("RF-086 devuelve una lista vacía para un destino sin requisitos", async () => {
+    const sinRequisitos = destinosMock.find(
+      (d) => ![...requisitosMock, requisitoOtroDestinoMock].some((r) => r.destino_id === d.id),
+    );
+    expect(sinRequisitos).toBeDefined();
+    const res = await fetch(`http://localhost/api/destinos/${sinRequisitos?.id}/requisitos`);
+    const cuerpo = (await res.json()) as Pagina;
+
+    expect(cuerpo.items).toEqual([]);
+    expect(cuerpo.total).toBe(0);
   });
 });
