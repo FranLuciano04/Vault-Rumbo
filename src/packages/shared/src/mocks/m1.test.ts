@@ -7,6 +7,7 @@ import {
   operadoresMock,
   requisitoOtroDestinoMock,
   requisitosMock,
+  usuarioDeBajaMock,
   usuariosMock,
 } from "./m1";
 
@@ -245,10 +246,29 @@ function enviar(metodo: string, ruta: string, cuerpo?: unknown) {
   });
 }
 
-async function esProblema(res: Response, status: number) {
+/**
+ * Un problem+json del status pedido. Un 422 trae `errores` como el backend (`detail` fijo y un
+ * `{campo, mensaje}` por campo inválido); `campos`, si se pasa, son exactamente esos `campo`.
+ */
+async function esProblema(res: Response, status: number, campos?: string[]) {
   expect(res.status).toBe(status);
   expect(res.headers.get("content-type") ?? "").toMatch(/^application\/problem\+json/);
-  expect(((await res.json()) as { status: number }).status).toBe(status);
+  const cuerpo = (await res.json()) as {
+    status: number;
+    detail?: string;
+    errores?: { campo: string; mensaje: string }[];
+  };
+  expect(cuerpo.status).toBe(status);
+  if (status === 422) {
+    expect(cuerpo.detail).toBe("Los datos enviados no son válidos.");
+    expect(cuerpo.errores?.length).toBeGreaterThan(0);
+    for (const e of cuerpo.errores ?? []) {
+      expect(e.campo).toEqual(expect.any(String));
+      expect(e.mensaje).toEqual(expect.any(String));
+    }
+    if (campos) expect(cuerpo.errores?.map((e) => e.campo).sort()).toEqual([...campos].sort());
+  }
+  return cuerpo;
 }
 
 const activos = <T extends { activo: boolean }>(lista: readonly T[]) =>
@@ -455,14 +475,14 @@ describe("RF-144 usuarios: filtro activo y errores de negocio (H-02)", () => {
   it("RF-144 sin activo el listado trae altas y bajas", async () => {
     const cuerpo = (await (await enviar("GET", "/usuarios")).json()) as Listado;
 
-    expect(cuerpo.items).toHaveLength(usuariosMock.length);
+    expect(cuerpo.items).toHaveLength(usuariosMock.length + 1);
   });
 
   it("RF-144 activo=false trae solo los dados de baja", async () => {
     const cuerpo = (await (await enviar("GET", "/usuarios?activo=false")).json()) as Listado;
 
-    expect(cuerpo.items).toEqual(inactivos(usuariosMock));
-    expect(cuerpo.total).toBe(inactivos(usuariosMock).length);
+    expect(cuerpo.items).toEqual([usuarioDeBajaMock]);
+    expect(cuerpo.total).toBe(1);
   });
 
   it("RF-144 el alta con un email nuevo responde 201", async () => {
@@ -550,5 +570,311 @@ describe("RF-084 comisión por defecto: validación del esquema (H-02)", () => {
     { comision_default_tipo: "importe", comision_default_valor: "10.123" },
   ])("RF-084 %j da 422 problem+json", async (cuerpo) => {
     await esProblema(await enviar("PUT", ruta, cuerpo), 422);
+  });
+});
+
+describe("RF-022 y RF-084 los 422 traen errores por campo como el backend (H-02)", () => {
+  it("RF-022 la configuración nombra cada campo fuera de rango", async () => {
+    await esProblema(
+      await enviar("PUT", "/configuracion", {
+        vigencia_cotizacion_meses: 0,
+        anticipacion_salida_dias: -1,
+        recontacto_meses: 0,
+      }),
+      422,
+      ["vigencia_cotizacion_meses", "anticipacion_salida_dias", "recontacto_meses"],
+    );
+  });
+
+  it("RF-022 un campo que falta se nombra en errores", async () => {
+    await esProblema(
+      await enviar("PUT", "/configuracion", {
+        vigencia_cotizacion_meses: 1,
+        anticipacion_salida_dias: 1,
+      }),
+      422,
+      ["recontacto_meses"],
+    );
+  });
+
+  const rutaComision = `/usuarios/${usuariosMock[1].id}/comision-por-defecto`;
+
+  it("RF-084 un valor negativo se nombra en comision_default_valor", async () => {
+    await esProblema(
+      await enviar("PUT", rutaComision, {
+        comision_default_tipo: "importe",
+        comision_default_valor: "-1",
+      }),
+      422,
+      ["comision_default_valor"],
+    );
+  });
+
+  it.each([
+    [{ comision_default_tipo: "importe", comision_default_valor: null }],
+    [{ comision_default_tipo: null, comision_default_valor: "10" }],
+    [{ comision_default_tipo: "porcentaje", comision_default_valor: "100.01" }],
+  ])("RF-084 la regla cruzada %j se informa en el campo body", async (cuerpo) => {
+    await esProblema(await enviar("PUT", rutaComision, cuerpo), 422, ["body"]);
+  });
+
+  it("RF-084 un tipo fuera del enum se nombra en comision_default_tipo", async () => {
+    await esProblema(
+      await enviar("PUT", rutaComision, {
+        comision_default_tipo: "regalo",
+        comision_default_valor: "10",
+      }),
+      422,
+      ["comision_default_tipo"],
+    );
+  });
+
+  it("RF-144 el alta de usuario nombra los campos inválidos", async () => {
+    await esProblema(
+      await enviar("POST", "/usuarios", { nombre: "", email: "mal", rol: "otro" }),
+      422,
+      ["nombre", "email", "rol"],
+    );
+  });
+});
+
+describe("RF-090, RF-094, RF-086 y RF-144 validan el cuerpo antes que el 409 (H-02)", () => {
+  const largo = (n: number) => "x".repeat(n);
+
+  it.each([
+    [{ nombre: "", pais: "México" }, ["nombre"]],
+    [{ nombre: largo(121), pais: "México" }, ["nombre"]],
+    [{ nombre: "Mendoza", pais: "" }, ["pais"]],
+    [{ nombre: "Mendoza", pais: largo(81) }, ["pais"]],
+    [{ nombre: "Mendoza", pais: "Argentina", region: largo(81) }, ["region"]],
+    [{ pais: "Argentina" }, ["nombre"]],
+    [{ nombre: "Mendoza" }, ["pais"]],
+    [{ nombre: null, pais: "Argentina" }, ["nombre"]],
+    // Si además repite un nombre, gana el 422.
+    [{ nombre: "Cancún", pais: "" }, ["pais"]],
+  ])("RF-090 el alta de destino %j da 422", async (cuerpo, campos) => {
+    await esProblema(await enviar("POST", "/destinos", cuerpo), 422, campos);
+  });
+
+  it.each([
+    [{ nombre: "" }, ["nombre"]],
+    [{ nombre: null }, ["nombre"]],
+    [{ pais: null }, ["pais"]],
+    [{ pais: "" }, ["pais"]],
+    [{ nombre: largo(121) }, ["nombre"]],
+    [{ region: largo(81) }, ["region"]],
+    [{ nombre: "Cancún", pais: "" }, ["pais"]],
+  ])("RF-090 la edición de destino %j da 422", async (cuerpo, campos) => {
+    await esProblema(await enviar("PATCH", `/destinos/${destinosMock[0].id}`, cuerpo), 422, campos);
+  });
+
+  it("RF-090 la edición de destino admite vaciar region y notas (200)", async () => {
+    const res = await enviar("PATCH", `/destinos/${destinosMock[0].id}`, {
+      region: null,
+      notas: null,
+    });
+
+    expect(res.status).toBe(200);
+  });
+
+  it.each([
+    [{ nombre: "" }, ["nombre"]],
+    [{ nombre: largo(121) }, ["nombre"]],
+    [{ contacto: "x" }, ["nombre"]],
+    [{ nombre: null }, ["nombre"]],
+    [{ nombre: "Operadora Nueva", contacto: largo(201) }, ["contacto"]],
+    [{ nombre: "Despegar Mayorista", contacto: largo(201) }, ["contacto"]],
+  ])("RF-094 el alta de operador %j da 422", async (cuerpo, campos) => {
+    await esProblema(await enviar("POST", "/operadores", cuerpo), 422, campos);
+  });
+
+  it.each([
+    [{ nombre: "" }, ["nombre"]],
+    [{ nombre: null }, ["nombre"]],
+    [{ contacto: largo(201) }, ["contacto"]],
+  ])("RF-094 la edición de operador %j da 422", async (cuerpo, campos) => {
+    await esProblema(
+      await enviar("PATCH", `/operadores/${operadoresMock[0].id}`, cuerpo),
+      422,
+      campos,
+    );
+  });
+
+  it("RF-094 la edición de operador admite quitar el contacto (200)", async () => {
+    const res = await enviar("PATCH", `/operadores/${operadoresMock[0].id}`, { contacto: null });
+
+    expect(res.status).toBe(200);
+  });
+
+  it.each([
+    [{ rol: "superadmin" }, ["rol"]],
+    [{ rol: null }, ["rol"]],
+    [{ nombre: "" }, ["nombre"]],
+    [{ nombre: null }, ["nombre"]],
+    [{ acceso_redes: "si" }, ["acceso_redes"]],
+    [{ rol: "superadmin", nombre: "" }, ["rol", "nombre"]],
+  ])("RF-144 la edición de usuario %j da 422", async (cuerpo, campos) => {
+    await esProblema(await enviar("PATCH", `/usuarios/${usuariosMock[1].id}`, cuerpo), 422, campos);
+  });
+
+  const requisito = { nombre: "Visa", tipo: "visa", obligatorio: true, anticipacion_dias: 10 };
+  const rutaRequisitos = `/destinos/${destinosMock[1].id}/requisitos`;
+
+  it("RF-086 el alta de requisito válida responde 201", async () => {
+    expect((await enviar("POST", rutaRequisitos, requisito)).status).toBe(201);
+  });
+
+  it.each([
+    [{ tipo: "otra-cosa" }, ["tipo"]],
+    [{ anticipacion_dias: -1 }, ["anticipacion_dias"]],
+    [{ anticipacion_dias: 1.5 }, ["anticipacion_dias"]],
+    [{ nombre: "" }, ["nombre"]],
+    [{ obligatorio: "si" }, ["obligatorio"]],
+    [{ tipo: "otra-cosa", anticipacion_dias: -1 }, ["tipo", "anticipacion_dias"]],
+  ])("RF-086 el alta de requisito con %j da 422", async (cambio, campos) => {
+    await esProblema(
+      await enviar("POST", rutaRequisitos, { ...requisito, ...cambio }),
+      422,
+      campos,
+    );
+  });
+
+  it.each(["nombre", "tipo", "obligatorio", "anticipacion_dias"])(
+    "RF-086 el alta de requisito sin %s da 422",
+    async (campo) => {
+      const cuerpo = Object.fromEntries(Object.entries(requisito).filter(([c]) => c !== campo));
+
+      await esProblema(await enviar("POST", rutaRequisitos, cuerpo), 422, [campo]);
+    },
+  );
+
+  it.each([
+    [{ tipo: "otra-cosa" }, ["tipo"]],
+    [{ tipo: null }, ["tipo"]],
+    [{ anticipacion_dias: -1 }, ["anticipacion_dias"]],
+    [{ anticipacion_dias: null }, ["anticipacion_dias"]],
+    [{ nombre: null }, ["nombre"]],
+    [{ obligatorio: null }, ["obligatorio"]],
+  ])("RF-086 la edición de requisito %j da 422", async (cuerpo, campos) => {
+    await esProblema(
+      await enviar("PATCH", `/requisitos-destino/${requisitosMock[0].id}`, cuerpo),
+      422,
+      campos,
+    );
+  });
+
+  it("RF-086 la edición de requisito admite anticipación 0 y descripción en null (200)", async () => {
+    const res = await enviar("PATCH", `/requisitos-destino/${requisitosMock[0].id}`, {
+      anticipacion_dias: 0,
+      descripcion: null,
+    });
+
+    expect(res.status).toBe(200);
+  });
+});
+
+describe("RF-090, RF-094 y RF-146 los 409 llevan el texto del backend (H-02)", () => {
+  const detalle = async (res: Response) =>
+    ((await esProblema(res, 409)) as { detail: string }).detail;
+
+  it("RF-090 el destino repetido nombra al existente, con su grafía", async () => {
+    expect(await detalle(await enviar("POST", "/destinos", { nombre: "cancun", pais: "X" }))).toBe(
+      "Ya existe un destino llamado «Cancún».",
+    );
+  });
+
+  it("RF-094 el operador repetido nombra al existente, con su grafía", async () => {
+    expect(await detalle(await enviar("POST", "/operadores", { nombre: "andes travel" }))).toBe(
+      "Ya existe un operador llamado «Andes Travel».",
+    );
+  });
+
+  it("RF-146 el email repetido usa el texto del backend", async () => {
+    const alta = { nombre: "N", email: "ana@rumbo.test", rol: "empleado" };
+
+    expect(await detalle(await enviar("POST", "/usuarios", alta))).toBe(
+      "Ya existe un usuario con ese email.",
+    );
+  });
+
+  it("RF-146 el email de un usuario dado de baja también cuenta", async () => {
+    const alta = { nombre: "N", email: usuarioDeBajaMock.email, rol: "empleado" };
+
+    await esProblema(await enviar("POST", "/usuarios", alta), 409);
+  });
+
+  it("RF-149 el último admin usa el texto del backend", async () => {
+    expect(await detalle(await enviar("POST", `/usuarios/${usuariosMock[0].id}/baja`))).toBe(
+      "Es el único administrador activo: asigná otro antes de quitarle el rol o darlo de baja.",
+    );
+  });
+});
+
+describe("RF-149 y RF-144 último admin, orden y alta de usuario (H-02)", () => {
+  it("RF-149 reenviar rol admin al único admin responde 200", async () => {
+    const res = await enviar("PATCH", `/usuarios/${usuariosMock[0].id}`, { rol: "admin" });
+
+    expect(res.status).toBe(200);
+  });
+
+  it("RF-149 un admin dado de baja no cuenta como otro admin", async () => {
+    expect(usuarioDeBajaMock).toMatchObject({ rol: "admin", activo: false });
+    await esProblema(await enviar("POST", `/usuarios/${usuariosMock[0].id}/baja`), 409);
+  });
+
+  it.each([
+    ["false", [usuarioDeBajaMock.nombre]],
+    ["0", [usuarioDeBajaMock.nombre]],
+    ["true", usuariosMock.map((u) => u.nombre).sort()],
+    ["1", usuariosMock.map((u) => u.nombre).sort()],
+  ])("RF-144 GET /usuarios?activo=%s filtra como FastAPI", async (parametro, esperados) => {
+    const cuerpo = (await (await enviar("GET", `/usuarios?activo=${parametro}`)).json()) as Listado;
+
+    expect(cuerpo.items.map((i) => i.nombre).sort()).toEqual(esperados);
+  });
+
+  it.each(["destinos", "operadores", "usuarios"])(
+    "RF-089 el listado de %s va ordenado por nombre sin tildes ni mayúsculas",
+    async (ruta) => {
+      const cuerpo = (await (await enviar("GET", `/${ruta}?activo=true`)).json()) as Listado;
+      const nombres = cuerpo.items.map((i) =>
+        i.nombre.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase(),
+      );
+
+      expect(nombres.length).toBeGreaterThan(1);
+      expect(nombres).toEqual([...nombres].sort());
+    },
+  );
+
+  it("RF-144 el alta responde con los datos enviados, normalizados, y sin comisión", async () => {
+    const res = await enviar("POST", "/usuarios", {
+      nombre: "  Nueva Persona ",
+      email: "  Nueva@Rumbo.Test ",
+      rol: "freelance",
+      acceso_redes: true,
+    });
+    const cuerpo = (await res.json()) as Record<string, unknown>;
+
+    expect(res.status).toBe(201);
+    expect(cuerpo).toMatchObject({
+      nombre: "Nueva Persona",
+      email: "nueva@rumbo.test",
+      rol: "freelance",
+      activo: true,
+      acceso_redes: true,
+      comision_default_tipo: null,
+      comision_default_valor: null,
+    });
+    expect(usuariosMock.map((u) => u.id)).not.toContain(cuerpo["id"]);
+  });
+
+  it("RF-144 el alta sin acceso_redes lo deja en false", async () => {
+    const res = await enviar("POST", "/usuarios", {
+      nombre: "Otra",
+      email: "otra@rumbo.test",
+      rol: "empleado",
+    });
+
+    expect(((await res.json()) as { acceso_redes: boolean }).acceso_redes).toBe(false);
   });
 });

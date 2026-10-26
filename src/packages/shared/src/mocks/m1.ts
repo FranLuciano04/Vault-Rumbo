@@ -3,6 +3,7 @@ import type { Configuracion, Destino, Operador, RequisitoDestino, Usuario } from
 import { asesoresMock } from "./clientes";
 import { respuestaProblema } from "./problema";
 import { normalizarTexto, pagina } from "./utilidades";
+import { anulable, omitible, reglas, requerido, validar } from "./validacion";
 
 /** Columnas de auditoría de ejemplo (DEC-0008): las creó y editó la admin de ejemplo. */
 const auditoria = {
@@ -47,6 +48,24 @@ export const usuariosMock: [Usuario, Usuario, Usuario] = [
     ...auditoria,
   },
 ];
+
+/**
+ * Admin dado de baja: lo ven los handlers (`activo=false` y "el último admin" no lo cuenta), pero
+ * no está en `usuariosMock`, de la que dependen los tests de la web.
+ */
+export const usuarioDeBajaMock: Usuario = {
+  id: "5c8d1f36-2a94-4e07-b3c5-9a0e7d4b6f05",
+  nombre: "Mariano Gómez",
+  email: "mariano@rumbo.test",
+  rol: "admin",
+  activo: false,
+  acceso_redes: false,
+  comision_default_tipo: null,
+  comision_default_valor: null,
+  ...auditoria,
+};
+
+const todosLosUsuarios: Usuario[] = [...usuariosMock, usuarioDeBajaMock];
 
 export const configuracionMock: Configuracion = {
   vigencia_cotizacion_meses: 1,
@@ -203,14 +222,12 @@ export const operadoresMock: [Operador, Operador, Operador] = [
 
 const ROLES = ["admin", "dueno", "empleado", "freelance"];
 const TIPOS_COMISION = ["porcentaje", "importe"];
+const TIPOS_REQUISITO = ["visa", "vacunacion", "documentacion", "seguro", "formulario", "otro"];
 const PATRON_EMAIL = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
 const PATRON_IMPORTE = /^\d{1,12}(\.\d{1,2})?$/;
+const SIN_LIMITE = Number.MAX_SAFE_INTEGER;
 
 type Cuerpo = Record<string, unknown>;
-
-function invalido(detail: string) {
-  return respuestaProblema(422, "Datos inválidos", { detail });
-}
 
 function conflicto(detail: string) {
   return respuestaProblema(409, "Conflicto", { detail });
@@ -230,82 +247,136 @@ async function cuerpoDe(pedido: Request): Promise<Cuerpo> {
   );
 }
 
-/** Texto obligatorio de 1 a `max` caracteres, como `Field(min_length=1, max_length=max)`. */
-const textoValido = (valor: unknown, max: number) =>
-  typeof valor === "string" && valor.length >= 1 && valor.length <= max;
+// Campos de los esquemas de entrada del backend (`presentacion/esquemas`).
+const nombre120 = reglas.texto(1, 120);
+const importe = (valor: unknown) =>
+  (typeof valor === "string" || typeof valor === "number") && PATRON_IMPORTE.test(String(valor))
+    ? null
+    : "Input should be a non-negative decimal with up to 2 decimal places";
 
-/** Listado con `activo` (`null` = sin filtrar si no viene), `buscar` (si se pasa `textos`) y paginación. */
-function listado<T extends { activo: boolean }>(
+const camposUsuarioCrear = {
+  nombre: requerido(nombre120),
+  email: requerido(reglas.patron(PATRON_EMAIL, 254)),
+  rol: requerido(reglas.unoDe(ROLES)),
+  acceso_redes: omitible(reglas.booleano),
+};
+const camposUsuarioEditar = {
+  nombre: omitible(nombre120),
+  rol: omitible(reglas.unoDe(ROLES)),
+  acceso_redes: omitible(reglas.booleano),
+};
+const camposConfiguracion = {
+  vigencia_cotizacion_meses: requerido(reglas.entero(1)),
+  anticipacion_salida_dias: requerido(reglas.entero(0)),
+  recontacto_meses: requerido(reglas.entero(1)),
+};
+const camposComision = {
+  comision_default_tipo: { regla: reglas.unoDe(TIPOS_COMISION), anulable: true },
+  comision_default_valor: { regla: importe, anulable: true },
+};
+const camposDestinoCrear = {
+  nombre: requerido(nombre120),
+  pais: requerido(reglas.texto(1, 80)),
+  region: anulable(reglas.texto(0, 80)),
+  notas: anulable(reglas.texto(0, SIN_LIMITE)),
+};
+const camposDestinoEditar = {
+  ...camposDestinoCrear,
+  nombre: omitible(nombre120),
+  pais: omitible(reglas.texto(1, 80)),
+};
+const camposRequisitoCrear = {
+  nombre: requerido(nombre120),
+  tipo: requerido(reglas.unoDe(TIPOS_REQUISITO)),
+  obligatorio: requerido(reglas.booleano),
+  descripcion: anulable(reglas.texto(0, SIN_LIMITE)),
+  anticipacion_dias: requerido(reglas.entero(0)),
+};
+const camposRequisitoEditar = {
+  nombre: omitible(nombre120),
+  tipo: omitible(reglas.unoDe(TIPOS_REQUISITO)),
+  obligatorio: omitible(reglas.booleano),
+  descripcion: anulable(reglas.texto(0, SIN_LIMITE)),
+  anticipacion_dias: omitible(reglas.entero(0)),
+};
+const camposOperadorCrear = {
+  nombre: requerido(nombre120),
+  contacto: anulable(reglas.texto(0, 200)),
+};
+const camposOperadorEditar = { ...camposOperadorCrear, nombre: omitible(nombre120) };
+
+/** `model_validator` de `ComisionPorDefecto` (CU-13, DEC-0007): tipo y valor van juntos. */
+function comisionIncoherente(c: Cuerpo): string | null {
+  const { comision_default_tipo: tipo, comision_default_valor: valor } = c;
+  if ((tipo === null) !== (valor === null))
+    return "Value error, El tipo y el valor de la comisión van juntos o ninguno.";
+  if (tipo === "porcentaje" && Number(valor) > 100)
+    return "Value error, Un porcentaje de comisión no puede superar 100.";
+  return null;
+}
+
+/** `activo` como lo lee FastAPI: `true`/`1` y `false`/`0`; sin el parámetro, `porDefecto`. */
+function activoDe(url: URL, porDefecto: boolean | null): boolean | null {
+  const valor = url.searchParams.get("activo");
+  if (valor === null) return porDefecto;
+  return valor === "true" || valor === "1";
+}
+
+/**
+ * Listado con `activo` (`porDefecto` si no viene; `null` = sin filtrar), `buscar` (si se pasa
+ * `textos`) y paginación, ordenado por nombre normalizado y después por `id` (`repositorios/base.py`).
+ */
+function listado<T extends { id: string; nombre: string; activo: boolean }>(
   todos: readonly T[],
   url: URL,
   activoPorDefecto: boolean | null,
   textos?: (item: T) => string[],
 ) {
-  const parametro = url.searchParams.get("activo");
-  const activo = parametro === null ? activoPorDefecto : parametro === "true";
+  const activo = activoDe(url, activoPorDefecto);
   const buscar = textos ? normalizarTexto(url.searchParams.get("buscar") ?? "") : "";
+  const clave = (item: T) => normalizarTexto(item.nombre);
   return pagina(
-    todos.filter(
-      (item) =>
-        (activo === null || item.activo === activo) &&
-        (!buscar || textos?.(item).some((texto) => normalizarTexto(texto).includes(buscar))),
-    ),
+    todos
+      .filter(
+        (item) =>
+          (activo === null || item.activo === activo) &&
+          (!buscar || textos?.(item).some((texto) => normalizarTexto(texto).includes(buscar))),
+      )
+      .sort((a, b) => (clave(a) < clave(b) ? -1 : clave(a) > clave(b) ? 1 : a.id < b.id ? -1 : 1)),
     url,
   );
 }
 
-/** El nombre ya lo tiene otra fila (activa o no), sin mayúsculas, tildes ni espacios de más. */
-const nombreRepetido = (
+/**
+ * 409 si otra fila (activa o no) ya tiene el nombre, sin mayúsculas, tildes ni espacios de más;
+ * el texto es el de `_exigir_nombre_libre`. Sin nombre en el cuerpo (un PATCH que no lo toca) no hay choque.
+ */
+function nombreOcupado(
   todos: readonly { id: string; nombre: string }[],
+  etiqueta: string,
   nombre: unknown,
   propioId?: string | readonly string[],
-) =>
-  typeof nombre === "string" &&
-  todos.some((x) => x.id !== propioId && normalizarTexto(x.nombre) === normalizarTexto(nombre));
+) {
+  if (typeof nombre !== "string") return null;
+  const repetido = todos.find(
+    (x) => x.id !== propioId && normalizarTexto(x.nombre) === normalizarTexto(nombre),
+  );
+  return repetido ? conflicto(`Ya existe un ${etiqueta} llamado «${repetido.nombre}».`) : null;
+}
 
-/** Quitar el rol admin o dar de baja al único admin activo dejaría al sistema sin quién lo administre. */
+/**
+ * Quitar el rol admin o dar de baja al único admin activo dejaría al sistema sin quién lo
+ * administre (`_ULTIMO_PROTEGIDO`); un admin dado de baja no cuenta. El mock no modela al actor
+ * ni al rol `dueno`, así que el 403 por tocar a una dueña no se reproduce.
+ */
 const eraUltimoAdmin = (id: string | readonly string[] | undefined) =>
-  usuariosMock.some((u) => u.id === id && u.rol === "admin" && u.activo) &&
-  !usuariosMock.some((u) => u.id !== id && u.rol === "admin" && u.activo);
+  todosLosUsuarios.some((u) => u.id === id && u.rol === "admin" && u.activo) &&
+  !todosLosUsuarios.some((u) => u.id !== id && u.rol === "admin" && u.activo);
 
-const sinUltimoAdmin = () => conflicto("Tiene que quedar al menos un usuario admin activo.");
-
-/** Mismas reglas que `UsuarioCrear`. */
-function errorAltaUsuario(c: Cuerpo): string | null {
-  if (!textoValido(c["nombre"], 120)) return "El nombre es obligatorio (hasta 120 caracteres).";
-  if (!textoValido(c["email"], 254) || !PATRON_EMAIL.test(c["email"] as string))
-    return "El email no es válido.";
-  if (!ROLES.includes(c["rol"] as string)) return "El rol no es válido.";
-  return null;
-}
-
-/** Mismas reglas que `ConfiguracionEditar`: el PUT reemplaza los tres valores. */
-function errorConfiguracion(c: Cuerpo): string | null {
-  const entero = (valor: unknown, minimo: number) =>
-    typeof valor === "number" && Number.isInteger(valor) && valor >= minimo;
-  if (!entero(c["vigencia_cotizacion_meses"], 1)) return "La vigencia debe ser de 1 mes o más.";
-  if (!entero(c["anticipacion_salida_dias"], 0)) return "La anticipación no puede ser negativa.";
-  if (!entero(c["recontacto_meses"], 1)) return "El recontacto debe ser de 1 mes o más.";
-  return null;
-}
-
-/** Mismas reglas que `ComisionPorDefecto`: tipo y valor van juntos, valor ≥ 0 con 2 decimales. */
-function errorComision(c: Cuerpo): string | null {
-  const { comision_default_tipo: tipo, comision_default_valor: valor } = c;
-  if (tipo === undefined || valor === undefined) return "Faltan el tipo y el valor de la comisión.";
-  if (tipo !== null && !TIPOS_COMISION.includes(tipo as string)) return "El tipo no es válido.";
-  if ((tipo === null) !== (valor === null))
-    return "El tipo y el valor de la comisión van juntos o ninguno.";
-  if (valor === null) return null;
-  if (
-    (typeof valor !== "string" && typeof valor !== "number") ||
-    !PATRON_IMPORTE.test(String(valor))
-  )
-    return "El valor debe ser positivo, con hasta 2 decimales.";
-  if (tipo === "porcentaje" && Number(valor) > 100)
-    return "Un porcentaje de comisión no puede superar 100.";
-  return null;
-}
+const sinUltimoAdmin = () =>
+  conflicto(
+    "Es el único administrador activo: asigná otro antes de quitarle el rol o darlo de baja.",
+  );
 
 /** Recurso de ejemplo con el id de la URL; si hay cuerpo (alta o edición), lo superpone. */
 async function recurso<T extends { id: string }>(
@@ -323,22 +394,38 @@ async function recurso<T extends { id: string }>(
 /** Handlers MSW de usuarios y configuración (CU-25, CU-06, CU-13, CU-15, CU-26, CU-31). */
 export const manejadoresM1: RequestHandler[] = [
   // Usuarios
-  http.get("*/api/usuarios", ({ request }) => listado(usuariosMock, new URL(request.url), null)),
+  http.get("*/api/usuarios", ({ request }) =>
+    listado(todosLosUsuarios, new URL(request.url), null),
+  ),
   http.post("*/api/usuarios", async ({ request }) => {
     const cuerpo = await cuerpoDe(request);
-    const error = errorAltaUsuario(cuerpo);
-    if (error) return invalido(error);
+    const rechazo = validar(cuerpo, camposUsuarioCrear);
+    if (rechazo) return rechazo;
     const email = (cuerpo["email"] as string).toLowerCase();
-    if (usuariosMock.some((u) => u.email.toLowerCase() === email))
+    if (todosLosUsuarios.some((u) => u.email.toLowerCase() === email))
       return conflicto("Ya existe un usuario con ese email.");
-    return HttpResponse.json(await recurso(usuariosMock[2], undefined, request), { status: 201 });
+    const alta: Usuario = {
+      ...auditoria,
+      id: crypto.randomUUID(),
+      nombre: cuerpo["nombre"] as string,
+      email,
+      rol: cuerpo["rol"] as Usuario["rol"],
+      activo: true,
+      acceso_redes: (cuerpo["acceso_redes"] as boolean | undefined) ?? false,
+      comision_default_tipo: null,
+      comision_default_valor: null,
+    };
+    return HttpResponse.json(alta, { status: 201 });
   }),
   http.get("*/api/usuarios/asesores", () => HttpResponse.json(asesoresMock())),
   http.get("*/api/usuarios/:usuario_id", async ({ params }) =>
     HttpResponse.json(await recurso(usuariosMock[2], params["usuario_id"])),
   ),
   http.patch("*/api/usuarios/:usuario_id", async ({ params, request }) => {
-    const { rol } = await cuerpoDe(request);
+    const cuerpo = await cuerpoDe(request);
+    const rechazo = validar(cuerpo, camposUsuarioEditar);
+    if (rechazo) return rechazo;
+    const { rol } = cuerpo;
     if (rol !== undefined && rol !== "admin" && eraUltimoAdmin(params["usuario_id"]))
       return sinUltimoAdmin();
     return HttpResponse.json(await recurso(usuariosMock[2], params["usuario_id"], request));
@@ -351,16 +438,16 @@ export const manejadoresM1: RequestHandler[] = [
     });
   }),
   http.put("*/api/usuarios/:usuario_id/comision-por-defecto", async ({ params, request }) => {
-    const error = errorComision(await cuerpoDe(request));
-    if (error) return invalido(error);
+    const rechazo = validar(await cuerpoDe(request), camposComision, comisionIncoherente);
+    if (rechazo) return rechazo;
     return HttpResponse.json(await recurso(usuariosMock[2], params["usuario_id"], request));
   }),
   // Parámetros del negocio
   http.get("*/api/configuracion", () => HttpResponse.json(configuracionMock)),
   http.put("*/api/configuracion", async ({ request }) => {
     const cuerpo = await cuerpoDe(request);
-    const error = errorConfiguracion(cuerpo);
-    if (error) return invalido(error);
+    const rechazo = validar(cuerpo, camposConfiguracion);
+    if (rechazo) return rechazo;
     return HttpResponse.json({ ...configuracionMock, ...(cuerpo as Partial<Configuracion>) });
   }),
   // Destinos y sus requisitos
@@ -368,16 +455,22 @@ export const manejadoresM1: RequestHandler[] = [
     listado(destinosMock, new URL(request.url), true, (d) => [d.nombre, d.pais]),
   ),
   http.post("*/api/destinos", async ({ request }) => {
-    if (nombreRepetido(destinosMock, (await cuerpoDe(request))["nombre"]))
-      return conflicto("Ya existe un destino con ese nombre.");
+    const cuerpo = await cuerpoDe(request);
+    const rechazo =
+      validar(cuerpo, camposDestinoCrear) ??
+      nombreOcupado(destinosMock, "destino", cuerpo["nombre"]);
+    if (rechazo) return rechazo;
     return HttpResponse.json(await recurso(destinosMock[0], undefined, request), { status: 201 });
   }),
   http.get("*/api/destinos/:destino_id", async ({ params }) =>
     HttpResponse.json(await recurso(destinosMock[0], params["destino_id"])),
   ),
   http.patch("*/api/destinos/:destino_id", async ({ params, request }) => {
-    if (nombreRepetido(destinosMock, (await cuerpoDe(request))["nombre"], params["destino_id"]))
-      return conflicto("Ya existe un destino con ese nombre.");
+    const cuerpo = await cuerpoDe(request);
+    const rechazo =
+      validar(cuerpo, camposDestinoEditar) ??
+      nombreOcupado(destinosMock, "destino", cuerpo["nombre"], params["destino_id"]);
+    if (rechazo) return rechazo;
     return HttpResponse.json(await recurso(destinosMock[0], params["destino_id"], request));
   }),
   http.post("*/api/destinos/:destino_id/baja", async ({ params }) =>
@@ -397,18 +490,22 @@ export const manejadoresM1: RequestHandler[] = [
       new URL(request.url),
     ),
   ),
-  http.post("*/api/destinos/:destino_id/requisitos", async ({ params, request }) =>
-    HttpResponse.json(
+  http.post("*/api/destinos/:destino_id/requisitos", async ({ params, request }) => {
+    const rechazo = validar(await cuerpoDe(request), camposRequisitoCrear);
+    if (rechazo) return rechazo;
+    return HttpResponse.json(
       {
         ...(await recurso(requisitosMock[0], undefined, request)),
         destino_id: String(params["destino_id"]),
       },
       { status: 201 },
-    ),
-  ),
-  http.patch("*/api/requisitos-destino/:requisito_id", async ({ params, request }) =>
-    HttpResponse.json(await recurso(requisitosMock[0], params["requisito_id"], request)),
-  ),
+    );
+  }),
+  http.patch("*/api/requisitos-destino/:requisito_id", async ({ params, request }) => {
+    const rechazo = validar(await cuerpoDe(request), camposRequisitoEditar);
+    if (rechazo) return rechazo;
+    return HttpResponse.json(await recurso(requisitosMock[0], params["requisito_id"], request));
+  }),
   http.post("*/api/requisitos-destino/:requisito_id/baja", async ({ params }) =>
     HttpResponse.json({
       ...(await recurso(requisitosMock[0], params["requisito_id"])),
@@ -420,8 +517,11 @@ export const manejadoresM1: RequestHandler[] = [
     listado(operadoresMock, new URL(request.url), true, (o) => [o.nombre]),
   ),
   http.post("*/api/operadores", async ({ request }) => {
-    if (nombreRepetido(operadoresMock, (await cuerpoDe(request))["nombre"]))
-      return conflicto("Ya existe un operador con ese nombre.");
+    const cuerpo = await cuerpoDe(request);
+    const rechazo =
+      validar(cuerpo, camposOperadorCrear) ??
+      nombreOcupado(operadoresMock, "operador", cuerpo["nombre"]);
+    if (rechazo) return rechazo;
     return HttpResponse.json(await recurso(operadoresMock[0], undefined, request), {
       status: 201,
     });
@@ -430,8 +530,11 @@ export const manejadoresM1: RequestHandler[] = [
     HttpResponse.json(await recurso(operadoresMock[0], params["operador_id"])),
   ),
   http.patch("*/api/operadores/:operador_id", async ({ params, request }) => {
-    if (nombreRepetido(operadoresMock, (await cuerpoDe(request))["nombre"], params["operador_id"]))
-      return conflicto("Ya existe un operador con ese nombre.");
+    const cuerpo = await cuerpoDe(request);
+    const rechazo =
+      validar(cuerpo, camposOperadorEditar) ??
+      nombreOcupado(operadoresMock, "operador", cuerpo["nombre"], params["operador_id"]);
+    if (rechazo) return rechazo;
     return HttpResponse.json(await recurso(operadoresMock[0], params["operador_id"], request));
   }),
   http.post("*/api/operadores/:operador_id/baja", async ({ params }) =>
