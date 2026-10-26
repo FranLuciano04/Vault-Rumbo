@@ -119,7 +119,20 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
   - Review (opus) en dos rondas. La primera encontró 1 bloqueante: la lista se cortaba a las 100 alertas, como en la web. La segunda encontró 1 importante: una carrera de «Ver más» con la recarga. Las dos quedaron arregladas.
   - Mobile: 125 tests, con 97,71 % de cobertura.
   - Commits: d6f4a64, edb11b9, b303b81, 835ad2e, 8681deb y 6f3dba0.
-- **Pendiente:** T-058 (posponer desde el detalle en mobile), T-059 (recordatorio en mobile) y el e2e T-060. Después, `/cerrar-modulo M3`.
+- **Desvíos del prototipo:** a pedido de Francisco se crearon T-164, T-165 y T-166 (commit 098d4fa), que salen de lo que aceptaron las reviews de T-055 y T-057. Además, T-060 pasa a depender de T-164 y T-166.
+- **T-164** (PR [#86](https://github.com/FranLuciano04/Vault-Rumbo/pull/86), mergeado con el CI en verde): los totales de la agenda web.
+  - Suma las tarjetas «Atrasadas» y «Para hoy», y cuatro pestañas con contador.
+  - Los contadores respetan los mismos filtros que la lista.
+  - **Falla arreglada (DEC-0019):** con más de 100 atrasadas, la pestaña «Hoy» quedaba vacía. Se agregó el filtro `desde` a `GET /api/alertas`.
+  - Review (opus): 0 bloqueantes y 2 importantes, los dos arreglados.
+  - Commits: b74432e, 38fbcdf, 98d2482, 98d2663, bbd7a90 y 02e2306.
+- **Pendiente en M3:**
+  - T-165: chips en mobile.
+  - T-166: panel de detalle en la web.
+  - T-058: detalle y posponer en mobile.
+  - T-059: recordatorio en mobile.
+  - T-060: e2e.
+  - Después, `/cerrar-modulo M3`.
 
 ## 25/10/26 — Francisco (Claude Opus 5.5) — tres decisiones abiertas cerradas y dos arreglos
 - **Decisiones** (commit 15abf2d):
