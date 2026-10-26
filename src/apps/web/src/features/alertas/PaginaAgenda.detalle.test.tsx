@@ -79,13 +79,18 @@ function servirRequisitos(pedidosRequisitos: string[] = [], items = requisitosMo
       const url = new URL(request.url);
       const estado = url.searchParams.get("estado") ?? "pendiente";
       const filtradas = alertasMock.filter(
-        (a) => a.estado === estado && a.fecha <= "2026-10-25" && url.searchParams.get("proximas") !== "true",
+        (a) =>
+          a.estado === estado &&
+          a.fecha <= "2026-10-25" &&
+          url.searchParams.get("proximas") !== "true",
       );
       return HttpResponse.json(pagina(filtradas.map(conDestino)));
     }),
     http.get("*/api/alertas/:id", ({ params }) => {
       const alerta = alertasMock.find((a) => a.id === params["id"]);
-      return alerta ? HttpResponse.json(conDestino(alerta)) : HttpResponse.json({}, { status: 404 });
+      return alerta
+        ? HttpResponse.json(conDestino(alerta))
+        : HttpResponse.json({}, { status: 404 });
     }),
     http.get("*/api/viajes/:viaje_id", ({ params }) => {
       viajesPedidos.push(String(params["viaje_id"]));
@@ -160,7 +165,7 @@ describe("RF-075 detalle de la alerta", () => {
     const { panel } = await abrirDetalle(PAGO);
 
     expect(await within(panel).findByText(/\$ 450\.000,00/)).toBeInTheDocument();
-    expect(within(panel).getByText(/23\/10\/26/)).toBeInTheDocument();
+    expect(within(panel).getByText(/vence 23\/10\/26/)).toBeInTheDocument();
   });
 
   it("RF-075 un pago en dólares muestra el importe en US$", async () => {
@@ -168,7 +173,10 @@ describe("RF-075 detalle de la alerta", () => {
     if (!pago?.contexto.pago) throw new Error("falta el pago del mock");
     const enDolares = conDestino({
       ...pago,
-      contexto: { ...pago.contexto, pago: { ...pago.contexto.pago, moneda: "USD", monto: "1500.00" } },
+      contexto: {
+        ...pago.contexto,
+        pago: { ...pago.contexto.pago, moneda: "USD", monto: "1500.00" },
+      },
     });
     servirRequisitos();
     servidor.use(
@@ -295,7 +303,10 @@ describe("RF-076 acciones desde el detalle", () => {
   function registrarPost(accion: "resolver" | "posponer" | "vista", pedidos: unknown[]) {
     return http.post(`*/api/alertas/:id/${accion}`, async ({ params, request }) => {
       const texto = await request.text();
-      pedidos.push({ id: String(params["id"]), cuerpo: texto ? (JSON.parse(texto) as unknown) : null });
+      pedidos.push({
+        id: String(params["id"]),
+        cuerpo: texto ? (JSON.parse(texto) as unknown) : null,
+      });
       const alerta = alertasMock.find((a) => a.id === params["id"]);
       return HttpResponse.json({ ...alerta, estado: accion === "vista" ? "vista" : "resuelta" });
     });
@@ -383,7 +394,12 @@ describe("RF-076 acciones desde el detalle", () => {
     servidor.use(
       http.post("*/api/alertas/:id/posponer", () =>
         HttpResponse.json(
-          { type: "about:blank", title: "Datos inválidos", status: 422, detail: "Fecha no válida del servidor." },
+          {
+            type: "about:blank",
+            title: "Datos inválidos",
+            status: 422,
+            detail: "Fecha no válida del servidor.",
+          },
           { status: 422, headers: { "Content-Type": "application/problem+json" } },
         ),
       ),
@@ -411,6 +427,44 @@ describe("RF-076 acciones desde el detalle", () => {
     await waitFor(() => {
       expect(pedidos).toEqual([{ id: ID_FORMULARIO, cuerpo: null }]);
     });
+  });
+
+  it("RF-076 al resolver desde el panel el foco pasa al «Deshacer» del aviso", async () => {
+    servidor.use(registrarPost("resolver", []));
+    servirRequisitos();
+    renderAgenda();
+    const { usuario, panel } = await abrirDetalle(FORMULARIO);
+
+    await usuario.click(await within(panel).findByRole("button", { name: /^resolver/i }));
+
+    expect(await screen.findByRole("button", { name: /deshacer/i })).toHaveFocus();
+    expect(screen.queryByRole("dialog", { name: /detalle de la alerta/i })).not.toBeInTheDocument();
+  });
+
+  it("RF-076 al marcar como vista desde el panel el foco queda en «Cerrar»", async () => {
+    servidor.use(registrarPost("vista", []));
+    servirRequisitos();
+    renderAgenda();
+    const { usuario, panel } = await abrirDetalle(FORMULARIO);
+
+    await usuario.click(await within(panel).findByRole("button", { name: /^marcar como vista/i }));
+
+    await waitFor(() => {
+      expect(within(panel).getByRole("button", { name: /cerrar/i })).toHaveFocus();
+    });
+  });
+
+  it("RF-076 Escape con el formulario de posponer abierto cierra solo el formulario", async () => {
+    servirRequisitos();
+    renderAgenda();
+    const { usuario, panel } = await abrirDetalle(FORMULARIO);
+    await usuario.click(await within(panel).findByRole("button", { name: /^posponer/i }));
+    await usuario.type(await within(panel).findByLabelText(/nueva fecha/i), "2026-10-30");
+
+    await usuario.keyboard("{Escape}");
+
+    expect(within(panel).queryByLabelText(/nueva fecha/i)).not.toBeInTheDocument();
+    expect(screen.getByRole("dialog", { name: /detalle de la alerta/i })).toBeInTheDocument();
   });
 
   it("RF-076 una alerta vista no ofrece posponer ni marcar como vista, pero sí resolver", async () => {

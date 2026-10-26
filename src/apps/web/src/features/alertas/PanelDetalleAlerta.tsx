@@ -1,17 +1,18 @@
 import {
+  datosDeContexto,
+  ETIQUETA_ESTADO_ALERTA,
   ETIQUETA_ESTADO_VIAJE,
   ETIQUETA_TIPO_ALERTA,
   formatearFecha,
-  formatearImporte,
   type Alerta,
 } from "@rumbo/shared";
 import { useAlerta, useRequisitosDestino } from "@rumbo/shared/hooks";
 import type { AxiosInstance } from "axios";
 import { X } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type KeyboardEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { mensajeDeError } from "@/lib/errores";
-import { FormularioPosponer } from "./FilaAlerta";
+import { FormularioPosponer } from "./FormularioPosponer";
 
 const POR_PAGINA_REQUISITOS = 100;
 
@@ -69,6 +70,8 @@ function Contenido({
   alResolver,
   alMarcarVista,
   marcandoVista,
+  posponiendo,
+  setPosponiendo,
 }: {
   cliente: AxiosInstance;
   alerta: Alerta;
@@ -76,21 +79,13 @@ function Contenido({
   alResolver: () => void;
   alMarcarVista: () => void;
   marcandoVista: boolean;
+  posponiendo: boolean;
+  setPosponiendo: (posponiendo: boolean) => void;
 }) {
-  const [posponiendo, setPosponiendo] = useState(false);
-  const { viaje, cliente: clienteDeOrigen, oportunidad, pago } = alerta.contexto;
+  const { viaje } = alerta.contexto;
   const esPago = alerta.tipo === "pago";
-  const datos = [
-    clienteDeOrigen && { etiqueta: "Cliente", valor: clienteDeOrigen.nombre },
-    oportunidad && { etiqueta: "Oportunidad", valor: oportunidad.destino_consultado },
-    pago && {
-      etiqueta: "Importe",
-      valor:
-        formatearImporte(pago.monto, pago.moneda) +
-        // La alerta de un pago cae en su vencimiento: solo se aclara si se pospuso.
-        (pago.vencimiento === alerta.fecha ? "" : ` · vence ${formatearFecha(pago.vencimiento)}`),
-    },
-  ].filter((dato) => dato !== null);
+  // El viaje se arma aparte: el panel lo muestra con fechas y estado.
+  const datos = datosDeContexto(alerta).filter(({ etiqueta }) => etiqueta !== "Viaje");
   return (
     <div className="flex flex-col gap-4">
       <div>
@@ -100,7 +95,7 @@ function Contenido({
         <p className="text-lg font-medium">{alerta.descripcion}</p>
         <p className="mt-1 flex gap-3 text-sm text-muted-foreground">
           <span>{formatearFecha(alerta.fecha)}</span>
-          <span className="capitalize">{alerta.estado}</span>
+          <span>{ETIQUETA_ESTADO_ALERTA[alerta.estado]}</span>
         </p>
       </div>
       {viaje && (
@@ -183,22 +178,39 @@ export function PanelDetalleAlerta({
   marcandoVista: boolean;
 }) {
   const detalle = useAlerta(cliente, alertaId);
+  const [posponiendo, setPosponiendo] = useState(false);
   const cerrar = useRef<HTMLButtonElement>(null);
+  const panel = useRef<HTMLElement>(null);
   useEffect(() => {
     cerrar.current?.focus();
   }, []);
-  useEffect(() => {
-    const alPresionar = (e: KeyboardEvent) => {
-      if (e.key === "Escape") alCerrar();
-    };
-    document.addEventListener("keydown", alPresionar);
-    return () => {
-      document.removeEventListener("keydown", alPresionar);
-    };
-  }, [alCerrar]);
+  // Escape cierra primero el formulario de posponer; la trampa de foco mantiene Tab dentro.
+  const alTeclear = (e: KeyboardEvent) => {
+    if (e.key === "Escape") {
+      if (posponiendo) setPosponiendo(false);
+      else alCerrar();
+      return;
+    }
+    if (e.key !== "Tab" || !panel.current) return;
+    const foco = [
+      ...panel.current.querySelectorAll<HTMLElement>("button:not(:disabled), input:not(:disabled)"),
+    ];
+    const primero = foco[0];
+    const ultimo = foco[foco.length - 1];
+    if (e.shiftKey && document.activeElement === primero) {
+      e.preventDefault();
+      ultimo?.focus();
+    } else if (!e.shiftKey && document.activeElement === ultimo) {
+      e.preventDefault();
+      primero?.focus();
+    }
+  };
   return (
     <aside
+      ref={panel}
       role="dialog"
+      aria-modal="true"
+      onKeyDown={alTeclear}
       aria-label="Detalle de la alerta"
       className="fixed inset-y-0 right-0 z-40 flex w-full max-w-md flex-col gap-4 overflow-y-auto border-l bg-background p-6 shadow-lg"
     >
@@ -223,8 +235,12 @@ export function PanelDetalleAlerta({
             alResolver(detalle.data);
           }}
           alMarcarVista={() => {
+            // El botón se desmonta al pasar a «vista»: el foco queda en «Cerrar».
+            cerrar.current?.focus();
             alMarcarVista(detalle.data);
           }}
+          posponiendo={posponiendo}
+          setPosponiendo={setPosponiendo}
           marcandoVista={marcandoVista}
         />
       )}

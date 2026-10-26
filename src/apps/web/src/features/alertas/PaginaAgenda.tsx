@@ -8,7 +8,7 @@ import {
 import { useAlertas, useMarcarAlertaVista, useProgresoDelDia } from "@rumbo/shared/hooks";
 import type { AxiosInstance } from "axios";
 import { Check, Plus } from "lucide-react";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { mensajeDeError } from "@/lib/errores";
 import { useVolverFoco } from "@/lib/useVolverFoco";
@@ -132,20 +132,23 @@ export function PaginaAgenda({
   // `null` = formulario cerrado; `{}` = alta; `{ alerta }` = edición de un recordatorio.
   const [recordatorio, setRecordatorio] = useState<{ alerta?: Alerta } | null>(null);
   const [aviso, setAviso] = useState<string | null>(null);
-  const foco = useVolverFoco();
+  const focoRecordatorio = useVolverFoco();
+  const focoDetalle = useVolverFoco();
+  // Id de la alerta resuelta desde el panel: su «Deshacer» recibe el foco al aparecer.
+  const enfocarDeshacer = useRef<string | null>(null);
   const abrirRecordatorio = (abierto: { alerta?: Alerta }) => {
-    foco.recordar();
+    focoRecordatorio.recordar();
     setAviso(null);
     setRecordatorio(abierto);
   };
   const cerrarRecordatorio = () => {
     setRecordatorio(null);
-    foco.volver();
+    focoRecordatorio.volver();
   };
   const [detalleId, setDetalleId] = useState<string | null>(null);
   const cerrarDetalle = () => {
     setDetalleId(null);
-    foco.volver();
+    focoDetalle.volver();
   };
   const filtros = {
     por_pagina: POR_PAGINA,
@@ -209,7 +212,7 @@ export function PaginaAgenda({
       abrirRecordatorio({ alerta });
     },
     alVerDetalle: (alerta) => {
-      foco.recordar();
+      focoDetalle.recordar();
       setDetalleId(alerta.id);
     },
   };
@@ -519,6 +522,9 @@ export function PaginaAgenda({
           hoy={hoy}
           alCerrar={cerrarDetalle}
           alResolver={(alerta) => {
+            // La fila desaparece: el foco pasa al «Deshacer» del aviso.
+            enfocarDeshacer.current = alerta.id;
+            focoDetalle.olvidar();
             resolver(alerta);
             setDetalleId(null);
           }}
@@ -548,6 +554,12 @@ export function PaginaAgenda({
                 variant="outline"
                 className="text-foreground"
                 aria-label={`Deshacer: ${alerta.descripcion}`}
+                ref={(boton) => {
+                  if (boton && enfocarDeshacer.current === alerta.id) {
+                    enfocarDeshacer.current = null;
+                    boton.focus();
+                  }
+                }}
                 onClick={() => {
                   deshacer(alerta.id);
                 }}
