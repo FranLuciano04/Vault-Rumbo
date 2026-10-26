@@ -4,7 +4,7 @@ titulo: Probar de punta a punta la agenda de alertas
 modulo: M3 — Alertas
 capa: e2e
 estado: libre
-depende_de: [T-053, T-054, T-055, T-056, T-025]
+depende_de: [T-053, T-054, T-055, T-056, T-025, T-164, T-166]
 tamaño: S
 riesgo: normal
 modelo_tests: sonnet
