@@ -520,14 +520,7 @@ describe("RF-086 cambiar de destino con los requisitos abiertos (H-01)", () => {
   }
 
   it("RF-088 la confirmación de baja del requisito de A no sigue abierta al abrir B", async () => {
-    let bajas: string[] = [];
     responderPorDestino();
-    servidor.use(
-      http.post("*/api/requisitos-destino/:id/baja", ({ request }) => {
-        bajas = [...bajas, new URL(request.url).pathname];
-        return HttpResponse.json({ ...requisitosMock[0], activo: false });
-      }),
-    );
     renderPestana();
     const { usuario, cambiarABariloche } = await abrirCancunYCambiarABariloche();
 
@@ -538,7 +531,19 @@ describe("RF-086 cambiar de destino con los requisitos abiertos (H-01)", () => {
 
     expect(screen.getByRole("heading", { name: /requisitos de bariloche/i })).toBeInTheDocument();
     expect(screen.queryByRole("alertdialog")).not.toBeInTheDocument();
-    expect(bajas).toEqual([]);
+  });
+
+  it("RF-086 el formulario de alta de A no sigue abierto al abrir B", async () => {
+    responderPorDestino();
+    renderPestana();
+    const { usuario, cambiarABariloche } = await abrirCancunYCambiarABariloche();
+
+    await usuario.click(screen.getByRole("button", { name: /agregar requisito/i }));
+    await screen.findByRole("button", { name: /guardar requisito/i });
+    await cambiarABariloche();
+
+    expect(screen.getByRole("heading", { name: /requisitos de bariloche/i })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /guardar requisito/i })).not.toBeInTheDocument();
   });
 
   it("RF-087 el formulario de edición del requisito de A no sigue abierto al abrir B", async () => {

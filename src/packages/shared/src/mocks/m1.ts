@@ -169,6 +169,19 @@ export const requisitosMock: [RequisitoDestino, RequisitoDestino] = [
   },
 ];
 
+/** Requisito de un destino distinto de Cancún: el listado por destino no lo mezcla con los demás. */
+export const requisitoOtroDestinoMock: RequisitoDestino = {
+  id: "d4f1e8a2-7b53-4a96-8c0e-5e2a9b7d1c99",
+  destino_id: destinosMock[2].id,
+  nombre: "Vacuna de fiebre amarilla",
+  tipo: "vacunacion",
+  obligatorio: true,
+  descripcion: null,
+  anticipacion_dias: 10,
+  activo: true,
+  ...auditoria,
+};
+
 export const operadoresMock: [Operador, Operador, Operador] = [
   {
     id: "1e5c8a72-9d34-4b06-a2f7-3a6b8c0d1e66",
@@ -263,7 +276,11 @@ export const manejadoresM1: RequestHandler[] = [
   ),
   http.get("*/api/destinos/:destino_id/requisitos", ({ params }) =>
     HttpResponse.json(
-      pagina(requisitosMock.filter((requisito) => requisito.destino_id === params["destino_id"])),
+      pagina(
+        [...requisitosMock, requisitoOtroDestinoMock].filter(
+          (requisito) => requisito.destino_id === params["destino_id"],
+        ),
+      ),
     ),
   ),
   http.post("*/api/destinos/:destino_id/requisitos", async ({ params, request }) =>
