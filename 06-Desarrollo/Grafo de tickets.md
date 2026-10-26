@@ -18,7 +18,7 @@ tags:: #tipo/referencia
 | M1 — Usuarios y configuración | 19 | 19 | 0 | 0 | 0 | 0 | 🔍 listo para la review |
 | M2 — Clientes | 15 | 15 | 0 | 0 | 0 | 0 | 🔍 listo para la review |
 | M3 — Alertas | 14 | 11 | 0 | 3 | 0 | 0 | 🛠️ en curso |
-| M4 — Oportunidades y cotizaciones | 14 | 0 | 0 | 1 | 13 | 0 | 🛠️ en curso |
+| M4 — Oportunidades y cotizaciones | 14 | 0 | 1 | 0 | 13 | 0 | 🛠️ en curso |
 | M5 — Hoteles y reseñas | 11 | 0 | 0 | 1 | 10 | 0 | 🛠️ en curso |
 | M6 — Viajes y economía | 24 | 1 | 0 | 3 | 20 | 0 | 🛠️ en curso |
 | M7 — Proceso diario y CRM proactivo | 9 | 0 | 0 | 2 | 7 | 0 | 🛠️ en curso |
@@ -127,7 +127,7 @@ flowchart LR
     T166["T-166 · Mostrar el detalle de la alerta en un panel lateral de la agenda web<br/><small>web</small>"]:::hecho
   end
   subgraph M4["M4 — Oportunidades y cotizaciones"]
-    T061["T-061 · Publicar el contrato de oportunidades y cotizaciones<br/><small>contrato</small>"]:::disponible
+    T061["T-061 · Publicar el contrato de oportunidades y cotizaciones<br/><small>contrato</small><br/>👤 palomap2003"]:::tomado
     T062["T-062 · Registrar una consulta como oportunidad<br/><small>backend</small>"]:::esperando
     T063["T-063 · Listar las oportunidades del embudo<br/><small>backend</small>"]:::esperando
     T064["T-064 · Implementar los estados de la oportunidad<br/><small>backend · ⚠️ riesgo alto</small>"]:::esperando

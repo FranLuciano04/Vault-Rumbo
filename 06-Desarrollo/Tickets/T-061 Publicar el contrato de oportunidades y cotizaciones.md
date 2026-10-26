@@ -3,7 +3,7 @@ id: T-061
 titulo: Publicar el contrato de oportunidades y cotizaciones
 modulo: M4 — Oportunidades y cotizaciones
 capa: contrato
-estado: libre
+estado: tomado
 depende_de: [T-015]
 tamaño: M
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [CU-04, CU-05, CU-06, DEC-0002]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: palomap2003
+tomado_el: 26/10/26 12:37
+rama: feature/T-061-publicar-el-contrato-de-oportunidades-y
 pr:
 ---
 # T-061 Publicar el contrato de oportunidades y cotizaciones
