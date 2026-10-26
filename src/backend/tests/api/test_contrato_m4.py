@@ -547,6 +547,11 @@ async def test_cu05_con_token_de_cualquier_rol_responde_501_problem_json(
             f"/api/oportunidades/{ID}/cotizaciones",
             {**COTIZACION, "items": [{"concepto": "Aéreo", "precio": "mucho"}]},
         ),
+        (
+            "post",
+            f"/api/oportunidades/{ID}/cotizaciones",
+            {**COTIZACION, "items": [{"concepto": "   ", "precio": "850000.00"}]},
+        ),
     ],
 )
 async def test_cu05_cuerpo_invalido_responde_422(

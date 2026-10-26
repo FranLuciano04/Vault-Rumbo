@@ -19,7 +19,7 @@ export interface FiltrosClientes {
   por_pagina?: number;
 }
 
-const claveClientes = ["clientes"] as const;
+export const claveClientes = ["clientes"] as const;
 
 /** Búsqueda paginada de clientes (`GET /api/clientes`, CU-03). */
 export function useClientes(cliente: AxiosInstance, filtros?: FiltrosClientes) {

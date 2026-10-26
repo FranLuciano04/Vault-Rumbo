@@ -4271,7 +4271,7 @@
           "oportunidades"
         ],
         "summary": "Reactivar una oportunidad perdida",
-        "description": "**Roles:** admin, dueno, empleado, freelance.\n\n**Visibilidad:** freelance, solo lo propio (DEC-0008).\n\n**Escritura:** el responsable del registro, o admin o dueño (DEC-0005).\n\n**Casos de uso:** CU-05.",
+        "description": "Vuelve a «en gestión» y limpia el motivo de pérdida (CU-05 A3).\n\n**Roles:** admin, dueno, empleado, freelance.\n\n**Visibilidad:** freelance, solo lo propio (DEC-0008).\n\n**Escritura:** el responsable del registro, o admin o dueño (DEC-0005).\n\n**Casos de uso:** CU-05.",
         "operationId": "reactivar_oportunidad",
         "security": [
           {

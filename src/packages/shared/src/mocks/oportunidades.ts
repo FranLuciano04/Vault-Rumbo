@@ -298,7 +298,7 @@ export const manejadoresOportunidades: RequestHandler[] = [
   }),
 
   transicion("en-gestion", ["nueva"], "en_gestion"),
-  transicion("reactivar", ["perdida"], "nueva", {
+  transicion("reactivar", ["perdida"], "en_gestion", {
     motivo_perdida: null,
     motivo_perdida_detalle: null,
   }),

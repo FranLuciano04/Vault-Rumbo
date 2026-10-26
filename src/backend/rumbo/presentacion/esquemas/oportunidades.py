@@ -4,7 +4,7 @@ CU-05, CU-06, DEC-0006, DEC-0007, DEC-0013)."""
 import uuid
 from datetime import date
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import ConfigDict, Field
 from pydantic.json_schema import JsonDict
 
 from rumbo.datos.modelos import (
@@ -91,7 +91,7 @@ class Insistencia(Entrada):
     descripcion: str = Field(min_length=1)
 
 
-class ItemCotizacion(BaseModel):
+class ItemCotizacion(Entrada):
     concepto: str = Field(min_length=1, description="Aéreo, alojamiento, traslados, excursiones…")
     precio: Importe
 

@@ -14,6 +14,7 @@ import type {
   Pagina,
 } from "../modelos";
 import { claveAlertas } from "./alertas";
+import { claveClientes } from "./clientes";
 import { useAccion } from "./useAccion";
 
 export const claveOportunidades = ["oportunidades"] as const;
@@ -45,6 +46,8 @@ export function useRegistrarConsulta(cliente: AxiosInstance) {
     claveOportunidades,
     async (datos: OportunidadCrear) =>
       (await cliente.post<Oportunidad>("/api/oportunidades", datos)).data,
+    // CU-30 resuelve la alerta de recontacto; la ficha del cliente cuenta sus oportunidades.
+    [claveAlertas, claveClientes],
   );
 }
 
@@ -132,7 +135,7 @@ export function useEmitirCotizacion(cliente: AxiosInstance) {
     async ({ oportunidadId, datos }: { oportunidadId: string; datos: CotizacionCrear }) =>
       (await cliente.post<Cotizacion>(`/api/oportunidades/${oportunidadId}/cotizaciones`, datos))
         .data,
-    // La oportunidad pasa a cotizada.
+    // La oportunidad pasa a cotizada recién al marcar la cotización como enviada (EST-Cotización T2).
     [claveOportunidades],
   );
 }

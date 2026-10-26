@@ -50,6 +50,11 @@ _DOCUMENTO["responses"][200] = {
     "description": "Documento para enviar al cliente.",
     "content": {"application/pdf": {"schema": {"type": "string", "format": "binary"}}},
 }
+_REACTIVAR = operacion_de_registro(403, 404, 409, casos_de_uso="CU-05")
+_REACTIVAR["description"] = (
+    "Vuelve a «en gestión» y limpia el motivo de pérdida (CU-05 A3).\n\n"
+    + _REACTIVAR["description"]
+)
 
 
 @router.get(
@@ -134,7 +139,7 @@ async def perder_oportunidad(oportunidad_id: uuid.UUID, datos: OportunidadPerder
     "/oportunidades/{oportunidad_id}/reactivar",
     operation_id="reactivar_oportunidad",
     summary="Reactivar una oportunidad perdida",
-    **operacion_de_registro(403, 404, 409, casos_de_uso="CU-05"),
+    **_REACTIVAR,
 )
 async def reactivar_oportunidad(oportunidad_id: uuid.UUID) -> Oportunidad:
     raise no_implementado()

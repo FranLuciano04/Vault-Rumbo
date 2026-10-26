@@ -874,7 +874,9 @@ export interface paths {
         put?: never;
         /**
          * Reactivar una oportunidad perdida
-         * @description **Roles:** admin, dueno, empleado, freelance.
+         * @description Vuelve a «en gestión» y limpia el motivo de pérdida (CU-05 A3).
+         *
+         *     **Roles:** admin, dueno, empleado, freelance.
          *
          *     **Visibilidad:** freelance, solo lo propio (DEC-0008).
          *
