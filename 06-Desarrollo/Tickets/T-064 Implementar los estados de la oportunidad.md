@@ -3,7 +3,7 @@ id: T-064
 titulo: Implementar los estados de la oportunidad
 modulo: M4 — Oportunidades y cotizaciones
 capa: backend
-estado: libre
+estado: tomado
 depende_de: [T-063]
 tamaño: M
 riesgo: alto
@@ -12,9 +12,9 @@ modelo_impl: opus
 modelo_review: sonnet
 trazabilidad: [CU-05, RF-016, RF-017, RF-020, DEC-0002]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: palomap2003
+tomado_el: 26/10/26 18:07
+rama: feature/T-064-implementar-los-estados-de-la-oportunida
 pr:
 ---
 # T-064 Implementar los estados de la oportunidad
