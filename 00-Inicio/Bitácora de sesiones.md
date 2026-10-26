@@ -24,6 +24,12 @@ La **persona** de cada sesión es quien la corre, identificada por su identidad 
 ## Avisos pendientes por persona
 > Claude los lee al identificar a la persona (paso 1 de `CLAUDE.md`) y se los cuenta **apenas la saluda**, antes de cualquier otra tarea. Cuando la persona confirme que lo leyó o que lo hizo, **Claude borra su fila** en esa misma sesión, con un commit. Cuando no quede ninguna fila de alguien, se borra también su sección.
 
+### Francisco (`FranLucianoo`) y Nahuel (`Nahuel Viniegra`) — aprobar el PR #94 (T-064, riesgo alto)
+- **26/10, de Paloma:** el PR [#94](https://github.com/FranLuciano04/Vault-Rumbo/pull/94) (estados de la oportunidad) tiene el CI en verde y necesita la aprobación de uno de ustedes para mergearse.
+  - Revisen sobre todo `tests/api/test_oportunidades_concurrencia.py`. Es el primer test del repo que hace commit real en la base de tests y borra lo que crea en un `finally`.
+  - Reactivar una oportunidad no reabre las alertas que se cerraron al perderla. Si lo quieren, es una regla nueva.
+  - Cuando uno apruebe, Paloma (o quien siga) corre `/implementar-ticket T-064` y lo mergea.
+
 ### Nahuel (`Nahuel Viniegra`) — cerrar M1 y M2 con la review de Codex
 - **25/10, de Francisco: M1 y M2 tienen todos sus tickets hechos y mergeados** (`tickets.mjs modulo M1` y `modulo M2` dan ✅). Falta el cierre formal, que hacés vos porque te encargás de las reviews con Codex:
   - Correr `/cerrar-modulo M1` y `/cerrar-modulo M2`, que arman el pedido de review para Codex.
@@ -63,6 +69,16 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Commits:** <hash>, <hash>
 - **Pendiente:** …
 ```
+
+## 26/10/26 — Paloma (Claude Opus 5.5) — T-064: estados de la oportunidad (PR abierto)
+- **T-064** (PR [#94](https://github.com/FranLuciano04/Vault-Rumbo/pull/94), CI en verde; ⚠️ riesgo alto: **espera la aprobación** de Francisco o Nahuel).
+  - **Acciones:** en gestión, perder (con motivo), reactivar (vuelve a `en_gestion`) y ganar (desde `nueva`, `en_gestion` o `cotizada`). Una transición inválida da 409.
+  - **Orden de los chequeos:** 404, después 403 y al final 409. Perder y ganar resuelven las alertas del origen, sin tocar las `manual` (RN-08).
+  - **Review de seguridad (sonnet):** 0 bloqueantes, 1 importante y 2 menores, todos arreglados. El importante: faltaba el test del orden 403 antes de 409.
+  - **Hallazgo de concurrencia:** perder y ganar en paralelo daban 500. Ahora las transiciones y el PATCH leen con `with_for_update`. Hay un test con conexiones reales.
+  - **Backend:** 1661 tests, con 98,89 % de cobertura en `negocio/` y 97,40 % en total.
+  - **Commits:** e75c619, 574910d, eec21d1, 245bffe y 748b321.
+- **Pendiente:** la aprobación del PR #94 y su merge (aviso arriba). Reactivar no reabre las alertas cerradas al perder; si el equipo lo quiere, es una regla nueva.
 
 ## 26/10/26 — Paloma (Claude Opus 5.5) — T-063: embudo de oportunidades
 - **T-063** (PR [#92](https://github.com/FranLuciano04/Vault-Rumbo/pull/92), mergeado con el CI en verde): el listado, el detalle y el PATCH de oportunidades.
