@@ -139,7 +139,7 @@ export function FormularioCliente({
       return;
     }
     try {
-      await editar.mutateAsync({ id: ficha.id, cambios });
+      await editar.mutateAsync({ id: fichaAlAbrir.id, cambios });
       alTerminar(true);
     } catch (falla) {
       setError(aplicarErroresDelServidor(falla, CAMPOS, formulario.setError));
@@ -188,7 +188,11 @@ export function FormularioCliente({
         )}
       </CampoFormulario>
       {conAsesor && (
-        <SelectorAsesor cliente={cliente} actual={ficha.asesor} control={formulario.control} />
+        <SelectorAsesor
+          cliente={cliente}
+          actual={fichaAlAbrir.asesor}
+          control={formulario.control}
+        />
       )}
       {error && (
         <p role="alert" className="text-sm font-medium text-destructive">
