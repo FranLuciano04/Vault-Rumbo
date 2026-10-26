@@ -3,7 +3,7 @@ id: T-059
 titulo: Crear un recordatorio manual desde la app mobile
 modulo: M3 — Alertas
 capa: mobile
-estado: libre
+estado: tomado
 depende_de: [T-057]
 tamaño: S
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [CU-28, RF-080]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: palomap2003
+tomado_el: 26/10/26 20:20
+rama: feature/T-059-crear-un-recordatorio-manual-desde-la-ap
 pr:
 ---
 # T-059 Crear un recordatorio manual desde la app mobile
