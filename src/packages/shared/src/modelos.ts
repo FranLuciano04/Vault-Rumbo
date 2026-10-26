@@ -46,6 +46,8 @@ export interface FiltrosListado {
 
 /** Filtros de la agenda (`GET /api/alertas`, CU-14): sin ellos, las propias pendientes hasta hoy (admin y dueño, las de toda la agencia). */
 export interface FiltrosAlertas {
+  /** Inicio del período (inclusive), `aaaa-mm-dd`: con `hasta` igual se pide un solo día. */
+  desde?: string;
   /** Fin del período, `aaaa-mm-dd`. */
   hasta?: string;
   estado?: EstadoAlerta;

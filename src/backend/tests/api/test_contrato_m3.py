@@ -90,12 +90,14 @@ async def test_cu14_listar_publica_filtros_y_paginacion(contrato: dict[str, Any]
     assert {
         "pagina",
         "por_pagina",
+        "desde",
         "hasta",
         "estado",
         "tipo",
         "proximas",
         "propietario_id",
     } <= set(parametros)
+    assert {"type": "string", "format": "date"} in parametros["desde"]["schema"]["anyOf"]
     assert parametros["por_pagina"]["schema"]["maximum"] == 100
     assert parametros["pagina"]["schema"]["minimum"] == 1
     assert parametros["proximas"]["schema"]["type"] == "boolean"

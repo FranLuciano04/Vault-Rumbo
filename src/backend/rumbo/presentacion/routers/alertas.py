@@ -116,6 +116,13 @@ async def listar_alertas(
     paginacion: PaginaDep,
     actor: ActorDep,
     sesion: SesionDep,
+    desde: Annotated[
+        date | None,
+        Query(
+            description="Piso de fecha inclusive (`fecha >= desde`), combinable con `hasta` y "
+            "`proximas`. Con `desde` y `hasta` iguales se lista un solo día."
+        ),
+    ] = None,
     hasta: Annotated[
         date | None,
         Query(
@@ -147,6 +154,7 @@ async def listar_alertas(
         proximas=proximas,
         estado=estado,
         tipo=tipo,
+        desde=desde,
         hasta=hasta,
         propietario_id=propietario_id,
         desplazamiento=paginacion.desplazamiento,

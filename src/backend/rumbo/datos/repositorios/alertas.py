@@ -168,6 +168,7 @@ class RepositorioAlertas(RepositorioBase[Alerta]):
         proximas: bool,
         estado: EstadoAlerta,
         tipo: TipoAlerta | None,
+        desde: date | None,
         hasta: date | None,
         propietario_id: uuid.UUID | None,
         desplazamiento: int,
@@ -180,6 +181,8 @@ class RepositorioAlertas(RepositorioBase[Alerta]):
         consulta = consulta.where(Alerta.fecha > hoy if proximas else Alerta.fecha <= hoy)
         if tipo is not None:
             consulta = consulta.where(Alerta.tipo == tipo)
+        if desde is not None:
+            consulta = consulta.where(Alerta.fecha >= desde)
         if hasta is not None:
             consulta = consulta.where(Alerta.fecha <= hasta)
         if propietario_id is not None:

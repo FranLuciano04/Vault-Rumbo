@@ -18,12 +18,39 @@ import { FilaAlerta } from "./FilaAlerta";
 import { FormularioRecordatorio } from "./FormularioRecordatorio";
 import { useResolverConDeshacer } from "./useResolverConDeshacer";
 import { avisoRecordatorio } from "./avisoRecordatorio";
+import { diaAnterior, useTotalesAgenda } from "./useTotalesAgenda";
+
+type Pestana = "todas" | "atrasadas" | "hoy" | "proximas";
+
+const PESTANAS: { clave: Pestana; etiqueta: string }[] = [
+  { clave: "todas", etiqueta: "Todas" },
+  { clave: "atrasadas", etiqueta: "Atrasadas" },
+  { clave: "hoy", etiqueta: "Hoy" },
+  { clave: "proximas", etiqueta: "Próximas" },
+];
 
 const TIPOS = Object.keys(ETIQUETA_TIPO_ALERTA) as TipoAlerta[];
 
 const porFecha = (a: Alerta, b: Alerta) => a.fecha.localeCompare(b.fecha);
 
 const POR_PAGINA = 100;
+
+/** Un total del servidor; mientras carga, un guion que los lectores de pantalla leen como «cargando». */
+function Total({ valor }: { valor: number | undefined }) {
+  if (valor !== undefined) return valor;
+  return (
+    <>
+      <span aria-hidden="true">–</span>
+      <span className="sr-only">cargando</span>
+    </>
+  );
+}
+
+const TITULO_VACIO: Record<Exclude<Pestana, "todas">, string> = {
+  atrasadas: "No hay alertas atrasadas",
+  hoy: "No hay alertas para hoy",
+  proximas: "No hay alertas próximas",
+};
 
 interface AccionesDeLista {
   cliente: AxiosInstance;
@@ -89,7 +116,9 @@ export function PaginaAgenda({
   usuario: UsuarioActual;
 }) {
   const esDeAgencia = usuario.rol === "admin" || usuario.rol === "dueno";
-  const [proximas, setProximas] = useState(false);
+  const [pestana, setPestana] = useState<Pestana>("todas");
+  const proximas = pestana === "proximas";
+  const hoy = hoyEnBuenosAires();
   const [mostrarVistas, setMostrarVistas] = useState(false);
   const [tipo, setTipo] = useState<TipoAlerta | "">("");
   const [responsable, setResponsable] = useState("");
@@ -113,6 +142,8 @@ export function PaginaAgenda({
     ...(tipo && { tipo }),
     ...(responsable && { propietario_id: responsable }),
     ...(proximas && { proximas }),
+    ...(pestana === "atrasadas" && { hasta: diaAnterior(hoy) }),
+    ...(pestana === "hoy" && { desde: hoy, hasta: hoy }),
   };
   // Todo cambio de filtro vuelve a la primera página.
   const filtrar = (cambio: () => void) => {
@@ -131,11 +162,16 @@ export function PaginaAgenda({
     resolver,
     deshacer,
   } = useResolverConDeshacer(cliente);
+  const totales = useTotalesAgenda(cliente, hoy, {
+    responsable,
+    tipo,
+    conVistas: mostrarVistas,
+    resueltas: resueltas.map((r) => r.alerta),
+  });
 
   const porcentaje = progreso.data?.total_del_dia
     ? (progreso.data.resueltas_hoy / progreso.data.total_del_dia) * 100
     : 0;
-  const hoy = hoyEnBuenosAires();
   const resueltasIds = new Set(resueltas.map((r) => r.alerta.id));
   const alertas = [
     ...(pendientes.data?.items ?? []),
@@ -210,51 +246,70 @@ export function PaginaAgenda({
         </p>
       )}
 
-      {progreso.data && (
-        <div className="rounded-2xl bg-primary p-5 text-primary-foreground">
-          <p className="text-xs font-medium tracking-wide uppercase opacity-80">Progreso del día</p>
-          <p className="text-xl font-semibold">
-            {esDeAgencia ? "La agencia lleva" : "Llevás"} {progreso.data.resueltas_hoy} de{" "}
-            {progreso.data.total_del_dia} alertas resueltas
-          </p>
-          <div
-            role="progressbar"
-            aria-label="Progreso del día"
-            aria-valuemin={0}
-            aria-valuenow={progreso.data.resueltas_hoy}
-            aria-valuemax={progreso.data.total_del_dia}
-            className="mt-3 h-2 overflow-hidden rounded-full bg-primary-foreground/25"
-          >
+      <div className="flex flex-wrap gap-4">
+        {progreso.data && (
+          <div className="min-w-64 flex-1 rounded-2xl bg-primary p-5 text-primary-foreground">
+            <p className="text-xs font-medium tracking-wide uppercase opacity-80">
+              Progreso del día
+            </p>
+            <p className="text-xl font-semibold">
+              {esDeAgencia ? "La agencia lleva" : "Llevás"} {progreso.data.resueltas_hoy} de{" "}
+              {progreso.data.total_del_dia} alertas resueltas
+            </p>
             <div
-              className="h-full bg-primary-foreground"
-              style={{
-                width: `${String(porcentaje)}%`,
-              }}
-            />
+              role="progressbar"
+              aria-label="Progreso del día"
+              aria-valuemin={0}
+              aria-valuenow={progreso.data.resueltas_hoy}
+              aria-valuemax={progreso.data.total_del_dia}
+              className="mt-3 h-2 overflow-hidden rounded-full bg-primary-foreground/25"
+            >
+              <div
+                className="h-full bg-primary-foreground"
+                style={{
+                  width: `${String(porcentaje)}%`,
+                }}
+              />
+            </div>
           </div>
+        )}
+        <div role="group" aria-label="Totales de la agenda" className="flex gap-4">
+          {[
+            { rotulo: "Atrasadas", total: totales.atrasadas },
+            { rotulo: "Para hoy", total: totales.hoy },
+          ].map(({ rotulo, total }) => (
+            <dl key={rotulo} className="min-w-32 rounded-2xl border bg-card p-5">
+              <dt className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
+                {rotulo}
+              </dt>
+              <dd className="text-3xl font-semibold">
+                <Total valor={total} />
+              </dd>
+            </dl>
+          ))}
         </div>
-      )}
+      </div>
 
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div role="tablist" aria-label="Alertas" className="flex rounded-lg border bg-card p-1">
-          {[
-            { etiqueta: "Pendientes", esProximas: false },
-            { etiqueta: "Próximas", esProximas: true },
-          ].map(({ etiqueta, esProximas }) => (
+          {PESTANAS.map(({ clave, etiqueta }) => (
             <Button
-              key={etiqueta}
-              id={`pestana-${etiqueta}`}
+              key={clave}
+              id={`pestana-${clave}`}
               role="tab"
               aria-controls="panel-agenda"
-              aria-selected={proximas === esProximas}
-              variant={proximas === esProximas ? "default" : "ghost"}
+              aria-selected={pestana === clave}
+              variant={pestana === clave ? "default" : "ghost"}
               onClick={() => {
                 filtrar(() => {
-                  setProximas(esProximas);
+                  setPestana(clave);
                 });
               }}
             >
-              {etiqueta}
+              {etiqueta}{" "}
+              <span className="tabular-nums">
+                <Total valor={totales[clave]} />
+              </span>
             </Button>
           ))}
         </div>
@@ -332,19 +387,19 @@ export function PaginaAgenda({
       <div
         id="panel-agenda"
         role="tabpanel"
-        aria-labelledby={proximas ? "pestana-Próximas" : "pestana-Pendientes"}
+        aria-labelledby={`pestana-${pestana}`}
         className="flex flex-col gap-4"
       >
         {pendientes.data && !vistas.isPending && alertas.length === 0 && (
           <div role="status" className="rounded-2xl border bg-card p-8 text-center">
             <h2 className="text-lg font-semibold">
-              {proximas
-                ? "No hay alertas próximas"
+              {pestana !== "todas"
+                ? TITULO_VACIO[pestana]
                 : hayVistas
                   ? "No hay alertas nuevas"
                   : "¡Estás al día!"}
             </h2>
-            {!proximas && (
+            {pestana === "todas" && (
               <>
                 <p className="mt-1 text-sm text-muted-foreground">
                   {hayVistas
@@ -368,7 +423,7 @@ export function PaginaAgenda({
                   <Button
                     onClick={() => {
                       filtrar(() => {
-                        setProximas(true);
+                        setPestana("proximas");
                       });
                     }}
                   >
@@ -390,7 +445,7 @@ export function PaginaAgenda({
 
         {alertas.length > 0 && (
           <div className="rounded-2xl border bg-card p-2">
-            {proximas ? (
+            {pestana !== "todas" ? (
               <ListaDeAlertas alertas={alertas} {...acciones} />
             ) : (
               <>

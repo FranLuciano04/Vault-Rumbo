@@ -39,6 +39,7 @@ async def listar_agenda(
     proximas: bool,
     estado: EstadoAlerta | None,
     tipo: TipoAlerta | None,
+    desde: date | None,
     hasta: date | None,
     propietario_id: uuid.UUID | None,
     desplazamiento: int,
@@ -49,7 +50,8 @@ async def listar_agenda(
     Por defecto las pendientes de fecha `<= hoy`; con `proximas`, las de fecha posterior. Admin y
     dueño ven toda la agencia y filtran por `propietario_id` (RF-078); el resto ve solo las suyas
     e ignora `propietario_id`. `hasta` es un tope dentro de la ventana: sin `proximas`,
-    `fecha <= min(hoy, hasta)`; con `proximas`, `hoy < fecha <= hasta`. El contexto sale
+    `fecha <= min(hoy, hasta)`; con `proximas`, `hoy < fecha <= hasta`. `desde` es el piso
+    inclusive (`fecha >= desde`), combinable con `hasta` y `proximas`. El contexto sale
     filtrado por la visibilidad del actor (RF-151)."""
     if not es_direccion(actor):
         propietario_id = None
@@ -60,6 +62,7 @@ async def listar_agenda(
         proximas=proximas,
         estado=estado or EstadoAlerta.pendiente,
         tipo=tipo,
+        desde=desde,
         hasta=hasta,
         propietario_id=propietario_id,
         desplazamiento=desplazamiento,

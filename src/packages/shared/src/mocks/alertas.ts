@@ -251,6 +251,7 @@ export const manejadoresAlertas: RequestHandler[] = [
     const estado = url.searchParams.get("estado");
     const tipo = url.searchParams.get("tipo");
     const proximas = url.searchParams.get("proximas") === "true";
+    const desdeFecha = url.searchParams.get("desde");
     const hasta = url.searchParams.get("hasta");
     const pagina = Number(url.searchParams.get("pagina") ?? 1);
     const porPagina = Number(url.searchParams.get("por_pagina") ?? 20);
@@ -262,6 +263,7 @@ export const manejadoresAlertas: RequestHandler[] = [
         a.estado === (estado ?? "pendiente") &&
         (!tipo || a.tipo === tipo) &&
         (proximas ? a.fecha > HOY_MOCK : a.fecha <= HOY_MOCK) &&
+        (!desdeFecha || a.fecha >= desdeFecha) &&
         (!hasta || a.fecha <= hasta),
     );
     const desde = (pagina - 1) * porPagina;

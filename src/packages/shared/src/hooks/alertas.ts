@@ -14,9 +14,14 @@ import { useAccion } from "./useAccion";
 export const claveAlertas = ["alertas"] as const;
 const claveProgreso = [...claveAlertas, "progreso-del-dia"] as const;
 
-/** Agenda de alertas (`GET /api/alertas`, CU-14, CU-30). */
-export function useAlertas(cliente: AxiosInstance, filtros: FiltrosAlertas = {}) {
+/** Agenda de alertas (`GET /api/alertas`, CU-14, CU-30). Con `enabled: false` no pide nada. */
+export function useAlertas(
+  cliente: AxiosInstance,
+  filtros: FiltrosAlertas = {},
+  { enabled = true }: { enabled?: boolean } = {},
+) {
   return useQuery({
+    enabled,
     queryKey: [...claveAlertas, "lista", filtros],
     queryFn: async () =>
       (await cliente.get<Pagina<Alerta>>("/api/alertas", { params: filtros })).data,
