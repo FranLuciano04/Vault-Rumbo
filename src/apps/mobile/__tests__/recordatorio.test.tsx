@@ -18,6 +18,37 @@ jest.mock("../src/cliente", () => {
   return { cliente };
 });
 
+// El selector nativo no corre en jest: se reemplaza por un componente falso con dos botones, uno que
+// elige la fecha de `mockFechaElegida` (año, mes 1-12, día) y otro que cancela el selector.
+let mockFechaElegida: [number, number, number] = [2026, 11, 2];
+jest.mock(
+  "@react-native-community/datetimepicker",
+  () => {
+    const { Pressable, Text, View } = jest.requireActual<typeof import("react-native")>("react-native");
+    const { createElement } = jest.requireActual<typeof import("react")>("react");
+    const boton = (testID: string, texto: string, alPresionar: () => void) =>
+      createElement(
+        Pressable,
+        { testID, role: "button", onPress: alPresionar },
+        createElement(Text, null, texto),
+      );
+    const Falso = ({ onChange }: { onChange: (evento: { type: string }, fecha?: Date) => void }) =>
+      createElement(
+        View,
+        null,
+        boton("selector-fecha-aceptar", "Aceptar fecha", () => {
+          const [anio, mes, dia] = mockFechaElegida;
+          onChange({ type: "set" }, new Date(anio, mes - 1, dia, 12));
+        }),
+        boton("selector-fecha-cancelar", "Cancelar selector", () => {
+          onChange({ type: "dismissed" });
+        }),
+      );
+    return { __esModule: true, default: Falso };
+  },
+  { virtual: true },
+);
+
 const ANA = { id: "a1c4e7f0-3d58-4b92-b6a3-8f0e2d1c4b03", nombre: "Ana Pérez" };
 const CLIENTE_ID = "3c1f6d2e-8a47-4b19-9e53-7d0a2b4c6e11";
 const camila = {
@@ -129,9 +160,16 @@ function renderRecordatorio(initialUrl = "/agenda/nuevo") {
 type Vista = Awaited<ReturnType<typeof renderRecordatorio>>;
 
 const guardar = (vista: Vista) => vista.getByRole("button", { name: /^guardar/i });
-async function completar(vista: Vista, descripcion: string, fecha: string) {
+const botonFecha = (vista: Vista) => vista.getByRole("button", { name: /^fecha/i });
+/** Abre el selector y elige el día indicado (año, mes 1-12, día). */
+async function elegirFecha(vista: Vista, dia: [number, number, number] = [2026, 11, 2]) {
+  mockFechaElegida = dia;
+  await fireEvent.press(botonFecha(vista));
+  await fireEvent.press(await vista.findByTestId("selector-fecha-aceptar"));
+}
+async function completar(vista: Vista, descripcion: string, dia?: [number, number, number]) {
   await fireEvent.changeText(await vista.findByLabelText(/^descripci[oó]n/i), descripcion);
-  await fireEvent.changeText(vista.getByLabelText(/^fecha/i), fecha);
+  await elegirFecha(vista, dia);
 }
 async function elegirCamila(vista: Vista) {
   await fireEvent.press(vista.getByRole("button", { name: /^cliente$/i }));
@@ -150,14 +188,28 @@ describe("RF-080 recordatorio mobile", () => {
     const vista = await renderRecordatorio();
 
     expect(await vista.findByLabelText(/^descripci[oó]n/i)).toBeTruthy();
-    expect(vista.getByLabelText(/^fecha/i)).toBeTruthy();
+    expect(botonFecha(vista)).toBeTruthy();
+    expect(vista.getByText("Elegir fecha")).toBeTruthy();
+    expect(vista.queryByTestId("selector-fecha-aceptar")).toBeNull();
     expect(vista.queryByText(/asociado a/i)).toBeNull();
+  });
+
+  it("RF-080 tocar «Fecha» abre el selector y elegir un día lo muestra en dd/mm/aa", async () => {
+    backend();
+    const vista = await renderRecordatorio();
+    await vista.findByLabelText(/^descripci[oó]n/i);
+
+    await elegirFecha(vista, [2026, 11, 2]);
+
+    expect(vista.getByText("02/11/26")).toBeTruthy();
+    expect(vista.queryByText("Elegir fecha")).toBeNull();
   });
 
   it("RF-080 sin descripción no manda el alta y marca el campo", async () => {
     backend();
     const vista = await renderRecordatorio();
-    await fireEvent.changeText(await vista.findByLabelText(/^fecha/i), "2026-11-02");
+    await vista.findByLabelText(/^descripci[oó]n/i);
+    await elegirFecha(vista);
 
     await fireEvent.press(guardar(vista));
 
@@ -168,7 +220,7 @@ describe("RF-080 recordatorio mobile", () => {
   it("RF-080 una descripción de solo espacios se rechaza", async () => {
     backend();
     const vista = await renderRecordatorio();
-    await completar(vista, "   ", "2026-11-02");
+    await completar(vista, "   ");
 
     await fireEvent.press(guardar(vista));
 
@@ -187,21 +239,38 @@ describe("RF-080 recordatorio mobile", () => {
     expect(altasEnviadas()).toHaveLength(0);
   });
 
-  it("RF-080 una fecha que no es válida se rechaza", async () => {
+  it("RF-080 cancelar el selector no cambia la fecha", async () => {
     backend();
     const vista = await renderRecordatorio();
-    await completar(vista, "Llamar a Ana", "mañana");
+    await completar(vista, "Llamar a Ana", [2026, 11, 2]);
+    mockFechaElegida = [2026, 12, 25];
+    await fireEvent.press(botonFecha(vista));
 
+    await fireEvent.press(await vista.findByTestId("selector-fecha-cancelar"));
+
+    expect(vista.getByText("02/11/26")).toBeTruthy();
     await fireEvent.press(guardar(vista));
+    await waitFor(() => {
+      expect(cuerpos).toHaveLength(1);
+    });
+    expect(cuerpos[0]).toMatchObject({ fecha: "2026-11-02" });
+  });
 
-    expect(await vista.findByText("Elegí una fecha.")).toBeTruthy();
-    expect(altasEnviadas()).toHaveLength(0);
+  it("RF-080 cancelar el selector sin fecha previa deja «Elegir fecha»", async () => {
+    backend();
+    const vista = await renderRecordatorio();
+    await vista.findByLabelText(/^descripci[oó]n/i);
+    await fireEvent.press(botonFecha(vista));
+
+    await fireEvent.press(await vista.findByTestId("selector-fecha-cancelar"));
+
+    expect(vista.getByText("Elegir fecha")).toBeTruthy();
   });
 
   it("RF-080 crea un recordatorio personal, sin asociación y con la descripción recortada", async () => {
     backend();
     const vista = await renderRecordatorio();
-    await completar(vista, "  Llamar a Ana  ", "2026-11-02");
+    await completar(vista, "  Llamar a Ana  ");
 
     await fireEvent.press(guardar(vista));
 
@@ -217,7 +286,7 @@ describe("RF-080 recordatorio mobile", () => {
   it("RF-080 asocia el recordatorio a un cliente buscado por nombre", async () => {
     backend();
     const vista = await renderRecordatorio();
-    await completar(vista, "Mandar el itinerario", "2026-11-03");
+    await completar(vista, "Mandar el itinerario", [2026, 11, 3]);
     await elegirCamila(vista);
 
     expect(await vista.findByText(/Asociado a: Camila Benítez/)).toBeTruthy();
@@ -234,7 +303,7 @@ describe("RF-080 recordatorio mobile", () => {
   it("RF-080 elegir «Cliente» sin elegir uno no guarda y avisa", async () => {
     backend();
     const vista = await renderRecordatorio();
-    await completar(vista, "Llamar", "2026-11-02");
+    await completar(vista, "Llamar");
     await fireEvent.press(vista.getByRole("button", { name: /^cliente$/i }));
 
     await fireEvent.press(guardar(vista));
@@ -246,7 +315,7 @@ describe("RF-080 recordatorio mobile", () => {
   it("RF-080 volver a «Personal» descarta el cliente elegido", async () => {
     backend();
     const vista = await renderRecordatorio();
-    await completar(vista, "Llamar", "2026-11-02");
+    await completar(vista, "Llamar");
     await elegirCamila(vista);
     await fireEvent.press(vista.getByRole("button", { name: /^personal/i }));
 
@@ -272,7 +341,7 @@ describe("RF-080 recordatorio mobile", () => {
         ),
     });
     const vista = await renderRecordatorio();
-    await completar(vista, "Algo", "2026-11-02");
+    await completar(vista, "Algo");
 
     await fireEvent.press(guardar(vista));
 
@@ -290,7 +359,7 @@ describe("RF-080 recordatorio mobile", () => {
         ),
     });
     const vista = await renderRecordatorio();
-    await completar(vista, "Llamar", "2026-11-02");
+    await completar(vista, "Llamar");
 
     await fireEvent.press(guardar(vista));
 
@@ -302,7 +371,7 @@ describe("RF-080 recordatorio mobile", () => {
   it("RF-080 un fallo inesperado del servidor muestra un aviso accesible", async () => {
     backend({ alta: (config) => respuesta(500, {}, config) });
     const vista = await renderRecordatorio();
-    await completar(vista, "Llamar", "2026-11-02");
+    await completar(vista, "Llamar");
 
     await fireEvent.press(guardar(vista));
 
@@ -313,7 +382,7 @@ describe("RF-080 recordatorio mobile", () => {
   it("RF-080 tras guardar vuelve a la agenda y el recordatorio aparece en ella", async () => {
     backend();
     const vista = await renderRecordatorio();
-    await completar(vista, "Llamar a Ana", "2026-11-02");
+    await completar(vista, "Llamar a Ana");
 
     await fireEvent.press(guardar(vista));
 
