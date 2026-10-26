@@ -73,7 +73,7 @@ export const clientesMock: ClienteListado[] = [
 const historialMock: HistorialCliente = {
   oportunidades: [
     {
-      id: "6b2d9f08-7e41-4c5a-8d13-0a9e3c5b7f44",
+      id: "6b2d9f08-7e41-4c5a-8d13-0a9e3c5b7f47",
       destino_consultado: "Punta Cana",
       estado: "ganada",
       fecha_desde_tentativa: "2026-02-10",
@@ -83,7 +83,7 @@ const historialMock: HistorialCliente = {
   viajes: [
     {
       id: "f0a7c3d9-2b64-4e18-9c5d-8b1e6a4d2f55",
-      destino_id: "1d8e5b3a-9c20-47f6-a4b8-3e7d0c2a6f66",
+      destino_id: "9c1d2e3f-4a5b-4c6d-8e7f-0a1b2c3d4e05",
       estado: "finalizado",
       fecha_salida: "2026-02-10",
       fecha_regreso: "2026-02-20",

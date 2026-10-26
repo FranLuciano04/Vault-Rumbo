@@ -19,7 +19,7 @@ import { auditoriaMock } from "./viajes";
 const responsable_id = "a1c4e7f0-3d58-4b92-b6a3-8f0e2d1c4b03";
 const camila = "3c1f6d2e-8a47-4b19-9e53-7d0a2b4c6e11";
 const joaquin = "d4a8c6e2-5f19-4073-8b3a-2e1c9d7f0b33";
-const sosa = "a9e3b7c1-4d26-4f58-8c0a-6b1d2e3f4a57";
+const sosa = "9e5b0a74-1c3d-4f68-a2b9-5c8d7e0f1a22";
 
 /** Id de cada oportunidad ficticia según su estado; el de `cotizada` es el de las alertas ficticias (Joaquín Ramos, Europa). */
 export const idOportunidadMock = {
@@ -29,6 +29,9 @@ export const idOportunidadMock = {
   ganada: "6b2d9f08-7e41-4c5a-8d13-0a9e3c5b7f45",
   perdida: "6b2d9f08-7e41-4c5a-8d13-0a9e3c5b7f46",
 } as const satisfies Record<EstadoOportunidad, string>;
+
+/** Punta Cana de Camila, ganada: la del historial del cliente (el viaje finalizado de `viajesMock`). */
+const idPuntaCanaGanada = "6b2d9f08-7e41-4c5a-8d13-0a9e3c5b7f47";
 
 /** Id de cada cotización ficticia: dos versiones de Europa (la primera rechazada, la segunda enviada) y la aceptada de Brasil. */
 export const idCotizacionMock = {
@@ -91,6 +94,14 @@ export const oportunidadesMock: Oportunidad[] = [
     pasajeros: 5,
     fecha_desde_tentativa: "2026-11-01",
     fecha_hasta_tentativa: "2026-11-15",
+    estado: "ganada",
+  }),
+  oportunidad({
+    id: idPuntaCanaGanada,
+    cliente_id: camila,
+    destino_consultado: "Punta Cana",
+    fecha_desde_tentativa: "2026-02-10",
+    fecha_hasta_tentativa: "2026-02-20",
     estado: "ganada",
   }),
   oportunidad({

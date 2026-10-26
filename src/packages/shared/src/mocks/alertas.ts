@@ -29,10 +29,10 @@ const tomas = { id: otro_propietario_id, nombre: "Tomás Roldán" };
 
 const camila = { id: "3c1f6d2e-8a47-4b19-9e53-7d0a2b4c6e11", nombre: "Camila Benítez" };
 const joaquin = { id: "d4a8c6e2-5f19-4073-8b3a-2e1c9d7f0b33", nombre: "Joaquín Ramos" };
-const sosa = { id: "a9e3b7c1-4d26-4f58-8c0a-6b1d2e3f4a57", nombre: "Familia Sosa" };
+const sosa = { id: "9e5b0a74-1c3d-4f68-a2b9-5c8d7e0f1a22", nombre: "Familia Sosa" };
 const viajeCamila = {
   id: "f0a7c3d9-2b64-4e18-9c5d-8b1e6a4d2f55",
-  destino_id: "9c2d4e61-1a7f-4b38-8d05-6e3f1a2b4c22",
+  destino_id: "9c1d2e3f-4a5b-4c6d-8e7f-0a1b2c3d4e05",
   destino: "Punta Cana",
   estado: "finalizado",
   fecha_salida: "2026-09-01",
@@ -190,7 +190,7 @@ export const alertasAjenasMock: Alerta[] = [
     id: "d1b2a6e3-7f48-4c92-8b5d-2a3f4e5d6c01",
     propietario_id: otro_propietario_id,
     tipo: "insistencia",
-    descripcion: "Insistir con la cotización a la Familia Sosa (Brasil).",
+    descripcion: "Insistir con la cotización de Europa a Joaquín Ramos.",
     fecha: "2026-10-24",
     estado: "pendiente",
     oportunidad_id: "6b2d9f08-7e41-4c5a-8d13-0a9e3c5b7f44",
