@@ -35,6 +35,23 @@ const porFecha = (a: Alerta, b: Alerta) => a.fecha.localeCompare(b.fecha);
 
 const POR_PAGINA = 100;
 
+/** Un total del servidor; mientras carga, un guion que los lectores de pantalla leen como «cargando». */
+function Total({ valor }: { valor: number | undefined }) {
+  if (valor !== undefined) return valor;
+  return (
+    <>
+      <span aria-hidden="true">–</span>
+      <span className="sr-only">cargando</span>
+    </>
+  );
+}
+
+const TITULO_VACIO: Record<Exclude<Pestana, "todas">, string> = {
+  atrasadas: "No hay alertas atrasadas",
+  hoy: "No hay alertas para hoy",
+  proximas: "No hay alertas próximas",
+};
+
 interface AccionesDeLista {
   cliente: AxiosInstance;
   hoy: string;
@@ -137,7 +154,6 @@ export function PaginaAgenda({
   const pendientes = useAlertas(cliente, filtros);
   const vistas = useAlertas(cliente, { ...filtros, pagina: 1, estado: "vista" });
   const progreso = useProgresoDelDia(cliente);
-  const totales = useTotalesAgenda(cliente, hoy, responsable);
   const marcarVista = useMarcarAlertaVista(cliente);
   const {
     resueltas,
@@ -146,6 +162,12 @@ export function PaginaAgenda({
     resolver,
     deshacer,
   } = useResolverConDeshacer(cliente);
+  const totales = useTotalesAgenda(cliente, hoy, {
+    responsable,
+    tipo,
+    conVistas: mostrarVistas,
+    resueltas: resueltas.map((r) => r.alerta),
+  });
 
   const porcentaje = progreso.data?.total_del_dia
     ? (progreso.data.resueltas_hoy / progreso.data.total_del_dia) * 100
@@ -256,12 +278,14 @@ export function PaginaAgenda({
             { rotulo: "Atrasadas", total: totales.atrasadas },
             { rotulo: "Para hoy", total: totales.hoy },
           ].map(({ rotulo, total }) => (
-            <div key={rotulo} className="min-w-32 rounded-2xl border bg-card p-5">
-              <p className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
+            <dl key={rotulo} className="min-w-32 rounded-2xl border bg-card p-5">
+              <dt className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
                 {rotulo}
-              </p>
-              <p className="text-3xl font-semibold">{total ?? "–"}</p>
-            </div>
+              </dt>
+              <dd className="text-3xl font-semibold">
+                <Total valor={total} />
+              </dd>
+            </dl>
           ))}
         </div>
       </div>
@@ -282,7 +306,10 @@ export function PaginaAgenda({
                 });
               }}
             >
-              {etiqueta} <span className="tabular-nums">{totales[clave] ?? "–"}</span>
+              {etiqueta}{" "}
+              <span className="tabular-nums">
+                <Total valor={totales[clave]} />
+              </span>
             </Button>
           ))}
         </div>
@@ -366,13 +393,13 @@ export function PaginaAgenda({
         {pendientes.data && !vistas.isPending && alertas.length === 0 && (
           <div role="status" className="rounded-2xl border bg-card p-8 text-center">
             <h2 className="text-lg font-semibold">
-              {proximas
-                ? "No hay alertas próximas"
+              {pestana !== "todas"
+                ? TITULO_VACIO[pestana]
                 : hayVistas
                   ? "No hay alertas nuevas"
                   : "¡Estás al día!"}
             </h2>
-            {!proximas && (
+            {pestana === "todas" && (
               <>
                 <p className="mt-1 text-sm text-muted-foreground">
                   {hayVistas

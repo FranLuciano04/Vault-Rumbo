@@ -137,7 +137,7 @@ describe("RF-074 totales de la agenda", () => {
     });
   });
 
-  it("RF-074 la tarjeta «Para hoy» muestra el total de hoy: lo de hasta hoy menos lo atrasado", async () => {
+  it("RF-074 la tarjeta «Para hoy» muestra el total de hoy, pedido con desde=hoy y hasta=hoy", async () => {
     servidorConTotales([]);
     renderAgenda("empleado");
 
@@ -146,15 +146,24 @@ describe("RF-074 totales de la agenda", () => {
     });
   });
 
-  it("RF-074 los totales se leen del servidor con hasta=ayer y hasta=hoy", async () => {
+  it("RF-074 los totales se leen del servidor con hasta=ayer y desde=hoy&hasta=hoy, sin un pedido redundante hasta=hoy", async () => {
     const pedidos: URLSearchParams[] = [];
     servidorConTotales(pedidos);
     renderAgenda("empleado");
 
     await waitFor(() => {
       expect(pedidos.some((p) => p.get("hasta") === AYER_ISO && !p.get("proximas"))).toBe(true);
-      expect(pedidos.some((p) => p.get("hasta") === HOY_ISO && !p.get("proximas"))).toBe(true);
+      expect(
+        pedidos.some(
+          (p) => p.get("desde") === HOY_ISO && p.get("hasta") === HOY_ISO && !p.get("proximas"),
+        ),
+      ).toBe(true);
     });
+    expect(
+      pedidos.some(
+        (p) => p.get("por_pagina") === "1" && p.get("hasta") === HOY_ISO && !p.get("desde"),
+      ),
+    ).toBe(false);
   });
 
   it.each<RolMock>(["admin", "dueno"])(
@@ -386,5 +395,138 @@ describe("RF-154 pestañas con contador", () => {
     expect(pestana("Atrasadas")).toHaveTextContent("3");
     expect(pestana("Hoy")).toHaveTextContent("1");
     expect(pestana("Próximas")).toHaveTextContent("2");
+  });
+});
+
+describe("T-164 los contadores cuentan lo que mostraría la lista", () => {
+  it("RF-154 los contadores siguen al filtro «Tipo»", async () => {
+    const pedidos: URLSearchParams[] = [];
+    servidorConTotales(pedidos);
+    const usuario = userEvent.setup();
+    renderAgenda("empleado");
+    await screen.findByText(PAGO);
+    pedidos.length = 0;
+
+    await usuario.selectOptions(screen.getByRole("combobox", { name: /^tipo/i }), "Pago");
+
+    await waitFor(() => {
+      for (const filtro of [
+        (p: URLSearchParams) => p.get("hasta") === AYER_ISO,
+        (p: URLSearchParams) => p.get("desde") === HOY_ISO,
+        (p: URLSearchParams) => p.get("proximas") === "true",
+      ]) {
+        expect(
+          pedidos.some((p) => p.get("por_pagina") === "1" && p.get("tipo") === "pago" && filtro(p)),
+        ).toBe(true);
+      }
+    });
+  });
+
+  it("RF-154 sin «Mostrar vistas» no cuenta vistas; con el interruptor suma las vistas de cada rango", async () => {
+    const pedidos: URLSearchParams[] = [];
+    servidorConTotales(pedidos);
+    // Las vistas tienen totales propios: atrasadas 2, de hoy 1, próximas 0.
+    servidor.use(
+      http.get("*/api/alertas", ({ request }) => {
+        const p = new URL(request.url).searchParams;
+        if (p.get("estado") !== "vista" || p.get("por_pagina") !== "1") return undefined;
+        pedidos.push(p);
+        const total = p.get("proximas") === "true" ? 0 : p.get("desde") === HOY_ISO ? 1 : 2;
+        return HttpResponse.json({ items: [], total, pagina: 1, por_pagina: 1 });
+      }),
+    );
+    const usuario = userEvent.setup();
+    renderAgenda("empleado");
+    await waitFor(() => {
+      expect(pestana("Atrasadas")).toHaveTextContent("37");
+    });
+    expect(pedidos.some((p) => p.get("estado") === "vista" && p.get("por_pagina") === "1")).toBe(
+      false,
+    );
+
+    await usuario.click(screen.getByRole("switch", { name: /mostrar vistas/i }));
+
+    await waitFor(() => {
+      expect(pestana("Atrasadas")).toHaveTextContent("39");
+    });
+    expect(pestana("Hoy")).toHaveTextContent("16");
+    expect(pestana("Todas")).toHaveTextContent("55");
+    expect(pestana("Próximas")).toHaveTextContent("9");
+    expect(tarjeta("Atrasadas")).toHaveTextContent("39");
+  });
+
+  it("RF-154 durante el «Deshacer» los contadores descuentan la alerta resuelta que espera", async () => {
+    servidorConTotales([]);
+    const usuario = userEvent.setup();
+    renderAgenda("empleado");
+    const texto = await screen.findByText(INSISTENCIA);
+    await waitFor(() => {
+      expect(pestana("Atrasadas")).toHaveTextContent("37");
+    });
+
+    await usuario.click(
+      within(texto.closest("li") as HTMLElement).getByRole("button", { name: /resolver/i }),
+    );
+
+    await waitFor(() => {
+      expect(pestana("Atrasadas")).toHaveTextContent("36");
+    });
+    expect(pestana("Todas")).toHaveTextContent("51");
+    expect(pestana("Hoy")).toHaveTextContent("15");
+    expect(tarjeta("Atrasadas")).toHaveTextContent("36");
+  });
+});
+
+describe("RF-154 estado vacío por pestaña", () => {
+  function servidorSinAlertas() {
+    servidor.use(
+      http.get("*/api/alertas", ({ request }) => {
+        const p = new URL(request.url).searchParams;
+        return HttpResponse.json({
+          items: [],
+          total: 0,
+          pagina: 1,
+          por_pagina: Number(p.get("por_pagina") ?? 20),
+        });
+      }),
+    );
+  }
+
+  it("RF-154 «Todas» sin alertas dice «¡Estás al día!» con el texto de RF-074", async () => {
+    servidorSinAlertas();
+    renderAgenda("empleado");
+
+    expect(await screen.findByText("¡Estás al día!")).toBeInTheDocument();
+    expect(screen.getByText(/no tenés alertas pendientes para hoy/i)).toBeInTheDocument();
+  });
+
+  it.each([
+    ["Atrasadas", "No hay alertas atrasadas"],
+    ["Hoy", "No hay alertas para hoy"],
+    ["Próximas", "No hay alertas próximas"],
+  ])("RF-154 «%s» sin alertas dice «%s» y no «¡Estás al día!»", async (nombre, mensaje) => {
+    servidorSinAlertas();
+    const usuario = userEvent.setup();
+    renderAgenda("empleado");
+    await screen.findByText("¡Estás al día!");
+
+    await usuario.click(pestana(nombre));
+
+    expect(await screen.findByText(mensaje)).toBeInTheDocument();
+    expect(screen.queryByText("¡Estás al día!")).not.toBeInTheDocument();
+    expect(screen.queryByText(/no tenés alertas pendientes para hoy/i)).not.toBeInTheDocument();
+  });
+});
+
+describe("RF-074 totales accesibles", () => {
+  it("RF-074 mientras cargan, las tarjetas avisan «cargando» a los lectores de pantalla", async () => {
+    servidorConTotales([]);
+    renderAgenda("empleado");
+
+    const grupo = screen.getByRole("group", { name: /totales de la agenda/i });
+    expect(within(grupo).getAllByText(/cargando/i).length).toBeGreaterThan(0);
+    await waitFor(() => {
+      expect(within(grupo).queryByText(/cargando/i)).not.toBeInTheDocument();
+    });
   });
 });

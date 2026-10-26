@@ -455,6 +455,23 @@ async def test_rf154_desde_no_trae_atrasadas_cuando_hay_muchas(
     assert r.json()["total"] == 1
 
 
+async def test_rf154_desde_posterior_a_hasta_devuelve_vacio(
+    cliente_como: FabricaCliente, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("empleado")
+    yo = _propio(c)
+    await _alerta(sesion, yo, hoy() - timedelta(days=1), "ayer")
+    await _alerta(sesion, yo, hoy(), "hoy")
+
+    r = await c.get(
+        "/api/alertas", params={"desde": str(hoy()), "hasta": str(hoy() - timedelta(days=1))}
+    )
+
+    assert r.status_code == 200, r.text
+    assert r.json()["items"] == []
+    assert r.json()["total"] == 0
+
+
 async def test_rf154_desde_invalido_es_422(cliente_como: FabricaCliente) -> None:
     c = await cliente_como("empleado")
 
