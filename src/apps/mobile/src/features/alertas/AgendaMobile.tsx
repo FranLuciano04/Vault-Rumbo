@@ -104,6 +104,7 @@ function FilaAlerta({
  * por rol lo resuelve la API; admin y dueño ven además al responsable de cada alerta.
  */
 export function AgendaMobile() {
+  const router = useRouter();
   const yo = useYo(cliente);
   const esDeAgencia = yo.data?.rol === "admin" || yo.data?.rol === "dueno";
   const alertas = useAlertasPorPaginas(cliente, { por_pagina: POR_PAGINA });
@@ -175,9 +176,20 @@ export function AgendaMobile() {
 
   return (
     <View testID="pantalla-agenda" className="flex-1 bg-white px-4 pt-12">
-      <Text role="heading" className="mb-3 text-xl font-bold text-primary">
-        Agenda del día
-      </Text>
+      <View className="mb-3 flex-row items-center justify-between gap-3">
+        <Text role="heading" className="text-xl font-bold text-primary">
+          Agenda del día
+        </Text>
+        <Pressable
+          role="button"
+          onPress={() => {
+            router.push("/agenda/nuevo");
+          }}
+          className="rounded-xl bg-primary px-4 py-2"
+        >
+          <Text className="font-semibold text-primary-foreground">Nuevo recordatorio</Text>
+        </Pressable>
+      </View>
       {progreso.data && (
         <View className="mb-3 rounded-2xl bg-primary p-4">
           <Text className="text-lg font-semibold text-primary-foreground">
