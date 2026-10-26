@@ -244,13 +244,13 @@ async def test_patch_no_cambia_estado(cliente_como: FabricaCliente, sesion: Asyn
         f"/api/oportunidades/{op.id}", json={"notas": "Nueva nota", "estado": "ganada"}
     )
 
-    # El estado no se edita por PATCH: se rechaza el campo o se ignora, pero nunca cambia.
-    assert r.status_code in (200, 422)
+    # El estado no se edita por PATCH: se ignora y el resto del cuerpo se aplica.
+    assert r.status_code == 200
+    assert r.json()["estado"] == "en_gestion"
+    assert r.json()["notas"] == "Nueva nota"
     await sesion.refresh(op)
     assert op.estado == EstadoOportunidad.en_gestion
-    if r.status_code == 200:
-        assert r.json()["estado"] == "en_gestion"
-        assert r.json()["notas"] == "Nueva nota"
+    assert op.notas == "Nueva nota"
 
 
 async def test_patch_solo_notas_no_pisa_los_otros_campos(
@@ -336,3 +336,120 @@ async def test_patch_inexistente_404(cliente_como: FabricaCliente) -> None:
     r = await c.patch(f"/api/oportunidades/{uuid4()}", json={"notas": "x"})
 
     assert r.status_code == 404
+
+
+async def test_rf151_empleado_no_responsable_patch_403(
+    cliente_como: FabricaCliente, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("empleado")
+    otro = await crear(sesion, UsuarioFactory)
+    ajena = await _oportunidad(sesion, otro.id, notas="original")
+
+    r = await c.patch(f"/api/oportunidades/{ajena.id}", json={"notas": "pisada"})
+
+    assert r.status_code == 403
+    assert r.headers["content-type"].startswith(PROBLEM_JSON)
+    await sesion.refresh(ajena)
+    assert ajena.notas == "original"
+
+
+async def test_rf151_freelance_ve_por_su_cliente_pero_no_es_responsable_patch_403(
+    cliente_como: FabricaCliente, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("freelance")
+    otro = await crear(sesion, UsuarioFactory)
+    cli = await crear(
+        sesion,
+        ClienteFactory,
+        asesor_asignado_id=c.usuario.id,  # type: ignore[attr-defined]
+    )
+    op = await _oportunidad(sesion, otro.id, cliente_id=cli.id, notas="original")
+
+    visto = await c.get(f"/api/oportunidades/{op.id}")
+    editado = await c.patch(f"/api/oportunidades/{op.id}", json={"notas": "pisada"})
+
+    assert visto.status_code == 200
+    assert editado.status_code == 403
+    assert editado.headers["content-type"].startswith(PROBLEM_JSON)
+    await sesion.refresh(op)
+    assert op.notas == "original"
+
+
+@pytest.mark.parametrize("rol", ["admin", "dueno"])
+async def test_rf016_admin_y_dueno_editan_ajena_200(
+    cliente_como: FabricaCliente, sesion: AsyncSession, rol: str
+) -> None:
+    c = await cliente_como(rol)
+    otro = await crear(sesion, UsuarioFactory)
+    ajena = await _oportunidad(sesion, otro.id)
+
+    r = await c.patch(f"/api/oportunidades/{ajena.id}", json={"notas": "Editada"})
+
+    assert r.status_code == 200
+    assert r.json()["notas"] == "Editada"
+    await sesion.refresh(ajena)
+    assert ajena.notas == "Editada"
+
+
+@pytest.mark.parametrize("rol", ["empleado", "freelance"])
+async def test_rf016_reasignar_responsable_solo_admin_o_dueno_403(
+    cliente_como: FabricaCliente, sesion: AsyncSession, rol: str
+) -> None:
+    c = await cliente_como(rol)
+    nuevo = await crear(sesion, UsuarioFactory, activo=True)
+    op = await _oportunidad(sesion, c.usuario.id)  # type: ignore[attr-defined]
+
+    r = await c.patch(f"/api/oportunidades/{op.id}", json={"responsable_id": str(nuevo.id)})
+
+    assert r.status_code == 403
+    assert r.headers["content-type"].startswith(PROBLEM_JSON)
+    await sesion.refresh(op)
+    assert op.responsable_id == c.usuario.id  # type: ignore[attr-defined]
+
+
+@pytest.mark.parametrize("destino", ["inexistente", "de_baja"])
+async def test_rf016_reasignar_a_usuario_inexistente_o_de_baja_422(
+    cliente_como: FabricaCliente, sesion: AsyncSession, destino: str
+) -> None:
+    c = await cliente_como("admin")
+    op = await _oportunidad(sesion, c.usuario.id)  # type: ignore[attr-defined]
+    if destino == "inexistente":
+        nuevo_id = uuid4()
+    else:
+        nuevo_id = (await crear(sesion, UsuarioFactory, activo=False)).id
+
+    r = await c.patch(f"/api/oportunidades/{op.id}", json={"responsable_id": str(nuevo_id)})
+
+    assert r.status_code == 422
+    assert r.headers["content-type"].startswith(PROBLEM_JSON)
+    await sesion.refresh(op)
+    assert op.responsable_id == c.usuario.id  # type: ignore[attr-defined]
+
+
+async def test_rf016_admin_reasigna_200(cliente_como: FabricaCliente, sesion: AsyncSession) -> None:
+    c = await cliente_como("admin")
+    otro = await crear(sesion, UsuarioFactory)
+    nuevo = await crear(sesion, UsuarioFactory, activo=True)
+    op = await _oportunidad(sesion, otro.id)
+
+    r = await c.patch(f"/api/oportunidades/{op.id}", json={"responsable_id": str(nuevo.id)})
+
+    assert r.status_code == 200
+    assert r.json()["responsable_id"] == str(nuevo.id)
+    await sesion.refresh(op)
+    assert op.responsable_id == nuevo.id
+
+
+async def test_rf016_responsable_que_manda_su_propio_responsable_id_edita_200(
+    cliente_como: FabricaCliente, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("empleado")
+    yo = c.usuario.id  # type: ignore[attr-defined]
+    op = await _oportunidad(sesion, yo)
+
+    r = await c.patch(f"/api/oportunidades/{op.id}", json={"notas": "x", "responsable_id": str(yo)})
+
+    assert r.status_code == 200
+    await sesion.refresh(op)
+    assert op.notas == "x"
+    assert op.responsable_id == yo

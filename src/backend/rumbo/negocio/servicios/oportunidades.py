@@ -53,7 +53,7 @@ async def editar_oportunidad(
     `responsable_id` es solo de admin y dueño, y el nuevo tiene que ser un `Usuario` activo."""
     oportunidad = await obtener_oportunidad(sesion, actor, oportunidad_id)
     exigir_escritura(actor, oportunidad)
-    if "responsable_id" in cambios:
+    if cambios.get("responsable_id", oportunidad.responsable_id) != oportunidad.responsable_id:
         exigir_rol(actor, RolUsuario.admin, RolUsuario.dueno)
         await _exigir_responsable_activo(sesion, actor, cambios["responsable_id"])
     desde = cambios.get("fecha_desde_tentativa", oportunidad.fecha_desde_tentativa)
