@@ -34,7 +34,8 @@ export function ListaClientes() {
   }, [texto]);
 
   // Se acumulan las páginas al llegar datos nuevos (ajuste de estado durante el render).
-  const [recibido, setRecibido] = useState(data);
+  // `recibido` arranca sin datos para que también entren los que ya estaban en caché al montar.
+  const [recibido, setRecibido] = useState<typeof data>(undefined);
   if (data && !isPlaceholderData && data !== recibido) {
     setRecibido(data);
     // La primera página reemplaza todo (búsqueda nueva); las demás se agregan al final.
@@ -89,7 +90,7 @@ export function ListaClientes() {
         data={clientes}
         keyExtractor={(item) => item.id}
         onEndReached={() => {
-          if (hayMas && !isFetching) setPagina((actual) => actual + 1);
+          if (hayMas) setPagina((actual) => actual + 1);
         }}
         ListEmptyComponent={
           data && !isFetching && clientes.length === 0 ? <SinClientes /> : undefined
