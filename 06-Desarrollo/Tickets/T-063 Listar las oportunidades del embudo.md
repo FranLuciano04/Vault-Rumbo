@@ -3,7 +3,7 @@ id: T-063
 titulo: Listar las oportunidades del embudo
 modulo: M4 — Oportunidades y cotizaciones
 capa: backend
-estado: libre
+estado: tomado
 depende_de: [T-061, T-012]
 tamaño: S
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [CU-05, RF-016, RF-151]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: palomap2003
+tomado_el: 26/10/26 16:57
+rama: feature/T-063-listar-las-oportunidades-del-embudo
 pr:
 ---
 # T-063 Listar las oportunidades del embudo
