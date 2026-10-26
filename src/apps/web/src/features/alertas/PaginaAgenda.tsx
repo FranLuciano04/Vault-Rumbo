@@ -8,13 +8,14 @@ import {
 import { useAlertas, useMarcarAlertaVista, useProgresoDelDia } from "@rumbo/shared/hooks";
 import type { AxiosInstance } from "axios";
 import { Check, Plus } from "lucide-react";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { mensajeDeError } from "@/lib/errores";
 import { useVolverFoco } from "@/lib/useVolverFoco";
 import { cn } from "@/lib/utils";
 import { FiltroResponsable } from "./FiltroResponsable";
 import { FilaAlerta } from "./FilaAlerta";
+import { PanelDetalleAlerta } from "./PanelDetalleAlerta";
 import { FormularioRecordatorio } from "./FormularioRecordatorio";
 import { useResolverConDeshacer } from "./useResolverConDeshacer";
 import { avisoRecordatorio } from "./avisoRecordatorio";
@@ -61,6 +62,7 @@ interface AccionesDeLista {
   marcandoVista: boolean;
   puedeEditar: (alerta: Alerta) => boolean;
   alEditar: (alerta: Alerta) => void;
+  alVerDetalle: (alerta: Alerta) => void;
 }
 
 function ListaDeAlertas({
@@ -70,6 +72,7 @@ function ListaDeAlertas({
   alMarcarVista,
   puedeEditar,
   alEditar,
+  alVerDetalle,
   ...resto
 }: { titulo?: string; alertas: Alerta[] } & AccionesDeLista) {
   return (
@@ -89,6 +92,9 @@ function ListaDeAlertas({
             }}
             alMarcarVista={() => {
               alMarcarVista(alerta);
+            }}
+            alVerDetalle={() => {
+              alVerDetalle(alerta);
             }}
             {...(puedeEditar(alerta) && {
               alEditar: () => {
@@ -126,15 +132,23 @@ export function PaginaAgenda({
   // `null` = formulario cerrado; `{}` = alta; `{ alerta }` = edición de un recordatorio.
   const [recordatorio, setRecordatorio] = useState<{ alerta?: Alerta } | null>(null);
   const [aviso, setAviso] = useState<string | null>(null);
-  const foco = useVolverFoco();
+  const focoRecordatorio = useVolverFoco();
+  const focoDetalle = useVolverFoco();
+  // Id de la alerta resuelta desde el panel: su «Deshacer» recibe el foco al aparecer.
+  const enfocarDeshacer = useRef<string | null>(null);
   const abrirRecordatorio = (abierto: { alerta?: Alerta }) => {
-    foco.recordar();
+    focoRecordatorio.recordar();
     setAviso(null);
     setRecordatorio(abierto);
   };
   const cerrarRecordatorio = () => {
     setRecordatorio(null);
-    foco.volver();
+    focoRecordatorio.volver();
+  };
+  const [detalleId, setDetalleId] = useState<string | null>(null);
+  const cerrarDetalle = () => {
+    setDetalleId(null);
+    focoDetalle.volver();
   };
   const filtros = {
     por_pagina: POR_PAGINA,
@@ -196,6 +210,10 @@ export function PaginaAgenda({
       alerta.propietario_id === usuario.id,
     alEditar: (alerta) => {
       abrirRecordatorio({ alerta });
+    },
+    alVerDetalle: (alerta) => {
+      focoDetalle.recordar();
+      setDetalleId(alerta.id);
     },
   };
   const errorAccion =
@@ -496,6 +514,25 @@ export function PaginaAgenda({
         )}
       </div>
 
+      {detalleId && (
+        <PanelDetalleAlerta
+          key={detalleId}
+          cliente={cliente}
+          alertaId={detalleId}
+          hoy={hoy}
+          alCerrar={cerrarDetalle}
+          alResolver={(alerta) => {
+            // La fila desaparece: el foco pasa al «Deshacer» del aviso.
+            enfocarDeshacer.current = alerta.id;
+            focoDetalle.olvidar();
+            resolver(alerta);
+            setDetalleId(null);
+          }}
+          alMarcarVista={acciones.alMarcarVista}
+          marcandoVista={marcarVista.isPending}
+        />
+      )}
+
       <div
         aria-live="polite"
         className="fixed bottom-6 left-1/2 flex -translate-x-1/2 flex-col gap-2"
@@ -517,6 +554,12 @@ export function PaginaAgenda({
                 variant="outline"
                 className="text-foreground"
                 aria-label={`Deshacer: ${alerta.descripcion}`}
+                ref={(boton) => {
+                  if (boton && enfocarDeshacer.current === alerta.id) {
+                    enfocarDeshacer.current = null;
+                    boton.focus();
+                  }
+                }}
                 onClick={() => {
                   deshacer(alerta.id);
                 }}

@@ -10,6 +10,10 @@ export function useVolverFoco() {
     recordar: () => {
       origen.current = document.activeElement;
     },
+    /** Descarta el origen guardado, cuando el elemento que lo tenía ya no existe. */
+    olvidar: () => {
+      origen.current = null;
+    },
     volver: () => {
       if (origen.current instanceof HTMLElement) origen.current.focus();
       origen.current = null;

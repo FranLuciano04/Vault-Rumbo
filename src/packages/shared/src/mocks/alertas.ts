@@ -32,6 +32,7 @@ const joaquin = { id: "d4a8c6e2-5f19-4073-8b3a-2e1c9d7f0b33", nombre: "Joaquín 
 const sosa = { id: "a9e3b7c1-4d26-4f58-8c0a-6b1d2e3f4a57", nombre: "Familia Sosa" };
 const viajeCamila = {
   id: "f0a7c3d9-2b64-4e18-9c5d-8b1e6a4d2f55",
+  destino_id: "9c2d4e61-1a7f-4b38-8d05-6e3f1a2b4c22",
   destino: "Punta Cana",
   estado: "finalizado",
   fecha_salida: "2026-09-01",
@@ -39,6 +40,7 @@ const viajeCamila = {
 } as const;
 const viajeSosa = {
   id: "e5f6a7b8-c9d0-4e1f-a2b3-c4d5e6f7a812",
+  destino_id: "4b7e1c93-5d20-4a86-9f1b-3c8d2e6a0b57",
   destino: "Brasil",
   estado: "confirmado",
   fecha_salida: "2026-11-01",

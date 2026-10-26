@@ -5,15 +5,11 @@ import {
   lineaDeContexto,
   type Alerta,
 } from "@rumbo/shared";
-import { usePosponerAlerta } from "@rumbo/shared/hooks";
 import type { AxiosInstance } from "axios";
-import { Check, Clock, Eye, Pencil } from "lucide-react";
+import { Check, Clock, Eye, Pencil, PanelRightOpen } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { mensajeDeError } from "@/lib/errores";
-import { diaSiguiente } from "./fechas";
+import { FormularioPosponer } from "./FormularioPosponer";
 
 function Plazo({ fecha, hoy }: { fecha: string; hoy: string }) {
   if (fecha === hoy) return null;
@@ -24,56 +20,6 @@ function Plazo({ fecha, hoy }: { fecha: string; hoy: string }) {
     <span className="rounded-full bg-red-50 px-2 py-0.5 text-xs font-medium text-red-700">
       Hace {atraso} {atraso === 1 ? "día" : "días"}
     </span>
-  );
-}
-
-function FormularioPosponer({
-  cliente,
-  alerta,
-  hoy,
-  alCerrar,
-}: {
-  cliente: AxiosInstance;
-  alerta: Alerta;
-  hoy: string;
-  alCerrar: () => void;
-}) {
-  const [fecha, setFecha] = useState("");
-  const posponer = usePosponerAlerta(cliente);
-  return (
-    <form
-      className="mt-2 flex flex-wrap items-end gap-2"
-      onSubmit={(e) => {
-        e.preventDefault();
-        posponer.mutate({ id: alerta.id, fecha }, { onSuccess: alCerrar });
-      }}
-    >
-      <div className="flex flex-col gap-1">
-        <Label htmlFor={`posponer-${alerta.id}`}>Nueva fecha</Label>
-        <Input
-          id={`posponer-${alerta.id}`}
-          type="date"
-          min={diaSiguiente(alerta.fecha > hoy ? alerta.fecha : hoy)}
-          required
-          className="h-9 w-44"
-          value={fecha}
-          onChange={(e) => {
-            setFecha(e.target.value);
-          }}
-        />
-      </div>
-      <Button type="submit" size="sm" disabled={!fecha || posponer.isPending}>
-        Confirmar
-      </Button>
-      <Button size="sm" variant="ghost" onClick={alCerrar}>
-        Cancelar
-      </Button>
-      {posponer.isError && (
-        <p role="alert" className="w-full text-sm text-destructive">
-          {mensajeDeError(posponer.error)}
-        </p>
-      )}
-    </form>
   );
 }
 
@@ -90,6 +36,7 @@ export function FilaAlerta({
   alMarcarVista,
   marcandoVista,
   alEditar,
+  alVerDetalle,
 }: {
   cliente: AxiosInstance;
   alerta: Alerta;
@@ -100,6 +47,7 @@ export function FilaAlerta({
   marcandoVista: boolean;
   /** Solo para el recordatorio manual pendiente propio (CU-28). */
   alEditar?: () => void;
+  alVerDetalle: () => void;
 }) {
   const [posponiendo, setPosponiendo] = useState(false);
   const esPago = alerta.tipo === "pago";
@@ -122,6 +70,14 @@ export function FilaAlerta({
         </div>
         <div className="flex shrink-0 items-center gap-2">
           <Plazo fecha={alerta.fecha} hoy={hoy} />
+          <Button
+            size="sm"
+            variant="ghost"
+            aria-label={sobre("Ver detalle")}
+            onClick={alVerDetalle}
+          >
+            <PanelRightOpen aria-hidden="true" />
+          </Button>
           {!esPago && (
             <Button size="sm" variant="outline" aria-label={sobre("Resolver")} onClick={alResolver}>
               <Check aria-hidden="true" />

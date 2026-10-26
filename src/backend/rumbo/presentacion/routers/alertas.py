@@ -73,6 +73,7 @@ def _contexto(contexto: ContextoDeAlerta) -> ContextoAlerta:
         if viaje is None
         else ViajeDeAlerta(
             id=viaje.viaje.id,
+            destino_id=viaje.viaje.destino_id,
             destino=viaje.destino,
             estado=viaje.viaje.estado,
             fecha_salida=viaje.viaje.fecha_salida,

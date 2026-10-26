@@ -49,6 +49,7 @@ class OportunidadDeAlerta(BaseModel):
 
 class ViajeDeAlerta(BaseModel):
     id: uuid.UUID
+    destino_id: uuid.UUID
     destino: str = Field(description="Nombre del destino.")
     estado: EstadoViaje
     fecha_salida: date

@@ -1,5 +1,5 @@
 import type { HistorialCliente, SegmentoCliente } from "./cliente";
-import type { TipoAlerta } from "./modelos";
+import type { EstadoAlerta, TipoAlerta } from "./modelos";
 
 /** Texto de cada segmento tal como se muestra; el orden es el de los chips del prototipo. */
 export const ETIQUETA_SEGMENTO: Record<SegmentoCliente, string> = {
@@ -39,4 +39,11 @@ export const ETIQUETA_TIPO_ALERTA: Record<TipoAlerta, string> = {
   manual: "Recordatorio",
   recontacto: "Recontacto",
   viaje: "Viaje",
+};
+
+/** Texto de cada estado de una alerta. */
+export const ETIQUETA_ESTADO_ALERTA: Record<EstadoAlerta, string> = {
+  pendiente: "Pendiente",
+  vista: "Vista",
+  resuelta: "Resuelta",
 };

@@ -8623,6 +8623,11 @@
             "format": "uuid",
             "title": "Id"
           },
+          "destino_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Destino Id"
+          },
           "destino": {
             "type": "string",
             "title": "Destino",
@@ -8645,6 +8650,7 @@
         "type": "object",
         "required": [
           "id",
+          "destino_id",
           "destino",
           "estado",
           "fecha_salida",

@@ -2394,6 +2394,11 @@ export interface components {
              */
             id: string;
             /**
+             * Destino Id
+             * Format: uuid
+             */
+            destino_id: string;
+            /**
              * Destino
              * @description Nombre del destino.
              */
