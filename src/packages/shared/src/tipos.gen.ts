@@ -3454,6 +3454,8 @@ export interface operations {
     listar_alertas: {
         parameters: {
             query?: {
+                /** @description Piso de fecha inclusive (`fecha >= desde`), combinable con `hasta` y `proximas`. Con `desde` y `hasta` iguales se lista un solo día. */
+                desde?: string | null;
                 /** @description Tope de fecha dentro de la ventana: sin `proximas`, las de fecha hasta el menor entre hoy y `hasta`; con `proximas`, las posteriores a hoy hasta `hasta` inclusive. */
                 hasta?: string | null;
                 estado?: components["schemas"]["EstadoAlerta"] | null;

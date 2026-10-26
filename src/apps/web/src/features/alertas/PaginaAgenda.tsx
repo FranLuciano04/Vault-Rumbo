@@ -126,7 +126,7 @@ export function PaginaAgenda({
     ...(responsable && { propietario_id: responsable }),
     ...(proximas && { proximas }),
     ...(pestana === "atrasadas" && { hasta: diaAnterior(hoy) }),
-    ...(pestana === "hoy" && { hasta: hoy }),
+    ...(pestana === "hoy" && { desde: hoy, hasta: hoy }),
   };
   // Todo cambio de filtro vuelve a la primera página.
   const filtrar = (cambio: () => void) => {
@@ -155,7 +155,7 @@ export function PaginaAgenda({
     ...(pendientes.data?.items ?? []),
     ...(mostrarVistas ? (vistas.data?.items ?? []) : []),
   ]
-    .filter((a) => !resueltasIds.has(a.id) && (pestana !== "hoy" || a.fecha === hoy))
+    .filter((a) => !resueltasIds.has(a.id))
     .sort(porFecha);
   const atrasadas = alertas.filter((a) => a.fecha < hoy);
   const deHoy = alertas.filter((a) => a.fecha >= hoy);

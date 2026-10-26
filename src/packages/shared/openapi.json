@@ -2765,6 +2765,25 @@
         ],
         "parameters": [
           {
+            "name": "desde",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Piso de fecha inclusive (`fecha >= desde`), combinable con `hasta` y `proximas`. Con `desde` y `hasta` iguales se lista un solo día.",
+              "title": "Desde"
+            },
+            "description": "Piso de fecha inclusive (`fecha >= desde`), combinable con `hasta` y `proximas`. Con `desde` y `hasta` iguales se lista un solo día."
+          },
+          {
             "name": "hasta",
             "in": "query",
             "required": false,
