@@ -196,6 +196,7 @@ async def test_rf075_contexto_del_origen(
     via = {
         "id": str(viaje.id),
         "destino": "Mendoza",
+        "destino_id": str(destino.id),
         "estado": EstadoViaje.reservado.value,
         "fecha_salida": "2027-01-10",
         "fecha_regreso": "2027-01-20",
@@ -232,6 +233,33 @@ async def test_rf075_contexto_del_origen(
     }
     assert d_cliente.json()["contexto"] == {**nulo, "cliente": cli}
     assert d_suelta.json()["contexto"] == nulo
+
+
+async def test_rf075_el_contexto_del_viaje_trae_el_destino_id(
+    cliente_como: FabricaCliente, sesion: AsyncSession
+) -> None:
+    """T-166: el panel de detalle pide los requisitos con `contexto.viaje.destino_id`."""
+    c = await cliente_como("empleado")
+    yo = _propio(c)
+    cliente = await crear(sesion, ClienteFactory)
+    destino = await crear(sesion, DestinoFactory, nombre="Mendoza")
+    viaje = await crear(
+        sesion, ViajeFactory, cliente_id=cliente.id, destino_id=destino.id, responsable_id=yo.id
+    )
+    pago = await crear(sesion, PagoFactory, viaje_id=viaje.id)
+    de_viaje = await _alerta(sesion, yo, hoy(), "viaje", TipoAlerta.salida, viaje)
+    de_pago = await _alerta(sesion, yo, hoy(), "pago", TipoAlerta.pago, pago)
+
+    detalle = await c.get(f"/api/alertas/{de_viaje.id}")
+    detalle_pago = await c.get(f"/api/alertas/{de_pago.id}")
+    listado = await c.get("/api/alertas")
+
+    assert detalle.status_code == 200, detalle.text
+    assert detalle.json()["contexto"]["viaje"]["destino_id"] == str(destino.id)
+    assert detalle_pago.json()["contexto"]["viaje"]["destino_id"] == str(destino.id)
+    assert {a["contexto"]["viaje"]["destino_id"] for a in listado.json()["items"]} == {
+        str(destino.id)
+    }
 
 
 async def test_rf075_el_listado_trae_contexto_y_responsable(
