@@ -1,4 +1,7 @@
-"""T-086: contrato de viajes y economía (CU-07 a CU-12, CU-27): rutas, esquemas, token, roles y 501."""
+"""T-086: contrato de viajes y economía (CU-07 a CU-12, CU-27).
+
+Rutas, esquemas, token, roles y 501.
+"""
 
 import re
 from collections.abc import Awaitable, Callable
