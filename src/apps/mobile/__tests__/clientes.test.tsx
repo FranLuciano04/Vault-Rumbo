@@ -293,6 +293,74 @@ describe("RF-005 búsqueda mobile", () => {
   });
 });
 
+describe("RF-005 lista mobile con caché ya poblada (H-06 de M2)", () => {
+  // Misma clave que arma `useClientes`: ["clientes", "buscar", filtros].
+  const CLAVE_PAGINA_1 = ["clientes", "buscar", { buscar: "", pagina: 1 }];
+
+  function renderConCache() {
+    return renderRouter(
+      { _layout: Raiz, "(pestanas)/clientes/index": ListaClientes },
+      { initialUrl: "/clientes" },
+    );
+  }
+
+  it("RF-005 con la primera página en caché y un refetch idéntico, la lista muestra los clientes y no el vacío", async () => {
+    backend({ paginas: [[camila, sosa, joaquin]] });
+    queryClient.clear();
+    queryClient.setQueryData(CLAVE_PAGINA_1, {
+      items: [camila, sosa, joaquin],
+      total: 3,
+      pagina: 1,
+      por_pagina: 20,
+    });
+    const vista = await renderConCache();
+
+    // El refetch al montar termina (la caché está vencida) y devuelve el mismo contenido.
+    await waitFor(() => {
+      expect(llamadasLista()).toHaveLength(1);
+    });
+    await waitFor(() => {
+      expect(queryClient.isFetching()).toBe(0);
+    });
+
+    expect(vista.queryByText(/no encontramos clientes/i)).toBeNull();
+    expect(vista.getByText("Camila Benítez")).toBeTruthy();
+    expect(vista.getByText("Familia Sosa")).toBeTruthy();
+    expect(vista.getByText("Joaquín Ramos")).toBeTruthy();
+  });
+
+  it("RF-005 con la página 1 en caché de un total mayor, al llegar al final se agrega la página 2 sin perder la 1", async () => {
+    backend({ paginas: [[camila, sosa], [joaquin]] });
+    queryClient.clear();
+    queryClient.setQueryData(CLAVE_PAGINA_1, {
+      items: [camila, sosa],
+      total: 3,
+      pagina: 1,
+      por_pagina: 20,
+    });
+    const vista = await renderConCache();
+
+    await vista.findByText("Camila Benítez");
+    expect(vista.getByText("Familia Sosa")).toBeTruthy();
+    expect(vista.queryByText("Joaquín Ramos")).toBeNull();
+    await waitFor(() => {
+      expect(queryClient.isFetching()).toBe(0);
+    });
+
+    await act(async () => {
+      await fireEvent(vista.getByTestId("lista-clientes"), "endReached");
+    });
+
+    await vista.findByText("Joaquín Ramos");
+    expect(llamadasLista().some((c) => c.params?.["pagina"] === 2)).toBe(true);
+    const nombres = vista
+      .getAllByText(/^(Camila Benítez|Familia Sosa|Joaquín Ramos)$/)
+      .map((n) => n.props.children as string);
+    expect(nombres).toEqual(["Camila Benítez", "Familia Sosa", "Joaquín Ramos"]);
+  });
+  // Caché vacía: ya cubierto por "lista los clientes que devuelve GET /api/clientes…" y "scroll paginado…".
+});
+
 describe("RF-006 ficha mobile", () => {
   it("muestra los datos del cliente: nombre, contacto, instagram, segmento, etiquetas y preferencias", async () => {
     backend({ fichas: { "id-1": camila } });
