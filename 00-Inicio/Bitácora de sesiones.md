@@ -64,6 +64,17 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
+## 26/10/26 — Paloma (Claude Opus 5.5) — T-166: panel lateral de la alerta en la web
+- **T-166** (PR [#89](https://github.com/FranLuciano04/Vault-Rumbo/pull/89), mergeado con el CI en verde): «Ver detalle» abre un panel lateral modal.
+  - Muestra el detalle de la alerta, su contexto y los requisitos del destino.
+  - Desde el panel se puede resolver (con «Deshacer»), posponer y marcar como vista.
+  - **Cambio de contrato (decisión de Paloma):** `ViajeDeAlerta.destino_id`, para no depender de `GET /api/viajes/{id}`, que sigue en 501 hasta M6. Respeta la visibilidad del freelance.
+  - Se suman `FormularioPosponer.tsx`, `ETIQUETA_ESTADO_ALERTA` en shared y `olvidar()` en `useVolverFoco`. El pago del panel sale de `datosDeContexto`.
+  - Review (opus): 0 bloqueantes, 2 importantes y 4 menores, todos arreglados.
+  - Backend: 1375 tests, con 97,13 % de cobertura.
+  - Commits: e9cc324, ee0347f, 9486b0f y 7daef63.
+- **Pendiente:** nada.
+
 ## 25/10/26 — Paloma (Claude Opus 5.5) — T-086: contrato de viajes y economía
 - **T-086** (PR [#87](https://github.com/FranLuciano04/Vault-Rumbo/pull/87), mergeado con el CI en verde): el contrato de M6.
   - Son 20 rutas stub (501) de `viajes` y `economia`, con esquemas, roles y 409 por estado. Tiene tipos, hooks y mocks MSW, con un viaje en cada uno de los 6 estados.
