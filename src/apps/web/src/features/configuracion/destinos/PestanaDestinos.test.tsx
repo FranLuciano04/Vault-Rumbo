@@ -486,3 +486,73 @@ describe("RF-086 requisitos", () => {
     expect(screen.getByLabelText(/nombre/i)).toBeInvalid();
   });
 });
+
+describe("RF-086 cambiar de destino con los requisitos abiertos (H-01)", () => {
+  const requisitoDeB = {
+    ...requisitosMock[0],
+    id: "9b8a7c6d-5e4f-4a3b-8c2d-1e0f9a8b7c6d",
+    destino_id: destinosMock[0].id,
+    nombre: "DNI vigente",
+  };
+
+  function responderPorDestino() {
+    servidor.use(
+      http.get("*/api/destinos/:id/requisitos", ({ params }) => {
+        const items = params["id"] === destinosMock[1].id ? requisitosMock : [requisitoDeB];
+        return HttpResponse.json({ items, total: items.length, pagina: 1, por_pagina: 20 });
+      }),
+    );
+  }
+
+  async function abrirCancunYCambiarABariloche() {
+    const usuario = userEvent.setup();
+    const cancun = await fila("Cancún");
+    await usuario.click(within(cancun).getByRole("button", { name: /requisitos/i }));
+    await screen.findByText("Pasaporte vigente");
+    return {
+      usuario,
+      cambiarABariloche: async () => {
+        const bariloche = await fila("Bariloche");
+        await usuario.click(within(bariloche).getByRole("button", { name: /requisitos/i }));
+        await screen.findByText("DNI vigente");
+      },
+    };
+  }
+
+  it("RF-088 la confirmación de baja del requisito de A no sigue abierta al abrir B", async () => {
+    let bajas: string[] = [];
+    responderPorDestino();
+    servidor.use(
+      http.post("*/api/requisitos-destino/:id/baja", ({ request }) => {
+        bajas = [...bajas, new URL(request.url).pathname];
+        return HttpResponse.json({ ...requisitosMock[0], activo: false });
+      }),
+    );
+    renderPestana();
+    const { usuario, cambiarABariloche } = await abrirCancunYCambiarABariloche();
+
+    const pasaporte = await fila("Pasaporte vigente");
+    await usuario.click(within(pasaporte).getByRole("button", { name: /quitar/i }));
+    await screen.findByRole("alertdialog");
+    await cambiarABariloche();
+
+    expect(screen.getByRole("heading", { name: /requisitos de bariloche/i })).toBeInTheDocument();
+    expect(screen.queryByRole("alertdialog")).not.toBeInTheDocument();
+    expect(bajas).toEqual([]);
+  });
+
+  it("RF-087 el formulario de edición del requisito de A no sigue abierto al abrir B", async () => {
+    responderPorDestino();
+    renderPestana();
+    const { usuario, cambiarABariloche } = await abrirCancunYCambiarABariloche();
+
+    const pasaporte = await fila("Pasaporte vigente");
+    await usuario.click(within(pasaporte).getByRole("button", { name: /editar/i }));
+    await screen.findByRole("button", { name: /guardar requisito/i });
+    await cambiarABariloche();
+
+    expect(screen.getByRole("heading", { name: /requisitos de bariloche/i })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /guardar requisito/i })).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/anticipación/i)).not.toBeInTheDocument();
+  });
+});
