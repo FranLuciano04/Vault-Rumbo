@@ -3,7 +3,7 @@ id: T-166
 titulo: Mostrar el detalle de la alerta en un panel lateral de la agenda web
 modulo: M3 — Alertas
 capa: web
-estado: libre
+estado: tomado
 depende_de: [T-055, T-032]
 tamaño: M
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [CU-14, RF-075, RF-076, RF-077]
 origen: hallazgo T-055
-asignado:
-tomado_el:
-rama:
+asignado: palomap2003
+tomado_el: 25/10/26 23:33
+rama: feature/T-166-mostrar-el-detalle-de-la-alerta-en-un-pa
 pr:
 ---
 # T-166 Mostrar el detalle de la alerta en un panel lateral de la agenda web
