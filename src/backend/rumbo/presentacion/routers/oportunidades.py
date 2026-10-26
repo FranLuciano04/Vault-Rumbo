@@ -140,8 +140,12 @@ async def editar_oportunidad(
     summary="Pasar la oportunidad a en gestión",
     **operacion_de_registro(403, 404, 409, casos_de_uso="CU-05"),
 )
-async def tomar_oportunidad(oportunidad_id: uuid.UUID) -> Oportunidad:
-    raise no_implementado()
+async def tomar_oportunidad(
+    oportunidad_id: uuid.UUID, actor: ActorDep, sesion: SesionDep
+) -> Oportunidad:
+    return Oportunidad.model_validate(
+        await oportunidades.pasar_a_en_gestion(sesion, actor, oportunidad_id)
+    )
 
 
 @router.post(
@@ -161,8 +165,13 @@ async def agendar_insistencia(oportunidad_id: uuid.UUID, datos: Insistencia) -> 
     summary="Cerrar la oportunidad como perdida",
     **operacion_de_registro(403, 404, 409, 422, casos_de_uso="CU-05"),
 )
-async def perder_oportunidad(oportunidad_id: uuid.UUID, datos: OportunidadPerder) -> Oportunidad:
-    raise no_implementado()
+async def perder_oportunidad(
+    oportunidad_id: uuid.UUID, datos: OportunidadPerder, actor: ActorDep, sesion: SesionDep
+) -> Oportunidad:
+    oportunidad = await oportunidades.perder_oportunidad(
+        sesion, actor, oportunidad_id, datos.motivo_perdida, datos.motivo_perdida_detalle
+    )
+    return Oportunidad.model_validate(oportunidad)
 
 
 @router.post(
@@ -171,8 +180,12 @@ async def perder_oportunidad(oportunidad_id: uuid.UUID, datos: OportunidadPerder
     summary="Reactivar una oportunidad perdida",
     **_REACTIVAR,
 )
-async def reactivar_oportunidad(oportunidad_id: uuid.UUID) -> Oportunidad:
-    raise no_implementado()
+async def reactivar_oportunidad(
+    oportunidad_id: uuid.UUID, actor: ActorDep, sesion: SesionDep
+) -> Oportunidad:
+    return Oportunidad.model_validate(
+        await oportunidades.reactivar_oportunidad(sesion, actor, oportunidad_id)
+    )
 
 
 @router.post(
@@ -181,8 +194,12 @@ async def reactivar_oportunidad(oportunidad_id: uuid.UUID) -> Oportunidad:
     summary="Cerrar como ganada sin cotización formal (venta directa)",
     **operacion_de_registro(403, 404, 409, casos_de_uso="CU-05"),
 )
-async def ganar_oportunidad_sin_cotizacion(oportunidad_id: uuid.UUID) -> Oportunidad:
-    raise no_implementado()
+async def ganar_oportunidad_sin_cotizacion(
+    oportunidad_id: uuid.UUID, actor: ActorDep, sesion: SesionDep
+) -> Oportunidad:
+    return Oportunidad.model_validate(
+        await oportunidades.ganar_oportunidad(sesion, actor, oportunidad_id)
+    )
 
 
 @router.get(
