@@ -1,7 +1,14 @@
 import { readFileSync } from "node:fs";
 import { afterAll, afterEach, beforeAll, describe, expect, it } from "vitest";
 import { crearServidor } from "./index";
-import { destinosMock, manejadoresM1, requisitoOtroDestinoMock, requisitosMock } from "./m1";
+import {
+  destinosMock,
+  manejadoresM1,
+  operadoresMock,
+  requisitoOtroDestinoMock,
+  requisitosMock,
+  usuariosMock,
+} from "./m1";
 
 type Esquema = {
   $ref?: string;
@@ -213,5 +220,334 @@ describe("RF-086 el mock de requisitos filtra por destino_id (H-02)", () => {
 
     expect(cuerpo.items).toEqual([]);
     expect(cuerpo.total).toBe(0);
+  });
+});
+
+// --- H-02: los handlers por defecto responden como el backend en filtros y errores ------------
+
+const API = "http://localhost/api";
+const JSON_H = { "content-type": "application/json" };
+
+type Listado = {
+  items: { nombre: string; activo: boolean }[];
+  total: number;
+  pagina: number;
+  por_pagina: number;
+};
+
+function enviar(metodo: string, ruta: string, cuerpo?: unknown) {
+  return fetch(`${API}${ruta}`, {
+    method: metodo,
+    headers: JSON_H,
+    body: cuerpo === undefined ? undefined : JSON.stringify(cuerpo),
+  });
+}
+
+async function esProblema(res: Response, status: number) {
+  expect(res.status).toBe(status);
+  expect(res.headers.get("content-type") ?? "").toMatch(/^application\/problem\+json/);
+  expect(((await res.json()) as { status: number }).status).toBe(status);
+}
+
+const activos = <T extends { activo: boolean }>(lista: readonly T[]) =>
+  lista.filter((x) => x.activo);
+const inactivos = <T extends { activo: boolean }>(lista: readonly T[]) =>
+  lista.filter((x) => !x.activo);
+
+describe.each([
+  ["RF-089", "destinos", destinosMock as { nombre: string; activo: boolean }[]],
+  ["RF-093", "operadores", operadoresMock as { nombre: string; activo: boolean }[]],
+])("%s GET /api/%s respeta activo, buscar y paginación del backend (H-02)", (rf, ruta, mock) => {
+  it(`${rf} sin parámetros trae solo los activos (activo=true por defecto)`, async () => {
+    const cuerpo = (await (await enviar("GET", `/${ruta}`)).json()) as Listado;
+
+    expect(cuerpo.items.map((i) => i.nombre).sort()).toEqual(
+      activos(mock)
+        .map((i) => i.nombre)
+        .sort(),
+    );
+    expect(cuerpo.total).toBe(activos(mock).length);
+  });
+
+  it(`${rf} activo=false trae solo los de baja`, async () => {
+    const cuerpo = (await (await enviar("GET", `/${ruta}?activo=false`)).json()) as Listado;
+
+    expect(cuerpo.items.map((i) => i.nombre)).toEqual(inactivos(mock).map((i) => i.nombre));
+    expect(cuerpo.total).toBe(inactivos(mock).length);
+  });
+
+  it(`${rf} buscar ignora mayúsculas y tildes`, async () => {
+    const buscado = activos(mock)[0] as { nombre: string };
+    const consulta = encodeURIComponent(
+      buscado.nombre.normalize("NFD").replace(/[̀-ͯ]/g, "").toUpperCase(),
+    );
+    const cuerpo = (await (await enviar("GET", `/${ruta}?buscar=${consulta}`)).json()) as Listado;
+
+    expect(cuerpo.items.map((i) => i.nombre)).toContain(buscado.nombre);
+    expect(cuerpo.items.length).toBeLessThan(activos(mock).length);
+    expect(cuerpo.total).toBe(cuerpo.items.length);
+  });
+
+  it(`${rf} buscar sin coincidencias devuelve una lista vacía`, async () => {
+    const cuerpo = (await (
+      await enviar("GET", `/${ruta}?buscar=zzzinexistente`)
+    ).json()) as Listado;
+
+    expect(cuerpo.items).toEqual([]);
+    expect(cuerpo.total).toBe(0);
+  });
+
+  it(`${rf} pagina con pagina y por_pagina, y total cuenta todos los activos`, async () => {
+    const p1 = (await (await enviar("GET", `/${ruta}?pagina=1&por_pagina=1`)).json()) as Listado;
+    const p2 = (await (await enviar("GET", `/${ruta}?pagina=2&por_pagina=1`)).json()) as Listado;
+
+    expect(p1.items).toHaveLength(1);
+    expect(p2.items).toHaveLength(1);
+    expect(p2.items[0]?.nombre).not.toBe(p1.items[0]?.nombre);
+    expect(p1.total).toBe(activos(mock).length);
+    expect(p2).toMatchObject({ pagina: 2, por_pagina: 1 });
+  });
+});
+
+describe("RF-089 destinos: buscar también mira el país (H-02)", () => {
+  it("RF-089 buscar por país sin tildes encuentra el destino", async () => {
+    const cuerpo = (await (await enviar("GET", "/destinos?buscar=mexico")).json()) as Listado;
+
+    expect(cuerpo.items.map((i) => i.nombre)).toEqual(["Cancún"]);
+  });
+});
+
+describe("RF-090 destinos: nombre repetido da 409 problem+json (H-02)", () => {
+  it.each(["Cancún", "cancún", "CANCUN", "cancun", "  Cancún  ", "CANCÚN"])(
+    "RF-090 el alta con el nombre %j ya existente da 409",
+    async (nombre) => {
+      await esProblema(await enviar("POST", "/destinos", { nombre, pais: "México" }), 409);
+    },
+  );
+
+  it("RF-090 los espacios internos se colapsan al comparar", async () => {
+    await esProblema(
+      await enviar("POST", "/destinos", { nombre: "punta   CANA", pais: "RD" }),
+      409,
+    );
+  });
+
+  it("RF-090 también choca contra un destino inactivo", async () => {
+    await esProblema(await enviar("POST", "/destinos", { nombre: "roma", pais: "Italia" }), 409);
+  });
+
+  it("RF-090 un nombre distinto se da de alta (201)", async () => {
+    const res = await enviar("POST", "/destinos", { nombre: "Mendoza", pais: "Argentina" });
+
+    expect(res.status).toBe(201);
+    expect(((await res.json()) as { nombre: string }).nombre).toBe("Mendoza");
+  });
+
+  it("RF-090 renombrar a un nombre ajeno da 409", async () => {
+    await esProblema(
+      await enviar("PATCH", `/destinos/${destinosMock[0].id}`, { nombre: "  cancun " }),
+      409,
+    );
+  });
+
+  it("RF-090 renombrar al propio nombre con otra grafía no es duplicado (200)", async () => {
+    const res = await enviar("PATCH", `/destinos/${destinosMock[0].id}`, { nombre: "BARILOCHE" });
+
+    expect(res.status).toBe(200);
+    expect(((await res.json()) as { nombre: string }).nombre).toBe("BARILOCHE");
+  });
+});
+
+describe("RF-094 operadores: nombre repetido da 409 problem+json (H-02)", () => {
+  it.each([
+    "Despegar Mayorista",
+    "despegar mayorista",
+    "DESPEGAR MAYORISTA",
+    "  Despegar Mayorista  ",
+    "despegar   mayorista",
+  ])("RF-094 el alta con el nombre %j ya existente da 409", async (nombre) => {
+    await esProblema(await enviar("POST", "/operadores", { nombre }), 409);
+  });
+
+  it("RF-094 también choca contra un operador inactivo", async () => {
+    await esProblema(await enviar("POST", "/operadores", { nombre: "andes travel" }), 409);
+  });
+
+  it("RF-094 un nombre distinto se da de alta (201)", async () => {
+    const res = await enviar("POST", "/operadores", { nombre: "Operadora Nueva" });
+
+    expect(res.status).toBe(201);
+  });
+
+  it("RF-094 renombrar a un nombre ajeno da 409", async () => {
+    await esProblema(
+      await enviar("PATCH", `/operadores/${operadoresMock[1].id}`, {
+        nombre: "  despegar mayorista ",
+      }),
+      409,
+    );
+  });
+
+  it("RF-094 renombrar al propio nombre con otra grafía no es duplicado (200)", async () => {
+    const res = await enviar("PATCH", `/operadores/${operadoresMock[0].id}`, {
+      nombre: "DESPEGAR MAYORISTA",
+    });
+
+    expect(res.status).toBe(200);
+  });
+});
+
+describe("RF-022 PUT /api/configuracion valida los rangos del esquema (H-02)", () => {
+  const valido = {
+    vigencia_cotizacion_meses: 2,
+    anticipacion_salida_dias: 5,
+    recontacto_meses: 3,
+  };
+
+  it("RF-022 con valores válidos responde 200 y refleja los nuevos", async () => {
+    const res = await enviar("PUT", "/configuracion", valido);
+
+    expect(res.status).toBe(200);
+    expect(await res.json()).toMatchObject(valido);
+  });
+
+  it("RF-022 anticipación en 0 es válida (ge=0)", async () => {
+    const res = await enviar("PUT", "/configuracion", { ...valido, anticipacion_salida_dias: 0 });
+
+    expect(res.status).toBe(200);
+  });
+
+  it.each([
+    ["vigencia_cotizacion_meses", 0],
+    ["recontacto_meses", 0],
+    ["anticipacion_salida_dias", -1],
+    ["vigencia_cotizacion_meses", -3],
+  ])("RF-022 %s = %d da 422 problem+json", async (campo, valor) => {
+    await esProblema(await enviar("PUT", "/configuracion", { ...valido, [campo]: valor }), 422);
+  });
+
+  it("RF-022 los tres valores fuera de rango a la vez dan 422", async () => {
+    await esProblema(
+      await enviar("PUT", "/configuracion", {
+        vigencia_cotizacion_meses: 0,
+        anticipacion_salida_dias: -1,
+        recontacto_meses: 0,
+      }),
+      422,
+    );
+  });
+
+  it.each(["vigencia_cotizacion_meses", "anticipacion_salida_dias", "recontacto_meses"])(
+    "RF-022 si falta %s da 422 (el PUT reemplaza los tres)",
+    async (campo) => {
+      const cuerpo: Record<string, number> = { ...valido };
+      delete cuerpo[campo];
+
+      await esProblema(await enviar("PUT", "/configuracion", cuerpo), 422);
+    },
+  );
+});
+
+describe("RF-144 usuarios: filtro activo y errores de negocio (H-02)", () => {
+  const alta = { nombre: "Nueva Persona", email: "nueva@rumbo.test", rol: "empleado" };
+
+  it("RF-144 sin activo el listado trae altas y bajas", async () => {
+    const cuerpo = (await (await enviar("GET", "/usuarios")).json()) as Listado;
+
+    expect(cuerpo.items).toHaveLength(usuariosMock.length);
+  });
+
+  it("RF-144 activo=false trae solo los dados de baja", async () => {
+    const cuerpo = (await (await enviar("GET", "/usuarios?activo=false")).json()) as Listado;
+
+    expect(cuerpo.items).toEqual(inactivos(usuariosMock));
+    expect(cuerpo.total).toBe(inactivos(usuariosMock).length);
+  });
+
+  it("RF-144 el alta con un email nuevo responde 201", async () => {
+    const res = await enviar("POST", "/usuarios", alta);
+
+    expect(res.status).toBe(201);
+    expect(await res.json()).toMatchObject({ email: alta.email, rol: "empleado" });
+  });
+
+  it.each(["ana@rumbo.test", "ANA@Rumbo.Test", "  ana@rumbo.test  "])(
+    "RF-146 el alta con el email %j ya usado da 409 (sin distinguir mayúsculas)",
+    async (email) => {
+      await esProblema(await enviar("POST", "/usuarios", { ...alta, email }), 409);
+    },
+  );
+
+  it.each(["no-es-email", "sin@punto", "con espacio@x.test"])(
+    "RF-144 el alta con el email inválido %j da 422",
+    async (email) => {
+      await esProblema(await enviar("POST", "/usuarios", { ...alta, email }), 422);
+    },
+  );
+
+  it("RF-144 el alta con un rol inexistente da 422", async () => {
+    await esProblema(await enviar("POST", "/usuarios", { ...alta, rol: "superadmin" }), 422);
+  });
+
+  it("RF-144 el alta sin nombre da 422", async () => {
+    await esProblema(await enviar("POST", "/usuarios", { ...alta, nombre: "" }), 422);
+  });
+
+  it("RF-149 dar de baja al único admin activo da 409", async () => {
+    await esProblema(await enviar("POST", `/usuarios/${usuariosMock[0].id}/baja`), 409);
+  });
+
+  it("RF-149 quitarle el rol admin al único admin activo da 409", async () => {
+    await esProblema(
+      await enviar("PATCH", `/usuarios/${usuariosMock[0].id}`, { rol: "empleado" }),
+      409,
+    );
+  });
+
+  it("RF-149 editar el nombre del admin sin cambiarle el rol sigue funcionando (200)", async () => {
+    const res = await enviar("PATCH", `/usuarios/${usuariosMock[0].id}`, { nombre: "Lucía F." });
+
+    expect(res.status).toBe(200);
+  });
+
+  it("RF-148 la baja de un usuario que no es el último admin responde 200 inactivo", async () => {
+    const res = await enviar("POST", `/usuarios/${usuariosMock[1].id}/baja`);
+
+    expect(res.status).toBe(200);
+    expect(((await res.json()) as { activo: boolean }).activo).toBe(false);
+  });
+});
+
+describe("RF-084 comisión por defecto: validación del esquema (H-02)", () => {
+  const ruta = `/usuarios/${usuariosMock[1].id}/comision-por-defecto`;
+
+  it("RF-084 un par válido responde 200", async () => {
+    const res = await enviar("PUT", ruta, {
+      comision_default_tipo: "porcentaje",
+      comision_default_valor: "12.5",
+    });
+
+    expect(res.status).toBe(200);
+    expect(await res.json()).toMatchObject({ comision_default_tipo: "porcentaje" });
+  });
+
+  it("RF-084 ambos en null la quitan (200)", async () => {
+    const res = await enviar("PUT", ruta, {
+      comision_default_tipo: null,
+      comision_default_valor: null,
+    });
+
+    expect(res.status).toBe(200);
+  });
+
+  it.each([
+    { comision_default_tipo: "porcentaje", comision_default_valor: "100.01" },
+    { comision_default_tipo: "porcentaje", comision_default_valor: "-0.01" },
+    { comision_default_tipo: "importe", comision_default_valor: "-1" },
+    { comision_default_tipo: "importe", comision_default_valor: null },
+    { comision_default_tipo: null, comision_default_valor: "10" },
+    { comision_default_tipo: "importe", comision_default_valor: "10.123" },
+  ])("RF-084 %j da 422 problem+json", async (cuerpo) => {
+    await esProblema(await enviar("PUT", ruta, cuerpo), 422);
   });
 });
