@@ -3,8 +3,9 @@ CU-05, CU-06, DEC-0006, DEC-0007, DEC-0013)."""
 
 import uuid
 from datetime import date
+from typing import Self
 
-from pydantic import ConfigDict, Field
+from pydantic import ConfigDict, Field, model_validator
 from pydantic.json_schema import JsonDict
 
 from rumbo.datos.modelos import (
@@ -24,6 +25,11 @@ from rumbo.presentacion.esquemas.comunes import (
 )
 
 _SOLO_LECTURA: JsonDict = {"readOnly": True}
+
+
+def _fechas_en_orden(desde: date | None, hasta: date | None) -> None:
+    if desde is not None and hasta is not None and hasta < desde:
+        raise ValueError("La fecha hasta no puede ser anterior a la fecha desde.")
 
 
 class Oportunidad(Auditoria):
@@ -62,6 +68,11 @@ class OportunidadCrear(Entrada):
     pasajeros: int = Field(ge=1)
     notas: str | None = None
 
+    @model_validator(mode="after")
+    def _fechas_tentativas_en_orden(self) -> Self:
+        _fechas_en_orden(self.fecha_desde_tentativa, self.fecha_hasta_tentativa)
+        return self
+
 
 class OportunidadEditar(Edicion):
     """Solo se envían los campos que cambian."""
@@ -76,12 +87,23 @@ class OportunidadEditar(Edicion):
         description="Reasignar el responsable: solo admin o dueño."
     )
 
+    @model_validator(mode="after")
+    def _fechas_tentativas_en_orden(self) -> Self:
+        _fechas_en_orden(self.fecha_desde_tentativa, self.fecha_hasta_tentativa)
+        return self
+
 
 class OportunidadPerder(Entrada):
     motivo_perdida: MotivoPerdida
     motivo_perdida_detalle: str | None = Field(
         default=None, description="Obligatorio si el motivo es «otro»."
     )
+
+    @model_validator(mode="after")
+    def _otro_lleva_detalle(self) -> Self:
+        if self.motivo_perdida is MotivoPerdida.otro and not self.motivo_perdida_detalle:
+            raise ValueError("El motivo «otro» requiere un detalle.")
+        return self
 
 
 class Insistencia(Entrada):

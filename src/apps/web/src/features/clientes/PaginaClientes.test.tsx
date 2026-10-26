@@ -340,7 +340,7 @@ describe("RF-005 columnas con datos reales", () => {
 
     expect(fila.getByText("Laura Asesora")).toBeInTheDocument();
     expect(fila.getByText(/Punta Cana/)).toBeInTheDocument();
-    expect(fila.getByText(/10\/02\/26/)).toBeInTheDocument();
+    expect(fila.getByText(/01\/09\/26/)).toBeInTheDocument();
   });
 
   it("RF-005 muestra «—» en asesor y último viaje cuando no hay dato, y 0 oportunidades", async () => {

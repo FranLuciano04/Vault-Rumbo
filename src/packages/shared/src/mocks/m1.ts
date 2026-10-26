@@ -60,7 +60,7 @@ export const configuracionMock: Configuracion = {
   ...auditoria,
 };
 
-export const destinosMock: [Destino, Destino, Destino] = [
+export const destinosMock: [Destino, Destino, Destino, ...Destino[]] = [
   {
     id: "3f6a1c20-8b4d-4e57-a9c1-5d2e7b9f0a11",
     nombre: "Bariloche",
@@ -86,6 +86,60 @@ export const destinosMock: [Destino, Destino, Destino] = [
     region: null,
     notas: "Pide seguro de viaje.",
     activo: false,
+    ...auditoria,
+  },
+  {
+    id: "9c1d2e3f-4a5b-4c6d-8e7f-0a1b2c3d4e01",
+    nombre: "Europa",
+    pais: "Varios",
+    region: null,
+    notas: null,
+    activo: true,
+    ...auditoria,
+  },
+  {
+    id: "9c1d2e3f-4a5b-4c6d-8e7f-0a1b2c3d4e02",
+    nombre: "Cusco",
+    pais: "Perú",
+    region: null,
+    notas: null,
+    activo: true,
+    ...auditoria,
+  },
+  {
+    id: "9c1d2e3f-4a5b-4c6d-8e7f-0a1b2c3d4e03",
+    nombre: "Brasil",
+    pais: "Brasil",
+    region: null,
+    notas: null,
+    activo: true,
+    ...auditoria,
+  },
+  {
+    id: "9c1d2e3f-4a5b-4c6d-8e7f-0a1b2c3d4e04",
+    nombre: "Salta",
+    pais: "Argentina",
+    region: null,
+    notas: null,
+    activo: true,
+    ...auditoria,
+  },
+  {
+    id: "9c1d2e3f-4a5b-4c6d-8e7f-0a1b2c3d4e05",
+    nombre: "Punta Cana",
+    pais: "República Dominicana",
+    region: null,
+    notas: null,
+    activo: true,
+    ...auditoria,
+  },
+  {
+    id: "9c1d2e3f-4a5b-4c6d-8e7f-0a1b2c3d4e06",
+    nombre: "Lisboa",
+    pais: "Portugal",
+    region: null,
+    notas: null,
+    activo: true,
     ...auditoria,
   },
 ];

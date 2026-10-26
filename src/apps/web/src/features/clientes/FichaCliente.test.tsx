@@ -111,7 +111,7 @@ describe("RF-006 historial", () => {
     const enlace = await screen.findByRole("link", { name: /punta cana/i });
     expect(enlace).toHaveAttribute(
       "href",
-      expect.stringContaining("6b2d9f08-7e41-4c5a-8d13-0a9e3c5b7f44"),
+      expect.stringContaining("6b2d9f08-7e41-4c5a-8d13-0a9e3c5b7f47"),
     );
   });
 

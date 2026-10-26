@@ -13,7 +13,7 @@ export const auditoriaMock = {
 
 const camila = "3c1f6d2e-8a47-4b19-9e53-7d0a2b4c6e11";
 const joaquin = "d4a8c6e2-5f19-4073-8b3a-2e1c9d7f0b33";
-const sosa = "a9e3b7c1-4d26-4f58-8c0a-6b1d2e3f4a57";
+const sosa = "9e5b0a74-1c3d-4f68-a2b9-5c8d7e0f1a22";
 const operador_id = "c8b7a6f5-e4d3-4c2b-9a10-f9e8d7c6b5a4";
 const vendedor_id = responsable_id;
 

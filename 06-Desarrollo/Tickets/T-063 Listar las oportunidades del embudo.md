@@ -30,9 +30,10 @@ Cada rol ve el embudo de oportunidades por estado según su visibilidad, abre un
 - [ ] `GET /oportunidades` filtra por estado, responsable y «lo mío», paginado; el `freelance` ve solo lo suyo.
 - [ ] `GET /oportunidades/{id}` (ajena → 404) y `PATCH` de datos y notas.
 - [ ] El `PATCH` no cambia el estado (eso va por acciones).
+- [ ] Un `PATCH` con una sola fecha tentativa que queda fuera de orden respecto de la guardada responde 422, no 500. El esquema ya rechaza el cuerpo con las dos fechas invertidas, pero no ve la fecha guardada, y el CHECK de la base terminaría en 500 (`errores.py:_error_de_base` no lo traduce). Origen: review del arreglo `fix/M4-validaciones-y-ids-de-mocks`.
 
 ## Tests esperados
-`tests/api/test_oportunidades.py`: `test_rf016_embudo_por_estado`, `test_rf151_freelance_solo_lo_suyo`, `test_patch_no_cambia_estado`.
+`tests/api/test_oportunidades.py`: `test_rf016_embudo_por_estado`, `test_rf151_freelance_solo_lo_suyo`, `test_patch_no_cambia_estado`, `test_patch_fecha_hasta_anterior_a_la_guardada_responde_422`.
 
 ## Contexto (leer solo esto)
 - [[CU-05 Seguir oportunidad]]

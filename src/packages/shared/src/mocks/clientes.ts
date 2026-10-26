@@ -24,7 +24,7 @@ export const clientesMock: ClienteListado[] = [
     no_recontactar: false,
     asesor_asignado_id: "a1c4e7f0-3d58-4b92-b6a3-8f0e2d1c4b03",
     asesor: { id: "a1c4e7f0-3d58-4b92-b6a3-8f0e2d1c4b03", nombre: "Laura Asesora" },
-    ultimo_viaje: { fecha_salida: "2026-02-10", destino: "Punta Cana" },
+    ultimo_viaje: { fecha_salida: "2026-09-01", destino: "Punta Cana" },
     oportunidades_abiertas: 1,
     created_by: "5d3e9c18-7b24-4a6f-8e10-2c4a9b6d5f02",
     updated_by: "a1c4e7f0-3d58-4b92-b6a3-8f0e2d1c4b03",
@@ -73,20 +73,20 @@ export const clientesMock: ClienteListado[] = [
 const historialMock: HistorialCliente = {
   oportunidades: [
     {
-      id: "6b2d9f08-7e41-4c5a-8d13-0a9e3c5b7f44",
+      id: "6b2d9f08-7e41-4c5a-8d13-0a9e3c5b7f47",
       destino_consultado: "Punta Cana",
       estado: "ganada",
-      fecha_desde_tentativa: "2026-02-10",
-      fecha_hasta_tentativa: "2026-02-20",
+      fecha_desde_tentativa: "2026-09-01",
+      fecha_hasta_tentativa: "2026-09-15",
     },
   ],
   viajes: [
     {
       id: "f0a7c3d9-2b64-4e18-9c5d-8b1e6a4d2f55",
-      destino_id: "1d8e5b3a-9c20-47f6-a4b8-3e7d0c2a6f66",
+      destino_id: "9c1d2e3f-4a5b-4c6d-8e7f-0a1b2c3d4e05",
       estado: "finalizado",
-      fecha_salida: "2026-02-10",
-      fecha_regreso: "2026-02-20",
+      fecha_salida: "2026-09-01",
+      fecha_regreso: "2026-09-15",
     },
   ],
   resenas: [
