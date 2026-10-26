@@ -24,6 +24,8 @@ export function ListaClientes() {
   });
 
   useEffect(() => {
+    // Sin cambio de texto no se vuelve a la página 1 (si no, se pierde el scroll ya paginado).
+    if (texto === buscar) return;
     const espera = setTimeout(() => {
       setBuscar(texto);
       setPagina(1);
@@ -31,7 +33,7 @@ export function ListaClientes() {
     return () => {
       clearTimeout(espera);
     };
-  }, [texto]);
+  }, [texto, buscar]);
 
   // Se acumulan las páginas al llegar datos nuevos (ajuste de estado durante el render).
   // `recibido` arranca sin datos para que también entren los que ya estaban en caché al montar.
