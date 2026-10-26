@@ -9,6 +9,7 @@ from sqlalchemy import ColumnElement, exists, func, or_, select, true
 from sqlalchemy.dialects.postgresql import distinct_on
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from rumbo.core.contacto import clave_contacto
 from rumbo.datos.modelos import (
     Cliente,
     Destino,
@@ -61,11 +62,12 @@ class RepositorioClientes(RepositorioBase[Cliente]):
     async def buscar_parecidos(
         self, sesion: AsyncSession, *, nombre: str, contacto: str, visibilidad: Visibilidad
     ) -> list[Cliente]:
-        """Hasta `MAX_PARECIDOS` clientes con el mismo contacto (sin distinguir mayúsculas) o el
-        mismo nombre (sin distinguir mayúsculas, tildes ni espacios de más)."""
+        """Hasta `MAX_PARECIDOS` clientes con el mismo contacto (misma clave canónica: un teléfono
+        en cualquier formato, un email sin distinguir mayúsculas) o el mismo nombre (sin
+        distinguir mayúsculas, tildes ni espacios de más)."""
         consulta = select(Cliente).where(
             or_(
-                func.lower(Cliente.contacto) == contacto.lower(),
+                Cliente.contacto_clave == clave_contacto(contacto),
                 nombre_normalizado(Cliente.nombre) == normalizar(nombre),
             )
         )
@@ -74,10 +76,22 @@ class RepositorioClientes(RepositorioBase[Cliente]):
         return list(await sesion.scalars(consulta))
 
     async def existe_contacto(self, sesion: AsyncSession, *, contacto: str) -> bool:
-        """Si algún `Cliente` de la agencia tiene ese contacto (sin distinguir mayúsculas), sin
-        filtro de visibilidad ni filas cargadas: solo para avisar de un duplicado ajeno."""
-        consulta = select(exists().where(func.lower(Cliente.contacto) == contacto.lower()))
+        """Si algún `Cliente` de la agencia tiene ese contacto (misma clave canónica), sin filtro
+        de visibilidad ni filas cargadas: solo para avisar de un duplicado ajeno."""
+        consulta = select(exists().where(Cliente.contacto_clave == clave_contacto(contacto)))
         return bool(await sesion.scalar(consulta))
+
+    async def bloquear_alta(self, sesion: AsyncSession, *, nombre: str, contacto: str) -> None:
+        """Serializa, hasta el fin de la transacción, las altas con el mismo contacto canónico o
+        el mismo nombre normalizado: quien llega segundo espera y, al re-consultar los parecidos,
+        ya ve al primero. Los bloqueos se toman en orden fijo para que no se crucen."""
+        claves = sorted(
+            [f"cliente-contacto:{clave_contacto(contacto)}", f"cliente-nombre:{normalizar(nombre)}"]
+        )
+        for clave in claves:
+            await sesion.execute(
+                select(func.pg_advisory_xact_lock(func.hashtextextended(clave, 0)))
+            )
 
     async def paginar(
         self,

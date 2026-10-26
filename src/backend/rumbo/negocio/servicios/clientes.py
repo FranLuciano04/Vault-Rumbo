@@ -45,6 +45,8 @@ async def registrar_cliente(
     elif asesor_asignado_id is not None:
         await _exigir_asesor_activo(sesion, actor, asesor_asignado_id)
     if not confirmar_duplicado:
+        # Dos altas simultáneas con los mismos datos no se saltean el aviso: la segunda espera.
+        await _clientes.bloquear_alta(sesion, nombre=nombre, contacto=contacto)
         parecidos = await _clientes.buscar_parecidos(
             sesion, nombre=nombre, contacto=contacto, visibilidad=visibilidad(actor)
         )
