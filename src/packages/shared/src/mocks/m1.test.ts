@@ -878,3 +878,23 @@ describe("RF-149 y RF-144 último admin, orden y alta de usuario (H-02)", () => 
     expect(((await res.json()) as { acceso_redes: boolean }).acceso_redes).toBe(false);
   });
 });
+
+describe("RF-149 y RF-090 orden de validación y cuerpo recortado (H-02)", () => {
+  it.each([null, "superadmin"])(
+    "RF-149 PATCH al único admin con rol %j da 422 en rol, no 409",
+    async (rol) => {
+      await esProblema(await enviar("PATCH", `/usuarios/${usuariosMock[0].id}`, { rol }), 422, [
+        "rol",
+      ]);
+    },
+  );
+
+  it("RF-090 la edición responde con el cuerpo recortado, como str_strip_whitespace", async () => {
+    const res = await enviar("PATCH", `/destinos/${destinosMock[0].id}`, {
+      nombre: "  Bariloche ",
+    });
+
+    expect(res.status).toBe(200);
+    expect(((await res.json()) as { nombre: string }).nombre).toBe("Bariloche");
+  });
+});

@@ -378,13 +378,13 @@ const sinUltimoAdmin = () =>
     "Es el único administrador activo: asigná otro antes de quitarle el rol o darlo de baja.",
   );
 
-/** Recurso de ejemplo con el id de la URL; si hay cuerpo (alta o edición), lo superpone. */
+/** Recurso de ejemplo con el id de la URL; si hay cuerpo (alta o edición, ya recortado), lo superpone. */
 async function recurso<T extends { id: string }>(
   ejemplo: T,
   id: string | readonly string[] | undefined,
   pedido?: Request,
 ): Promise<T> {
-  const cuerpo = (pedido ? await pedido.json().catch(() => ({})) : {}) as Record<string, unknown>;
+  const cuerpo = pedido ? await cuerpoDe(pedido) : {};
   // Los importes viajan como texto decimal aunque el cuerpo de entrada los admita como número.
   const valor = cuerpo["comision_default_valor"];
   if (typeof valor === "number") cuerpo["comision_default_valor"] = valor.toFixed(2);
