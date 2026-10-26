@@ -12,6 +12,7 @@ import {
   useResolverConDeshacer,
   useYo,
 } from "@rumbo/shared/hooks";
+import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
   AccessibilityInfo,
@@ -55,6 +56,7 @@ function FilaAlerta({
   mostrarResponsable: boolean;
   alResolver: () => void;
 }) {
+  const router = useRouter();
   const esPago = alerta.tipo === "pago";
   const detalle = [...lineaDeContexto(alerta), mostrarResponsable && alerta.responsable.nombre]
     .filter(Boolean)
@@ -65,7 +67,15 @@ function FilaAlerta({
         <Text className="text-xs font-semibold uppercase text-gray-500">
           {ETIQUETA_TIPO_ALERTA[alerta.tipo]}
         </Text>
-        <Text className="text-base font-medium">{alerta.descripcion}</Text>
+        <Pressable
+          role="link"
+          accessibilityLabel={`Ver detalle: ${alerta.descripcion}`}
+          onPress={() => {
+            router.push(`/alertas/${alerta.id}`);
+          }}
+        >
+          <Text className="text-base font-medium">{alerta.descripcion}</Text>
+        </Pressable>
         <Text className="text-sm text-gray-500">{detalle}</Text>
         {esPago && (
           <Text className="text-sm text-gray-500">Se resuelve al registrar el cobro.</Text>

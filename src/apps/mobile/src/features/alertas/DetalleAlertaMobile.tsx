@@ -1,3 +1,201 @@
-export function DetalleAlertaMobile(): never {
-  throw new Error("no implementado");
+import {
+  diasDeAtraso,
+  ErrorApi,
+  ETIQUETA_TIPO_ALERTA,
+  formatearFecha,
+  hoyEnBuenosAires,
+  lineaDeContexto,
+  mensajeDeError,
+  type Alerta,
+} from "@rumbo/shared";
+import { useAlerta, usePosponerAlerta } from "@rumbo/shared/hooks";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { useState } from "react";
+import { ActivityIndicator, Pressable, ScrollView, Text, View } from "react-native";
+import { cliente } from "../../cliente";
+
+const MILISEGUNDOS_POR_DIA = 86_400_000;
+
+// Las tres opciones rápidas de la pantalla 54 del prototipo, todas posteriores a hoy.
+const OPCIONES_POSPONER = [
+  { etiqueta: "Mañana", dias: 1 },
+  { etiqueta: "En 3 días", dias: 3 },
+  { etiqueta: "En una semana", dias: 7 },
+];
+
+/** `aaaa-mm-dd` de `dias` días después de `fecha` (también `aaaa-mm-dd`). */
+function sumarDias(fecha: string, dias: number): string {
+  return new Date(Date.parse(fecha) + dias * MILISEGUNDOS_POR_DIA).toISOString().slice(0, 10);
+}
+
+/** Contexto del origen sin repetir lo que la descripción ya dice (p. ej. el cliente y el destino). */
+function contextoNuevo(alerta: Alerta): string[] {
+  const { cliente: cl, viaje, oportunidad } = alerta.contexto;
+  const datos = [
+    viaje && { valor: viaje.destino, linea: `Viaje: ${viaje.destino}` },
+    oportunidad && {
+      valor: oportunidad.destino_consultado,
+      linea: `Oportunidad: ${oportunidad.destino_consultado}`,
+    },
+    cl && { valor: cl.nombre, linea: cl.nombre },
+  ];
+  const pago = lineaDeContexto(alerta).filter((linea) => linea.includes(" · vence "));
+  return [
+    ...datos.flatMap((dato) =>
+      dato && !alerta.descripcion.includes(dato.valor) ? [dato.linea] : [],
+    ),
+    ...pago,
+  ];
+}
+
+function Volver() {
+  const router = useRouter();
+  return (
+    <Pressable
+      role="button"
+      accessibilityLabel="Volver"
+      onPress={() => {
+        if (router.canGoBack()) router.back();
+        else router.replace("/");
+      }}
+    >
+      <Text className="text-primary">‹ Agenda</Text>
+    </Pressable>
+  );
+}
+
+function Pantalla({ children }: { children: React.ReactNode }) {
+  return (
+    <View className="flex-1 gap-4 bg-white p-6 pt-12">
+      <Volver />
+      {children}
+    </View>
+  );
+}
+
+/**
+ * Detalle de una alerta en el celular (CU-14, pantallas 53 y 54 del prototipo): tipo, descripción
+ * y contexto del origen, acceso a la ficha del cliente y posponer con tres fechas futuras.
+ */
+export function DetalleAlertaMobile() {
+  const { id } = useLocalSearchParams<{ id: string }>();
+  const router = useRouter();
+  const { data: alerta, error, isPending } = useAlerta(cliente, id);
+  const posponer = usePosponerAlerta(cliente);
+  const [eligiendo, setEligiendo] = useState(false);
+
+  if (isPending)
+    return (
+      <Pantalla>
+        <ActivityIndicator accessibilityLabel="Cargando alerta" />
+      </Pantalla>
+    );
+  if (!alerta)
+    return (
+      <Pantalla>
+        <Text role="alert">
+          {error instanceof ErrorApi && error.status === 404
+            ? "No encontramos la alerta."
+            : "No pudimos cargar la alerta. Probá de nuevo en unos minutos."}
+        </Text>
+      </Pantalla>
+    );
+
+  const hoy = hoyEnBuenosAires();
+  const atraso = diasDeAtraso(alerta.fecha, hoy);
+  const clienteDeLaAlerta = alerta.contexto.cliente;
+
+  const elegir = (fecha: string) => {
+    posponer.mutate(
+      { id: alerta.id, fecha },
+      {
+        onSuccess: () => {
+          if (router.canGoBack()) router.back();
+          else router.replace("/");
+        },
+      },
+    );
+  };
+
+  return (
+    <ScrollView testID="detalle-alerta" contentContainerClassName="gap-4 bg-white p-6 pt-12">
+      <Volver />
+      <Text className="text-xs font-semibold uppercase text-gray-500">
+        {ETIQUETA_TIPO_ALERTA[alerta.tipo]}
+      </Text>
+      <Text role="heading" className="text-xl font-bold">
+        {alerta.descripcion}
+      </Text>
+      {atraso > 0 && (
+        <Text className="self-start rounded-full bg-red-50 px-2 py-0.5 text-xs font-medium text-red-700">
+          Hace {atraso} {atraso === 1 ? "día" : "días"}
+        </Text>
+      )}
+      <Text className="text-sm text-gray-500">{contextoNuevo(alerta).join(" · ")}</Text>
+      {clienteDeLaAlerta && (
+        <Pressable
+          role="button"
+          accessibilityLabel="Ver cliente"
+          onPress={() => {
+            router.push(`/clientes/${clienteDeLaAlerta.id}`);
+          }}
+          className="items-center rounded-xl bg-primary py-3"
+        >
+          <Text className="font-semibold text-primary-foreground">Ver cliente</Text>
+        </Pressable>
+      )}
+      {!eligiendo ? (
+        <Pressable
+          role="button"
+          accessibilityLabel="Posponer"
+          onPress={() => {
+            setEligiendo(true);
+          }}
+          className="items-center rounded-xl border border-input py-3"
+        >
+          <Text className="font-semibold text-primary">Posponer</Text>
+        </Pressable>
+      ) : (
+        <View className="gap-3 rounded-2xl border border-border p-4">
+          <Text role="heading" className="text-lg font-semibold">
+            Posponer alerta
+          </Text>
+          {OPCIONES_POSPONER.map(({ etiqueta, dias }) => {
+            const fecha = sumarDias(hoy, dias);
+            const titulo = `${etiqueta} · ${formatearFecha(fecha)}`;
+            return (
+              <Pressable
+                key={dias}
+                role="button"
+                accessibilityLabel={titulo}
+                disabled={posponer.isPending}
+                onPress={() => {
+                  elegir(fecha);
+                }}
+                className="rounded-xl border border-input px-4 py-3"
+              >
+                <Text className="text-base">{titulo}</Text>
+              </Pressable>
+            );
+          })}
+          {posponer.isError && (
+            <Text role="alert" accessibilityLiveRegion="assertive" className="text-red-700">
+              {mensajeDeError(posponer.error)}
+            </Text>
+          )}
+          <Pressable
+            role="button"
+            accessibilityLabel="Cancelar"
+            onPress={() => {
+              setEligiendo(false);
+              posponer.reset();
+            }}
+            className="items-center py-2"
+          >
+            <Text className="font-semibold text-primary">Cancelar</Text>
+          </Pressable>
+        </View>
+      )}
+    </ScrollView>
+  );
 }
