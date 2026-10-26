@@ -229,6 +229,43 @@ describe("RF-007 edición", () => {
     });
   });
 
+  it("RF-007 si la ficha se refresca mientras se edita, el PATCH no pisa los cambios de otra persona", async () => {
+    const registro = capturarPatch();
+    const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+    const usuario = userEvent.setup();
+    render(
+      <QueryClientProvider client={queryClient}>
+        <MemoryRouter initialEntries={[`/clientes/${CAMILA_ID}`]}>
+          <Routes>
+            <Route
+              path="/clientes/:id"
+              element={<FichaCliente cliente={cliente} usuario={usuariosPorRol.empleado} />}
+            />
+          </Routes>
+        </MemoryRouter>
+      </QueryClientProvider>,
+    );
+    await usuario.click(await screen.findByRole("button", { name: /editar/i }));
+    await screen.findByLabelText(/nombre/i);
+
+    // Otra persona guardó cambios y la ficha se refresca mientras esta edita.
+    queryClient.setQueryData(["clientes", CAMILA_ID], {
+      ...camila,
+      contacto: "otra.persona@mail.test",
+      segmento: "familia",
+      etiquetas: ["etiqueta ajena"],
+    });
+
+    const preferencias = await screen.findByLabelText(/preferencias/i);
+    await usuario.clear(preferencias);
+    await usuario.type(preferencias, "Prefiere cabañas");
+    await usuario.click(screen.getByRole("button", { name: /guardar/i }));
+
+    await waitFor(() => {
+      expect(registro.cuerpo).toEqual({ preferencias: "Prefiere cabañas" });
+    });
+  });
+
   it("RF-007 el Instagram es opcional: vaciarlo manda null", async () => {
     const registro = capturarPatch();
     const usuario = await abrirEdicion();

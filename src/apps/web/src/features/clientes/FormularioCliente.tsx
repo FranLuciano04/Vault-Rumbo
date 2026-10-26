@@ -108,16 +108,19 @@ export function FormularioCliente({
 }) {
   const editar = useEditarCliente(cliente);
   const [error, setError] = useState<string | null>(null);
-  const [etiquetas, setEtiquetas] = useState(ficha.etiquetas);
+  // La ficha tal como estaba al abrir la edición: si se refresca mientras se edita, el PATCH
+  // compara contra lo que la persona vio y no pisa los cambios de otra.
+  const [fichaAlAbrir] = useState(ficha);
+  const [etiquetas, setEtiquetas] = useState(fichaAlAbrir.etiquetas);
   const formulario = useForm<EntradaFicha, unknown, DatosFicha>({
     resolver: zodResolver(esquemaFicha),
     defaultValues: {
-      nombre: ficha.nombre,
-      contacto: ficha.contacto,
-      instagram: ficha.instagram ?? "",
-      segmento: ficha.segmento,
-      preferencias: ficha.preferencias ?? "",
-      asesor_asignado_id: ficha.asesor_asignado_id ?? "",
+      nombre: fichaAlAbrir.nombre,
+      contacto: fichaAlAbrir.contacto,
+      instagram: fichaAlAbrir.instagram ?? "",
+      segmento: fichaAlAbrir.segmento,
+      preferencias: fichaAlAbrir.preferencias ?? "",
+      asesor_asignado_id: fichaAlAbrir.asesor_asignado_id ?? "",
     },
   });
   const { errors } = formulario.formState;
@@ -130,13 +133,13 @@ export function FormularioCliente({
 
   async function guardar(datos: DatosFicha) {
     setError(null);
-    const cambios = cambiosDeLaFicha(datos, etiquetas, ficha, conAsesor);
+    const cambios = cambiosDeLaFicha(datos, etiquetas, fichaAlAbrir, conAsesor);
     if (Object.keys(cambios).length === 0) {
       alTerminar(false);
       return;
     }
     try {
-      await editar.mutateAsync({ id: ficha.id, cambios });
+      await editar.mutateAsync({ id: fichaAlAbrir.id, cambios });
       alTerminar(true);
     } catch (falla) {
       setError(aplicarErroresDelServidor(falla, CAMPOS, formulario.setError));
@@ -185,7 +188,11 @@ export function FormularioCliente({
         )}
       </CampoFormulario>
       {conAsesor && (
-        <SelectorAsesor cliente={cliente} actual={ficha.asesor} control={formulario.control} />
+        <SelectorAsesor
+          cliente={cliente}
+          actual={fichaAlAbrir.asesor}
+          control={formulario.control}
+        />
       )}
       {error && (
         <p role="alert" className="text-sm font-medium text-destructive">
