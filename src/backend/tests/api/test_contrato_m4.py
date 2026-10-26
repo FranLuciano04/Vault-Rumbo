@@ -606,3 +606,83 @@ async def test_cu05_id_que_no_es_uuid_responde_422(
     r = await c.request(metodo, ruta)
 
     assert r.status_code == 422
+
+
+FECHAS_INVERTIDAS = {"fecha_desde_tentativa": "2027-03-15", "fecha_hasta_tentativa": "2027-03-05"}
+FECHAS_IGUALES = {"fecha_desde_tentativa": "2027-03-05", "fecha_hasta_tentativa": "2027-03-05"}
+
+
+@pytest.mark.parametrize(
+    ("metodo", "ruta", "cuerpo"),
+    [
+        ("post", "/api/oportunidades", {**CREAR, **FECHAS_INVERTIDAS}),
+        ("patch", f"/api/oportunidades/{ID}", FECHAS_INVERTIDAS),
+    ],
+)
+async def test_cu04_fechas_tentativas_invertidas_responden_422(
+    cliente_como: FabricaCliente, metodo: str, ruta: str, cuerpo: dict[str, Any]
+) -> None:
+    c = await cliente_como("empleado")
+
+    r = await c.request(metodo, ruta, json=cuerpo)
+
+    assert r.status_code == 422
+    assert r.headers["content-type"].startswith(PROBLEM_JSON)
+
+
+@pytest.mark.parametrize(
+    ("metodo", "ruta", "cuerpo"),
+    [
+        ("post", "/api/oportunidades", {**CREAR, **FECHAS_IGUALES}),
+        ("patch", f"/api/oportunidades/{ID}", FECHAS_IGUALES),
+        ("post", "/api/oportunidades", {**CREAR, "fecha_desde_tentativa": "2027-03-05"}),
+        ("patch", f"/api/oportunidades/{ID}", {"fecha_hasta_tentativa": "2020-01-01"}),
+        ("patch", f"/api/oportunidades/{ID}", {"fecha_desde_tentativa": "2030-01-01"}),
+    ],
+)
+async def test_cu04_fechas_tentativas_iguales_o_incompletas_llegan_al_501(
+    cliente_como: FabricaCliente, metodo: str, ruta: str, cuerpo: dict[str, Any]
+) -> None:
+    c = await cliente_como("empleado")
+
+    r = await c.request(metodo, ruta, json=cuerpo)
+
+    assert r.status_code == 501
+
+
+@pytest.mark.parametrize(
+    "cuerpo",
+    [
+        {"motivo_perdida": "otro"},
+        {"motivo_perdida": "otro", "motivo_perdida_detalle": None},
+        {"motivo_perdida": "otro", "motivo_perdida_detalle": ""},
+        {"motivo_perdida": "otro", "motivo_perdida_detalle": "   "},
+    ],
+)
+async def test_cu05_perder_por_otro_sin_detalle_responde_422(
+    cliente_como: FabricaCliente, cuerpo: dict[str, Any]
+) -> None:
+    c = await cliente_como("empleado")
+
+    r = await c.post(f"/api/oportunidades/{ID}/perder", json=cuerpo)
+
+    assert r.status_code == 422
+    assert r.headers["content-type"].startswith(PROBLEM_JSON)
+
+
+@pytest.mark.parametrize(
+    "cuerpo",
+    [
+        {"motivo_perdida": "otro", "motivo_perdida_detalle": "Se mudó de país"},
+        {"motivo_perdida": "precio"},
+        {"motivo_perdida": "precio", "motivo_perdida_detalle": ""},
+    ],
+)
+async def test_cu05_perder_con_detalle_valido_o_motivo_distinto_llega_al_501(
+    cliente_como: FabricaCliente, cuerpo: dict[str, Any]
+) -> None:
+    c = await cliente_como("empleado")
+
+    r = await c.post(f"/api/oportunidades/{ID}/perder", json=cuerpo)
+
+    assert r.status_code == 501
