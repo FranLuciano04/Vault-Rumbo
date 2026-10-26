@@ -18,7 +18,7 @@ tags:: #tipo/referencia
 | M1 — Usuarios y configuración | 19 | 19 | 0 | 0 | 0 | 0 | 🔍 listo para la review |
 | M2 — Clientes | 15 | 15 | 0 | 0 | 0 | 0 | 🔍 listo para la review |
 | M3 — Alertas | 14 | 11 | 0 | 3 | 0 | 0 | 🛠️ en curso |
-| M4 — Oportunidades y cotizaciones | 14 | 0 | 1 | 0 | 13 | 0 | 🛠️ en curso |
+| M4 — Oportunidades y cotizaciones | 14 | 1 | 0 | 4 | 9 | 0 | 🛠️ en curso |
 | M5 — Hoteles y reseñas | 11 | 0 | 0 | 1 | 10 | 0 | 🛠️ en curso |
 | M6 — Viajes y economía | 24 | 1 | 0 | 3 | 20 | 0 | 🛠️ en curso |
 | M7 — Proceso diario y CRM proactivo | 9 | 0 | 0 | 2 | 7 | 0 | 🛠️ en curso |
@@ -127,16 +127,16 @@ flowchart LR
     T166["T-166 · Mostrar el detalle de la alerta en un panel lateral de la agenda web<br/><small>web</small>"]:::hecho
   end
   subgraph M4["M4 — Oportunidades y cotizaciones"]
-    T061["T-061 · Publicar el contrato de oportunidades y cotizaciones<br/><small>contrato</small><br/>👤 palomap2003"]:::tomado
-    T062["T-062 · Registrar una consulta como oportunidad<br/><small>backend</small>"]:::esperando
-    T063["T-063 · Listar las oportunidades del embudo<br/><small>backend</small>"]:::esperando
+    T061["T-061 · Publicar el contrato de oportunidades y cotizaciones<br/><small>contrato</small>"]:::hecho
+    T062["T-062 · Registrar una consulta como oportunidad<br/><small>backend</small>"]:::disponible
+    T063["T-063 · Listar las oportunidades del embudo<br/><small>backend</small>"]:::disponible
     T064["T-064 · Implementar los estados de la oportunidad<br/><small>backend · ⚠️ riesgo alto</small>"]:::esperando
     T065["T-065 · Agendar insistencias en el seguimiento de la oportunidad<br/><small>backend</small>"]:::esperando
     T066["T-066 · Emitir cotizaciones versionadas con su vigencia<br/><small>backend · ⚠️ riesgo alto</small>"]:::esperando
     T067["T-067 · Registrar la respuesta del cliente a la cotización<br/><small>backend · ⚠️ riesgo alto</small>"]:::esperando
     T068["T-068 · Generar el documento PDF de la cotización<br/><small>backend</small>"]:::esperando
-    T069["T-069 · Registrar una consulta en la web<br/><small>web</small>"]:::esperando
-    T070["T-070 · Mostrar el embudo de oportunidades en la web<br/><small>web</small>"]:::esperando
+    T069["T-069 · Registrar una consulta en la web<br/><small>web</small>"]:::disponible
+    T070["T-070 · Mostrar el embudo de oportunidades en la web<br/><small>web</small>"]:::disponible
     T071["T-071 · Seguir una oportunidad desde su detalle en la web<br/><small>web</small>"]:::esperando
     T072["T-072 · Emitir una cotización en la web<br/><small>web</small>"]:::esperando
     T073["T-073 · Registrar la respuesta a una cotización en la web<br/><small>web</small>"]:::esperando
