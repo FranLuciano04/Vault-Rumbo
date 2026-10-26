@@ -394,7 +394,7 @@ describe("RF-074 agenda", () => {
         within(f).getByRole("button", { name: `${accion}: ${FORMULARIO}` }),
       ).toBeInTheDocument();
     }
-    expect(screen.getByRole("tab", { name: /pendientes/i })).toHaveAttribute(
+    expect(screen.getByRole("tab", { name: /^todas/i })).toHaveAttribute(
       "aria-controls",
       screen.getByRole("tabpanel").id,
     );
