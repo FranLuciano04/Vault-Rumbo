@@ -3,7 +3,7 @@ id: T-058
 titulo: Posponer una alerta desde su detalle en la app mobile
 modulo: M3 — Alertas
 capa: mobile
-estado: tomado
+estado: hecho
 depende_de: [T-057]
 tamaño: S
 riesgo: normal
@@ -45,3 +45,14 @@ Al tocar una alerta se ve su detalle con el contexto del origen y se la puede po
 - —
 
 ## Notas de implementación
+- **Modelos:** tests, verde, refactor y fix con sonnet; review con opus, en dos rondas porque la primera tuvo un bloqueante. No hubo escalados.
+- **Rutas:** el detalle vive en el stack de la pestaña Agenda: `app/(pestanas)/agenda/{_layout,index,[id]}.tsx`, en `/agenda/<id>`. Se descartó la pestaña oculta (`href: null`), porque en expo-router 58 no es navegable: era el bloqueante de la review. «Volver» hace `back()` dentro del stack, o `replace("/agenda")` si el detalle se abrió por enlace.
+- **Posponer:**
+  - En lugar de un picker libre, ofrece las tres opciones rápidas de la pantalla 54: mañana, en 3 días y en una semana. Mobile no tiene una librería de calendario.
+  - Las opciones se cuentan desde `max(alerta.fecha, hoy)`, y el botón se muestra solo si la alerta está `pendiente`. Es la misma regla del backend y de la web (T-055).
+- **Contexto:** se muestra en pares etiqueta/valor (Viaje, Oportunidad, Cliente, Importe). Los arma `datosDeContexto` en `@rumbo/shared`, y `lineaDeContexto` de la agenda se arma desde ahí, sin cambiar su salida.
+- **Review:**
+  - Ronda 1: 1 bloqueante, 2 importantes y 1 menor.
+  - Ronda 2: 1 menor, la duplicación del formato del pago.
+  - Todos arreglados. Se autorizó cambiar el test para que use la estructura real de pestañas y para sumar 4 casos.
+- **Fuera del ticket:** la pantalla 53 también tiene «Resolver» y «Marcar como vista» en el detalle, pero los criterios no los piden. En la agenda solo la descripción es tocable, no toda la fila.
