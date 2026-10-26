@@ -3,7 +3,7 @@ id: T-086
 titulo: Publicar el contrato de viajes y economía
 modulo: M6 — Viajes y economía
 capa: contrato
-estado: libre
+estado: tomado
 depende_de: [T-015]
 tamaño: M
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [CU-07, CU-08, CU-09, CU-10, CU-11, CU-12, CU-27, DEC-0007, DEC-0013]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: palomap2003
+tomado_el: 25/10/26 21:20
+rama: feature/T-086-publicar-el-contrato-de-viajes-y-economi
 pr:
 ---
 # T-086 Publicar el contrato de viajes y economía
