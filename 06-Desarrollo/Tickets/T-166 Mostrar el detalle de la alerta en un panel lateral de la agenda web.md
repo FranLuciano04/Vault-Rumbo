@@ -3,7 +3,7 @@ id: T-166
 titulo: Mostrar el detalle de la alerta en un panel lateral de la agenda web
 modulo: M3 — Alertas
 capa: web
-estado: tomado
+estado: hecho
 depende_de: [T-055, T-032]
 tamaño: M
 riesgo: normal
@@ -47,3 +47,12 @@ Al elegir una alerta de la agenda web se abre un panel lateral con su detalle, c
 - El cumplimiento de requisitos **por pasajero** («faltan confirmar 2 pasajeros»): el modelo no tiene pasajeros individuales. Sumarlo sería un cambio de dominio que necesita una `DEC-` y la aprobación del equipo.
 
 ## Notas de implementación
+- **Modelos:** tests, verde, refactor y fix con sonnet; review con opus. No hubo escalados. El refactor no cambió nada.
+- **Decisión de Paloma (cambio de contrato):** `ViajeDeAlerta` (`contexto.viaje`) suma `destino_id`. Así el panel pide los requisitos sin pasar por `GET /api/viajes/{id}`, que sigue en 501 hasta M6. El campo respeta la visibilidad del freelance: si no ve el viaje, el contexto no lo trae. Se actualizó `test_rf075_contexto_del_origen` (T-052).
+- **Test corregido en el verde:** el rojo llamaba a `servirRequisitos()` después del handler propio del test, y MSW lo pisaba. También tenía un `any` del lint. Lo corrigió el test-writer, sin cambiar lo que fija ningún test.
+- **Panel:**
+  - Es un diálogo modal hecho a mano (el web no tiene Radix): `aria-modal`, trampa de foco y Escape. Con el formulario de posponer abierto, Escape cierra solo el formulario.
+  - Al resolver, el foco va a «Deshacer»; al marcar como vista, a «Cerrar».
+  - Cliente, oportunidad e importe salen de `datosDeContexto`. El viaje (destino, fechas y estado) se arma en el panel.
+  - Se suman `FormularioPosponer.tsx`, `ETIQUETA_ESTADO_ALERTA` en shared y `olvidar()` en `useVolverFoco`.
+- **Review:** 0 bloqueantes, 2 importantes (el foco al resolver y una premisa falsa sobre el vencimiento del pago) y 4 menores, todos arreglados. Se autorizó sumar 3 tests de foco y Escape, y acotar una aserción de fecha.
