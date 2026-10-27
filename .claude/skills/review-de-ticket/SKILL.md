@@ -9,7 +9,7 @@ description: Criterios, orden de búsqueda y formato de salida para revisar el d
 
 
 ## Qué recibís
-La ruta del ticket y la rama. Mirá el diff con `git diff main...HEAD`. Leé el ticket y las notas que enlaza en «Contexto»: son la especificación contra la que revisás. Los límites del proyecto están en la §7 de `06-Desarrollo/Spec de implementación.md`.
+La ruta del ticket (en una rama `fix/…`, el hallazgo con su alcance), la rama y la evidencia del rojo y del verde: los hashes y la cola de la salida de los tests. Mirá el diff con `git diff main...HEAD`. Leé el ticket y las notas que enlaza en «Contexto»: son la especificación contra la que revisás. Los límites del proyecto están en la §7 de `06-Desarrollo/Spec de implementación.md`.
 
 ## Qué buscás, en este orden
 1. **Corrección contra el dominio:** ¿cumple los criterios de aceptación, los pasos y los flujos alternativos del CU, las reglas (RN) y las DEC enlazadas? (Estados válidos de `Viaje`, `Pago`, `Oportunidad` y `Cotización` según los `EST-*`; multimoneda; comisión de RN-01; baja lógica.)
@@ -20,7 +20,12 @@ La ruta del ticket y la rama. Mirá el diff con `git diff main...HEAD`. Leé el 
 6. **Tests:** ¿prueban de verdad el comportamiento, o pasarían con una implementación incorrecta? ¿Falta algún flujo alternativo? ¿Están nombrados por RF?
 7. Otros temas de diseño: solo si causan un problema concreto.
 
-**Verificá cada hallazgo** antes de reportarlo: leé el código real y, si podés, demostralo con un comando o un test. No reportes estilo ni gustos (el formato lo controlan ruff, ESLint y Prettier).
+**Verificá cada hallazgo** antes de reportarlo leyendo el código real. Tu presupuesto de verificación es acotado:
+- La evidencia del rojo y del verde ya te la pasan: tomala como dada.
+- Para demostrar un hallazgo, corré solo los tests de los archivos del diff. La suite completa la corre el orquestador una sola vez, en el paso 6 de `/implementar-ticket`; dos suites a la vez en la misma máquina dan timeouts falsos.
+- Una mutación (quitar una línea y ver que un test falle) solo en riesgo alto, una por hallazgo, en el mismo árbol y restaurando con `git diff --stat` vacío.
+
+No reportes estilo ni gustos (el formato lo controlan ruff, ESLint y Prettier).
 
 ## Formato de salida
 Una lista, del más grave al menos grave. Si no hay nada, decilo.

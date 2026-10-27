@@ -23,6 +23,9 @@ export default defineConfig({
     globals: true,
     exclude: [...configDefaults.exclude, "e2e/**"],
     setupFiles: ["./src/test/setup.ts"],
+    // Con la suite completa en paralelo, los `userEvent` pasaban los 5 s por defecto y fallaban
+    // casos distintos en cada corrida, aunque solos pasaran.
+    testTimeout: 20_000,
     coverage: { provider: "v8", include: ["src/**/*.{ts,tsx}"] },
   },
 });
