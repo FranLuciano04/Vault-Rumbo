@@ -186,6 +186,38 @@ describe("RF-021 emitir cotización", () => {
     expect(cuerpos).toHaveLength(0);
   });
 
+  it("RF-021 no envía un importe con grupo de miles que empieza en cero como «0.500»", async () => {
+    const u = nuevoUsuario();
+    const cuerpos: Record<string, unknown>[] = [];
+    servidor.use(registrarEmision(cuerpos));
+    renderCotizaciones(enGestion);
+    await screen.findByText("Mendoza");
+
+    await completarItem(u, 0, "Aéreo", "0.500");
+    await u.click(screen.getByRole("button", { name: /generar documento/i }));
+
+    expect(await screen.findByRole("alert")).toBeInTheDocument();
+    expect(cuerpos).toHaveLength(0);
+  });
+
+  it("RF-021 si el servidor responde 409 porque la oportunidad es ganada muestra su detail", async () => {
+    const u = nuevoUsuario();
+    servidor.use(
+      http.post("*/api/oportunidades/:id/cotizaciones", () =>
+        problema(409, "No se cotiza una oportunidad ganada."),
+      ),
+    );
+    renderCotizaciones(enGestion);
+    await screen.findByText("Mendoza");
+
+    await completarItem(u, 0, "Aéreo", "780000");
+    await u.click(screen.getByRole("button", { name: /generar documento/i }));
+
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      "No se cotiza una oportunidad ganada.",
+    );
+  });
+
   it("RF-021 si el servidor responde 422 muestra el mensaje real del error", async () => {
     const u = nuevoUsuario();
     servidor.use(
