@@ -22,6 +22,13 @@ const camila = "3c1f6d2e-8a47-4b19-9e53-7d0a2b4c6e11";
 const joaquin = "d4a8c6e2-5f19-4073-8b3a-2e1c9d7f0b33";
 const sosa = "9e5b0a74-1c3d-4f68-a2b9-5c8d7e0f1a22";
 
+/** Nombre de los clientes ficticios de `clientesMock`, para `cliente_nombre` (no se importa: ver arriba). */
+const nombreDeCliente: Record<string, string> = {
+  [camila]: "Camila Benítez",
+  [sosa]: "Familia Sosa",
+  [joaquin]: "Joaquín Ramos",
+};
+
 /** Id de cada oportunidad ficticia según su estado; el de `cotizada` es el de las alertas ficticias (Joaquín Ramos, Europa). */
 export const idOportunidadMock = {
   nueva: "6b2d9f08-7e41-4c5a-8d13-0a9e3c5b7f41",
@@ -46,6 +53,7 @@ function oportunidad(
 ): Oportunidad {
   return {
     ...auditoriaMock,
+    cliente_nombre: nombreDeCliente[parcial.cliente_id] ?? "Cliente",
     responsable_id,
     canal: "whatsapp",
     fecha_desde_tentativa: null,
@@ -257,12 +265,13 @@ export const manejadoresOportunidades: RequestHandler[] = [
     const estado = url.searchParams.get("estado");
     const clienteId = url.searchParams.get("cliente_id");
     const mios = url.searchParams.get("mios") === "true";
+    const responsableId = mios ? responsable_id : url.searchParams.get("responsable_id");
     return pagina(
       oportunidadesMock.filter(
         (o) =>
           (!estado || o.estado === estado) &&
           (!clienteId || o.cliente_id === clienteId) &&
-          (!mios || o.responsable_id === responsable_id),
+          (!responsableId || o.responsable_id === responsableId),
       ),
       url,
     );

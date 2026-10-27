@@ -1,4 +1,4 @@
-import { keepPreviousData, useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import type { AxiosInstance } from "axios";
 import type {
   Alerta,
@@ -27,6 +27,26 @@ export function useOportunidades(cliente: AxiosInstance, filtros: FiltrosOportun
     placeholderData: keepPreviousData,
     queryFn: async () =>
       (await cliente.get<Pagina<Oportunidad>>("/api/oportunidades", { params: filtros })).data,
+  });
+}
+
+/** El embudo por páginas (`GET /api/oportunidades`): `fetchNextPage` suma la siguiente hasta cubrir el total. */
+export function useOportunidadesPorPaginas(
+  cliente: AxiosInstance,
+  filtros: FiltrosOportunidades = {},
+) {
+  return useInfiniteQuery({
+    queryKey: [...claveOportunidades, "lista-por-paginas", filtros],
+    initialPageParam: 1,
+    placeholderData: keepPreviousData,
+    queryFn: async ({ pageParam }) =>
+      (
+        await cliente.get<Pagina<Oportunidad>>("/api/oportunidades", {
+          params: { ...filtros, pagina: pageParam },
+        })
+      ).data,
+    getNextPageParam: (ultima, todas) =>
+      todas.length * ultima.por_pagina < ultima.total ? todas.length + 1 : undefined,
   });
 }
 

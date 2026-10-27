@@ -2244,6 +2244,11 @@ export interface components {
              */
             cliente_id: string;
             /**
+             * Cliente Nombre
+             * @description Nombre del cliente, para mostrarlo sin otra consulta.
+             */
+            readonly cliente_nombre: string;
+            /**
              * Responsable Id
              * Format: uuid
              * @description Quien la registró o la sigue; define la vista personal (DEC-0005).
@@ -5250,6 +5255,8 @@ export interface operations {
                 mios?: boolean;
                 estado?: components["schemas"]["EstadoOportunidad"] | null;
                 cliente_id?: string | null;
+                /** @description Solo las asignadas a ese responsable; si viene `mios`, gana `mios`. */
+                responsable_id?: string | null;
                 pagina?: number;
                 por_pagina?: number;
             };

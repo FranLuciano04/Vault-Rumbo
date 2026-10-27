@@ -1,5 +1,5 @@
 import type { HistorialCliente, SegmentoCliente } from "./cliente";
-import type { EstadoAlerta, TipoAlerta } from "./modelos";
+import type { EstadoAlerta, MotivoPerdida, TipoAlerta } from "./modelos";
 
 /** Texto de cada segmento tal como se muestra; el orden es el de los chips del prototipo. */
 export const ETIQUETA_SEGMENTO: Record<SegmentoCliente, string> = {
@@ -46,4 +46,14 @@ export const ETIQUETA_ESTADO_ALERTA: Record<EstadoAlerta, string> = {
   pendiente: "Pendiente",
   vista: "Vista",
   resuelta: "Resuelta",
+};
+
+/** Texto de cada motivo de pérdida de una oportunidad (CU-05). */
+export const ETIQUETA_MOTIVO_PERDIDA: Record<MotivoPerdida, string> = {
+  precio: "Precio",
+  fechas_disponibilidad: "Fechas o disponibilidad",
+  desistio: "Desistió",
+  otra_agencia: "Otra agencia",
+  sin_respuesta: "Sin respuesta",
+  otro: "Otro",
 };

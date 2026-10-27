@@ -251,7 +251,7 @@ describe("RF-074 agenda", () => {
     expect(await screen.findByText(/estás al día/i)).toBeInTheDocument();
   });
 
-  it("RF-074 al cambiar de filtro estando en la página 2 vuelve a la 1; las vistas piden siempre la 1", async () => {
+  it("RF-074 al cambiar de filtro estando en la página 2 vuelve a la 1; sin «Mostrar vistas», las vistas piden la 1", async () => {
     const pedidos: URLSearchParams[] = [];
     servidor.use(
       http.get("*/api/alertas", ({ request }) => {

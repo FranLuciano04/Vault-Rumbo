@@ -24,17 +24,19 @@ async def listar_oportunidades(
     *,
     estado: EstadoOportunidad | None,
     cliente_id: uuid.UUID | None,
+    responsable_id: uuid.UUID | None,
     mios: bool,
     desplazamiento: int,
     limite: int,
 ) -> tuple[list[Oportunidad], int]:
-    """Página del embudo y el total (CU-05, RF-016). `mios` deja las que el actor tiene a cargo;
-    lo que ve cada rol lo decide `visibilidad`: el `freelance` solo lo suyo (RF-151)."""
+    """Página del embudo y el total (CU-05, RF-016). `mios` deja las que el actor tiene a cargo
+    (y gana sobre `responsable_id`); lo que ve cada rol lo decide `visibilidad`: el `freelance`
+    solo lo suyo (RF-151)."""
     return await _oportunidades.paginar(
         sesion,
         estado=estado,
         cliente_id=cliente_id,
-        responsable_id=actor.id if mios else None,
+        responsable_id=actor.id if mios else responsable_id,
         desplazamiento=desplazamiento,
         limite=limite,
         visibilidad=visibilidad(actor),

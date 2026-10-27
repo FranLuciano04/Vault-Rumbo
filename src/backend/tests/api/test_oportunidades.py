@@ -68,6 +68,109 @@ async def test_rf016_mios_filtra_las_asignadas(
     assert _ids(r.json()["items"]) == {str(mia.id)}
 
 
+@pytest.mark.parametrize("rol", ["admin", "dueno", "empleado"])
+async def test_rf016_filtra_por_responsable(
+    cliente_como: FabricaCliente, sesion: AsyncSession, rol: str
+) -> None:
+    c = await cliente_como(rol)
+    buscado = await crear(sesion, UsuarioFactory)
+    otro = await crear(sesion, UsuarioFactory)
+    suya = await _oportunidad(sesion, buscado.id)
+    await _oportunidad(sesion, otro.id)
+    await _oportunidad(sesion, c.usuario.id)  # type: ignore[attr-defined]
+
+    r = await c.get("/api/oportunidades", params={"responsable_id": str(buscado.id)})
+
+    assert r.status_code == 200
+    assert r.json()["total"] == 1
+    assert _ids(r.json()["items"]) == {str(suya.id)}
+
+
+async def test_rf016_mios_gana_sobre_responsable_id(
+    cliente_como: FabricaCliente, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("admin")
+    otro = await crear(sesion, UsuarioFactory)
+    mia = await _oportunidad(sesion, c.usuario.id)  # type: ignore[attr-defined]
+    await _oportunidad(sesion, otro.id)
+
+    r = await c.get("/api/oportunidades", params={"mios": "true", "responsable_id": str(otro.id)})
+
+    assert r.status_code == 200
+    assert _ids(r.json()["items"]) == {str(mia.id)}
+
+
+async def test_rf151_freelance_no_ve_ajenas_aunque_pida_otro_responsable(
+    cliente_como: FabricaCliente, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("freelance")
+    otro = await crear(sesion, UsuarioFactory)
+    await _oportunidad(sesion, otro.id)
+    mia = await _oportunidad(sesion, c.usuario.id)  # type: ignore[attr-defined]
+
+    ajenas = await c.get("/api/oportunidades", params={"responsable_id": str(otro.id)})
+    propias = await c.get(
+        "/api/oportunidades",
+        params={"responsable_id": str(c.usuario.id)},  # type: ignore[attr-defined]
+    )
+
+    assert ajenas.status_code == 200
+    assert ajenas.json()["items"] == []
+    assert ajenas.json()["total"] == 0
+    assert _ids(propias.json()["items"]) == {str(mia.id)}
+
+
+async def test_rf016_responsable_id_invalido_422(cliente_como: FabricaCliente) -> None:
+    c = await cliente_como("admin")
+
+    r = await c.get("/api/oportunidades", params={"responsable_id": "no-es-uuid"})
+
+    assert r.status_code == 422
+    assert r.headers["content-type"].startswith(PROBLEM_JSON)
+
+
+async def test_rf016_listado_trae_el_nombre_del_cliente(
+    cliente_como: FabricaCliente, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("empleado")
+    cli = await crear(sesion, ClienteFactory, nombre="Camila Benítez")
+    op = await _oportunidad(sesion, c.usuario.id, cliente_id=cli.id)  # type: ignore[attr-defined]
+
+    r = await c.get("/api/oportunidades")
+
+    assert r.status_code == 200
+    item = next(i for i in r.json()["items"] if i["id"] == str(op.id))
+    assert item["cliente_nombre"] == "Camila Benítez"
+
+
+async def test_rf016_detalle_trae_el_nombre_del_cliente(
+    cliente_como: FabricaCliente, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("empleado")
+    cli = await crear(sesion, ClienteFactory, nombre="Familia Sosa")
+    op = await _oportunidad(sesion, c.usuario.id, cliente_id=cli.id)  # type: ignore[attr-defined]
+
+    r = await c.get(f"/api/oportunidades/{op.id}")
+
+    assert r.status_code == 200
+    assert r.json()["cliente_nombre"] == "Familia Sosa"
+
+
+async def test_rf016_cliente_nombre_es_solo_lectura_en_patch(
+    cliente_como: FabricaCliente, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("empleado")
+    cli = await crear(sesion, ClienteFactory, nombre="Joaquín Ramos")
+    op = await _oportunidad(sesion, c.usuario.id, cliente_id=cli.id)  # type: ignore[attr-defined]
+
+    r = await c.patch(
+        f"/api/oportunidades/{op.id}", json={"notas": "x", "cliente_nombre": "Otro nombre"}
+    )
+
+    assert r.status_code == 200
+    assert r.json()["cliente_nombre"] == "Joaquín Ramos"
+
+
 async def test_rf016_filtra_por_cliente(cliente_como: FabricaCliente, sesion: AsyncSession) -> None:
     c = await cliente_como("dueno")
     otro = await crear(sesion, UsuarioFactory)

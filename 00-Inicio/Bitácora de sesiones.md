@@ -73,6 +73,13 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Hecho:** `/cerrar-modulo M3`, fase A. Los 14 tickets de M3 están hechos; se escribió `06-Desarrollo/Reviews/M3 — pedido de review.md` con los merges, los 93 archivos tocados y 12 puntos a revisar.
 - **Pendiente:** que Codex escriba `M3 — review Codex.md`; después, triage y arreglos en ramas `fix/M3-…` (fase B) y el tag `mod-3` con la aprobación del equipo.
 
+## 27/10/26 — Paloma (Claude Opus 5.5) — T-070: embudo de oportunidades en la web
+- **T-070** hecho y mergeado (PR [#109](https://github.com/FranLuciano04/Vault-Rumbo/pull/109)). Commits: rojo `9301a80`, verde `766f97b`, fix `26c3694` y `1071b59`, hecho `aa76a20`.
+- **Decisión de Paloma:** se amplió el contrato dentro del ticket con `responsable_id` en `GET /oportunidades` y `Oportunidad.cliente_nombre`. Sin eso, el filtro y el nombre solo se resolvían del lado del cliente, y fallaban con más de una página.
+- La review (Opus) dio 2 importantes y 4 menores, y se arreglaron todos. `FiltroResponsable` se mudó a `src/apps/web/src/components/`.
+- **Pendiente para la sync:** el buscador del embudo y los badges de la tarjeta (pantallas 12 y 34) no tienen ticket.
+- **Entorno:** la espera del CI se cortó una vez por falta de memoria en la PC; se liberó cerrando Docker.
+
 ## 27/10/26 — Nahuel (Claude Opus 5.5) — retro: por qué tardan las sesiones de tickets y hallazgos
 - **Diagnóstico** (retro del cierre de M1): el tiempo no se iba en escribir código. Se iba en reviews que verificaban sin límite (31 min la primera de H-02), en fallas al azar de la suite web que obligaban a repetirla, en hallazgos sin alcance cerrado que pedían rondas extra y en el armado manual de las ramas `fix/`.
 - **Arreglado:**

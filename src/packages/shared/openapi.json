@@ -3639,6 +3639,25 @@
             }
           },
           {
+            "name": "responsable_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Solo las asignadas a ese responsable; si viene `mios`, gana `mios`.",
+              "title": "Responsable Id"
+            },
+            "description": "Solo las asignadas a ese responsable; si viene `mios`, gana `mios`."
+          },
+          {
             "name": "pagina",
             "in": "query",
             "required": false,
@@ -9001,6 +9020,12 @@
                 "format": "uuid",
                 "title": "Cliente Id"
               },
+              "cliente_nombre": {
+                "type": "string",
+                "title": "Cliente Nombre",
+                "description": "Nombre del cliente, para mostrarlo sin otra consulta.",
+                "readOnly": true
+              },
               "responsable_id": {
                 "type": "string",
                 "format": "uuid",
@@ -9089,6 +9114,7 @@
             "required": [
               "id",
               "cliente_id",
+              "cliente_nombre",
               "responsable_id",
               "canal",
               "destino_consultado",
