@@ -64,7 +64,7 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 ## 27/10/26 — Nahuel (Claude Opus 5.5) — T-069
 - **Hecho:** T-069 (registrar una consulta en la web) implementado con TDD y mergeado (PR [#112](https://github.com/FranLuciano04/Vault-Rumbo/pull/112)). T-066 (#111) también quedó mergeado.
 - **Commits:** a3081a9, 5193171, 1150df1, b92ed6e, bfda972; merge aab7a24.
-- **Pendiente:** contradicción CU-04 A3 (mínimo canal + cliente) contra `OportunidadCrear` (exige destino y pasajeros ≥ 1): hay que resolverla con una `DEC-`.
+- **Pendiente:** contradicción CU-04 A3 (mínimo canal + cliente) contra `OportunidadCrear` (exige destino y pasajeros ≥ 1): borrador [[DEC-0023 Datos mínimos de la consulta]] en revisión; conviene decidirla antes de que alguien tome T-062.
 
 ## 27/10/26 — Nahuel (Claude Opus 5.5) — T-066 y retro de los tiempos de tests
 - **Hecho:**
