@@ -22,7 +22,7 @@ import { Button } from "@/components/ui/button";
 import { mensajeDeError } from "@/lib/errores";
 import { useVolverFoco } from "@/lib/useVolverFoco";
 import { cn } from "@/lib/utils";
-import { FiltroResponsable } from "./FiltroResponsable";
+import { FiltroResponsable } from "@/components/FiltroResponsable";
 import { FilaAlerta } from "./FilaAlerta";
 import { PanelDetalleAlerta } from "./PanelDetalleAlerta";
 import { FormularioRecordatorio } from "./FormularioRecordatorio";

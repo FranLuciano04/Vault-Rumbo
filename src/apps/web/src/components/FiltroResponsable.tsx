@@ -1,7 +1,7 @@
 import { useAsesores } from "@rumbo/shared/hooks";
 import type { AxiosInstance } from "axios";
 
-/** Agenda de un responsable (CU-14 A1, pantallas 49 y 50): solo para admin y dueño. */
+/** Selector de responsable (agenda: CU-14 A1, pantallas 49 y 50; embudo: CU-05): solo para admin y dueño. */
 export function FiltroResponsable({
   cliente,
   valor,

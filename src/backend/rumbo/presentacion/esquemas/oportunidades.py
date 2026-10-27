@@ -37,6 +37,10 @@ class Oportunidad(Auditoria):
 
     id: uuid.UUID = Field(json_schema_extra=_SOLO_LECTURA)
     cliente_id: uuid.UUID
+    cliente_nombre: str = Field(
+        json_schema_extra=_SOLO_LECTURA,
+        description="Nombre del cliente, para mostrarlo sin otra consulta.",
+    )
     responsable_id: uuid.UUID = Field(
         description="Quien la registró o la sigue; define la vista personal (DEC-0005)."
     )

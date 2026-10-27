@@ -10,6 +10,7 @@ import { SeccionClientes } from "./SeccionClientes";
 import { SeccionConfiguracion } from "./SeccionConfiguracion";
 import { SeccionFichaCliente } from "./SeccionFichaCliente";
 import { SeccionNuevoCliente } from "./SeccionNuevoCliente";
+import { SeccionOportunidades } from "./SeccionOportunidades";
 import { SeccionPendiente } from "./SeccionPendiente";
 
 export function App({ cliente }: { cliente: AxiosInstance }) {
@@ -26,6 +27,7 @@ export function App({ cliente }: { cliente: AxiosInstance }) {
             <Route path="clientes" element={<SeccionClientes cliente={cliente} />} />
             <Route path="clientes/nuevo" element={<SeccionNuevoCliente cliente={cliente} />} />
             <Route path="clientes/:id" element={<SeccionFichaCliente cliente={cliente} />} />
+            <Route path="oportunidades" element={<SeccionOportunidades cliente={cliente} />} />
             <Route path=":seccion/*" element={<SeccionPendiente />} />
           </Route>
         </Routes>
