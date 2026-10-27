@@ -55,9 +55,6 @@ La **persona** de cada sesión es quien la corre, identificada por su identidad 
 ### Nahuel (`Nahuel Viniegra`) — T-153
 - **24/10, de Paloma: el PR [#73](https://github.com/FranLuciano04/Vault-Rumbo/pull/73) (T-153) ya está mergeado** (⚠️ riesgo alto, auth). Hay un **cambio de decisión**: el 23/10 Francisco había decidido que la cuenta de Firebase sin `Usuario` se reutilizaba. La review de seguridad lo marcó como bloqueante (*pre-account hijacking*: la cuenta conserva la contraseña, los proveedores o las sesiones de quien la haya creado). Paloma decidió que esa cuenta se **borra y se crea una nueva**. CU-25 A1 se actualiza en el mismo PR. Además, el alta toma un lock por email, y nunca se borra una cuenta cuyo uid es de un `Usuario`.
 
-### Paloma (`palomap2003`) y Francisco (`FranLucianoo`) — aprobar el PR #100 (H-03 de M1)
-- **26/10, de Nahuel: el PR [#100](https://github.com/FranLuciano04/Vault-Rumbo/pull/100) necesita la aprobación de uno de ustedes** (⚠️ riesgo alto, permisos). Solo agrega tests: 8 pruebas con dos transacciones simultáneas que fijan que la agencia nunca queda sin admin (CU-25 A4) ni sin dueña (A5). Fallan si se quita el `FOR UPDATE`. El CI está en verde y la review de seguridad no dejó hallazgos importantes. Es lo último que falta, junto con la aprobación del equipo, para poner el tag `mod-1`.
-
 ## Formato
 Es **obligatorio** nombrar a la persona que hizo la sesión.
 ```
@@ -71,9 +68,9 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pedido de review de M1** para Codex (`85cf59a`). Codex marcó 3 hallazgos y los 3 se confirmaron en el código (triage en `06-Desarrollo/Reviews/M1 — review Codex.md`, `f582c4b`).
 - **H-01** (bloqueante): en la web, cambiar de destino dejaba abierta la baja o la edición de un requisito del destino anterior. PR [#93](https://github.com/FranLuciano04/Vault-Rumbo/pull/93), mergeado.
 - **H-02** (importante): los mocks de M1 ahora filtran, paginan y responden 409/422 con `errores` por campo, como el backend. PR [#95](https://github.com/FranLuciano04/Vault-Rumbo/pull/95), mergeado.
-- **H-03** (importante): tests concurrentes del último admin y de la última dueña. PR [#100](https://github.com/FranLuciano04/Vault-Rumbo/pull/100), abierto, a la espera de la aprobación de Paloma o Francisco.
+- **H-03** (importante): tests concurrentes del último admin y de la última dueña. PR [#100](https://github.com/FranLuciano04/Vault-Rumbo/pull/100), aprobado y mergeado.
 - **Commits en main:** 85cf59a, f582c4b, e9d3cfd, 2ea9997.
-- **Pendiente:** aprobar y mergear el #100. Después, la aprobación del equipo y el tag `mod-1` (`/cerrar-modulo M1`).
+- **Pendiente:** la aprobación del equipo y el tag `mod-1` (`/cerrar-modulo M1`).
 - **Para tener en cuenta:**
   - Con el timeout por defecto, la suite web falla al azar por timeouts cuando la máquina está cargada (pasa con `--testTimeout=30000`).
   - Dos sesiones que corren el backend sobre la misma base de tests pueden pisarse.
