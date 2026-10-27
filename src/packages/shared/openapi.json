@@ -2876,6 +2876,25 @@
             "description": "Agenda de un responsable: solo admin y dueño (CU-14 A1); para el resto se ignora."
           },
           {
+            "name": "oportunidad_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Solo las alertas cuyo origen es esta `Oportunidad` (RF-015), de cualquier fecha: ignora la ventana de hoy y `proximas`; respeta `estado`, `tipo` y la visibilidad del rol.",
+              "title": "Oportunidad Id"
+            },
+            "description": "Solo las alertas cuyo origen es esta `Oportunidad` (RF-015), de cualquier fecha: ignora la ventana de hoy y `proximas`; respeta `estado`, `tipo` y la visibilidad del rol."
+          },
+          {
             "name": "pagina",
             "in": "query",
             "required": false,

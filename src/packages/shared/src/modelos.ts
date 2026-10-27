@@ -90,6 +90,8 @@ export interface FiltrosAlertas {
   proximas?: boolean;
   /** Agenda de un responsable: solo admin y dueño (CU-14 A1); para el resto se ignora. */
   propietario_id?: string;
+  /** Solo las alertas cuyo origen es esta oportunidad (RF-015). */
+  oportunidad_id?: string;
   pagina?: number;
   por_pagina?: number;
 }

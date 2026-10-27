@@ -271,6 +271,7 @@ function manejadoresDe(actor: ActorMock): RequestHandler[] {
       const url = new URL(request.url);
       const estado = url.searchParams.get("estado");
       const tipo = url.searchParams.get("tipo");
+      const oportunidad = url.searchParams.get("oportunidad_id");
       const proximas = url.searchParams.get("proximas") === "true";
       const desdeFecha = url.searchParams.get("desde");
       const hasta = url.searchParams.get("hasta");
@@ -283,7 +284,8 @@ function manejadoresDe(actor: ActorMock): RequestHandler[] {
           (!propietario || a.propietario_id === propietario) &&
           a.estado === (estado ?? "pendiente") &&
           (!tipo || a.tipo === tipo) &&
-          (proximas ? a.fecha > HOY_MOCK : a.fecha <= HOY_MOCK) &&
+          (!oportunidad || a.oportunidad_id === oportunidad) &&
+          (oportunidad || (proximas ? a.fecha > HOY_MOCK : a.fecha <= HOY_MOCK)) &&
           (!desdeFecha || a.fecha >= desdeFecha) &&
           (!hasta || a.fecha <= hasta),
       );

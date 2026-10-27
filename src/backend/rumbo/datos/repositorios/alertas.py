@@ -183,14 +183,17 @@ class RepositorioAlertas(RepositorioBase[Alerta]):
         desde: date | None,
         hasta: date | None,
         propietario_id: uuid.UUID | None,
+        oportunidad_id: uuid.UUID | None,
         desplazamiento: int,
         limite: int,
         visibilidad: Visibilidad,
     ) -> tuple[list[Alerta], int]:
         """Página en `estado`, por fecha, y el total que cumple los filtros: las de fecha
-        `<= hoy` (atrasadas incluidas) o, con `proximas`, las de fecha `> hoy`."""
+        `<= hoy` (atrasadas incluidas) o, con `proximas`, las de fecha `> hoy`. Con `oportunidad_id`
+        no hay ventana de hoy ni `proximas`: todas las de esa oportunidad, de cualquier fecha."""
         consulta = visibilidad.aplicar(select(Alerta), Alerta).where(Alerta.estado == estado)
-        consulta = consulta.where(Alerta.fecha > hoy if proximas else Alerta.fecha <= hoy)
+        if oportunidad_id is None:
+            consulta = consulta.where(Alerta.fecha > hoy if proximas else Alerta.fecha <= hoy)
         if tipo is not None:
             consulta = consulta.where(Alerta.tipo == tipo)
         if desde is not None:
@@ -199,6 +202,8 @@ class RepositorioAlertas(RepositorioBase[Alerta]):
             consulta = consulta.where(Alerta.fecha <= hasta)
         if propietario_id is not None:
             consulta = consulta.where(Alerta.propietario_id == propietario_id)
+        if oportunidad_id is not None:
+            consulta = consulta.where(Alerta.oportunidad_id == oportunidad_id)
         total = await sesion.scalar(select(func.count()).select_from(consulta.subquery()))
         pagina = consulta.order_by(Alerta.fecha, Alerta.id)
         filas = await sesion.scalars(pagina.offset(desplazamiento).limit(limite))

@@ -969,3 +969,101 @@ async def test_rf076_alerta_inexistente_es_404(cliente_como: FabricaCliente, acc
 
     assert r.status_code == 404
     assert r.headers["content-type"].startswith(PROBLEM_JSON)
+
+
+async def test_rf015_filtra_por_oportunidad(
+    cliente_como: FabricaCliente, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("empleado")
+    yo = _propio(c)
+    cliente = await crear(sesion, ClienteFactory)
+    op = await crear(sesion, OportunidadFactory, cliente_id=cliente.id, responsable_id=yo.id)
+    otra = await crear(sesion, OportunidadFactory, cliente_id=cliente.id, responsable_id=yo.id)
+    de_op = await _alerta(sesion, yo, hoy(), "de op", TipoAlerta.insistencia, op)
+    await _alerta(sesion, yo, hoy(), "de otra", TipoAlerta.insistencia, otra)
+    await _alerta(sesion, yo, hoy(), "suelta")
+
+    r = await c.get("/api/alertas", params={"oportunidad_id": str(op.id)})
+
+    assert r.status_code == 200
+    assert _ids(r) == [str(de_op.id)]
+
+
+async def test_rf015_oportunidad_id_se_combina_con_tipo(
+    cliente_como: FabricaCliente, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("empleado")
+    yo = _propio(c)
+    cliente = await crear(sesion, ClienteFactory)
+    op = await crear(sesion, OportunidadFactory, cliente_id=cliente.id, responsable_id=yo.id)
+    insistencia = await _alerta(sesion, yo, hoy(), "insistir", TipoAlerta.insistencia, op)
+    await _alerta(sesion, yo, hoy(), "recontacto", TipoAlerta.recontacto, op)
+    otra = await crear(sesion, OportunidadFactory, cliente_id=cliente.id, responsable_id=yo.id)
+    await _alerta(sesion, yo, hoy(), "insistir en otra", TipoAlerta.insistencia, otra)
+
+    r = await c.get("/api/alertas", params={"oportunidad_id": str(op.id), "tipo": "insistencia"})
+
+    assert _ids(r) == [str(insistencia.id)]
+
+
+async def test_rf015_oportunidad_id_respeta_la_visibilidad_del_freelance(
+    cliente_como: FabricaCliente, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("freelance")
+    otro = await crear(sesion, UsuarioFactory)
+    cliente = await crear(sesion, ClienteFactory, asesor_asignado_id=otro.id)
+    ajena = await crear(sesion, OportunidadFactory, cliente_id=cliente.id, responsable_id=otro.id)
+    await _alerta(sesion, otro, hoy(), "ajena", TipoAlerta.insistencia, ajena)
+    propia = await crear(
+        sesion, OportunidadFactory, cliente_id=cliente.id, responsable_id=_propio(c).id
+    )
+    await _alerta(sesion, _propio(c), hoy(), "propia", TipoAlerta.insistencia, propia)
+
+    r = await c.get("/api/alertas", params={"oportunidad_id": str(ajena.id)})
+
+    assert r.status_code == 200
+    assert r.json()["items"] == []
+
+
+async def test_rf015_direccion_ve_las_alertas_de_la_oportunidad_de_otro(
+    cliente_como: FabricaCliente, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("admin")
+    otro = await crear(sesion, UsuarioFactory)
+    cliente = await crear(sesion, ClienteFactory)
+    op = await crear(sesion, OportunidadFactory, cliente_id=cliente.id, responsable_id=otro.id)
+    alerta = await _alerta(sesion, otro, hoy(), "de otro", TipoAlerta.insistencia, op)
+    otra = await crear(sesion, OportunidadFactory, cliente_id=cliente.id, responsable_id=otro.id)
+    await _alerta(sesion, otro, hoy(), "de otra", TipoAlerta.insistencia, otra)
+
+    r = await c.get("/api/alertas", params={"oportunidad_id": str(op.id)})
+
+    assert _ids(r) == [str(alerta.id)]
+
+
+async def test_rf015_oportunidad_id_invalido_es_422(cliente_como: FabricaCliente) -> None:
+    c = await cliente_como("empleado")
+
+    r = await c.get("/api/alertas", params={"oportunidad_id": "no-es-uuid"})
+
+    assert r.status_code == 422
+
+
+@pytest.mark.parametrize("estado", [EstadoAlerta.pendiente, EstadoAlerta.resuelta])
+async def test_rf015_oportunidad_id_incluye_las_alertas_a_futuro(
+    cliente_como: FabricaCliente, sesion: AsyncSession, estado: EstadoAlerta
+) -> None:
+    c = await cliente_como("empleado")
+    yo = _propio(c)
+    cliente = await crear(sesion, ClienteFactory)
+    op = await crear(sesion, OportunidadFactory, cliente_id=cliente.id, responsable_id=yo.id)
+    futura = hoy() + timedelta(days=5)
+    pendiente = await _alerta(sesion, yo, futura, "pendiente", TipoAlerta.insistencia, op)
+    resuelta = await _alerta(sesion, yo, futura, "resuelta", TipoAlerta.insistencia, op)
+    resuelta.estado = EstadoAlerta.resuelta
+    resuelta.resuelta_en = datetime.now(UTC)
+    esperada = pendiente if estado == EstadoAlerta.pendiente else resuelta
+
+    r = await c.get("/api/alertas", params={"oportunidad_id": str(op.id), "estado": estado.value})
+
+    assert _ids(r) == [str(esperada.id)]

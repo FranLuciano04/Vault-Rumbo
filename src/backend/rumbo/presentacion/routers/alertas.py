@@ -148,6 +148,14 @@ async def listar_alertas(
             "resto se ignora."
         ),
     ] = None,
+    oportunidad_id: Annotated[
+        uuid.UUID | None,
+        Query(
+            description="Solo las alertas cuyo origen es esta `Oportunidad` (RF-015), de "
+            "cualquier fecha: ignora la ventana de hoy y `proximas`; respeta `estado`, `tipo` y "
+            "la visibilidad del rol."
+        ),
+    ] = None,
 ) -> Pagina[Alerta]:
     items, total = await alertas.listar_agenda(
         sesion,
@@ -158,6 +166,7 @@ async def listar_alertas(
         desde=desde,
         hasta=hasta,
         propietario_id=propietario_id,
+        oportunidad_id=oportunidad_id,
         desplazamiento=paginacion.desplazamiento,
         limite=paginacion.por_pagina,
     )
