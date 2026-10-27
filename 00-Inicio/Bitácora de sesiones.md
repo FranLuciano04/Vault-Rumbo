@@ -75,6 +75,15 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
   - Con el timeout por defecto, la suite web falla al azar por timeouts cuando la máquina está cargada (pasa con `--testTimeout=30000`).
   - Dos sesiones que corren el backend sobre la misma base de tests pueden pisarse.
 
+## 26/10/26 — Paloma (Claude Opus 5.5) — T-165: chips de la agenda mobile
+- **T-165** (PR [#101](https://github.com/FranLuciano04/Vault-Rumbo/pull/101), riesgo normal): mergeado con el CI en verde; rama borrada y grafo publicado.
+  - Chips «Todas», «Atrasadas», «Hoy» y «Próximas» con el total del servidor, como control segmentado (pantalla 35). «Próximas» pide `proximas=true` y pagina.
+  - Review (opus): 1 bloqueante (`accessible` en el `tablist` agrupaba los chips para VoiceOver), 2 importantes (vacío por chip, refresh de los contadores) y 2 menores; todos arreglados. Segunda ronda sin hallazgos.
+  - `useTotalesAgenda`, `diaAnterior`, `filtrosDePestana`, `PestanaAgenda` y `TITULO_VACIO` pasaron de la web a `@rumbo/shared`; la web no cambia.
+  - Checks: mobile 179, web 418 y shared 368 tests en verde.
+  - **Commits:** 201740a, 9719a91, ebbc11a, 50ac4a8 y 459f5d9.
+- **Pendiente:** probar VoiceOver y TalkBack sobre los chips en un dispositivo. M3: falta T-060.
+
 ## 26/10/26 — Paloma (Claude Opus 5.5) — T-059: recordatorio manual en mobile
 - **T-059** (PR [#98](https://github.com/FranLuciano04/Vault-Rumbo/pull/98), riesgo normal): mergeado con el CI en verde; rama borrada y grafo publicado.
   - Botón «Nuevo recordatorio» en la agenda mobile → formulario con descripción, **selector de calendario** (pedido por Paloma; dependencia nueva `@react-native-community/datetimepicker@9.2.1`) y asociación opcional a un cliente.
