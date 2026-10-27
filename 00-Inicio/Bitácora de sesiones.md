@@ -24,6 +24,12 @@ La **persona** de cada sesión es quien la corre, identificada por su identidad 
 ## Avisos pendientes por persona
 > Claude los lee al identificar a la persona (paso 1 de `CLAUDE.md`) y se los cuenta **apenas la saluda**, antes de cualquier otra tarea. Cuando la persona confirme que lo leyó o que lo hizo, **Claude borra su fila** en esa misma sesión, con un commit. Cuando no quede ninguna fila de alguien, se borra también su sección.
 
+### Nahuel (`Nahuel Viniegra`) — cerrar M3 con la review de Codex
+- **26/10, de Paloma: M3 (Alertas) tiene todos sus tickets hechos y mergeados** (`tickets.mjs modulo M3` da ✅; los últimos fueron T-059, T-165 y T-060). Falta el cierre formal:
+  - Correr `/cerrar-modulo M3` y arreglar los hallazgos confirmados en ramas `fix/…` (DEC-0019).
+  - Para la prueba manual guiada en mobile: reconstruir el dev client (`expo run:android`), porque T-059 sumó el selector de calendario nativo. Probar VoiceOver/TalkBack en los chips de la agenda (T-165) y el selector en un iPhone.
+  - Con la aprobación del equipo, poner el tag `mod-3`.
+
 ### Nahuel (`Nahuel Viniegra`) — cerrar M2 con la review de Codex
 - **25/10, de Francisco: M2 tiene todos sus tickets hechos y mergeados** (`tickets.mjs modulo M2` da ✅). Falta el cierre formal, que hacés vos porque te encargás de las reviews con Codex. **M1 ya está cerrado (26/10, tag `mod-1`).**
   - Correr `/cerrar-modulo M2` y arreglar los hallazgos confirmados en ramas `fix/…` (DEC-0019).
@@ -73,6 +79,14 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Para tener en cuenta:**
   - Con el timeout por defecto, la suite web falla al azar por timeouts cuando la máquina está cargada (pasa con `--testTimeout=30000`).
   - Dos sesiones que corren el backend sobre la misma base de tests pueden pisarse.
+
+## 26/10/26 — Paloma (Claude Opus 5.5) — T-060: e2e de la agenda y semilla de alertas
+- **T-060** (PR [#102](https://github.com/FranLuciano04/Vault-Rumbo/pull/102), riesgo normal): mergeado con el CI en verde; rama borrada y grafo publicado. **Con esto M3 tiene todos sus tickets hechos** (aviso a Nahuel para `/cerrar-modulo M3`).
+  - `e2e/alertas.spec.ts`: crear recordatorio, resolver con cambio de progreso, posponer a próximas y agenda de la agencia con filtro por responsable; 5/5 contra el Compose real, sin bugs del sistema.
+  - Semilla de demo `semillas/alertas.py`: 6 recordatorios «Demo:» atrasados, de hoy y próximos entre la empleada y la freelance de demo; idempotente. Las fechas quedan fijas desde el día en que corre.
+  - Review (opus): 0 bloqueantes, 1 importante (la semilla ahora usa repositorios; nuevos `RepositorioClientes.buscar_por_contacto` y `RepositorioAlertas.existe_de_propietario`) y 3 menores, todos arreglados.
+  - Backend: 1733 tests, cobertura 97,30 % (`negocio/` 98,89 %).
+  - **Commits:** b6940bf, ba0934b, 5ce7b69, b6554c4 y 3e2266c.
 
 ## 26/10/26 — Paloma (Claude Opus 5.5) — T-165: chips de la agenda mobile
 - **T-165** (PR [#101](https://github.com/FranLuciano04/Vault-Rumbo/pull/101), riesgo normal): mergeado con el CI en verde; rama borrada y grafo publicado.
