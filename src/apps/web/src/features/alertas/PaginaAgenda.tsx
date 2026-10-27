@@ -1,12 +1,20 @@
 import {
   ETIQUETA_TIPO_ALERTA,
   avisoRecordatorio,
+  filtrosDePestana,
   hoyEnBuenosAires,
+  TITULO_VACIO,
   type Alerta,
+  type PestanaAgenda,
   type TipoAlerta,
   type UsuarioActual,
 } from "@rumbo/shared";
-import { useAlertas, useMarcarAlertaVista, useProgresoDelDia } from "@rumbo/shared/hooks";
+import {
+  useAlertas,
+  useMarcarAlertaVista,
+  useProgresoDelDia,
+  useTotalesAgenda,
+} from "@rumbo/shared/hooks";
 import type { AxiosInstance } from "axios";
 import { Check, Plus } from "lucide-react";
 import { useRef, useState } from "react";
@@ -19,11 +27,8 @@ import { FilaAlerta } from "./FilaAlerta";
 import { PanelDetalleAlerta } from "./PanelDetalleAlerta";
 import { FormularioRecordatorio } from "./FormularioRecordatorio";
 import { useResolverConDeshacer } from "./useResolverConDeshacer";
-import { diaAnterior, useTotalesAgenda } from "./useTotalesAgenda";
 
-type Pestana = "todas" | "atrasadas" | "hoy" | "proximas";
-
-const PESTANAS: { clave: Pestana; etiqueta: string }[] = [
+const PESTANAS: { clave: PestanaAgenda; etiqueta: string }[] = [
   { clave: "todas", etiqueta: "Todas" },
   { clave: "atrasadas", etiqueta: "Atrasadas" },
   { clave: "hoy", etiqueta: "Hoy" },
@@ -46,12 +51,6 @@ function Total({ valor }: { valor: number | undefined }) {
     </>
   );
 }
-
-const TITULO_VACIO: Record<Exclude<Pestana, "todas">, string> = {
-  atrasadas: "No hay alertas atrasadas",
-  hoy: "No hay alertas para hoy",
-  proximas: "No hay alertas próximas",
-};
 
 interface AccionesDeLista {
   cliente: AxiosInstance;
@@ -122,8 +121,7 @@ export function PaginaAgenda({
   usuario: UsuarioActual;
 }) {
   const esDeAgencia = usuario.rol === "admin" || usuario.rol === "dueno";
-  const [pestana, setPestana] = useState<Pestana>("todas");
-  const proximas = pestana === "proximas";
+  const [pestana, setPestana] = useState<PestanaAgenda>("todas");
   const hoy = hoyEnBuenosAires();
   const [mostrarVistas, setMostrarVistas] = useState(false);
   const [tipo, setTipo] = useState<TipoAlerta | "">("");
@@ -155,9 +153,7 @@ export function PaginaAgenda({
     pagina,
     ...(tipo && { tipo }),
     ...(responsable && { propietario_id: responsable }),
-    ...(proximas && { proximas }),
-    ...(pestana === "atrasadas" && { hasta: diaAnterior(hoy) }),
-    ...(pestana === "hoy" && { desde: hoy, hasta: hoy }),
+    ...filtrosDePestana(pestana, hoy),
   };
   // Todo cambio de filtro vuelve a la primera página.
   const filtrar = (cambio: () => void) => {
