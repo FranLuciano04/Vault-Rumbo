@@ -23,6 +23,8 @@ export default defineConfig({
     globals: true,
     exclude: [...configDefaults.exclude, "e2e/**"],
     setupFiles: ["./src/test/setup.ts"],
+    // Mismo motivo que `asyncUtilTimeout` en `src/test/setup.ts`: 5 s se quedan cortos bajo carga.
+    testTimeout: 15000,
     coverage: { provider: "v8", include: ["src/**/*.{ts,tsx}"] },
   },
 });
