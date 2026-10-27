@@ -85,4 +85,34 @@ describe("RF-074 RF-078 RF-154 totales de la agenda con «Deshacer» en espera",
     await waitFor(() => expect(result.current.atrasadas).toBeDefined());
     expect(result.current.atrasadas).toBe(0);
   });
+
+  it("RF-078 sin filtro de responsable ni de tipo descuenta igual la resuelta en espera", async () => {
+    servidorConTotal(1);
+    const { result } = totales({
+      responsable: "",
+      tipo: "",
+      conVistas: false,
+      resueltas: [resueltaDeAna],
+    });
+
+    await waitFor(() => expect(result.current.atrasadas).toBeDefined());
+    expect(result.current.atrasadas).toBe(0);
+  });
+
+  it("RF-154 con vistas y responsable activo descuenta la vista del mismo responsable y no la de otro", async () => {
+    servidorConTotal(1);
+    const { result } = totales({
+      responsable: ANA,
+      tipo: "",
+      conVistas: true,
+      resueltas: [
+        { ...resueltaDeAna, estado: "vista" },
+        { ...resueltaDeAna, id: "otra-alerta", propietario_id: TOMAS, estado: "vista" },
+      ],
+    });
+
+    await waitFor(() => expect(result.current.atrasadas).toBeDefined());
+    // Pendientes (1) + vistas (1) del servidor, menos la sola vista de Ana.
+    expect(result.current.atrasadas).toBe(1);
+  });
 });
