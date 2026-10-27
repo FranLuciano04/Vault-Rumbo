@@ -2,7 +2,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { ETIQUETA_SEGMENTO, ErrorApi, type Cliente, type UsuarioActual } from "@rumbo/shared";
 import { useCrearCliente } from "@rumbo/shared/hooks";
 import type { AxiosInstance } from "axios";
-import { TriangleAlert } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { type FieldError, useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router";
@@ -10,6 +9,7 @@ import { CampoFormulario, CLASE_SELECT } from "@/components/CampoFormulario";
 import { Button, variantesBoton } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { aplicarErroresDelServidor } from "@/lib/errores";
+import { AvisoDuplicado } from "./AvisoDuplicado";
 import {
   CAMPOS,
   datosParaLaApi,
@@ -18,60 +18,6 @@ import {
   type DatosFicha,
   type EntradaFicha,
 } from "./FormularioCliente";
-
-const AVISO_CLIENTE_AJENO =
-  "Ya hay un cliente con ese contacto en la agencia. Consultalo con un admin";
-
-/** Aviso de posible duplicado (CU-02 A1): los candidatos con acceso a su ficha, o el aviso del freelance. */
-function AvisoDuplicado({
-  candidatos,
-  enviando,
-  alConfirmar,
-}: {
-  candidatos: Cliente[];
-  enviando: boolean;
-  alConfirmar: () => void;
-}) {
-  return (
-    <section
-      role="alert"
-      className="flex flex-col gap-3 rounded-xl bg-amber-50 p-4 text-sm text-amber-900"
-    >
-      <h2 className="flex items-center gap-2 font-semibold">
-        <TriangleAlert aria-hidden="true" className="size-4 shrink-0" />
-        Posible cliente duplicado
-      </h2>
-      {candidatos.length === 0 ? (
-        <p>{AVISO_CLIENTE_AJENO}</p>
-      ) : (
-        <>
-          <p>
-            Ya hay clientes parecidos (mismo contacto o nombre). Si es la misma persona, abrí su
-            ficha.
-          </p>
-          <ul className="flex flex-col gap-2">
-            {candidatos.map(({ id, nombre, contacto }) => (
-              <li key={id} className="flex items-center justify-between gap-3">
-                <div className="flex flex-col">
-                  <span className="font-medium">{nombre}</span>
-                  <span>{contacto}</span>
-                </div>
-                <Link to={`/clientes/${id}`} className={variantesBoton({ variant: "outline" })}>
-                  Ir al cliente existente
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </>
-      )}
-      <div>
-        <Button type="button" disabled={enviando} onClick={alConfirmar}>
-          Confirmar alta
-        </Button>
-      </div>
-    </section>
-  );
-}
 
 /**
  * Alta de cliente (CU-02, pantalla 9): valida el formato, avisa los posibles duplicados (RF-003)
@@ -202,6 +148,7 @@ export function NuevoCliente({
           <AvisoDuplicado
             candidatos={duplicados}
             enviando={crear.isPending}
+            textoConfirmar="Confirmar alta"
             alConfirmar={() => void formulario.handleSubmit((datos) => enviar(datos, true))()}
           />
         )}

@@ -1,15 +1,16 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ETIQUETA_SEGMENTO, type Cliente, type ClienteEditar } from "@rumbo/shared";
+import { ETIQUETA_SEGMENTO, ErrorApi, type Cliente, type ClienteEditar } from "@rumbo/shared";
 import { esquemaAltaCliente } from "@rumbo/shared/esquemas";
 import { useAsesores, useEditarCliente } from "@rumbo/shared/hooks";
 import type { AxiosInstance } from "axios";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Controller, type Control, type FieldError, useForm, useFormState } from "react-hook-form";
 import { z } from "zod";
 import { CampoFormulario, CLASE_SELECT } from "@/components/CampoFormulario";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { aplicarErroresDelServidor } from "@/lib/errores";
+import { AvisoDuplicado } from "./AvisoDuplicado";
 import { EditorEtiquetas } from "./EditorEtiquetas";
 
 // El formato lo fija el esquema del alta; el asesor viaja como texto ("" = sin asesor).
@@ -112,6 +113,9 @@ export function FormularioCliente({
   // compara contra lo que la persona vio y no pisa los cambios de otra.
   const [fichaAlAbrir] = useState(ficha);
   const [etiquetas, setEtiquetas] = useState(fichaAlAbrir.etiquetas);
+  const [duplicados, setDuplicados] = useState<Cliente[] | null>(null);
+  // Cuenta las ediciones del formulario: un 409 de datos ya editados no se muestra.
+  const ediciones = useRef(0);
   const formulario = useForm<EntradaFicha, unknown, DatosFicha>({
     resolver: zodResolver(esquemaFicha),
     defaultValues: {
@@ -124,24 +128,50 @@ export function FormularioCliente({
     },
   });
   const { errors } = formulario.formState;
-  const { setFocus } = formulario;
+  const { setFocus, subscribe } = formulario;
 
   // Al abrir, el foco va al primer campo.
   useEffect(() => {
     setFocus("nombre");
   }, [setFocus]);
 
-  async function guardar(datos: DatosFicha) {
+  // Editar cualquier campo tras el aviso obliga a volver a chequear (CU-03).
+  useEffect(() => {
+    return subscribe({
+      formState: { values: true },
+      callback: () => {
+        ediciones.current += 1;
+        setDuplicados(null);
+      },
+    });
+  }, [subscribe]);
+
+  function cambiarEtiquetas(nuevas: string[]) {
+    ediciones.current += 1;
+    setDuplicados(null);
+    setEtiquetas(nuevas);
+  }
+
+  async function guardar(datos: DatosFicha, confirmarDuplicado: boolean) {
     setError(null);
+    setDuplicados(null);
+    const edicionesAlEnviar = ediciones.current;
     const cambios = cambiosDeLaFicha(datos, etiquetas, fichaAlAbrir, conAsesor);
     if (Object.keys(cambios).length === 0) {
       alTerminar(false);
       return;
     }
     try {
-      await editar.mutateAsync({ id: fichaAlAbrir.id, cambios });
+      await editar.mutateAsync({
+        id: fichaAlAbrir.id,
+        cambios: { ...cambios, ...(confirmarDuplicado && { confirmar_duplicado: true }) },
+      });
       alTerminar(true);
     } catch (falla) {
+      if (falla instanceof ErrorApi && falla.status === 409 && falla.duplicados) {
+        if (ediciones.current === edicionesAlEnviar) setDuplicados(falla.duplicados);
+        return;
+      }
       setError(aplicarErroresDelServidor(falla, CAMPOS, formulario.setError));
     }
   }
@@ -150,7 +180,7 @@ export function FormularioCliente({
     <form
       noValidate
       className="flex flex-col gap-4 rounded-2xl border bg-card p-5"
-      onSubmit={(evento) => void formulario.handleSubmit(guardar)(evento)}
+      onSubmit={(evento) => void formulario.handleSubmit((datos) => guardar(datos, false))(evento)}
     >
       <CampoFormulario id="nombre" etiqueta="Nombre" error={errors.nombre}>
         {(props) => <Input {...props} {...formulario.register("nombre")} />}
@@ -176,7 +206,7 @@ export function FormularioCliente({
           </select>
         )}
       </CampoFormulario>
-      <EditorEtiquetas etiquetas={etiquetas} alCambiar={setEtiquetas} />
+      <EditorEtiquetas etiquetas={etiquetas} alCambiar={cambiarEtiquetas} />
       <CampoFormulario id="preferencias" etiqueta="Preferencias" error={errors.preferencias}>
         {(props) => (
           <textarea
@@ -198,6 +228,17 @@ export function FormularioCliente({
         <p role="alert" className="text-sm font-medium text-destructive">
           {error}
         </p>
+      )}
+      {duplicados && (
+        <AvisoDuplicado
+          candidatos={duplicados}
+          enviando={editar.isPending}
+          textoConfirmar="Guardar igual"
+          alConfirmar={() => void formulario.handleSubmit((datos) => guardar(datos, true))()}
+          alCancelar={() => {
+            setDuplicados(null);
+          }}
+        />
       )}
       <div className="flex gap-2">
         <Button type="submit" disabled={editar.isPending}>
