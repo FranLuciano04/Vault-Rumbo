@@ -16,11 +16,11 @@ tags:: #tipo/referencia
 |---|---|---|---|---|---|---|---|
 | M0 — Fundaciones | 38 | 38 | 0 | 0 | 0 | 0 | ✅ cerrado |
 | M1 — Usuarios y configuración | 19 | 19 | 0 | 0 | 0 | 0 | ✅ cerrado |
-| M2 — Clientes | 15 | 15 | 0 | 0 | 0 | 0 | ✅ cerrado |
+| M2 — Clientes | 15 | 15 | 0 | 0 | 0 | 0 | 🔍 listo para la review |
 | M3 — Alertas | 14 | 14 | 0 | 0 | 0 | 0 | ✅ cerrado |
-| M4 — Oportunidades y cotizaciones | 14 | 4 | 2 | 3 | 5 | 0 | 🛠️ en curso |
+| M4 — Oportunidades y cotizaciones | 14 | 5 | 1 | 4 | 4 | 0 | 🛠️ en curso |
 | M5 — Hoteles y reseñas | 11 | 0 | 0 | 1 | 10 | 0 | 🛠️ en curso |
-| M6 — Viajes y economía | 24 | 1 | 0 | 3 | 20 | 0 | 🛠️ en curso |
+| M6 — Viajes y economía | 24 | 1 | 0 | 4 | 19 | 0 | 🛠️ en curso |
 | M7 — Proceso diario y CRM proactivo | 9 | 0 | 0 | 2 | 7 | 0 | 🛠️ en curso |
 | M8 — Calendario, dashboard y reportes | 10 | 0 | 0 | 1 | 9 | 0 | 🛠️ en curso |
 | M9 — Redes e IA | 6 | 0 | 0 | 1 | 5 | 0 | 🛠️ en curso |
@@ -137,8 +137,8 @@ flowchart LR
     T068["T-068 · Generar el documento PDF de la cotización<br/><small>backend</small>"]:::esperando
     T069["T-069 · Registrar una consulta en la web<br/><small>web</small>"]:::disponible
     T070["T-070 · Mostrar el embudo de oportunidades en la web<br/><small>web</small>"]:::hecho
-    T071["T-071 · Seguir una oportunidad desde su detalle en la web<br/><small>web</small><br/>👤 palomap2003"]:::tomado
-    T072["T-072 · Emitir una cotización en la web<br/><small>web</small>"]:::esperando
+    T071["T-071 · Seguir una oportunidad desde su detalle en la web<br/><small>web</small>"]:::hecho
+    T072["T-072 · Emitir una cotización en la web<br/><small>web</small>"]:::disponible
     T073["T-073 · Registrar la respuesta a una cotización en la web<br/><small>web</small>"]:::esperando
     T074["T-074 · Probar de punta a punta el embudo con cotización<br/><small>e2e</small>"]:::esperando
   end
@@ -171,7 +171,7 @@ flowchart LR
     T098["T-098 · Registrar el pago al proveedor de cada tramo<br/><small>backend · ⚠️ riesgo alto</small>"]:::esperando
     T099["T-099 · Cancelar un viaje con su reversión<br/><small>backend · ⚠️ riesgo alto</small>"]:::esperando
     T100["T-100 · Listar los viajes en la web<br/><small>web</small>"]:::disponible
-    T101["T-101 · Confirmar la reserva desde la oportunidad en la web<br/><small>web</small>"]:::esperando
+    T101["T-101 · Confirmar la reserva desde la oportunidad en la web<br/><small>web</small>"]:::disponible
     T102["T-102 · Registrar la economía desde la ficha del viaje en la web<br/><small>web</small>"]:::esperando
     T103["T-103 · Definir el plan de cuotas en la web<br/><small>web</small>"]:::esperando
     T104["T-104 · Registrar el cobro de un pago en la web<br/><small>web</small>"]:::esperando
