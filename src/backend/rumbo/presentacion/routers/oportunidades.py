@@ -1,5 +1,5 @@
-"""Rutas del módulo oportunidades y cotizaciones (CU-04, CU-05, CU-06). Stubs: responden 501 hasta
-su backend."""
+"""Rutas del módulo oportunidades y cotizaciones (CU-04, CU-05, CU-06). Las que siguen en 501
+esperan su ticket de backend."""
 
 import uuid
 from typing import Annotated
