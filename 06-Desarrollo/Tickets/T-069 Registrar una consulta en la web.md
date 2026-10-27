@@ -3,7 +3,7 @@ id: T-069
 titulo: Registrar una consulta en la web
 modulo: M4 — Oportunidades y cotizaciones
 capa: web
-estado: libre
+estado: tomado
 depende_de: [T-061, T-039, T-020]
 tamaño: S
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [CU-04, RF-004, RF-010, RF-011, RF-012, RF-013]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: Nahuel Viniegra
+tomado_el: 27/10/26 17:31
+rama: feature/T-069-registrar-una-consulta-en-la-web
 pr:
 ---
 # T-069 Registrar una consulta en la web
