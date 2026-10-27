@@ -1,8 +1,7 @@
+import type { PestanaAgenda } from "@rumbo/shared";
 import { Pressable, Text, View } from "react-native";
 
-export type Pestana = "todas" | "atrasadas" | "hoy" | "proximas";
-
-const CHIPS: { clave: Pestana; etiqueta: string }[] = [
+const CHIPS: { clave: PestanaAgenda; etiqueta: string }[] = [
   { clave: "todas", etiqueta: "Todas" },
   { clave: "atrasadas", etiqueta: "Atrasadas" },
   { clave: "hoy", etiqueta: "Hoy" },
@@ -18,9 +17,9 @@ export function ChipsAgenda({
   totales,
   alElegir,
 }: {
-  activa: Pestana;
-  totales: Record<Pestana, number | undefined>;
-  alElegir: (pestana: Pestana) => void;
+  activa: PestanaAgenda;
+  totales: Record<PestanaAgenda, number | undefined>;
+  alElegir: (pestana: PestanaAgenda) => void;
 }) {
   return (
     <View

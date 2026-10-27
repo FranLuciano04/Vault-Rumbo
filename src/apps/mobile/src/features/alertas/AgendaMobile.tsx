@@ -1,11 +1,12 @@
 import {
   avisoRecordatorio,
-  diaAnterior,
   diasDeAtraso,
   ETIQUETA_TIPO_ALERTA,
+  filtrosDePestana,
   hoyEnBuenosAires,
   lineaDeContexto,
   type Alerta,
+  type PestanaAgenda,
 } from "@rumbo/shared";
 import {
   useAlertas,
@@ -27,7 +28,7 @@ import {
   View,
 } from "react-native";
 import { cliente } from "../../cliente";
-import { ChipsAgenda, type Pestana } from "./ChipsAgenda";
+import { ChipsAgenda } from "./ChipsAgenda";
 
 const POR_PAGINA = 100;
 const ERROR_AL_CARGAR = "No pudimos cargar la agenda. Probá de nuevo en unos minutos.";
@@ -37,7 +38,7 @@ const anunciar = (texto: string) => {
   AccessibilityInfo.announceForAccessibility(texto);
 };
 
-function textoSinAlertas(pestana: Pestana, esDeAgencia: boolean) {
+function textoSinAlertas(pestana: PestanaAgenda, esDeAgencia: boolean) {
   const sujeto = esDeAgencia ? "La agencia no tiene" : "No tenés";
   return `${sujeto} alertas ${pestana === "proximas" ? "próximas" : "pendientes para hoy"}.`;
 }
@@ -120,12 +121,10 @@ export function AgendaMobile() {
   const yo = useYo(cliente);
   const esDeAgencia = yo.data?.rol === "admin" || yo.data?.rol === "dueno";
   const hoy = hoyEnBuenosAires();
-  const [pestana, setPestana] = useState<Pestana>("todas");
+  const [pestana, setPestana] = useState<PestanaAgenda>("todas");
   const alertas = useAlertasPorPaginas(cliente, {
     por_pagina: POR_PAGINA,
-    ...(pestana === "atrasadas" && { hasta: diaAnterior(hoy) }),
-    ...(pestana === "hoy" && { desde: hoy, hasta: hoy }),
-    ...(pestana === "proximas" && { proximas: true }),
+    ...filtrosDePestana(pestana, hoy),
   });
   const vistas = useAlertas(cliente, { estado: "vista", por_pagina: 1 });
   const progreso = useProgresoDelDia(cliente);

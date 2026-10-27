@@ -1,5 +1,5 @@
 import { formatearFecha, formatearImporte } from "./formato";
-import type { Alerta } from "./modelos";
+import type { Alerta, FiltrosAlertas } from "./modelos";
 
 const ZONA = "America/Argentina/Buenos_Aires";
 
@@ -13,6 +13,17 @@ export function diaAnterior(fecha: string): string {
   const d = new Date(`${fecha}T00:00:00Z`);
   d.setUTCDate(d.getUTCDate() - 1);
   return d.toISOString().slice(0, 10);
+}
+
+/** Pestañas (chips) de la agenda (RF-154). */
+export type PestanaAgenda = "todas" | "atrasadas" | "hoy" | "proximas";
+
+/** Filtros de la lista que corresponden a cada pestaña de la agenda. */
+export function filtrosDePestana(pestana: PestanaAgenda, hoy: string): FiltrosAlertas {
+  if (pestana === "atrasadas") return { hasta: diaAnterior(hoy) };
+  if (pestana === "hoy") return { desde: hoy, hasta: hoy };
+  if (pestana === "proximas") return { proximas: true };
+  return {};
 }
 
 /** Días enteros que pasaron entre `fecha` y `hoy` (ambas `aaaa-mm-dd`). */
