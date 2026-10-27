@@ -28,6 +28,7 @@ La **persona** de cada sesión es quien la corre, identificada por su identidad 
 - **25/10, de Francisco: M2 tiene todos sus tickets hechos y mergeados** (`tickets.mjs modulo M2` da ✅). Falta el cierre formal, que hacés vos porque te encargás de las reviews con Codex. **M1 ya está cerrado (26/10, tag `mod-1`).**
   - Correr `/cerrar-modulo M2` y arreglar los hallazgos confirmados en ramas `fix/…` (DEC-0019).
   - Con la aprobación del equipo, poner el tag `mod-2`.
+
 ### Nahuel (`Nahuel Viniegra`) — el repo es público
 - **25/10, de Francisco: el repo [Vault-Rumbo](https://github.com/FranLuciano04/Vault-Rumbo) pasó a público.** GitHub Actions se había cortado porque se terminaron los minutos del plan Free; en los repos públicos los minutos son ilimitados.
   - Antes se escaneó todo el historial, incluidas las ramas de los PR, y no hay secretos.
