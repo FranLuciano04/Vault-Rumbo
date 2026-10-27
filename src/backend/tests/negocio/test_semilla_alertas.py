@@ -16,7 +16,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from rumbo.core.fechas import hoy
 from rumbo.datos import semillas
 from rumbo.datos.modelos import Alerta, Cliente, Usuario
-from rumbo.datos.modelos.enums import EstadoAlerta, TipoAlerta
+from rumbo.datos.modelos.enums import EstadoAlerta, SegmentoCliente, TipoAlerta
 from rumbo.datos.semillas.alertas import sembrar_alertas
 from rumbo.datos.semillas.clientes import sembrar_clientes
 from rumbo.datos.semillas.configuracion import sembrar_configuracion
@@ -75,9 +75,7 @@ async def test_rf078_la_semilla_reparte_los_recordatorios_entre_varios_responsab
 
     propietarios = {a.propietario_id for a in await _alertas(sesion)}
     assert len(propietarios) >= 2
-    emails = (
-        await sesion.scalars(select(Usuario.email).where(Usuario.id.in_(propietarios)))
-    ).all()
+    emails = (await sesion.scalars(select(Usuario.email).where(Usuario.id.in_(propietarios)))).all()
     assert all(email.endswith("@rumbo.test") for email in emails)
 
 
@@ -120,6 +118,27 @@ async def test_rf080_la_semilla_no_duplica_un_recordatorio_ya_cargado(
     assert await _contar(sesion) == total
     await sesion.refresh(existente)
     assert existente.estado == EstadoAlerta.vista  # no pisa lo que hizo la agencia
+
+
+async def test_rf080_asocia_al_cliente_aunque_su_contacto_este_en_otro_formato(
+    sesion: AsyncSession,
+) -> None:
+    # La agencia ya cargó al cliente de la semilla con el teléfono escrito distinto.
+    await sembrar_configuracion(sesion)
+    existente = Cliente(
+        nombre="Grupo Amigos del Sur (cargado a mano)",
+        contacto="+54 9 11 5555 0101",
+        segmento=SegmentoCliente.amigos,
+    )
+    sesion.add(existente)
+    await sesion.flush()
+
+    await sembrar_alertas(sesion)
+
+    asociadas = [a for a in await _alertas(sesion) if a.cliente_id == existente.id]
+    assert asociadas, "el recordatorio debe asociarse al cliente aunque el formato difiera"
+    clientes = (await sesion.scalars(select(Cliente))).all()
+    assert len(clientes) == 1, "la semilla de alertas no crea clientes"
 
 
 async def test_rf080_demo_de_la_cli_carga_alertas_y_dos_corridas_no_duplican(

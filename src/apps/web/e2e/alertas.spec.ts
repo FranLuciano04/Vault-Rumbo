@@ -94,6 +94,7 @@ test.describe("CU-28 Crear recordatorio manual", () => {
   test("RF-080 crear recordatorio: el empleado lo crea, lo ve en la agenda y el progreso lo cuenta", async ({
     page,
   }) => {
+    const HOY = hoy();
     const empleado = await crearPersona("empleado", "crear");
     const descripcion = `Llamar a la mayorista ${SUFIJO}`;
 
@@ -104,12 +105,12 @@ test.describe("CU-28 Crear recordatorio manual", () => {
     await page.getByRole("button", { name: "Nuevo recordatorio" }).first().click();
     const formulario = page.getByRole("form", { name: "Nuevo recordatorio" });
     await formulario.getByLabel("Descripción").fill(descripcion);
-    await formulario.getByLabel("Fecha").fill(hoy());
+    await formulario.getByLabel("Fecha").fill(HOY);
     await formulario.getByRole("button", { name: "Guardar" }).click();
 
-    await expect(page.getByRole("status").filter({ hasText: "Recordatorio creado para el" })).toContainText(
-      ddmmaa(hoy()),
-    );
+    await expect(
+      page.getByRole("status").filter({ hasText: "Recordatorio creado para el" }),
+    ).toContainText(ddmmaa(HOY));
     await expect(page.getByText(descripcion)).toBeVisible();
     await expect(page.getByText("Llevás 0 de 1 alertas resueltas")).toBeVisible();
   });
@@ -138,10 +139,11 @@ test.describe("CU-14 Ver y atender alertas del día", () => {
   test("RF-076 resolver: la alerta sale de la agenda y el progreso del día cambia", async ({
     page,
   }) => {
+    const HOY = hoy();
     const empleado = await crearPersona("empleado", "resolver");
     const descripcion = `Resolver recordatorio ${SUFIJO}`;
     const token = await tokenDe(empleado.email, CLAVE);
-    await api<AlertaApi>(token, "POST", "/alertas", { descripcion, fecha: hoy() });
+    await api<AlertaApi>(token, "POST", "/alertas", { descripcion, fecha: HOY });
 
     await ingresar(page, empleado.email, CLAVE);
     await expect(page.getByText(descripcion)).toBeVisible();
@@ -163,11 +165,12 @@ test.describe("CU-14 Ver y atender alertas del día", () => {
   });
 
   test("RF-077 posponer: la alerta pasa a próximas", async ({ page }) => {
+    const HOY = hoy();
     const empleado = await crearPersona("empleado", "posponer");
     const descripcion = `Posponer recordatorio ${SUFIJO}`;
-    const nuevaFecha = sumarDias(hoy(), 3);
+    const nuevaFecha = sumarDias(HOY, 3);
     const token = await tokenDe(empleado.email, CLAVE);
-    await api<AlertaApi>(token, "POST", "/alertas", { descripcion, fecha: hoy() });
+    await api<AlertaApi>(token, "POST", "/alertas", { descripcion, fecha: HOY });
 
     await ingresar(page, empleado.email, CLAVE);
     await expect(page.getByText(descripcion)).toBeVisible();
@@ -188,11 +191,18 @@ test.describe("CU-14 Ver y atender alertas del día", () => {
   test("RF-078 agenda de la agencia: la admin ve las alertas de otros con su responsable", async ({
     page,
   }) => {
+    const HOY = hoy();
     const empleado = await crearPersona("empleado", "agencia");
     const admin = await crearPersona("admin", "agencia");
     const descripcion = `Alerta del equipo ${SUFIJO}`;
     const token = await tokenDe(empleado.email, CLAVE);
-    await api<AlertaApi>(token, "POST", "/alertas", { descripcion, fecha: hoy() });
+    await api<AlertaApi>(token, "POST", "/alertas", { descripcion, fecha: HOY });
+    const descripcionAdmin = `Alerta de la admin ${SUFIJO}`;
+    const tokenAdmin = await tokenDe(admin.email, CLAVE);
+    await api<AlertaApi>(tokenAdmin, "POST", "/alertas", {
+      descripcion: descripcionAdmin,
+      fecha: HOY,
+    });
 
     await ingresar(page, admin.email, CLAVE);
     await expect(page.getByText("Principal · Toda la agencia")).toBeVisible();
@@ -204,7 +214,10 @@ test.describe("CU-14 Ver y atender alertas del día", () => {
     // Filtrar por responsable deja solo las de esa persona.
     await page.getByLabel("Responsable").selectOption({ label: empleado.nombre });
     await expect(fila).toBeVisible();
+    await expect(page.getByText(descripcionAdmin)).toHaveCount(0);
+    // Y al filtrar por la admin, desaparece la del empleado y aparece la suya.
     await page.getByLabel("Responsable").selectOption({ label: admin.nombre });
+    await expect(page.getByText(descripcionAdmin)).toBeVisible();
     await expect(page.getByText(descripcion)).toHaveCount(0);
   });
 });

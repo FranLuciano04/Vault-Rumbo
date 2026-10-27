@@ -2,11 +2,17 @@
 
 from datetime import timedelta
 
-from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from rumbo.core.fechas import hoy
-from rumbo.datos.modelos import Alerta, Cliente, EstadoAlerta, TipoAlerta, Usuario
+from rumbo.datos.modelos import Alerta, EstadoAlerta, TipoAlerta
+from rumbo.datos.repositorios.alertas import RepositorioAlertas
+from rumbo.datos.repositorios.clientes import RepositorioClientes
+from rumbo.datos.repositorios.seguridad import RepositorioUsuarios
+
+_alertas = RepositorioAlertas()
+_clientes = RepositorioClientes()
+_usuarios = RepositorioUsuarios()
 
 # (descripción, días desde hoy, email del responsable de demo, contacto del cliente o None)
 _RECORDATORIOS = [
@@ -38,23 +44,20 @@ _RECORDATORIOS = [
 # resuelto o pospuesto, no se vuelve a crear ni se pisa.
 async def sembrar_alertas(sesion: AsyncSession) -> None:
     """Carga los recordatorios de demo, idempotente. Corre después de la de clientes, de la que
-    toma los clientes, y de la configuración, de la que toma los responsables."""
+    toma los clientes, y de la configuración, de la que toma los responsables. Las fechas se
+    calculan respecto del día en que corre y quedan fijas: volver a correrla no las renueva,
+    porque así no pisa lo que hizo la agencia."""
     for descripcion, dias, email, contacto in _RECORDATORIOS:
-        responsable = await sesion.scalar(select(Usuario).where(Usuario.email == email))
+        responsable = await _usuarios.buscar_por_email(sesion, email)
         if responsable is None:
             continue
-        ya_cargado = await sesion.scalar(
-            select(Alerta.id).where(
-                Alerta.descripcion == descripcion, Alerta.propietario_id == responsable.id
-            )
-        )
-        if ya_cargado is not None:
+        if await _alertas.existe_de_propietario(
+            sesion, propietario_id=responsable.id, descripcion=descripcion
+        ):
             continue
-        cliente = (
-            await sesion.scalar(select(Cliente).where(Cliente.contacto == contacto))
-            if contacto
-            else None
-        )
+        cliente = None
+        if contacto:
+            cliente = await _clientes.buscar_por_contacto(sesion, contacto=contacto)
         sesion.add(
             Alerta(
                 propietario_id=responsable.id,
