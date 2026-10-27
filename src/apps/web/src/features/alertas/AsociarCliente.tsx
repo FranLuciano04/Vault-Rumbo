@@ -8,7 +8,8 @@ import { Label } from "@/components/ui/label";
 
 import type { AsociadoRecordatorio } from "./FormularioRecordatorio";
 
-function ResultadosClientes({
+/** Clientes que coinciden con la búsqueda, para elegir uno (también lo usa el alta de consulta). */
+export function ResultadosClientes({
   cliente,
   buscar,
   alElegir,

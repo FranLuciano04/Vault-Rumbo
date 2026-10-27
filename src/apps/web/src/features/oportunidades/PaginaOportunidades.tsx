@@ -7,7 +7,8 @@ import {
 import { useOportunidadesPorPaginas } from "@rumbo/shared/hooks";
 import type { AxiosInstance } from "axios";
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
+import { Link } from "react-router";
+import { Button, variantesBoton } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { FiltroResponsable } from "@/components/FiltroResponsable";
 import { TarjetaOportunidad } from "./TarjetaOportunidad";
@@ -57,7 +58,12 @@ export function PaginaOportunidades({
 
   return (
     <div className="space-y-4">
-      <h1 className="text-2xl font-semibold">Oportunidades</h1>
+      <div className="flex items-center justify-between gap-3">
+        <h1 className="text-2xl font-semibold">Oportunidades</h1>
+        <Link to="/oportunidades/nueva" className={variantesBoton()}>
+          Nueva consulta
+        </Link>
+      </div>
       {esFreelance && (
         <p role="status" className="rounded-md bg-muted px-3 py-2 text-sm">
           Estás viendo solo tus clientes, oportunidades y viajes. El catálogo de hoteles, destinos y
