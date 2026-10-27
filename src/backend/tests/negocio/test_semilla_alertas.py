@@ -10,6 +10,8 @@ cliente usan clientes de la semilla de clientes; los responsables son usuarios d
 el mismo responsable.
 """
 
+from datetime import UTC, datetime, timedelta
+
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -162,3 +164,121 @@ async def test_rf080_demo_de_la_cli_carga_alertas_y_dos_corridas_no_duplican(
 
     await correr()
     assert await _contar(sesion) == total
+
+
+_DESCRIPCION_LUCIA = "Demo: saludar a Lucía Demo Gómez por su cumpleaños"
+
+
+async def _usuario(sesion: AsyncSession, email: str) -> Usuario:
+    return (await sesion.scalars(select(Usuario).where(Usuario.email == email))).one()
+
+
+async def _alerta_de_lucia(sesion: AsyncSession) -> Alerta:
+    freelance = await _usuario(sesion, "freelance.demo@rumbo.test")
+    consulta = select(Alerta).where(
+        Alerta.propietario_id == freelance.id, Alerta.descripcion == _DESCRIPCION_LUCIA
+    )
+    return (await sesion.scalars(consulta)).one()
+
+
+async def test_rf151_la_semilla_asocia_el_cliente_si_es_de_su_responsable(
+    sesion: AsyncSession,
+) -> None:
+    await _preparar(sesion)
+
+    lucia = (
+        await sesion.scalars(select(Cliente).where(Cliente.contacto == "lucia.gomez@rumbo.test"))
+    ).one()
+    assert (await _alerta_de_lucia(sesion)).cliente_id == lucia.id
+
+
+async def test_rf151_no_asocia_un_cliente_reasignado_a_otro_asesor(sesion: AsyncSession) -> None:
+    await sembrar_configuracion(sesion)
+    await sembrar_clientes(sesion)
+    empleada = await _usuario(sesion, "empleada.demo@rumbo.test")
+    lucia = (
+        await sesion.scalars(select(Cliente).where(Cliente.contacto == "lucia.gomez@rumbo.test"))
+    ).one()
+    lucia.asesor_asignado_id = empleada.id
+    await sesion.flush()
+
+    await sembrar_alertas(sesion)
+
+    alerta = await _alerta_de_lucia(sesion)  # se crea igual: es un recordatorio personal
+    assert alerta.cliente_id is None, "la freelance no ve a ese cliente: no se le asocia"
+
+
+async def test_rf151_con_duplicados_asocia_el_cliente_de_su_responsable(
+    sesion: AsyncSession,
+) -> None:
+    await sembrar_configuracion(sesion)
+    empleada = await _usuario(sesion, "empleada.demo@rumbo.test")
+    freelance = await _usuario(sesion, "freelance.demo@rumbo.test")
+    ajeno_mas_antiguo = Cliente(
+        nombre="Lucía Gómez (duplicado de otra asesora)",
+        contacto="lucia.gomez@rumbo.test",
+        segmento=SegmentoCliente.individual,
+        asesor_asignado_id=empleada.id,
+        created_at=datetime.now(UTC) - timedelta(days=30),
+    )
+    propio = Cliente(
+        nombre="Lucía Demo Gómez",
+        contacto="lucia.gomez@rumbo.test",
+        segmento=SegmentoCliente.individual,
+        asesor_asignado_id=freelance.id,
+    )
+    sesion.add_all([ajeno_mas_antiguo, propio])
+    await sesion.flush()
+
+    await sembrar_alertas(sesion)
+
+    assert (await _alerta_de_lucia(sesion)).cliente_id == propio.id
+
+
+async def test_rf151_la_semilla_asocia_a_la_empleada_un_cliente_de_otro_asesor(
+    sesion: AsyncSession,
+) -> None:
+    await sembrar_configuracion(sesion)
+    await sembrar_clientes(sesion)
+    freelance = await _usuario(sesion, "freelance.demo@rumbo.test")
+    empleada = await _usuario(sesion, "empleada.demo@rumbo.test")
+    familia = (
+        await sesion.scalars(select(Cliente).where(Cliente.contacto == "familia.perez@rumbo.test"))
+    ).one()
+    familia.asesor_asignado_id = freelance.id
+    await sesion.flush()
+
+    await sembrar_alertas(sesion)
+
+    consulta = select(Alerta).where(
+        Alerta.propietario_id == empleada.id,
+        Alerta.descripcion.like("Demo: llamar a la Familia Demo Pérez%"),
+    )
+    alerta = (await sesion.scalars(consulta)).one()
+    assert alerta.cliente_id == familia.id, "la empleada ve todos los clientes (RF-151)"
+
+
+async def test_rf151_con_duplicados_del_mismo_asesor_asocia_el_mas_antiguo(
+    sesion: AsyncSession,
+) -> None:
+    await sembrar_configuracion(sesion)
+    freelance = await _usuario(sesion, "freelance.demo@rumbo.test")
+    mas_antiguo = Cliente(
+        nombre="Lucía Gómez (cargada antes)",
+        contacto="lucia.gomez@rumbo.test",
+        segmento=SegmentoCliente.individual,
+        asesor_asignado_id=freelance.id,
+        created_at=datetime.now(UTC) - timedelta(days=30),
+    )
+    mas_nuevo = Cliente(
+        nombre="Lucía Demo Gómez",
+        contacto="lucia.gomez@rumbo.test",
+        segmento=SegmentoCliente.individual,
+        asesor_asignado_id=freelance.id,
+    )
+    sesion.add_all([mas_nuevo, mas_antiguo])
+    await sesion.flush()
+
+    await sembrar_alertas(sesion)
+
+    assert (await _alerta_de_lucia(sesion)).cliente_id == mas_antiguo.id
