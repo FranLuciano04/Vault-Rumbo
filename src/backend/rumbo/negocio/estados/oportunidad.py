@@ -14,6 +14,11 @@ def _exigir(oportunidad: Oportunidad, *validos: EstadoOportunidad, accion: str) 
         )
 
 
+def exigir_abierta(oportunidad: Oportunidad, *, accion: str) -> None:
+    """`TransicionInvalida` si la oportunidad ya está cerrada (`ganada` o `perdida`)."""
+    _exigir(oportunidad, *_ABIERTAS, accion=accion)
+
+
 def pasar_a_en_gestion(oportunidad: Oportunidad) -> None:
     """T2: el vendedor toma una consulta nueva."""
     _exigir(oportunidad, EstadoOportunidad.nueva, accion="pasar a en gestión")
