@@ -3,7 +3,7 @@ id: T-062
 titulo: Registrar una consulta como oportunidad
 modulo: M4 — Oportunidades y cotizaciones
 capa: backend
-estado: libre
+estado: tomado
 depende_de: [T-061, T-040]
 tamaño: M
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [CU-04, RF-004, RF-010, RF-011, RF-012, RF-013, DEC-0002]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: palomap2003
+tomado_el: 27/10/26 20:44
+rama: feature/T-062-registrar-una-consulta-como-oportunidad
 pr:
 ---
 # T-062 Registrar una consulta como oportunidad
