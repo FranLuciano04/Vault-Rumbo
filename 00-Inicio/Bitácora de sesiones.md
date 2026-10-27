@@ -64,6 +64,15 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
+## 26/10/26 — Paloma (Claude Opus 5.5) — T-059: recordatorio manual en mobile
+- **T-059** (PR [#98](https://github.com/FranLuciano04/Vault-Rumbo/pull/98), riesgo normal): mergeado con el CI en verde; rama borrada y grafo publicado.
+  - Botón «Nuevo recordatorio» en la agenda mobile → formulario con descripción, **selector de calendario** (pedido por Paloma; dependencia nueva `@react-native-community/datetimepicker@9.2.1`) y asociación opcional a un cliente.
+  - Con fecha futura, la agenda muestra «Recordatorio creado para el dd/mm/aa» (la agenda del día solo lista hasta hoy).
+  - Review (opus): 0 bloqueantes, 6 importantes y 4 menores, todos arreglados. `useDebouncedValue` y `avisoRecordatorio` pasaron de la web a `@rumbo/shared`; `Opcion` y `MensajeError` a `mobile/src/componentes/`.
+  - Checks: mobile 163, web 417 y shared 194 tests en verde.
+  - **Commits:** 7c5e086, c546ce6, 9aeb243, 6dade45, e604f75 y 38b2bd1.
+- **Pendiente:** reconstruir el dev client (`expo run:android`) para probar el selector, y probarlo en un iPhone. M3: faltan T-165 y T-060.
+
 ## 26/10/26 — Paloma (Claude Opus 5.5) — T-064: estados de la oportunidad
 - **T-064** (PR [#94](https://github.com/FranLuciano04/Vault-Rumbo/pull/94), ⚠️ riesgo alto): **aprobado y mergeado por Nahuel** el 26/10; rama borrada y grafo publicado.
   - **Acciones:** en gestión, perder (con motivo), reactivar (vuelve a `en_gestion`) y ganar (desde `nueva`, `en_gestion` o `cotizada`). Una transición inválida da 409.
