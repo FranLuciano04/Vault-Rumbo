@@ -18,7 +18,7 @@ tags:: #tipo/referencia
 | M1 — Usuarios y configuración | 19 | 19 | 0 | 0 | 0 | 0 | ✅ cerrado |
 | M2 — Clientes | 15 | 15 | 0 | 0 | 0 | 0 | 🔍 listo para la review |
 | M3 — Alertas | 14 | 14 | 0 | 0 | 0 | 0 | 🔍 listo para la review |
-| M4 — Oportunidades y cotizaciones | 14 | 3 | 1 | 4 | 6 | 0 | 🛠️ en curso |
+| M4 — Oportunidades y cotizaciones | 14 | 4 | 0 | 5 | 5 | 0 | 🛠️ en curso |
 | M5 — Hoteles y reseñas | 11 | 0 | 0 | 1 | 10 | 0 | 🛠️ en curso |
 | M6 — Viajes y economía | 24 | 1 | 0 | 3 | 20 | 0 | 🛠️ en curso |
 | M7 — Proceso diario y CRM proactivo | 9 | 0 | 0 | 2 | 7 | 0 | 🛠️ en curso |
@@ -136,8 +136,8 @@ flowchart LR
     T067["T-067 · Registrar la respuesta del cliente a la cotización<br/><small>backend · ⚠️ riesgo alto</small>"]:::esperando
     T068["T-068 · Generar el documento PDF de la cotización<br/><small>backend</small>"]:::esperando
     T069["T-069 · Registrar una consulta en la web<br/><small>web</small>"]:::disponible
-    T070["T-070 · Mostrar el embudo de oportunidades en la web<br/><small>web</small><br/>👤 palomap2003"]:::tomado
-    T071["T-071 · Seguir una oportunidad desde su detalle en la web<br/><small>web</small>"]:::esperando
+    T070["T-070 · Mostrar el embudo de oportunidades en la web<br/><small>web</small>"]:::hecho
+    T071["T-071 · Seguir una oportunidad desde su detalle en la web<br/><small>web</small>"]:::disponible
     T072["T-072 · Emitir una cotización en la web<br/><small>web</small>"]:::esperando
     T073["T-073 · Registrar la respuesta a una cotización en la web<br/><small>web</small>"]:::esperando
     T074["T-074 · Probar de punta a punta el embudo con cotización<br/><small>e2e</small>"]:::esperando
