@@ -24,12 +24,10 @@ La **persona** de cada sesión es quien la corre, identificada por su identidad 
 ## Avisos pendientes por persona
 > Claude los lee al identificar a la persona (paso 1 de `CLAUDE.md`) y se los cuenta **apenas la saluda**, antes de cualquier otra tarea. Cuando la persona confirme que lo leyó o que lo hizo, **Claude borra su fila** en esa misma sesión, con un commit. Cuando no quede ninguna fila de alguien, se borra también su sección.
 
-### Nahuel (`Nahuel Viniegra`) — cerrar M1 y M2 con la review de Codex
-- **25/10, de Francisco: M1 y M2 tienen todos sus tickets hechos y mergeados** (`tickets.mjs modulo M1` y `modulo M2` dan ✅). Falta el cierre formal, que hacés vos porque te encargás de las reviews con Codex:
-  - Correr `/cerrar-modulo M1` y `/cerrar-modulo M2`, que arman el pedido de review para Codex.
-  - Arreglar los hallazgos confirmados en ramas `fix/…` (DEC-0019).
-  - Con la aprobación del equipo, poner los tags `mod-1` y `mod-2`. Hoy solo existe `mod-0`.
-
+### Nahuel (`Nahuel Viniegra`) — cerrar M2 con la review de Codex
+- **25/10, de Francisco: M2 tiene todos sus tickets hechos y mergeados** (`tickets.mjs modulo M2` da ✅). Falta el cierre formal, que hacés vos porque te encargás de las reviews con Codex. **M1 ya está cerrado (26/10, tag `mod-1`).**
+  - Correr `/cerrar-modulo M2` y arreglar los hallazgos confirmados en ramas `fix/…` (DEC-0019).
+  - Con la aprobación del equipo, poner el tag `mod-2`.
 ### Nahuel (`Nahuel Viniegra`) — el repo es público
 - **25/10, de Francisco: el repo [Vault-Rumbo](https://github.com/FranLuciano04/Vault-Rumbo) pasó a público.** GitHub Actions se había cortado porque se terminaron los minutos del plan Free; en los repos públicos los minutos son ilimitados.
   - Antes se escaneó todo el historial, incluidas las ramas de los PR, y no hay secretos.
@@ -70,7 +68,7 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **H-02** (importante): los mocks de M1 ahora filtran, paginan y responden 409/422 con `errores` por campo, como el backend. PR [#95](https://github.com/FranLuciano04/Vault-Rumbo/pull/95), mergeado.
 - **H-03** (importante): tests concurrentes del último admin y de la última dueña. PR [#100](https://github.com/FranLuciano04/Vault-Rumbo/pull/100), aprobado y mergeado.
 - **Commits en main:** 85cf59a, f582c4b, e9d3cfd, 2ea9997.
-- **Pendiente:** la aprobación del equipo y el tag `mod-1` (`/cerrar-modulo M1`).
+- **Cierre:** el equipo aprobó M1 y se puso el tag `mod-1`. Se publicaron el grafo, la bitácora técnica y el estado.
 - **Para tener en cuenta:**
   - Con el timeout por defecto, la suite web falla al azar por timeouts cuando la máquina está cargada (pasa con `--testTimeout=30000`).
   - Dos sesiones que corren el backend sobre la misma base de tests pueden pisarse.
