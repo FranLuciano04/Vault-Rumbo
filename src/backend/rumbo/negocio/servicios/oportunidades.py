@@ -1,4 +1,5 @@
-"""Servicio del módulo oportunidades: embudo, detalle, edición y estados (CU-05)."""
+"""Servicio del módulo oportunidades: embudo, detalle, edición y estados (CU-05) y emisión de
+cotizaciones (CU-06)."""
 
 import uuid
 from collections.abc import Callable
@@ -6,12 +7,23 @@ from typing import Any
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from rumbo.datos.modelos import EstadoOportunidad, MotivoPerdida, Oportunidad, RolUsuario, Usuario
+from rumbo.core.fechas import hoy
+from rumbo.datos.modelos import (
+    Cotizacion,
+    EstadoOportunidad,
+    Moneda,
+    MotivoPerdida,
+    Oportunidad,
+    RolUsuario,
+    Usuario,
+)
 from rumbo.datos.repositorios.oportunidades import RepositorioOportunidades
 from rumbo.datos.repositorios.seguridad import RepositorioUsuarios
 from rumbo.negocio.errores import DatosInvalidos, NoEncontrado
+from rumbo.negocio.estados import cotizacion as estado_cotizacion
 from rumbo.negocio.estados import oportunidad as estado
 from rumbo.negocio.politicas import exigir_escritura, exigir_rol, visibilidad
+from rumbo.negocio.servicios import parametros
 from rumbo.negocio.servicios.alertas import resolver_de_origen
 
 _oportunidades = RepositorioOportunidades()
@@ -117,6 +129,34 @@ async def ganar_oportunidad(
     """Venta directa sin cotización formal: queda ganada, lista para confirmar la reserva
     (CU-05 A4, RF-016); resuelve las alertas automáticas abiertas (RN-08)."""
     return await _transicionar(sesion, actor, oportunidad_id, estado.ganar, resolver_alertas=True)
+
+
+async def emitir_cotizacion(
+    sesion: AsyncSession,
+    actor: Usuario,
+    oportunidad_id: uuid.UUID,
+    moneda: Moneda,
+    items: list[dict[str, Any]],
+) -> Cotizacion:
+    """Emite una cotización, o una nueva versión, en `borrador` con la vigencia configurada (CU-06,
+    RF-021, RF-022, RF-024). La oportunidad se bloquea como en `_transicionar`: una que el actor
+    no ve es 404, una ajena sin permiso 403 (DEC-0005) y una cerrada 409."""
+    oportunidad = await _oportunidades.obtener_para_modificar(
+        sesion, oportunidad_id, visibilidad=visibilidad(actor)
+    )
+    exigir_escritura(actor, oportunidad)
+    configuracion = await parametros.obtener(sesion)
+    cotizacion = estado_cotizacion.emitir(
+        oportunidad,
+        moneda=moneda,
+        items=items,
+        fecha=hoy(),
+        vigencia_meses=configuracion.vigencia_cotizacion_meses,
+    )
+    sesion.add(cotizacion)
+    await sesion.flush()
+    await sesion.refresh(cotizacion)
+    return cotizacion
 
 
 async def _transicionar(

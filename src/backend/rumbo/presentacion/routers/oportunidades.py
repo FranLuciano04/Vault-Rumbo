@@ -227,8 +227,13 @@ async def listar_cotizaciones(
     status_code=201,
     **operacion_de_registro(403, 404, 409, 422, casos_de_uso="CU-06"),
 )
-async def emitir_cotizacion(oportunidad_id: uuid.UUID, datos: CotizacionCrear) -> Cotizacion:
-    raise no_implementado()
+async def emitir_cotizacion(
+    oportunidad_id: uuid.UUID, datos: CotizacionCrear, actor: ActorDep, sesion: SesionDep
+) -> Cotizacion:
+    cotizacion = await oportunidades.emitir_cotizacion(
+        sesion, actor, oportunidad_id, datos.moneda, [i.model_dump() for i in datos.items]
+    )
+    return Cotizacion.model_validate(cotizacion)
 
 
 @router.get(
