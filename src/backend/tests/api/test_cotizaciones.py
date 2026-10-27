@@ -357,9 +357,7 @@ async def test_oportunidad_cerrada_409(
 # ---------- listar las versiones (GET, RF-024) ----------
 
 
-async def _versiones(
-    sesion: AsyncSession, op: Oportunidad, cantidad: int
-) -> list[Cotizacion]:
+async def _versiones(sesion: AsyncSession, op: Oportunidad, cantidad: int) -> list[Cotizacion]:
     """Versiones de la más antigua a la más reciente (created_at distinto y creciente)."""
     return [
         await crear(
