@@ -61,6 +61,11 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
+## 27/10/26 — Nahuel (Claude Opus 5.5) — T-072
+- **Hecho:** T-072 (emitir una cotización en la web) mergeado (PR [#113](https://github.com/FranLuciano04/Vault-Rumbo/pull/113)). Dentro del ticket, por DEC-0019, se implementó `GET /oportunidades/{id}/cotizaciones`, que respondía 501 (falla de T-066). Borrador [[DEC-0023 Datos mínimos de la consulta]]: Nahuel respondió que destino y pasajeros son obligatorios para emitir una cotización.
+- **Commits:** 4262eb5, 8057b2e, c241558, 7cd953d, 5094e26, 0c2fb90, 31a8d22, 7a7d2b4, 8a3734b, 7a9480f; merge 9f4fe03.
+- **Pendiente:** DEC-0023 en revisión (Paloma y Francisco). Entorno local: pytest necesita `--basetemp` fuera de `AppData\Local\Temp\pytest-of-test123` (acceso denegado en el sandbox).
+
 ## 27/10/26 — Nahuel (Claude Opus 5.5) — T-069
 - **Hecho:** T-069 (registrar una consulta en la web) implementado con TDD y mergeado (PR [#112](https://github.com/FranLuciano04/Vault-Rumbo/pull/112)). T-066 (#111) también quedó mergeado.
 - **Commits:** a3081a9, 5193171, 1150df1, b92ed6e, bfda972; merge aab7a24.
