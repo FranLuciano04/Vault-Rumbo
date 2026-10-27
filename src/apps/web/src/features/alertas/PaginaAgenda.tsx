@@ -1,5 +1,6 @@
 import {
   ETIQUETA_TIPO_ALERTA,
+  avisoRecordatorio,
   hoyEnBuenosAires,
   type Alerta,
   type TipoAlerta,
@@ -18,7 +19,6 @@ import { FilaAlerta } from "./FilaAlerta";
 import { PanelDetalleAlerta } from "./PanelDetalleAlerta";
 import { FormularioRecordatorio } from "./FormularioRecordatorio";
 import { useResolverConDeshacer } from "./useResolverConDeshacer";
-import { avisoRecordatorio } from "./avisoRecordatorio";
 import { diaAnterior, useTotalesAgenda } from "./useTotalesAgenda";
 
 type Pestana = "todas" | "atrasadas" | "hoy" | "proximas";

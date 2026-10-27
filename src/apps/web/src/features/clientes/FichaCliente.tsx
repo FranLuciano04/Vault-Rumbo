@@ -1,4 +1,4 @@
-import { ETIQUETA_SEGMENTO, ErrorApi, type UsuarioActual } from "@rumbo/shared";
+import { ETIQUETA_SEGMENTO, ErrorApi, avisoRecordatorio, type UsuarioActual } from "@rumbo/shared";
 import { useCliente } from "@rumbo/shared/hooks";
 import type { AxiosInstance } from "axios";
 import { BellPlus, Pencil } from "lucide-react";
@@ -7,7 +7,6 @@ import { Link, useParams } from "react-router";
 import { Button } from "@/components/ui/button";
 import { iniciales } from "@/lib/iniciales";
 import { useVolverFoco } from "@/lib/useVolverFoco";
-import { avisoRecordatorio } from "@/features/alertas/avisoRecordatorio";
 import { FormularioRecordatorio } from "@/features/alertas/FormularioRecordatorio";
 import { FormularioCliente } from "./FormularioCliente";
 import { HistorialCliente } from "./HistorialCliente";

@@ -5,6 +5,8 @@ import { useRouter } from "expo-router";
 import { useRef, useState } from "react";
 import { Pressable, ScrollView, Text, TextInput, View } from "react-native";
 import { cliente } from "../../cliente";
+import { MensajeError } from "../../componentes/MensajeError";
+import { Opcion } from "../../componentes/Opcion";
 import { VolverAClientes } from "./VolverAClientes";
 
 const AVISO_CLIENTE_AJENO =
@@ -20,10 +22,6 @@ const esquemaFormulario = esquemaAltaCliente.pick({
 
 const CAMPOS = ["nombre", "contacto", "instagram", "segmento", "asesor_asignado_id"] as const;
 type Errores = Partial<Record<(typeof CAMPOS)[number], string>>;
-
-function MensajeError({ texto }: { texto?: string }) {
-  return texto ? <Text className="mt-1 text-sm text-red-700">{texto}</Text> : null;
-}
 
 function Campo({
   etiqueta,
@@ -45,29 +43,6 @@ function Campo({
       />
       <MensajeError texto={error} />
     </View>
-  );
-}
-
-function Opcion({
-  texto,
-  elegida,
-  alElegir,
-}: {
-  texto: string;
-  elegida: boolean;
-  alElegir: () => void;
-}) {
-  return (
-    <Pressable
-      role="button"
-      accessibilityState={{ selected: elegida }}
-      onPress={alElegir}
-      className={`rounded-full border px-4 py-2 ${elegida ? "border-primary bg-primary" : "border-input"}`}
-    >
-      <Text className={elegida ? "font-semibold text-primary-foreground" : "text-gray-700"}>
-        {texto}
-      </Text>
-    </Pressable>
   );
 }
 

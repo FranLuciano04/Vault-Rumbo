@@ -1,4 +1,5 @@
 import {
+  avisoRecordatorio,
   diasDeAtraso,
   ETIQUETA_TIPO_ALERTA,
   hoyEnBuenosAires,
@@ -12,7 +13,7 @@ import {
   useResolverConDeshacer,
   useYo,
 } from "@rumbo/shared/hooks";
-import { useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
   AccessibilityInfo,
@@ -104,6 +105,10 @@ function FilaAlerta({
  * por rol lo resuelve la API; admin y dueño ven además al responsable de cada alerta.
  */
 export function AgendaMobile() {
+  const router = useRouter();
+  // Al volver de crear un recordatorio con fecha futura, `recordatorio` trae esa fecha.
+  const { recordatorio } = useLocalSearchParams<{ recordatorio?: string }>();
+  const avisoCreado = recordatorio ? avisoRecordatorio("creado", recordatorio) : null;
   const yo = useYo(cliente);
   const esDeAgencia = yo.data?.rol === "admin" || yo.data?.rol === "dueno";
   const alertas = useAlertasPorPaginas(cliente, { por_pagina: POR_PAGINA });
@@ -125,6 +130,9 @@ export function AgendaMobile() {
   }, [enviarPendientes]);
 
   const hayErrorAlCargar = alertas.isError;
+  useEffect(() => {
+    if (avisoCreado) anunciar(avisoCreado);
+  }, [avisoCreado]);
   useEffect(() => {
     if (error) anunciar(error);
   }, [error]);
@@ -175,9 +183,20 @@ export function AgendaMobile() {
 
   return (
     <View testID="pantalla-agenda" className="flex-1 bg-white px-4 pt-12">
-      <Text role="heading" className="mb-3 text-xl font-bold text-primary">
-        Agenda del día
-      </Text>
+      <View className="mb-3 flex-row items-center justify-between gap-3">
+        <Text role="heading" className="text-xl font-bold text-primary">
+          Agenda del día
+        </Text>
+        <Pressable
+          role="button"
+          onPress={() => {
+            router.push("/agenda/nuevo");
+          }}
+          className="rounded-xl bg-primary px-4 py-2"
+        >
+          <Text className="font-semibold text-primary-foreground">Nuevo recordatorio</Text>
+        </Pressable>
+      </View>
       {progreso.data && (
         <View className="mb-3 rounded-2xl bg-primary p-4">
           <Text className="text-lg font-semibold text-primary-foreground">
@@ -198,6 +217,16 @@ export function AgendaMobile() {
             <View className="h-full bg-white" style={{ width: `${String(porcentaje)}%` }} />
           </View>
         </View>
+      )}
+      {avisoCreado && (
+        <Text
+          accessible
+          role="status"
+          accessibilityLiveRegion="polite"
+          className="mb-3 text-sm font-medium text-green-800"
+        >
+          {avisoCreado}
+        </Text>
       )}
       {error && (
         <Text

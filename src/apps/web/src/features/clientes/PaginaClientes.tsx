@@ -1,12 +1,12 @@
 import { ETIQUETA_SEGMENTO, type SegmentoCliente, type UsuarioActual } from "@rumbo/shared";
-import { useClientes, type FiltrosClientes } from "@rumbo/shared/hooks";
+import { useClientes, useDebouncedValue, type FiltrosClientes } from "@rumbo/shared/hooks";
 import type { AxiosInstance } from "axios";
 import { Eye, Plus, Search } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router";
 import { Button, variantesBoton } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useDebouncedValue } from "@/lib/useDebouncedValue";
+
 import { cn } from "@/lib/utils";
 import { FiltroEtiquetas } from "./FiltroEtiquetas";
 import { TablaClientes } from "./TablaClientes";

@@ -10,3 +10,4 @@ export * from "./useResolverConDeshacer";
 export * from "./economia";
 export * from "./viajes";
 export * from "./oportunidades";
+export * from "./useDebouncedValue";
