@@ -49,6 +49,9 @@ La **persona** de cada sesión es quien la corre, identificada por su identidad 
 ### Nahuel (`Nahuel Viniegra`) — T-153
 - **24/10, de Paloma: el PR [#73](https://github.com/FranLuciano04/Vault-Rumbo/pull/73) (T-153) ya está mergeado** (⚠️ riesgo alto, auth). Hay un **cambio de decisión**: el 23/10 Francisco había decidido que la cuenta de Firebase sin `Usuario` se reutilizaba. La review de seguridad lo marcó como bloqueante (*pre-account hijacking*: la cuenta conserva la contraseña, los proveedores o las sesiones de quien la haya creado). Paloma decidió que esa cuenta se **borra y se crea una nueva**. CU-25 A1 se actualiza en el mismo PR. Además, el alta toma un lock por email, y nunca se borra una cuenta cuyo uid es de un `Usuario`.
 
+### Paloma (`palomap2003`) y Francisco (`FranLucianoo`) — DEC-0022
+- **27/10, de Nahuel: hay que revisar el borrador [[DEC-0022 Suite completa solo en el CI|DEC-0022]].** Propone dejar la suite completa del backend solo en el CI y correr en la PC únicamente los checks rápidos antes del PR, salvo cuando se toca código compartido. Además, ya se corrigió que la suite se corría dos veces en los checks: la cobertura de `negocio/` ahora sale de `coverage report`, como en el CI.
+
 ## Formato
 Es **obligatorio** nombrar a la persona que hizo la sesión.
 ```
@@ -57,6 +60,16 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Commits:** <hash>, <hash>
 - **Pendiente:** …
 ```
+
+## 27/10/26 — Nahuel (Claude Opus 5.5) — T-066 y retro de los tiempos de tests
+- **Hecho:**
+  - T-066 implementado con TDD; PR [#111](https://github.com/FranLuciano04/Vault-Rumbo/pull/111) con el CI en verde.
+  - En T-066 se corrigieron los criterios del ticket: la oportunidad pasa a `cotizada` al marcar `enviada` (T-067) y no hay campo de versión.
+  - Retro de los tiempos: los checks corrían la suite completa dos veces (9,5 + 12,3 min). La spec §4 y `/implementar-ticket` ahora sacan la cobertura de `negocio/` con `coverage report`, como el CI. El paso 7 avisa que `gh pr checks --watch` puede salir antes de que existan los checks.
+  - Borrador [[DEC-0022 Suite completa solo en el CI]].
+- **Pendiente:**
+  - El #111 es de riesgo alto: falta que otro integrante lo apruebe para mergearlo.
+  - DEC-0022 en revisión.
 
 ## 27/10/26 — Nahuel (Claude Opus 5.5) — cierre de M2: review de Codex, arreglos y tag `mod-2`
 - **Hecho:**

@@ -76,7 +76,7 @@ Los implementadores invocan **a demanda** `debugging-and-error-recovery` (cuando
 - Si hubo bloqueantes, una sola ronda más de review, solo sobre el diff del fix.
 
 ## 6. Checks
-Acá corre **una sola vez la suite completa** de cada parte tocada, con lint, type-check y cobertura, usando los comandos de la §4 de la spec. En el backend es `uv run pytest -n auto --cov=…`, que incluye `test_contrato_m1.py` y sus equivalentes. Es el único lugar del flujo donde se corre la suite completa (T-154). Todo tiene que estar en verde antes de abrir el PR.
+Acá corre **una sola vez la suite completa** de cada parte tocada, con lint, type-check y cobertura, usando los comandos de la §4 de la spec. En el backend es **una sola** corrida de `uv run pytest -n auto --cov=rumbo`, que incluye `test_contrato_m1.py` y sus equivalentes; la cobertura de `negocio/` sale de esos mismos datos con `coverage report`, sin volver a correr la suite. Es el único lugar del flujo donde se corre la suite completa (T-154). Todo tiene que estar en verde antes de abrir el PR.
 - Corré los checks cuando ningún subagente esté corriendo tests: con dos suites a la vez, la máquina se satura y aparecen timeouts falsos.
 - Si algo falla acá y no falló en las fases, es una regresión fuera de los vecinos. Devolvésela al implementador del verde en modo fix, con `SendMessage`, y cerrala con `fase … fix --test "<los tests que fallaron>"`. Después volvé a correr los checks.
 - Guardá la salida resumida: la usa el PR.
@@ -87,6 +87,7 @@ Acá corre **una sola vez la suite completa** de cada parte tocada, con lint, ty
 3. **Abrí el PR con la skill `pr`**, que arma la descripción con el formato del proyecto a partir del ticket, los commits, los tests y la review.
 4. **Merge:**
    - **Esperá el CI en verde** con `gh pr checks <PR> --watch`. Corrélo en segundo plano, porque puede tardar más de 10 minutos.
+     - Recién abierto el PR, GitHub tarda unos segundos en registrar los checks y `--watch` sale enseguida con «no checks reported». Si pasa, volvé a lanzarlo.
      - `main` no exige checks: el plan gratuito de GitHub no protege ramas en repos privados. Por eso **no uses `--auto`**, porque mergea en el acto, sin esperar al CI.
      - Si el PR tiene conflictos con `main`, el CI no corre. En ese caso, traé `main` a la rama con `git merge origin/main`, nunca con rebase ni `--force`. Resolvé conservando ambos aportes; los archivos generados (`openapi.json`, `tipos.gen.ts`) se regeneran, no se mezclan a mano. Volvé a correr los checks del paso 6.
    - **riesgo normal:** con el CI en verde, `gh pr merge <PR> --merge`.

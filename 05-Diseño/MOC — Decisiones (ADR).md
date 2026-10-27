@@ -32,6 +32,7 @@ tags:: #tipo/modulo #estado/formalizado
 - [[DEC-0019 Las fallas se arreglan al encontrarlas]] (formalizada el 24/10/26): una falla se arregla en el ticket en curso o en una rama `fix/…`, sin crear un ticket; vale también para los hallazgos de Codex. Reemplaza en parte a DEC-0014.
 - [[DEC-0020 Cliente traído por dos asesores]] (formalizada el 25/10/26): cuando dos asesores traen al mismo cliente, cada uno conserva su registro y la dueña o un admin resuelve el duplicado reasignando el asesor. El sistema no fusiona nada solo.
 - [[DEC-0021 Correcciones del viaje y monto de un pago]] (formalizada el 25/10/26): la corrección del viaje sigue a EST-Viaje T7 (desde `en curso` y `finalizado`; al deshacer un finalizado se cierra la alerta de reseña), y el monto de un pago se cambia rebalanceando el plan o dividiendo, no con el PATCH del pago.
+- [[DEC-0022 Suite completa solo en el CI]] (en revisión, borrador del 27/10/26): el paso 6 de `/implementar-ticket` corre en la PC solo lint, type-check y los tests del ticket y sus vecinos; la suite completa y la cobertura quedan para el CI, salvo que el ticket toque código compartido.
 
 ## Todas (Dataview)
 ```dataview
