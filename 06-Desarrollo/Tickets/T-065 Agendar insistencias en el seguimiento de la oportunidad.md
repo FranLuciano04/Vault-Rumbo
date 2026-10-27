@@ -3,7 +3,7 @@ id: T-065
 titulo: Agendar insistencias en el seguimiento de la oportunidad
 modulo: M4 — Oportunidades y cotizaciones
 capa: backend
-estado: libre
+estado: tomado
 depende_de: [T-064, T-051]
 tamaño: M
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [CU-05, RF-014, RF-015, RF-018, RF-019]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: Nahuel Viniegra
+tomado_el: 27/10/26 20:47
+rama: feature/T-065-agendar-insistencias-en-el-seguimiento-d
 pr:
 ---
 # T-065 Agendar insistencias en el seguimiento de la oportunidad
