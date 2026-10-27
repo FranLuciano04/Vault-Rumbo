@@ -3,7 +3,7 @@ id: T-066
 titulo: Emitir cotizaciones versionadas con su vigencia
 modulo: M4 — Oportunidades y cotizaciones
 capa: backend
-estado: libre
+estado: tomado
 depende_de: [T-064, T-029]
 tamaño: M
 riesgo: alto
@@ -12,9 +12,9 @@ modelo_impl: opus
 modelo_review: sonnet
 trazabilidad: [CU-06, RF-021, RF-022, RF-024]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: Nahuel Viniegra
+tomado_el: 27/10/26 15:24
+rama: feature/T-066-emitir-cotizaciones-versionadas-con-su-v
 pr:
 ---
 # T-066 Emitir cotizaciones versionadas con su vigencia
