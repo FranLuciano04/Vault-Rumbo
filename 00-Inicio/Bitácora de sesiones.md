@@ -61,6 +61,11 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
+## 27/10/26 — Nahuel (Claude Opus 5.5) — T-069
+- **Hecho:** T-069 (registrar una consulta en la web) implementado con TDD y mergeado (PR [#112](https://github.com/FranLuciano04/Vault-Rumbo/pull/112)). T-066 (#111) también quedó mergeado.
+- **Commits:** a3081a9, 5193171, 1150df1, b92ed6e, bfda972; merge aab7a24.
+- **Pendiente:** contradicción CU-04 A3 (mínimo canal + cliente) contra `OportunidadCrear` (exige destino y pasajeros ≥ 1): hay que resolverla con una `DEC-`.
+
 ## 27/10/26 — Nahuel (Claude Opus 5.5) — T-066 y retro de los tiempos de tests
 - **Hecho:**
   - T-066 implementado con TDD; PR [#111](https://github.com/FranLuciano04/Vault-Rumbo/pull/111) con el CI en verde.
