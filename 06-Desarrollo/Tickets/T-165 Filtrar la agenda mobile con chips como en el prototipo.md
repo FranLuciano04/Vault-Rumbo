@@ -3,7 +3,7 @@ id: T-165
 titulo: Filtrar la agenda mobile con chips como en el prototipo
 modulo: M3 — Alertas
 capa: mobile
-estado: libre
+estado: tomado
 depende_de: [T-057]
 tamaño: S
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [CU-14, RF-074, RF-154, RNF-14]
 origen: hallazgo T-057
-asignado:
-tomado_el:
-rama:
+asignado: palomap2003
+tomado_el: 26/10/26 21:04
+rama: feature/T-165-filtrar-la-agenda-mobile-con-chips-como
 pr:
 ---
 # T-165 Filtrar la agenda mobile con chips como en el prototipo
