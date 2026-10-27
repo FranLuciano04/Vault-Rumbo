@@ -3,7 +3,7 @@ id: T-071
 titulo: Seguir una oportunidad desde su detalle en la web
 modulo: M4 — Oportunidades y cotizaciones
 capa: web
-estado: libre
+estado: tomado
 depende_de: [T-070]
 tamaño: M
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [CU-05, RF-014, RF-015, RF-017, RF-019, RF-020]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: palomap2003
+tomado_el: 27/10/26 15:18
+rama: feature/T-071-seguir-una-oportunidad-desde-su-detalle
 pr:
 ---
 # T-071 Seguir una oportunidad desde su detalle en la web
