@@ -162,7 +162,12 @@ export function PaginaAgenda({
   };
 
   const pendientes = useAlertas(cliente, filtros);
-  const vistas = useAlertas(cliente, { ...filtros, pagina: 1, estado: "vista" });
+  // Sin «Mostrar vistas» solo interesa el total (el aviso de vistas ocultas): alcanza la primera página.
+  const vistas = useAlertas(cliente, {
+    ...filtros,
+    pagina: mostrarVistas ? pagina : 1,
+    estado: "vista",
+  });
   const progreso = useProgresoDelDia(cliente);
   const marcarVista = useMarcarAlertaVista(cliente);
   const {
@@ -214,12 +219,20 @@ export function PaginaAgenda({
   };
   const errorAccion =
     errorAlResolver ?? (marcarVista.isError ? mensajeDeError(marcarVista.error) : null);
-  const ultimaPagina = pendientes.data
-    ? Math.max(1, Math.ceil(pendientes.data.total / pendientes.data.por_pagina))
-    : 1;
+  const paginasDe = (lista: typeof pendientes.data) =>
+    lista ? Math.ceil(lista.total / lista.por_pagina) : 1;
+  // Las vistas solo paginan si «Mostrar vistas» está activo: la última página es la mayor de las dos listas.
+  const ultimaPagina = Math.max(
+    1,
+    paginasDe(pendientes.data),
+    mostrarVistas ? paginasDe(vistas.data) : 1,
+  );
   // Si al bajar el total la página pedida queda fuera de rango (se resolvió la única de la última), retrocede.
-  if (pendientes.data && pagina > ultimaPagina) setPagina(ultimaPagina);
+  if (pendientes.data && (!mostrarVistas || vistas.data) && pagina > ultimaPagina) {
+    setPagina(ultimaPagina);
+  }
   const sinResolver = vistas.data?.total ?? 0;
+  const totalAlertas = (pendientes.data?.total ?? 0) + (mostrarVistas ? sinResolver : 0);
   const hayVistas = !mostrarVistas && sinResolver > 0;
 
   return (
@@ -483,8 +496,8 @@ export function PaginaAgenda({
         {ultimaPagina > 1 && (
           <div className="flex items-center justify-between text-sm text-muted-foreground">
             <span>
-              Página {pagina} de {ultimaPagina}: mostrando {pendientes.data?.items.length} de{" "}
-              {pendientes.data?.total} alertas
+              Página {pagina} de {ultimaPagina}: mostrando {alertas.length} de {totalAlertas}{" "}
+              alertas
             </span>
             <div className="flex gap-2">
               <Button
