@@ -60,26 +60,39 @@ class RepositorioClientes(RepositorioBase[Cliente]):
     modelo = Cliente
 
     async def buscar_parecidos(
-        self, sesion: AsyncSession, *, nombre: str, contacto: str, visibilidad: Visibilidad
+        self,
+        sesion: AsyncSession,
+        *,
+        nombre: str | None = None,
+        contacto: str | None = None,
+        visibilidad: Visibilidad,
+        excluir_id: uuid.UUID | None = None,
     ) -> list[Cliente]:
         """Hasta `MAX_PARECIDOS` clientes con el mismo contacto (misma clave canónica: un teléfono
         en cualquier formato, un email sin distinguir mayúsculas) o el mismo nombre (sin
-        distinguir mayúsculas, tildes ni espacios de más)."""
-        consulta = select(Cliente).where(
-            or_(
-                Cliente.contacto_clave == clave_contacto(contacto),
-                nombre_normalizado(Cliente.nombre) == normalizar(nombre),
-            )
-        )
-        consulta = visibilidad.aplicar(consulta, Cliente)
+        distinguir mayúsculas, tildes ni espacios de más). Solo mira los criterios que se pasan
+        (al editar, los que cambian) y deja afuera a `excluir_id` (el propio cliente)."""
+        criterios: list[ColumnElement[bool]] = []
+        if contacto is not None:
+            criterios.append(Cliente.contacto_clave == clave_contacto(contacto))
+        if nombre is not None:
+            criterios.append(nombre_normalizado(Cliente.nombre) == normalizar(nombre))
+        consulta = visibilidad.aplicar(select(Cliente).where(or_(*criterios)), Cliente)
+        if excluir_id is not None:
+            consulta = consulta.where(Cliente.id != excluir_id)
         consulta = consulta.order_by(Cliente.created_at, Cliente.id).limit(MAX_PARECIDOS)
         return list(await sesion.scalars(consulta))
 
-    async def existe_contacto(self, sesion: AsyncSession, *, contacto: str) -> bool:
-        """Si algún `Cliente` de la agencia tiene ese contacto (misma clave canónica), sin filtro
-        de visibilidad ni filas cargadas: solo para avisar de un duplicado ajeno."""
-        consulta = select(exists().where(Cliente.contacto_clave == clave_contacto(contacto)))
-        return bool(await sesion.scalar(consulta))
+    async def existe_contacto(
+        self, sesion: AsyncSession, *, contacto: str, excluir_id: uuid.UUID | None = None
+    ) -> bool:
+        """Si algún `Cliente` de la agencia (salvo `excluir_id`) tiene ese contacto (misma clave
+        canónica), sin filtro de visibilidad ni filas cargadas: solo para avisar de un duplicado
+        ajeno."""
+        condicion = Cliente.contacto_clave == clave_contacto(contacto)
+        if excluir_id is not None:
+            condicion = condicion & (Cliente.id != excluir_id)
+        return bool(await sesion.scalar(select(exists().where(condicion))))
 
     async def buscar_por_contacto(self, sesion: AsyncSession, *, contacto: str) -> Cliente | None:
         """El `Cliente` más antiguo con ese contacto (misma clave canónica que `existe_contacto`),

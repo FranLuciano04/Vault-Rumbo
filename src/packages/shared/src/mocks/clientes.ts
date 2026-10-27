@@ -248,7 +248,26 @@ export const manejadoresClientes: RequestHandler[] = [
     if (!cliente) return noEncontrado();
     const validacion = esquemaEdicionCliente.safeParse(await request.json());
     if (!validacion.success) return datosInvalidos(validacion.error.issues);
-    const cambios: ClienteEditar = validacion.data;
+    const { confirmar_duplicado: confirmado, ...cambios }: ClienteEditar = validacion.data;
+    // Solo se controla lo que cambia de verdad y el propio cliente no cuenta (RF-003, DEC-0020).
+    const cambiaContacto =
+      cambios.contacto !== undefined &&
+      claveContacto(cambios.contacto) !== claveContacto(cliente.contacto);
+    const cambiaNombre =
+      cambios.nombre !== undefined &&
+      normalizarTexto(cambios.nombre) !== normalizarTexto(cliente.nombre);
+    const duplicados = clientesMock.filter(
+      (c) =>
+        c.id !== cliente.id &&
+        ((cambiaContacto && claveContacto(c.contacto) === claveContacto(cambios.contacto ?? "")) ||
+          (cambiaNombre && normalizarTexto(c.nombre) === normalizarTexto(cambios.nombre ?? ""))),
+    );
+    if (duplicados.length > 0 && !confirmado) {
+      return respuestaProblema(409, "Conflicto", {
+        detail: "Ya hay clientes con el mismo contacto o nombre. Confirmá para guardarlo.",
+        duplicados: duplicados.map(aFicha),
+      });
+    }
     const normalizados =
       "instagram" in cambios
         ? { ...cambios, instagram: normalizarInstagram(cambios.instagram) as string | null }

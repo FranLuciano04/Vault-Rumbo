@@ -18,7 +18,10 @@ type AltaGenerada = components["schemas"]["ClienteCrear"];
 /** El generador marca como obligatorios los campos con valor por defecto; en el alta son opcionales. */
 export type ClienteCrear = Omit<AltaGenerada, "etiquetas" | "confirmar_duplicado"> &
   Partial<Pick<AltaGenerada, "etiquetas" | "confirmar_duplicado">>;
-export type ClienteEditar = components["schemas"]["ClienteEditar"];
+type EdicionGenerada = components["schemas"]["ClienteEditar"];
+/** Igual que el alta: `confirmar_duplicado` tiene valor por defecto, así que en la edición es opcional. */
+export type ClienteEditar = Omit<EdicionGenerada, "confirmar_duplicado"> &
+  Partial<Pick<EdicionGenerada, "confirmar_duplicado">>;
 export type HistorialCliente = components["schemas"]["HistorialCliente"];
 export type PaginaClientes = components["schemas"]["Pagina_ClienteListado_"];
 export type ProblemaDuplicado = components["schemas"]["ProblemaDuplicado"];
