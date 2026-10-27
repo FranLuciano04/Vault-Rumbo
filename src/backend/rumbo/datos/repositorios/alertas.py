@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from datetime import date, datetime
 from typing import Any
 
-from sqlalchemy import and_, func, or_, select
+from sqlalchemy import and_, exists, func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from rumbo.core.errores import NoEncontrado
@@ -120,6 +120,18 @@ class RepositorioAlertas(RepositorioBase[Alerta]):
         if origen is None:
             raise NoEncontrado(f"{modelo.__name__} {id} no encontrado")
         return origen
+
+    async def existe_de_propietario(
+        self, sesion: AsyncSession, *, propietario_id: uuid.UUID, descripcion: str
+    ) -> bool:
+        """Si el propietario ya tiene una `Alerta`, en cualquier estado, con esa descripción. Sin
+        filtro de visibilidad: solo para semillas."""
+        consulta = select(
+            exists().where(
+                Alerta.propietario_id == propietario_id, Alerta.descripcion == descripcion
+            )
+        )
+        return bool(await sesion.scalar(consulta))
 
     async def obtener_para_modificar(
         self, sesion: AsyncSession, id: uuid.UUID, *, visibilidad: Visibilidad
