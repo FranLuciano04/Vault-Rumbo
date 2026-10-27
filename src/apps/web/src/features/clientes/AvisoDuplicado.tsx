@@ -16,12 +16,15 @@ export function AvisoDuplicado({
   textoConfirmar,
   alConfirmar,
   alCancelar,
+  alElegir,
 }: {
   candidatos: Cliente[];
   enviando: boolean;
   textoConfirmar: string;
   alConfirmar: () => void;
   alCancelar?: () => void;
+  /** Si viene, cada candidato se puede usar directo en vez de abrir su ficha. */
+  alElegir?: (candidato: Cliente) => void;
 }) {
   return (
     <section
@@ -41,17 +44,32 @@ export function AvisoDuplicado({
             ficha.
           </p>
           <ul className="flex flex-col gap-2">
-            {candidatos.map(({ id, nombre, contacto }) => (
-              <li key={id} className="flex items-center justify-between gap-3">
-                <div className="flex flex-col">
-                  <span className="font-medium">{nombre}</span>
-                  <span>{contacto}</span>
-                </div>
-                <Link to={`/clientes/${id}`} className={variantesBoton({ variant: "outline" })}>
-                  Ir al cliente existente
-                </Link>
-              </li>
-            ))}
+            {candidatos.map((candidato) => {
+              const { id, nombre, contacto } = candidato;
+              return (
+                <li key={id} className="flex items-center justify-between gap-3">
+                  <div className="flex flex-col">
+                    <span className="font-medium">{nombre}</span>
+                    <span>{contacto}</span>
+                  </div>
+                  {alElegir ? (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => {
+                        alElegir(candidato);
+                      }}
+                    >
+                      Usar este cliente
+                    </Button>
+                  ) : (
+                    <Link to={`/clientes/${id}`} className={variantesBoton({ variant: "outline" })}>
+                      Ir al cliente existente
+                    </Link>
+                  )}
+                </li>
+              );
+            })}
           </ul>
         </>
       )}

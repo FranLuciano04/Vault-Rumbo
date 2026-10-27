@@ -3,7 +3,7 @@ id: T-069
 titulo: Registrar una consulta en la web
 modulo: M4 — Oportunidades y cotizaciones
 capa: web
-estado: tomado
+estado: hecho
 depende_de: [T-061, T-039, T-020]
 tamaño: S
 riesgo: normal
@@ -45,3 +45,9 @@ Se registra una consulta eligiendo un cliente o dándolo de alta en el momento, 
 - —
 
 ## Notas de implementación
+- Pantalla `/oportunidades/nueva` (`NuevaConsulta`) con `BuscadorCliente`, `AltaRapidaCliente` y `AvisoOportunidadAbierta`; acceso «Nueva consulta» desde la lista.
+- A2 se resuelve en el cliente: el backend no devuelve 409 en `POST /oportunidades`, así que la pantalla pide las oportunidades del cliente por estado (`nueva`, `en_gestion`, `cotizada`). Si la consulta falla, muestra una nota y deja registrar.
+- Review: `AvisoDuplicado` suma `alElegir` opcional («Usar este cliente») para no salir de la pantalla ante un duplicado (test nuevo, con `--tocar-tests` autorizado); `ResultadosClientes` pasó de `alertas` a `features/clientes`.
+- **Contradicción abierta:** CU-04 A3 dice que lo mínimo es canal + cliente, pero `OportunidadCrear` exige destino y pasajeros ≥ 1, y la web sigue al contrato. Se resuelve con una `DEC-` (relajar el contrato o ajustar A3). #accion/decidir
+- Menor sin arreglar: la prop `usuario` de `NuevaConsulta` no se usa (los tests la pasan). Sin test para los textos de carga y de falla del aviso.
+- Modelos: tests Sonnet, implementación/refactor/fix Sonnet, review Opus; sin escalados.
