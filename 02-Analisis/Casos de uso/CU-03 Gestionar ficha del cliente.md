@@ -4,7 +4,7 @@ estado: formalizado
 modulo: [clientes]
 responsable: Paloma
 pc: pc1
-actualizado: 29/09/26
+actualizado: 27/10/26
 fecha_aprobacion: 29/09/26
 ---
 # CU-03 Gestionar ficha del cliente
@@ -35,6 +35,7 @@ El empleado consulta y edita la ficha de un [[Cliente]] existente —datos de co
 - **A1 — Cliente no encontrado:** la búsqueda no arroja resultados → el sistema ofrece darlo de alta ([[CU-02 Registrar cliente]]).
 - **A2 — Edición inválida:** se intenta dejar la ficha sin nombre o sin ningún contacto → el sistema rechaza el guardado y conserva los datos previos.
 - **A3 — Solo consulta:** el empleado revisa la ficha y el historial sin modificar nada.
+- **A4 — Posible duplicado al editar:** el nuevo **nombre** o **contacto** coincide con el de otro [[Cliente]] → el sistema avisa como en el alta ([[CU-02 Registrar cliente]] A1) y guarda solo si el empleado confirma. Solo se controla lo que cambia, sin contar la propia ficha. Si el `freelance` no ve al otro cliente, el aviso no muestra sus datos. Un duplicado ya confirmado ([[DEC-0020 Cliente traído por dos asesores|DEC-0020]]) puede editar sus otros campos sin aviso. *Agregado el 27/10/26 por decisión del equipo (H-04 de la review de M2).*
 
 ## Postcondiciones
 - La ficha del [[Cliente]] refleja los cambios, preservando los datos mínimos (nombre + un contacto).

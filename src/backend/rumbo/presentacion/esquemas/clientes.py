@@ -103,7 +103,11 @@ class ClienteCrear(Entrada):
 
 
 class ClienteEditar(Edicion):
-    """Edición parcial de la ficha (CU-03, CU-30): solo cambian los campos enviados."""
+    """Edición parcial de la ficha (CU-03, CU-30): solo cambian los campos enviados.
+
+    `confirmar_duplicado` no es un campo de la ficha: guarda igual aunque el nombre o el contacto
+    nuevos coincidan con otro cliente (RF-003, DEC-0020).
+    """
 
     nombre: Nombre = omitible()
     contacto: ContactoEntrada = omitible()
@@ -113,10 +117,11 @@ class ClienteEditar(Edicion):
     preferencias: str | None = None
     no_recontactar: bool = omitible()
     asesor_asignado_id: uuid.UUID | None = None
+    confirmar_duplicado: bool = False
 
 
 class ProblemaDuplicado(Problema):
-    """409 del alta (CU-02 A1): trae los clientes que podrían ser el mismo."""
+    """409 del alta o de la edición (CU-02 A1, CU-03, DEC-0020): trae los clientes parecidos."""
 
     duplicados: list[Cliente]
 

@@ -155,8 +155,15 @@ async def obtener_cliente(
     "/{cliente_id}",
     operation_id="editar_cliente",
     summary="Editar la ficha de un cliente",
-    description=f"{_ROLES}\n\n**Casos de uso:** CU-03, CU-30.",
-    responses=_NO_ENCONTRADO,
+    description=(
+        f"{_ROLES}\n\n**Casos de uso:** CU-03, CU-30.\n\nSi el nombre o el contacto nuevos se "
+        "parecen a los de otro cliente responde `409` con los parecidos (solo se controla lo que "
+        "cambia); se reintenta con `confirmar_duplicado: true` (RF-003, DEC-0020)."
+    ),
+    responses={
+        **_NO_ENCONTRADO,
+        409: {"model": ProblemaDuplicado, "description": "Posible cliente duplicado (CU-03)."},
+    },
 )
 async def editar_cliente(
     cliente_id: uuid.UUID,
@@ -164,9 +171,17 @@ async def editar_cliente(
     actor: Annotated[modelos.Usuario, Depends(usuario_actual)],
     sesion: SesionDep,
 ) -> Cliente:
-    cliente = await clientes.editar_cliente(
-        sesion, actor, cliente_id, cambios.model_dump(exclude_unset=True)
-    )
+    try:
+        cliente = await clientes.editar_cliente(
+            sesion,
+            actor,
+            cliente_id,
+            cambios.model_dump(exclude_unset=True, exclude={"confirmar_duplicado"}),
+            confirmar_duplicado=cambios.confirmar_duplicado,
+        )
+    except PosibleDuplicado as error:
+        error.extra = {"duplicados": [Cliente.model_validate(c) for c in error.duplicados]}
+        raise
     return Cliente.model_validate(cliente)
 
 

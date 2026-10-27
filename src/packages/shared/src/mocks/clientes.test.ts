@@ -334,3 +334,94 @@ describe("CU-30 y cuerpo del 422 en el mock de clientes", () => {
     });
   });
 });
+
+// --- Fix de la review de M2 (H-04): el PATCH del mock avisa de duplicados como el backend -----
+
+const editarCliente = (indice: number, cuerpo: Record<string, unknown>) =>
+  fetch(`${BASE}/${String(clientesMock[indice]?.["id"])}`, {
+    method: "PATCH",
+    headers: json,
+    body: JSON.stringify(cuerpo),
+  });
+
+describe("RF-003 duplicados del PATCH /api/clientes/{id} en el mock (CU-03, H-04)", () => {
+  it("RF-003 cambiar el contacto al de otro cliente responde 409 con su ficha", async () => {
+    const res = await editarCliente(1, { contacto: String(clientesMock[0]?.["contacto"]) });
+
+    expect(res.status).toBe(409);
+    expect(res.headers.get("content-type")).toContain("application/problem+json");
+    const cuerpo = (await res.json()) as Problema;
+    expect(cuerpo.status).toBe(409);
+    expect(cuerpo.duplicados).toEqual([aFicha(clientesMock[0] as ClienteListado)]);
+  });
+
+  it.each(["5491155551234", "011 15-5555-1234", "11 5555 1234"])(
+    "RF-003 el teléfono %s es el de otro cliente (clave canónica)",
+    async (contacto) => {
+      const res = await editarCliente(1, { contacto });
+
+      expect(res.status).toBe(409);
+      expect(((await res.json()) as Problema).duplicados).toEqual([
+        aFicha(clientesMock[0] as ClienteListado),
+      ]);
+    },
+  );
+
+  it("RF-003 el email de otro cliente con otras mayúsculas es duplicado", async () => {
+    const res = await editarCliente(0, { contacto: "SOSA.Familia@Mail.TEST" });
+
+    expect(res.status).toBe(409);
+    expect(((await res.json()) as Problema).duplicados).toEqual([
+      aFicha(clientesMock[1] as ClienteListado),
+    ]);
+  });
+
+  it.each(["CAMILA BENÍTEZ", "camila benitez", "  Camila    Benítez  "])(
+    "RF-003 cambiar el nombre a «%s» (el de otro cliente) responde 409",
+    async (nombre) => {
+      const res = await editarCliente(1, { nombre });
+
+      expect(res.status).toBe(409);
+      expect(((await res.json()) as Problema).duplicados).toEqual([
+        aFicha(clientesMock[0] as ClienteListado),
+      ]);
+    },
+  );
+
+  it("RF-003 el propio cliente no cuenta: reenviar su contacto en otro formato o su nombre sin tildes da 200", async () => {
+    const contacto = await editarCliente(0, { contacto: "5491155551234" });
+    const nombre = await editarCliente(0, { nombre: "CAMILA BENITEZ" });
+    const email = await editarCliente(1, { contacto: "SOSA.FAMILIA@mail.test" });
+
+    expect(contacto.status).toBe(200);
+    expect(nombre.status).toBe(200);
+    expect(email.status).toBe(200);
+  });
+
+  it("RF-003 solo se controla lo que cambia: editar otros campos no avisa", async () => {
+    const res = await editarCliente(0, { segmento: "familia", preferencias: "Sin escalas" });
+
+    expect(res.status).toBe(200);
+  });
+
+  it("RF-003 con confirmar_duplicado=true el PATCH responde 200 y la ficha no lo incluye", async () => {
+    const res = await editarCliente(1, {
+      contacto: String(clientesMock[0]?.["contacto"]),
+      confirmar_duplicado: true,
+    });
+
+    expect(res.status).toBe(200);
+    const cuerpo = (await res.json()) as Record<string, unknown>;
+    expect(cuerpo).toMatchObject({ id: clientesMock[1]?.["id"], contacto: "+54 9 11 5555-1234" });
+    expect(cuerpo).not.toHaveProperty("confirmar_duplicado");
+  });
+
+  it("RF-003 confirmar_duplicado sin duplicados tampoco aparece en la ficha", async () => {
+    const res = await editarCliente(0, { preferencias: "Sin escalas", confirmar_duplicado: true });
+
+    expect(res.status).toBe(200);
+    expect((await res.json()) as Record<string, unknown>).not.toHaveProperty(
+      "confirmar_duplicado",
+    );
+  });
+});

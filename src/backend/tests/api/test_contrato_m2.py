@@ -328,3 +328,21 @@ async def test_rf031_cliente_publica_la_auditoria_de_solo_lectura(
     for campo in ("created_by", "updated_by", "created_at", "updated_at"):
         assert cliente["properties"][campo]["readOnly"] is True
     assert {"created_at", "updated_at"} <= set(cliente["required"])
+
+
+async def test_rf003_editar_contempla_duplicado_y_confirmacion_explicita(
+    contrato: dict[str, Any],
+) -> None:
+    """H-04, CU-03: el PATCH avisa con 409 (`ProblemaDuplicado`) y se reintenta con
+    `confirmar_duplicado`."""
+    ruta = "/api/clientes/{cliente_id}"
+    operacion = contrato["paths"][ruta]["patch"]
+    esquema = _cuerpo(contrato, "patch", ruta)
+
+    assert "409" in operacion["responses"]
+    respuesta = operacion["responses"]["409"]
+    assert PROBLEM_JSON in respuesta["content"]
+    problema = respuesta["content"][PROBLEM_JSON]["schema"]
+    assert _nombre(problema["$ref"]) == "ProblemaDuplicado"
+    assert esquema["properties"]["confirmar_duplicado"]["type"] == "boolean"
+    assert "confirmar_duplicado" not in esquema.get("required", [])

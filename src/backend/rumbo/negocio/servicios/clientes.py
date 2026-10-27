@@ -5,8 +5,10 @@ from typing import Any
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from rumbo.core.contacto import clave_contacto
 from rumbo.core.fechas import hoy
 from rumbo.datos.modelos import Cliente, RolUsuario, SegmentoCliente, Usuario
+from rumbo.datos.repositorios.base import normalizar
 from rumbo.datos.repositorios.clientes import (
     HistorialDelCliente,
     RepositorioClientes,
@@ -126,21 +128,74 @@ async def obtener_historial(
 
 
 async def editar_cliente(
-    sesion: AsyncSession, actor: Usuario, cliente_id: uuid.UUID, cambios: dict[str, Any]
+    sesion: AsyncSession,
+    actor: Usuario,
+    cliente_id: uuid.UUID,
+    cambios: dict[str, Any],
+    *,
+    confirmar_duplicado: bool = False,
 ) -> Cliente:
     """Aplica solo los campos enviados a la ficha (CU-03, CU-30, RF-007). Los `Cliente` no se
-    borran (RF-008). El `freelance` conserva su asignación, como en el alta (RF-150)."""
+    borran (RF-008). El `freelance` conserva su asignación, como en el alta (RF-150).
+
+    Si el nombre o el contacto cambian de verdad (reescribirlos igual no cuenta) y coinciden con
+    otro `Cliente` que el actor ve, corta con `PosibleDuplicado` salvo `confirmar_duplicado`
+    (CU-03, RF-003, DEC-0020); solo se mira lo que cambió y nunca a la propia ficha. Al
+    `freelance` también se le avisa, sin candidatos, si un cliente ajeno tiene el mismo contacto
+    (RF-151).
+    """
     cliente = await _clientes.obtener(sesion, cliente_id, visibilidad=visibilidad(actor))
     exigir_escritura(actor, cliente)
     if actor.rol is RolUsuario.freelance:
         cambios = {c: v for c, v in cambios.items() if c != "asesor_asignado_id"}
     elif cambios.get("asesor_asignado_id") is not None:
         await _exigir_asesor_activo(sesion, actor, cambios["asesor_asignado_id"])
+    await _avisar_si_duplica(sesion, actor, cliente, cambios, confirmar_duplicado)
     for campo, valor in cambios.items():
         setattr(cliente, campo, valor)
     await sesion.flush()
     await sesion.refresh(cliente, ["asesor"])
     return cliente
+
+
+async def _avisar_si_duplica(
+    sesion: AsyncSession,
+    actor: Usuario,
+    cliente: Cliente,
+    cambios: dict[str, Any],
+    confirmar_duplicado: bool,
+) -> None:
+    """Corta con `PosibleDuplicado` si el nombre o el contacto que cambian ya los tiene otro
+    cliente (RF-003). Toma el mismo bloqueo que el alta, así alta y edición se serializan."""
+    nombre = cambios.get("nombre")
+    contacto = cambios.get("contacto")
+    cambia_nombre = nombre is not None and normalizar(nombre) != normalizar(cliente.nombre)
+    cambia_contacto = contacto is not None and clave_contacto(contacto) != clave_contacto(
+        cliente.contacto
+    )
+    if not (cambia_nombre or cambia_contacto):
+        return
+    await _clientes.bloquear_alta(
+        sesion, nombre=nombre or cliente.nombre, contacto=contacto or cliente.contacto
+    )
+    if confirmar_duplicado:
+        return
+    parecidos = await _clientes.buscar_parecidos(
+        sesion,
+        nombre=nombre if cambia_nombre else None,
+        contacto=contacto if cambia_contacto else None,
+        visibilidad=visibilidad(actor),
+        excluir_id=cliente.id,
+    )
+    if parecidos:
+        raise PosibleDuplicado(parecidos)
+    if (
+        actor.rol is RolUsuario.freelance
+        and contacto is not None
+        and cambia_contacto
+        and await _clientes.existe_contacto(sesion, contacto=contacto, excluir_id=cliente.id)
+    ):
+        raise PosibleDuplicado([])  # avisa que hay uno, sin mostrar fichas ajenas (A1)
 
 
 async def _exigir_asesor_activo(sesion: AsyncSession, actor: Usuario, asesor_id: uuid.UUID) -> None:

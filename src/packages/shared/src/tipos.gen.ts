@@ -543,6 +543,8 @@ export interface paths {
          * @description **Roles:** admin, dueno, empleado, freelance.
          *
          *     **Casos de uso:** CU-03, CU-30.
+         *
+         *     Si el nombre o el contacto nuevos se parecen a los de otro cliente responde `409` con los parecidos (solo se controla lo que cambia); se reintenta con `confirmar_duplicado: true` (RF-003, DEC-0020).
          */
         patch: operations["editar_cliente"];
         trace?: never;
@@ -1761,6 +1763,9 @@ export interface components {
         /**
          * ClienteEditar
          * @description Edición parcial de la ficha (CU-03, CU-30): solo cambian los campos enviados.
+         *
+         *     `confirmar_duplicado` no es un campo de la ficha: guarda igual aunque el nombre o el contacto
+         *     nuevos coincidan con otro cliente (RF-003, DEC-0020).
          */
         ClienteEditar: {
             /** Nombre */
@@ -1778,6 +1783,11 @@ export interface components {
             no_recontactar?: boolean;
             /** Asesor Asignado Id */
             asesor_asignado_id?: string | null;
+            /**
+             * Confirmar Duplicado
+             * @default false
+             */
+            confirmar_duplicado: boolean;
         };
         /**
          * ClienteListado
@@ -2535,7 +2545,7 @@ export interface components {
         };
         /**
          * ProblemaDuplicado
-         * @description 409 del alta (CU-02 A1): trae los clientes que podrían ser el mismo.
+         * @description 409 del alta o de la edición (CU-02 A1, CU-03, DEC-0020): trae los clientes parecidos.
          */
         ProblemaDuplicado: {
             /** Title */
@@ -4705,6 +4715,15 @@ export interface operations {
                 };
                 content: {
                     "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Posible cliente duplicado (CU-03). */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemaDuplicado"];
                 };
             };
             /** @description Validation Error */
