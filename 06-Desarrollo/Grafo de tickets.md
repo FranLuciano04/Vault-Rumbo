@@ -18,10 +18,10 @@ tags:: #tipo/referencia
 | M1 — Usuarios y configuración | 19 | 19 | 0 | 0 | 0 | 0 | ✅ cerrado |
 | M2 — Clientes | 15 | 15 | 0 | 0 | 0 | 0 | ✅ cerrado |
 | M3 — Alertas | 14 | 14 | 0 | 0 | 0 | 0 | ✅ cerrado |
-| M4 — Oportunidades y cotizaciones | 14 | 6 | 1 | 5 | 2 | 0 | 🛠️ en curso |
+| M4 — Oportunidades y cotizaciones | 14 | 7 | 0 | 5 | 2 | 0 | 🛠️ en curso |
 | M5 — Hoteles y reseñas | 11 | 0 | 0 | 1 | 10 | 0 | 🛠️ en curso |
 | M6 — Viajes y economía | 24 | 1 | 0 | 4 | 19 | 0 | 🛠️ en curso |
-| M7 — Proceso diario y CRM proactivo | 9 | 0 | 0 | 2 | 7 | 0 | 🛠️ en curso |
+| M7 — Proceso diario y CRM proactivo | 9 | 0 | 0 | 3 | 6 | 0 | 🛠️ en curso |
 | M8 — Calendario, dashboard y reportes | 10 | 0 | 0 | 1 | 9 | 0 | 🛠️ en curso |
 | M9 — Redes e IA | 6 | 0 | 0 | 1 | 5 | 0 | 🛠️ en curso |
 | M10 — Despliegue on-premise | 5 | 0 | 0 | 1 | 4 | 0 | 🛠️ en curso |
@@ -135,7 +135,7 @@ flowchart LR
     T066["T-066 · Emitir cotizaciones versionadas con su vigencia<br/><small>backend · ⚠️ riesgo alto</small>"]:::hecho
     T067["T-067 · Registrar la respuesta del cliente a la cotización<br/><small>backend · ⚠️ riesgo alto</small>"]:::disponible
     T068["T-068 · Generar el documento PDF de la cotización<br/><small>backend</small>"]:::disponible
-    T069["T-069 · Registrar una consulta en la web<br/><small>web</small><br/>👤 Nahuel Viniegra"]:::tomado
+    T069["T-069 · Registrar una consulta en la web<br/><small>web</small>"]:::hecho
     T070["T-070 · Mostrar el embudo de oportunidades en la web<br/><small>web</small>"]:::hecho
     T071["T-071 · Seguir una oportunidad desde su detalle en la web<br/><small>web</small>"]:::hecho
     T072["T-072 · Emitir una cotización en la web<br/><small>web</small>"]:::disponible
@@ -188,7 +188,7 @@ flowchart LR
     T113["T-113 · Detectar clientes inactivos para sugerir el recontacto<br/><small>backend · ⚠️ riesgo alto</small>"]:::esperando
     T114["T-114 · Registrar la decisión sobre una sugerencia de recontacto<br/><small>backend</small>"]:::esperando
     T115["T-115 · Programar el proceso diario en el Compose<br/><small>infra</small>"]:::esperando
-    T116["T-116 · Atender una sugerencia de recontacto en la web<br/><small>web</small>"]:::esperando
+    T116["T-116 · Atender una sugerencia de recontacto en la web<br/><small>web</small>"]:::disponible
     T117["T-117 · Atender una sugerencia de recontacto en la app mobile<br/><small>mobile</small>"]:::disponible
     T118["T-118 · Probar de punta a punta el proceso diario<br/><small>e2e</small>"]:::esperando
   end
