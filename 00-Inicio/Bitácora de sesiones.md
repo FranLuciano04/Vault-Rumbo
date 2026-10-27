@@ -24,12 +24,6 @@ La **persona** de cada sesión es quien la corre, identificada por su identidad 
 ## Avisos pendientes por persona
 > Claude los lee al identificar a la persona (paso 1 de `CLAUDE.md`) y se los cuenta **apenas la saluda**, antes de cualquier otra tarea. Cuando la persona confirme que lo leyó o que lo hizo, **Claude borra su fila** en esa misma sesión, con un commit. Cuando no quede ninguna fila de alguien, se borra también su sección.
 
-### Nahuel (`Nahuel Viniegra`) — cerrar M3 con la review de Codex
-- **26/10, de Paloma: M3 (Alertas) tiene todos sus tickets hechos y mergeados** (`tickets.mjs modulo M3` da ✅; los últimos fueron T-059, T-165 y T-060). Falta el cierre formal:
-  - Correr `/cerrar-modulo M3` y arreglar los hallazgos confirmados en ramas `fix/…` (DEC-0019).
-  - Para la prueba manual guiada en mobile: reconstruir el dev client (`expo run:android`), porque T-059 sumó el selector de calendario nativo. Probar VoiceOver/TalkBack en los chips de la agenda (T-165) y el selector en un iPhone.
-  - Con la aprobación del equipo, poner el tag `mod-3`.
-
 ### Nahuel (`Nahuel Viniegra`) — cerrar M2 con la review de Codex
 - **25/10, de Francisco: M2 tiene todos sus tickets hechos y mergeados** (`tickets.mjs modulo M2` da ✅). Falta el cierre formal, que hacés vos porque te encargás de las reviews con Codex. **M1 ya está cerrado (26/10, tag `mod-1`).**
   - Correr `/cerrar-modulo M2` y arreglar los hallazgos confirmados en ramas `fix/…` (DEC-0019).
@@ -68,6 +62,19 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Commits:** <hash>, <hash>
 - **Pendiente:** …
 ```
+
+## 27/10/26 — Nahuel (Claude Opus 5.5) — cierre de M3: review de Codex, arreglos y tag `mod-3`
+- **Hecho:**
+  - Triage de la review de Codex de M3: 4 hallazgos, todos confirmados.
+  - Arreglos en ramas `fix/M3-…`: H-01 (#104), H-02 (#105), H-03 (#106) y H-04 (#107), todos mergeados con el CI en verde.
+  - Con la aprobación del equipo, tag `mod-3` sobre `3d2e2a9`, grafo publicado, [[Bitácora técnica]] y estado actualizados.
+  - Se retiró el aviso «cerrar M3».
+- **Commits en main:** c791841, 0adffe5, a314fcb y el de este cierre.
+- **Pendiente:**
+  - Prueba manual guiada en mobile (dev client, TalkBack/VoiceOver en los chips, selector en iPhone).
+  - Tag `mod-2`, todavía sin poner.
+  - En la PC de Nahuel quedó la carpeta `.claude/worktrees/fix-m3-agenda-vistas`, tomada por un proceso; se puede borrar a mano.
+- **Para tener en cuenta:** otra sesión cambió de rama el checkout principal mientras corría el cierre, y el primer `mod-3` quedó sobre una rama de M2. Se borró y se volvió a crear sobre `main` en el acto. Cuando hay varias sesiones abiertas, conviene hacer los tags y los commits a `main` desde un worktree propio.
 
 ## 27/10/26 — Paloma (Claude Opus 5.5) — T-070: embudo de oportunidades en la web
 - **T-070** hecho y mergeado (PR [#109](https://github.com/FranLuciano04/Vault-Rumbo/pull/109)). Commits: rojo `9301a80`, verde `766f97b`, fix `26c3694` y `1071b59`, hecho `aa76a20`.

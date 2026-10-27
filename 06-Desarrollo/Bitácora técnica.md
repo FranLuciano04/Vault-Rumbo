@@ -66,3 +66,23 @@ tags:: #tipo/referencia
   - Con el timeout por defecto, la suite web falla al azar por timeouts cuando la máquina está cargada, y pasa con `--testTimeout=30000`. Dos sesiones que corren el backend sobre la misma base de tests pueden pisarse.
 - **Decisiones tocadas:** [[DEC-0004 Comisión configurable por porcentaje]], [[DEC-0005 Autenticación y modelo de roles]], [[DEC-0006 Destino como entidad de catálogo]], [[DEC-0007 Modelo económico — ganancia, margen y comisión de vendedor]], [[DEC-0008 Autenticación propia y rol de vendedor freelance]], [[DEC-0009 Operador-Proveedor como entidad de catálogo]], [[DEC-0013 Datos que faltaban en el ER]], [[DEC-0016 Autenticación con Firebase]], [[DEC-0019 Las fallas se arreglan al encontrarlas]].
 - Aprobación del equipo: 26/10/26. Tag `mod-1` sobre `1024133`.
+
+### 27/10/26 — Nahuel (con el equipo) — M3 Alertas cerrado (`mod-3`)
+- **Qué quedó:**
+  - Servicio de alertas para los demás módulos: `crear`, `resolver_de_origen` y `reabrir_de_origen`. Lo manual no se cierra solo, y las alertas resueltas por la cancelación de un viaje quedan marcadas.
+  - Agenda según el rol: cada uno ve lo suyo, y admin y dueño ven toda la agencia y filtran por responsable. Atender alertas (vista, resolver con «Deshacer», posponer) con el progreso del día, que usa el día de Argentina.
+  - Recordatorios manuales asociados a un cliente, una oportunidad o un viaje que el actor ve, y su edición, que solo hace el propietario (enmienda de [[DEC-0005 Autenticación y modelo de roles|DEC-0005]] del 25/10/26).
+  - Contrato en `@rumbo/shared`, con mocks que responden según el rol.
+  - Agenda web con totales, panel de detalle y alta de recordatorio; agenda mobile con chips, detalle con posponer y alta con selector de calendario nativo; e2e de punta a punta y semilla de demo.
+- **Tickets:** 14, de T-050 a T-060 más T-164, T-165 y T-166. Detalle y merges en [[M3 — pedido de review]].
+- **Review de Codex** ([[M3 — review Codex]]): 4 hallazgos, todos confirmados en el triage y arreglados sin ticket ([[DEC-0019 Las fallas se arreglan al encontrarlas|DEC-0019]]).
+  - H-01, bloqueante → PR #104: con «Mostrar vistas», la agenda web no paginaba las vistas, así que las que pasaban de 100 no se podían abrir ni resolver. Sin cambiar el contrato, ahora se piden con la misma página que las pendientes y la última página es la mayor de las dos.
+  - H-02, importante → PR #105: al cambiar de filtro durante el «Deshacer», `useTotalesAgenda` descontaba alertas fuera del filtro y podía mostrar −1 (web y mobile).
+  - H-03, importante → PR #106: la semilla de demo podía asociar a la freelance un cliente que ella no ve. La semilla replica RF-151 sin importar de `negocio`.
+  - H-04, importante → PR #107: los mocks de alertas no respetaban los permisos por rol. Ahora existe `manejadoresAlertasPara(rol)`, y `usuariosPorRol`, `RolMock` y `manejadorYo` pasaron a `mocks/usuarios.ts`.
+- **Pendientes que no bloquean:**
+  - Prueba manual guiada en mobile: reconstruir el dev client (`expo run:android`) por el selector de calendario de T-059, probar VoiceOver/TalkBack en los chips (T-165) y el selector en un iPhone.
+  - Las bases donde corrió la semilla vieja conservan el recordatorio de demo con el cliente ajeno.
+  - `crear` no deduplica alertas: la idempotencia del proceso diario queda para M7 (T-110).
+- **Decisiones tocadas:** [[DEC-0005 Autenticación y modelo de roles]], [[DEC-0008 Autenticación propia y rol de vendedor freelance]], [[DEC-0013 Datos que faltaban en el ER]], [[DEC-0019 Las fallas se arreglan al encontrarlas]].
+- Aprobación del equipo: 27/10/26. Tag `mod-3` sobre `3d2e2a9`. M2 todavía no tiene su tag `mod-2`.
