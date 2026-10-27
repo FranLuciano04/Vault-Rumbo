@@ -3,7 +3,7 @@ id: T-070
 titulo: Mostrar el embudo de oportunidades en la web
 modulo: M4 — Oportunidades y cotizaciones
 capa: web
-estado: libre
+estado: tomado
 depende_de: [T-061, T-020]
 tamaño: M
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [CU-05, RF-016, RF-151]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: palomap2003
+tomado_el: 27/10/26 14:09
+rama: feature/T-070-mostrar-el-embudo-de-oportunidades-en-la
 pr:
 ---
 # T-070 Mostrar el embudo de oportunidades en la web
