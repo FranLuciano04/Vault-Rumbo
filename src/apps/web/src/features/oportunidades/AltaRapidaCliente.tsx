@@ -74,6 +74,9 @@ export function AltaRapidaCliente({
     }
   }
 
+  const guardarConDatos = (confirmarDuplicado: boolean) =>
+    void formulario.handleSubmit((datos) => guardar(datos, confirmarDuplicado))();
+
   return (
     <div
       className="flex flex-col gap-3 rounded-xl border p-4"
@@ -81,7 +84,7 @@ export function AltaRapidaCliente({
         // Enter no debe mandar la consulta de al lado.
         if (evento.key === "Enter" && evento.target instanceof HTMLInputElement) {
           evento.preventDefault();
-          void formulario.handleSubmit((datos) => guardar(datos, false))();
+          guardarConDatos(false);
         }
       }}
     >
@@ -105,14 +108,18 @@ export function AltaRapidaCliente({
           candidatos={duplicados}
           enviando={crear.isPending}
           textoConfirmar="Confirmar alta"
-          alConfirmar={() => void formulario.handleSubmit((datos) => guardar(datos, true))()}
+          alConfirmar={() => {
+            guardarConDatos(true);
+          }}
         />
       )}
       <div className="flex gap-2">
         <Button
           type="button"
           disabled={crear.isPending}
-          onClick={() => void formulario.handleSubmit((datos) => guardar(datos, false))()}
+          onClick={() => {
+            guardarConDatos(false);
+          }}
         >
           Guardar cliente
         </Button>
