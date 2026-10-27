@@ -147,7 +147,7 @@ OPERACIONES: list[tuple[str, str, str, Any, str, set[str]]] = [
     ),
 ]
 # Las que todavía responden 501 (listar, ver y editar oportunidades se implementaron en T-063;
-# las acciones de estado en T-064; emitir cotizaciones en T-066).
+# las acciones de estado en T-064; emitir cotizaciones en T-066; listarlas en T-072).
 IMPLEMENTADAS = {
     ("get", "/api/oportunidades"),
     ("get", "/api/oportunidades/{oportunidad_id}"),
@@ -157,6 +157,7 @@ IMPLEMENTADAS = {
     ("post", "/api/oportunidades/{oportunidad_id}/reactivar"),
     ("post", "/api/oportunidades/{oportunidad_id}/ganar"),
     ("post", "/api/oportunidades/{oportunidad_id}/cotizaciones"),
+    ("get", "/api/oportunidades/{oportunidad_id}/cotizaciones"),
 }
 OPERACIONES_STUB = [
     (m, c, cuerpo) for m, r, c, cuerpo, _, _ in OPERACIONES if (m, r) not in IMPLEMENTADAS
