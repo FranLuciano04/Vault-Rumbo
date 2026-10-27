@@ -17,7 +17,7 @@ tags:: #tipo/referencia
 | M0 — Fundaciones | 38 | 38 | 0 | 0 | 0 | 0 | ✅ cerrado |
 | M1 — Usuarios y configuración | 19 | 19 | 0 | 0 | 0 | 0 | 🔍 listo para la review |
 | M2 — Clientes | 15 | 15 | 0 | 0 | 0 | 0 | 🔍 listo para la review |
-| M3 — Alertas | 14 | 12 | 1 | 1 | 0 | 0 | 🛠️ en curso |
+| M3 — Alertas | 14 | 13 | 0 | 1 | 0 | 0 | 🛠️ en curso |
 | M4 — Oportunidades y cotizaciones | 14 | 3 | 0 | 5 | 6 | 0 | 🛠️ en curso |
 | M5 — Hoteles y reseñas | 11 | 0 | 0 | 1 | 10 | 0 | 🛠️ en curso |
 | M6 — Viajes y economía | 24 | 1 | 0 | 3 | 20 | 0 | 🛠️ en curso |
@@ -123,7 +123,7 @@ flowchart LR
     T059["T-059 · Crear un recordatorio manual desde la app mobile<br/><small>mobile</small>"]:::hecho
     T060["T-060 · Probar de punta a punta la agenda de alertas<br/><small>e2e</small>"]:::disponible
     T164["T-164 · Mostrar los totales de la agenda web como en el prototipo<br/><small>web</small>"]:::hecho
-    T165["T-165 · Filtrar la agenda mobile con chips como en el prototipo<br/><small>mobile</small><br/>👤 palomap2003"]:::tomado
+    T165["T-165 · Filtrar la agenda mobile con chips como en el prototipo<br/><small>mobile</small>"]:::hecho
     T166["T-166 · Mostrar el detalle de la alerta en un panel lateral de la agenda web<br/><small>web</small>"]:::hecho
   end
   subgraph M4["M4 — Oportunidades y cotizaciones"]
