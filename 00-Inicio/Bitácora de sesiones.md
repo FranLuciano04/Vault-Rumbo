@@ -85,6 +85,19 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
   - En la PC de Nahuel quedó la carpeta `.claude/worktrees/fix-m3-agenda-vistas`, tomada por un proceso; se puede borrar a mano.
 - **Para tener en cuenta:** otra sesión cambió de rama el checkout principal mientras corría el cierre, y el primer `mod-3` quedó sobre una rama de M2. Se borró y se volvió a crear sobre `main` en el acto. Cuando hay varias sesiones abiertas, conviene hacer los tags y los commits a `main` desde un worktree propio.
 
+## 27/10/26 — Paloma (Claude Opus 5.5) — T-071: detalle de la oportunidad en la web
+- **T-071** hecho y mergeado (PR [#110](https://github.com/FranLuciano04/Vault-Rumbo/pull/110)). Commits: rojo `468492b`, verde `3b911dd`, refactor `d0d1bbd`, fix `8abfade`, hecho `f2328b7`.
+- **Decisiones de Paloma:**
+  - Las interacciones se agregan al final de `Oportunidad.notas`, porque no hay entidad `Interacción`. Se acepta el riesgo de que dos personas se pisen si registran a la vez.
+  - Se amplió el contrato: `GET /alertas` acepta `oportunidad_id`, sin la ventana de hoy.
+- **Review (Opus), dos rondas:**
+  - Bloqueante: las insistencias a futuro no se listaban.
+  - Importantes: las notas previas se reescribían, y ganar se hacía en un clic.
+  - Todo se arregló.
+- **Pendientes:**
+  - RF-019 (reagendar una insistencia desde el detalle) quedó fuera de T-071.
+  - En la suite de backend aparecieron errores de setup al azar cuando la máquina está cargada. Conviene bajar el stack de producción local (`docker compose -f src/docker-compose.yml down`) mientras se corren los tests.
+
 ## 27/10/26 — Paloma (Claude Opus 5.5) — T-070: embudo de oportunidades en la web
 - **T-070** hecho y mergeado (PR [#109](https://github.com/FranLuciano04/Vault-Rumbo/pull/109)). Commits: rojo `9301a80`, verde `766f97b`, fix `26c3694` y `1071b59`, hecho `aa76a20`.
 - **Decisión de Paloma:** se amplió el contrato dentro del ticket con `responsable_id` en `GET /oportunidades` y `Oportunidad.cliente_nombre`. Sin eso, el filtro y el nombre solo se resolvían del lado del cliente, y fallaban con más de una página.
