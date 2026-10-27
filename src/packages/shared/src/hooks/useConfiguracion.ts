@@ -6,9 +6,10 @@ import { useAccion } from "./useAccion";
 export const claveConfiguracion = ["configuracion"] as const;
 
 /** Parámetros del negocio (`GET /api/configuracion`, CU-06, CU-07, CU-30; admin y dueño). */
-export function useConfiguracion(cliente: AxiosInstance) {
+export function useConfiguracion(cliente: AxiosInstance, { enabled = true } = {}) {
   return useQuery({
     queryKey: claveConfiguracion,
+    enabled,
     queryFn: async () => (await cliente.get<Configuracion>("/api/configuracion")).data,
   });
 }

@@ -3,7 +3,7 @@ EST-Cotización, EST-Oportunidad T3)."""
 
 import calendar
 from collections.abc import Awaitable, Callable
-from datetime import date
+from datetime import UTC, date, datetime
 from decimal import Decimal
 from typing import Any
 from uuid import UUID, uuid4
@@ -352,3 +352,174 @@ async def test_oportunidad_cerrada_409(
     assert await _de(sesion, op) == []
     await sesion.refresh(op)
     assert op.estado is origen
+
+
+# ---------- listar las versiones (GET, RF-024) ----------
+
+
+async def _versiones(sesion: AsyncSession, op: Oportunidad, cantidad: int) -> list[Cotizacion]:
+    """Versiones de la más antigua a la más reciente (created_at distinto y creciente)."""
+    return [
+        await crear(
+            sesion,
+            CotizacionFactory,
+            oportunidad_id=op.id,
+            created_at=datetime(2026, 10, 1 + n, 12, 0, tzinfo=UTC),
+        )
+        for n in range(cantidad)
+    ]
+
+
+async def test_rf024_listar_de_la_mas_reciente_a_la_mas_antigua(
+    cliente_como: FabricaCliente, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("empleado")
+    op = await _op(sesion, c.usuario.id)  # type: ignore[attr-defined]
+    versiones = await _versiones(sesion, op, 3)
+
+    r = await c.get(_url(op))
+
+    assert r.status_code == 200
+    cuerpo = r.json()
+    assert cuerpo["total"] == 3
+    assert cuerpo["pagina"] == 1
+    assert cuerpo["por_pagina"] == 20
+    assert [i["id"] for i in cuerpo["items"]] == [str(v.id) for v in reversed(versiones)]
+    primera = cuerpo["items"][0]
+    assert primera["oportunidad_id"] == str(op.id)
+    assert primera["estado"] == "borrador"
+    assert primera["moneda"] == "ARS"
+    assert Decimal(primera["total"]) == Decimal("1500000.00")
+    assert primera["validez_hasta"] == "2026-11-01"
+    assert primera["items"] == [{"concepto": "Paquete", "precio": "1500000.00"}]
+
+
+async def test_rf024_listar_incluye_la_version_recien_emitida_primera(
+    cliente_como: FabricaCliente, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("empleado")
+    op = await _op(sesion, c.usuario.id)  # type: ignore[attr-defined]
+    await _versiones(sesion, op, 2)
+    nueva = await c.post(_url(op), json=CUERPO)
+
+    r = await c.get(_url(op))
+
+    assert r.status_code == 200
+    assert r.json()["total"] == 3
+    assert r.json()["items"][0]["id"] == nueva.json()["id"]
+
+
+async def test_rf024_listar_sin_versiones_devuelve_pagina_vacia(
+    cliente_como: FabricaCliente, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("empleado")
+    op = await _op(sesion, c.usuario.id)  # type: ignore[attr-defined]
+
+    r = await c.get(_url(op))
+
+    assert r.status_code == 200
+    assert r.json() == {"items": [], "total": 0, "pagina": 1, "por_pagina": 20}
+
+
+async def test_rf024_listar_paginado(cliente_como: FabricaCliente, sesion: AsyncSession) -> None:
+    c = await cliente_como("empleado")
+    op = await _op(sesion, c.usuario.id)  # type: ignore[attr-defined]
+    versiones = await _versiones(sesion, op, 5)
+    esperado = [str(v.id) for v in reversed(versiones)]
+
+    r = await c.get(_url(op), params={"pagina": 2, "por_pagina": 2})
+
+    assert r.status_code == 200
+    cuerpo = r.json()
+    assert cuerpo["total"] == 5
+    assert cuerpo["pagina"] == 2
+    assert cuerpo["por_pagina"] == 2
+    assert [i["id"] for i in cuerpo["items"]] == esperado[2:4]
+
+
+async def test_rf024_listar_no_mezcla_versiones_de_otra_oportunidad(
+    cliente_como: FabricaCliente, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("empleado")
+    uno = await _op(sesion, c.usuario.id)  # type: ignore[attr-defined]
+    dos = await _op(sesion, c.usuario.id)  # type: ignore[attr-defined]
+    propias = await _versiones(sesion, uno, 2)
+    await _versiones(sesion, dos, 3)
+
+    r = await c.get(_url(uno))
+
+    assert r.status_code == 200
+    assert r.json()["total"] == 2
+    assert {i["id"] for i in r.json()["items"]} == {str(v.id) for v in propias}
+
+
+@pytest.mark.parametrize("rol", ["admin", "dueno", "empleado"])
+async def test_rf024_listar_roles_con_visibilidad_total_ven_las_ajenas(
+    cliente_como: FabricaCliente, sesion: AsyncSession, rol: str
+) -> None:
+    c = await cliente_como(rol)
+    otro = await cliente_como("empleado")
+    op = await _op(sesion, otro.usuario.id)  # type: ignore[attr-defined]
+    await _versiones(sesion, op, 2)
+
+    r = await c.get(_url(op))
+
+    assert r.status_code == 200
+    assert r.json()["total"] == 2
+
+
+async def test_rf151_listar_freelance_ve_las_de_su_oportunidad(
+    cliente_como: FabricaCliente, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("freelance")
+    op = await _op(sesion, c.usuario.id)  # type: ignore[attr-defined]
+    await _versiones(sesion, op, 2)
+
+    r = await c.get(_url(op))
+
+    assert r.status_code == 200
+    assert r.json()["total"] == 2
+
+
+async def test_rf151_listar_freelance_ajena_404(
+    cliente_como: FabricaCliente, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("freelance")
+    otro = await cliente_como("empleado")
+    op = await _op(sesion, otro.usuario.id)  # type: ignore[attr-defined]
+    await _versiones(sesion, op, 1)
+
+    r = await c.get(_url(op))
+
+    assert r.status_code == 404
+    assert r.headers["content-type"].startswith(PROBLEM_JSON)
+
+
+async def test_rf024_listar_oportunidad_inexistente_404(cliente_como: FabricaCliente) -> None:
+    c = await cliente_como("empleado")
+
+    r = await c.get(_url(uuid4()))
+
+    assert r.status_code == 404
+    assert r.headers["content-type"].startswith(PROBLEM_JSON)
+
+
+@pytest.mark.parametrize(
+    "params", [{"pagina": 0}, {"por_pagina": 0}, {"por_pagina": 101}, {"pagina": "x"}]
+)
+async def test_rf024_listar_paginacion_invalida_422(
+    cliente_como: FabricaCliente, sesion: AsyncSession, params: dict[str, Any]
+) -> None:
+    c = await cliente_como("empleado")
+    op = await _op(sesion, c.usuario.id)  # type: ignore[attr-defined]
+
+    r = await c.get(_url(op), params=params)
+
+    assert r.status_code == 422
+    assert r.headers["content-type"].startswith(PROBLEM_JSON)
+
+
+async def test_rf024_listar_sin_sesion_401(cliente_sin_sesion: AsyncClient) -> None:
+    r = await cliente_sin_sesion.get(_url(uuid4()))
+
+    assert r.status_code == 401

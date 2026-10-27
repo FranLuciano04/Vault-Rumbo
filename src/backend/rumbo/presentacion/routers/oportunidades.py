@@ -215,9 +215,21 @@ async def ganar_oportunidad_sin_cotizacion(
     **_VERSIONES,
 )
 async def listar_cotizaciones(
-    oportunidad_id: uuid.UUID, paginacion: PaginaDep
+    oportunidad_id: uuid.UUID, paginacion: PaginaDep, actor: ActorDep, sesion: SesionDep
 ) -> Pagina[Cotizacion]:
-    raise no_implementado()
+    items, total = await oportunidades.listar_cotizaciones(
+        sesion,
+        actor,
+        oportunidad_id,
+        desplazamiento=paginacion.desplazamiento,
+        limite=paginacion.por_pagina,
+    )
+    return Pagina(
+        items=[Cotizacion.model_validate(c) for c in items],
+        total=total,
+        pagina=paginacion.pagina,
+        por_pagina=paginacion.por_pagina,
+    )
 
 
 @router.post(

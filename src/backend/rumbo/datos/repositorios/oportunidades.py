@@ -1,4 +1,4 @@
-"""Repositorio del módulo oportunidades: `Oportunidad` (CU-05)."""
+"""Repositorio del módulo oportunidades: `Oportunidad` (CU-05) y `Cotizacion` (CU-06)."""
 
 import uuid
 
@@ -6,7 +6,7 @@ from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from rumbo.core.errores import NoEncontrado
-from rumbo.datos.modelos import EstadoOportunidad, Oportunidad
+from rumbo.datos.modelos import Cotizacion, EstadoOportunidad, Oportunidad
 from rumbo.datos.repositorios.base import RepositorioBase, Visibilidad
 
 
@@ -51,3 +51,28 @@ class RepositorioOportunidades(RepositorioBase[Oportunidad]):
         if oportunidad is None:
             raise NoEncontrado(f"Oportunidad {id} no encontrada")
         return oportunidad
+
+
+class RepositorioCotizaciones(RepositorioBase[Cotizacion]):
+    modelo = Cotizacion
+
+    async def paginar_de_oportunidad(
+        self,
+        sesion: AsyncSession,
+        oportunidad_id: uuid.UUID,
+        *,
+        desplazamiento: int,
+        limite: int,
+        visibilidad: Visibilidad,
+    ) -> tuple[list[Cotizacion], int]:
+        """Versiones de la oportunidad, la más reciente primero (por `fecha` y, si empatan, por
+        `created_at`), y el total."""
+        consulta = visibilidad.aplicar(
+            select(Cotizacion).where(Cotizacion.oportunidad_id == oportunidad_id), Cotizacion
+        )
+        total = await sesion.scalar(select(func.count()).select_from(consulta.subquery()))
+        pagina = consulta.order_by(
+            Cotizacion.fecha.desc(), Cotizacion.created_at.desc(), Cotizacion.id
+        )
+        filas = await sesion.scalars(pagina.offset(desplazamiento).limit(limite))
+        return list(filas), total or 0
