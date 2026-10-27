@@ -317,3 +317,50 @@ describe("RF-151 embudo del freelance (pantalla 34)", () => {
     expect(screen.queryByText("Europa")).not.toBeInTheDocument();
   });
 });
+
+describe("RF-016 embudo: responsable «todos» y «Ver más»", () => {
+  it("RF-016 admin elige responsable y vuelve a «todos»: se pide sin mios ni responsable_id", async () => {
+    const pedidos: URLSearchParams[] = [];
+    servidor.use(registrarListados(pedidos));
+    const usuario = userEvent.setup();
+    renderEmbudo("admin");
+    await screen.findByRole("option", { name: "Tomás Roldán" });
+    const selector = screen.getByRole("combobox", { name: /responsable/i });
+    await usuario.selectOptions(selector, "Tomás Roldán");
+    await waitFor(() => {
+      expect(pedidos.some((p) => p.get("responsable_id") === asesores[1]?.id)).toBe(true);
+    });
+    pedidos.length = 0;
+
+    await usuario.selectOptions(selector, "");
+
+    await waitFor(() => {
+      expect(pedidos.length).toBeGreaterThan(0);
+    });
+    expect(pedidos.every((p) => !p.has("mios") && !p.has("responsable_id"))).toBe(true);
+  });
+
+  it("RF-016 una columna con más oportunidades que la página muestra «Ver más» y suma la página 2", async () => {
+    const [primera, segunda] = oportunidadesMock.filter((o) => o.estado === "ganada");
+    if (!primera || !segunda) throw new Error("Faltan ganadas en el mock");
+    servidor.use(
+      http.get("*/api/oportunidades", ({ request }) => {
+        const p = new URL(request.url).searchParams;
+        const pagina = Number(p.get("pagina") ?? "1");
+        const items = p.get("estado") === "ganada" ? [pagina === 1 ? primera : segunda] : [];
+        const total = p.get("estado") === "ganada" ? 2 : 0;
+        return HttpResponse.json({ items, total, pagina, por_pagina: 1 });
+      }),
+    );
+    const usuario = userEvent.setup();
+    renderEmbudo("empleado");
+    const ganada = await columna("Ganada");
+    expect(within(ganada).queryByText(segunda.destino_consultado)).not.toBeInTheDocument();
+
+    await usuario.click(within(ganada).getByRole("button", { name: /ver más/i }));
+
+    expect(await within(ganada).findByText(segunda.destino_consultado)).toBeInTheDocument();
+    expect(within(ganada).getByText(primera.destino_consultado)).toBeInTheDocument();
+    expect(within(ganada).queryByRole("button", { name: /ver más/i })).not.toBeInTheDocument();
+  });
+});

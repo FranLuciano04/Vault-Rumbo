@@ -4,11 +4,12 @@ import {
   type FiltrosOportunidades,
   type UsuarioActual,
 } from "@rumbo/shared";
-import { useOportunidades } from "@rumbo/shared/hooks";
+import { useOportunidadesPorPaginas } from "@rumbo/shared/hooks";
 import type { AxiosInstance } from "axios";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { FiltroResponsable } from "@/features/alertas/FiltroResponsable";
+import { cn } from "@/lib/utils";
+import { FiltroResponsable } from "@/components/FiltroResponsable";
 import { TarjetaOportunidad } from "./TarjetaOportunidad";
 
 const ESTADOS = Object.keys(ETIQUETA_ESTADO_OPORTUNIDAD) as EstadoOportunidad[];
@@ -30,31 +31,37 @@ export function PaginaOportunidades({
 }) {
   const esFreelance = usuario.rol === "freelance";
   const puedeFiltrarResponsable = usuario.rol === "admin" || usuario.rol === "dueno";
-  const [pestana, setPestana] = useState<(typeof PESTANAS)[number]["clave"]>("mias");
+  const [pestana, setPestana] = useState<(typeof PESTANAS)[number]["clave"]>(
+    puedeFiltrarResponsable ? "agencia" : "mias",
+  );
   const [responsableId, setResponsableId] = useState("");
 
-  const filtros: FiltrosOportunidades = responsableId
-    ? { responsable_id: responsableId }
-    : pestana === "mias" || esFreelance
+  // «Mis oportunidades» pide `mios`; «Toda la agencia», sin `mios` (y con `responsable_id` si se elige uno).
+  const filtros: FiltrosOportunidades =
+    pestana === "mias" || esFreelance
       ? { mios: true }
-      : {};
-  // Una consulta por estado: cada columna trae su `total` aunque la página no alcance a mostrarla entera.
+      : responsableId
+        ? { responsable_id: responsableId }
+        : {};
+  // Una consulta por estado: cada columna trae su `total` y sus páginas («Ver más»).
   const consultas = [
-    useOportunidades(cliente, { ...filtros, estado: "nueva" }),
-    useOportunidades(cliente, { ...filtros, estado: "en_gestion" }),
-    useOportunidades(cliente, { ...filtros, estado: "cotizada" }),
-    useOportunidades(cliente, { ...filtros, estado: "ganada" }),
-    useOportunidades(cliente, { ...filtros, estado: "perdida" }),
+    useOportunidadesPorPaginas(cliente, { ...filtros, estado: "nueva" }),
+    useOportunidadesPorPaginas(cliente, { ...filtros, estado: "en_gestion" }),
+    useOportunidadesPorPaginas(cliente, { ...filtros, estado: "cotizada" }),
+    useOportunidadesPorPaginas(cliente, { ...filtros, estado: "ganada" }),
+    useOportunidadesPorPaginas(cliente, { ...filtros, estado: "perdida" }),
   ];
   const cargando = consultas.some((c) => c.isPending);
-  const fallo = consultas.some((c) => c.isError);
+  const fallo = consultas.some((c) => c.isError && !c.data);
+  const actualizando = consultas.some((c) => c.isPlaceholderData);
 
   return (
     <div className="space-y-4">
       <h1 className="text-2xl font-semibold">Oportunidades</h1>
       {esFreelance && (
         <p role="status" className="rounded-md bg-muted px-3 py-2 text-sm">
-          Estás viendo solo tus clientes, oportunidades y viajes.
+          Estás viendo solo tus clientes, oportunidades y viajes. El catálogo de hoteles, destinos y
+          operadores es compartido.
         </p>
       )}
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -63,7 +70,9 @@ export function PaginaOportunidades({
             ({ clave, etiqueta }) => (
               <Button
                 key={clave}
+                id={`pestana-${clave}`}
                 role="tab"
+                aria-controls="panel-embudo"
                 aria-selected={pestana === clave}
                 variant={pestana === clave ? "default" : "ghost"}
                 onClick={() => {
@@ -76,7 +85,7 @@ export function PaginaOportunidades({
             ),
           )}
         </div>
-        {puedeFiltrarResponsable && (
+        {puedeFiltrarResponsable && pestana === "agencia" && (
           <FiltroResponsable cliente={cliente} valor={responsableId} alCambiar={setResponsableId} />
         )}
       </div>
@@ -90,22 +99,50 @@ export function PaginaOportunidades({
           Cargando oportunidades…
         </p>
       ) : (
-        <div className="grid gap-4 md:grid-cols-3 xl:grid-cols-5">
-          {ESTADOS.map((estado, i) => (
-            <section key={estado} className="space-y-2 rounded-lg bg-muted/50 p-3">
-              <h2 className="flex items-center justify-between text-sm font-semibold">
-                {ETIQUETA_ESTADO_OPORTUNIDAD[estado]}{" "}
-                <span className="tabular-nums text-muted-foreground">
-                  {consultas[i]?.data?.total}
-                </span>
-              </h2>
-              <ul className="space-y-2">
-                {consultas[i]?.data?.items.map((o) => (
-                  <TarjetaOportunidad key={o.id} oportunidad={o} />
-                ))}
-              </ul>
-            </section>
-          ))}
+        <div
+          id="panel-embudo"
+          role="tabpanel"
+          aria-labelledby={`pestana-${pestana}`}
+          aria-busy={actualizando}
+          className={cn(
+            "grid gap-4 md:grid-cols-3 xl:grid-cols-5",
+            actualizando && "opacity-70 transition-opacity",
+          )}
+        >
+          {ESTADOS.map((estado, i) => {
+            const consulta = consultas[i];
+            const oportunidades = consulta?.data?.pages.flatMap((p) => p.items) ?? [];
+            return (
+              <section key={estado} className="space-y-2 rounded-lg bg-muted/50 p-3">
+                <h2 className="flex items-center justify-between text-sm font-semibold">
+                  {ETIQUETA_ESTADO_OPORTUNIDAD[estado]}{" "}
+                  <span className="tabular-nums text-muted-foreground">
+                    {consulta?.data?.pages[0]?.total}
+                  </span>
+                </h2>
+                <ul className="space-y-2">
+                  {oportunidades.map((o) => (
+                    <TarjetaOportunidad key={o.id} oportunidad={o} />
+                  ))}
+                </ul>
+                {consulta?.isFetchNextPageError && (
+                  <p role="alert" className="text-xs text-destructive">
+                    No pudimos traer más oportunidades.
+                  </p>
+                )}
+                {consulta?.hasNextPage && (
+                  <Button
+                    variant="ghost"
+                    className="w-full"
+                    disabled={consulta.isFetchingNextPage}
+                    onClick={() => void consulta.fetchNextPage()}
+                  >
+                    Ver más
+                  </Button>
+                )}
+              </section>
+            );
+          })}
         </div>
       )}
     </div>
