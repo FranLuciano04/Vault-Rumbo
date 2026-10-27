@@ -403,10 +403,10 @@ function fase(id, nombre, resto) {
   // Una rama fix/… arregla una falla sin ticket (DEC-0019): la rama es el identificador y los commits
   // siguen la convención «test(fix): …» y «fix: …».
   const esFix = id?.startsWith('fix/');
+  if (esFix && nombre === 'hecho') throw new Error('Una rama fix/ no tiene ticket que marcar como hecho: abrí el PR.');
   const t = esFix ? { rama: id, capa: null } : buscar(cargarTickets(), id);
   const rama = gitOk(['rev-parse', '--abbrev-ref', 'HEAD']);
   if (rama !== t.rama) throw new Error(`Esto se corre en la rama ${esFix ? '' : 'del ticket '}(${t.rama}); estás en ${rama}.`);
-  if (esFix && nombre === 'hecho') throw new Error('Una rama fix/ no tiene ticket que marcar como hecho: abrí el PR.');
   const alcance = esFix ? 'fix' : id;
 
   if (nombre === 'hecho') {
