@@ -17,7 +17,7 @@ from rumbo.datos.modelos import (
     RolUsuario,
     Usuario,
 )
-from rumbo.datos.repositorios.oportunidades import RepositorioOportunidades
+from rumbo.datos.repositorios.oportunidades import RepositorioCotizaciones, RepositorioOportunidades
 from rumbo.datos.repositorios.seguridad import RepositorioUsuarios
 from rumbo.negocio.errores import DatosInvalidos, NoEncontrado
 from rumbo.negocio.estados import cotizacion as estado_cotizacion
@@ -27,6 +27,7 @@ from rumbo.negocio.servicios import parametros
 from rumbo.negocio.servicios.alertas import resolver_de_origen
 
 _oportunidades = RepositorioOportunidades()
+_cotizaciones = RepositorioCotizaciones()
 _usuarios = RepositorioUsuarios()
 
 
@@ -129,6 +130,26 @@ async def ganar_oportunidad(
     """Venta directa sin cotización formal: queda ganada, lista para confirmar la reserva
     (CU-05 A4, RF-016); resuelve las alertas automáticas abiertas (RN-08)."""
     return await _transicionar(sesion, actor, oportunidad_id, estado.ganar, resolver_alertas=True)
+
+
+async def listar_cotizaciones(
+    sesion: AsyncSession,
+    actor: Usuario,
+    oportunidad_id: uuid.UUID,
+    *,
+    desplazamiento: int,
+    limite: int,
+) -> tuple[list[Cotizacion], int]:
+    """Página de versiones de la oportunidad, de la más reciente a la más antigua, y el total
+    (CU-06, RF-024). Una oportunidad que el actor no ve es `NoEncontrado` (RF-151)."""
+    await _oportunidades.obtener(sesion, oportunidad_id, visibilidad=visibilidad(actor))
+    return await _cotizaciones.paginar_de_oportunidad(
+        sesion,
+        oportunidad_id,
+        desplazamiento=desplazamiento,
+        limite=limite,
+        visibilidad=visibilidad(actor),
+    )
 
 
 async def emitir_cotizacion(
