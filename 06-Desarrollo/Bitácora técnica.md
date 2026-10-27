@@ -86,3 +86,27 @@ tags:: #tipo/referencia
   - `crear` no deduplica alertas: la idempotencia del proceso diario queda para M7 (T-110).
 - **Decisiones tocadas:** [[DEC-0005 Autenticación y modelo de roles]], [[DEC-0008 Autenticación propia y rol de vendedor freelance]], [[DEC-0013 Datos que faltaban en el ER]], [[DEC-0019 Las fallas se arreglan al encontrarlas]].
 - Aprobación del equipo: 27/10/26. Tag `mod-3` sobre `3d2e2a9`. M2 todavía no tiene su tag `mod-2`.
+
+### 27/10/26 — Nahuel (con el equipo) — M2 Clientes cerrado (`mod-2`)
+- **Qué quedó:**
+  - Alta de clientes con aviso de posible duplicado por contacto o nombre, que se confirma explícitamente. El contacto se compara por su clave canónica (`contacto_clave`, migración 0005): un teléfono argentino en cualquier formato o un email sin distinguir mayúsculas. El `freelance` recibe el aviso sin datos de clientes ajenos (RF-151).
+  - La edición de la ficha avisa igual que el alta, pero solo por lo que cambia y sin contar la propia ficha. Se agregó el flujo A4 a [[CU-03 Gestionar ficha del cliente]].
+  - Altas y ediciones simultáneas con los mismos datos se serializan con un advisory lock, así que ninguna se saltea el aviso.
+  - Búsqueda según la visibilidad del rol, historial del cliente, usuario de Instagram ([[DEC-0017 Contacto mínimo del cliente|DEC-0017]]) y listado con asesor, último viaje y oportunidades abiertas.
+  - Contrato en `@rumbo/shared` con mocks que validan con zod y responden 409/422 como la API. Pantallas web (listado, alta y ficha editable), mobile (listado y alta) y e2e de punta a punta.
+- **Tickets:** 15, de T-039 a T-049 más T-149, T-155, T-156 y T-157. Detalle y merges en [[M2 — pedido de review]].
+- **Review de Codex** ([[M2 — review Codex]]): 7 hallazgos, todos confirmados en el triage y arreglados sin ticket ([[DEC-0019 Las fallas se arreglan al encontrarlas|DEC-0019]]).
+  - H-01, bloqueante → PR #96: si la ficha se refrescaba durante la edición, el PATCH reenviaba campos que nadie había editado.
+  - H-02, bloqueante; H-03, H-05 y H-07, importantes → PR #97:
+    - La API aceptaba un contacto que no era teléfono ni email.
+    - Un teléfono escrito en otro formato evitaba el aviso de duplicado.
+    - Dos altas simultáneas podían crear el duplicado sin aviso.
+    - Los mocks aceptaban entradas que la API rechaza.
+  - H-04, importante → PR #108, de riesgo alto y aprobado por palomap2003: editar el nombre o el contacto no controlaba duplicados. El 26/10 quedó para decidir con el equipo, que el 27/10 resolvió arreglarlo antes del cierre.
+  - H-06, importante → PR #99: con la caché poblada, el listado mobile podía mostrarse vacío.
+- **Pendientes que no bloquean:**
+  - El backend antepone «Value error, » a los mensajes de validación 422 (convención previa, también en otros módulos).
+  - `05-Diseño/Datos/rumbo.sql` no tiene `contacto_clave` ni `instagram`; `test_modelos` los lista aparte.
+  - Dos sesiones que corren pytest sobre la misma base `rumbo_test` se pisan: conviene una base propia por sesión (`TEST_DATABASE_URL`).
+- **Decisiones tocadas:** [[DEC-0017 Contacto mínimo del cliente]], [[DEC-0019 Las fallas se arreglan al encontrarlas]], [[DEC-0020 Cliente traído por dos asesores]].
+- Aprobación del equipo: 27/10/26. Tag `mod-2` sobre `c5d8c9c`.

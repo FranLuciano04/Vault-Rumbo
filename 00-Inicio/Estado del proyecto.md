@@ -42,6 +42,8 @@ actualizado: 13/10/26
 >
 > 🏁 **27/10 — M3 Alertas cerrado.** Se arreglaron los 4 hallazgos de Codex (PR #104 a #107), el equipo lo aprobó y se puso el tag `mod-3`. Queda la prueba manual guiada en mobile. El resumen está en [[Bitácora técnica]].
 >
+> 🏁 **27/10 — M2 Clientes cerrado.** Se arreglaron los 7 hallazgos de Codex (PR #96, #97, #99 y #108), el equipo lo aprobó y se puso el tag `mod-2`. El resumen está en [[Bitácora técnica]].
+>
 > 👉 **24/10 (Paloma):** **T-146** (referencias de RF del permiso por rol) está hecho y mergeado (PR [#70](https://github.com/FranLuciano04/Vault-Rumbo/pull/70)). El permiso por rol y la visibilidad por fila citan RF-151; RF-150 queda solo para la asignación del `freelance`. No cambia el comportamiento.
 >
 > 👉 **24/10 (Paloma):** **T-043** (historial del cliente) está hecho y mergeado (PR [#62](https://github.com/FranLuciano04/Vault-Rumbo/pull/62)). `GET /clientes/{id}/historial` devuelve las oportunidades (por fecha de alta), los viajes (por salida) y las reseñas (por fecha), de lo más reciente a lo más antiguo. Las reseñas ocultas solo las ven `admin` y `dueno`, igual que en el catálogo (CU-29). Destraba 7 tickets.

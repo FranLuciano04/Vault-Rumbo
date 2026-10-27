@@ -24,11 +24,6 @@ La **persona** de cada sesión es quien la corre, identificada por su identidad 
 ## Avisos pendientes por persona
 > Claude los lee al identificar a la persona (paso 1 de `CLAUDE.md`) y se los cuenta **apenas la saluda**, antes de cualquier otra tarea. Cuando la persona confirme que lo leyó o que lo hizo, **Claude borra su fila** en esa misma sesión, con un commit. Cuando no quede ninguna fila de alguien, se borra también su sección.
 
-### Nahuel (`Nahuel Viniegra`) — cerrar M2 con la review de Codex
-- **25/10, de Francisco: M2 tiene todos sus tickets hechos y mergeados** (`tickets.mjs modulo M2` da ✅). Falta el cierre formal, que hacés vos porque te encargás de las reviews con Codex. **M1 ya está cerrado (26/10, tag `mod-1`).**
-  - Correr `/cerrar-modulo M2` y arreglar los hallazgos confirmados en ramas `fix/…` (DEC-0019).
-  - Con la aprobación del equipo, poner el tag `mod-2`.
-
 ### Nahuel (`Nahuel Viniegra`) — el repo es público
 - **25/10, de Francisco: el repo [Vault-Rumbo](https://github.com/FranLuciano04/Vault-Rumbo) pasó a público.** GitHub Actions se había cortado porque se terminaron los minutos del plan Free; en los repos públicos los minutos son ilimitados.
   - Antes se escaneó todo el historial, incluidas las ramas de los PR, y no hay secretos.
@@ -62,6 +57,16 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Commits:** <hash>, <hash>
 - **Pendiente:** …
 ```
+
+## 27/10/26 — Nahuel (Claude Opus 5.5) — cierre de M2: review de Codex, arreglos y tag `mod-2`
+- **Hecho:**
+  - `/cerrar-modulo M2`: pedido de review (dc46b5c) y triage de los 7 hallazgos de Codex, todos confirmados.
+  - Arreglos en ramas `fix/M2-…`: H-01 (#96), H-02/H-03/H-05/H-07 (#97), H-06 (#99) y H-04 (#108), todos mergeados con el CI en verde. H-04 quedó primero para el equipo, que decidió arreglarlo antes del cierre; el #108 tiene riesgo alto y lo aprobó Paloma. Se agregó el flujo A4 a [[CU-03 Gestionar ficha del cliente]].
+  - Con la aprobación del equipo, tag `mod-2` sobre `c5d8c9c`, grafo publicado, [[Bitácora técnica]] y estado actualizados. Se retiró el aviso «cerrar M2».
+- **Pendiente:**
+  - Menor sin arreglar: el prefijo «Value error, » en los 422 del backend.
+  - Investigar la lentitud de pytest en esta PC (ya diagnosticada en la retro del 27/10).
+- **Para tener en cuenta:** la sesión de M3 corrió pytest sobre la misma base `rumbo_test` y se pisaron las corridas; el arreglo de H-04 usó una base propia vía `TEST_DATABASE_URL`. Además, un commit de M3 (`c791841`) quedó en la rama de H-04 y llegó a main con el #108.
 
 ## 26/10/26 — Nahuel (Claude Opus 5.5) — M3: pedido de review para Codex
 - **Hecho:** `/cerrar-modulo M3`, fase A. Los 14 tickets de M3 están hechos; se escribió `06-Desarrollo/Reviews/M3 — pedido de review.md` con los merges, los 93 archivos tocados y 12 puntos a revisar.
