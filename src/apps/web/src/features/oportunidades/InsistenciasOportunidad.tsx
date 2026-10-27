@@ -120,7 +120,13 @@ export function InsistenciasOportunidad({
             <Button type="submit" disabled={isSubmitting}>
               Guardar
             </Button>
-            <Button type="button" variant="outline" onClick={() => { setAbierto(false); }}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => {
+                setAbierto(false);
+              }}
+            >
               Cancelar
             </Button>
           </div>
