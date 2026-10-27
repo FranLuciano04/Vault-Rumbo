@@ -356,3 +356,44 @@ async def test_rf003_dos_altas_simultaneas_del_mismo_nombre_dan_un_201_y_un_409(
         await s.execute(delete(Cliente).where(creados))
         await s.commit()
     assert filas == 1
+
+
+# --- H-04: un alta y una edición simultáneas al mismo contacto -------------------------------
+# Supuesto: la edición también comprueba con `RepositorioClientes.buscar_parecidos` (el fixture
+# `buscar_parecidos_sincronizado` es el mismo que el de las altas) y serializa por clave.
+
+
+async def test_rf003_un_alta_y_una_edicion_simultaneas_al_mismo_contacto_dan_un_409(
+    motor: AsyncEngine,
+    app_concurrente: tuple[FastAPI, list[Usuario]],
+    verificador_falso: VerificadorFalso,
+    buscar_parecidos_sincronizado: None,
+) -> None:
+    app, (u1, u2) = app_concurrente
+    fabrica = crear_fabrica_sesiones(motor)
+    async with fabrica() as s:
+        existente = await crear(
+            s, ClienteFactory, nombre="Cliente A Editar", contacto="previo.h04@mail.test"
+        )
+        await s.commit()
+        existente_id = existente.id
+    try:
+        async with (
+            _cliente_http(app, verificador_falso, u1) as c1,
+            _cliente_http(app, verificador_falso, u2) as c2,
+        ):
+            r_alta, r_patch = await asyncio.gather(
+                c1.post("/api/clientes", json=_cuerpo("Carrera Alta")),
+                c2.patch(
+                    f"/api/clientes/{existente_id}", json={"contacto": CONTACTO_CARRERA}
+                ),
+            )
+
+        statuses = sorted([r_alta.status_code, r_patch.status_code])
+        assert statuses in ([200, 409], [201, 409]), (r_alta.text, r_patch.text)
+        assert 409 in statuses, (r_alta.text, r_patch.text)
+        assert await _filas_de_la_carrera(motor) == 1
+    finally:
+        async with fabrica() as s:
+            await s.execute(delete(Cliente).where(Cliente.id == existente_id))
+            await s.commit()

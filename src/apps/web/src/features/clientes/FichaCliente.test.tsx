@@ -739,3 +739,124 @@ describe("RF-031 etiquetas en el formulario de edición", () => {
     });
   });
 });
+
+describe("RF-003 posible duplicado al editar (CU-03, H-04)", () => {
+  /** Responde 409 hasta que llega `confirmar_duplicado`; entonces guarda la ficha. */
+  function patchConAviso(cuerpos: Record<string, unknown>[], duplicados: unknown[]) {
+    servidor.use(
+      http.patch("*/api/clientes/:id", async ({ request }) => {
+        const cuerpo = (await request.json()) as Record<string, unknown>;
+        cuerpos.push(cuerpo);
+        if (!cuerpo["confirmar_duplicado"]) {
+          return problema(409, "Conflicto", {
+            detail: "Ya hay clientes con el mismo contacto o nombre.",
+            duplicados,
+          });
+        }
+        const { confirmar_duplicado: _omitido, ...cambios } = cuerpo;
+        return HttpResponse.json({ ...camila, ...cambios });
+      }),
+    );
+  }
+
+  async function editarContactoDuplicado(rol: RolMock = "empleado") {
+    const usuario = await abrirEdicion(CAMILA_ID, rol);
+    const contacto = await screen.findByLabelText(/contacto/i);
+    await usuario.clear(contacto);
+    await usuario.type(contacto, sosa?.contacto ?? "");
+    await usuario.click(screen.getByRole("button", { name: /guardar/i }));
+    return usuario;
+  }
+
+  const aviso = async () =>
+    (await screen.findByRole("heading", { name: /posible cliente duplicado/i })).closest(
+      "section",
+    ) as HTMLElement;
+
+  it("RF-003 si el PATCH responde 409 muestra el aviso con los clientes parecidos y no cierra la edición", async () => {
+    const cuerpos: Record<string, unknown>[] = [];
+    patchConAviso(cuerpos, [sosa]);
+    await editarContactoDuplicado();
+
+    const seccion = await aviso();
+    expect(within(seccion).getByText("Familia Sosa")).toBeInTheDocument();
+    expect(within(seccion).getByText("sosa.familia@mail.test")).toBeInTheDocument();
+    expect(within(seccion).getByRole("link", { name: /ir al cliente existente/i })).toHaveAttribute(
+      "href",
+      `/clientes/${sosa.id}`,
+    );
+    expect(screen.getByLabelText(/contacto/i)).toHaveValue(sosa.contacto);
+    expect(screen.queryByText("Ficha actualizada")).not.toBeInTheDocument();
+    expect(cuerpos).toEqual([{ contacto: sosa.contacto }]);
+  });
+
+  it("RF-003 «Guardar igual» reenvía el mismo PATCH con confirmar_duplicado y deja la ficha guardada", async () => {
+    const cuerpos: Record<string, unknown>[] = [];
+    patchConAviso(cuerpos, [sosa]);
+    const usuario = await editarContactoDuplicado();
+
+    await usuario.click(
+      within(await aviso()).getByRole("button", { name: /guardar igual/i }),
+    );
+
+    expect(await screen.findByRole("status")).toHaveTextContent("Ficha actualizada");
+    expect(cuerpos).toEqual([
+      { contacto: sosa.contacto },
+      { contacto: sosa.contacto, confirmar_duplicado: true },
+    ]);
+    expect(screen.queryByLabelText(/contacto/i)).not.toBeInTheDocument();
+    expect(screen.getByText(sosa.contacto)).toBeInTheDocument();
+  });
+
+  it("RF-151 con duplicados vacíos (freelance) muestra el aviso genérico sin fichas y puede guardar igual", async () => {
+    const cuerpos: Record<string, unknown>[] = [];
+    patchConAviso(cuerpos, []);
+    const usuario = await editarContactoDuplicado("freelance");
+
+    const seccion = await aviso();
+    expect(within(seccion).getByText(/consultalo con un admin/i)).toBeInTheDocument();
+    expect(within(seccion).queryByRole("link")).not.toBeInTheDocument();
+
+    await usuario.click(within(seccion).getByRole("button", { name: /guardar igual/i }));
+
+    expect(await screen.findByRole("status")).toHaveTextContent("Ficha actualizada");
+    expect(cuerpos[1]).toEqual({ contacto: sosa.contacto, confirmar_duplicado: true });
+  });
+
+  it("RF-003 cancelar el aviso deja la edición abierta, sin guardar y sin reenviar", async () => {
+    const cuerpos: Record<string, unknown>[] = [];
+    patchConAviso(cuerpos, [sosa]);
+    const usuario = await editarContactoDuplicado();
+
+    await usuario.click(within(await aviso()).getByRole("button", { name: /cancelar/i }));
+
+    expect(
+      screen.queryByRole("heading", { name: /posible cliente duplicado/i }),
+    ).not.toBeInTheDocument();
+    expect(screen.getByLabelText(/contacto/i)).toHaveValue(sosa.contacto);
+    expect(screen.queryByText("Ficha actualizada")).not.toBeInTheDocument();
+    expect(cuerpos).toHaveLength(1);
+  });
+
+  it("RF-003 editar un campo tras el aviso lo oculta y el nuevo guardado vuelve a chequear sin confirmar", async () => {
+    const cuerpos: Record<string, unknown>[] = [];
+    patchConAviso(cuerpos, [sosa]);
+    const usuario = await editarContactoDuplicado();
+    await aviso();
+
+    const contacto = screen.getByLabelText(/contacto/i);
+    await usuario.clear(contacto);
+    await usuario.type(contacto, "otro.contacto@mail.test");
+
+    await waitFor(() => {
+      expect(
+        screen.queryByRole("heading", { name: /posible cliente duplicado/i }),
+      ).not.toBeInTheDocument();
+    });
+    await usuario.click(screen.getByRole("button", { name: /^guardar$/i }));
+    await waitFor(() => {
+      expect(cuerpos).toHaveLength(2);
+    });
+    expect(cuerpos[1]).toEqual({ contacto: "otro.contacto@mail.test" });
+  });
+});

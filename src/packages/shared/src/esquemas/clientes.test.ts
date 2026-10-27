@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { esquemaAltaCliente } from "./clientes";
+import { esquemaAltaCliente, esquemaEdicionCliente } from "./clientes";
 
 const valido = { nombre: "Ana Pérez", contacto: "ana@mail.test", segmento: "pareja" };
 
@@ -48,5 +48,20 @@ describe("RF-031 esquema zod del alta de cliente (CU-02)", () => {
     });
 
     expect(r.success).toBe(true);
+  });
+});
+
+describe("RF-003 esquema zod de la edición de cliente (CU-03, H-04)", () => {
+  it("RF-003 admite la confirmación explícita de duplicado y la conserva", () => {
+    const r = esquemaEdicionCliente.safeParse({ nombre: "Ana P.", confirmar_duplicado: true });
+
+    expect(r.success).toBe(true);
+    expect(r.data).toEqual({ nombre: "Ana P.", confirmar_duplicado: true });
+  });
+
+  it("RF-003 la confirmación de duplicado es opcional y tiene que ser booleana", () => {
+    expect(esquemaEdicionCliente.safeParse({ nombre: "Ana P." }).success).toBe(true);
+    expect(esquemaEdicionCliente.safeParse({ confirmar_duplicado: "si" }).success).toBe(false);
+    expect(esquemaEdicionCliente.safeParse({ confirmar_duplicado: null }).success).toBe(false);
   });
 });
