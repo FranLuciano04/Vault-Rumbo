@@ -69,6 +69,10 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
+## 26/10/26 — Nahuel (Claude Opus 5.5) — M3: pedido de review para Codex
+- **Hecho:** `/cerrar-modulo M3`, fase A. Los 14 tickets de M3 están hechos; se escribió `06-Desarrollo/Reviews/M3 — pedido de review.md` con los merges, los 93 archivos tocados y 12 puntos a revisar.
+- **Pendiente:** que Codex escriba `M3 — review Codex.md`; después, triage y arreglos en ramas `fix/M3-…` (fase B) y el tag `mod-3` con la aprobación del equipo.
+
 ## 26/10/26 — Nahuel (Claude Opus 5.5) — cierre de M1: review de Codex y arreglos
 - **Pedido de review de M1** para Codex (`85cf59a`). Codex marcó 3 hallazgos y los 3 se confirmaron en el código (triage en `06-Desarrollo/Reviews/M1 — review Codex.md`, `f582c4b`).
 - **H-01** (bloqueante): en la web, cambiar de destino dejaba abierta la baja o la edición de un requisito del destino anterior. PR [#93](https://github.com/FranLuciano04/Vault-Rumbo/pull/93), mergeado.
