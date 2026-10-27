@@ -94,9 +94,7 @@ async def test_rf016_mios_gana_sobre_responsable_id(
     mia = await _oportunidad(sesion, c.usuario.id)  # type: ignore[attr-defined]
     await _oportunidad(sesion, otro.id)
 
-    r = await c.get(
-        "/api/oportunidades", params={"mios": "true", "responsable_id": str(otro.id)}
-    )
+    r = await c.get("/api/oportunidades", params={"mios": "true", "responsable_id": str(otro.id)})
 
     assert r.status_code == 200
     assert _ids(r.json()["items"]) == {str(mia.id)}
@@ -112,7 +110,8 @@ async def test_rf151_freelance_no_ve_ajenas_aunque_pida_otro_responsable(
 
     ajenas = await c.get("/api/oportunidades", params={"responsable_id": str(otro.id)})
     propias = await c.get(
-        "/api/oportunidades", params={"responsable_id": str(c.usuario.id)}  # type: ignore[attr-defined]
+        "/api/oportunidades",
+        params={"responsable_id": str(c.usuario.id)},  # type: ignore[attr-defined]
     )
 
     assert ajenas.status_code == 200
