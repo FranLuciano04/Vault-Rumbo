@@ -188,12 +188,11 @@ export function PaginaAgenda({
     ? (progreso.data.resueltas_hoy / progreso.data.total_del_dia) * 100
     : 0;
   const resueltasIds = new Set(resueltas.map((r) => r.alerta.id));
-  const alertas = [
+  const cargadas = [
     ...(pendientes.data?.items ?? []),
     ...(mostrarVistas ? (vistas.data?.items ?? []) : []),
-  ]
-    .filter((a) => !resueltasIds.has(a.id))
-    .sort(porFecha);
+  ];
+  const alertas = cargadas.filter((a) => !resueltasIds.has(a.id)).sort(porFecha);
   const atrasadas = alertas.filter((a) => a.fecha < hoy);
   const deHoy = alertas.filter((a) => a.fecha >= hoy);
   const acciones: AccionesDeLista = {
@@ -228,11 +227,17 @@ export function PaginaAgenda({
     mostrarVistas ? paginasDe(vistas.data) : 1,
   );
   // Si al bajar el total la página pedida queda fuera de rango (se resolvió la única de la última), retrocede.
-  if (pendientes.data && (!mostrarVistas || vistas.data) && pagina > ultimaPagina) {
+  // Si la consulta de vistas falla, también retrocede: no hay nada que mostrar en esa página.
+  const vistasListas = !mostrarVistas || vistas.data || vistas.isError;
+  if (pendientes.data && vistasListas && pagina > ultimaPagina) {
     setPagina(ultimaPagina);
   }
   const sinResolver = vistas.data?.total ?? 0;
-  const totalAlertas = (pendientes.data?.total ?? 0) + (mostrarVistas ? sinResolver : 0);
+  // Mismo criterio que `alertas.length`: sin las resueltas que esperan el envío.
+  const totalAlertas =
+    (pendientes.data?.total ?? 0) +
+    (mostrarVistas ? sinResolver : 0) -
+    (cargadas.length - alertas.length);
   const hayVistas = !mostrarVistas && sinResolver > 0;
 
   return (
@@ -417,7 +422,7 @@ export function PaginaAgenda({
         aria-labelledby={`pestana-${pestana}`}
         className="flex flex-col gap-4"
       >
-        {pendientes.data && !vistas.isPending && alertas.length === 0 && (
+        {pendientes.data && !vistas.isPending && pagina === 1 && alertas.length === 0 && (
           <div role="status" className="rounded-2xl border bg-card p-8 text-center">
             <h2 className="text-lg font-semibold">
               {pestana !== "todas"
