@@ -64,7 +64,7 @@ Los implementadores invocan **a demanda** `debugging-and-error-recovery` (cuando
 - `tickets.mjs fase T-NNN refactor "<qué simplificó>" --test "<cmd>"` (si no hubo cambios, no commitea).
 
 ## 4. 🔍 Review
-- Lanzá `reviewer-ticket` (o `reviewer-seguridad` si el riesgo es alto) con `model: <modelo_review>`.
+- Lanzá `reviewer-ticket` (o `reviewer-seguridad` si el riesgo es alto) con `model: <modelo_review>`. Pasale los hashes del rojo y del verde y la cola de la salida de `fase`, para que no los reproduzca.
 - Clasificá los hallazgos:
   - **bloqueante** e **importante** → se arreglan.
   - **menor** → se arreglan si son baratos; si no, quedan anotados en el ticket.
@@ -77,6 +77,7 @@ Los implementadores invocan **a demanda** `debugging-and-error-recovery` (cuando
 
 ## 6. Checks
 Acá corre **una sola vez la suite completa** de cada parte tocada, con lint, type-check y cobertura, usando los comandos de la §4 de la spec. En el backend es `uv run pytest -n auto --cov=…`, que incluye `test_contrato_m1.py` y sus equivalentes. Es el único lugar del flujo donde se corre la suite completa (T-154). Todo tiene que estar en verde antes de abrir el PR.
+- Corré los checks cuando ningún subagente esté corriendo tests: con dos suites a la vez, la máquina se satura y aparecen timeouts falsos.
 - Si algo falla acá y no falló en las fases, es una regresión fuera de los vecinos. Devolvésela al implementador del verde en modo fix, con `SendMessage`, y cerrala con `fase … fix --test "<los tests que fallaron>"`. Después volvé a correr los checks.
 - Guardá la salida resumida: la usa el PR.
 

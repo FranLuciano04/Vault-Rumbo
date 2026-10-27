@@ -69,6 +69,14 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
+## 27/10/26 — Nahuel (Claude Opus 5.5) — retro: por qué tardan las sesiones de tickets y hallazgos
+- **Diagnóstico** (retro del cierre de M1): el tiempo no se iba en escribir código. Se iba en reviews que verificaban sin límite (31 min la primera de H-02), en fallas al azar de la suite web que obligaban a repetirla, en hallazgos sin alcance cerrado que pedían rondas extra y en el armado manual de las ramas `fix/`.
+- **Arreglado:**
+  - PR [#103](https://github.com/FranLuciano04/Vault-Rumbo/pull/103), mergeado: la suite web tolera la carga (20 s por test y 5 s en `findBy`/`waitFor`), y `tickets.mjs fase` acepta ramas `fix/` sin ticket.
+  - Skills: `review-de-ticket` 1.1.0 (verificación acotada a los tests del diff), `implementar-ticket` 1.5.0 (evidencia al reviewer y checks sin subagentes corriendo), `cerrar-modulo` 1.2.0 (alcance cerrado por hallazgo, y `fase` y `/pr` en las ramas fix) y `pr` 1.1.0 (variante para ramas `fix/`).
+- **Descartado:** el `localhost` del `.env` del backend no frena los tests, porque `conftest.py` ya lo cambia por `127.0.0.1`.
+- **Pendiente:** la lentitud real del backend es un costo fijo de 40 a 100 s por cada `pytest`. Solo importar la app tarda unos 18 s, y a eso se suman el subproceso de `alembic` y la migración desde cero. Hay dos opciones: excluir del antivirus el repo y la caché de `uv` (decisión de cada uno en su máquina), o un ticket para no volver a migrar si la base ya está en `head`.
+
 ## 26/10/26 — Nahuel (Claude Opus 5.5) — cierre de M1: review de Codex y arreglos
 - **Pedido de review de M1** para Codex (`85cf59a`). Codex marcó 3 hallazgos y los 3 se confirmaron en el código (triage en `06-Desarrollo/Reviews/M1 — review Codex.md`, `f582c4b`).
 - **H-01** (bloqueante): en la web, cambiar de destino dejaba abierta la baja o la edición de un requisito del destino anterior. PR [#93](https://github.com/FranLuciano04/Vault-Rumbo/pull/93), mergeado.

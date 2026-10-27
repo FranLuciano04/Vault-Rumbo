@@ -1,6 +1,6 @@
 import "@testing-library/jest-dom/vitest";
 import { configure } from "@testing-library/react";
 
-// Con la máquina cargada (varias suites o agentes a la vez), el primer render de una pantalla
-// puede tardar más que el segundo por defecto de `waitFor`/`findBy*`, y el test falla al azar.
-configure({ asyncUtilTimeout: 3000 });
+// Los findBy y waitFor esperan 1 s por defecto: con la suite completa en paralelo, la máquina se
+// satura y fallaban casos distintos en cada corrida, aunque solos pasaran.
+configure({ asyncUtilTimeout: 5_000 });
