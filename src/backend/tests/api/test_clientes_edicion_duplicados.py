@@ -131,9 +131,7 @@ async def test_rf003_reenviar_el_mismo_nombre_escrito_distinto_no_es_duplicado(
 async def test_rf003_reenviar_el_mismo_telefono_en_otro_formato_no_es_duplicado(
     cliente_como: FabricaCliente, sesion: AsyncSession, nuevo: str
 ) -> None:
-    propio = await crear(
-        sesion, ClienteFactory, nombre="Ana Pérez", contacto="+54 9 11 5555-1234"
-    )
+    propio = await crear(sesion, ClienteFactory, nombre="Ana Pérez", contacto="+54 9 11 5555-1234")
     c = await cliente_como("empleado")
 
     r = await c.patch(f"/api/clientes/{propio.id}", json={"contacto": nuevo})
@@ -228,7 +226,7 @@ async def test_rf007_un_duplicado_ya_confirmado_puede_reenviar_sus_mismos_nombre
 # --- 5. confirmar_duplicado ------------------------------------------------------------------
 
 
-async def test_rf003_confirmar_duplicado_guarda_el_contacto_repetido_y_no_lo_persiste_ni_lo_devuelve(
+async def test_rf003_confirmar_duplicado_guarda_el_contacto_repetido_sin_guardar_la_bandera(
     cliente_como: FabricaCliente, sesion: AsyncSession
 ) -> None:
     await crear(sesion, ClienteFactory, nombre="Ana Pérez", contacto="ana@mail.test")

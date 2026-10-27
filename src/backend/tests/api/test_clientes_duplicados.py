@@ -384,9 +384,7 @@ async def test_rf003_un_alta_y_una_edicion_simultaneas_al_mismo_contacto_dan_un_
         ):
             r_alta, r_patch = await asyncio.gather(
                 c1.post("/api/clientes", json=_cuerpo("Carrera Alta")),
-                c2.patch(
-                    f"/api/clientes/{existente_id}", json={"contacto": CONTACTO_CARRERA}
-                ),
+                c2.patch(f"/api/clientes/{existente_id}", json={"contacto": CONTACTO_CARRERA}),
             )
 
         statuses = sorted([r_alta.status_code, r_patch.status_code])
