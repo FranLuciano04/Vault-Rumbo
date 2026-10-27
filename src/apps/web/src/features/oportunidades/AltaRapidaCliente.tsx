@@ -111,6 +111,7 @@ export function AltaRapidaCliente({
           alConfirmar={() => {
             guardarConDatos(true);
           }}
+          alElegir={alCrear}
         />
       )}
       <div className="flex gap-2">

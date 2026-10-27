@@ -30,8 +30,8 @@ const CLASE_TEXTAREA =
 const estaAbierta = ({ estado }: Oportunidad) => estado !== "ganada" && estado !== "perdida";
 
 /**
- * Trae las oportunidades abiertas del cliente elegido (RF-012) y se las pasa a `children`
- * mientras carga (`null`) y cuando llegan; si no se pueden traer, se registra sin aviso.
+ * Trae las oportunidades abiertas del cliente elegido (RF-012), un pedido por estado abierto, y
+ * se las pasa a `children`: `null` mientras carga y `fallo` si no se pudieron comprobar.
  */
 function ConOportunidadesAbiertas({
   cliente,
@@ -40,10 +40,22 @@ function ConOportunidadesAbiertas({
 }: {
   cliente: AxiosInstance;
   clienteId: string;
-  children: (abiertas: Oportunidad[] | null) => ReactNode;
+  children: (abiertas: Oportunidad[] | null, fallo: boolean) => ReactNode;
 }) {
-  const { data, isPending } = useOportunidades(cliente, { cliente_id: clienteId });
-  return children(isPending ? null : (data?.items.filter(estaAbierta) ?? []));
+  const consultas = [
+    useOportunidades(cliente, { cliente_id: clienteId, estado: "nueva" }),
+    useOportunidades(cliente, { cliente_id: clienteId, estado: "en_gestion" }),
+    useOportunidades(cliente, { cliente_id: clienteId, estado: "cotizada" }),
+  ];
+  if (consultas.some((c) => c.isError)) return children([], true);
+  if (consultas.some((c) => c.isPending)) return children(null, false);
+  const porId = new Map(
+    consultas
+      .flatMap((c) => c.data?.items ?? [])
+      .filter(estaAbierta)
+      .map((o) => [o.id, o]),
+  );
+  return children([...porId.values()], false);
 }
 
 /**
@@ -93,7 +105,7 @@ export function NuevaConsulta({ cliente }: { cliente: AxiosInstance; usuario: Us
     }
   }
 
-  const acciones = (abiertas: Oportunidad[] | null) => {
+  const acciones = (abiertas: Oportunidad[] | null, fallo = false) => {
     const conAviso = abiertas !== null && abiertas.length > 0;
     return (
       <>
@@ -103,6 +115,16 @@ export function NuevaConsulta({ cliente }: { cliente: AxiosInstance; usuario: Us
             enviando={registrar.isPending}
             alRegistrarIgual={() => void formulario.handleSubmit(enviar)()}
           />
+        )}
+        {abiertas === null && (
+          <p role="status" className="text-sm text-muted-foreground">
+            Comprobando oportunidades abiertas…
+          </p>
+        )}
+        {fallo && (
+          <p role="status" className="text-sm text-muted-foreground">
+            No pudimos comprobar si tiene oportunidades abiertas.
+          </p>
         )}
         {error && (
           <p role="alert" className="text-sm font-medium text-destructive">

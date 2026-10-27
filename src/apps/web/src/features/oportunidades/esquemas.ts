@@ -1,4 +1,4 @@
-import { ETIQUETA_MOTIVO_PERDIDA, type MotivoPerdida } from "@rumbo/shared";
+import { ETIQUETA_MOTIVO_PERDIDA, type CanalOportunidad, type MotivoPerdida } from "@rumbo/shared";
 import { z } from "zod";
 
 /** Interacción nueva de la línea de tiempo (RF-014): solo el texto; la fecha y el nombre los pone la pantalla. */
@@ -25,7 +25,11 @@ export const esquemaPerder = z
     message: "Contanos el motivo.",
   });
 
-const CANALES = ["instagram", "whatsapp", "presencial"] as const;
+const CANALES = [
+  "instagram",
+  "whatsapp",
+  "presencial",
+] as const satisfies readonly CanalOportunidad[];
 
 /** Consulta nueva (RF-010, RF-013): cliente, canal, destino y pasajeros son obligatorios; fechas y notas, no. */
 export const esquemaConsulta = z

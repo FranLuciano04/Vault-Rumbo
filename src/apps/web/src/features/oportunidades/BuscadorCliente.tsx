@@ -5,7 +5,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ResultadosClientes } from "@/features/alertas/AsociarCliente";
+import { ResultadosClientes } from "@/features/clientes/ResultadosClientes";
 import { AltaRapidaCliente } from "./AltaRapidaCliente";
 
 export interface ClienteElegido {
@@ -67,15 +67,7 @@ export function BuscadorCliente({
               setTexto(e.target.value);
             }}
           />
-          {buscar && (
-            <ResultadosClientes
-              cliente={cliente}
-              buscar={buscar}
-              alElegir={({ id, etiqueta }) => {
-                alElegir({ id, nombre: etiqueta });
-              }}
-            />
-          )}
+          {buscar && <ResultadosClientes cliente={cliente} buscar={buscar} alElegir={alElegir} />}
           {!conAlta && (
             <div>
               <Button

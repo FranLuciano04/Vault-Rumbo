@@ -477,3 +477,40 @@ describe("RF-013 datos mínimos (A3)", () => {
     expect(cuerpos).toHaveLength(0);
   });
 });
+
+describe("RF-004 usar el cliente duplicado (A1)", () => {
+  it("RF-004 «Usar este cliente» deja elegido al existente y la consulta lo lleva", async () => {
+    const consultas: Record<string, unknown>[] = [];
+    servidor.use(
+      sinOportunidades,
+      altaCapturada(consultas),
+      http.post("*/api/clientes", () =>
+        HttpResponse.json(
+          {
+            title: "Conflicto",
+            status: 409,
+            detail: "Ya existe un cliente con ese contacto.",
+            duplicados: [sosa],
+          },
+          { status: 409, headers: { "content-type": "application/problem+json" } },
+        ),
+      ),
+    );
+    const usuario = userEvent.setup();
+    renderConsulta();
+    await usuario.click(await screen.findByRole("button", { name: /crear cliente nuevo/i }));
+    await usuario.type(await screen.findByRole("textbox", { name: /^nombre/i }), "Sosa");
+    await usuario.type(screen.getByRole("textbox", { name: /^contacto/i }), sosa.contacto);
+    await usuario.click(screen.getByRole("button", { name: /guardar cliente/i }));
+
+    await usuario.click(await screen.findByRole("button", { name: /usar este cliente/i }));
+
+    expect(await screen.findByRole("button", { name: /cambiar cliente/i })).toBeInTheDocument();
+    await completarConsulta(usuario);
+    await usuario.click(registrar());
+    await waitFor(() => {
+      expect(consultas).toHaveLength(1);
+    });
+    expect(consultas[0]?.["cliente_id"]).toBe(sosa.id);
+  });
+});
