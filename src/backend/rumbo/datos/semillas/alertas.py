@@ -5,7 +5,7 @@ from datetime import timedelta
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from rumbo.core.fechas import hoy
-from rumbo.datos.modelos import Alerta, EstadoAlerta, TipoAlerta
+from rumbo.datos.modelos import Alerta, EstadoAlerta, RolUsuario, TipoAlerta
 from rumbo.datos.repositorios.alertas import RepositorioAlertas
 from rumbo.datos.repositorios.clientes import RepositorioClientes
 from rumbo.datos.repositorios.seguridad import RepositorioUsuarios
@@ -46,7 +46,8 @@ async def sembrar_alertas(sesion: AsyncSession) -> None:
     """Carga los recordatorios de demo, idempotente. Corre después de la de clientes, de la que
     toma los clientes, y de la configuración, de la que toma los responsables. Las fechas se
     calculan respecto del día en que corre y quedan fijas: volver a correrla no las renueva,
-    porque así no pisa lo que hizo la agencia."""
+    porque así no pisa lo que hizo la agencia. Como en RF-151, un responsable freelance solo
+    asocia clientes de los que es el asesor; si no, el recordatorio se crea sin cliente."""
     for descripcion, dias, email, contacto in _RECORDATORIOS:
         responsable = await _usuarios.buscar_por_email(sesion, email)
         if responsable is None:
@@ -57,7 +58,10 @@ async def sembrar_alertas(sesion: AsyncSession) -> None:
             continue
         cliente = None
         if contacto:
-            cliente = await _clientes.buscar_por_contacto(sesion, contacto=contacto)
+            propios = responsable.id if responsable.rol is RolUsuario.freelance else None
+            cliente = await _clientes.buscar_por_contacto(
+                sesion, contacto=contacto, asesor_id=propios
+            )
         sesion.add(
             Alerta(
                 propietario_id=responsable.id,

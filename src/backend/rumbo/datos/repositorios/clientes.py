@@ -81,10 +81,15 @@ class RepositorioClientes(RepositorioBase[Cliente]):
         consulta = select(exists().where(Cliente.contacto_clave == clave_contacto(contacto)))
         return bool(await sesion.scalar(consulta))
 
-    async def buscar_por_contacto(self, sesion: AsyncSession, *, contacto: str) -> Cliente | None:
-        """El `Cliente` más antiguo con ese contacto (misma clave canónica que `existe_contacto`),
-        o `None`. Sin filtro de visibilidad: solo para semillas y chequeos internos."""
+    async def buscar_por_contacto(
+        self, sesion: AsyncSession, *, contacto: str, asesor_id: uuid.UUID | None
+    ) -> Cliente | None:
+        """El `Cliente` más antiguo con ese contacto (misma clave canónica que `existe_contacto`)
+        o `None`; con `asesor_id`, solo si está asignado a ese asesor. Sin filtro de visibilidad:
+        solo para semillas."""
         consulta = select(Cliente).where(Cliente.contacto_clave == clave_contacto(contacto))
+        if asesor_id is not None:
+            consulta = consulta.where(Cliente.asesor_asignado_id == asesor_id)
         return await sesion.scalar(consulta.order_by(Cliente.created_at, Cliente.id).limit(1))
 
     async def bloquear_alta(self, sesion: AsyncSession, *, nombre: str, contacto: str) -> None:
