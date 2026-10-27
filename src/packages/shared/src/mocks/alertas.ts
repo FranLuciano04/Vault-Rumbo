@@ -1,12 +1,13 @@
 import { http, HttpResponse, type RequestHandler } from "msw";
 import type { Alerta, AlertaCrear, AlertaEditar, AlertaPosponer, ProgresoDelDia } from "../modelos";
 import { respuestaProblema } from "./problema";
+import { type RolMock, usuariosPorRol } from "./usuarios";
 
 /** El «hoy» de la agenda ficticia, `aaaa-mm-dd`. */
 export const HOY_MOCK = "2026-10-25";
 
-/** Ana Pérez, la empleada de `usuariosPorRol`; no se importa de ahí porque `index` carga este archivo. */
-const propietario_id = "a1c4e7f0-3d58-4b92-b6a3-8f0e2d1c4b03";
+/** Ana Pérez, la empleada de `usuariosPorRol`. */
+const propietario_id = usuariosPorRol.empleado.id;
 const sinOrigen = {
   viaje_id: null,
   pago_id: null,
@@ -22,10 +23,10 @@ const auditoria = {
 };
 const abierta = { resuelta_en: null, cerrada_por_cancelacion: false };
 
-/** Tomás Roldán, el `freelance` de `usuariosPorRol` (mismo motivo que arriba). */
-const otro_propietario_id = "e7b20d94-6a3f-4c15-9d8e-0b5a3f7c2e04";
-const ana = { id: propietario_id, nombre: "Ana Pérez" };
-const tomas = { id: otro_propietario_id, nombre: "Tomás Roldán" };
+/** Tomás Roldán, el `freelance` de `usuariosPorRol`. */
+const otro_propietario_id = usuariosPorRol.freelance.id;
+const ana = { id: propietario_id, nombre: usuariosPorRol.empleado.nombre };
+const tomas = { id: otro_propietario_id, nombre: usuariosPorRol.freelance.nombre };
 
 const camila = { id: "3c1f6d2e-8a47-4b19-9e53-7d0a2b4c6e11", nombre: "Camila Benítez" };
 const joaquin = { id: "d4a8c6e2-5f19-4073-8b3a-2e1c9d7f0b33", nombre: "Joaquín Ramos" };
@@ -226,9 +227,9 @@ export const alertasAjenasMock: Alerta[] = [
 ];
 
 /** Resueltas hoy sobre el total del día (las resueltas hoy más las que vencen hasta hoy). */
-export function progresoMock(): ProgresoDelDia {
-  const resueltas = alertasMock.filter((a) => a.estado === "resuelta").length;
-  const pendientes = alertasMock.filter((a) => a.estado !== "resuelta" && a.fecha <= HOY_MOCK);
+export function progresoMock(alertas: Alerta[] = alertasMock): ProgresoDelDia {
+  const resueltas = alertas.filter((a) => a.estado === "resuelta").length;
+  const pendientes = alertas.filter((a) => a.estado !== "resuelta" && a.fecha <= HOY_MOCK);
   return { resueltas_hoy: resueltas, total_del_dia: resueltas + pendientes.length };
 }
 
@@ -246,123 +247,171 @@ function transicionInvalida(alerta: Alerta, accion: string) {
   });
 }
 
-/** Handlers MSW de las rutas de `/api/alertas` (CU-14, CU-28, CU-30). */
-export const manejadoresAlertas: RequestHandler[] = [
-  http.get(BASE, ({ request }) => {
-    const url = new URL(request.url);
-    const estado = url.searchParams.get("estado");
-    const tipo = url.searchParams.get("tipo");
-    const proximas = url.searchParams.get("proximas") === "true";
-    const desdeFecha = url.searchParams.get("desde");
-    const hasta = url.searchParams.get("hasta");
-    const pagina = Number(url.searchParams.get("pagina") ?? 1);
-    const porPagina = Number(url.searchParams.get("por_pagina") ?? 20);
-    const propietario = url.searchParams.get("propietario_id");
-    const agenda = propietario ? [...alertasMock, ...alertasAjenasMock] : alertasMock;
-    const filtradas = agenda.filter(
-      (a) =>
-        (!propietario || a.propietario_id === propietario) &&
-        a.estado === (estado ?? "pendiente") &&
-        (!tipo || a.tipo === tipo) &&
-        (proximas ? a.fecha > HOY_MOCK : a.fecha <= HOY_MOCK) &&
-        (!desdeFecha || a.fecha >= desdeFecha) &&
-        (!hasta || a.fecha <= hasta),
-    );
-    const desde = (pagina - 1) * porPagina;
-    return HttpResponse.json({
-      items: filtradas.slice(desde, desde + porPagina),
-      total: filtradas.length,
-      pagina,
-      por_pagina: porPagina,
-    });
-  }),
+/** Quién llama: su identidad y qué alcanza de la agenda ajena (RF-078, DEC-0005). */
+type ActorMock = {
+  id: string;
+  nombre: string;
+  /** Atiende (detalle, vista, resolver, posponer) las alertas de otros: admin y dueño. */
+  atiendeAjenas: boolean;
+  /** Respeta `propietario_id` en el listado; si no, lista solo las propias. */
+  listaAjenas: boolean;
+  /** Sin `propietario_id`, el listado abarca toda la agencia en vez de la agenda propia. */
+  veAgencia: boolean;
+};
 
-  http.post(BASE, async ({ request }) => {
-    const datos = (await request.json()) as AlertaCrear;
-    const asociadas = [datos.viaje_id, datos.cliente_id, datos.oportunidad_id].filter(Boolean);
-    if (asociadas.length > 1) {
-      return respuestaProblema(422, "Datos inválidos", {
-        detail: "Asociá el recordatorio a una sola entidad.",
+const alertasDelBackend = () => [...alertasMock, ...alertasAjenasMock];
+
+/** Handlers MSW de las rutas de `/api/alertas` (CU-14, CU-28, CU-30) para el actor dado. */
+function manejadoresDe(actor: ActorMock): RequestHandler[] {
+  const alcanzables = () =>
+    alertasDelBackend().filter((a) => actor.atiendeAjenas || a.propietario_id === actor.id);
+  const visible = (id: unknown) => alcanzables().find((a) => a.id === id);
+  return [
+    http.get(BASE, ({ request }) => {
+      const url = new URL(request.url);
+      const estado = url.searchParams.get("estado");
+      const tipo = url.searchParams.get("tipo");
+      const proximas = url.searchParams.get("proximas") === "true";
+      const desdeFecha = url.searchParams.get("desde");
+      const hasta = url.searchParams.get("hasta");
+      const pagina = Number(url.searchParams.get("pagina") ?? 1);
+      const porPagina = Number(url.searchParams.get("por_pagina") ?? 20);
+      const pedido = actor.listaAjenas ? url.searchParams.get("propietario_id") : null;
+      const propietario = pedido ?? (actor.veAgencia ? null : actor.id);
+      const filtradas = alertasDelBackend().filter(
+        (a) =>
+          (!propietario || a.propietario_id === propietario) &&
+          a.estado === (estado ?? "pendiente") &&
+          (!tipo || a.tipo === tipo) &&
+          (proximas ? a.fecha > HOY_MOCK : a.fecha <= HOY_MOCK) &&
+          (!desdeFecha || a.fecha >= desdeFecha) &&
+          (!hasta || a.fecha <= hasta),
+      );
+      const desde = (pagina - 1) * porPagina;
+      return HttpResponse.json({
+        items: filtradas.slice(desde, desde + porPagina),
+        total: filtradas.length,
+        pagina,
+        por_pagina: porPagina,
       });
-    }
-    const ahora = new Date().toISOString();
-    const nueva: Alerta = {
-      ...sinOrigen,
-      ...abierta,
-      responsable: ana,
-      contexto: sinContexto,
-      id: crypto.randomUUID(),
-      propietario_id,
-      tipo: "manual",
-      descripcion: datos.descripcion,
-      fecha: datos.fecha,
-      estado: "pendiente",
-      viaje_id: datos.viaje_id ?? null,
-      cliente_id: datos.cliente_id ?? null,
-      oportunidad_id: datos.oportunidad_id ?? null,
-      created_by: propietario_id,
-      updated_by: propietario_id,
-      created_at: ahora,
-      updated_at: ahora,
-    };
-    return HttpResponse.json(nueva, { status: 201 });
-  }),
+    }),
 
-  // Antes que `/:id`: si no, «progreso-del-dia» se leería como un id.
-  http.get(`${BASE}/progreso-del-dia`, () => HttpResponse.json(progresoMock())),
+    http.post(BASE, async ({ request }) => {
+      const datos = (await request.json()) as AlertaCrear;
+      const asociadas = [datos.viaje_id, datos.cliente_id, datos.oportunidad_id].filter(Boolean);
+      if (asociadas.length > 1) {
+        return respuestaProblema(422, "Datos inválidos", {
+          detail: "Asociá el recordatorio a una sola entidad.",
+        });
+      }
+      const ahora = new Date().toISOString();
+      const nueva: Alerta = {
+        ...sinOrigen,
+        ...abierta,
+        responsable: { id: actor.id, nombre: actor.nombre },
+        contexto: sinContexto,
+        id: crypto.randomUUID(),
+        propietario_id: actor.id,
+        tipo: "manual",
+        descripcion: datos.descripcion,
+        fecha: datos.fecha,
+        estado: "pendiente",
+        viaje_id: datos.viaje_id ?? null,
+        cliente_id: datos.cliente_id ?? null,
+        oportunidad_id: datos.oportunidad_id ?? null,
+        created_by: actor.id,
+        updated_by: actor.id,
+        created_at: ahora,
+        updated_at: ahora,
+      };
+      return HttpResponse.json(nueva, { status: 201 });
+    }),
 
-  http.get(`${BASE}/:id`, ({ params }) => {
-    const alerta = alertasMock.find((a) => a.id === params["id"]);
-    return alerta ? HttpResponse.json(alerta) : noEncontrada();
-  }),
+    // Antes que `/:id`: si no, «progreso-del-dia» se leería como un id.
+    http.get(`${BASE}/progreso-del-dia`, () => HttpResponse.json(progresoMock(alcanzables()))),
 
-  http.patch(`${BASE}/:id`, async ({ params, request }) => {
-    const alerta = alertasMock.find((a) => a.id === params["id"]);
-    if (!alerta) return noEncontrada();
-    if (alerta.tipo !== "manual") {
-      return respuestaProblema(409, "Conflicto", {
-        detail: "Solo se edita un recordatorio manual, no una alerta automática.",
+    http.get(`${BASE}/:id`, ({ params }) => {
+      const alerta = visible(params["id"]);
+      return alerta ? HttpResponse.json(alerta) : noEncontrada();
+    }),
+
+    http.patch(`${BASE}/:id`, async ({ params, request }) => {
+      const alerta = visible(params["id"]);
+      if (!alerta) return noEncontrada();
+      if (alerta.propietario_id !== actor.id) {
+        return respuestaProblema(403, "Sin permiso", {
+          detail: "No podés modificar este registro",
+        });
+      }
+      if (alerta.tipo !== "manual") {
+        return respuestaProblema(409, "Conflicto", {
+          detail: "Solo se edita un recordatorio manual, no una alerta automática.",
+        });
+      }
+      if (alerta.estado !== "pendiente") return transicionInvalida(alerta, "editar");
+      return HttpResponse.json({ ...alerta, ...((await request.json()) as AlertaEditar) });
+    }),
+
+    http.post(`${BASE}/:id/vista`, ({ params }) => {
+      const alerta = visible(params["id"]);
+      if (!alerta) return noEncontrada();
+      return alerta.estado === "pendiente"
+        ? HttpResponse.json({ ...alerta, estado: "vista" })
+        : transicionInvalida(alerta, "marcar como vista");
+    }),
+
+    http.post(`${BASE}/:id/resolver`, ({ params }) => {
+      const alerta = visible(params["id"]);
+      if (!alerta) return noEncontrada();
+      // El pago se resuelve al cobrar, no a mano (CU-14 A2).
+      if (alerta.tipo === "pago") {
+        const cuando = alerta.viaje_hotel_id
+          ? "al registrar el pago al proveedor"
+          : "al cobrar el pago";
+        return respuestaProblema(409, "Conflicto", {
+          detail: `Una alerta de pago no se resuelve a mano: se resuelve ${cuando}.`,
+        });
+      }
+      if (alerta.estado === "resuelta") return transicionInvalida(alerta, "resolver");
+      return HttpResponse.json({
+        ...alerta,
+        estado: "resuelta",
+        resuelta_en: new Date().toISOString(),
       });
-    }
-    if (alerta.estado !== "pendiente") return transicionInvalida(alerta, "editar");
-    return HttpResponse.json({ ...alerta, ...((await request.json()) as AlertaEditar) });
-  }),
+    }),
 
-  http.post(`${BASE}/:id/vista`, ({ params }) => {
-    const alerta = alertasMock.find((a) => a.id === params["id"]);
-    if (!alerta) return noEncontrada();
-    return alerta.estado === "pendiente"
-      ? HttpResponse.json({ ...alerta, estado: "vista" })
-      : transicionInvalida(alerta, "marcar como vista");
-  }),
+    http.post(`${BASE}/:id/posponer`, async ({ params, request }) => {
+      const alerta = visible(params["id"]);
+      if (!alerta) return noEncontrada();
+      if (alerta.estado !== "pendiente") return transicionInvalida(alerta, "posponer");
+      const { fecha } = (await request.json()) as AlertaPosponer;
+      if (fecha <= (alerta.fecha > HOY_MOCK ? alerta.fecha : HOY_MOCK)) {
+        return respuestaProblema(422, "Datos inválidos", {
+          detail: "La nueva fecha tiene que ser posterior a hoy y a la actual.",
+        });
+      }
+      return HttpResponse.json({ ...alerta, fecha });
+    }),
+  ];
+}
 
-  http.post(`${BASE}/:id/resolver`, ({ params }) => {
-    const alerta = alertasMock.find((a) => a.id === params["id"]);
-    if (!alerta) return noEncontrada();
-    if (alerta.estado === "resuelta") return transicionInvalida(alerta, "resolver");
-    // El pago se resuelve al registrar el cobro, no a mano (CU-14 A2).
-    if (alerta.tipo === "pago") {
-      return respuestaProblema(409, "Conflicto", {
-        detail: "La alerta de un pago se resuelve al registrar el cobro.",
-      });
-    }
-    return HttpResponse.json({
-      ...alerta,
-      estado: "resuelta",
-      resuelta_en: new Date().toISOString(),
-    });
-  }),
+/** Handlers de Ana Pérez, la empleada de la agenda ficticia; su `propietario_id` abre el listado ajeno. */
+export const manejadoresAlertas: RequestHandler[] = manejadoresDe({
+  ...ana,
+  atiendeAjenas: false,
+  listaAjenas: true,
+  veAgencia: false,
+});
 
-  http.post(`${BASE}/:id/posponer`, async ({ params, request }) => {
-    const alerta = alertasMock.find((a) => a.id === params["id"]);
-    if (!alerta) return noEncontrada();
-    if (alerta.estado !== "pendiente") return transicionInvalida(alerta, "posponer");
-    const { fecha } = (await request.json()) as AlertaPosponer;
-    if (fecha <= (alerta.fecha > HOY_MOCK ? alerta.fecha : HOY_MOCK)) {
-      return respuestaProblema(422, "Datos inválidos", {
-        detail: "La nueva fecha tiene que ser posterior a hoy y a la actual.",
-      });
-    }
-    return HttpResponse.json({ ...alerta, fecha });
-  }),
-];
+/** Handlers según el rol del actor, con la matriz de permisos del backend (RF-078, CU-28 A2). */
+export function manejadoresAlertasPara(rol: RolMock): RequestHandler[] {
+  const direccion = rol === "admin" || rol === "dueno";
+  const { id, nombre } = usuariosPorRol[rol];
+  return manejadoresDe({
+    id,
+    nombre,
+    atiendeAjenas: direccion,
+    listaAjenas: direccion,
+    veAgencia: direccion,
+  });
+}
