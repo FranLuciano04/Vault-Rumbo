@@ -3,7 +3,7 @@ id: T-066
 titulo: Emitir cotizaciones versionadas con su vigencia
 modulo: M4 — Oportunidades y cotizaciones
 capa: backend
-estado: tomado
+estado: hecho
 depende_de: [T-064, T-029]
 tamaño: M
 riesgo: alto
@@ -48,3 +48,16 @@ Desde una oportunidad se emite una cotización desde la plantilla, con su vigenc
 - El PDF (ticket propio) y el vencimiento automático (M7).
 
 ## Notas de implementación
+- **Criterios corregidos (Nahuel, 27/10/26):** el ticket decía que la oportunidad pasaba a `cotizada` al emitir, lo que contradecía RF-023 y EST-Cotización T2 / EST-Oportunidad T3. Ahora pasa recién al marcar `enviada` (T-067). CU-06 ya era coherente: el paso 5 va después del 4. Además, no se agrega un campo de número de versión: la vigente es la de `fecha` más reciente.
+- **Implementación:**
+  - Regla en `negocio/estados/cotizacion.py` (`emitir`, T1) y servicio en `servicios/oportunidades.py` (`emitir_cotizacion`, con `FOR UPDATE` sobre la oportunidad).
+  - `exigir_abierta` en `estados/oportunidad.py` responde 409 si la oportunidad está `ganada` o `perdida`.
+  - `sumar_meses` en `core/fechas.py`, reutilizable en M7: si el día no existe en el mes de llegada, recorta a fin de mes.
+  - Los precios se guardan en el JSONB como texto decimal.
+- **Tests:**
+  - Hubo un segundo commit de tests (`bfbf880`) que saca el endpoint de `IMPLEMENTADAS`/`OPERACIONES_STUB` en `test_contrato_m4.py`, como en T-063 y T-064.
+  - En el fix se autorizó agregar un test nuevo (`--tocar-tests`).
+- **Review (seguridad, sin bloqueantes):**
+  - Arreglado: un total que desborda `Numeric(14,2)` daba 500 y ahora da 422.
+  - Quedan como menores: (1) `vigencia_cotizacion_meses` no tiene tope y un valor enorme haría fallar `sumar_meses` con 500; corresponde a la configuración. (2) Dos versiones del mismo día empatan por `fecha`; T-067 y el listado de versiones deberían desempatar por `created_at`.
+- **Modelos:** tests con sonnet; verde, refactor y fix con opus; review con sonnet. Sin escalados.
