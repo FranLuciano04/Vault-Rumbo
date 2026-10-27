@@ -183,6 +183,7 @@ class RepositorioAlertas(RepositorioBase[Alerta]):
         desde: date | None,
         hasta: date | None,
         propietario_id: uuid.UUID | None,
+        oportunidad_id: uuid.UUID | None,
         desplazamiento: int,
         limite: int,
         visibilidad: Visibilidad,
@@ -199,6 +200,8 @@ class RepositorioAlertas(RepositorioBase[Alerta]):
             consulta = consulta.where(Alerta.fecha <= hasta)
         if propietario_id is not None:
             consulta = consulta.where(Alerta.propietario_id == propietario_id)
+        if oportunidad_id is not None:
+            consulta = consulta.where(Alerta.oportunidad_id == oportunidad_id)
         total = await sesion.scalar(select(func.count()).select_from(consulta.subquery()))
         pagina = consulta.order_by(Alerta.fecha, Alerta.id)
         filas = await sesion.scalars(pagina.offset(desplazamiento).limit(limite))

@@ -42,6 +42,7 @@ async def listar_agenda(
     desde: date | None,
     hasta: date | None,
     propietario_id: uuid.UUID | None,
+    oportunidad_id: uuid.UUID | None,
     desplazamiento: int,
     limite: int,
 ) -> tuple[list[tuple[Alerta, ContextoDeAlerta]], int]:
@@ -65,6 +66,7 @@ async def listar_agenda(
         desde=desde,
         hasta=hasta,
         propietario_id=propietario_id,
+        oportunidad_id=oportunidad_id,
         desplazamiento=desplazamiento,
         limite=limite,
         visibilidad=vista,

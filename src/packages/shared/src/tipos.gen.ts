@@ -4799,6 +4799,8 @@ export interface operations {
                 proximas?: boolean;
                 /** @description Agenda de un responsable: solo admin y dueño (CU-14 A1); para el resto se ignora. */
                 propietario_id?: string | null;
+                /** @description Solo las alertas cuyo origen es esta `Oportunidad` (RF-015). */
+                oportunidad_id?: string | null;
                 pagina?: number;
                 por_pagina?: number;
             };
