@@ -12,7 +12,8 @@
 //   hecho <T-NNN>           Marca el ticket como hecho (se corre en la rama del ticket, antes del PR).
 //   fase <T-NNN> <rojo|verde|refactor|fix|hecho> [mensaje] [--test "<cmd>"] [--tocar-tests]
 //                           En la rama del ticket: corre los tests (fallan en el rojo, pasan en el resto),
-//                           verifica que sigan como en el rojo, commitea y sube.
+//                           verifica que sigan como en el rojo, commitea y sube. En una rama fix/…
+//                           sin ticket (DEC-0019), se pasa la rama en lugar del ticket.
 //   publicar-grafo          En main: regenera el grafo y lo sube (después de mergear un PR).
 //   modulo <MN>             Estado de un módulo y los merges de sus tickets (para la review de Codex).
 
@@ -399,9 +400,14 @@ function fase(id, nombre, resto) {
   const resto2 = iTest >= 0 ? [...resto.slice(0, iTest), ...resto.slice(iTest + 2)] : resto;
   const tocarTests = resto2.includes('--tocar-tests');
   const mensaje = resto2.filter(a => a !== '--tocar-tests').join(' ').trim();
-  const t = buscar(cargarTickets(), id);
+  // Una rama fix/… arregla una falla sin ticket (DEC-0019): la rama es el identificador y los commits
+  // siguen la convención «test(fix): …» y «fix: …».
+  const esFix = id?.startsWith('fix/');
+  const t = esFix ? { rama: id, capa: null } : buscar(cargarTickets(), id);
   const rama = gitOk(['rev-parse', '--abbrev-ref', 'HEAD']);
-  if (rama !== t.rama) throw new Error(`Esto se corre en la rama del ticket (${t.rama}); estás en ${rama}.`);
+  if (rama !== t.rama) throw new Error(`Esto se corre en la rama ${esFix ? '' : 'del ticket '}(${t.rama}); estás en ${rama}.`);
+  if (esFix && nombre === 'hecho') throw new Error('Una rama fix/ no tiene ticket que marcar como hecho: abrí el PR.');
+  const alcance = esFix ? 'fix' : id;
 
   if (nombre === 'hecho') {
     fs.writeFileSync(t.archivo, setCampo(fs.readFileSync(t.archivo, 'utf8'), 'estado', 'hecho'));
@@ -412,7 +418,7 @@ function fase(id, nombre, resto) {
     if (comandoTest) correrTests(comandoTest, nombre);
     if (nombre !== 'rojo') {
       // La base es el último commit que fijó los tests: el rojo o un fix autorizado a tocarlos.
-      const rojo = git(['log', '--format=%H', `--grep=^test(${id}):`, '--grep=^Tests-autorizados: sí', 'origin/main..HEAD']).out.split(/\r?\n/)[0];
+      const rojo = git(['log', '--format=%H', `--grep=^test(${alcance}):`, '--grep=^Tests-autorizados: sí', 'origin/main..HEAD']).out.split(/\r?\n/)[0];
       if (rojo) {
         const cambiados = new Set([
           ...git(['diff', '--name-only', rojo, 'HEAD']).out.split(/\r?\n/),
@@ -427,7 +433,8 @@ function fase(id, nombre, resto) {
     gitOk(AGREGAR);
     if (!git(['diff', '--cached', '--quiet']).code) { console.log(`Sin cambios en la fase ${nombre}: no hay commit.`); return; }
     const tipo = nombre === 'verde' && t.capa === 'infra' ? 'chore' : FASES[nombre];
-    gitOk(['commit', '-m', `${tipo}(${id}): ${mensaje}`, ...(tocarTests ? ['-m', 'Tests-autorizados: sí'] : [])]);
+    const encabezado = esFix && ['verde', 'fix'].includes(nombre) ? 'fix' : `${tipo}(${alcance})`;
+    gitOk(['commit', '-m', `${encabezado}: ${mensaje}`, ...(tocarTests ? ['-m', 'Tests-autorizados: sí'] : [])]);
   }
   const push = git(['push', '-u', 'origin', rama]);
   if (push.code !== 0) throw new Error(`El commit quedó local, pero el push falló:\n${push.err}`);
