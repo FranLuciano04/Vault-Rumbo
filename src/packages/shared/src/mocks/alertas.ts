@@ -1,5 +1,6 @@
 import { http, HttpResponse, type RequestHandler } from "msw";
 import type { Alerta, AlertaCrear, AlertaEditar, AlertaPosponer, ProgresoDelDia } from "../modelos";
+import type { RolMock } from "./index";
 import { respuestaProblema } from "./problema";
 
 /** El «hoy» de la agenda ficticia, `aaaa-mm-dd`. */
@@ -366,3 +367,8 @@ export const manejadoresAlertas: RequestHandler[] = [
     return HttpResponse.json({ ...alerta, fecha });
   }),
 ];
+
+/** STUB (rojo H-04): handlers según el rol del actor; todavía no considera al actor. */
+export function manejadoresAlertasPara(_rol: RolMock): RequestHandler[] {
+  return manejadoresAlertas;
+}

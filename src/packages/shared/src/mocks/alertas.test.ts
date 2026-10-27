@@ -1,8 +1,14 @@
 import { readFileSync } from "node:fs";
 import { afterAll, afterEach, beforeAll, describe, expect, it } from "vitest";
 import type { Alerta, TipoAlerta } from "../modelos";
-import { alertasAjenasMock, alertasMock, manejadoresAlertas, progresoMock } from "./alertas";
-import { crearServidor } from "./index";
+import {
+  alertasAjenasMock,
+  alertasMock,
+  manejadoresAlertas,
+  manejadoresAlertasPara,
+  progresoMock,
+} from "./alertas";
+import { crearServidor, type RolMock } from "./index";
 
 type Esquema = { required?: string[]; enum?: string[] };
 const contrato = JSON.parse(
@@ -200,5 +206,102 @@ describe("CU-14 acciones sobre una alerta (EST-Alerta)", () => {
     expect((await accion(futura.id, "posponer", { fecha: futura.fecha })).status).toBe(422);
     expect((await accion(vista.id, "posponer", { fecha: "2026-12-01" })).status).toBe(409);
     expect((await accion(resuelta.id, "posponer", { fecha: "2026-12-01" })).status).toBe(409);
+  });
+});
+
+// H-04 de M3: los handlers tienen que reproducir la matriz de permisos del backend (DEC-0005, DEC-0008).
+// En los mocks Ana (empleado) es la propietaria de `alertasMock` y Tomás (freelance) de `alertasAjenasMock`.
+describe("RF-078 permisos por actor en /api/alertas (CU-14 A1, CU-28 A2)", () => {
+  const ajenaDeAna = alertasAjenasMock.find(
+    (a) => a.tipo === "manual" && a.estado === "pendiente",
+  ) as Alerta;
+  const deAnaManual = manual;
+  const usar = (rol: RolMock) => servidor.use(...manejadoresAlertasPara(rol));
+  const editar = (id: string) =>
+    fetch(`${BASE}/${id}`, {
+      method: "PATCH",
+      headers: json,
+      body: JSON.stringify({ descripcion: "Nuevo texto" }),
+    });
+
+  it("RF-078 un empleado con propietario_id de otro recibe solo sus propias alertas", async () => {
+    usar("empleado");
+
+    const lista = await items(`?propietario_id=${ajenaDeAna.propietario_id}`);
+
+    expect(lista.length).toBeGreaterThan(0);
+    expect(lista.every((a) => a.propietario_id === pendiente.propietario_id)).toBe(true);
+  });
+
+  it("RF-078 un freelance con propietario_id de otro recibe solo sus propias alertas", async () => {
+    usar("freelance");
+
+    const lista = await items(`?propietario_id=${pendiente.propietario_id}&estado=pendiente`);
+
+    expect(lista.every((a) => a.propietario_id === ajenaDeAna.propietario_id)).toBe(true);
+  });
+
+  it("RF-078 admin y dueño con propietario_id ven la agenda de ese responsable", async () => {
+    for (const rol of ["admin", "dueno"] as const) {
+      usar(rol);
+
+      const lista = await items(`?propietario_id=${ajenaDeAna.propietario_id}`);
+
+      expect(lista.map((a) => a.id)).toContain(alertasAjenasMock[0]?.id);
+      expect(lista.every((a) => a.propietario_id === ajenaDeAna.propietario_id)).toBe(true);
+    }
+  });
+
+  it.each([
+    ["empleado", alertasAjenasMock[0]],
+    ["freelance", alertasMock[0]],
+  ] as const)("RF-078 %s recibe 404 en detalle, vista, resolver, posponer y editar de una ajena", async (rol, ajena) => {
+    usar(rol);
+    const id = (ajena as Alerta).id;
+
+    expect((await fetch(`${BASE}/${id}`)).status).toBe(404);
+    expect((await accion(id, "vista")).status).toBe(404);
+    expect((await accion(id, "resolver")).status).toBe(404);
+    expect((await accion(id, "posponer", { fecha: "2026-12-01" })).status).toBe(404);
+    expect((await editar(id)).status).toBe(404);
+  });
+
+  it("RF-078 un empleado sigue accediendo a sus propias alertas", async () => {
+    usar("empleado");
+
+    expect(await (await fetch(`${BASE}/${pendiente.id}`)).json()).toEqual(pendiente);
+    expect((await accion(pendiente.id, "vista")).status).toBe(200);
+  });
+
+  it.each(["admin", "dueno"] as const)(
+    "RF-078 %s ve el detalle y atiende (vista, resolver, posponer) una alerta ajena",
+    async (rol) => {
+      usar(rol);
+      const ajena = alertasAjenasMock[0] as Alerta;
+
+      expect(await (await fetch(`${BASE}/${ajena.id}`)).json()).toEqual(ajena);
+      expect((await accion(ajena.id, "vista")).status).toBe(200);
+      expect((await accion(ajena.id, "resolver")).status).toBe(200);
+      expect((await accion(ajena.id, "posponer", { fecha: "2026-12-01" })).status).toBe(200);
+    },
+  );
+
+  it.each(["admin", "dueno"] as const)(
+    "CU-28 A2 %s recibe 403 al editar un recordatorio ajeno",
+    async (rol) => {
+      usar(rol);
+
+      const res = await editar(ajenaDeAna.id);
+
+      expect(res.status).toBe(403);
+      expect(res.headers.get("content-type")).toContain("application/problem+json");
+    },
+  );
+
+  it("CU-28 A2 admin también recibe 403 al editar el recordatorio manual de la empleada", async () => {
+    usar("admin");
+
+    // Los recordatorios de `alertasMock` también son ajenos para el admin.
+    expect((await editar(deAnaManual.id)).status).toBe(403);
   });
 });
