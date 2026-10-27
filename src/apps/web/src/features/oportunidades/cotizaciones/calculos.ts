@@ -1,5 +1,6 @@
 const ESCALA = 10_000n;
-const IMPORTE = /^\d+([.,]\d{1,4})?$/;
+/** Importe de un ítem: decimal positivo con hasta 4 decimales; admite coma o punto. */
+export const IMPORTE = /^\d+([.,]\d{1,4})?$/;
 
 /** Importe como lo guarda la API: texto decimal con punto, sin float. */
 export const importeComoTexto = (valor: string) => valor.trim().replace(",", ".");
