@@ -8,6 +8,13 @@ export function hoyEnBuenosAires(): string {
   return new Intl.DateTimeFormat("sv-SE", { timeZone: ZONA }).format(new Date());
 }
 
+/** El día anterior a una fecha ISO (`aaaa-mm-dd`). */
+export function diaAnterior(fecha: string): string {
+  const d = new Date(`${fecha}T00:00:00Z`);
+  d.setUTCDate(d.getUTCDate() - 1);
+  return d.toISOString().slice(0, 10);
+}
+
 /** Días enteros que pasaron entre `fecha` y `hoy` (ambas `aaaa-mm-dd`). */
 export function diasDeAtraso(fecha: string, hoy: string): number {
   return Math.round((Date.parse(hoy) - Date.parse(fecha)) / 86_400_000);

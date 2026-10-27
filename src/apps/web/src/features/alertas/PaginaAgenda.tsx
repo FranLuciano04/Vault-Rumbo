@@ -1,12 +1,18 @@
 import {
   ETIQUETA_TIPO_ALERTA,
   avisoRecordatorio,
+  diaAnterior,
   hoyEnBuenosAires,
   type Alerta,
   type TipoAlerta,
   type UsuarioActual,
 } from "@rumbo/shared";
-import { useAlertas, useMarcarAlertaVista, useProgresoDelDia } from "@rumbo/shared/hooks";
+import {
+  useAlertas,
+  useMarcarAlertaVista,
+  useProgresoDelDia,
+  useTotalesAgenda,
+} from "@rumbo/shared/hooks";
 import type { AxiosInstance } from "axios";
 import { Check, Plus } from "lucide-react";
 import { useRef, useState } from "react";
@@ -19,7 +25,6 @@ import { FilaAlerta } from "./FilaAlerta";
 import { PanelDetalleAlerta } from "./PanelDetalleAlerta";
 import { FormularioRecordatorio } from "./FormularioRecordatorio";
 import { useResolverConDeshacer } from "./useResolverConDeshacer";
-import { diaAnterior, useTotalesAgenda } from "./useTotalesAgenda";
 
 type Pestana = "todas" | "atrasadas" | "hoy" | "proximas";
 

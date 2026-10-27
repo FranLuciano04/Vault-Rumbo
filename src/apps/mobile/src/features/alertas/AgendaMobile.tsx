@@ -1,5 +1,6 @@
 import {
   avisoRecordatorio,
+  diaAnterior,
   diasDeAtraso,
   ETIQUETA_TIPO_ALERTA,
   hoyEnBuenosAires,
@@ -11,6 +12,7 @@ import {
   useAlertasPorPaginas,
   useProgresoDelDia,
   useResolverConDeshacer,
+  useTotalesAgenda,
   useYo,
 } from "@rumbo/shared/hooks";
 import { useLocalSearchParams, useRouter } from "expo-router";
@@ -25,6 +27,7 @@ import {
   View,
 } from "react-native";
 import { cliente } from "../../cliente";
+import { ChipsAgenda, type Pestana } from "./ChipsAgenda";
 
 const POR_PAGINA = 100;
 const ERROR_AL_CARGAR = "No pudimos cargar la agenda. Probá de nuevo en unos minutos.";
@@ -33,6 +36,11 @@ const ERROR_AL_CARGAR = "No pudimos cargar la agenda. Probá de nuevo en unos mi
 const anunciar = (texto: string) => {
   AccessibilityInfo.announceForAccessibility(texto);
 };
+
+function textoSinAlertas(pestana: Pestana, esDeAgencia: boolean) {
+  const sujeto = esDeAgencia ? "La agencia no tiene" : "No tenés";
+  return `${sujeto} alertas ${pestana === "proximas" ? "próximas" : "pendientes para hoy"}.`;
+}
 
 type Fila = { titulo: string } | { alerta: Alerta };
 
@@ -111,11 +119,24 @@ export function AgendaMobile() {
   const avisoCreado = recordatorio ? avisoRecordatorio("creado", recordatorio) : null;
   const yo = useYo(cliente);
   const esDeAgencia = yo.data?.rol === "admin" || yo.data?.rol === "dueno";
-  const alertas = useAlertasPorPaginas(cliente, { por_pagina: POR_PAGINA });
+  const hoy = hoyEnBuenosAires();
+  const [pestana, setPestana] = useState<Pestana>("todas");
+  const alertas = useAlertasPorPaginas(cliente, {
+    por_pagina: POR_PAGINA,
+    ...(pestana === "atrasadas" && { hasta: diaAnterior(hoy) }),
+    ...(pestana === "hoy" && { desde: hoy, hasta: hoy }),
+    ...(pestana === "proximas" && { proximas: true }),
+  });
   const vistas = useAlertas(cliente, { estado: "vista", por_pagina: 1 });
   const progreso = useProgresoDelDia(cliente);
   const { resueltas, error, limpiarError, enviarPendientes, resolver, deshacer } =
     useResolverConDeshacer(cliente);
+  const totales = useTotalesAgenda(cliente, hoy, {
+    responsable: "",
+    tipo: "",
+    conVistas: false,
+    resueltas: resueltas.map((r) => r.alerta),
+  });
   const [refrescando, setRefrescando] = useState(false);
 
   // Si la app pasa a segundo plano dentro del plazo de gracia, la resolución sale igual. «inactive»
@@ -140,7 +161,6 @@ export function AgendaMobile() {
     if (hayErrorAlCargar) anunciar(ERROR_AL_CARGAR);
   }, [hayErrorAlCargar]);
 
-  const hoy = hoyEnBuenosAires();
   const resueltasIds = new Set(resueltas.map((r) => r.alerta.id));
   // Si la agenda cambia entre pedidos, una alerta puede venir en dos páginas: se queda una sola vez.
   const cargadas = [
@@ -156,12 +176,15 @@ export function AgendaMobile() {
   // Con páginas sin cargar, la cantidad es un piso: «100+».
   const cantidad = (n: number) => `${String(n)}${faltanPorCargar ? "+" : ""}`;
   const atrasadas = pendientes.filter((a) => a.fecha < hoy);
-  const deHoy = pendientes.filter((a) => a.fecha >= hoy);
+  const deHoy = pendientes.filter((a) => a.fecha === hoy);
+  const proximas = pendientes.filter((a) => a.fecha > hoy);
   const filas: Fila[] = [
     ...(atrasadas.length > 0 ? [{ titulo: `Atrasadas · ${cantidad(atrasadas.length)}` }] : []),
     ...atrasadas.map((alerta) => ({ alerta })),
     ...(deHoy.length > 0 ? [{ titulo: `Hoy · ${cantidad(deHoy.length)}` }] : []),
     ...deHoy.map((alerta) => ({ alerta })),
+    ...(proximas.length > 0 ? [{ titulo: `Próximas · ${cantidad(proximas.length)}` }] : []),
+    ...proximas.map((alerta) => ({ alerta })),
   ];
   const sinResolver = vistas.data?.total ?? 0;
 
@@ -218,6 +241,7 @@ export function AgendaMobile() {
           </View>
         </View>
       )}
+      <ChipsAgenda activa={pestana} totales={totales} alElegir={setPestana} />
       {avisoCreado && (
         <Text
           accessible
@@ -268,9 +292,7 @@ export function AgendaMobile() {
           alertas.data && !faltanPorCargar && !vistas.isPending ? (
             <View className="py-6">
               <Text className="text-center text-gray-500">
-                {esDeAgencia
-                  ? "La agencia no tiene alertas pendientes para hoy."
-                  : "No tenés alertas pendientes para hoy."}
+                {textoSinAlertas(pestana, esDeAgencia)}
               </Text>
               {sinResolver > 0 && (
                 <Text className="text-center text-gray-500">

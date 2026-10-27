@@ -1,15 +1,9 @@
-import type { Alerta, FiltrosAlertas, TipoAlerta } from "@rumbo/shared";
-import { useAlertas } from "@rumbo/shared/hooks";
 import type { AxiosInstance } from "axios";
+import { diaAnterior } from "../alertas";
+import type { Alerta, FiltrosAlertas, TipoAlerta } from "../modelos";
+import { useAlertas } from "./alertas";
 
-/** El día anterior a una fecha ISO (`aaaa-mm-dd`). */
-export function diaAnterior(fecha: string): string {
-  const d = new Date(`${fecha}T00:00:00Z`);
-  d.setUTCDate(d.getUTCDate() - 1);
-  return d.toISOString().slice(0, 10);
-}
-
-interface FiltrosDeTotales {
+export interface FiltrosDeTotales {
   responsable: string;
   tipo: TipoAlerta | "";
   /** Con «Mostrar vistas» activo, cada total suma también las vistas. */
