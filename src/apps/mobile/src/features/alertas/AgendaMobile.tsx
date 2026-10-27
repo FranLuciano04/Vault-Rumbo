@@ -4,11 +4,13 @@ import {
   ETIQUETA_TIPO_ALERTA,
   filtrosDePestana,
   hoyEnBuenosAires,
+  TITULO_VACIO,
   lineaDeContexto,
   type Alerta,
   type PestanaAgenda,
 } from "@rumbo/shared";
 import {
+  claveAlertas,
   useAlertas,
   useAlertasPorPaginas,
   useProgresoDelDia,
@@ -16,6 +18,7 @@ import {
   useTotalesAgenda,
   useYo,
 } from "@rumbo/shared/hooks";
+import { useQueryClient } from "@tanstack/react-query";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
@@ -37,11 +40,6 @@ const ERROR_AL_CARGAR = "No pudimos cargar la agenda. Probá de nuevo en unos mi
 const anunciar = (texto: string) => {
   AccessibilityInfo.announceForAccessibility(texto);
 };
-
-function textoSinAlertas(pestana: PestanaAgenda, esDeAgencia: boolean) {
-  const sujeto = esDeAgencia ? "La agencia no tiene" : "No tenés";
-  return `${sujeto} alertas ${pestana === "proximas" ? "próximas" : "pendientes para hoy"}.`;
-}
 
 type Fila = { titulo: string } | { alerta: Alerta };
 
@@ -109,15 +107,17 @@ function FilaAlerta({
 }
 
 /**
- * Agenda del día en el celular (CU-14, pantallas 35 y 55 del prototipo): las alertas pendientes
- * hasta hoy, atrasadas y de hoy, con el progreso del día; se resuelven con «Deshacer». El alcance
- * por rol lo resuelve la API; admin y dueño ven además al responsable de cada alerta.
+ * Agenda del día en el celular (CU-14, pantallas 35 y 55 del prototipo): las alertas pendientes,
+ * filtradas con chips «Todas» (atrasadas y de hoy), «Atrasadas», «Hoy» y «Próximas» (RF-154), con
+ * el progreso del día; se resuelven con «Deshacer». El alcance por rol lo resuelve la API; admin y
+ * dueño ven además al responsable de cada alerta.
  */
 export function AgendaMobile() {
   const router = useRouter();
   // Al volver de crear un recordatorio con fecha futura, `recordatorio` trae esa fecha.
   const { recordatorio } = useLocalSearchParams<{ recordatorio?: string }>();
   const avisoCreado = recordatorio ? avisoRecordatorio("creado", recordatorio) : null;
+  const queryClient = useQueryClient();
   const yo = useYo(cliente);
   const esDeAgencia = yo.data?.rol === "admin" || yo.data?.rol === "dueno";
   const hoy = hoyEnBuenosAires();
@@ -191,7 +191,8 @@ export function AgendaMobile() {
     // Con un refetch en curso (p. ej. tras resolver) no se pide otra página: lo cancelaría.
     if (alertas.hasNextPage && !alertas.isFetching) void alertas.fetchNextPage();
   };
-  const reintentar = () => Promise.all([alertas.refetch(), vistas.refetch(), progreso.refetch()]);
+  // Refresca la lista, las vistas, el progreso y los totales de los chips.
+  const reintentar = () => queryClient.invalidateQueries({ queryKey: claveAlertas });
   const refrescar = async () => {
     limpiarError();
     setRefrescando(true);
@@ -291,9 +292,13 @@ export function AgendaMobile() {
           alertas.data && !faltanPorCargar && !vistas.isPending ? (
             <View className="py-6">
               <Text className="text-center text-gray-500">
-                {textoSinAlertas(pestana, esDeAgencia)}
+                {pestana === "todas"
+                  ? esDeAgencia
+                    ? "La agencia no tiene alertas pendientes para hoy."
+                    : "No tenés alertas pendientes para hoy."
+                  : TITULO_VACIO[pestana]}
               </Text>
-              {sinResolver > 0 && (
+              {pestana === "todas" && sinResolver > 0 && (
                 <Text className="text-center text-gray-500">
                   {esDeAgencia ? "La agencia tiene" : "Tenés"} {sinResolver}{" "}
                   {sinResolver === 1 ? "alerta vista" : "alertas vistas"} sin resolver.

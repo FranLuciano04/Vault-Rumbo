@@ -22,11 +22,12 @@ export function ChipsAgenda({
   alElegir: (pestana: PestanaAgenda) => void;
 }) {
   return (
+    // Sin `accessible`: agruparía los chips en un solo foco de VoiceOver/TalkBack.
     <View
-      accessible
       role="tablist"
       accessibilityLabel="Alertas"
-      className="mb-3 flex-row flex-wrap gap-2"
+      testID="chips-agenda"
+      className="mb-3 flex-row rounded-xl border border-border bg-white p-1"
     >
       {CHIPS.map(({ clave, etiqueta }) => {
         const seleccionada = clave === activa;
@@ -40,7 +41,7 @@ export function ChipsAgenda({
             onPress={() => {
               alElegir(clave);
             }}
-            className={`rounded-full border px-3 py-1.5 ${seleccionada ? "border-primary bg-primary" : "border-input"}`}
+            className={`flex-1 items-center rounded-lg px-1 py-2 ${seleccionada ? "bg-primary" : ""}`}
           >
             <Text
               className={`text-sm font-medium ${seleccionada ? "text-primary-foreground" : "text-gray-700"}`}

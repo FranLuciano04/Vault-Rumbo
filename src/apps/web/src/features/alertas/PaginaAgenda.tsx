@@ -3,6 +3,7 @@ import {
   avisoRecordatorio,
   filtrosDePestana,
   hoyEnBuenosAires,
+  TITULO_VACIO,
   type Alerta,
   type PestanaAgenda,
   type TipoAlerta,
@@ -50,12 +51,6 @@ function Total({ valor }: { valor: number | undefined }) {
     </>
   );
 }
-
-const TITULO_VACIO: Record<Exclude<PestanaAgenda, "todas">, string> = {
-  atrasadas: "No hay alertas atrasadas",
-  hoy: "No hay alertas para hoy",
-  proximas: "No hay alertas próximas",
-};
 
 interface AccionesDeLista {
   cliente: AxiosInstance;

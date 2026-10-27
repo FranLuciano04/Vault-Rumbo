@@ -39,7 +39,7 @@ function useTotalDelRango(
  * Totales reales de la agenda (RF-074, RF-154): el `total` del servidor, con pedidos de una sola
  * alerta, de lo mismo que mostraría la lista de cada pestaña con los filtros activos (responsable,
  * tipo y vistas). Lo de hoy se pide con `desde` y `hasta` iguales a hoy; «Todas» es la suma de
- * atrasadas y de hoy.
+ * atrasadas y de hoy: no incluye las próximas.
  */
 export function useTotalesAgenda(cliente: AxiosInstance, hoy: string, filtros: FiltrosDeTotales) {
   const atrasadas = useTotalDelRango(

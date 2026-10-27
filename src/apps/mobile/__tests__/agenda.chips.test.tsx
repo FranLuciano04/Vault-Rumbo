@@ -1,4 +1,4 @@
-import { fireEvent, waitFor } from "@testing-library/react-native";
+import { act, fireEvent, waitFor, within } from "@testing-library/react-native";
 import { renderRouter } from "expo-router/testing-library";
 import { Slot } from "expo-router";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -77,7 +77,19 @@ function respuesta(status: number, data: unknown, config: unknown) {
  * `hasta=ayer` atrasadas; `desde=hoy&hasta=hoy` las de hoy; `proximas=true` las posteriores a hoy.
  * `porPaginaServidor` limita el tamaño de página que devuelve el servidor.
  */
-function backend(opciones: { porPaginaServidor?: number } = {}) {
+function backend(
+  opciones: {
+    porPaginaServidor?: number;
+    /** Rangos sin alertas (lista vacía y total 0). */
+    vacios?: ("atrasadas" | "hoy" | "proximas")[];
+    /** Alertas vistas sin resolver que informa el servidor. */
+    vistas?: number;
+    /** Totales mutables: el test los cambia para simular que el servidor cambió. */
+    totales?: { atrasadas: number; hoy: number; proximas: number };
+  } = {},
+) {
+  const totales = opciones.totales ?? TOTALES;
+  const vacio = (r: "atrasadas" | "hoy" | "proximas") => opciones.vacios?.includes(r) ?? false;
   mockHttp.mockImplementation((config) => {
     const url = config.url ?? "";
     const p = config.params ?? {};
@@ -96,19 +108,19 @@ function backend(opciones: { porPaginaServidor?: number } = {}) {
       let total: number;
       if (p["estado"] === "vista") {
         items = [];
-        total = 0;
+        total = opciones.vistas ?? 0;
       } else if (p["proximas"] === true || p["proximas"] === "true") {
-        items = PROXIMAS;
-        total = TOTALES.proximas;
+        items = vacio("proximas") ? [] : PROXIMAS;
+        total = vacio("proximas") ? 0 : totales.proximas;
       } else if (p["desde"] === HOY_ISO && p["hasta"] === HOY_ISO) {
-        items = DE_HOY;
-        total = TOTALES.hoy;
+        items = vacio("hoy") ? [] : DE_HOY;
+        total = vacio("hoy") ? 0 : totales.hoy;
       } else if (p["hasta"] === AYER_ISO && !p["desde"]) {
-        items = ATRASADAS;
-        total = TOTALES.atrasadas;
+        items = vacio("atrasadas") ? [] : ATRASADAS;
+        total = vacio("atrasadas") ? 0 : totales.atrasadas;
       } else {
-        items = [...ATRASADAS, ...DE_HOY];
-        total = TOTALES.atrasadas + TOTALES.hoy;
+        items = [...(vacio("atrasadas") ? [] : ATRASADAS), ...(vacio("hoy") ? [] : DE_HOY)];
+        total = (vacio("atrasadas") ? 0 : totales.atrasadas) + (vacio("hoy") ? 0 : totales.hoy);
       }
       const pagina = Number(p["pagina"] ?? 1);
       const pedida = Number(p["por_pagina"] ?? 20);
@@ -144,7 +156,8 @@ function renderAgenda(url = "/") {
 
 type Vista = Awaited<ReturnType<typeof renderAgenda>>;
 
-const esProximas = (p: Record<string, unknown>) => p["proximas"] === true || p["proximas"] === "true";
+const esProximas = (p: Record<string, unknown>) =>
+  p["proximas"] === true || p["proximas"] === "true";
 
 /** Pedidos de lista (los de totales traen `por_pagina=1`) que cumplen el filtro. */
 function pedidosDeLista(filtro: (params: Record<string, unknown>) => boolean) {
@@ -184,7 +197,12 @@ describe("RF-154 chips de la agenda mobile", () => {
     const vista = await renderAgenda();
     await esperarChips(vista);
 
-    expect(vista.getByRole("tablist", { name: "Alertas" })).toBeTruthy();
+    // El contenedor no es `accessible`: si lo fuera, VoiceOver agruparía los chips en un solo foco.
+    const grupo = vista.getByTestId("chips-agenda");
+    expect(grupo).toHaveProp("role", "tablist");
+    expect(grupo).toHaveProp("accessibilityLabel", "Alertas");
+    expect(grupo.props.accessible).not.toBe(true);
+    expect(within(grupo).getAllByRole("tab")).toHaveLength(4);
     expect(vista.getAllByRole("tab")).toHaveLength(4);
     for (const nombre of Object.values(NOMBRES)) {
       expect(vista.getByRole("tab", { name: nombre })).toBeTruthy();
@@ -343,6 +361,41 @@ describe("RF-154 chips de la agenda mobile", () => {
     expect(vista.getByText(DE_HOY_1)).toBeTruthy();
     expect(vista.queryByText(PROXIMA_1)).toBeNull();
     expect(vista.getByRole("tab", { name: NOMBRES.todas, selected: true })).toBeTruthy();
+  });
+
+  it.each([
+    ["atrasadas", "Atrasadas", "No hay alertas atrasadas"],
+    ["hoy", "Hoy", "No hay alertas para hoy"],
+    ["proximas", "Próximas", "No hay alertas próximas"],
+  ] as const)(
+    "RF-154 «%s» sin alertas muestra el vacío del filtro (texto de la web) y no el aviso de vistas",
+    async (rango, nombre, textoVacio) => {
+      backend({ vacios: [rango], vistas: 3 });
+      const vista = await renderAgenda();
+      const chip = new RegExp(`^${nombre}: `);
+      await vista.findByRole("tab", { name: chip });
+
+      await fireEvent.press(vista.getByRole("tab", { name: chip }));
+
+      expect(await vista.findByText(textoVacio)).toBeTruthy();
+      expect(vista.queryByText(/alertas? vistas? sin resolver/)).toBeNull();
+      expect(vista.queryByText(/no tenés alertas pendientes/i)).toBeNull();
+    },
+  );
+
+  it("RF-154 el pull-to-refresh actualiza el contador de un chip con el total nuevo del servidor", async () => {
+    const totales = { ...TOTALES };
+    backend({ totales });
+    const vista = await renderAgenda();
+    await esperarChips(vista);
+
+    totales.proximas = 12;
+    await act(async () => {
+      await fireEvent(vista.getByTestId("lista-alertas"), "refresh");
+    });
+
+    await vista.findByRole("tab", { name: "Próximas: 12" });
+    expect(vista.queryByRole("tab", { name: NOMBRES.proximas })).toBeNull();
   });
 
   it("RF-154 los chips conviven con el aviso «Recordatorio creado» de T-059", async () => {

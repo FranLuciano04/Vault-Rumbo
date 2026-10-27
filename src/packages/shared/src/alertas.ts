@@ -8,6 +8,13 @@ export function hoyEnBuenosAires(): string {
   return new Intl.DateTimeFormat("sv-SE", { timeZone: ZONA }).format(new Date());
 }
 
+/** Título de la agenda sin alertas en cada filtro (RF-154); «Todas» tiene sus propios textos. */
+export const TITULO_VACIO = {
+  atrasadas: "No hay alertas atrasadas",
+  hoy: "No hay alertas para hoy",
+  proximas: "No hay alertas próximas",
+} as const;
+
 /** El día anterior a una fecha ISO (`aaaa-mm-dd`). */
 export function diaAnterior(fecha: string): string {
   const d = new Date(`${fecha}T00:00:00Z`);
