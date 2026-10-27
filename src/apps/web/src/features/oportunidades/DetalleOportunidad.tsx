@@ -10,6 +10,7 @@ import { Link, useParams } from "react-router";
 import { AccionesOportunidad } from "./AccionesOportunidad";
 import { InsistenciasOportunidad } from "./InsistenciasOportunidad";
 import { InteraccionesOportunidad } from "./InteraccionesOportunidad";
+import { oportunidadAbierta, puedeEscribirOportunidad } from "./permisos";
 
 /** Detalle de una oportunidad (CU-05): su contexto, su historia y las acciones de seguimiento. */
 export function DetalleOportunidad({
@@ -39,10 +40,8 @@ export function DetalleOportunidad({
   }
 
   const { fecha_desde_tentativa: desde, fecha_hasta_tentativa: hasta } = oportunidad;
-  const abierta = oportunidad.estado !== "ganada" && oportunidad.estado !== "perdida";
-  // Escribe quien es responsable, admin o dueño; el resto solo lee (la API lo hace valer igual).
-  const puedeEscribir =
-    usuario.rol === "admin" || usuario.rol === "dueno" || usuario.id === oportunidad.responsable_id;
+  const abierta = oportunidadAbierta(oportunidad);
+  const puedeEscribir = puedeEscribirOportunidad(usuario, oportunidad);
   return (
     <div className="space-y-6">
       <header className="space-y-1">

@@ -1,5 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
+  ETIQUETA_ESTADO_COTIZACION,
   formatearFecha,
   formatearImporte,
   type Cotizacion,
@@ -14,11 +15,10 @@ import { useFieldArray, useForm, useWatch } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { mensajeDeError } from "@/lib/errores";
-import { esquemaCotizacion, type DatosCotizacion } from "../esquemas";
+import { aplicarErroresDelServidor } from "@/lib/errores";
+import { esquemaCotizacion, type DatosCotizacion } from "./esquemas";
 import { importeComoTexto, sumarImportes, sumarMesesAHoy } from "./calculos";
 
-const VIGENCIA_POR_DEFECTO_MESES = 1;
 const MONEDAS: Moneda[] = ["ARS", "USD"];
 
 /** Emisión de una cotización (RF-021, RF-022): ítems, moneda, total y vigencia a la vista. */
@@ -32,10 +32,10 @@ export function FormularioCotizacion({
   oportunidadId: string;
 }) {
   const emitir = useEmitirCotizacion(cliente);
-  // Los parámetros del negocio solo los lee la gestión; el resto usa la vigencia por defecto.
+  // Los parámetros del negocio solo los lee la gestión: el resto no ve una fecha estimada.
   const leeConfiguracion = usuario.rol === "admin" || usuario.rol === "dueno";
   const configuracion = useConfiguracion(cliente, { enabled: leeConfiguracion });
-  const meses = configuracion.data?.vigencia_cotizacion_meses ?? VIGENCIA_POR_DEFECTO_MESES;
+  const meses = configuracion.data?.vigencia_cotizacion_meses;
   const [error, setError] = useState<string | null>(null);
   const [emitida, setEmitida] = useState<Cotizacion | null>(null);
   const formulario = useForm<DatosCotizacion>({
@@ -65,7 +65,7 @@ export function FormularioCotizacion({
       setEmitida(cotizacion);
       formulario.reset();
     } catch (falla) {
-      setError(mensajeDeError(falla));
+      setError(aplicarErroresDelServidor(falla, [], formulario.setError));
     }
   }
 
@@ -134,7 +134,9 @@ export function FormularioCotizacion({
         <span className="text-lg font-semibold">{formatearImporte(total, moneda)}</span>
       </div>
       <p className="text-sm text-muted-foreground">
-        Válida hasta {formatearFecha(sumarMesesAHoy(meses))}
+        {meses === undefined
+          ? "Vigencia según la configuración de la agencia"
+          : `Válida hasta ${formatearFecha(sumarMesesAHoy(meses))}`}
       </p>
       {errors.items && (
         <p role="alert" className="text-sm font-medium text-destructive">
@@ -148,7 +150,7 @@ export function FormularioCotizacion({
       )}
       {emitida && (
         <p role="status" className="text-sm font-medium">
-          Cotización emitida: <span>Borrador</span> ·{" "}
+          Cotización emitida: <span>{ETIQUETA_ESTADO_COTIZACION[emitida.estado]}</span> ·{" "}
           {formatearImporte(emitida.total, emitida.moneda)} · vigente hasta el{" "}
           {formatearFecha(emitida.validez_hasta)}
         </p>

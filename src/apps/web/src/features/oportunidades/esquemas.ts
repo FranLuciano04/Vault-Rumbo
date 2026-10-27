@@ -1,6 +1,5 @@
 import { ETIQUETA_MOTIVO_PERDIDA, type CanalOportunidad, type MotivoPerdida } from "@rumbo/shared";
 import { z } from "zod";
-import { IMPORTE } from "./cotizaciones/calculos";
 
 /** Interacción nueva de la línea de tiempo (RF-014): solo el texto; la fecha y el nombre los pone la pantalla. */
 export const esquemaInteraccion = z.object({
@@ -62,18 +61,3 @@ export type DatosConsulta = z.output<typeof esquemaConsulta>;
 export type DatosInteraccion = z.infer<typeof esquemaInteraccion>;
 export type DatosInsistencia = z.infer<typeof esquemaInsistencia>;
 export type DatosPerder = z.input<typeof esquemaPerder>;
-
-/** Cotización nueva (RF-021): moneda y al menos un ítem con concepto e importe válidos. */
-export const esquemaCotizacion = z.object({
-  moneda: z.enum(["ARS", "USD"]),
-  items: z
-    .array(
-      z.object({
-        concepto: z.string().trim().min(1, "Ingresá el concepto."),
-        precio: z.string().trim().regex(IMPORTE, "Ingresá un importe válido."),
-      }),
-    )
-    .min(1, "Cargá al menos un ítem."),
-});
-
-export type DatosCotizacion = z.infer<typeof esquemaCotizacion>;

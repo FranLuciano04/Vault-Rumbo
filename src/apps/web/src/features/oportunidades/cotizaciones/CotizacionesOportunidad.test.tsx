@@ -1,5 +1,6 @@
 import { crearCliente, type UsuarioActual } from "@rumbo/shared";
 import {
+  configuracionMock,
   cotizacionesMock,
   crearServidor,
   idOportunidadMock,
@@ -73,6 +74,8 @@ async function completarItem(
 }
 
 const enGestion = idOportunidadMock.en_gestion;
+// El responsable de la oportunidad del mock es el empleado: el freelance que cotiza tiene que serlo.
+const freelanceResponsable = { ...usuariosPorRol.freelance, id: usuariosPorRol.empleado.id };
 
 describe("RF-021 emitir cotización", () => {
   it("RF-021 muestra el contexto de la oportunidad y el formulario con moneda ARS por defecto", async () => {
@@ -91,7 +94,7 @@ describe("RF-021 emitir cotización", () => {
     renderCotizaciones(enGestion);
     await screen.findByText("Mendoza");
 
-    await completarItem(u, 0, "Aéreo", "780000.50");
+    await completarItem(u, 0, "Aéreo", "780000,50");
     await u.click(screen.getByRole("button", { name: /agregar ítem/i }));
     await completarItem(u, 1, "Alojamiento", "640000");
 
@@ -111,11 +114,102 @@ describe("RF-021 emitir cotización", () => {
     expect(total).toHaveTextContent("US$ 1.500,00");
   });
 
-  it("RF-022 muestra la vigencia calculada: un mes desde hoy", async () => {
+  it("RF-022 el admin ve la vigencia calculada con los meses de la configuración (2 meses: 25/12/26)", async () => {
+    servidor.use(
+      http.get("*/api/configuracion", () =>
+        HttpResponse.json({ ...configuracionMock, vigencia_cotizacion_meses: 2 }),
+      ),
+    );
+    renderCotizaciones(enGestion, usuariosPorRol.admin);
+    await screen.findByText("Mendoza");
+
+    expect(await screen.findByText(/válida hasta/i)).toHaveTextContent("25/12/26");
+  });
+
+  it("RF-022 quien no lee la configuración ve la vigencia sin fecha", async () => {
     renderCotizaciones(enGestion);
     await screen.findByText("Mendoza");
 
-    expect(screen.getByText(/válida hasta/i)).toHaveTextContent("25/11/26");
+    expect(screen.getByText(/vigencia según la configuración/i)).toBeInTheDocument();
+    expect(screen.queryByText(/válida hasta/i)).not.toBeInTheDocument();
+  });
+
+  it("RF-021 importes es-AR: «780.000» es 780 mil y se envía como «780000»", async () => {
+    const u = nuevoUsuario();
+    const cuerpos: Record<string, unknown>[] = [];
+    servidor.use(registrarEmision(cuerpos));
+    renderCotizaciones(enGestion);
+    await screen.findByText("Mendoza");
+
+    await completarItem(u, 0, "Aéreo", "780.000");
+    const total = screen.getByText(/total calculado/i).parentElement as HTMLElement;
+    expect(total).toHaveTextContent("$ 780.000,00");
+    await u.click(screen.getByRole("button", { name: /generar documento/i }));
+
+    await waitFor(() => {
+      expect(cuerpos).toHaveLength(1);
+    });
+    expect((cuerpos[0] as { items: { precio: string }[] }).items[0]?.precio).toBe("780000");
+  });
+
+  it("RF-021 importes es-AR: «1.420.000,50» suma bien y «1500,50» se envía como «1500.50»", async () => {
+    const u = nuevoUsuario();
+    const cuerpos: Record<string, unknown>[] = [];
+    servidor.use(registrarEmision(cuerpos));
+    renderCotizaciones(enGestion);
+    await screen.findByText("Mendoza");
+
+    await completarItem(u, 0, "Aéreo", "1.420.000,50");
+    const total = screen.getByText(/total calculado/i).parentElement as HTMLElement;
+    expect(total).toHaveTextContent("$ 1.420.000,50");
+    await u.clear(screen.getByLabelText(/precio/i));
+    await u.type(screen.getByLabelText(/precio/i), "1500,50");
+    await u.click(screen.getByRole("button", { name: /generar documento/i }));
+
+    await waitFor(() => {
+      expect(cuerpos).toHaveLength(1);
+    });
+    expect((cuerpos[0] as { items: { precio: string }[] }).items[0]?.precio).toBe("1500.50");
+  });
+
+  it("RF-021 no envía un importe mal agrupado como «1.50.000»", async () => {
+    const u = nuevoUsuario();
+    const cuerpos: Record<string, unknown>[] = [];
+    servidor.use(registrarEmision(cuerpos));
+    renderCotizaciones(enGestion);
+    await screen.findByText("Mendoza");
+
+    await completarItem(u, 0, "Aéreo", "1.50.000");
+    await u.click(screen.getByRole("button", { name: /generar documento/i }));
+
+    expect(await screen.findByRole("alert")).toBeInTheDocument();
+    expect(cuerpos).toHaveLength(0);
+  });
+
+  it("RF-021 si el servidor responde 422 muestra el mensaje real del error", async () => {
+    const u = nuevoUsuario();
+    servidor.use(
+      http.post("*/api/oportunidades/:id/cotizaciones", () =>
+        HttpResponse.json(
+          {
+            type: "about:blank",
+            title: "Error de validación",
+            status: 422,
+            errores: [{ campo: "total", mensaje: "El total excede el máximo permitido." }],
+          },
+          { status: 422, headers: { "Content-Type": "application/problem+json" } },
+        ),
+      ),
+    );
+    renderCotizaciones(enGestion);
+    await screen.findByText("Mendoza");
+
+    await completarItem(u, 0, "Aéreo", "780000");
+    await u.click(screen.getByRole("button", { name: /generar documento/i }));
+
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      "El total excede el máximo permitido.",
+    );
   });
 
   it("RF-021 envía moneda e ítems al servidor con los importes como texto decimal", async () => {
@@ -126,7 +220,7 @@ describe("RF-021 emitir cotización", () => {
     await screen.findByText("Mendoza");
 
     await u.click(screen.getByRole("radio", { name: "USD" }));
-    await completarItem(u, 0, "Aéreo", "1500.50");
+    await completarItem(u, 0, "Aéreo", "1500,50");
     await u.click(screen.getByRole("button", { name: /agregar ítem/i }));
     await completarItem(u, 1, "Alojamiento", "1700");
     await u.click(screen.getByRole("button", { name: /generar documento/i }));
@@ -217,15 +311,11 @@ describe("RF-021 emitir cotización", () => {
     );
   });
 
-  it("RF-021 contra el mock del contrato, emitir sobre una oportunidad ganada muestra el 409", async () => {
-    const u = nuevoUsuario();
+  it("RF-021 sobre una oportunidad ganada no se muestra el formulario y sí las versiones", async () => {
     renderCotizaciones(idOportunidadMock.ganada);
-    await screen.findByText("Brasil");
 
-    await completarItem(u, 0, "Aéreo", "780000");
-    await u.click(screen.getByRole("button", { name: /generar documento/i }));
-
-    expect(await screen.findByRole("alert")).toHaveTextContent(/no se cotiza.*ganada/i);
+    expect(await screen.findByRole("list", { name: /versiones/i })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /generar documento/i })).not.toBeInTheDocument();
   });
 });
 
@@ -286,7 +376,7 @@ describe("RF-022 vista del freelance (pantalla 41)", () => {
     const u = nuevoUsuario();
     const cuerpos: Record<string, unknown>[] = [];
     servidor.use(registrarEmision(cuerpos));
-    renderCotizaciones(enGestion, usuariosPorRol.freelance);
+    renderCotizaciones(enGestion, freelanceResponsable);
     await screen.findByText("Mendoza");
 
     await completarItem(u, 0, "Aéreo", "780000");
@@ -302,7 +392,7 @@ describe("RF-022 vista del freelance (pantalla 41)", () => {
         problema(403, "Solo el responsable puede cotizar esta oportunidad."),
       ),
     );
-    renderCotizaciones(enGestion, usuariosPorRol.freelance);
+    renderCotizaciones(enGestion, freelanceResponsable);
     await screen.findByText("Mendoza");
 
     await completarItem(u, 0, "Aéreo", "780000");
@@ -311,5 +401,39 @@ describe("RF-022 vista del freelance (pantalla 41)", () => {
     expect(await screen.findByRole("alert")).toHaveTextContent(
       "Solo el responsable puede cotizar esta oportunidad.",
     );
+  });
+});
+
+describe("RF-022 quién puede emitir", () => {
+  it("RF-022 un empleado que no es el responsable no ve el formulario, pero sí las versiones", async () => {
+    const otro = { ...usuariosPorRol.empleado, id: "9c1d7e52-4b3a-4f60-8a21-5e0d3b7c9a10" };
+    renderCotizaciones(idOportunidadMock.cotizada, otro);
+
+    expect(await screen.findByRole("list", { name: /versiones/i })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /generar documento/i })).not.toBeInTheDocument();
+  });
+
+  it("RF-022 una oportunidad perdida no ofrece el formulario", async () => {
+    renderCotizaciones(idOportunidadMock.perdida);
+
+    expect(await screen.findByRole("heading", { level: 1 })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /generar documento/i })).not.toBeInTheDocument();
+  });
+
+  it("RF-024 si hay más versiones de las que se listan, avisa cuántas quedan", async () => {
+    servidor.use(
+      http.get("*/api/oportunidades/:id/cotizaciones", () =>
+        HttpResponse.json({
+          items: [cotizacionesMock[0]],
+          total: 3,
+          pagina: 1,
+          por_pagina: 100,
+        }),
+      ),
+    );
+    renderCotizaciones(idOportunidadMock.cotizada);
+
+    expect(await screen.findByText(/y 2 versiones anteriores/i)).toBeInTheDocument();
+    expect(screen.getByRole("listitem")).toHaveTextContent(/versión 3/i);
   });
 });

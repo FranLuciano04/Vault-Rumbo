@@ -1,9 +1,10 @@
-const ESCALA = 10_000n;
-/** Importe de un ítem: decimal positivo con hasta 4 decimales; admite coma o punto. */
-export const IMPORTE = /^\d+([.,]\d{1,4})?$/;
+import { IMPORTE } from "./esquemas";
 
-/** Importe como lo guarda la API: texto decimal con punto, sin float. */
-export const importeComoTexto = (valor: string) => valor.trim().replace(",", ".");
+const ESCALA = 10_000n;
+
+/** Importe como lo guarda la API: de «1.420.000,50» a «1420000.50», sin float. */
+export const importeComoTexto = (valor: string) =>
+  valor.trim().replaceAll(".", "").replace(",", ".");
 
 /** Suma de importes en texto decimal (BigInt, sin float); los que no son importes válidos no suman. */
 export function sumarImportes(importes: readonly string[]): string {
