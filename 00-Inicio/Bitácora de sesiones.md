@@ -49,8 +49,8 @@ La **persona** de cada sesión es quien la corre, identificada por su identidad 
 ### Nahuel (`Nahuel Viniegra`) — T-153
 - **24/10, de Paloma: el PR [#73](https://github.com/FranLuciano04/Vault-Rumbo/pull/73) (T-153) ya está mergeado** (⚠️ riesgo alto, auth). Hay un **cambio de decisión**: el 23/10 Francisco había decidido que la cuenta de Firebase sin `Usuario` se reutilizaba. La review de seguridad lo marcó como bloqueante (*pre-account hijacking*: la cuenta conserva la contraseña, los proveedores o las sesiones de quien la haya creado). Paloma decidió que esa cuenta se **borra y se crea una nueva**. CU-25 A1 se actualiza en el mismo PR. Además, el alta toma un lock por email, y nunca se borra una cuenta cuyo uid es de un `Usuario`.
 
-### Paloma (`palomap2003`) y Francisco (`FranLucianoo`) — DEC-0022
-- **27/10, de Nahuel: hay que revisar el borrador [[DEC-0022 Suite completa solo en el CI|DEC-0022]].** Propone dejar la suite completa del backend solo en el CI y correr en la PC únicamente los checks rápidos antes del PR, salvo cuando se toca código compartido. Además, ya se corrigió que la suite se corría dos veces en los checks: la cobertura de `negocio/` ahora sale de `coverage report`, como en el CI.
+### Francisco (`FranLucianoo`) — DEC-0022
+- **27/10, de Nahuel (Paloma ya lo vio): hay que revisar el borrador [[DEC-0022 Suite completa solo en el CI|DEC-0022]].** Propone dejar la suite completa del backend solo en el CI y correr en la PC únicamente los checks rápidos antes del PR, salvo cuando se toca código compartido. Además, ya se corrigió que la suite se corría dos veces en los checks: la cobertura de `negocio/` ahora sale de `coverage report`, como en el CI.
 
 ## Formato
 Es **obligatorio** nombrar a la persona que hizo la sesión.
