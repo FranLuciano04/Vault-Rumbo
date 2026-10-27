@@ -77,6 +77,8 @@ class RepositorioClientes(RepositorioBase[Cliente]):
             criterios.append(Cliente.contacto_clave == clave_contacto(contacto))
         if nombre is not None:
             criterios.append(nombre_normalizado(Cliente.nombre) == normalizar(nombre))
+        if not criterios:
+            return []
         consulta = visibilidad.aplicar(select(Cliente).where(or_(*criterios)), Cliente)
         if excluir_id is not None:
             consulta = consulta.where(Cliente.id != excluir_id)

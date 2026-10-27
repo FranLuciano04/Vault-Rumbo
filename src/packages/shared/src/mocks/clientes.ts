@@ -214,7 +214,7 @@ export const manejadoresClientes: RequestHandler[] = [
     );
     if (duplicados.length > 0 && !datos.confirmar_duplicado) {
       return respuestaProblema(409, "Conflicto", {
-        detail: "Ya hay clientes con el mismo contacto o nombre. Confirmá para crearlo.",
+        detail: "Ya hay clientes con el mismo contacto o nombre. Confirmá para continuar.",
         duplicados: duplicados.map(aFicha),
       });
     }
@@ -264,7 +264,7 @@ export const manejadoresClientes: RequestHandler[] = [
     );
     if (duplicados.length > 0 && !confirmado) {
       return respuestaProblema(409, "Conflicto", {
-        detail: "Ya hay clientes con el mismo contacto o nombre. Confirmá para guardarlo.",
+        detail: "Ya hay clientes con el mismo contacto o nombre. Confirmá para continuar.",
         duplicados: duplicados.map(aFicha),
       });
     }

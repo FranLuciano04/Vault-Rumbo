@@ -13,10 +13,11 @@ from rumbo.datos.modelos import Cliente
 
 
 class PosibleDuplicado(Conflicto):
-    """El alta de un `Cliente` se parece a fichas existentes (CU-02 A1): el 409 las trae."""
+    """El alta o la edición de un `Cliente` se parece a fichas existentes (CU-02 A1, CU-03): el 409
+    las trae."""
 
     def __init__(self, duplicados: list[Cliente]) -> None:
-        super().__init__("Ya hay clientes con el mismo contacto o nombre. Confirmá para crearlo.")
+        super().__init__("Ya hay clientes con el mismo contacto o nombre. Confirmá para continuar.")
         self.duplicados = duplicados  # la presentación los vuelca en `extra` como esquema
 
 

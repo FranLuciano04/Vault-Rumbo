@@ -753,7 +753,9 @@ describe("RF-003 posible duplicado al editar (CU-03, H-04)", () => {
             duplicados,
           });
         }
-        const { confirmar_duplicado: _omitido, ...cambios } = cuerpo;
+        const cambios = Object.fromEntries(
+          Object.entries(cuerpo).filter(([campo]) => campo !== "confirmar_duplicado"),
+        );
         return HttpResponse.json({ ...camila, ...cambios });
       }),
     );
