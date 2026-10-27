@@ -30,7 +30,11 @@ function useTotalDelRango(
     ?.total;
   if (pendientes === undefined || (conVistas && vistas === undefined)) return undefined;
   const enEspera = resueltas.filter(
-    (a) => cuenta(a) && (conVistas || a.estado === "pendiente"),
+    (a) =>
+      (!filtros.responsable || a.propietario_id === filtros.responsable) &&
+      (!filtros.tipo || a.tipo === filtros.tipo) &&
+      cuenta(a) &&
+      (conVistas || a.estado === "pendiente"),
   ).length;
   return pendientes + (conVistas ? (vistas ?? 0) : 0) - enEspera;
 }
