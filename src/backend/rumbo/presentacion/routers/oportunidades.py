@@ -76,12 +76,17 @@ async def listar_oportunidades(
     mios: Annotated[bool, Query(description="Solo las oportunidades que tengo asignadas.")] = False,
     estado: Annotated[EstadoOportunidad | None, Query()] = None,
     cliente_id: Annotated[uuid.UUID | None, Query()] = None,
+    responsable_id: Annotated[
+        uuid.UUID | None,
+        Query(description="Solo las asignadas a ese responsable; si viene `mios`, gana `mios`."),
+    ] = None,
 ) -> Pagina[Oportunidad]:
     items, total = await oportunidades.listar_oportunidades(
         sesion,
         actor,
         estado=estado,
         cliente_id=cliente_id,
+        responsable_id=responsable_id,
         mios=mios,
         desplazamiento=paginacion.desplazamiento,
         limite=paginacion.por_pagina,

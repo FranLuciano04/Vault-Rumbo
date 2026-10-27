@@ -112,6 +112,8 @@ export interface FiltrosViajes {
 export interface FiltrosOportunidades {
   /** Solo las oportunidades que tengo asignadas. */
   mios?: boolean;
+  /** Oportunidades de un responsable: solo admin y dueño. */
+  responsable_id?: string;
   estado?: EstadoOportunidad;
   cliente_id?: string;
   pagina?: number;

@@ -86,6 +86,12 @@ class Oportunidad(IdMixin, AuditoriaMixin, Base):
     motivo_perdida: Mapped[MotivoPerdida | None]  # obligatorio al cerrar perdida (DEC-0013)
     motivo_perdida_detalle: Mapped[str | None] = mapped_column(Text)
     notas: Mapped[str | None] = mapped_column(Text)
+    # Cargado con la oportunidad en la misma consulta (join): el embudo muestra el nombre sin N+1.
+    cliente: Mapped[Cliente] = relationship(lazy="joined", innerjoin=True)
+
+    @property
+    def cliente_nombre(self) -> str:
+        return self.cliente.nombre
 
 
 class Cotizacion(IdMixin, AuditoriaMixin, Base):
