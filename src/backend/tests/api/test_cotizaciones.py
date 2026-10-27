@@ -158,6 +158,27 @@ async def test_rf021_cuerpo_invalido_422(
     assert op.estado is E.nueva
 
 
+async def test_rf021_total_que_desborda_la_columna_422(
+    cliente_como: FabricaCliente, sesion: AsyncSession
+) -> None:
+    """Cada precio entra en Numeric(14, 2), pero la suma no: 422, no un 500 de la base."""
+    c = await cliente_como("empleado")
+    op = await _op(sesion, c.usuario.id)  # type: ignore[attr-defined]
+    cuerpo = {
+        "moneda": "USD",
+        "items": [
+            {"concepto": "A", "precio": "999999999999.99"},
+            {"concepto": "B", "precio": "999999999999.99"},
+        ],
+    }
+
+    r = await c.post(_url(op), json=cuerpo)
+
+    assert r.status_code == 422
+    assert r.headers["content-type"].startswith(PROBLEM_JSON)
+    assert await _de(sesion, op) == []
+
+
 async def test_rf021_oportunidad_inexistente_404(cliente_como: FabricaCliente) -> None:
     c = await cliente_como("empleado")
 
