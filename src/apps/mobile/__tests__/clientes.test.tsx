@@ -293,6 +293,115 @@ describe("RF-005 búsqueda mobile", () => {
   });
 });
 
+describe("RF-005 lista mobile con caché ya poblada (H-06 de M2)", () => {
+  // Misma clave que arma `useClientes`: ["clientes", "buscar", filtros].
+  const CLAVE_PAGINA_1 = ["clientes", "buscar", { buscar: "", pagina: 1 }];
+
+  function renderConCache() {
+    return renderRouter(
+      { _layout: Raiz, "(pestanas)/clientes/index": ListaClientes },
+      { initialUrl: "/clientes" },
+    );
+  }
+
+  it("RF-005 con la primera página en caché y un refetch idéntico, la lista muestra los clientes y no el vacío", async () => {
+    backend({ paginas: [[camila, sosa, joaquin]] });
+    queryClient.clear();
+    queryClient.setQueryData(CLAVE_PAGINA_1, {
+      items: [camila, sosa, joaquin],
+      total: 3,
+      pagina: 1,
+      por_pagina: 20,
+    });
+    const vista = await renderConCache();
+
+    // El refetch al montar termina (la caché está vencida) y devuelve el mismo contenido.
+    await waitFor(() => {
+      expect(llamadasLista()).toHaveLength(1);
+    });
+    await waitFor(() => {
+      expect(queryClient.isFetching()).toBe(0);
+    });
+
+    expect(vista.queryByText(/no encontramos clientes/i)).toBeNull();
+    expect(vista.getByText("Camila Benítez")).toBeTruthy();
+    expect(vista.getByText("Familia Sosa")).toBeTruthy();
+    expect(vista.getByText("Joaquín Ramos")).toBeTruthy();
+  });
+
+  const PAGINA_1_DE_2 = { items: [camila, sosa], total: 3, pagina: 1, por_pagina: 20 };
+
+  it("RF-005 con la página 1 en caché, al llegar al final durante un refetch en segundo plano se agrega la página 2 sin perder la 1", async () => {
+    backend({ paginas: [[camila, sosa], [joaquin]] });
+    const responder = mockHttp.getMockImplementation() as (config: Config) => Promise<unknown>;
+    // El refetch de la página 1 queda pendiente hasta que el test lo libera.
+    let liberarPagina1 = () => {};
+    mockHttp.mockImplementation((config) => {
+      if (config.url === "/api/clientes" && config.params?.["pagina"] === 1) {
+        return new Promise((resolver) => {
+          liberarPagina1 = () => {
+            resolver(responder(config));
+          };
+        });
+      }
+      return responder(config);
+    });
+    queryClient.clear();
+    queryClient.setQueryData(CLAVE_PAGINA_1, PAGINA_1_DE_2);
+    const vista = await renderConCache();
+
+    await vista.findByText("Camila Benítez");
+    await waitFor(() => {
+      expect(queryClient.isFetching()).toBe(1);
+    });
+
+    await act(async () => {
+      await fireEvent(vista.getByTestId("lista-clientes"), "endReached");
+    });
+
+    await vista.findByText("Joaquín Ramos");
+    expect(llamadasLista().some((c) => c.params?.["pagina"] === 2)).toBe(true);
+
+    await act(() => {
+      liberarPagina1();
+    });
+    await waitFor(() => {
+      expect(queryClient.isFetching()).toBe(0);
+    });
+    const nombres = vista
+      .getAllByText(/^(Camila Benítez|Familia Sosa|Joaquín Ramos)$/)
+      .map((n) => n.props.children as string);
+    expect(nombres).toEqual(["Camila Benítez", "Familia Sosa", "Joaquín Ramos"]);
+  });
+
+  it("RF-005 la página 2 sigue visible pasada la espera de la búsqueda y no se vuelve a pedir la página 1", async () => {
+    backend({ paginas: [[camila, sosa], [joaquin]] });
+    queryClient.clear();
+    queryClient.setQueryData(CLAVE_PAGINA_1, PAGINA_1_DE_2);
+    const montado = Date.now();
+    const vista = await renderConCache();
+
+    await vista.findByText("Camila Benítez");
+    await act(async () => {
+      await fireEvent(vista.getByTestId("lista-clientes"), "endReached");
+    });
+    await vista.findByText("Joaquín Ramos");
+
+    // Espera acotada: hay que dejar pasar la espera de 300 ms de la búsqueda, que usa temporizadores reales.
+    await waitFor(
+      () => {
+        expect(Date.now() - montado).toBeGreaterThan(450);
+      },
+      { timeout: 2000 },
+    );
+
+    expect(vista.getByText("Joaquín Ramos")).toBeTruthy();
+    const paginasPedidas = llamadasLista().map((c) => c.params?.["pagina"]);
+    expect(paginasPedidas.slice(paginasPedidas.lastIndexOf(2))).toEqual([2]);
+  });
+  // Caché vacía: ya cubierto por "lista los clientes que devuelve GET /api/clientes…" y "scroll paginado…".
+});
+
 describe("RF-006 ficha mobile", () => {
   it("muestra los datos del cliente: nombre, contacto, instagram, segmento, etiquetas y preferencias", async () => {
     backend({ fichas: { "id-1": camila } });
