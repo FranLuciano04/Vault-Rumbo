@@ -21,8 +21,9 @@ Proceso en `06-Desarrollo/Flujo de implementación.md` (DEC-0014). El módulo `M
 
 ## Fase B: procesar la review (Codex ya escribió `MN — review Codex.md`)
 1. Leer los hallazgos. **Verificar cada uno** contra el código. Si son muchos, lanzar `reviewer-ticket` con `model: sonnet` solo para confirmarlos. Anotar el resultado en la sección «Triage de Claude» del mismo archivo: confirmado o descartado, con el motivo.
+   - Para cada hallazgo confirmado, anotar su **alcance**: la lista cerrada de comportamientos que el arreglo tiene que fijar, cada uno verificable con un test (por ejemplo, «`POST /destinos` con nombre repetido → 409»). Es el criterio de terminado del arreglo y de su review. Lo que aparezca fuera de esa lista se anota como menor y se le consulta a la persona.
 2. Cada hallazgo **bloqueante** o **importante** confirmado **se arregla directamente, sin crear un ticket** (DEC-0019):
-   - En una rama `fix/MN-<hallazgo>` desde `main`, con los pasos de `/implementar-ticket`: test que reproduce la falla (`test-writer`), arreglo (`implementador` de la capa, en modo fix), review con un modelo distinto, checks completos y PR.
+   - En una rama `fix/MN-<hallazgo>` desde `main`, con los pasos de `/implementar-ticket`: test que reproduce la falla (`test-writer`), arreglo (`implementador` de la capa, en modo fix), review con un modelo distinto, checks completos y PR. Cada fase se cierra con `tickets.mjs fase fix/MN-<hallazgo> <fase> …`, que toma la rama como identificador, y el PR se abre con `/pr` en su variante para ramas `fix/`.
    - Si toca auth, permisos, dinero, estados o el proceso diario, la review la hace `reviewer-seguridad` y el PR necesita la aprobación de otro integrante.
    - Se pueden agrupar varios hallazgos chicos de la misma zona en una misma rama.
    - Los **menores** se le consultan a la persona.
