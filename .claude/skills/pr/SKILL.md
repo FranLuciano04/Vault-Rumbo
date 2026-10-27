@@ -1,6 +1,6 @@
 ---
 name: pr
-description: Escribe y abre el pull request de un ticket de Rumbo con el formato fijo del proyecto (objetivo, trazabilidad, evidencia TDD, tests y cobertura, review, modelos, riesgo y checklist). La usa /implementar-ticket al cerrar cada ticket; también se puede invocar con /pr T-NNN desde la rama de un ticket.
+description: Escribe y abre el pull request de un ticket de Rumbo, o de una rama fix/ sin ticket, con el formato fijo del proyecto (objetivo, trazabilidad, evidencia TDD, tests y cobertura, review, modelos, riesgo y checklist). La usan /implementar-ticket y /cerrar-modulo; también se puede invocar con /pr T-NNN o /pr fix/<rama>.
 ---
 
 # PR de un ticket
@@ -82,6 +82,17 @@ Cuerpo, en un archivo temporal **fuera del repo**, pasado con `gh pr create --bo
 
 🤖 Generated with [Claude Code](https://claude.com/claude-code)
 ```
+
+## Variante para una rama `fix/…` sin ticket (DEC-0019)
+La misma plantilla, con estos cambios:
+- **Título:** `fix: <qué comportamiento queda arreglado> (<hallazgo>, <CU>)`, por ejemplo `fix: los requisitos no siguen abiertos al cambiar de destino (H-01 de M1, CU-15)`.
+- **Objetivo:** la falla, cómo se veía y la causa. En lugar de la línea del ticket va el origen (el hallazgo de la review de Codex, con la ruta de su triage, o el ticket donde apareció) y el riesgo.
+- **Criterios de aceptación:** son los comportamientos del **alcance** que fija el triage del hallazgo, cada uno con su test.
+- **Evidencia TDD:** los commits `test(fix): …` y `fix: …`. Si el hallazgo es un hueco de tests y no un bug, no hay rojo: la evidencia es la mutación (qué se quitó, que los tests fallaron y que el código se restauró).
+- **Modelos usados:** una columna «Modelo», sin «Planificado».
+- **Checklist:** sin la línea del `estado: hecho`.
+
+Ejemplos reales: los PR #93, #95 y #100.
 
 ## Abrir el PR
 ```bash
