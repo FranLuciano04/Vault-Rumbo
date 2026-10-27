@@ -257,7 +257,9 @@ describe("RF-021 emitir cotización", () => {
     await completarItem(u, 1, "Alojamiento", "1700");
     await u.click(screen.getByRole("button", { name: /generar documento/i }));
 
-    await waitFor(() => expect(cuerpos).toHaveLength(1));
+    await waitFor(() => {
+      expect(cuerpos).toHaveLength(1);
+    });
     const cuerpo = cuerpos[0] as { moneda: string; items: { concepto: string; precio: string }[] };
     expect(cuerpo.moneda).toBe("USD");
     expect(cuerpo.items).toHaveLength(2);
@@ -414,7 +416,9 @@ describe("RF-022 vista del freelance (pantalla 41)", () => {
     await completarItem(u, 0, "Aéreo", "780000");
     await u.click(screen.getByRole("button", { name: /generar documento/i }));
 
-    await waitFor(() => expect(cuerpos).toHaveLength(1));
+    await waitFor(() => {
+      expect(cuerpos).toHaveLength(1);
+    });
   });
 
   it("RF-022 si el freelance no puede emitir sobre esa oportunidad (403) muestra el detail", async () => {
