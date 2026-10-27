@@ -1047,3 +1047,23 @@ async def test_rf015_oportunidad_id_invalido_es_422(cliente_como: FabricaCliente
     r = await c.get("/api/alertas", params={"oportunidad_id": "no-es-uuid"})
 
     assert r.status_code == 422
+
+
+@pytest.mark.parametrize("estado", [EstadoAlerta.pendiente, EstadoAlerta.resuelta])
+async def test_rf015_oportunidad_id_incluye_las_alertas_a_futuro(
+    cliente_como: FabricaCliente, sesion: AsyncSession, estado: EstadoAlerta
+) -> None:
+    c = await cliente_como("empleado")
+    yo = _propio(c)
+    cliente = await crear(sesion, ClienteFactory)
+    op = await crear(sesion, OportunidadFactory, cliente_id=cliente.id, responsable_id=yo.id)
+    futura = hoy() + timedelta(days=5)
+    pendiente = await _alerta(sesion, yo, futura, "pendiente", TipoAlerta.insistencia, op)
+    resuelta = await _alerta(sesion, yo, futura, "resuelta", TipoAlerta.insistencia, op)
+    resuelta.estado = EstadoAlerta.resuelta
+    resuelta.resuelta_en = datetime.now(UTC)
+    esperada = pendiente if estado == EstadoAlerta.pendiente else resuelta
+
+    r = await c.get("/api/alertas", params={"oportunidad_id": str(op.id), "estado": estado.value})
+
+    assert _ids(r) == [str(esperada.id)]

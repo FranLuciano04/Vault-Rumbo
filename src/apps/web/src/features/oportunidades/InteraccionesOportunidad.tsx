@@ -10,6 +10,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { mensajeDeError } from "@/lib/errores";
 import { esquemaInteraccion, type DatosInteraccion } from "./esquemas";
 
+const SALTO = "\n";
+
 /**
  * Interacciones de la oportunidad (RF-014): cada línea de las notas es un ítem y registrar una
  * agrega al final `dd/mm/aa — <nombre>: <texto>`.
@@ -31,15 +33,19 @@ export function InteraccionesOportunidad({
     resolver: zodResolver(esquemaInteraccion),
     defaultValues: { texto: "" },
   });
-  const lineas = (oportunidad.notas ?? "").split("\n").filter((linea) => linea.trim() !== "");
+  const notas = oportunidad.notas ?? "";
+  // Las líneas en blanco no son ítems: se filtran solo al mostrar; las notas guardadas quedan intactas.
+  const lineas = notas.split(SALTO).filter((linea) => linea.trim() !== "");
 
   async function registrar({ texto }: DatosInteraccion) {
     setError(null);
-    const entrada = `${formatearFecha(new Date().toISOString())} — ${usuario.nombre}: ${texto}`;
+    // Un salto de línea partiría la interacción en varios ítems: va en una sola línea.
+    const unaLinea = texto.replace(/\s*\n\s*/g, " ");
+    const entrada = `${formatearFecha(new Date().toISOString())} — ${usuario.nombre}: ${unaLinea}`;
     try {
       await editar.mutateAsync({
         oportunidadId: oportunidad.id,
-        cambios: { notas: [...lineas, entrada].join("\n") },
+        cambios: { notas: notas ? `${notas}${SALTO}${entrada}` : entrada },
       });
       formulario.reset();
     } catch (falla) {
@@ -49,9 +55,9 @@ export function InteraccionesOportunidad({
 
   return (
     <section aria-labelledby="titulo-interacciones" className="space-y-3">
-      <p id="titulo-interacciones" className="text-lg font-semibold">
+      <h2 id="titulo-interacciones" className="text-lg font-semibold">
         Interacciones
-      </p>
+      </h2>
       {lineas.length === 0 ? (
         <p className="text-sm text-muted-foreground">Todavía no hay interacciones registradas.</p>
       ) : (

@@ -40,6 +40,9 @@ export function DetalleOportunidad({
 
   const { fecha_desde_tentativa: desde, fecha_hasta_tentativa: hasta } = oportunidad;
   const abierta = oportunidad.estado !== "ganada" && oportunidad.estado !== "perdida";
+  // Escribe quien es responsable, admin o dueño; el resto solo lee (la API lo hace valer igual).
+  const puedeEscribir =
+    usuario.rol === "admin" || usuario.rol === "dueno" || usuario.id === oportunidad.responsable_id;
   return (
     <div className="space-y-6">
       <header className="space-y-1">
@@ -57,17 +60,17 @@ export function DetalleOportunidad({
           </p>
         )}
       </header>
-      <AccionesOportunidad cliente={cliente} oportunidad={oportunidad} />
+      {puedeEscribir && <AccionesOportunidad cliente={cliente} oportunidad={oportunidad} />}
       <InteraccionesOportunidad
         cliente={cliente}
         usuario={usuario}
         oportunidad={oportunidad}
-        puedeRegistrar={abierta}
+        puedeRegistrar={abierta && puedeEscribir}
       />
       <InsistenciasOportunidad
         cliente={cliente}
         oportunidadId={oportunidad.id}
-        puedeAgendar={abierta}
+        puedeAgendar={abierta && puedeEscribir}
       />
     </div>
   );

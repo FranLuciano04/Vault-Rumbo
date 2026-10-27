@@ -189,9 +189,11 @@ class RepositorioAlertas(RepositorioBase[Alerta]):
         visibilidad: Visibilidad,
     ) -> tuple[list[Alerta], int]:
         """Página en `estado`, por fecha, y el total que cumple los filtros: las de fecha
-        `<= hoy` (atrasadas incluidas) o, con `proximas`, las de fecha `> hoy`."""
+        `<= hoy` (atrasadas incluidas) o, con `proximas`, las de fecha `> hoy`. Con `oportunidad_id`
+        no hay ventana de hoy ni `proximas`: todas las de esa oportunidad, de cualquier fecha."""
         consulta = visibilidad.aplicar(select(Alerta), Alerta).where(Alerta.estado == estado)
-        consulta = consulta.where(Alerta.fecha > hoy if proximas else Alerta.fecha <= hoy)
+        if oportunidad_id is None:
+            consulta = consulta.where(Alerta.fecha > hoy if proximas else Alerta.fecha <= hoy)
         if tipo is not None:
             consulta = consulta.where(Alerta.tipo == tipo)
         if desde is not None:

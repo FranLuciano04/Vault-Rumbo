@@ -2889,10 +2889,10 @@
                   "type": "null"
                 }
               ],
-              "description": "Solo las alertas cuyo origen es esta `Oportunidad` (RF-015).",
+              "description": "Solo las alertas cuyo origen es esta `Oportunidad` (RF-015), de cualquier fecha: ignora la ventana de hoy y `proximas`; respeta `estado`, `tipo` y la visibilidad del rol.",
               "title": "Oportunidad Id"
             },
-            "description": "Solo las alertas cuyo origen es esta `Oportunidad` (RF-015)."
+            "description": "Solo las alertas cuyo origen es esta `Oportunidad` (RF-015), de cualquier fecha: ignora la ventana de hoy y `proximas`; respeta `estado`, `tipo` y la visibilidad del rol."
           },
           {
             "name": "pagina",

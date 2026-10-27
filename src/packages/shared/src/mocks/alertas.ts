@@ -285,7 +285,7 @@ function manejadoresDe(actor: ActorMock): RequestHandler[] {
           a.estado === (estado ?? "pendiente") &&
           (!tipo || a.tipo === tipo) &&
           (!oportunidad || a.oportunidad_id === oportunidad) &&
-          (proximas ? a.fecha > HOY_MOCK : a.fecha <= HOY_MOCK) &&
+          (oportunidad || (proximas ? a.fecha > HOY_MOCK : a.fecha <= HOY_MOCK)) &&
           (!desdeFecha || a.fecha >= desdeFecha) &&
           (!hasta || a.fecha <= hasta),
       );

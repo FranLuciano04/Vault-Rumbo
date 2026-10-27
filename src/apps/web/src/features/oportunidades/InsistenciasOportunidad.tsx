@@ -54,9 +54,9 @@ export function InsistenciasOportunidad({
 
   return (
     <section aria-labelledby="titulo-insistencias" className="space-y-3">
-      <p id="titulo-insistencias" className="text-lg font-semibold">
+      <h2 id="titulo-insistencias" className="text-lg font-semibold">
         Insistencias
-      </p>
+      </h2>
       {pendientes.isError || atendidas.isError ? (
         <p role="alert" className="text-sm text-destructive">
           No pudimos cargar las insistencias.

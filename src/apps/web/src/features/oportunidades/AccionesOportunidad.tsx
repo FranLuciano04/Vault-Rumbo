@@ -46,7 +46,7 @@ export function AccionesOportunidad({
   const ganar = useGanarOportunidad(cliente);
   const perder = usePerderOportunidad(cliente);
   const reactivar = useReactivarOportunidad(cliente);
-  const [perdiendo, setPerdiendo] = useState(false);
+  const [paso, setPaso] = useState<"ganar" | "perder" | null>(null);
   const [error, setError] = useState<string | null>(null);
   const formulario = useForm<DatosPerder>({
     resolver: zodResolver(esquemaPerder),
@@ -55,6 +55,7 @@ export function AccionesOportunidad({
   const { errors, isSubmitting } = formulario.formState;
   const motivoElegido = useWatch({ control: formulario.control, name: "motivo_perdida" });
   const admite = ADMITE[oportunidad.estado];
+  const pendiente = tomar.isPending || ganar.isPending || perder.isPending || reactivar.isPending;
 
   async function ejecutar(accion: () => Promise<unknown>) {
     setError(null);
@@ -74,7 +75,7 @@ export function AccionesOportunidad({
           ...(motivo_perdida === "otro" && { motivo_perdida_detalle }),
         },
       });
-      setPerdiendo(false);
+      setPaso(null);
       formulario.reset();
     });
   }
@@ -85,33 +86,63 @@ export function AccionesOportunidad({
         {admite.enGestion && (
           <Button
             variant="outline"
+            disabled={pendiente}
             onClick={() => void ejecutar(() => tomar.mutateAsync(oportunidad.id))}
           >
             Pasar a en gestión
           </Button>
         )}
-        {admite.ganar && (
-          <Button onClick={() => void ejecutar(() => ganar.mutateAsync(oportunidad.id))}>
+        {admite.ganar && paso !== "ganar" && (
+          <Button disabled={pendiente} onClick={() => { setPaso("ganar"); }}>
             Ganar
           </Button>
         )}
-        {admite.perder && !perdiendo && (
+        {admite.perder && paso !== "perder" && (
           <Button
             variant="outline"
+            disabled={pendiente}
             onClick={() => {
-              setPerdiendo(true);
+              setPaso("perder");
             }}
           >
             Perder
           </Button>
         )}
         {admite.reactivar && (
-          <Button onClick={() => void ejecutar(() => reactivar.mutateAsync(oportunidad.id))}>
+          <Button
+            disabled={pendiente}
+            onClick={() => void ejecutar(() => reactivar.mutateAsync(oportunidad.id))}
+          >
             Reactivar
           </Button>
         )}
       </div>
-      {admite.perder && perdiendo && (
+      {admite.ganar && paso === "ganar" && (
+        <div
+          role="group"
+          aria-label="Ganar la oportunidad"
+          className="flex flex-col gap-3 rounded-2xl border bg-card p-4"
+        >
+          <p className="text-sm">¿Confirmás que la oportunidad se ganó? No se puede deshacer.</p>
+          <div className="flex gap-2">
+            <Button
+              disabled={pendiente}
+              onClick={() =>
+                void ejecutar(async () => {
+                  await ganar.mutateAsync(oportunidad.id);
+                  setPaso(null);
+                })
+              }
+            >
+              Confirmar
+            </Button>
+            <Button variant="outline" onClick={() => { setPaso(null); }}>
+              Cancelar
+            </Button>
+          </div>
+        </div>
+      )}
+      {admite.perder && paso === "perder" && (
         <form
           noValidate
           aria-label="Perder la oportunidad"
@@ -145,14 +176,14 @@ export function AccionesOportunidad({
             </CampoFormulario>
           )}
           <div className="flex gap-2">
-            <Button type="submit" disabled={isSubmitting}>
+            <Button type="submit" disabled={isSubmitting || pendiente}>
               Confirmar
             </Button>
             <Button
               type="button"
               variant="outline"
               onClick={() => {
-                setPerdiendo(false);
+                setPaso(null);
               }}
             >
               Cancelar

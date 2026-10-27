@@ -1,4 +1,4 @@
-import { crearCliente, type EstadoOportunidad } from "@rumbo/shared";
+import { crearCliente, type EstadoOportunidad, type UsuarioActual } from "@rumbo/shared";
 import {
   alertasMock,
   crearServidor,
@@ -35,7 +35,7 @@ afterAll(() => {
 
 const cliente = crearCliente({ baseURL: "http://localhost", obtenerToken: () => "token" });
 
-function renderDetalle(id: string) {
+function renderDetalle(id: string, usuarioActual: UsuarioActual = usuariosPorRol.empleado) {
   return render(
     <QueryClientProvider
       client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}
@@ -44,7 +44,7 @@ function renderDetalle(id: string) {
         <Routes>
           <Route
             path="/oportunidades/:id"
-            element={<DetalleOportunidad cliente={cliente} usuario={usuariosPorRol.empleado} />}
+            element={<DetalleOportunidad cliente={cliente} usuario={usuarioActual} />}
           />
         </Routes>
       </MemoryRouter>
@@ -266,10 +266,10 @@ describe("RF-015 línea de tiempo: insistencias de la oportunidad", () => {
       estado: "resuelta",
     });
     servidor.use(
+      // Contrato de `GET /alertas` con `oportunidad_id`: todas las del estado pedido, futuras incluidas.
       http.get("*/api/alertas", ({ request }) => {
-        const estado = new URL(request.url).searchParams.get("estado") ?? "pendiente";
-        const items =
-          estado === "pendiente" ? [pendiente] : estado === "resuelta" ? [atendida] : [];
+        const buscado = new URL(request.url).searchParams.get("estado");
+        const items = [pendiente, atendida].filter((a) => a.estado === buscado);
         return HttpResponse.json({ items, total: items.length, pagina: 1, por_pagina: 20 });
       }),
     );
@@ -325,7 +325,7 @@ describe("RF-015 insistencias", () => {
     "RF-015 no se agenda insistencia en una oportunidad %s",
     async (estado) => {
       renderDetalle(idOportunidadMock[estado]);
-      await screen.findByRole("heading", { name: /./ });
+      await screen.findByRole("heading", { level: 1 });
 
       expect(
         screen.queryByRole("button", { name: /agendar insistencia/i }),
@@ -352,7 +352,7 @@ describe("RF-016 y RF-017 acciones de estado según EST-Oportunidad", () => {
     "RF-016 en %s ofrece: en gestión=%s, ganar=%s, perder=%s, reactivar=%s",
     async (estado, eg, g, p, r) => {
       renderDetalle(idOportunidadMock[estado]);
-      await screen.findByRole("heading", { name: /./ });
+      await screen.findByRole("heading", { level: 1 });
 
       const hay = (n: RegExp) => screen.queryByRole("button", { name: n }) !== null;
       expect([
@@ -371,6 +371,7 @@ describe("RF-016 y RF-017 acciones de estado según EST-Oportunidad", () => {
     await screen.findByRole("heading", { name: /mendoza/i });
 
     await usuario.click(screen.getByRole("button", { name: botones.ganar }));
+    await usuario.click(screen.getByRole("button", { name: /confirmar/i }));
 
     expect(await screen.findByText(/ganada/i)).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: botones.perder })).not.toBeInTheDocument();
@@ -401,6 +402,7 @@ describe("RF-016 y RF-017 acciones de estado según EST-Oportunidad", () => {
     await screen.findByRole("heading", { name: /mendoza/i });
 
     await usuario.click(screen.getByRole("button", { name: botones.ganar }));
+    await usuario.click(screen.getByRole("button", { name: /confirmar/i }));
 
     expect(await screen.findByRole("alert")).toHaveTextContent(
       "No se puede ganar una oportunidad perdida.",
@@ -576,5 +578,85 @@ describe("RF-020 reactivar", () => {
     expect(await screen.findByRole("alert")).toHaveTextContent(
       "No se puede reactivar una oportunidad en_gestion.",
     );
+  });
+});
+
+describe("RF-014 interacciones: notas intactas y entrada de una línea", () => {
+  it("RF-014 conserva tal cual las notas previas, líneas en blanco incluidas", async () => {
+    const previas = "20/10/26 — Ana Pérez: Uno\n\n22/10/26 — Tomás Roldán: Dos\n";
+    const cuerpos: Record<string, unknown>[] = [];
+    servidor.use(
+      http.get(`*/api/oportunidades/${abierta}`, () =>
+        HttpResponse.json({ ...porId(abierta), notas: previas }),
+      ),
+      registrar("patch", `*/api/oportunidades/${abierta}`, cuerpos),
+    );
+    const usuario = userEvent.setup();
+    renderDetalle(abierta);
+    await screen.findByText(/Uno/);
+
+    await usuario.type(screen.getByRole("textbox", { name: /interacción/i }), "Tres");
+    await usuario.click(screen.getByRole("button", { name: /registrar interacción/i }));
+
+    await waitFor(() => {
+      expect(cuerpos).toHaveLength(1);
+    });
+    expect(cuerpos[0]?.["notas"]).toBe(`${previas}\n25/10/26 — Ana Pérez: Tres`);
+  });
+
+  it("RF-014 un texto de varias líneas queda en una sola entrada", async () => {
+    const cuerpos: Record<string, unknown>[] = [];
+    servidor.use(registrar("patch", `*/api/oportunidades/${abierta}`, cuerpos));
+    const usuario = userEvent.setup();
+    renderDetalle(abierta);
+    await screen.findByRole("heading", { name: /mendoza/i });
+
+    await usuario.type(
+      screen.getByRole("textbox", { name: /interacción/i }),
+      "Primero{Enter}{Enter}segundo",
+    );
+    await usuario.click(screen.getByRole("button", { name: /registrar interacción/i }));
+
+    await waitFor(() => {
+      expect(cuerpos).toHaveLength(1);
+    });
+    expect(cuerpos[0]?.["notas"]).toBe(`${ENTRADA_PREVIA}\n25/10/26 — Ana Pérez: Primero segundo`);
+  });
+});
+
+describe("RF-017 ganar pide confirmación", () => {
+  it("RF-017 cancelar no manda el POST /ganar", async () => {
+    const cuerpos: Record<string, unknown>[] = [];
+    servidor.use(registrar("post", `*/api/oportunidades/${abierta}/ganar`, cuerpos));
+    const usuario = userEvent.setup();
+    renderDetalle(abierta);
+    await screen.findByRole("heading", { name: /mendoza/i });
+
+    await usuario.click(screen.getByRole("button", { name: /^ganar/i }));
+    expect(screen.getByText(/no se puede deshacer/i)).toBeInTheDocument();
+    await usuario.click(screen.getByRole("button", { name: /cancelar/i }));
+
+    expect(screen.queryByText(/no se puede deshacer/i)).not.toBeInTheDocument();
+    expect(cuerpos).toHaveLength(0);
+  });
+});
+
+describe("Permisos de escritura sobre la oportunidad", () => {
+  const ajeno = { ...usuariosPorRol.empleado, id: "99999999-9999-4999-8999-999999999999" };
+
+  it("un empleado que no es el responsable la ve sin acciones ni formularios", async () => {
+    renderDetalle(abierta, ajeno);
+    await screen.findByRole("heading", { name: /mendoza/i });
+
+    expect(screen.queryByRole("button", { name: /^ganar|^perder/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole("textbox", { name: /interacción/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /agendar insistencia/i })).not.toBeInTheDocument();
+  });
+
+  it("el dueño puede escribir aunque no sea el responsable", async () => {
+    renderDetalle(abierta, usuariosPorRol.dueno);
+    await screen.findByRole("heading", { name: /mendoza/i });
+
+    expect(screen.getByRole("button", { name: /^ganar/i })).toBeInTheDocument();
   });
 });
