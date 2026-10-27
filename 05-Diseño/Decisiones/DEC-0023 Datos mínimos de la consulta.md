@@ -11,7 +11,7 @@ actualizado: 27/10/26
 
 tags:: #tipo/decision #estado/en-revision #pc/pc2 #accion/decidir
 
-> **Borrador, propuesto por Nahuel el 27/10/26 a partir de la review de T-069. Hace falta que el equipo lo apruebe.** Mientras no se apruebe, sigue vigente el contrato actual: destino y pasajeros son obligatorios.
+> **Borrador, propuesto por Nahuel el 27/10/26 a partir de la review de T-069. Paloma lo aprobó el 27/10/26; falta Francisco.** Mientras no se apruebe, sigue vigente el contrato actual: destino y pasajeros son obligatorios.
 
 ## Contexto
 - **Qué dice el análisis:** [[CU-04 Registrar consulta]] A3 (formalizado) y RF-013 ([[Requisitos funcionales]]) dicen que la [[Oportunidad]] se guarda en `nueva` «con lo mínimo (canal + cliente)» y que el resto se completa más tarde.

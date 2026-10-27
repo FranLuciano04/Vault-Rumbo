@@ -51,6 +51,7 @@ La **persona** de cada sesión es quien la corre, identificada por su identidad 
 
 ### Francisco (`FranLucianoo`) — DEC-0022
 - **27/10, de Nahuel (Paloma ya lo vio): hay que revisar el borrador [[DEC-0022 Suite completa solo en el CI|DEC-0022]].** Propone dejar la suite completa del backend solo en el CI y correr en la PC únicamente los checks rápidos antes del PR, salvo cuando se toca código compartido. Además, ya se corrigió que la suite se corría dos veces en los checks: la cobertura de `negocio/` ahora sale de `coverage report`, como en el CI.
+- **27/10, de Paloma: aprobó por su parte el borrador [[DEC-0023 Datos mínimos de la consulta|DEC-0023]]** (destino y pasajeros opcionales al registrar una consulta; mínimo: cliente y canal). Falta tu aprobación para formalizarla. T-062 ya está tomado y sigue el contrato vigente, así que si se aprueba el cambio va en un ticket nuevo de backend.
 
 ## Formato
 Es **obligatorio** nombrar a la persona que hizo la sesión.
