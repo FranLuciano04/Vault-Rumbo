@@ -233,3 +233,52 @@ async def test_rf151_con_duplicados_asocia_el_cliente_de_su_responsable(
     await sembrar_alertas(sesion)
 
     assert (await _alerta_de_lucia(sesion)).cliente_id == propio.id
+
+
+async def test_rf151_la_semilla_asocia_a_la_empleada_un_cliente_de_otro_asesor(
+    sesion: AsyncSession,
+) -> None:
+    await sembrar_configuracion(sesion)
+    await sembrar_clientes(sesion)
+    freelance = await _usuario(sesion, "freelance.demo@rumbo.test")
+    empleada = await _usuario(sesion, "empleada.demo@rumbo.test")
+    familia = (
+        await sesion.scalars(select(Cliente).where(Cliente.contacto == "familia.perez@rumbo.test"))
+    ).one()
+    familia.asesor_asignado_id = freelance.id
+    await sesion.flush()
+
+    await sembrar_alertas(sesion)
+
+    consulta = select(Alerta).where(
+        Alerta.propietario_id == empleada.id,
+        Alerta.descripcion.like("Demo: llamar a la Familia Demo Pérez%"),
+    )
+    alerta = (await sesion.scalars(consulta)).one()
+    assert alerta.cliente_id == familia.id, "la empleada ve todos los clientes (RF-151)"
+
+
+async def test_rf151_con_duplicados_del_mismo_asesor_asocia_el_mas_antiguo(
+    sesion: AsyncSession,
+) -> None:
+    await sembrar_configuracion(sesion)
+    freelance = await _usuario(sesion, "freelance.demo@rumbo.test")
+    mas_antiguo = Cliente(
+        nombre="Lucía Gómez (cargada antes)",
+        contacto="lucia.gomez@rumbo.test",
+        segmento=SegmentoCliente.individual,
+        asesor_asignado_id=freelance.id,
+        created_at=datetime.now(UTC) - timedelta(days=30),
+    )
+    mas_nuevo = Cliente(
+        nombre="Lucía Demo Gómez",
+        contacto="lucia.gomez@rumbo.test",
+        segmento=SegmentoCliente.individual,
+        asesor_asignado_id=freelance.id,
+    )
+    sesion.add_all([mas_nuevo, mas_antiguo])
+    await sesion.flush()
+
+    await sembrar_alertas(sesion)
+
+    assert (await _alerta_de_lucia(sesion)).cliente_id == mas_antiguo.id
