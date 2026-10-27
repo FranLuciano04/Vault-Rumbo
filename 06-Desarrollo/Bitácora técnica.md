@@ -45,3 +45,24 @@ tags:: #tipo/referencia
   - el `PermissionError` de `tmp_path` de pytest en la PC de Nahuel.
 - **Decisiones tocadas:** [[DEC-0001 Stack tecnológico]], [[DEC-0005 Autenticación y modelo de roles]], [[DEC-0008 Autenticación propia y rol de vendedor freelance]], [[DEC-0011 Infraestructura de despliegue on-premise]], [[DEC-0012 Modelo de IA del producto]], [[DEC-0013 Datos que faltaban en el ER]], [[DEC-0014 Flujo de implementación con agentes]], [[DEC-0015 Decisiones de implementación]], [[DEC-0016 Autenticación con Firebase]], [[DEC-0018 Revocación de sesiones de Firebase]].
 - Aprobación del equipo: 23/10/26. Tag `mod-0` sobre `d57e8f2`.
+
+### 26/10/26 — Nahuel (con el equipo) — M1 Usuarios y configuración cerrado (`mod-1`)
+- **Qué quedó:**
+  - Alta de `Usuario` con su cuenta de Firebase. Una cuenta de Firebase sin `Usuario` se borra y se crea de nuevo (T-153), y el alta toma un lock por email.
+  - Cambio de rol y baja lógica. La agencia nunca queda sin un admin activo (CU-25 A4) ni sin una dueña activa (A5), y solo una dueña toca a otra.
+  - Parámetros del negocio y comisión por defecto de cada vendedor.
+  - Catálogo de destinos con sus requisitos y catálogo de operadores, con nombre único sin distinguir mayúsculas, tildes ni espacios, y baja lógica.
+  - Errores de PostgreSQL traducidos a 409/422 problem+json (T-151).
+  - Contrato en `@rumbo/shared`, con mocks que responden como el backend.
+  - Pantalla de Configuración en la web y e2e de punta a punta.
+- **Tickets:** 19, de T-026 a T-038 más T-146, T-147, T-148, T-151, T-153 y T-163. Detalle y merges en [[M1 — pedido de review]].
+- **Review de Codex** ([[M1 — review Codex]]): 3 hallazgos, todos confirmados en el triage y arreglados sin ticket ([[DEC-0019 Las fallas se arreglan al encontrarlas|DEC-0019]]).
+  - H-01, bloqueante → PR #93: al cambiar de destino en la web seguían abiertas la baja o la edición del requisito del destino anterior. Se arregló con `key` en `RequisitosDestino`.
+  - H-02, importante → PR #93 (filtro por destino) y PR #95: los mocks de M1 solo cubrían el camino feliz. Ahora filtran, paginan y responden 409/422 con `errores` por campo. Además, `normalizarTexto` y `pagina` quedan en `mocks/utilidades.ts` y la validación en `mocks/validacion.ts`.
+  - H-03, importante → PR #100, de riesgo alto y aprobado por otro integrante: 8 tests con dos transacciones simultáneas para el último admin y la última dueña, que fallan si se quita el `FOR UPDATE`.
+- **Pendientes que no bloquean:**
+  - Fidelidad de los mocks, anotada en el PR #95: falta el 422 de `pagina` y `por_pagina` y el 404 de los requisitos de un destino inexistente; `normalizarTexto` saca todas las marcas diacríticas, incluida la ñ, y el backend solo las tildes; y no se copiaron los mensajes exactos de Pydantic.
+  - El actor se carga antes de bloquear, así que una dueña a la que demueven en paralelo completa su acción con el rol viejo. En A5 el resultado final es correcto.
+  - Con el timeout por defecto, la suite web falla al azar por timeouts cuando la máquina está cargada, y pasa con `--testTimeout=30000`. Dos sesiones que corren el backend sobre la misma base de tests pueden pisarse.
+- **Decisiones tocadas:** [[DEC-0004 Comisión configurable por porcentaje]], [[DEC-0005 Autenticación y modelo de roles]], [[DEC-0006 Destino como entidad de catálogo]], [[DEC-0007 Modelo económico — ganancia, margen y comisión de vendedor]], [[DEC-0008 Autenticación propia y rol de vendedor freelance]], [[DEC-0009 Operador-Proveedor como entidad de catálogo]], [[DEC-0013 Datos que faltaban en el ER]], [[DEC-0016 Autenticación con Firebase]], [[DEC-0019 Las fallas se arreglan al encontrarlas]].
+- Aprobación del equipo: 26/10/26. Tag `mod-1` sobre `1024133`.
