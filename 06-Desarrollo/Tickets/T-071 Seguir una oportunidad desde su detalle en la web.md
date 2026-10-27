@@ -3,7 +3,7 @@ id: T-071
 titulo: Seguir una oportunidad desde su detalle en la web
 modulo: M4 — Oportunidades y cotizaciones
 capa: web
-estado: tomado
+estado: hecho
 depende_de: [T-070]
 tamaño: M
 riesgo: normal
@@ -46,3 +46,14 @@ El detalle de la oportunidad muestra su historia y permite registrar interaccion
 - Cotizaciones (ticket propio).
 
 ## Notas de implementación
+- **Decisiones de Paloma en la sesión:**
+  - **Interacciones.** No hay entidad `Interacción`: cada una se agrega al final de `Oportunidad.notas` como una línea `dd/mm/aa — <nombre>: <texto>`. Las notas previas no se tocan.
+    - Riesgo aceptado: si dos personas registran a la vez, una pisa a la otra (PATCH desde el cliente, PyME).
+  - **Contrato ampliado.** `GET /alertas?oportunidad_id=` devuelve las alertas de esa oportunidad dentro de la visibilidad. Con ese filtro **no se aplica la ventana de hoy ni `proximas`**: así la línea de tiempo ve las insistencias a futuro.
+- **RF del ticket:** según `Requisitos funcionales.md`, RF-014 son las interacciones, RF-015 las insistencias, RF-016 los estados, RF-017 perder o ganar y RF-020 reactivar.
+  - **RF-019** (reagendar una insistencia vencida) **queda fuera**: hoy se pospone desde la agenda.
+- **Review (Opus):**
+  - Hallazgos: 1 bloqueante (las insistencias a futuro no se listaban), 2 importantes (las notas previas se reescribían, y ganar se hacía en un clic) y 3 menores (doble clic, acciones visibles para quien solo lee, y títulos sin `h2`).
+  - Todos se arreglaron, y la segunda ronda quedó limpia.
+- **Checks:** en la primera corrida de la suite de backend, 4 tests ajenos al ticket (clientes e Instagram) dieron error de setup por la carga de la máquina. Aislados pasan, y la segunda corrida dio 1787 sin errores.
+- **Modelos:** tests, implementación (backend y web) y refactor con Sonnet; review con Opus. Sin escalados.
