@@ -28,7 +28,7 @@ Relajar el contrato para que coincida con CU-04 A3:
 - En la base de datos las dos columnas pasan a admitir nulos, con una migración. El `CHECK` queda como `pasajeros IS NULL OR pasajeros >= 1`.
 - **Mínimo obligatorio:** cliente y canal, como dice el CU.
 - **Pantallas que muestran el destino o los pasajeros** (tarjeta y detalle de la oportunidad, historial del cliente en la web y en mobile, aviso de oportunidad abierta) muestran «Destino a definir» o «—» cuando falten.
-- **Pregunta abierta para el equipo:** ¿hace falta exigir destino y pasajeros antes de emitir una [[Cotización]] (T-066 ya está hecho)? La propuesta es que sí, con un 409 que explique qué falta, porque una cotización sin destino no tiene sentido. Si el equipo lo aprueba, se agrega como criterio en el ticket del backend.
+- **Antes de emitir una [[Cotización]]** la oportunidad tiene que tener destino y pasajeros. Si falta alguno, `POST` de la cotización responde 409 y explica qué falta (respuesta de Nahuel del 27/10/26; T-066 ya está hecho, así que es un cambio sobre lo emitido hoy).
 
 ## Alternativas consideradas
 | Opción | Pros | Contras | ¿Elegida? |
@@ -38,7 +38,7 @@ Relajar el contrato para que coincida con CU-04 A3:
 | Valores de relleno («A definir», 1 pasajero) en la web | Sin migración | Guarda datos falsos: los reportes y el embudo cuentan un pasajero que nadie informó | |
 
 ## Consecuencias (si se aprueba)
-- **Backend:** el cambio de contrato (esquemas, modelo, migración, `openapi.json` y tipos de `@rumbo/shared`) entra en T-062, o en un ticket nuevo de backend (`origen: hallazgo T-069`) si T-062 ya está tomado cuando se apruebe.
+- **Backend:** el cambio de contrato (esquemas, modelo, migración, `openapi.json` y tipos de `@rumbo/shared`) entra en T-062, o en un ticket nuevo de backend (`origen: hallazgo T-069`) si T-062 ya está tomado cuando se apruebe. Ese mismo ticket suma el 409 al emitir una cotización sin destino o sin pasajeros, con su test.
 - **Web y mobile:** un ticket de front que haga opcionales los campos en `esquemaConsulta` (T-069) y muestre el faltante en la tarjeta, el detalle y el historial. Los tests de RF-013 de `NuevaConsulta.test.tsx` cambian: sin destino y sin pasajeros se registra igual.
 - **Análisis:** CU-04 y RF-013 no cambian.
 - Si se elige la segunda alternativa, se actualizan CU-04 A3 y RF-013 y no se toca el código.
