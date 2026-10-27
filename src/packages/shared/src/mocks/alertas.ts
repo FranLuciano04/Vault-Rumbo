@@ -1,13 +1,13 @@
 import { http, HttpResponse, type RequestHandler } from "msw";
 import type { Alerta, AlertaCrear, AlertaEditar, AlertaPosponer, ProgresoDelDia } from "../modelos";
-import { type RolMock, usuariosPorRol } from "./index";
 import { respuestaProblema } from "./problema";
+import { type RolMock, usuariosPorRol } from "./usuarios";
 
 /** El «hoy» de la agenda ficticia, `aaaa-mm-dd`. */
 export const HOY_MOCK = "2026-10-25";
 
-/** Ana Pérez, la empleada de `usuariosPorRol`; no se importa de ahí porque `index` carga este archivo. */
-const propietario_id = "a1c4e7f0-3d58-4b92-b6a3-8f0e2d1c4b03";
+/** Ana Pérez, la empleada de `usuariosPorRol`. */
+const propietario_id = usuariosPorRol.empleado.id;
 const sinOrigen = {
   viaje_id: null,
   pago_id: null,
@@ -23,10 +23,10 @@ const auditoria = {
 };
 const abierta = { resuelta_en: null, cerrada_por_cancelacion: false };
 
-/** Tomás Roldán, el `freelance` de `usuariosPorRol` (mismo motivo que arriba). */
-const otro_propietario_id = "e7b20d94-6a3f-4c15-9d8e-0b5a3f7c2e04";
-const ana = { id: propietario_id, nombre: "Ana Pérez" };
-const tomas = { id: otro_propietario_id, nombre: "Tomás Roldán" };
+/** Tomás Roldán, el `freelance` de `usuariosPorRol`. */
+const otro_propietario_id = usuariosPorRol.freelance.id;
+const ana = { id: propietario_id, nombre: usuariosPorRol.empleado.nombre };
+const tomas = { id: otro_propietario_id, nombre: usuariosPorRol.freelance.nombre };
 
 const camila = { id: "3c1f6d2e-8a47-4b19-9e53-7d0a2b4c6e11", nombre: "Camila Benítez" };
 const joaquin = { id: "d4a8c6e2-5f19-4073-8b3a-2e1c9d7f0b33", nombre: "Joaquín Ramos" };
@@ -227,9 +227,9 @@ export const alertasAjenasMock: Alerta[] = [
 ];
 
 /** Resueltas hoy sobre el total del día (las resueltas hoy más las que vencen hasta hoy). */
-export function progresoMock(): ProgresoDelDia {
-  const resueltas = alertasMock.filter((a) => a.estado === "resuelta").length;
-  const pendientes = alertasMock.filter((a) => a.estado !== "resuelta" && a.fecha <= HOY_MOCK);
+export function progresoMock(alertas: Alerta[] = alertasMock): ProgresoDelDia {
+  const resueltas = alertas.filter((a) => a.estado === "resuelta").length;
+  const pendientes = alertas.filter((a) => a.estado !== "resuelta" && a.fecha <= HOY_MOCK);
   return { resueltas_hoy: resueltas, total_del_dia: resueltas + pendientes.length };
 }
 
@@ -255,18 +255,17 @@ type ActorMock = {
   atiendeAjenas: boolean;
   /** Respeta `propietario_id` en el listado; si no, lista solo las propias. */
   listaAjenas: boolean;
+  /** Sin `propietario_id`, el listado abarca toda la agencia en vez de la agenda propia. */
+  veAgencia: boolean;
 };
 
 const alertasDelBackend = () => [...alertasMock, ...alertasAjenasMock];
 
 /** Handlers MSW de las rutas de `/api/alertas` (CU-14, CU-28, CU-30) para el actor dado. */
 function manejadoresDe(actor: ActorMock): RequestHandler[] {
-  const visible = (id: unknown) => {
-    const alerta = alertasDelBackend().find((a) => a.id === id);
-    return alerta && (actor.atiendeAjenas || alerta.propietario_id === actor.id)
-      ? alerta
-      : undefined;
-  };
+  const alcanzables = () =>
+    alertasDelBackend().filter((a) => actor.atiendeAjenas || a.propietario_id === actor.id);
+  const visible = (id: unknown) => alcanzables().find((a) => a.id === id);
   return [
     http.get(BASE, ({ request }) => {
       const url = new URL(request.url);
@@ -277,12 +276,11 @@ function manejadoresDe(actor: ActorMock): RequestHandler[] {
       const hasta = url.searchParams.get("hasta");
       const pagina = Number(url.searchParams.get("pagina") ?? 1);
       const porPagina = Number(url.searchParams.get("por_pagina") ?? 20);
-      const propietario = actor.listaAjenas
-        ? (url.searchParams.get("propietario_id") ?? actor.id)
-        : actor.id;
+      const pedido = actor.listaAjenas ? url.searchParams.get("propietario_id") : null;
+      const propietario = pedido ?? (actor.veAgencia ? null : actor.id);
       const filtradas = alertasDelBackend().filter(
         (a) =>
-          a.propietario_id === propietario &&
+          (!propietario || a.propietario_id === propietario) &&
           a.estado === (estado ?? "pendiente") &&
           (!tipo || a.tipo === tipo) &&
           (proximas ? a.fecha > HOY_MOCK : a.fecha <= HOY_MOCK) &&
@@ -330,7 +328,7 @@ function manejadoresDe(actor: ActorMock): RequestHandler[] {
     }),
 
     // Antes que `/:id`: si no, «progreso-del-dia» se leería como un id.
-    http.get(`${BASE}/progreso-del-dia`, () => HttpResponse.json(progresoMock())),
+    http.get(`${BASE}/progreso-del-dia`, () => HttpResponse.json(progresoMock(alcanzables()))),
 
     http.get(`${BASE}/:id`, ({ params }) => {
       const alerta = visible(params["id"]);
@@ -365,13 +363,16 @@ function manejadoresDe(actor: ActorMock): RequestHandler[] {
     http.post(`${BASE}/:id/resolver`, ({ params }) => {
       const alerta = visible(params["id"]);
       if (!alerta) return noEncontrada();
-      if (alerta.estado === "resuelta") return transicionInvalida(alerta, "resolver");
-      // El pago se resuelve al registrar el cobro, no a mano (CU-14 A2).
+      // El pago se resuelve al cobrar, no a mano (CU-14 A2).
       if (alerta.tipo === "pago") {
+        const cuando = alerta.viaje_hotel_id
+          ? "al registrar el pago al proveedor"
+          : "al cobrar el pago";
         return respuestaProblema(409, "Conflicto", {
-          detail: "La alerta de un pago se resuelve al registrar el cobro.",
+          detail: `Una alerta de pago no se resuelve a mano: se resuelve ${cuando}.`,
         });
       }
+      if (alerta.estado === "resuelta") return transicionInvalida(alerta, "resolver");
       return HttpResponse.json({
         ...alerta,
         estado: "resuelta",
@@ -399,11 +400,18 @@ export const manejadoresAlertas: RequestHandler[] = manejadoresDe({
   ...ana,
   atiendeAjenas: false,
   listaAjenas: true,
+  veAgencia: false,
 });
 
 /** Handlers según el rol del actor, con la matriz de permisos del backend (RF-078, CU-28 A2). */
 export function manejadoresAlertasPara(rol: RolMock): RequestHandler[] {
   const direccion = rol === "admin" || rol === "dueno";
   const { id, nombre } = usuariosPorRol[rol];
-  return manejadoresDe({ id, nombre, atiendeAjenas: direccion, listaAjenas: direccion });
+  return manejadoresDe({
+    id,
+    nombre,
+    atiendeAjenas: direccion,
+    listaAjenas: direccion,
+    veAgencia: direccion,
+  });
 }

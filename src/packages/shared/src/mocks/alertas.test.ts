@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { afterAll, afterEach, beforeAll, describe, expect, it } from "vitest";
-import type { Alerta, TipoAlerta } from "../modelos";
+import type { Alerta, ProgresoDelDia, TipoAlerta } from "../modelos";
 import {
   alertasAjenasMock,
   alertasMock,
@@ -238,6 +238,7 @@ describe("RF-078 permisos por actor en /api/alertas (CU-14 A1, CU-28 A2)", () =>
 
     const lista = await items(`?propietario_id=${pendiente.propietario_id}&estado=pendiente`);
 
+    expect(lista.length).toBeGreaterThan(0);
     expect(lista.every((a) => a.propietario_id === ajenaDeAna.propietario_id)).toBe(true);
   });
 
@@ -255,16 +256,19 @@ describe("RF-078 permisos por actor en /api/alertas (CU-14 A1, CU-28 A2)", () =>
   it.each([
     ["empleado", alertasAjenasMock[0]],
     ["freelance", alertasMock[0]],
-  ] as const)("RF-078 %s recibe 404 en detalle, vista, resolver, posponer y editar de una ajena", async (rol, ajena) => {
-    usar(rol);
-    const id = (ajena as Alerta).id;
+  ] as const)(
+    "RF-078 %s recibe 404 en detalle, vista, resolver, posponer y editar de una ajena",
+    async (rol, ajena) => {
+      usar(rol);
+      const id = (ajena as Alerta).id;
 
-    expect((await fetch(`${BASE}/${id}`)).status).toBe(404);
-    expect((await accion(id, "vista")).status).toBe(404);
-    expect((await accion(id, "resolver")).status).toBe(404);
-    expect((await accion(id, "posponer", { fecha: "2026-12-01" })).status).toBe(404);
-    expect((await editar(id)).status).toBe(404);
-  });
+      expect((await fetch(`${BASE}/${id}`)).status).toBe(404);
+      expect((await accion(id, "vista")).status).toBe(404);
+      expect((await accion(id, "resolver")).status).toBe(404);
+      expect((await accion(id, "posponer", { fecha: "2026-12-01" })).status).toBe(404);
+      expect((await editar(id)).status).toBe(404);
+    },
+  );
 
   it("RF-078 un empleado sigue accediendo a sus propias alertas", async () => {
     usar("empleado");
@@ -285,6 +289,46 @@ describe("RF-078 permisos por actor en /api/alertas (CU-14 A1, CU-28 A2)", () =>
       expect((await accion(ajena.id, "posponer", { fecha: "2026-12-01" })).status).toBe(200);
     },
   );
+
+  it("RF-078 admin y dueño sin propietario_id listan toda la agencia", async () => {
+    for (const rol of ["admin", "dueno"] as const) {
+      usar(rol);
+
+      const ids = (await items("?por_pagina=100")).map((a) => a.id);
+
+      expect(ids).toContain(pendiente.id);
+      expect(ids).toContain(alertasAjenasMock[0]?.id);
+    }
+  });
+
+  it("RF-078 el progreso del día depende del actor: propias para empleado y freelance, todas para admin y dueño", async () => {
+    const progreso = async () =>
+      (await (await fetch(`${BASE}/progreso-del-dia`)).json()) as ProgresoDelDia;
+    const todas = [...alertasMock, ...alertasAjenasMock];
+
+    usar("empleado");
+    expect(await progreso()).toEqual(progresoMock(alertasMock));
+    usar("freelance");
+    expect(await progreso()).toEqual(progresoMock(alertasAjenasMock));
+    for (const rol of ["admin", "dueno"] as const) {
+      usar(rol);
+      expect(await progreso()).toEqual(progresoMock(todas));
+    }
+    expect(progresoMock(todas)).not.toEqual(progresoMock(alertasMock));
+  });
+
+  it("CU-28 A2 editar una alerta ajena da 403 antes que 409, aunque sea automática o no esté pendiente", async () => {
+    usar("admin");
+    const automatica = alertasAjenasMock.find((a) => a.tipo !== "manual") as Alerta;
+    const noPendiente = alertasAjenasMock.find((a) => a.estado !== "pendiente") as Alerta;
+
+    for (const alerta of [automatica, noPendiente]) {
+      const res = await editar(alerta.id);
+
+      expect(res.status).toBe(403);
+      expect(await res.json()).toMatchObject({ title: "Sin permiso", status: 403 });
+    }
+  });
 
   it.each(["admin", "dueno"] as const)(
     "CU-28 A2 %s recibe 403 al editar un recordatorio ajeno",
