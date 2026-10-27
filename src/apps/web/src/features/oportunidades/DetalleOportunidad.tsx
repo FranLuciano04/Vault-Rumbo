@@ -6,7 +6,7 @@ import {
 } from "@rumbo/shared";
 import { useOportunidad } from "@rumbo/shared/hooks";
 import type { AxiosInstance } from "axios";
-import { useParams } from "react-router";
+import { Link, useParams } from "react-router";
 import { AccionesOportunidad } from "./AccionesOportunidad";
 import { InsistenciasOportunidad } from "./InsistenciasOportunidad";
 import { InteraccionesOportunidad } from "./InteraccionesOportunidad";
@@ -60,6 +60,12 @@ export function DetalleOportunidad({
           </p>
         )}
       </header>
+      <Link
+        to={`/oportunidades/${oportunidad.id}/cotizaciones`}
+        className="text-sm font-medium underline"
+      >
+        Cotizaciones
+      </Link>
       {puedeEscribir && <AccionesOportunidad cliente={cliente} oportunidad={oportunidad} />}
       <InteraccionesOportunidad
         cliente={cliente}

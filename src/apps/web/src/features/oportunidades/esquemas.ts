@@ -61,3 +61,21 @@ export type DatosConsulta = z.output<typeof esquemaConsulta>;
 export type DatosInteraccion = z.infer<typeof esquemaInteraccion>;
 export type DatosInsistencia = z.infer<typeof esquemaInsistencia>;
 export type DatosPerder = z.input<typeof esquemaPerder>;
+
+/** Importe de un ítem de cotización: decimal positivo con hasta 4 decimales; admite coma o punto. */
+const IMPORTE = /^\d+([.,]\d{1,4})?$/;
+
+/** Cotización nueva (RF-021): moneda y al menos un ítem con concepto e importe válidos. */
+export const esquemaCotizacion = z.object({
+  moneda: z.enum(["ARS", "USD"]),
+  items: z
+    .array(
+      z.object({
+        concepto: z.string().trim().min(1, "Ingresá el concepto."),
+        precio: z.string().trim().regex(IMPORTE, "Ingresá un importe válido."),
+      }),
+    )
+    .min(1, "Cargá al menos un ítem."),
+});
+
+export type DatosCotizacion = z.infer<typeof esquemaCotizacion>;
