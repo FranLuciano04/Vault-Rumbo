@@ -3,7 +3,7 @@ id: T-072
 titulo: Emitir una cotización en la web
 modulo: M4 — Oportunidades y cotizaciones
 capa: web
-estado: libre
+estado: tomado
 depende_de: [T-071]
 tamaño: M
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [CU-06, RF-021, RF-022, RF-024]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: Nahuel Viniegra
+tomado_el: 27/10/26 18:38
+rama: feature/T-072-emitir-una-cotizacion-en-la-web
 pr:
 ---
 # T-072 Emitir una cotización en la web
