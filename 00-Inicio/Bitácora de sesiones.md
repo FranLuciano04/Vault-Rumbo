@@ -66,7 +66,14 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
   - Review (opus): 0 bloqueantes y 1 importante, arreglado. Una consulta se salteaba la visibilidad.
   - Es el primer ticket con los checks rápidos de DEC-0022: la suite completa la corrió el CI.
   - Commits: 89286be, 99752e4, 13ee775 y 6dac2ed.
-- **Pendiente:** M5 sigue con T-077 (búsqueda por puntaje), T-079 (moderación) y T-080 (catálogo web).
+- **T-079** (PR [#122](https://github.com/FranLuciano04/Vault-Rumbo/pull/122), mergeado con el CI en verde): moderación de reseñas.
+  - Ocultar con motivo, restaurar y eliminar físicamente. Solo pueden hacerlo admin y dueña.
+  - **Decisión de Francisco (CU-29 A2):** solo se elimina físicamente una reseña que ya está oculta. Cada eliminación queda en el log.
+  - La moderación y la edición bloquean la fila (`FOR UPDATE`), así se evita borrar una reseña que se acaba de restaurar.
+  - Review (opus): 0 bloqueantes y 2 importantes, los dos arreglados (la carrera y el rastro).
+  - Commits: 3503932, 95bf795, 9c7bfa8, 56f8c33 y f061ff7.
+- **Abierto (`#accion/decidir` en CU-29):** si, además del log, hace falta un rastro de las eliminaciones que se pueda consultar dentro de Rumbo. Lo decide Paloma, que es la responsable del CU.
+- **Pendiente:** M5 sigue con T-077 (búsqueda por puntaje y listado de reseñas) y T-080 (catálogo web). El backend de reseñas está completo.
 - **Abierto para la sync:** ¿se puede asociar una reseña a un viaje cancelado, o a uno cuyo itinerario no incluye el hotel?
 
 ## 27/10/26 — Nahuel (Claude Opus 5.5) — T-073
