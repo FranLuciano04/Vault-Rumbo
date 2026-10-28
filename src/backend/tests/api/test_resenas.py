@@ -109,9 +109,7 @@ async def test_rf101_registrar(cliente_como: Fabrica, sesion: AsyncSession, rol:
     assert fila.created_by == c.usuario.id  # type: ignore[attr-defined]
 
 
-async def test_rf101_el_comentario_es_opcional(
-    cliente_como: Fabrica, sesion: AsyncSession
-) -> None:
+async def test_rf101_el_comentario_es_opcional(cliente_como: Fabrica, sesion: AsyncSession) -> None:
     c = await cliente_como("empleado")
     hotel = await _hotel(sesion)
     cliente = await crear(sesion, ClienteFactory)
@@ -309,9 +307,7 @@ async def test_rf105_editar(cliente_como: Fabrica, sesion: AsyncSession, rol: st
     c = await cliente_como(rol)
     hotel = await _hotel(sesion)
     cliente = await crear(sesion, ClienteFactory)
-    resena = await crear(
-        sesion, ResenaFactory, hotel_id=hotel.id, cliente_id=cliente.id, puntaje=5
-    )
+    resena = await crear(sesion, ResenaFactory, hotel_id=hotel.id, cliente_id=cliente.id, puntaje=5)
 
     r = await c.patch(
         _edicion(resena.id),
@@ -382,8 +378,9 @@ async def test_rf105_el_hotel_y_el_cliente_no_se_mueven(
         },
     )
 
-    assert r.status_code in (200, 422)
+    assert r.status_code == 200
     await sesion.refresh(resena)
+    assert resena.puntaje == 2
     assert resena.hotel_id == hotel.id
     assert resena.cliente_id == cliente.id
 
@@ -398,9 +395,7 @@ async def test_rf105_edicion_con_datos_invalidos_422(
     c = await cliente_como("empleado")
     hotel = await _hotel(sesion)
     cliente = await crear(sesion, ClienteFactory)
-    resena = await crear(
-        sesion, ResenaFactory, hotel_id=hotel.id, cliente_id=cliente.id, puntaje=5
-    )
+    resena = await crear(sesion, ResenaFactory, hotel_id=hotel.id, cliente_id=cliente.id, puntaje=5)
 
     r = await c.patch(_edicion(resena.id), json=cambios)
 
@@ -419,10 +414,11 @@ async def test_rf105_editar_resena_inexistente_404(cliente_como: Fabrica) -> Non
     assert r.headers["content-type"].startswith(PROBLEM_JSON)
 
 
+@pytest.mark.parametrize("rol", ["admin", "dueno"])
 async def test_rf105_editar_una_resena_oculta_409(
-    cliente_como: Fabrica, sesion: AsyncSession
+    cliente_como: Fabrica, sesion: AsyncSession, rol: str
 ) -> None:
-    c = await cliente_como("empleado")
+    c = await cliente_como(rol)
     hotel = await _hotel(sesion)
     cliente = await crear(sesion, ClienteFactory)
     resena = await crear(
@@ -444,6 +440,32 @@ async def test_rf105_editar_una_resena_oculta_409(
     assert resena.estado == EstadoResena.oculta
 
 
+async def test_rf105_el_empleado_no_ve_una_resena_oculta_404(
+    cliente_como: Fabrica, sesion: AsyncSession
+) -> None:
+    """Las ocultas solo las ven admin y dueño (DEC-0005): para el empleado no existen."""
+    c = await cliente_como("empleado")
+    hotel = await _hotel(sesion)
+    cliente = await crear(sesion, ClienteFactory)
+    resena = await crear(
+        sesion,
+        ResenaFactory,
+        hotel_id=hotel.id,
+        cliente_id=cliente.id,
+        puntaje=5,
+        estado="oculta",
+        motivo_baja="Lenguaje ofensivo",
+    )
+
+    r = await c.patch(_edicion(resena.id), json={"puntaje": 1})
+
+    assert r.status_code == 404
+    assert r.headers["content-type"].startswith(PROBLEM_JSON)
+    await sesion.refresh(resena)
+    assert resena.puntaje == 5
+    assert resena.estado == EstadoResena.oculta
+
+
 # --- Freelance (DEC-0008) ---------------------------------------------------------------------
 
 
@@ -453,9 +475,7 @@ async def test_freelance_no_registra_ni_edita_403(
     c = await cliente_como("freelance")
     hotel = await _hotel(sesion)
     cliente = await crear(sesion, ClienteFactory)
-    resena = await crear(
-        sesion, ResenaFactory, hotel_id=hotel.id, cliente_id=cliente.id, puntaje=5
-    )
+    resena = await crear(sesion, ResenaFactory, hotel_id=hotel.id, cliente_id=cliente.id, puntaje=5)
 
     alta = await c.post(_alta(hotel.id), json=_cuerpo(cliente.id))
     edicion = await c.patch(_edicion(resena.id), json={"puntaje": 1})
@@ -507,9 +527,7 @@ async def test_rf105_editar_el_puntaje_actualiza_el_promedio_del_hotel(
     c = await cliente_como("empleado")
     hotel = await _hotel(sesion)
     cliente = await crear(sesion, ClienteFactory)
-    resena = await crear(
-        sesion, ResenaFactory, hotel_id=hotel.id, cliente_id=cliente.id, puntaje=5
-    )
+    resena = await crear(sesion, ResenaFactory, hotel_id=hotel.id, cliente_id=cliente.id, puntaje=5)
 
     editada = await c.patch(_edicion(resena.id), json={"puntaje": 3})
     r = await c.get(f"/api/hoteles/{hotel.id}")

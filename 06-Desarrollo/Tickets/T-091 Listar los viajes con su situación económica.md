@@ -48,3 +48,4 @@ Cada rol lista viajes según su visibilidad y abre la ficha con la economía, el
 - Cambios de estado.
 
 ## Notas de implementación
+- **De T-078 (28/10/26):** `src/backend/rumbo/datos/repositorios/viajes.py` ya existe con un `RepositorioViajes` mínimo (`RepositorioBase[Viaje]`), que crearon las reseñas para validar el viaje asociado. Extendelo en lugar de crear otro.

@@ -1,5 +1,5 @@
-"""Rutas del módulo hoteles (CU-16, CU-17, CU-18, CU-29). La búsqueda y las reseñas responden 501
-hasta su backend."""
+"""Rutas del módulo hoteles (CU-16, CU-17, CU-18, CU-29). La búsqueda y el listado, la baja lógica,
+la restauración y la eliminación de reseñas responden 501 hasta su backend."""
 
 import uuid
 from typing import Annotated, Any, Literal

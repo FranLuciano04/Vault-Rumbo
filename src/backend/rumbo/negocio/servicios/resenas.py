@@ -57,7 +57,7 @@ async def editar_resena(
 ) -> Resena:
     """Aplica solo los campos enviados (CU-17, RF-105); una reseña `oculta` no se edita."""
     exigir_rol(actor, *_GESTORES)
-    resena = await _resenas.obtener_aunque_oculta(sesion, resena_id)
+    resena = await _resenas.obtener(sesion, resena_id, visibilidad=visibilidad(actor))
     if resena.estado is not EstadoResena.publicada:
         raise Conflicto("La reseña está oculta: restaurala para editarla.")
     for campo, valor in cambios.items():
