@@ -1,4 +1,4 @@
-"""Servicio de las reseñas de hoteles: registrarlas y corregirlas (CU-17)."""
+"""Servicio de las reseñas de hoteles: registrarlas, corregirlas (CU-17) y moderarlas (CU-29)."""
 
 import uuid
 from datetime import date
@@ -21,6 +21,9 @@ _viajes = RepositorioViajes()
 
 # Igual que el catálogo de hoteles: todos menos el freelance (DEC-0008).
 _GESTORES = (RolUsuario.admin, RolUsuario.dueno, RolUsuario.empleado)
+
+# Moderar es cosa de admin y dueño (RF-153).
+_MODERADORES = (RolUsuario.admin, RolUsuario.dueno)
 
 
 async def registrar_resena(
@@ -64,6 +67,42 @@ async def editar_resena(
         setattr(resena, campo, valor)
     await sesion.flush()
     return resena
+
+
+async def ocultar_resena(
+    sesion: AsyncSession, actor: Usuario, resena_id: uuid.UUID, motivo_baja: str
+) -> Resena:
+    """Baja lógica: la reseña pasa a `oculta` con su motivo (CU-29, RF-111)."""
+    exigir_rol(actor, *_MODERADORES)
+    resena = await _resenas.obtener(sesion, resena_id, visibilidad=visibilidad(actor))
+    if resena.estado is EstadoResena.oculta:
+        raise Conflicto("La reseña ya está oculta.")
+    resena.estado = EstadoResena.oculta
+    resena.motivo_baja = motivo_baja
+    await sesion.flush()
+    return resena
+
+
+async def restaurar_resena(sesion: AsyncSession, actor: Usuario, resena_id: uuid.UUID) -> Resena:
+    """Vuelve a `publicada` una reseña oculta y borra su motivo (CU-29 A1, RF-112)."""
+    exigir_rol(actor, *_MODERADORES)
+    resena = await _resenas.obtener(sesion, resena_id, visibilidad=visibilidad(actor))
+    if resena.estado is EstadoResena.publicada:
+        raise Conflicto("La reseña ya está publicada.")
+    resena.estado = EstadoResena.publicada
+    resena.motivo_baja = None
+    await sesion.flush()
+    return resena
+
+
+async def eliminar_resena(sesion: AsyncSession, actor: Usuario, resena_id: uuid.UUID) -> None:
+    """Eliminación física, solo de una reseña ya `oculta` (CU-29 A2)."""
+    exigir_rol(actor, *_MODERADORES)
+    resena = await _resenas.obtener(sesion, resena_id, visibilidad=visibilidad(actor))
+    if resena.estado is not EstadoResena.oculta:
+        raise Conflicto("Solo se elimina una reseña oculta: ocultala primero.")
+    await sesion.delete(resena)
+    await sesion.flush()
 
 
 async def _exigir_cliente_y_viaje(
