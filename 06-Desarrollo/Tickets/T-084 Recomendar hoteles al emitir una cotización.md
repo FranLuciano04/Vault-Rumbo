@@ -3,7 +3,7 @@ id: T-084
 titulo: Recomendar hoteles al emitir una cotización
 modulo: M5 — Hoteles y reseñas
 capa: web
-estado: libre
+estado: tomado
 depende_de: [T-072, T-080]
 tamaño: S
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [CU-06, CU-18, RF-106]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: Nahuel Viniegra
+tomado_el: 28/10/26 16:28
+rama: feature/T-084-recomendar-hoteles-al-emitir-una-cotizac
 pr:
 ---
 # T-084 Recomendar hoteles al emitir una cotización
