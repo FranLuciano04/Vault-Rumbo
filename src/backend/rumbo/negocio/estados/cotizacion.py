@@ -38,3 +38,18 @@ def emitir(
         validez_hasta=sumar_meses(fecha, vigencia_meses),
         estado=EstadoCotizacion.borrador,
     )
+
+
+def enviar(cotizacion: Cotizacion, oportunidad: Oportunidad) -> None:
+    """T2: `borrador` → `enviada`; la oportunidad pasa a `cotizada` (EST-Oportunidad T3)."""
+    raise NotImplementedError
+
+
+def aceptar(cotizacion: Cotizacion, oportunidad: Oportunidad) -> None:
+    """T3: `enviada` → `aceptada` (CU-06 A2)."""
+    raise NotImplementedError
+
+
+def rechazar(cotizacion: Cotizacion, oportunidad: Oportunidad) -> None:
+    """T4: `enviada` → `rechazada` (CU-06 A3)."""
+    raise NotImplementedError
