@@ -27,9 +27,12 @@ def _regla(escritura: bool | str) -> str:
     return f"**Escritura:** {escritura}\n\n" if escritura else ""
 
 
-def respuesta_pagina(esquema: str, descripcion: str) -> dict[str, Any]:
+def respuesta_pagina(
+    esquema: str, descripcion: str, extras: dict[str, Any] | None = None
+) -> dict[str, Any]:
     """Respuesta `200` de un listado paginado con `esquema` por referencia, como el contrato (no
     el `Pagina_X_` que genera FastAPI). Va en `responses[200]`; la ruta lleva `response_model=None`.
+    `extras` suma propiedades opcionales a la página (p. ej. `alternativas` en los hoteles).
     """
     return {
         "description": descripcion,
@@ -48,6 +51,7 @@ def respuesta_pagina(esquema: str, descripcion: str) -> dict[str, Any]:
                         },
                         "pagina": {"type": "integer", "minimum": 1},
                         "por_pagina": {"type": "integer", "minimum": 1, "maximum": 100},
+                        **(extras or {}),
                     },
                     "required": ["items", "total", "pagina", "por_pagina"],
                 }

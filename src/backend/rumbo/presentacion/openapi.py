@@ -7,6 +7,7 @@ from fastapi.openapi.utils import get_openapi
 
 from rumbo.presentacion.errores import PROBLEM_JSON
 from rumbo.presentacion.esquemas.comunes import Auditoria, Problema
+from rumbo.presentacion.esquemas.hoteles import AlternativasHoteles
 from rumbo.presentacion.paginacion import Pagina
 
 _REF_PROBLEMA = "#/components/schemas/Problema"
@@ -63,6 +64,14 @@ def _publicar_pagina_generica(documento: dict[str, Any]) -> None:
     documento["components"]["schemas"]["Pagina"] = esquema
 
 
+def _publicar_alternativas_de_hoteles(documento: dict[str, Any]) -> None:
+    """Publica `AlternativasHoteles`: el `200` de la búsqueda de hoteles la referencia a mano
+    (ver `respuesta_pagina`), así que ninguna ruta la declara como modelo."""
+    esquema = AlternativasHoteles.model_json_schema(ref_template="#/components/schemas/{model}")
+    esquema.pop("title", None)
+    documento["components"]["schemas"]["AlternativasHoteles"] = esquema
+
+
 def registrar_openapi(app: FastAPI) -> None:
     def generar() -> dict[str, Any]:
         if app.openapi_schema is None:
@@ -72,6 +81,7 @@ def registrar_openapi(app: FastAPI) -> None:
             _errores_como_problem_json(documento)
             _quitar_esquemas_de_validacion_de_fastapi(documento)
             _publicar_pagina_generica(documento)
+            _publicar_alternativas_de_hoteles(documento)
             app.openapi_schema = documento
         return app.openapi_schema
 

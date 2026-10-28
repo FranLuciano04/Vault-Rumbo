@@ -4,6 +4,7 @@ RF-105, DEC-0003)."""
 import uuid
 from datetime import date
 from decimal import Decimal
+from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 from pydantic.json_schema import JsonDict
@@ -20,6 +21,7 @@ from rumbo.presentacion.esquemas.comunes import (
     componer_con_auditoria,
     omitible,
 )
+from rumbo.presentacion.paginacion import Pagina
 
 _SOLO_LECTURA: JsonDict = {"readOnly": True}
 Puntaje = Field(ge=1, le=5, description="Entero de 1 a 5.")
@@ -59,6 +61,23 @@ class Hotel(Auditoria):
             puntaje_promedio=puntaje_promedio,
             cantidad_resenas=cantidad_resenas,
         )
+
+
+class AlternativasHoteles(BaseModel):
+    """Qué ofrecer cuando la búsqueda no encuentra hoteles (CU-18 A1, RF-110)."""
+
+    ampliar_filtros: list[Literal["destino_id", "categoria", "precio_max", "servicio"]] = Field(
+        description="Filtros aplicados que se pueden quitar para ampliar la búsqueda, en ese orden."
+    )
+    puede_dar_de_alta: bool = Field(
+        description="Si el usuario puede dar de alta el hotel (CU-16): no el freelance (DEC-0008)."
+    )
+
+
+class PaginaHoteles(Pagina[Hotel]):
+    """Página de la búsqueda de hoteles, con las alternativas si no hubo resultados."""
+
+    alternativas: AlternativasHoteles | None = None
 
 
 class HotelCrear(Entrada):

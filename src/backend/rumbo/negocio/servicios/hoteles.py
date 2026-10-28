@@ -2,7 +2,7 @@
 
 import uuid
 from decimal import Decimal
-from typing import Any, NamedTuple
+from typing import Any, Literal, NamedTuple
 
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -27,6 +27,61 @@ class HotelConResenas(NamedTuple):
     hotel: Hotel
     puntaje_promedio: Decimal | None
     cantidad_resenas: int
+
+
+class Alternativas(NamedTuple):
+    """Qué ofrecer cuando una búsqueda no encuentra hoteles (CU-18 A1, RF-110)."""
+
+    ampliar_filtros: list[str]
+    puede_dar_de_alta: bool
+
+
+class ResultadoBusqueda(NamedTuple):
+    hoteles: list[HotelConResenas]
+    total: int
+    alternativas: Alternativas | None
+
+
+async def buscar_hoteles(
+    sesion: AsyncSession,
+    actor: Usuario,
+    *,
+    destino_id: uuid.UUID | None,
+    categoria: str | None,
+    precio_max: Decimal | None,
+    servicio: str | None,
+    orden: Literal["nombre", "valoracion", "precio"],
+    estado: EstadoHotel,
+    desplazamiento: int,
+    limite: int,
+) -> ResultadoBusqueda:
+    """Página de hoteles con su valoración (CU-18, RF-106 a RF-109). Sin resultados, suma las
+    alternativas: los filtros que se pueden quitar y si el actor puede dar de alta (RF-110)."""
+    filas, total = await _hoteles.buscar(
+        sesion,
+        destino_id=destino_id,
+        categoria=categoria,
+        precio_max=precio_max,
+        servicio=servicio,
+        orden=orden,
+        estado=estado,
+        desplazamiento=desplazamiento,
+        limite=limite,
+        visibilidad=visibilidad(actor),
+    )
+    alternativas = None
+    if total == 0:
+        aplicados = {
+            "destino_id": destino_id is not None,
+            "categoria": bool(categoria),
+            "precio_max": precio_max is not None,
+            "servicio": bool(servicio),
+        }
+        alternativas = Alternativas(
+            ampliar_filtros=[filtro for filtro, aplicado in aplicados.items() if aplicado],
+            puede_dar_de_alta=actor.rol in _GESTORES,
+        )
+    return ResultadoBusqueda([HotelConResenas(*fila) for fila in filas], total, alternativas)
 
 
 async def obtener_hotel(

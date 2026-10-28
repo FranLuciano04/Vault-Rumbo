@@ -257,9 +257,13 @@ export function manejadoresHotelesPara(rol: RolMock): RequestHandler[] {
           (!precioMax || Number(h.precio_referencia) <= Number(precioMax)) &&
           (!servicio || h.servicios.includes(servicio)),
       );
-      return HttpResponse.json(
-        pagina(ordenar(filtrados, filtro("orden") as FiltrosHoteles["orden"]), url),
+      const resultado = pagina(ordenar(filtrados, filtro("orden") as FiltrosHoteles["orden"]), url);
+      const aplicados = ["destino_id", "categoria", "precio_max", "servicio"].filter((f) =>
+        filtro(f),
       );
+      const alternativas =
+        resultado.total === 0 ? { ampliar_filtros: aplicados, puede_dar_de_alta: escribe } : null;
+      return HttpResponse.json({ ...resultado, alternativas });
     }),
 
     http.post("*/api/hoteles", async ({ request }) => {

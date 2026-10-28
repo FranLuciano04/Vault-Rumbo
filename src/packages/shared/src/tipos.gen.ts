@@ -3408,6 +3408,19 @@ export interface components {
             /** Por Pagina */
             por_pagina: number;
         };
+        /** @description Qué ofrecer cuando la búsqueda no encuentra hoteles (CU-18 A1, RF-110). */
+        AlternativasHoteles: {
+            /**
+             * Ampliar Filtros
+             * @description Filtros aplicados que se pueden quitar para ampliar la búsqueda, en ese orden.
+             */
+            ampliar_filtros: ("destino_id" | "categoria" | "precio_max" | "servicio")[];
+            /**
+             * Puede Dar De Alta
+             * @description Si el usuario puede dar de alta el hotel (CU-16): no el freelance (DEC-0008).
+             */
+            puede_dar_de_alta: boolean;
+        };
     };
     responses: never;
     parameters: never;
@@ -7921,6 +7934,8 @@ export interface operations {
                         total: number;
                         pagina: number;
                         por_pagina: number;
+                        /** @description Solo si no hubo ningún resultado (CU-18 A1): qué filtros ampliar y si se puede dar de alta el hotel. */
+                        alternativas?: components["schemas"]["AlternativasHoteles"] | null;
                     };
                 };
             };
