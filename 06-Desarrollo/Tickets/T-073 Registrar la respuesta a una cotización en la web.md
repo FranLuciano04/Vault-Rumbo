@@ -49,5 +49,5 @@ Se marca una cotización como enviada, se registra la aceptación o el rechazo y
 - Las acciones de respuesta exigen oportunidad abierta y permiso de escritura (`puedeEmitir`); «Descargar PDF» queda siempre visible.
 - Fix fuera de la UI: `@rumbo/shared/cliente.ts` ahora lee el problem+json cuando el error llega como `Blob` (`responseType: "blob"`), para mostrar el `detail` del servidor al fallar la descarga.
 - **Menor sin resolver (para T-067):** se ofrece «Aceptar» también en versiones viejas que siguen `enviada`; aceptar dos versiones dejaría dos `aceptada`. Conviene que el backend responda 409 o que se limite a la versión vigente.
+- **Regresión en CI (Node 22):** la descarga con `responseType: "blob"` colgaba en jsdom + MSW (`object.stream is not a function`); se pide como `arraybuffer` y se arma el `Blob` en `descargarDocumentoCotizacion`; el interceptor decodifica el problem+json del `ArrayBuffer`.
 - Modelos: tests sonnet, implementación/refactor/fix sonnet, review opus. Sin escalados.
-
