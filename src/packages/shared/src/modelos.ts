@@ -133,6 +133,14 @@ export interface FiltrosOportunidades {
   por_pagina?: number;
 }
 
+/** Qué ofrecer si la búsqueda de hoteles no encuentra nada (CU-18 A1). */
+export type AlternativasHoteles = Esquemas["AlternativasHoteles"];
+
+/** Página de la búsqueda de hoteles: `alternativas` viene solo si no hubo resultados. */
+export interface PaginaHoteles extends Pagina<Hotel> {
+  alternativas?: AlternativasHoteles | null;
+}
+
 /** Filtros del catálogo (`GET /api/hoteles`, CU-18): sin `estado`, solo los activos. */
 export interface FiltrosHoteles {
   destino_id?: string;

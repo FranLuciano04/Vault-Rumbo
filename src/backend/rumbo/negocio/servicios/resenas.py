@@ -29,6 +29,31 @@ _GESTORES = (RolUsuario.admin, RolUsuario.dueno, RolUsuario.empleado)
 _MODERADORES = (RolUsuario.admin, RolUsuario.dueno)
 
 
+async def listar_resenas(
+    sesion: AsyncSession,
+    actor: Usuario,
+    hotel_id: uuid.UUID,
+    *,
+    estado: EstadoResena,
+    desplazamiento: int,
+    limite: int,
+) -> tuple[list[Resena], int]:
+    """Página de las reseñas de un hotel, activo o cerrado (CU-18 paso 3). Las `oculta` solo las
+    piden admin y dueño, para restaurarlas (CU-29 A1)."""
+    if estado is EstadoResena.oculta:
+        exigir_rol(actor, *_MODERADORES)
+    vista = visibilidad(actor)
+    await _hoteles.obtener(sesion, hotel_id, visibilidad=vista)
+    return await _resenas.paginar_por_hotel(
+        sesion,
+        hotel_id,
+        estado=estado,
+        desplazamiento=desplazamiento,
+        limite=limite,
+        visibilidad=vista,
+    )
+
+
 async def registrar_resena(
     sesion: AsyncSession,
     actor: Usuario,
