@@ -1,9 +1,19 @@
 import { formatearImporte, formatearPuntaje, type Hotel } from "@rumbo/shared";
 import { Star } from "lucide-react";
+import type { ReactNode } from "react";
 import { Link } from "react-router";
 
 /** Tarjeta del catálogo (CU-18, pantallas 21 y 44): datos del hotel y su puntaje por reseñas. */
-export function TarjetaHotel({ hotel, destino }: { hotel: Hotel; destino?: string }) {
+export function TarjetaHotel({
+  hotel,
+  destino,
+  accion,
+}: {
+  hotel: Hotel;
+  destino?: string;
+  /** Acción propia de quien muestra la tarjeta (por ejemplo, agregarlo a una cotización). */
+  accion?: ReactNode;
+}) {
   const { puntaje_promedio: puntaje, cantidad_resenas: resenas } = hotel;
   return (
     <li className="flex flex-col gap-3 rounded-2xl border bg-card p-4">
@@ -45,6 +55,7 @@ export function TarjetaHotel({ hotel, destino }: { hotel: Hotel; destino?: strin
           <span className="text-muted-foreground">por noche</span>
         </p>
       )}
+      {accion}
     </li>
   );
 }
