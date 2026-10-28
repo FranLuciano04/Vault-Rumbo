@@ -16,6 +16,8 @@ actualizado: 13/10/26
 >
 > 👉 **28/10 (Francisco):** **T-081** (alta, edición y baja de hoteles en la web) está hecho y mergeado (PR [#128](https://github.com/FranLuciano04/Vault-Rumbo/pull/128)). También se arregló el enlace del detalle a la edición (PR [#130](https://github.com/FranLuciano04/Vault-Rumbo/pull/130)). El precio de los hoteles se carga en formato es-AR. A M5 le faltan T-083, T-084 (Nahuel) y T-085.
 >
+> 👉 **28/10 (Nahuel):** **T-083** (registrar una reseña en la web) está hecho y mergeado (PR [#132](https://github.com/FranLuciano04/Vault-Rumbo/pull/132)). Desde el detalle del hotel se dan de alta y se editan reseñas, con un buscador de cliente y el viaje opcional. `BuscadorCliente` ahora vive en `features/clientes/`. **A M5 le falta solo T-085** (e2e del catálogo); después, `/cerrar-modulo` M5.
+>
 > 👉 **28/10 (Nahuel):** **T-084** (recomendar hoteles al emitir una cotización) está hecho y mergeado (PR [#129](https://github.com/FranLuciano04/Vault-Rumbo/pull/129)). El hotel elegido entra como ítem `{concepto, precio}`, sin `hotel_id` en el contrato. A M5 le faltan T-083 y T-085.
 >
 > 👉 **28/10 (Nahuel):** **T-082** (detalle del hotel con reseñas en la web) está hecho y mergeado (PR [#127](https://github.com/FranLuciano04/Vault-Rumbo/pull/127)). Tiene ruta `/hoteles/:hotelId` y reseñas paginadas, con moderación para admin y dueño y solo lectura para freelance y empleado. A M5 le faltan T-081, T-083, T-084 y T-085.

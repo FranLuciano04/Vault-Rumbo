@@ -33,6 +33,18 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
+## 28/10/26 — Nahuel (Claude Opus 5.5) — T-083: registrar una reseña en la web
+- **Hecho:** T-083 (PR [#132](https://github.com/FranLuciano04/Vault-Rumbo/pull/132), mergeado con el CI en verde).
+  - Alta y edición de reseñas desde el detalle del hotel, para empleado, admin y dueño.
+  - El cliente se elige con `BuscadorCliente`, que se movió de `oportunidades/` a `clientes/`. El viaje opcional (A1) se elige con `useViajes`.
+  - La review de Opus marcó 3 importantes y 2 menores, todos arreglados.
+  - Para mergear hubo que traer `main`. El conflicto de imports en `DetalleHotel.tsx` se resolvió conservando `BajaDelHotel` y `FormularioResena`.
+- **Aviso:**
+  - vitest es lento en esta PC: unos 6 min para hoteles, oportunidades y clientes.
+  - `useTotalesAgenda.test.ts` (shared) falló una vez por tiempo y es intermitente.
+- **Commits:** 64ca1fb, 03c3ad5, 4a4c179, 46499cc, 6a2d74c.
+- **Pendiente:** registrar la reseña desde la pantalla de un viaje (M6). A M5 le queda solo T-085 (e2e); después, `/cerrar-modulo` M5.
+
 ## 28/10/26 — Nahuel (Claude Opus 5.5) — T-084: recomendar hoteles al emitir una cotización
 - **Hecho:** T-084 (PR [#129](https://github.com/FranLuciano04/Vault-Rumbo/pull/129), mergeado con el CI en verde).
   - «Buscar hoteles» en el formulario de cotización, filtrado por el destino de la oportunidad y ordenado por valoración, con paginación.
