@@ -53,6 +53,13 @@ La **persona** de cada sesión es quien la corre, identificada por su identidad 
 - **27/10, de Nahuel (Paloma ya lo vio): hay que revisar el borrador [[DEC-0022 Suite completa solo en el CI|DEC-0022]].** Propone dejar la suite completa del backend solo en el CI y correr en la PC únicamente los checks rápidos antes del PR, salvo cuando se toca código compartido. Además, ya se corrigió que la suite se corría dos veces en los checks: la cobertura de `negocio/` ahora sale de `coverage report`, como en el CI.
 - **27/10, de Paloma: aprobó por su parte el borrador [[DEC-0023 Datos mínimos de la consulta|DEC-0023]]** (destino y pasajeros opcionales al registrar una consulta; mínimo: cliente y canal). Falta tu aprobación para formalizarla. T-062 ya está tomado y sigue el contrato vigente, así que si se aprueba el cambio va en un ticket nuevo de backend.
 
+### Francisco (`FranLucianoo`) y Nahuel (`Nahuel Viniegra`) — aprobar el PR #116 (T-067)
+- **27/10, de Paloma: el PR [#116](https://github.com/FranLuciano04/Vault-Rumbo/pull/116) (T-067, ⚠️ riesgo alto) necesita la aprobación de uno de ustedes.** Tiene el CI en verde. Al aprobarlo, Paloma lo mergea con `/implementar-ticket T-067`.
+  - Aceptar deja la oportunidad `cotizada`; la gana CU-07 (EST-Oportunidad T4).
+  - Rechazar no registra motivo: no lo prevén CU-06 A3 ni el contrato.
+  - **Decisión de Paloma:** aceptar una cotización con `validez_hasta` vencida responde 409 aunque el proceso diario todavía no la haya marcado `vencida`. Se actualizó EST-Cotización T3.
+  - Nahuel: T-073 (la web) consume estos tres endpoints.
+
 ## Formato
 Es **obligatorio** nombrar a la persona que hizo la sesión.
 ```
@@ -61,6 +68,17 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Commits:** <hash>, <hash>
 - **Pendiente:** …
 ```
+
+## 27/10/26 — Paloma (Claude Opus 5.5) — T-062 y T-067
+- **Hecho:**
+  - **T-062** (registrar una consulta como oportunidad) mergeado, PR [#114](https://github.com/FranLuciano04/Vault-Rumbo/pull/114). Paloma decidió seguir el contrato vigente y la web de T-069 (sin `cliente_nuevo` ni 409 por oportunidad abierta). La review encontró un bloqueante, ya arreglado: un freelance podía registrar consultas sobre clientes ajenos.
+  - **T-067** (enviar, aceptar y rechazar una cotización): PR [#116](https://github.com/FranLuciano04/Vault-Rumbo/pull/116) abierto, con el CI en verde. Se trajo `main` por un conflicto con T-065. Paloma decidió que aceptar con la validez vencida responda 409, y se corrigió EST-Cotización T3.
+  - Paloma aprobó por su parte [[DEC-0023 Datos mínimos de la consulta]] y vio el aviso de DEC-0022.
+- **Commits:** d4429ed, 5412090 (main). T-062: 43a84fc, 89903d7, bca4cfa, ba504ce, 2a08f2e. T-067: 1b00daf, 8e873f0, b7306f1, ac0501c, 059822c, merge de main dbfdc38.
+- **Pendiente:**
+  - Aprobación del #116 por Francisco o Nahuel; después, merge con `/implementar-ticket T-067`.
+  - DEC-0023: falta Francisco.
+  - `CotizacionFactory` fija `validez_hasta = 01/11/26`: cualquier test nuevo que acepte cotizaciones con la factory tiene que pasar una validez relativa.
 
 ## 27/10/26 — Nahuel (Claude Opus 5.5) — T-065
 - **Hecho:** T-065 (agendar insistencias en el seguimiento de la oportunidad) mergeado (PR [#115](https://github.com/FranLuciano04/Vault-Rumbo/pull/115)). `POST /oportunidades/{id}/insistencias` crea la alerta a nombre del responsable. Nahuel decidió que agendar sobre una oportunidad ganada o perdida, o con una fecha que no sea futura, responda 422 sin cambiar el contrato. RF-014 queda cubierto con el campo `notas`, sin historial.
