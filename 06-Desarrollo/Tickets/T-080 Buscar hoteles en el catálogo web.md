@@ -3,7 +3,7 @@ id: T-080
 titulo: Buscar hoteles en el catálogo web
 modulo: M5 — Hoteles y reseñas
 capa: web
-estado: libre
+estado: tomado
 depende_de: [T-075, T-020]
 tamaño: M
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [CU-18, RF-106, RF-107, RF-109, RF-110]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: FranLucianoo
+tomado_el: 28/10/26 15:17
+rama: feature/T-080-buscar-hoteles-en-el-catalogo-web
 pr:
 ---
 # T-080 Buscar hoteles en el catálogo web
