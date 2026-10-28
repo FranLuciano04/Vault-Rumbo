@@ -4,18 +4,20 @@ import {
   formatearFecha,
   formatearImporte,
   type Cotizacion,
+  type Hotel,
   type Moneda,
   type UsuarioActual,
 } from "@rumbo/shared";
 import { useConfiguracion, useEmitirCotizacion } from "@rumbo/shared/hooks";
 import type { AxiosInstance } from "axios";
-import { Plus, X } from "lucide-react";
+import { Hotel as IconoHotel, Plus, Search, X } from "lucide-react";
 import { useState } from "react";
 import { useFieldArray, useForm, useWatch } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { aplicarErroresDelServidor } from "@/lib/errores";
+import { BuscadorHoteles } from "./BuscadorHoteles";
 import { esquemaCotizacion, type DatosCotizacion } from "./esquemas";
 import { importeComoTexto, sumarImportes, sumarMesesAHoy } from "./calculos";
 
@@ -26,10 +28,12 @@ export function FormularioCotizacion({
   cliente,
   usuario,
   oportunidadId,
+  destinoConsultado,
 }: {
   cliente: AxiosInstance;
   usuario: UsuarioActual;
   oportunidadId: string;
+  destinoConsultado: string | null;
 }) {
   const emitir = useEmitirCotizacion(cliente);
   // Los parámetros del negocio solo los lee la gestión: el resto no ve una fecha estimada.
@@ -38,15 +42,40 @@ export function FormularioCotizacion({
   const meses = configuracion.data?.vigencia_cotizacion_meses;
   const [error, setError] = useState<string | null>(null);
   const [emitida, setEmitida] = useState<Cotizacion | null>(null);
+  const [buscando, setBuscando] = useState(false);
   const formulario = useForm<DatosCotizacion>({
     resolver: zodResolver(esquemaCotizacion),
     defaultValues: { moneda: "ARS", items: [{ concepto: "", precio: "" }] },
   });
-  const { fields, append, remove } = useFieldArray({ control: formulario.control, name: "items" });
+  const { fields, append, update, remove } = useFieldArray({
+    control: formulario.control,
+    name: "items",
+  });
   const { errors, isSubmitting } = formulario.formState;
   const moneda = useWatch({ control: formulario.control, name: "moneda" });
   const items = useWatch({ control: formulario.control, name: "items" });
   const total = sumarImportes(items.map((item) => item.precio));
+
+  const elegidos = items.flatMap((item, i) =>
+    item.hotel_id ? [{ posicion: i, hotelId: item.hotel_id, concepto: item.concepto }] : [],
+  );
+
+  // El hotel entra como ítem (concepto = nombre, precio = referencia, editables); una fila vacía se aprovecha.
+  function elegirHotel(hotel: Hotel) {
+    const item = {
+      concepto: hotel.nombre,
+      precio: hotel.precio_referencia?.replace(".", ",") ?? "",
+      hotel_id: hotel.id,
+    };
+    const vacia = items.findIndex((i) => !i.concepto.trim() && !i.precio.trim());
+    if (vacia >= 0) update(vacia, item);
+    else append(item);
+  }
+
+  function quitarItem(posicion: number) {
+    if (fields.length > 1) remove(posicion);
+    else update(posicion, { concepto: "", precio: "" });
+  }
 
   async function enviar(datos: DatosCotizacion) {
     setError(null);
@@ -128,7 +157,47 @@ export function FormularioCotizacion({
         >
           <Plus aria-hidden="true" /> Agregar ítem
         </Button>
+        <Button
+          type="button"
+          variant="outline"
+          className="w-full"
+          aria-expanded={buscando}
+          onClick={() => {
+            setBuscando((abierto) => !abierto);
+          }}
+        >
+          <Search aria-hidden="true" /> Buscar hoteles
+        </Button>
       </div>
+      {buscando && (
+        <BuscadorHoteles
+          cliente={cliente}
+          destinoConsultado={destinoConsultado}
+          elegidos={elegidos.map((e) => e.hotelId)}
+          alElegir={elegirHotel}
+        />
+      )}
+      {elegidos.length > 0 && (
+        <ul aria-label="Hoteles elegidos" className="space-y-1">
+          {elegidos.map((e) => (
+            <li key={e.hotelId} className="flex items-center gap-2 text-sm">
+              <IconoHotel aria-hidden="true" className="size-4" />
+              <span>{e.concepto}</span>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                aria-label={`Quitar ${e.concepto}`}
+                onClick={() => {
+                  quitarItem(e.posicion);
+                }}
+              >
+                <X aria-hidden="true" />
+              </Button>
+            </li>
+          ))}
+        </ul>
+      )}
       <div className="flex items-center justify-between rounded-md bg-muted p-3">
         <span className="text-sm font-medium">Total calculado</span>
         <span className="text-lg font-semibold">{formatearImporte(total, moneda)}</span>
@@ -152,7 +221,8 @@ export function FormularioCotizacion({
         <p role="status" className="text-sm font-medium">
           Cotización emitida: <span>{ETIQUETA_ESTADO_COTIZACION[emitida.estado]}</span> ·{" "}
           {formatearImporte(emitida.total, emitida.moneda)} · vigente hasta el{" "}
-          {formatearFecha(emitida.validez_hasta)}
+          {formatearFecha(emitida.validez_hasta)} · Ítems:{" "}
+          {emitida.items.map((item) => item.concepto).join(", ")}
         </p>
       )}
       <Button type="submit" disabled={isSubmitting}>
