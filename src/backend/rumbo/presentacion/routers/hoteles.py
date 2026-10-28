@@ -1,5 +1,5 @@
-"""Rutas del módulo hoteles (CU-16, CU-17, CU-18, CU-29). La búsqueda y las reseñas responden 501
-hasta su backend."""
+"""Rutas del módulo hoteles (CU-16, CU-17, CU-18, CU-29). La búsqueda y el listado, la baja lógica,
+la restauración y la eliminación de reseñas responden 501 hasta su backend."""
 
 import uuid
 from typing import Annotated, Any, Literal
@@ -10,7 +10,7 @@ from rumbo.core.db import SesionDep
 from rumbo.datos import modelos
 from rumbo.datos.modelos import EstadoHotel, EstadoResena, RolUsuario
 from rumbo.negocio.errores import HotelDuplicado
-from rumbo.negocio.servicios import hoteles
+from rumbo.negocio.servicios import hoteles, resenas
 from rumbo.negocio.servicios.hoteles import HotelConResenas
 from rumbo.presentacion.contrato import (
     GESTION,
@@ -185,8 +185,11 @@ async def listar_resenas(
     status_code=201,
     **operacion(CATALOGO, "CU-17", 404, 422),
 )
-async def registrar_resena(hotel_id: uuid.UUID, datos: ResenaCrear) -> Resena:
-    raise no_implementado()
+async def registrar_resena(
+    hotel_id: uuid.UUID, datos: ResenaCrear, actor: ActorDep, sesion: SesionDep
+) -> Resena:
+    resena = await resenas.registrar_resena(sesion, actor, hotel_id, **datos.model_dump())
+    return Resena.model_validate(resena)
 
 
 @router.patch(
@@ -195,9 +198,14 @@ async def registrar_resena(hotel_id: uuid.UUID, datos: ResenaCrear) -> Resena:
     summary="Editar una reseña",
     **operacion(CATALOGO, "CU-17", 404, 409, 422),
 )
-async def editar_resena(resena_id: uuid.UUID, cambios: ResenaEditar) -> Resena:
+async def editar_resena(
+    resena_id: uuid.UUID, cambios: ResenaEditar, actor: ActorDep, sesion: SesionDep
+) -> Resena:
     """Corrige puntaje, comentario o fecha (RF-105); no la mueve de hotel ni de cliente."""
-    raise no_implementado()
+    resena = await resenas.editar_resena(
+        sesion, actor, resena_id, cambios.model_dump(exclude_unset=True)
+    )
+    return Resena.model_validate(resena)
 
 
 @router.post(
