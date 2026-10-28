@@ -1,17 +1,17 @@
 ---
 tipo: decision
-estado: en-revision
+estado: formalizado
 modulo: [proceso]
-decisores: []
-fecha_aprobacion:
+decisores: [Nahuel, Paloma, Francisco]
+fecha_aprobacion: 28/10/26
 supersede: DEC-0014 (en parte: paso 6 «Checks» de /implementar-ticket)
-actualizado: 27/10/26
+actualizado: 28/10/26
 ---
 # DEC-0022 Suite completa solo en el CI
 
-tags:: #tipo/decision #estado/en-revision #pc/pc2 #accion/decidir
+tags:: #tipo/decision #estado/formalizado #pc/pc2
 
-> **Borrador, propuesto por Nahuel el 27/10/26 a partir de la retro de T-066. Hace falta que el equipo lo apruebe.** Mientras no se apruebe, sigue vigente el paso 6 actual.
+> ✅ **Aprobada por el equipo el 28/10/26.** La propuso Nahuel el 27/10/26 a partir de la retro de T-066. Paloma la vio y Francisco la aprobó el 28/10/26.
 
 ## Contexto
 - **Qué dice hoy el flujo:** el paso 6 de `/implementar-ticket` ([[Flujo de implementación]], T-154) corre la suite completa del backend en la PC antes de abrir el PR. Después, el CI del PR la vuelve a correr entera.
@@ -26,7 +26,7 @@ tags:: #tipo/decision #estado/en-revision #pc/pc2 #accion/decidir
 - **El problema:** aun con una sola corrida local, cada ticket de backend espera unos 10 minutos para repetir lo que el CI hace en 4 y que de todos modos se exige antes de mergear.
 - **Por qué el CI no tiene que esperar a la PC:** `main` no exige checks (plan gratuito de GitHub), pero el paso 7 ya espera el CI en verde antes de mergear.
 
-## Decisión (propuesta)
+## Decisión
 - **En la PC, en el paso 6:** se corren solo los checks rápidos de cada parte tocada. Son lint, formato y type-check, más los tests del ticket y de sus vecinos directos, que es el mismo `--test` de las fases.
 - **En el CI del PR:** la suite completa, con `test_contrato_m1.py` y sus equivalentes, y los umbrales de cobertura pasan a correr solo ahí.
 - **Si el CI falla:** se trata como hoy se trata una falla en los checks. Se arregla en la misma rama, en modo fix (DEC-0019), y se espera de nuevo el CI.
@@ -36,7 +36,7 @@ tags:: #tipo/decision #estado/en-revision #pc/pc2 #accion/decidir
 | Opción | Pros | Contras | ¿Elegida? |
 |---|---|---|---|
 | Dejar todo como está (suite completa local, con una sola corrida) | Se detecta una regresión antes de abrir el PR | Unos 10 minutos por ticket de backend que repiten lo que hace el CI | |
-| **Suite completa solo en el CI, con excepción para lo compartido** | El CI tarda 4 minutos en vez de 10 y no ocupa la PC; la excepción cubre lo más riesgoso | Una regresión fuera de los vecinos se ve con el PR ya abierto y cuesta una vuelta más de CI | Propuesta |
+| **Suite completa solo en el CI, con excepción para lo compartido** | El CI tarda 4 minutos en vez de 10 y no ocupa la PC; la excepción cubre lo más riesgoso | Una regresión fuera de los vecinos se ve con el PR ya abierto y cuesta una vuelta más de CI | ✅ |
 | Suite completa solo en el CI, sin excepción | Lo más simple | Los cambios en código compartido son justo los que más rompen fuera de los vecinos | |
 | Acelerar la suite local (perfilar con `--durations`, más workers) | Mantiene la verificación local | Esfuerzo incierto; la PC tiene 4 núcleos | Complementaria |
 
@@ -53,8 +53,8 @@ tags:: #tipo/decision #estado/en-revision #pc/pc2 #accion/decidir
 - **Restricciones que respeta:** no cambia el CI, los umbrales de cobertura ni el TDD de las fases.
 
 ## Decisores y fecha
-- Decisores: <Paloma / Nahuel / Francisco>
-- Aprobada: (pendiente)
+- Decisores: Nahuel (propuesta), Paloma y Francisco.
+- Aprobada: 28/10/26.
 
 ## Estado / supersesión
-En revisión. Si se aprueba, se actualizan los tres documentos de «Impacto» y se completa `fecha_aprobacion`.
+Vigente. El 28/10/26 se actualizaron los tres documentos de «Impacto»: `/implementar-ticket` 1.6.0, [[Flujo de implementación]] y [[Spec de implementación]] §4.

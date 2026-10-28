@@ -40,7 +40,7 @@ La **persona** de cada sesión es quien la corre, identificada por su identidad 
   - `pnpm dev` ya llega a la API; el destino se cambia con `RUMBO_API_PROXY` en `apps/web/.env`.
   - Para el compose contra el Firebase real se usa `-f src/docker-compose.firebase.yml`, con `RUMBO_FIREBASE_CREDENCIALES` en `src/.env`, y se publica en el 5173 (`RUMBO_HTTP_PORT=5173`). No se amplía la restricción de la API key (ver `src/infra/firebase.md`).
 
-### Francisco (`FranLucianoo`) y Nahuel (`Nahuel Viniegra`) — DEC-0021
+### Nahuel (`Nahuel Viniegra`) — DEC-0021
 - **25/10, de Paloma: [[DEC-0021 Correcciones del viaje y monto de un pago|DEC-0021]]**, que resuelve dos contradicciones del PC1 que encontró la review de T-086:
   - **Corregir el estado del viaje:** se sigue a EST-Viaje T7 (la resolución de Nahuel del 21/09). Solo se corrige desde `en curso` y `finalizado`, y al deshacer un finalizado se cierra la alerta de reseña. Se cambió el texto de CU-08 A2 y de RF-042.
   - **Monto de un pago:** `PATCH /pagos/{id}` solo reprograma el vencimiento. Los montos se cambian rebalanceando los pagos no cobrados o dividiendo el pago. Se cambiaron CU-11 A3, RF-065 y EST-Pago.
@@ -49,16 +49,11 @@ La **persona** de cada sesión es quien la corre, identificada por su identidad 
 ### Nahuel (`Nahuel Viniegra`) — T-153
 - **24/10, de Paloma: el PR [#73](https://github.com/FranLuciano04/Vault-Rumbo/pull/73) (T-153) ya está mergeado** (⚠️ riesgo alto, auth). Hay un **cambio de decisión**: el 23/10 Francisco había decidido que la cuenta de Firebase sin `Usuario` se reutilizaba. La review de seguridad lo marcó como bloqueante (*pre-account hijacking*: la cuenta conserva la contraseña, los proveedores o las sesiones de quien la haya creado). Paloma decidió que esa cuenta se **borra y se crea una nueva**. CU-25 A1 se actualiza en el mismo PR. Además, el alta toma un lock por email, y nunca se borra una cuenta cuyo uid es de un `Usuario`.
 
-### Francisco (`FranLucianoo`) — DEC-0022
-- **27/10, de Nahuel (Paloma ya lo vio): hay que revisar el borrador [[DEC-0022 Suite completa solo en el CI|DEC-0022]].** Propone dejar la suite completa del backend solo en el CI y correr en la PC únicamente los checks rápidos antes del PR, salvo cuando se toca código compartido. Además, ya se corrigió que la suite se corría dos veces en los checks: la cobertura de `negocio/` ahora sale de `coverage report`, como en el CI.
-- **27/10, de Paloma: aprobó por su parte el borrador [[DEC-0023 Datos mínimos de la consulta|DEC-0023]]** (destino y pasajeros opcionales al registrar una consulta; mínimo: cliente y canal). Falta tu aprobación para formalizarla. T-062 ya está tomado y sigue el contrato vigente, así que si se aprueba el cambio va en un ticket nuevo de backend.
-
-### Francisco (`FranLucianoo`) y Nahuel (`Nahuel Viniegra`) — aprobar el PR #116 (T-067)
-- **27/10, de Paloma: el PR [#116](https://github.com/FranLuciano04/Vault-Rumbo/pull/116) (T-067, ⚠️ riesgo alto) necesita la aprobación de uno de ustedes.** Tiene el CI en verde. Al aprobarlo, Paloma lo mergea con `/implementar-ticket T-067`.
-  - Aceptar deja la oportunidad `cotizada`; la gana CU-07 (EST-Oportunidad T4).
-  - Rechazar no registra motivo: no lo prevén CU-06 A3 ni el contrato.
-  - **Decisión de Paloma:** aceptar una cotización con `validez_hasta` vencida responde 409 aunque el proceso diario todavía no la haya marcado `vencida`. Se actualizó EST-Cotización T3.
-  - Nahuel: T-073 (la web) consume estos tres endpoints.
+### Paloma (`palomap2003`) y Nahuel (`Nahuel Viniegra`) — DEC-0022 y DEC-0023 formalizadas
+- **28/10, de Francisco: aprobó [[DEC-0022 Suite completa solo en el CI|DEC-0022]] y [[DEC-0023 Datos mínimos de la consulta|DEC-0023]], y las dos quedaron formalizadas.**
+  - **DEC-0022:** `/implementar-ticket` pasa a la versión 1.6.0. En el paso 6, la PC corre solo los checks rápidos; la suite completa y la cobertura quedan para el CI, salvo que el ticket toque código compartido. También se actualizaron [[Flujo de implementación]] y la §4 de [[Spec de implementación]].
+  - **DEC-0023:** T-062 ya estaba hecho, así que se crearon dos tickets nuevos en M4 (Paloma): **T-167** para el backend (destino y pasajeros opcionales, migración y 409 al cotizar sin esos datos) y **T-168** para web y mobile («Destino a definir»).
+  - También se mergeó el PR #116 (T-067), que Francisco aprobó.
 
 ## Formato
 Es **obligatorio** nombrar a la persona que hizo la sesión.

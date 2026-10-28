@@ -1,17 +1,17 @@
 ---
 tipo: decision
-estado: en-revision
+estado: formalizado
 modulo: [M4]
-decisores: []
-fecha_aprobacion:
+decisores: [Nahuel, Paloma, Francisco]
+fecha_aprobacion: 28/10/26
 supersede:
-actualizado: 27/10/26
+actualizado: 28/10/26
 ---
 # DEC-0023 Datos mínimos de la consulta
 
-tags:: #tipo/decision #estado/en-revision #pc/pc2 #accion/decidir
+tags:: #tipo/decision #estado/formalizado #pc/pc2
 
-> **Borrador, propuesto por Nahuel el 27/10/26 a partir de la review de T-069. Paloma lo aprobó el 27/10/26; falta Francisco.** Mientras no se apruebe, sigue vigente el contrato actual: destino y pasajeros son obligatorios.
+> ✅ **Aprobada por el equipo el 28/10/26.** La propuso Nahuel el 27/10/26 a partir de la review de T-069. Paloma la aprobó el 27/10/26 y Francisco el 28/10/26. Como T-062 ya estaba hecho, el cambio va en T-167 (backend) y T-168 (web y mobile).
 
 ## Contexto
 - **Qué dice el análisis:** [[CU-04 Registrar consulta]] A3 (formalizado) y RF-013 ([[Requisitos funcionales]]) dicen que la [[Oportunidad]] se guarda en `nueva` «con lo mínimo (canal + cliente)» y que el resto se completa más tarde.
@@ -22,7 +22,7 @@ tags:: #tipo/decision #estado/en-revision #pc/pc2 #accion/decidir
 - **El problema:** una consulta que llega sin destino definido (por ejemplo, «quiero irme en julio, ¿qué me recomendás?») no se puede registrar, aunque el CU lo permite. Según el orden de autoridad de `CLAUDE.md`, el CU está por encima del código, pero la contradicción no se resuelve en silencio.
 - **Momento:** T-062 (`POST /oportunidades` en el backend) todavía está libre. Si se cambia el contrato, conviene hacerlo antes o dentro de ese ticket.
 
-## Decisión (propuesta)
+## Decisión
 Relajar el contrato para que coincida con CU-04 A3:
 - `destino_consultado` y `pasajeros` pasan a ser **opcionales** al crear y al editar. Si vienen, se validan como hoy (destino de 1 a 200 caracteres, pasajeros ≥ 1).
 - En la base de datos las dos columnas pasan a admitir nulos, con una migración. El `CHECK` queda como `pasajeros IS NULL OR pasajeros >= 1`.
@@ -33,7 +33,7 @@ Relajar el contrato para que coincida con CU-04 A3:
 ## Alternativas consideradas
 | Opción | Pros | Contras | ¿Elegida? |
 |---|---|---|---|
-| **Relajar el contrato (destino y pasajeros opcionales)** | Respeta el CU formalizado y el RF-013; deja registrar la consulta en el momento en que llega | Migración y ajustes en varias pantallas que hoy suponen que el dato existe | Propuesta |
+| **Relajar el contrato (destino y pasajeros opcionales)** | Respeta el CU formalizado y el RF-013; deja registrar la consulta en el momento en que llega | Migración y ajustes en varias pantallas que hoy suponen que el dato existe | ✅ |
 | Ajustar CU-04 A3 y RF-013 a «canal + cliente + destino + pasajeros» | Sin cambios de código; el contrato ya funciona así | Cambia un CU formalizado sin un dato del relevamiento que lo respalde; obliga a inventar un destino cuando el cliente no lo tiene | |
 | Valores de relleno («A definir», 1 pasajero) en la web | Sin migración | Guarda datos falsos: los reportes y el embudo cuentan un pasajero que nadie informó | |
 
