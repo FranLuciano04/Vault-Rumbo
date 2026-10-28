@@ -33,6 +33,12 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
+## 28/10/26 — Nahuel (Claude Opus 5.5) — T-068: PDF de la cotización
+- **Hecho:** T-068 (PR [#121](https://github.com/FranLuciano04/Vault-Rumbo/pull/121), mergeado con el CI en verde). `GET /api/cotizaciones/{id}/documento` genera el PDF con WeasyPrint desde una plantilla Jinja2, con formato local y 404 si no es visible. Se sumaron WeasyPrint, Jinja2 y las librerías de Pango al CI y al Dockerfile.
+- **Aviso:** en Windows WeasyPrint no carga sin GTK/Pango; los tests de PDF se corren en Docker (comando en las notas del ticket).
+- **Commits:** a37dc2c, f25b5c0, 795c530, 53af90b, 5dc2f88, b4dbe86.
+- **Pendiente:** menores de la review anotados en el ticket (test de escapado, `Content-Disposition`).
+
 ## 28/10/26 — Francisco (Claude Opus 5.5) — T-075: contrato de hoteles y reseñas
 - **Hecho:** T-075 (PR [#118](https://github.com/FranLuciano04/Vault-Rumbo/pull/118), mergeado con el CI en verde). Es el primer ticket de M5, que tomamos nosotros; Paloma sigue con M4.
   - 11 rutas stub con la guardia de rol real: admin, dueño y empleado escriben el catálogo y las reseñas; admin y dueño moderan; el freelance solo consulta.
