@@ -26,6 +26,7 @@ export type HistorialCliente = components["schemas"]["HistorialCliente"];
 export type PaginaClientes = components["schemas"]["Pagina_ClienteListado_"];
 export type ProblemaDuplicado = components["schemas"]["ProblemaDuplicado"];
 export type SegmentoCliente = components["schemas"]["SegmentoCliente"];
+export type HotelExistente = components["schemas"]["HotelExistente"];
 
 /** Error tipado que traduce un problem+json de la API (ver Contrato de la API, �Errores�). */
 export class ErrorApi extends Error {
@@ -36,6 +37,8 @@ export class ErrorApi extends Error {
   errores: ErrorCampo[] = [];
   /** Posibles duplicados que trae el 409 del alta (CU-02 A1). */
   duplicados?: Cliente[];
+  /** Hotel que ya existe con ese nombre en el destino, en el 409 del alta o la edición (CU-16 A2). */
+  existente?: HotelExistente;
 }
 
 /** Con `responseType: "arraybuffer"` el problem+json llega en bytes: se decodifica para recuperar el problema. */
@@ -79,14 +82,16 @@ export function crearCliente({ baseURL, obtenerToken }: OpcionesCliente): AxiosI
     (error: unknown) => {
       if (!isAxiosError(error) || !error.response) throw error;
       const data: unknown = leerCuerpoProblema(error.response.data);
-      const problema: Partial<Problema & Pick<ProblemaDuplicado, "duplicados">> =
-        data && typeof data === "object" ? data : {};
+      const problema: Partial<
+        Problema & Pick<ProblemaDuplicado, "duplicados"> & { existente: HotelExistente }
+      > = data && typeof data === "object" ? data : {};
       const errorApi = new ErrorApi(problema.title ?? error.message);
       errorApi.status = error.response.status;
       errorApi.title = problema.title ?? "";
       errorApi.detail = problema.detail ?? "";
       errorApi.errores = problema.errores ?? [];
       if (problema.duplicados) errorApi.duplicados = problema.duplicados;
+      if (problema.existente) errorApi.existente = problema.existente;
       throw errorApi;
     },
   );
