@@ -4,7 +4,7 @@ estado: formalizado
 modulo: [hoteles]
 responsable: Paloma
 pc: pc1
-actualizado: 30/09/26
+actualizado: 28/10/26
 fecha_aprobacion: 29/09/26
 ---
 # CU-29 Eliminar reseña
@@ -53,3 +53,6 @@ Dar de baja una [[Reseña]] inapropiada o errónea para que deje de incidir en e
 > [!question] Nahuel (10/09): **borrador propuesto** para cubrir el gap de eliminación de [[Reseña]] (pedido en la revisión de cobertura ABM). A validar por **Paloma** (dueña del módulo): (1) agrego `estado` (`publicada · oculta`) a [[Reseña]]; (2) actor — ¿solo `admin` (moderación) o también `empleado`?; (3) ¿baja lógica (recomendada) o física?
 >
 > [!note] Francisco (11/09) — **definido** (resuelvo las 3 dudas de Nahuel): (1) `estado` `publicada · oculta` **confirmado** en [[Reseña]]; (2) actor = **`admin`** (moderar es acción sensible; el empleado puede reportar/solicitar); (3) **baja lógica** siempre por defecto (preserva la trazabilidad de [[DEC-0003 Relación Viaje–Hotel y Reseña]]); la física es excepcional. Pasa a `en-revision`. Paloma: para tu conocimiento como dueña del módulo, ajustable en la sync.
+>
+> [!note] Francisco (28/10/26, en T-079): **cuándo se puede eliminar físicamente** (A2). Solo sobre una reseña **ya oculta**: primero va la baja lógica y después admin o dueña pueden borrarla. Una publicada responde 409. Cada eliminación queda registrada en el log de la aplicación con quién la hizo, el motivo y los datos de la reseña.
+> - #accion/decidir: ¿hace falta además un rastro consultable dentro de Rumbo, como una tabla de auditoría? Paloma, sos responsable del CU, así que lo vemos en la sync.
