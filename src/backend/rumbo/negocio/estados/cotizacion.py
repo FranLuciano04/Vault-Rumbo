@@ -8,7 +8,7 @@ from typing import Any
 from rumbo.core import fechas
 from rumbo.core.fechas import sumar_meses
 from rumbo.datos.modelos import Cotizacion, EstadoCotizacion, Moneda, Oportunidad
-from rumbo.negocio.errores import DatosInvalidos, TransicionInvalida
+from rumbo.negocio.errores import Conflicto, DatosInvalidos, TransicionInvalida
 from rumbo.negocio.estados import oportunidad as estado_oportunidad
 
 _TOTAL_MAXIMO = Decimal("999999999999.99")  # lo que entra en la columna Numeric(14, 2)
@@ -25,8 +25,19 @@ def emitir(
     """T1: nueva versión en `borrador` desde una oportunidad abierta (RF-021). El total es la suma
     exacta de los precios y la vigencia, `fecha` más `vigencia_meses` (RF-022). No cambia el
     estado de la oportunidad: pasa a `cotizada` al marcarla enviada (EST-Oportunidad T3). Un
-    total que no entra en la columna es `DatosInvalidos` (422), no un error de la base."""
+    total que no entra en la columna es `DatosInvalidos` (422), no un error de la base. Sin destino
+    o sin pasajeros no se cotiza: `Conflicto` (409, DEC-0023)."""
     estado_oportunidad.exigir_abierta(oportunidad, accion="cotizar")
+    faltan = [
+        nombre
+        for nombre, valor in (
+            ("destino", oportunidad.destino_consultado),
+            ("pasajeros", oportunidad.pasajeros),
+        )
+        if valor is None
+    ]
+    if faltan:
+        raise Conflicto(f"Para cotizar, la oportunidad necesita {' y '.join(faltan)} (DEC-0023).")
     total = sum((Decimal(i["precio"]) for i in items), Decimal(0))
     if total > _TOTAL_MAXIMO:
         raise DatosInvalidos("items", "La suma de los precios supera el total máximo admitido.")

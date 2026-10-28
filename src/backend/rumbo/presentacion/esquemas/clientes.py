@@ -130,7 +130,7 @@ class OportunidadDelCliente(BaseModel):
     """Consulta del cliente, tal como aparece en su historial."""
 
     id: uuid.UUID
-    destino_consultado: str
+    destino_consultado: str | None
     estado: EstadoOportunidad
     fecha_desde_tentativa: date | None
     fecha_hasta_tentativa: date | None

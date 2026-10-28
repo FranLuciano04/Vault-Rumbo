@@ -368,14 +368,15 @@ async def test_cu05_motivos_de_perdida_son_los_seis_del_catalogo(
     }
 
 
-async def test_cu04_crear_oportunidad_exige_cliente_canal_destino_y_pasajeros(
+async def test_rf013_crear_oportunidad_exige_solo_cliente_y_canal(
     contrato: dict[str, Any],
 ) -> None:
     ruta = "/api/oportunidades"
     esquema = _cuerpo(contrato, "post", ruta)
 
-    assert {"cliente_id", "canal", "destino_consultado", "pasajeros"} <= set(esquema["required"])
-    assert esquema["properties"]["pasajeros"]["minimum"] == 1
+    assert set(esquema["required"]) == {"cliente_id", "canal"}
+    assert "destino_consultado" in esquema["properties"]
+    assert "pasajeros" in esquema["properties"]
     assert "responsable_id" not in esquema["properties"], "el responsable es quien la registra"
     assert _ref(_respuesta(contrato, "post", ruta, "201")) == "Oportunidad"
 

@@ -49,13 +49,14 @@ export const idCotizacionMock = {
 } as const;
 
 function oportunidad(
-  parcial: Partial<Oportunidad> & Pick<Oportunidad, "id" | "cliente_id" | "destino_consultado">,
+  parcial: Partial<Oportunidad> & Pick<Oportunidad, "id" | "cliente_id">,
 ): Oportunidad {
   return {
     ...auditoriaMock,
     cliente_nombre: nombreDeCliente[parcial.cliente_id] ?? "Cliente",
     responsable_id,
     canal: "whatsapp",
+    destino_consultado: null,
     fecha_desde_tentativa: null,
     fecha_hasta_tentativa: null,
     pasajeros: 2,
@@ -284,10 +285,10 @@ export const manejadoresOportunidades: RequestHandler[] = [
         id: crypto.randomUUID(),
         cliente_id: datos.cliente_id,
         canal: datos.canal,
-        destino_consultado: datos.destino_consultado,
+        destino_consultado: datos.destino_consultado ?? null,
         fecha_desde_tentativa: datos.fecha_desde_tentativa ?? null,
         fecha_hasta_tentativa: datos.fecha_hasta_tentativa ?? null,
-        pasajeros: datos.pasajeros,
+        pasajeros: datos.pasajeros ?? null,
         notas: datos.notas ?? null,
       }),
       { status: 201 },

@@ -67,7 +67,7 @@ class Cliente(IdMixin, AuditoriaMixin, Base):
 class Oportunidad(IdMixin, AuditoriaMixin, Base):
     __tablename__ = "oportunidad"
     __table_args__ = (
-        CheckConstraint("pasajeros >= 1"),
+        CheckConstraint("pasajeros IS NULL OR pasajeros >= 1"),
         CheckConstraint("fecha_hasta_tentativa >= fecha_desde_tentativa"),
         CheckConstraint(
             "(estado = 'perdida') = (motivo_perdida IS NOT NULL)",
@@ -78,10 +78,10 @@ class Oportunidad(IdMixin, AuditoriaMixin, Base):
     cliente_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("cliente.id"))
     responsable_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("usuario.id"))
     canal: Mapped[CanalOportunidad]
-    destino_consultado: Mapped[str] = mapped_column(String(200))  # texto libre (DEC-0006)
+    destino_consultado: Mapped[str | None] = mapped_column(String(200))  # texto libre (DEC-0006)
     fecha_desde_tentativa: Mapped[date | None]
     fecha_hasta_tentativa: Mapped[date | None]
-    pasajeros: Mapped[int]
+    pasajeros: Mapped[int | None]
     estado: Mapped[EstadoOportunidad] = mapped_column(server_default=text("'nueva'"))
     motivo_perdida: Mapped[MotivoPerdida | None]  # obligatorio al cerrar perdida (DEC-0013)
     motivo_perdida_detalle: Mapped[str | None] = mapped_column(Text)

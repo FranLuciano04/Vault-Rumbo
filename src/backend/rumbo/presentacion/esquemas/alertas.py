@@ -43,7 +43,7 @@ class ClienteDeAlerta(BaseModel):
 
 class OportunidadDeAlerta(BaseModel):
     id: uuid.UUID
-    destino_consultado: str
+    destino_consultado: str | None
     estado: EstadoOportunidad
 
 

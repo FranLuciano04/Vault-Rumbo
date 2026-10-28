@@ -1,4 +1,9 @@
-import { ETIQUETA_ESTADO_OPORTUNIDAD, ETIQUETA_ESTADO_VIAJE, formatearFecha } from "@rumbo/shared";
+import {
+  DESTINO_A_DEFINIR,
+  ETIQUETA_ESTADO_OPORTUNIDAD,
+  ETIQUETA_ESTADO_VIAJE,
+  formatearFecha,
+} from "@rumbo/shared";
 import { useHistorialCliente } from "@rumbo/shared/hooks";
 import type { ReactNode } from "react";
 import { Text, View } from "react-native";
@@ -59,7 +64,7 @@ export function HistorialClienteMobile({ id }: { id: string }) {
             {data.oportunidades.map((o) => (
               <Fila
                 key={o.id}
-                principal={o.destino_consultado}
+                principal={o.destino_consultado ?? DESTINO_A_DEFINIR}
                 estado={ETIQUETA_ESTADO_OPORTUNIDAD[o.estado]}
               />
             ))}

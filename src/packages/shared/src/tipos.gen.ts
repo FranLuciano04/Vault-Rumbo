@@ -2527,15 +2527,18 @@ export interface components {
             canal: components["schemas"]["CanalOportunidad"];
             /**
              * Destino Consultado
-             * @description Texto libre; se normaliza a un Destino al confirmar la reserva (DEC-0006).
+             * @description Texto libre; se normaliza a un Destino al confirmar la reserva (DEC-0006). Puede faltar al registrar la consulta; hace falta para cotizar (DEC-0023).
              */
-            destino_consultado: string;
+            destino_consultado: string | null;
             /** Fecha Desde Tentativa */
             fecha_desde_tentativa: string | null;
             /** Fecha Hasta Tentativa */
             fecha_hasta_tentativa: string | null;
-            /** Pasajeros */
-            pasajeros: number;
+            /**
+             * Pasajeros
+             * @description Puede faltar al registrar la consulta; hace falta para cotizar (DEC-0023).
+             */
+            pasajeros: number | null;
             readonly estado: components["schemas"]["EstadoOportunidad"];
             readonly motivo_perdida: components["schemas"]["MotivoPerdida"] | null;
             /**
@@ -2561,13 +2564,13 @@ export interface components {
             cliente_id: string;
             canal: components["schemas"]["CanalOportunidad"];
             /** Destino Consultado */
-            destino_consultado: string;
+            destino_consultado?: string | null;
             /** Fecha Desde Tentativa */
             fecha_desde_tentativa?: string | null;
             /** Fecha Hasta Tentativa */
             fecha_hasta_tentativa?: string | null;
             /** Pasajeros */
-            pasajeros: number;
+            pasajeros?: number | null;
             /** Notas */
             notas?: string | null;
         };
@@ -2579,7 +2582,7 @@ export interface components {
              */
             id: string;
             /** Destino Consultado */
-            destino_consultado: string;
+            destino_consultado: string | null;
             estado: components["schemas"]["EstadoOportunidad"];
         };
         /**
@@ -2593,7 +2596,7 @@ export interface components {
              */
             id: string;
             /** Destino Consultado */
-            destino_consultado: string;
+            destino_consultado: string | null;
             estado: components["schemas"]["EstadoOportunidad"];
             /** Fecha Desde Tentativa */
             fecha_desde_tentativa: string | null;

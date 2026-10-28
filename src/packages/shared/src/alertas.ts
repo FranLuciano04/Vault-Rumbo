@@ -1,3 +1,4 @@
+import { DESTINO_A_DEFINIR } from "./etiquetas";
 import { formatearFecha, formatearImporte } from "./formato";
 import type { Alerta, FiltrosAlertas } from "./modelos";
 
@@ -48,7 +49,10 @@ export function datosDeContexto({ contexto }: Alerta): DatoDeContexto[] {
   const { viaje, oportunidad, cliente, pago } = contexto;
   const datos: (DatoDeContexto | null)[] = [
     viaje && { etiqueta: "Viaje", valor: viaje.destino },
-    oportunidad && { etiqueta: "Oportunidad", valor: oportunidad.destino_consultado },
+    oportunidad && {
+      etiqueta: "Oportunidad",
+      valor: oportunidad.destino_consultado ?? DESTINO_A_DEFINIR,
+    },
     cliente && { etiqueta: "Cliente", valor: cliente.nombre },
     pago && {
       etiqueta: "Importe",

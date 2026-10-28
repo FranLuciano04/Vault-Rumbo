@@ -10520,9 +10520,16 @@
                 "$ref": "#/components/schemas/CanalOportunidad"
               },
               "destino_consultado": {
-                "type": "string",
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
                 "title": "Destino Consultado",
-                "description": "Texto libre; se normaliza a un Destino al confirmar la reserva (DEC-0006)."
+                "description": "Texto libre; se normaliza a un Destino al confirmar la reserva (DEC-0006). Puede faltar al registrar la consulta; hace falta para cotizar (DEC-0023)."
               },
               "fecha_desde_tentativa": {
                 "anyOf": [
@@ -10549,9 +10556,17 @@
                 "title": "Fecha Hasta Tentativa"
               },
               "pasajeros": {
-                "type": "integer",
-                "minimum": 1.0,
-                "title": "Pasajeros"
+                "anyOf": [
+                  {
+                    "type": "integer",
+                    "minimum": 1.0
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Pasajeros",
+                "description": "Puede faltar al registrar la consulta; hace falta para cotizar (DEC-0023)."
               },
               "estado": {
                 "$ref": "#/components/schemas/EstadoOportunidad",
@@ -10628,9 +10643,16 @@
             "$ref": "#/components/schemas/CanalOportunidad"
           },
           "destino_consultado": {
-            "type": "string",
-            "maxLength": 200,
-            "minLength": 1,
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 200,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Destino Consultado"
           },
           "fecha_desde_tentativa": {
@@ -10658,8 +10680,15 @@
             "title": "Fecha Hasta Tentativa"
           },
           "pasajeros": {
-            "type": "integer",
-            "minimum": 1.0,
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Pasajeros"
           },
           "notas": {
@@ -10677,9 +10706,7 @@
         "type": "object",
         "required": [
           "cliente_id",
-          "canal",
-          "destino_consultado",
-          "pasajeros"
+          "canal"
         ],
         "title": "OportunidadCrear",
         "description": "Registra una consulta (CU-04). El responsable es el usuario que la registra."
@@ -10692,7 +10719,14 @@
             "title": "Id"
           },
           "destino_consultado": {
-            "type": "string",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Destino Consultado"
           },
           "estado": {
@@ -10715,7 +10749,14 @@
             "title": "Id"
           },
           "destino_consultado": {
-            "type": "string",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Destino Consultado"
           },
           "estado": {
