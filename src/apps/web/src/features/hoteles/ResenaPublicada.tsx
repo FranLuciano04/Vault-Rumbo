@@ -77,6 +77,8 @@ export function ResenaPublicada({
             onClick={() => {
               setOcultando(false);
               setSinMotivo(false);
+              setMotivo("");
+              ocultar.reset();
             }}
           >
             Cancelar

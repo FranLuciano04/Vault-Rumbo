@@ -1,10 +1,12 @@
 import { formatearImporte, formatearPuntaje, type UsuarioActual } from "@rumbo/shared";
-import { useHotel, useResenas } from "@rumbo/shared/hooks";
+import { useDestinos, useHotel, useResenas } from "@rumbo/shared/hooks";
 import type { AxiosInstance } from "axios";
-import { Star } from "lucide-react";
+import { Eye, Star } from "lucide-react";
+import { useState } from "react";
 import { Link } from "react-router";
 import { variantesBoton } from "@/components/ui/button";
 import { mensajeDeError } from "@/lib/errores";
+import { PaginadorResenas } from "./PaginadorResenas";
 import { ResenaPublicada } from "./ResenaPublicada";
 import { ResenasOcultas } from "./ResenasOcultas";
 
@@ -23,19 +25,44 @@ export function DetalleHotel({
 }) {
   const puedeModerar = usuario.rol === "admin" || usuario.rol === "dueno";
   const hotel = useHotel(cliente, hotelId);
-  const resenas = useResenas(cliente, hotelId);
+  const [pagina, setPagina] = useState(1);
+  const resenas = useResenas(cliente, hotelId, { pagina });
+  const { data: destinos } = useDestinos(cliente, { por_pagina: 100 });
   if (hotel.isPending) return <p role="status">Cargando hotel…</p>;
   if (hotel.isError)
     return <p role="alert">No pudimos cargar el hotel. {mensajeDeError(hotel.error)}</p>;
   const { data } = hotel;
+  const destino = destinos?.items.find((d) => d.id === data.destino_id)?.nombre;
   return (
     <div className="flex flex-col gap-6">
       <Link to="/hoteles" className={variantesBoton({ variant: "link", className: "self-start" })}>
         Volver a hoteles
       </Link>
       <header className="flex flex-col gap-2">
-        <h1 className="text-2xl font-semibold">{data.nombre}</h1>
-        {data.categoria && <p className="text-muted-foreground">{data.categoria}</p>}
+        <div className="flex items-center gap-3">
+          <h1 className="text-2xl font-semibold">{data.nombre}</h1>
+          <span className="rounded-full bg-muted px-2 py-0.5 text-xs font-medium">
+            {data.estado === "cerrado" ? "Cerrado" : "Activo"}
+          </span>
+        </div>
+        {usuario.rol === "freelance" && (
+          <p
+            role="note"
+            className="flex items-center gap-2 rounded-xl bg-amber-50 px-4 py-3 text-sm text-amber-900"
+          >
+            <Eye aria-hidden="true" className="size-4 shrink-0" />
+            Solo consulta: podés leer los hoteles y sus reseñas. El alta de hoteles y el registro de
+            reseñas los hacen empleados y administración.
+          </p>
+        )}
+        {data.estado === "cerrado" && (
+          <p role="note" className="rounded-xl bg-muted px-4 py-3 text-sm">
+            Este hotel está cerrado.
+          </p>
+        )}
+        <p className="text-muted-foreground">
+          {[destino, data.categoria].filter(Boolean).join(" · ")}
+        </p>
         <p className="flex items-center gap-1 text-sm">
           {data.cantidad_resenas > 0 && data.puntaje_promedio ? (
             <>
@@ -72,6 +99,10 @@ export function DetalleHotel({
         {resenas.isError && (
           <p role="alert">No pudimos cargar las reseñas. {mensajeDeError(resenas.error)}</p>
         )}
+        {resenas.isPending && <p role="status">Cargando reseñas…</p>}
+        {resenas.data?.total === 0 && (
+          <p className="text-sm text-muted-foreground">Todavía no hay reseñas publicadas.</p>
+        )}
         <ul className="flex flex-col gap-3">
           {resenas.data?.items.map((resena) => (
             <ResenaPublicada
@@ -82,6 +113,14 @@ export function DetalleHotel({
             />
           ))}
         </ul>
+        {resenas.data && (
+          <PaginadorResenas
+            pagina={pagina}
+            total={resenas.data.total}
+            porPagina={resenas.data.por_pagina}
+            alCambiar={setPagina}
+          />
+        )}
       </section>
       {puedeModerar && <ResenasOcultas cliente={cliente} hotelId={hotelId} />}
     </div>

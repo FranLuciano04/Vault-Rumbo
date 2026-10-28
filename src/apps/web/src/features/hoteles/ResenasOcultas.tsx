@@ -1,14 +1,23 @@
 import { formatearFecha } from "@rumbo/shared";
 import { useRestaurarResena, useResenas } from "@rumbo/shared/hooks";
 import type { AxiosInstance } from "axios";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { mensajeDeError } from "@/lib/errores";
+import { PaginadorResenas } from "./PaginadorResenas";
 
 /** Reseñas ocultas con su motivo y la acción de restaurarlas (CU-29; solo admin y dueña, RF-111). */
 export function ResenasOcultas({ cliente, hotelId }: { cliente: AxiosInstance; hotelId: string }) {
-  const { data } = useResenas(cliente, hotelId, { estado: "oculta" });
+  const [pagina, setPagina] = useState(1);
+  const { data, isError, error } = useResenas(cliente, hotelId, { estado: "oculta", pagina });
   const restaurar = useRestaurarResena(cliente);
-  if (!data || data.items.length === 0) return null;
+  if (isError)
+    return (
+      <p role="alert" className="text-sm text-destructive">
+        No pudimos cargar las reseñas ocultas. {mensajeDeError(error)}
+      </p>
+    );
+  if (!data || (data.total === 0 && data.items.length === 0)) return null;
   return (
     <section aria-labelledby="titulo-ocultas" className="flex flex-col gap-3">
       <h2 id="titulo-ocultas" className="text-lg font-semibold">
@@ -43,6 +52,12 @@ export function ResenasOcultas({ cliente, hotelId }: { cliente: AxiosInstance; h
           </li>
         ))}
       </ul>
+      <PaginadorResenas
+        pagina={pagina}
+        total={data.total}
+        porPagina={data.por_pagina}
+        alCambiar={setPagina}
+      />
     </section>
   );
 }

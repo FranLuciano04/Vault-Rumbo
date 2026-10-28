@@ -5,13 +5,14 @@ import {
   idHotelMock,
   manejadoresHotelesPara,
   manejadoresM1,
+  resenasMock,
   usuariosPorRol,
   type RolMock,
 } from "@rumbo/shared/mocks";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { http, HttpResponse } from "msw";
+import { http, HttpResponse, type RequestHandler } from "msw";
 import { MemoryRouter } from "react-router";
 import { afterAll, afterEach, beforeAll, describe, expect, it } from "vitest";
 import { DetalleHotel } from "./DetalleHotel";
@@ -29,7 +30,8 @@ afterAll(() => {
 });
 
 const cliente = crearCliente({ baseURL: "http://localhost", obtenerToken: () => "token" });
-const llaoLlao = hotelesMock.find((h) => h.id === idHotelMock.llaoLlao)!;
+const llaoLlao = hotelesMock.find((h) => h.id === idHotelMock.llaoLlao);
+if (!llaoLlao) throw new Error("falta el hotel Llao Llao en los mocks");
 const RESENA_1 = "Muy bueno, el desayuno flojo.";
 const RESENA_2 = "Las vistas al lago valen cada peso.";
 const RESENA_OCULTA = "Reseña con insultos al personal.";
@@ -129,13 +131,13 @@ describe("RF-111 moderación", () => {
       await usuario.click(fila.querySelector("button") as HTMLButtonElement);
       await usuario.type(await screen.findByRole("textbox", { name: /motivo/i }), "Spam");
       await usuario.click(screen.getByRole("button", { name: /confirmar/i }));
-      await waitFor(() =>
+      await waitFor(() => {
         expect(pedidos).toContainEqual({
           metodo: "POST",
           ruta: `/api/resenas/${ID_RESENA_2}/ocultar`,
           cuerpo: { motivo_baja: "Spam" },
-        }),
-      );
+        });
+      });
     },
   );
 
@@ -151,26 +153,6 @@ describe("RF-111 moderación", () => {
     expect(pedidos).toEqual([]);
   });
 
-  it.each<RolMock>(["admin", "dueno"])(
-    "%s ve las reseñas ocultas con el motivo y puede restaurarlas",
-    async (rol) => {
-      const pedidos: Escritura[] = [];
-      espiarEscrituras(pedidos);
-      const usuario = userEvent.setup();
-      renderDetalle(rol);
-      expect(await screen.findByText(RESENA_OCULTA)).toBeInTheDocument();
-      expect(screen.getByText(/contenido ofensivo/i)).toBeInTheDocument();
-      await usuario.click(screen.getByRole("button", { name: /restaurar/i }));
-      await waitFor(() =>
-        expect(pedidos).toContainEqual({
-          metodo: "POST",
-          ruta: `/api/resenas/${ID_RESENA_OCULTA}/restaurar`,
-          cuerpo: null,
-        }),
-      );
-    },
-  );
-
   it("si el servidor rechaza la baja (409), muestra el detalle del error", async () => {
     const usuario = userEvent.setup();
     renderDetalle("admin");
@@ -178,7 +160,12 @@ describe("RF-111 moderación", () => {
     servidor.use(
       http.post("*/api/resenas/:id/ocultar", () =>
         HttpResponse.json(
-          { type: "about:blank", title: "Conflicto", status: 409, detail: "La reseña ya está oculta." },
+          {
+            type: "about:blank",
+            title: "Conflicto",
+            status: 409,
+            detail: "La reseña ya está oculta.",
+          },
           { status: 409, headers: { "Content-Type": "application/problem+json" } },
         ),
       ),
@@ -190,7 +177,29 @@ describe("RF-111 moderación", () => {
   });
 });
 
-describe("RF-112 vistas de solo lectura (freelance y empleado)", () => {
+describe("RF-112 restaurar reseña", () => {
+  it.each<RolMock>(["admin", "dueno"])(
+    "%s ve las reseñas ocultas con el motivo y puede restaurarlas",
+    async (rol) => {
+      const pedidos: Escritura[] = [];
+      espiarEscrituras(pedidos);
+      const usuario = userEvent.setup();
+      renderDetalle(rol);
+      expect(await screen.findByText(RESENA_OCULTA)).toBeInTheDocument();
+      expect(screen.getByText(/contenido ofensivo/i)).toBeInTheDocument();
+      await usuario.click(screen.getByRole("button", { name: /restaurar/i }));
+      await waitFor(() => {
+        expect(pedidos).toContainEqual({
+          metodo: "POST",
+          ruta: `/api/resenas/${ID_RESENA_OCULTA}/restaurar`,
+          cuerpo: null,
+        });
+      });
+    },
+  );
+});
+
+describe("RF-108 detalle por rol (solo lectura)", () => {
   it.each<RolMock>(["freelance", "empleado"])(
     "%s ve datos, puntaje y reseñas publicadas",
     async (rol) => {
@@ -224,5 +233,72 @@ describe("RF-112 vistas de solo lectura (freelance y empleado)", () => {
     renderDetalle("freelance");
     await screen.findByText(RESENA_1);
     expect(estados).not.toContain("oculta");
+  });
+});
+
+/** Como `renderDetalle`, pero con manejadores propios que ganan sobre los del rol. */
+function renderConManejadores(rol: RolMock, hotelId: string, ...manejadores: RequestHandler[]) {
+  const resultado = renderDetalle(rol, hotelId);
+  servidor.use(...manejadores);
+  return resultado;
+}
+
+/** Reseñas de `estado` repartidas en páginas de 2 (`total` en todo el hotel). */
+function resenasPaginadas(estado: "publicada" | "oculta", total: number) {
+  return http.get("*/api/hoteles/:id/resenas", ({ request }) => {
+    const url = new URL(request.url);
+    const numero = Number(url.searchParams.get("pagina") ?? 1);
+    const pedido = url.searchParams.get("estado") ?? "publicada";
+    const base = resenasMock.find((r) => r.id === ID_RESENA_2);
+    if (!base) throw new Error("falta la reseña base en los mocks");
+    const todas = pedido === estado ? total : 0;
+    const items = Array.from({ length: todas }, (_, i) => ({
+      ...base,
+      id: `00000000-0000-4000-8000-${String(i).padStart(12, "0")}`,
+      estado: pedido as "publicada" | "oculta",
+      comentario: `Comentario ${pedido} ${String(i + 1)}`,
+    })).slice((numero - 1) * 2, numero * 2);
+    return HttpResponse.json({ items, total: todas, pagina: numero, por_pagina: 2 });
+  });
+}
+
+describe("RF-108 paginación de reseñas", () => {
+  it("con más reseñas que una página, pasa a la siguiente de las publicadas", async () => {
+    const usuario = userEvent.setup();
+    renderConManejadores("empleado", idHotelMock.llaoLlao, resenasPaginadas("publicada", 3));
+    expect(await screen.findByText("Comentario publicada 1")).toBeInTheDocument();
+    expect(screen.queryByText("Comentario publicada 3")).not.toBeInTheDocument();
+    await usuario.click(screen.getByRole("button", { name: /siguiente/i }));
+    expect(await screen.findByText("Comentario publicada 3")).toBeInTheDocument();
+  });
+
+  it("admin también pagina las ocultas", async () => {
+    const usuario = userEvent.setup();
+    renderConManejadores("admin", idHotelMock.llaoLlao, resenasPaginadas("oculta", 3));
+    expect(await screen.findByText("Comentario oculta 1")).toBeInTheDocument();
+    await usuario.click(screen.getByRole("button", { name: /siguiente/i }));
+    expect(await screen.findByText("Comentario oculta 3")).toBeInTheDocument();
+  });
+});
+
+describe("RF-108 estado y destino del hotel", () => {
+  it("un hotel activo muestra su estado y el destino", async () => {
+    renderDetalle("empleado");
+    await screen.findByRole("heading", { name: llaoLlao.nombre });
+    expect(screen.getByText("Activo")).toBeInTheDocument();
+    expect(await screen.findByText(/Bariloche/)).toBeInTheDocument();
+  });
+
+  it("un hotel cerrado lo avisa", async () => {
+    renderDetalle("empleado", idHotelMock.playaDorada);
+    await screen.findByRole("heading", { name: "Hotel Playa Dorada" });
+    expect(screen.getByText("Cerrado")).toBeInTheDocument();
+    expect(screen.getByRole("note")).toHaveTextContent(/está cerrado/i);
+  });
+
+  it("el freelance ve el aviso de solo consulta", async () => {
+    renderDetalle("freelance");
+    await screen.findByRole("heading", { name: llaoLlao.nombre });
+    expect(screen.getByRole("note")).toHaveTextContent(/solo consulta/i);
   });
 });
