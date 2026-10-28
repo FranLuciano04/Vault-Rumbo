@@ -463,7 +463,10 @@ export const manejadoresM1: RequestHandler[] = [
     return HttpResponse.json(await recurso(destinosMock[0], undefined, request), { status: 201 });
   }),
   http.get("*/api/destinos/:destino_id", async ({ params }) =>
-    HttpResponse.json(await recurso(destinosMock[0], params["destino_id"])),
+    HttpResponse.json(
+      destinosMock.find(({ id }) => id === params["destino_id"]) ??
+        (await recurso(destinosMock[0], params["destino_id"])),
+    ),
   ),
   http.patch("*/api/destinos/:destino_id", async ({ params, request }) => {
     const cuerpo = await cuerpoDe(request);

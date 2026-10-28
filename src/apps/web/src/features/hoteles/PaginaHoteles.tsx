@@ -14,6 +14,7 @@ import { Button, variantesBoton } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
+import { capitalizar, PRECIO_ES_AR, precioParaLaApi } from "./formato";
 import { SinResultadosHoteles, type FiltroAmpliable } from "./SinResultadosHoteles";
 import { TarjetaHotel } from "./TarjetaHotel";
 
@@ -23,10 +24,7 @@ const ORDENES: { valor: NonNullable<FiltrosHoteles["orden"]>; etiqueta: string }
   { valor: "nombre", etiqueta: "Nombre" },
 ];
 const FILTROS_INICIALES: FiltrosHoteles = { pagina: 1, orden: "valoracion" };
-const PRECIO_VALIDO = /^\d+(\.\d{1,2})?$/;
 const CLASE_SELECT = "h-9 rounded-md border border-input bg-background px-3 text-sm";
-
-const capitalizar = (texto: string) => texto.charAt(0).toUpperCase() + texto.slice(1);
 
 function Campo({ id, etiqueta, children }: { id: string; etiqueta: string; children: ReactNode }) {
   return (
@@ -53,8 +51,10 @@ export function PaginaHoteles({
   const [precioVisto, setPrecioVisto] = useState<string>();
   const contador = useRef<HTMLParagraphElement>(null);
   const precio = textoPrecio.trim();
-  const precioInvalido = precio !== "" && !PRECIO_VALIDO.test(precio);
-  const precioDemorado = useDebouncedValue(precio !== "" && !precioInvalido ? precio : undefined);
+  const precioInvalido = precio !== "" && !PRECIO_ES_AR.test(precio);
+  const precioDemorado = useDebouncedValue(
+    precio !== "" && !precioInvalido ? precioParaLaApi(precio) : undefined,
+  );
   const { data, isPending, isError, error, isPlaceholderData } = useHoteles(cliente, filtros);
   // Todos los destinos: el select ofrece los activos, pero un hotel puede estar en uno dado de baja.
   const { data: destinos } = useDestinos(cliente, { por_pagina: 100 });
@@ -162,9 +162,7 @@ export function PaginaHoteles({
         <Campo id="hoteles-precio" etiqueta="Precio máximo">
           <Input
             id="hoteles-precio"
-            type="number"
-            min={0}
-            step="0.01"
+            inputMode="decimal"
             className="w-40"
             aria-invalid={precioInvalido}
             aria-describedby={precioInvalido ? "hoteles-precio-error" : undefined}
@@ -175,7 +173,7 @@ export function PaginaHoteles({
           />
           {precioInvalido && (
             <p id="hoteles-precio-error" className="text-sm text-destructive">
-              Ingresá un importe válido, por ejemplo 150000 o 150000.50.
+              Ingresá un importe válido, por ejemplo 150.000 o 150.000,50.
             </p>
           )}
         </Campo>

@@ -3,7 +3,7 @@ id: T-083
 titulo: Registrar una reseña en la web
 modulo: M5 — Hoteles y reseñas
 capa: web
-estado: libre
+estado: tomado
 depende_de: [T-082]
 tamaño: S
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [CU-17, RF-101, RF-102, RF-103, RF-105]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: Nahuel Viniegra
+tomado_el: 28/10/26 16:59
+rama: feature/T-083-registrar-una-resena-en-la-web
 pr:
 ---
 # T-083 Registrar una reseña en la web

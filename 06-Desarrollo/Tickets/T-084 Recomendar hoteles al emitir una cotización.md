@@ -3,7 +3,7 @@ id: T-084
 titulo: Recomendar hoteles al emitir una cotización
 modulo: M5 — Hoteles y reseñas
 capa: web
-estado: tomado
+estado: hecho
 depende_de: [T-072, T-080]
 tamaño: S
 riesgo: normal
@@ -45,3 +45,10 @@ Al armar una cotización se pueden buscar hoteles del catálogo ordenados por va
 - —
 
 ## Notas de implementación
+- `BuscadorHoteles` en el formulario de cotización: se abre con «Buscar hoteles» (no pide nada antes) y ordena por valoración. El `destino_id` se resuelve desde `destino_consultado` con `useDestinos({ buscar })`. Si es null busca en todo el catálogo; si no coincide, avisa y muestra todos. Pagina con `PaginadorResenas` (nueva prop `etiqueta`).
+- El contrato `ItemCotizacion` es `{concepto, precio}`, sin `hotel_id`: el hotel elegido entra como ítem. En ARS queda «<Hotel> (ref. por noche)» con el precio de referencia; en otra moneda el precio queda vacío. `hotel_id` y `hotel_nombre` viven solo en el formulario y no viajan a la API. Si hace falta un vínculo real cotización→hotel, es un cambio de contrato de backend.
+- `SinResultadosHoteles` tiene una nueva prop `permitirAlta` (en la cotización no ofrece «Dar de alta un hotel»). `TarjetaHotel` tiene una nueva prop `accion`.
+- Tras emitir, el `role="status"` lista los ítems.
+- Review (opus): 1 importante (precio en ARS cargado en cotizaciones en USD) y 4 menores (destino sin coincidencia, paginación, alta que perdía el formulario, tests débiles), todos arreglados. En el fix se autorizó tocar el test (`--tocar-tests`) para el error de `tsc`, limpiar listeners y agregar casos; ninguna aserción existente cambió.
+- No se contrastó contra el prototipo. Del catálogo solo se usan el destino y el orden por valoración (sin categoría, precio ni servicios).
+- Modelos: tests sonnet, implementación/fix sonnet (el refactor no tuvo cambios), review opus. Sin escalados.

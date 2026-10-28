@@ -85,8 +85,8 @@ const tarjeta = async (nombre: string) => {
 const filtroDestino = () => screen.findByRole("combobox", { name: /destino/i });
 const filtroCategoria = () => screen.findByRole("combobox", { name: /categoría/i });
 const filtroOrden = () => screen.findByRole("combobox", { name: /ordenar por/i });
-const filtroPrecio = () => screen.findByRole("spinbutton", { name: /precio máximo/i });
-const filtroPrecioActual = () => screen.getByRole("spinbutton", { name: /precio máximo/i });
+const filtroPrecio = () => screen.findByRole("textbox", { name: /precio máximo/i });
+const filtroPrecioActual = () => screen.getByRole("textbox", { name: /precio máximo/i });
 const chipSpa = () => screen.getByRole("button", { name: /^spa$/i });
 
 describe("RF-106 búsqueda de hoteles", () => {
@@ -428,7 +428,7 @@ describe("RF-106 búsqueda de hoteles", () => {
     const desde = pedidos.length;
     await new Promise((resolver) => setTimeout(resolver, 600));
 
-    expect(filtroPrecioActual()).toHaveValue(null);
+    expect(filtroPrecioActual()).toHaveValue("");
     expect(pedidos.slice(desde).some((p) => p.has("precio_max"))).toBe(false);
     expect(pedidos.at(-1)?.has("precio_max")).toBe(false);
   });
@@ -440,7 +440,7 @@ describe("RF-106 búsqueda de hoteles", () => {
     const usuario = userEvent.setup();
     await llaoLlao();
 
-    await usuario.type(await filtroPrecio(), "1.234");
+    await usuario.type(await filtroPrecio(), "12,345");
     await new Promise((resolver) => setTimeout(resolver, 600));
 
     expect(screen.getByText(/ingresá un importe válido/i)).toBeInTheDocument();
