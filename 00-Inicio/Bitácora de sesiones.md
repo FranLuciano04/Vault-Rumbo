@@ -33,6 +33,12 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
+## 28/10/26 — Nahuel (Claude Opus 5.5) — T-074: e2e del embudo con cotización
+- **Hecho:** T-074 (PR [#124](https://github.com/FranLuciano04/Vault-Rumbo/pull/124), mergeado con el CI en verde). E2e `oportunidades.spec.ts` (6 tests contra el Compose real: consulta → cotización con PDF → enviada → aceptada, perder/reactivar, visibilidad del freelance) y semilla de demo de oportunidades (5 estados; la `ganada` es venta directa).
+- **Aviso:** aceptar la cotización no gana la oportunidad (sigue «Cotizada» hasta CU-07, M6); el e2e lo fija así.
+- **Commits:** 2044425, 4f65396, 82b9210, 947fcac.
+- **Pendiente:** nada del ticket.
+
 ## 28/10/26 — Nahuel (Claude Opus 5.5) — T-068: PDF de la cotización
 - **Hecho:** T-068 (PR [#121](https://github.com/FranLuciano04/Vault-Rumbo/pull/121), mergeado con el CI en verde). `GET /api/cotizaciones/{id}/documento` genera el PDF con WeasyPrint desde una plantilla Jinja2, con formato local y 404 si no es visible. Se sumaron WeasyPrint, Jinja2 y las librerías de Pango al CI y al Dockerfile.
 - **Aviso:** en Windows WeasyPrint no carga sin GTK/Pango; los tests de PDF se corren en Docker (comando en las notas del ticket).
