@@ -726,7 +726,7 @@ async def test_rf012_oportunidad_abierta_avisa(
     assert _ids(r.json()["items"]) == {str(abierta.id)}
 
 
-@pytest.mark.parametrize("faltante", ["canal", "destino_consultado", "pasajeros"])
+@pytest.mark.parametrize("faltante", ["canal"])
 async def test_rf013_datos_minimos_422(
     cliente_como: FabricaCliente, sesion: AsyncSession, faltante: str
 ) -> None:
@@ -741,6 +741,50 @@ async def test_rf013_datos_minimos_422(
     assert r.headers["content-type"].startswith(PROBLEM_JSON)
     assert faltante in {e["campo"] for e in r.json()["errores"]}
     assert await _cuenta(sesion, Oportunidad) == 0
+
+
+async def test_rf013_consulta_solo_con_cliente_y_canal(
+    cliente_como: FabricaCliente, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("empleado")
+    existente = await crear(sesion, ClienteFactory)
+
+    r = await c.post(
+        "/api/oportunidades", json={"cliente_id": str(existente.id), "canal": "whatsapp"}
+    )
+
+    assert r.status_code == 201, r.text
+    cuerpo = r.json()
+    assert cuerpo["destino_consultado"] is None
+    assert cuerpo["pasajeros"] is None
+    assert cuerpo["estado"] == "nueva"
+    assert await _cuenta(sesion, Oportunidad) == 1
+    guardada = (await sesion.execute(select(Oportunidad))).scalar_one()
+    assert guardada.destino_consultado is None
+    assert guardada.pasajeros is None
+
+
+@pytest.mark.parametrize(
+    "invalido",
+    [{"destino_consultado": ""}, {"destino_consultado": "x" * 201}, {"pasajeros": 0}],
+)
+async def test_rf013_destino_y_pasajeros_se_validan_si_vienen(
+    cliente_como: FabricaCliente, sesion: AsyncSession, invalido: dict[str, Any]
+) -> None:
+    c = await cliente_como("empleado")
+    existente = await crear(sesion, ClienteFactory)
+    base = {"cliente_id": str(existente.id), "canal": "whatsapp"}
+
+    r = await c.post("/api/oportunidades", json={**base, **invalido})
+
+    assert r.status_code == 422, r.text
+    assert set(invalido) & {e["campo"] for e in r.json()["errores"]}
+    assert await _cuenta(sesion, Oportunidad) == 0
+
+    valido = await c.post(
+        "/api/oportunidades", json={**base, "destino_consultado": "x" * 200, "pasajeros": 1}
+    )
+    assert valido.status_code == 201, valido.text
 
 
 async def test_rf013_sin_cliente_422(cliente_como: FabricaCliente, sesion: AsyncSession) -> None:

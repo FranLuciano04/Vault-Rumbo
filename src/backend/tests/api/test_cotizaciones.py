@@ -354,6 +354,37 @@ async def test_oportunidad_cerrada_409(
     assert op.estado is origen
 
 
+@pytest.mark.parametrize(
+    "faltante",
+    [
+        {"destino_consultado": None},
+        {"pasajeros": None},
+        {"destino_consultado": None, "pasajeros": None},
+    ],
+)
+async def test_cu04_cotizar_sin_destino_o_pasajeros_es_409(
+    cliente_como: FabricaCliente, sesion: AsyncSession, faltante: dict[str, None]
+) -> None:
+    c = await cliente_como("empleado")
+    cliente = await crear(sesion, ClienteFactory)
+    op = await crear(
+        sesion,
+        OportunidadFactory,
+        cliente_id=cliente.id,
+        responsable_id=c.usuario.id,  # type: ignore[attr-defined]
+        **faltante,
+    )
+
+    r = await c.post(_url(op), json=CUERPO)
+
+    assert r.status_code == 409, r.text
+    assert r.headers["content-type"].startswith(PROBLEM_JSON)
+    detalle = r.json()["detail"].lower()
+    for campo in faltante:
+        assert campo.split("_")[0] in detalle
+    assert await _de(sesion, op) == []
+
+
 # ---------- listar las versiones (GET, RF-024) ----------
 
 
