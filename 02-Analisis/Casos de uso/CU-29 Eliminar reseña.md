@@ -33,6 +33,7 @@ Dar de baja una [[Reseña]] inapropiada o errónea para que deje de incidir en e
 ## Flujos alternativos
 - **A1 — Restaurar:** el admin revierte una baja y la [[Reseña]] vuelve a `publicada`.
 - **A2 — Eliminación física:** solo excepcional y si no rompe la integridad referencial; **por defecto siempre baja lógica**.
+  - **Cuándo es posible** (decidido por Francisco el 28/10/26, T-079): solo sobre una reseña **ya oculta**. Primero se la da de baja lógica y recién después admin o dueña la pueden borrar del todo. Una reseña publicada responde 409. Hoy ninguna tabla referencia a `Reseña`, así que la integridad referencial no la frena.
 
 ## Postcondiciones
 - La [[Reseña]] queda `oculta`: no aparece en el catálogo ni pondera en la recomendación; el historial se preserva.
