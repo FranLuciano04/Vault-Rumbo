@@ -14,10 +14,13 @@ function cambiosDelHotel(
   if (nombre !== hotel.nombre) cambios.nombre = nombre;
   if (destino_id !== hotel.destino_id) cambios.destino_id = destino_id;
   if ((categoria || null) !== hotel.categoria) cambios.categoria = categoria || null;
-  // Se compara el valor: la API manda «150000.00» y el formulario entrega «150000».
-  if (Number(precio_referencia || null) !== Number(hotel.precio_referencia)) {
-    cambios.precio_referencia = precio_referencia || null;
-  }
+  // Sin precio no es lo mismo que 0; con precio se compara el valor («150000.00» = «150000»).
+  const precio = precio_referencia || null;
+  const mismoPrecio =
+    precio === null || hotel.precio_referencia === null
+      ? precio === hotel.precio_referencia
+      : Number(precio) === Number(hotel.precio_referencia);
+  if (!mismoPrecio) cambios.precio_referencia = precio;
   const mismosServicios =
     servicios.length === hotel.servicios.length &&
     servicios.every((servicio) => hotel.servicios.includes(servicio));

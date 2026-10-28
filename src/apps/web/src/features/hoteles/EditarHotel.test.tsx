@@ -191,6 +191,48 @@ describe("RF-098 edición", () => {
     expect(cuerpos[0]).toEqual({ precio_referencia: null });
   });
 
+  it("RF-098 vaciar un precio de 0.00 manda null: sin precio no es lo mismo que cero", async () => {
+    const cuerpos: Record<string, unknown>[] = [];
+    const usuario = userEvent.setup();
+    renderEdicion(
+      "empleado",
+      idHotelMock.llaoLlao,
+      http.get("*/api/hoteles/:id", () =>
+        HttpResponse.json({ ...llao, precio_referencia: "0.00" }),
+      ),
+      edicionCapturada(cuerpos),
+    );
+    await nombre();
+
+    await usuario.clear(precio());
+    await usuario.click(guardar());
+
+    await waitFor(() => {
+      expect(cuerpos).toHaveLength(1);
+    });
+    expect(cuerpos[0]).toEqual({ precio_referencia: null });
+  });
+
+  it("RF-098 cargar 0 en un hotel sin precio lo manda", async () => {
+    const cuerpos: Record<string, unknown>[] = [];
+    const usuario = userEvent.setup();
+    renderEdicion(
+      "empleado",
+      idHotelMock.llaoLlao,
+      http.get("*/api/hoteles/:id", () => HttpResponse.json({ ...llao, precio_referencia: null })),
+      edicionCapturada(cuerpos),
+    );
+    await nombre();
+
+    await usuario.type(precio(), "0");
+    await usuario.click(guardar());
+
+    await waitFor(() => {
+      expect(cuerpos).toHaveLength(1);
+    });
+    expect(cuerpos[0]).toEqual({ precio_referencia: "0" });
+  });
+
   it("RF-098 no se puede dejar el nombre vacío", async () => {
     const cuerpos: Record<string, unknown>[] = [];
     const usuario = userEvent.setup();
@@ -469,6 +511,56 @@ describe("RF-100 baja", () => {
       expect(screen.queryByRole("alertdialog")).not.toBeInTheDocument();
     });
     expect(darDeBaja()).toHaveFocus();
+  });
+
+  it("RF-100 Tab y Shift+Tab quedan dentro de la confirmación, y Escape cierra desde «Confirmar»", async () => {
+    const usuario = userEvent.setup();
+    renderEdicion("empleado");
+    await nombre();
+    await usuario.click(darDeBaja());
+    const dialogo = await screen.findByRole("alertdialog");
+    const confirmar = within(dialogo).getByRole("button", { name: /confirmar/i });
+    const cancelar = within(dialogo).getByRole("button", { name: /cancelar/i });
+    await waitFor(() => {
+      expect(cancelar).toHaveFocus();
+    });
+
+    await usuario.tab();
+    expect(confirmar).toHaveFocus();
+    await usuario.tab({ shift: true });
+    expect(cancelar).toHaveFocus();
+    await usuario.tab({ shift: true });
+    expect(confirmar).toHaveFocus();
+    await usuario.tab();
+    expect(cancelar).toHaveFocus();
+    await usuario.tab();
+    expect(confirmar).toHaveFocus();
+
+    await usuario.keyboard("{Escape}");
+
+    await waitFor(() => {
+      expect(screen.queryByRole("alertdialog")).not.toBeInTheDocument();
+    });
+  });
+
+  it("RF-100 si la baja falla, el foco vuelve a «Dar de baja»", async () => {
+    const usuario = userEvent.setup();
+    renderEdicion(
+      "empleado",
+      idHotelMock.llaoLlao,
+      http.post("*/api/hoteles/:id/baja", () => new HttpResponse(null, { status: 500 })),
+    );
+    await nombre();
+    await usuario.click(darDeBaja());
+
+    await usuario.click(
+      within(await screen.findByRole("alertdialog")).getByRole("button", { name: /confirmar/i }),
+    );
+
+    await screen.findByText(/no pudimos guardar los cambios/i);
+    await waitFor(() => {
+      expect(darDeBaja()).toHaveFocus();
+    });
   });
 
   it("RF-100 si el hotel ya estaba cerrado (409) muestra el mensaje del servidor y no sale", async () => {
