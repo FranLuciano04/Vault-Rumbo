@@ -18,16 +18,16 @@ from rumbo.datos.repositorios.oportunidades import RepositorioOportunidades
 from rumbo.datos.repositorios.seguridad import RepositorioUsuarios
 from rumbo.negocio.estados import cotizacion as estado_cotizacion
 from rumbo.negocio.estados import oportunidad as estado_oportunidad
+from rumbo.negocio.servicios import parametros
 
 _clientes = RepositorioClientes()
 _oportunidades = RepositorioOportunidades()
 _usuarios = RepositorioUsuarios()
 
-_VIGENCIA_MESES = 1
-
 # (contacto del cliente, destino, canal, pasajeros, días hasta la salida tentativa, estado final,
-# ítems de la cotización o None). La cotización se emite y, salvo en `nueva` y `en_gestion`, se
-# envía; una `perdida` lleva el motivo `precio`.
+# ítems de la cotización o None). Con ítems se emite una cotización y se envía; sin ítems no hay
+# cotización. La `ganada` es una venta directa (CU-05 A4, sin cotización) y la `perdida` lleva el
+# motivo `precio`.
 _OPORTUNIDADES = [
     (
         "familia.perez@rumbo.test",
@@ -66,7 +66,7 @@ _OPORTUNIDADES = [
         2,
         150,
         EstadoOportunidad.ganada,
-        [("Paquete luna de miel 8 noches", "2800000.00")],
+        None,
     ),
     (
         "familia.perez@rumbo.test",
@@ -81,12 +81,14 @@ _OPORTUNIDADES = [
 
 
 # Se busca por cliente y destino: una oportunidad ya cargada, aunque la agencia la haya movido de
-# estado, no se vuelve a crear ni se pisa.
+# estado, no se vuelve a crear ni se pisa. Como la clave incluye el destino, editable por PATCH,
+# si la agencia lo cambia la semilla vuelve a crearla (el mismo riesgo que acepta la de clientes).
 async def sembrar_oportunidades(sesion: AsyncSession) -> None:
     """Carga las oportunidades de demo, idempotente, llevándolas a su estado con las mismas
     transiciones del negocio. Corre después de la de clientes, de la que toma los clientes, y de
     la configuración, de la que toma los responsables. Responde el asesor del cliente o, si no
     tiene, la empleada de demo. Las fechas son relativas al día en que corre."""
+    vigencia_meses = (await parametros.obtener(sesion)).vigencia_cotizacion_meses
     empleada = await _usuarios.buscar_por_email(sesion, "empleada.demo@rumbo.test")
     for contacto, destino, canal, pasajeros, dias, estado, items in _OPORTUNIDADES:
         cliente = await _clientes.buscar_por_contacto(sesion, contacto=contacto, asesor_id=None)
@@ -120,7 +122,7 @@ async def sembrar_oportunidades(sesion: AsyncSession) -> None:
                 moneda=Moneda.ARS,
                 items=[{"concepto": c, "precio": Decimal(p)} for c, p in items],
                 fecha=hoy(),
-                vigencia_meses=_VIGENCIA_MESES,
+                vigencia_meses=vigencia_meses,
             )
             sesion.add(cotizacion)
             estado_cotizacion.enviar(cotizacion, oportunidad)

@@ -13,7 +13,7 @@ from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from rumbo.datos import semillas
-from rumbo.datos.modelos import Cliente, Cotizacion, Oportunidad
+from rumbo.datos.modelos import Cliente, Cotizacion, EstadoCotizacion, Oportunidad
 from rumbo.datos.semillas.clientes import sembrar_clientes
 from rumbo.datos.semillas.configuracion import sembrar_configuracion
 from rumbo.datos.semillas.oportunidades import sembrar_oportunidades
@@ -74,6 +74,19 @@ async def test_rf021_la_semilla_carga_al_menos_una_cotizacion_de_una_oportunidad
     ids = {o.id for o in await _oportunidades(sesion)}
     assert all(c.oportunidad_id in ids for c in cotizaciones)
     assert all(c.items for c in cotizaciones)
+
+
+async def test_rf021_una_oportunidad_ganada_no_tiene_cotizaciones_enviadas(
+    sesion: AsyncSession,
+) -> None:
+    await _preparar(sesion)
+
+    ganadas = {o.id for o in await _oportunidades(sesion) if o.estado.value == "ganada"}
+    assert ganadas, "falta al menos una oportunidad ganada"
+    cotizaciones = (await sesion.scalars(select(Cotizacion))).all()
+    assert all(
+        c.estado is EstadoCotizacion.aceptada for c in cotizaciones if c.oportunidad_id in ganadas
+    )
 
 
 async def test_rf010_las_oportunidades_son_de_clientes_de_la_semilla_de_clientes(

@@ -147,6 +147,7 @@ test.describe("CU-06 Emitir cotización", () => {
   test("RF-021 cotización: se emite, se descarga el PDF y al marcarla enviada la oportunidad pasa a «Cotizada»", async ({
     page,
   }) => {
+    test.slow();
     const token = await tokenDe(DUENA.email, DUENA.password);
     const { oportunidad } = await prepararOportunidad(token, "Cotizar");
     await ingresar(page, DUENA.email, DUENA.password);
@@ -160,7 +161,7 @@ test.describe("CU-06 Emitir cotización", () => {
     await formulario.getByLabel("Precio").fill("1200000");
     await formulario.getByRole("button", { name: "Generar documento" }).click();
     await expect(formulario.getByRole("status")).toContainText("Cotización emitida", {
-      timeout: 20_000,
+      timeout: 10_000,
     });
 
     const versiones = page.getByRole("list", { name: "Versiones de la cotización" });
@@ -222,6 +223,7 @@ test.describe("CU-05 Seguir oportunidad", () => {
 
     // Sin motivo no se confirma.
     await formulario.getByRole("button", { name: "Confirmar" }).click();
+    await expect(formulario).toBeVisible();
     await expect(page.getByText("Perdida", { exact: true })).toHaveCount(0);
 
     await formulario.getByLabel("Motivo").selectOption("precio");
