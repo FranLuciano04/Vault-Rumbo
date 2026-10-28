@@ -3,7 +3,7 @@ id: T-068
 titulo: Generar el documento PDF de la cotización
 modulo: M4 — Oportunidades y cotizaciones
 capa: backend
-estado: libre
+estado: tomado
 depende_de: [T-066]
 tamaño: S
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [CU-06, RF-021, RNF-16]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: Nahuel Viniegra
+tomado_el: 28/10/26 13:29
+rama: feature/T-068-generar-el-documento-pdf-de-la-cotizacio
 pr:
 ---
 # T-068 Generar el documento PDF de la cotización
