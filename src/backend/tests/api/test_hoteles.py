@@ -10,8 +10,9 @@ Supuestos documentados:
   Vale en el alta y en el PATCH (nombre o destino). Editar un hotel sin cambiar su identidad
   (nombre y destino) no choca consigo mismo.
 - Un hotel `cerrado` no cuenta para el duplicado (decisión del orquestador).
-- `destino_id` inexistente: 404. `null` explícito en el PATCH de nombre, destino, categoría o
-  precio: 422. Editar un hotel `cerrado`: 409.
+- `destino_id` inexistente: 422 (campo `destino_id`). `null` explícito en el PATCH de nombre o
+  destino: 422; en categoría o precio los deja en `null`. `categoria` vacía se guarda como `null`.
+  Editar un hotel `cerrado`: 409.
 - `servicios` sin informar se guarda y se devuelve como lista vacía; `categoria` y
   `precio_referencia` como nulos.
 """
@@ -23,9 +24,12 @@ from typing import Any
 import pytest
 from httpx import AsyncClient
 from sqlalchemy import func, select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from rumbo.datos.modelos import EstadoHotel, EstadoResena, Hotel, Resena
+from rumbo.datos.modelos.catalogos import INDICE_NOMBRE_HOTEL
+from rumbo.datos.repositorios.hoteles import RepositorioHoteles
 from tests.fabricas import ClienteFactory, DestinoFactory, HotelFactory, ResenaFactory, crear
 
 PROBLEM_JSON = "application/problem+json"
@@ -427,7 +431,7 @@ async def test_rf153_obtener_hotel(cliente_como: Fabrica, sesion: AsyncSession, 
         destino_id=destino_id,
         nombre="Hotel Sol",
         categoria="3 estrellas",
-        servicios="wifi, pileta",
+        servicios=["wifi", "pileta"],
     )
 
     r = await c.get(_url(hotel.id))
@@ -507,19 +511,19 @@ async def test_rf099_un_hotel_cerrado_no_cuenta_para_el_duplicado(
     assert await _cantidad(sesion) == 2
 
 
-async def test_rf097_alta_con_destino_inexistente_404(
+async def test_rf097_alta_con_destino_inexistente_422(
     cliente_como: Fabrica, sesion: AsyncSession
 ) -> None:
     c = await cliente_como("empleado")
 
     r = await c.post("/api/hoteles", json=_cuerpo(uuid.UUID(INEXISTENTE)))
 
-    assert r.status_code == 404
+    assert r.status_code == 422
     assert r.headers["content-type"].startswith(PROBLEM_JSON)
     assert await _cantidad(sesion) == 0
 
 
-async def test_rf097_edicion_con_destino_inexistente_404(
+async def test_rf097_edicion_con_destino_inexistente_422(
     cliente_como: Fabrica, sesion: AsyncSession
 ) -> None:
     c = await cliente_como("empleado")
@@ -528,13 +532,13 @@ async def test_rf097_edicion_con_destino_inexistente_404(
 
     r = await c.patch(_url(hotel.id), json={"destino_id": INEXISTENTE})
 
-    assert r.status_code == 404
+    assert r.status_code == 422
     assert r.headers["content-type"].startswith(PROBLEM_JSON)
     await sesion.refresh(hotel)
     assert hotel.destino_id == destino_id
 
 
-@pytest.mark.parametrize("campo", ["nombre", "destino_id", "categoria", "precio_referencia"])
+@pytest.mark.parametrize("campo", ["nombre", "destino_id"])
 async def test_rf098_edicion_con_null_explicito_422(
     cliente_como: Fabrica, sesion: AsyncSession, campo: str
 ) -> None:
@@ -545,6 +549,93 @@ async def test_rf098_edicion_con_null_explicito_422(
 
     assert r.status_code == 422
     assert r.headers["content-type"].startswith(PROBLEM_JSON)
+
+
+@pytest.mark.parametrize("campo", ["categoria", "precio_referencia"])
+async def test_rf097_edicion_con_null_explicito_vacia_el_dato_opcional(
+    cliente_como: Fabrica, sesion: AsyncSession, campo: str
+) -> None:
+    c = await cliente_como("empleado")
+    hotel = await crear(sesion, HotelFactory, destino_id=await _destino_id(sesion))
+
+    r = await c.patch(_url(hotel.id), json={campo: None})
+
+    assert r.status_code == 200
+    assert r.json()[campo] is None
+
+
+async def test_rf097_categoria_vacia_se_guarda_como_nula(
+    cliente_como: Fabrica, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("empleado")
+    destino_id = await _destino_id(sesion)
+
+    alta = await c.post("/api/hoteles", json=_cuerpo(destino_id, {"categoria": ""}))
+    edicion = await c.patch(_url(alta.json()["id"]), json={"categoria": "3 estrellas"})
+    vaciada = await c.patch(_url(alta.json()["id"]), json={"categoria": ""})
+
+    assert alta.json()["categoria"] is None
+    assert edicion.json()["categoria"] == "3 estrellas"
+    assert vaciada.json()["categoria"] is None
+
+
+async def test_rf097_un_servicio_con_coma_se_conserva_entero(
+    cliente_como: Fabrica, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("empleado")
+    destino_id = await _destino_id(sesion)
+
+    alta = await c.post(
+        "/api/hoteles", json=_cuerpo(destino_id, {"servicios": ["pileta, climatizada", "wifi"]})
+    )
+    leido = await c.get(_url(alta.json()["id"]))
+
+    assert alta.json()["servicios"] == ["pileta, climatizada", "wifi"]
+    assert leido.json()["servicios"] == ["pileta, climatizada", "wifi"]
+
+
+async def test_rf099_el_indice_unico_rechaza_dos_activos_con_el_mismo_nombre_normalizado(
+    sesion: AsyncSession,
+) -> None:
+    destino_id = await _destino_id(sesion)
+    await crear(sesion, HotelFactory, destino_id=destino_id, nombre="Hotel Llao Llao")
+
+    with pytest.raises(IntegrityError, match=INDICE_NOMBRE_HOTEL):
+        await crear(sesion, HotelFactory, destino_id=destino_id, nombre="  HÓTEL  llao llao ")
+
+
+async def test_rf099_el_indice_unico_ignora_cerrados_y_otros_destinos(
+    sesion: AsyncSession,
+) -> None:
+    destino_id = await _destino_id(sesion)
+    await crear(
+        sesion, HotelFactory, destino_id=destino_id, nombre="Hotel Sol", estado=EstadoHotel.cerrado
+    )
+    await crear(sesion, HotelFactory, destino_id=destino_id, nombre="Hotel Sol")
+    await crear(sesion, HotelFactory, destino_id=await _destino_id(sesion), nombre="Hotel Sol")
+
+
+async def test_rf099_la_carrera_contra_el_indice_responde_409_con_el_existente(
+    cliente_como: Fabrica, sesion: AsyncSession, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    destino_id = await _destino_id(sesion)
+    existente = await crear(sesion, HotelFactory, destino_id=destino_id, nombre="Hotel Sol")
+    c = await cliente_como("empleado")
+    original = RepositorioHoteles.buscar_activo_por_nombre
+    llamadas = 0
+
+    async def ciega_la_primera_vez(self: RepositorioHoteles, *args: Any, **kwargs: Any) -> Any:
+        nonlocal llamadas
+        llamadas += 1
+        return None if llamadas == 1 else await original(self, *args, **kwargs)
+
+    monkeypatch.setattr(RepositorioHoteles, "buscar_activo_por_nombre", ciega_la_primera_vez)
+
+    r = await c.post("/api/hoteles", json=_cuerpo(destino_id, {"nombre": "hotel sol"}))
+
+    assert r.status_code == 409
+    assert r.json()["existente"] == {"id": str(existente.id), "nombre": "Hotel Sol"}
+    assert await _cantidad(sesion) == 1
 
 
 async def test_rf100_editar_un_hotel_cerrado_409(

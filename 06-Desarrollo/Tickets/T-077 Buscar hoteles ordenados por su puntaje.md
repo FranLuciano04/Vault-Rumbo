@@ -46,3 +46,6 @@ Cualquier rol busca hoteles del catálogo por destino y filtros, ordenados por v
 - Recomendación dentro de la cotización (ticket web propio).
 
 ## Notas de implementación
+- **De la review de T-076 (28/10/26):**
+  - `puntaje_promedio` y `cantidad_resenas` salen de `RepositorioHoteles.resumen_resenas`, que hace una consulta por hotel. En el listado y la búsqueda no hay que llamarlo por fila, porque eso es N+1: el resumen tiene que venir en la misma consulta de la página, con una subconsulta agregada o un `GROUP BY` sobre las reseñas publicadas.
+  - `servicios` es `ARRAY(Text)`, así que el filtro por servicio se resuelve con `@>` o `&&`.

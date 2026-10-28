@@ -37,7 +37,8 @@ class RepositorioHoteles(RepositorioBase[Hotel]):
     async def resumen_resenas(
         self, sesion: AsyncSession, hotel_id: uuid.UUID
     ) -> tuple[Decimal | None, int]:
-        """Promedio con dos decimales (vacío si no hay) y cantidad de las reseñas publicadas."""
+        """Promedio con dos decimales (vacío si no hay) y cantidad de las reseñas publicadas de
+        UN hotel. El listado no debe llamarlo por fila (N+1): agrupar en una sola consulta."""
         promedio, cantidad = (
             await sesion.execute(
                 select(func.round(func.avg(Resena.puntaje), 2), func.count()).where(

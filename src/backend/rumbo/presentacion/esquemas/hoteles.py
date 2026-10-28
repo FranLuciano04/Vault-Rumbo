@@ -52,11 +52,10 @@ class Hotel(Auditoria):
     def desde_modelo(
         cls, hotel: modelos.Hotel, puntaje_promedio: Decimal | None, cantidad_resenas: int
     ) -> "Hotel":
-        """El hotel con su resumen de reseñas; `servicios` sale como lista."""
-        calculados = {"servicios", "puntaje_promedio", "cantidad_resenas"}
+        """El hotel con su resumen de reseñas, que no es una columna."""
+        calculados = {"puntaje_promedio", "cantidad_resenas"}
         return cls(
             **{n: getattr(hotel, n) for n in cls.model_fields if n not in calculados},
-            servicios=hotel.lista_servicios,
             puntaje_promedio=puntaje_promedio,
             cantidad_resenas=cantidad_resenas,
         )
@@ -75,8 +74,8 @@ class HotelCrear(Entrada):
 class HotelEditar(Edicion):
     nombre: str = omitible(min_length=1, max_length=120)
     destino_id: uuid.UUID = omitible()
-    categoria: str = omitible(max_length=40)
-    precio_referencia: Importe = omitible()
+    categoria: str | None = Field(default=None, max_length=40)
+    precio_referencia: Importe | None = None
     servicios: list[str] = omitible()
 
 

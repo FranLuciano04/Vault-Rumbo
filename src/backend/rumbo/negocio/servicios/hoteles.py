@@ -4,12 +4,14 @@ import uuid
 from decimal import Decimal
 from typing import Any, NamedTuple
 
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from rumbo.datos.modelos import EstadoHotel, Hotel, RolUsuario, Usuario
+from rumbo.datos.modelos.catalogos import INDICE_NOMBRE_HOTEL
 from rumbo.datos.repositorios.destinos import RepositorioDestinos
 from rumbo.datos.repositorios.hoteles import RepositorioHoteles
-from rumbo.negocio.errores import Conflicto, HotelDuplicado
+from rumbo.negocio.errores import Conflicto, DatosInvalidos, HotelDuplicado, NoEncontrado
 from rumbo.negocio.politicas import exigir_rol, visibilidad
 
 _hoteles = RepositorioHoteles()
@@ -47,17 +49,16 @@ async def crear_hotel(
 ) -> HotelConResenas:
     """Da de alta un `Hotel` activo (CU-16, RF-097, RF-098). No puede repetirse en el destino."""
     exigir_rol(actor, *_GESTORES)
-    await _destinos.obtener(sesion, destino_id, visibilidad=visibilidad(actor))
+    await _exigir_destino(sesion, actor, destino_id)
     await _exigir_sin_duplicado(sesion, actor, destino_id, nombre)
     hotel = Hotel(
         nombre=nombre,
         destino_id=destino_id,
-        categoria=categoria,
+        categoria=categoria or None,
         precio_referencia=precio_referencia,
-        servicios=Hotel.texto_de_servicios(servicios),
+        servicios=servicios,
     )
-    sesion.add(hotel)
-    await sesion.flush()
+    await _guardar_sin_duplicado(sesion, actor, hotel, {})
     return await _con_resenas(sesion, hotel)
 
 
@@ -69,7 +70,7 @@ async def editar_hotel(
     hotel = await _hoteles.obtener(sesion, hotel_id, visibilidad=visibilidad(actor))
     _exigir_activo(hotel)
     if "destino_id" in cambios:
-        await _destinos.obtener(sesion, cambios["destino_id"], visibilidad=visibilidad(actor))
+        await _exigir_destino(sesion, actor, cambios["destino_id"])
     if "nombre" in cambios or "destino_id" in cambios:
         await _exigir_sin_duplicado(
             sesion,
@@ -78,11 +79,9 @@ async def editar_hotel(
             cambios.get("nombre", hotel.nombre),
             excluir_id=hotel.id,
         )
-    if "servicios" in cambios:
-        cambios = {**cambios, "servicios": Hotel.texto_de_servicios(cambios["servicios"])}
-    for campo, valor in cambios.items():
-        setattr(hotel, campo, valor)
-    await sesion.flush()
+    if "categoria" in cambios:
+        cambios["categoria"] = cambios["categoria"] or None
+    await _guardar_sin_duplicado(sesion, actor, hotel, cambios)
     return await _con_resenas(sesion, hotel)
 
 
@@ -117,6 +116,37 @@ async def _exigir_sin_duplicado(
     )
     if repetido is not None:
         raise HotelDuplicado(repetido)
+
+
+async def _exigir_destino(sesion: AsyncSession, actor: Usuario, destino_id: uuid.UUID) -> None:
+    """422 si el destino no existe (mismo criterio que el cliente de una consulta)."""
+    try:
+        await _destinos.obtener(sesion, destino_id, visibilidad=visibilidad(actor))
+    except NoEncontrado:
+        raise DatosInvalidos("destino_id", "El destino no existe.") from None
+
+
+async def _guardar_sin_duplicado(
+    sesion: AsyncSession, actor: Usuario, hotel: Hotel, cambios: dict[str, Any]
+) -> None:
+    """Aplica `cambios` y guarda el `Hotel` (nuevo o ya cargado), traduciendo el choque con el
+    índice único del nombre a `HotelDuplicado`: cubre la carrera entre dos altas que pasaron
+    `_exigir_sin_duplicado` a la vez. Corre en un savepoint abierto antes de tocar nada, porque
+    abrirlo vuelca lo pendiente y un fallo ahí dejaría la sesión inusable."""
+    destino_id = cambios.get("destino_id", hotel.destino_id)
+    nombre = cambios.get("nombre", hotel.nombre)
+    id_ = hotel.id
+    try:
+        async with sesion.begin_nested():
+            for campo, valor in cambios.items():
+                setattr(hotel, campo, valor)
+            sesion.add(hotel)
+            await sesion.flush()
+    except IntegrityError as error:
+        if INDICE_NOMBRE_HOTEL not in str(error.orig):
+            raise
+        await _exigir_sin_duplicado(sesion, actor, destino_id, nombre, excluir_id=id_)
+        raise
 
 
 async def _con_resenas(sesion: AsyncSession, hotel: Hotel) -> HotelConResenas:

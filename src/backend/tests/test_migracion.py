@@ -273,3 +273,66 @@ async def test_rf003_la_migracion_0005_rellena_la_clave_de_los_clientes_existent
         "Ana@Mail.Test": "ana@mail.test",
         "sin dato": "sin dato",
     }
+
+
+# --- 0006: datos opcionales del hotel, servicios como lista e índice único ---------------------
+
+DESTINO_0006 = "00000000-0000-4000-8000-000000000001"
+
+
+async def test_t076_la_migracion_0006_convierte_los_servicios_y_el_downgrade_los_devuelve(
+    url_vacia: str,
+) -> None:
+    assert correr_alembic(url_vacia, "upgrade", "0005").returncode == 0
+    motor = create_async_engine(url_vacia, poolclass=NullPool)
+    try:
+        async with motor.begin() as c:
+            await c.execute(
+                text(
+                    "INSERT INTO destino (id, nombre, pais) VALUES (:d, 'Bariloche', 'Argentina')"
+                ),
+                {"d": DESTINO_0006},
+            )
+            for nombre, servicios in (("A", "wifi, pileta"), ("B", ""), ("C", "spa")):
+                await c.execute(
+                    text(
+                        "INSERT INTO hotel (id, destino_id, nombre, categoria, precio_referencia,"
+                        " servicios) VALUES (gen_random_uuid(), :d, :n, '3 estrellas', 10, :s)"
+                    ),
+                    {"d": DESTINO_0006, "n": nombre, "s": servicios},
+                )
+    finally:
+        await motor.dispose()
+
+    _upgrade(url_vacia)
+
+    filas = await _consultar(url_vacia, "SELECT nombre, servicios FROM hotel")
+    assert dict(filas) == {"A": ["wifi", "pileta"], "B": [], "C": ["spa"]}
+    motor = create_async_engine(url_vacia, poolclass=NullPool)
+    try:
+        async with motor.begin() as c:
+            await c.execute(
+                text(
+                    "INSERT INTO hotel (id, destino_id, nombre) "
+                    "VALUES (gen_random_uuid(), :d, 'Sin datos')"
+                ),
+                {"d": DESTINO_0006},
+            )
+    finally:
+        await motor.dispose()
+
+    assert correr_alembic(url_vacia, "downgrade", "0005").returncode == 0
+
+    filas = await _consultar(
+        url_vacia, "SELECT nombre, categoria, precio_referencia, servicios FROM hotel"
+    )
+    assert {f[0]: (f[1], int(f[2]), f[3]) for f in filas} == {
+        "A": ("3 estrellas", 10, "wifi, pileta"),
+        "B": ("3 estrellas", 10, ""),
+        "C": ("3 estrellas", 10, "spa"),
+        "Sin datos": ("", 0, ""),
+    }
+    indices = await _consultar(
+        url_vacia, "SELECT indexname FROM pg_indexes WHERE tablename = 'hotel'"
+    )
+    assert "hotel_destino_nombre_normalizado_uq" not in {f[0] for f in indices}
