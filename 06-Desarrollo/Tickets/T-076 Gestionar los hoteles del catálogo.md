@@ -48,3 +48,7 @@ Todos menos el `freelance` dan de alta y editan hoteles del catálogo, con aviso
 - Búsqueda y reseñas (tickets propios).
 
 ## Notas de implementación
+- **De la review de T-075 (28/10/26):**
+  - **Migración:** en la tabla `hotel`, `categoria`, `precio_referencia` y `servicios` son NOT NULL, pero CU-16 y RF-098 solo exigen nombre y destino. El contrato de T-075 los deja opcionales en `HotelCrear`, así que este ticket lleva una migración: `categoria` y `precio_referencia` pasan a admitir nulo, y `servicios` admite nulo o tiene una lista vacía por defecto.
+  - **Duplicado:** manda CU-16 A2 (RF-099). Si el hotel ya existe en ese destino, se responde 409 con el hotel existente (`ProblemaDuplicado`) para ofrecer abrirlo, y vale también en el `PATCH`. **No hay** «aviso con confirmación» ni opción de guardar igual. Si este ticket decía otra cosa, prevalece el CU.
+  - **Guardia de rol:** ya viene activa desde el contrato (`operacion(...)`). El freelance recibe 403 al escribir.

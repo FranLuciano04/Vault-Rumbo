@@ -1633,6 +1633,8 @@ export interface paths {
          * @description **Roles:** admin, dueno, empleado, freelance.
          *
          *     **Casos de uso:** CU-18.
+         *
+         *     **Reseñas ocultas:** solo admin y dueño ven las `oculta` (`estado=oculta`); para el resto es 403.
          */
         get: operations["listar_resenas"];
         put?: never;
@@ -2404,6 +2406,16 @@ export interface components {
             /** Servicios */
             servicios?: string[];
         };
+        /** HotelExistente */
+        HotelExistente: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Nombre */
+            nombre: string;
+        };
         /**
          * Insistencia
          * @description Agenda un recontacto: crea una alerta para el responsable (CU-05).
@@ -2818,6 +2830,21 @@ export interface components {
             duplicados: components["schemas"]["Cliente"][];
         };
         /**
+         * ProblemaHotelDuplicado
+         * @description 409 del alta o de la edición (CU-16 A2): trae el hotel que ya existe, para abrirlo.
+         */
+        ProblemaHotelDuplicado: {
+            /** Title */
+            title: string;
+            /** Status */
+            status: number;
+            /** Detail */
+            detail?: string | null;
+            /** Errores */
+            errores?: components["schemas"]["ErrorCampo"][] | null;
+            existente: components["schemas"]["HotelExistente"];
+        };
+        /**
          * ProgresoDelDia
          * @description Avance de la agenda de hoy del usuario actual, o de toda la agencia para admin y dueño
          *     (CU-14).
@@ -2971,11 +2998,8 @@ export interface components {
              * @description Entero de 1 a 5.
              */
             puntaje: number;
-            /**
-             * Comentario
-             * @default
-             */
-            comentario: string;
+            /** Comentario */
+            comentario?: string;
             /**
              * Fecha
              * Format: date
@@ -7960,13 +7984,13 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problema"];
                 };
             };
-            /** @description Conflicto con el estado actual. */
+            /** @description Ya existe un hotel con ese nombre en el destino (CU-16 A2). */
             409: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/problem+json": components["schemas"]["Problema"];
+                    "application/problem+json": components["schemas"]["ProblemaHotelDuplicado"];
                 };
             };
             /** @description Datos inválidos. */
@@ -8080,6 +8104,15 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problema"];
                 };
             };
+            /** @description Ya existe un hotel con ese nombre en el destino (CU-16 A2). */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemaHotelDuplicado"];
+                };
+            };
             /** @description Datos inválidos. */
             422: {
                 headers: {
@@ -8138,6 +8171,15 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problema"];
                 };
             };
+            /** @description Conflicto con el estado actual. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
             /** @description Validation Error */
             422: {
                 headers: {
@@ -8182,6 +8224,15 @@ export interface operations {
             };
             /** @description Falta el token, no es válido o el usuario no tiene acceso. */
             401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description El rol no alcanza. */
+            403: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -8387,6 +8438,15 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problema"];
                 };
             };
+            /** @description Conflicto con el estado actual. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
             /** @description Datos inválidos. */
             422: {
                 headers: {
@@ -8449,6 +8509,15 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problema"];
                 };
             };
+            /** @description Conflicto con el estado actual. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
             /** @description Datos inválidos. */
             422: {
                 headers: {
@@ -8500,6 +8569,15 @@ export interface operations {
             };
             /** @description No existe. */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Conflicto con el estado actual. */
+            409: {
                 headers: {
                     [name: string]: unknown;
                 };

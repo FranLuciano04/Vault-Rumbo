@@ -9,6 +9,7 @@ import type {
   ResenaEditar,
 } from "../modelos";
 import { respuestaProblema } from "./problema";
+import type { RolMock } from "./usuarios";
 import { auditoriaMock } from "./viajes";
 
 // Ids de otros mocks, para que el catálogo cuadre con ellos: destinos de `destinosMock`, clientes
@@ -217,123 +218,170 @@ function datosInvalidos(detail: string) {
   return respuestaProblema(422, "Datos inválidos", { detail });
 }
 
+function conflicto(detail: string, extra: object = {}) {
+  return respuestaProblema(409, "Conflicto", { detail, ...extra });
+}
+
+function sinPermiso() {
+  return respuestaProblema(403, "Sin permiso", { detail: "Tu rol no permite esta acción." });
+}
+
+/** 409 del alta o la edición: trae el hotel que ya existe para ofrecer abrirlo (CU-16 A2). */
+function hotelDuplicado(existente: Hotel) {
+  return conflicto("Ya existe un hotel con ese nombre en el destino.", {
+    existente: { id: existente.id, nombre: existente.nombre },
+  });
+}
+
 const puntajeValido = (puntaje: number) =>
   Number.isInteger(puntaje) && puntaje >= 1 && puntaje <= 5;
 
-/** Handlers MSW del catálogo de hoteles y sus reseñas (CU-16, CU-17, CU-18, CU-29). */
-export const manejadoresHoteles: RequestHandler[] = [
-  http.get("*/api/hoteles", ({ request }) => {
-    const url = new URL(request.url);
-    const filtro = (nombre: string) => url.searchParams.get(nombre);
-    const estado = filtro("estado") ?? "activo";
-    const precioMax = filtro("precio_max");
-    const servicio = filtro("servicio");
-    const filtrados = hotelesMock.filter(
-      (h) =>
-        h.estado === estado &&
-        (!filtro("destino_id") || h.destino_id === filtro("destino_id")) &&
-        (!filtro("categoria") || h.categoria === filtro("categoria")) &&
-        (!precioMax || Number(h.precio_referencia) <= Number(precioMax)) &&
-        (!servicio || h.servicios.includes(servicio)),
-    );
-    return HttpResponse.json(
-      pagina(ordenar(filtrados, filtro("orden") as FiltrosHoteles["orden"]), url),
-    );
-  }),
+/** Handlers MSW del catálogo de hoteles y sus reseñas (CU-16, CU-17, CU-18, CU-29), con la matriz
+ * de roles del contrato: el freelance solo consulta; moderar es de admin y dueño. */
+export function manejadoresHotelesPara(rol: RolMock): RequestHandler[] {
+  const escribe = rol !== "freelance";
+  const modera = rol === "admin" || rol === "dueno";
 
-  http.post("*/api/hoteles", async ({ request }) => {
-    const datos = (await request.json()) as HotelCrear;
-    if (!datos.nombre || !datos.destino_id) return datosInvalidos("Faltan el nombre y el destino.");
-    if (hotelesMock.some((h) => h.nombre === datos.nombre && h.destino_id === datos.destino_id)) {
-      return respuestaProblema(409, "Conflicto", {
-        detail: "Ya existe un hotel con ese nombre en el destino.",
-      });
-    }
-    return HttpResponse.json(
-      hotel({
+  return [
+    http.get("*/api/hoteles", ({ request }) => {
+      const url = new URL(request.url);
+      const filtro = (nombre: string) => url.searchParams.get(nombre);
+      const estado = filtro("estado") ?? "activo";
+      const precioMax = filtro("precio_max");
+      const servicio = filtro("servicio");
+      const filtrados = hotelesMock.filter(
+        (h) =>
+          h.estado === estado &&
+          (!filtro("destino_id") || h.destino_id === filtro("destino_id")) &&
+          (!filtro("categoria") || h.categoria === filtro("categoria")) &&
+          (!precioMax || Number(h.precio_referencia) <= Number(precioMax)) &&
+          (!servicio || h.servicios.includes(servicio)),
+      );
+      return HttpResponse.json(
+        pagina(ordenar(filtrados, filtro("orden") as FiltrosHoteles["orden"]), url),
+      );
+    }),
+
+    http.post("*/api/hoteles", async ({ request }) => {
+      if (!escribe) return sinPermiso();
+      const datos = (await request.json()) as HotelCrear;
+      if (!datos.nombre || !datos.destino_id) {
+        return datosInvalidos("Faltan el nombre y el destino.");
+      }
+      const repetido = hotelesMock.find(
+        (h) => h.nombre === datos.nombre && h.destino_id === datos.destino_id,
+      );
+      if (repetido) return hotelDuplicado(repetido);
+      return HttpResponse.json(
+        hotel({
+          id: crypto.randomUUID(),
+          nombre: datos.nombre,
+          destino_id: datos.destino_id,
+          categoria: datos.categoria ?? null,
+          precio_referencia: datos.precio_referencia ?? null,
+          servicios: datos.servicios ?? [],
+        }),
+        { status: 201 },
+      );
+    }),
+
+    http.get("*/api/hoteles/:id", ({ params }) => {
+      const h = hotelesMock.find((x) => x.id === params["id"]);
+      return h ? HttpResponse.json(h) : hotelNoEncontrado();
+    }),
+
+    http.patch("*/api/hoteles/:id", async ({ params, request }) => {
+      if (!escribe) return sinPermiso();
+      const h = hotelesMock.find((x) => x.id === params["id"]);
+      if (!h) return hotelNoEncontrado();
+      const cambios = (await request.json()) as HotelEditar;
+      const repetido = hotelesMock.find(
+        (otro) =>
+          otro.id !== h.id &&
+          otro.nombre === (cambios.nombre ?? h.nombre) &&
+          otro.destino_id === (cambios.destino_id ?? h.destino_id),
+      );
+      return repetido ? hotelDuplicado(repetido) : HttpResponse.json({ ...h, ...cambios });
+    }),
+
+    http.post("*/api/hoteles/:id/baja", ({ params }) => {
+      if (!escribe) return sinPermiso();
+      const h = hotelesMock.find((x) => x.id === params["id"]);
+      if (!h) return hotelNoEncontrado();
+      return h.estado === "cerrado"
+        ? conflicto("El hotel ya está cerrado.")
+        : HttpResponse.json({ ...h, estado: "cerrado" });
+    }),
+
+    http.get("*/api/hoteles/:id/resenas", ({ params, request }) => {
+      const url = new URL(request.url);
+      const estado = url.searchParams.get("estado") ?? "publicada";
+      if (estado === "oculta" && !modera) return sinPermiso();
+      if (!hotelesMock.some((x) => x.id === params["id"])) return hotelNoEncontrado();
+      const delHotel = resenasMock
+        .filter((r) => r.hotel_id === params["id"] && r.estado === estado)
+        .sort((a, b) => b.fecha.localeCompare(a.fecha));
+      return HttpResponse.json(pagina(delHotel, url));
+    }),
+
+    http.post("*/api/hoteles/:id/resenas", async ({ params, request }) => {
+      if (!escribe) return sinPermiso();
+      if (!hotelesMock.some((x) => x.id === params["id"])) return hotelNoEncontrado();
+      const datos = (await request.json()) as ResenaCrear;
+      if (!puntajeValido(datos.puntaje)) return datosInvalidos("El puntaje va de 1 a 5.");
+      const nueva: Resena = {
+        ...resenaBase,
         id: crypto.randomUUID(),
-        nombre: datos.nombre,
-        destino_id: datos.destino_id,
-        categoria: datos.categoria ?? null,
-        precio_referencia: datos.precio_referencia ?? null,
-        servicios: datos.servicios ?? [],
-      }),
-      { status: 201 },
-    );
-  }),
+        hotel_id: String(params["id"]),
+        cliente_id: datos.cliente_id,
+        viaje_id: datos.viaje_id ?? null,
+        puntaje: datos.puntaje,
+        comentario: datos.comentario ?? "",
+        fecha: datos.fecha,
+        estado: "publicada",
+      };
+      return HttpResponse.json(nueva, { status: 201 });
+    }),
 
-  http.get("*/api/hoteles/:id", ({ params }) => {
-    const h = hotelesMock.find((x) => x.id === params["id"]);
-    return h ? HttpResponse.json(h) : hotelNoEncontrado();
-  }),
+    http.patch("*/api/resenas/:id", async ({ params, request }) => {
+      if (!escribe) return sinPermiso();
+      const r = resenasMock.find((x) => x.id === params["id"]);
+      if (!r) return resenaNoEncontrada();
+      if (r.estado === "oculta") return conflicto("Restaurá la reseña antes de editarla.");
+      const cambios = (await request.json()) as ResenaEditar;
+      if (cambios.puntaje !== undefined && !puntajeValido(cambios.puntaje)) {
+        return datosInvalidos("El puntaje va de 1 a 5.");
+      }
+      return HttpResponse.json({ ...r, ...cambios });
+    }),
 
-  http.patch("*/api/hoteles/:id", async ({ params, request }) => {
-    const h = hotelesMock.find((x) => x.id === params["id"]);
-    if (!h) return hotelNoEncontrado();
-    return HttpResponse.json({ ...h, ...((await request.json()) as HotelEditar) });
-  }),
+    http.post("*/api/resenas/:id/ocultar", async ({ params, request }) => {
+      if (!modera) return sinPermiso();
+      const r = resenasMock.find((x) => x.id === params["id"]);
+      if (!r) return resenaNoEncontrada();
+      const { motivo_baja } = (await request.json()) as { motivo_baja?: string };
+      if (!motivo_baja) return datosInvalidos("Indicá el motivo.");
+      if (r.estado === "oculta") return conflicto("La reseña ya está oculta.");
+      return HttpResponse.json({ ...r, estado: "oculta", motivo_baja });
+    }),
 
-  http.post("*/api/hoteles/:id/baja", ({ params }) => {
-    const h = hotelesMock.find((x) => x.id === params["id"]);
-    return h ? HttpResponse.json({ ...h, estado: "cerrado" }) : hotelNoEncontrado();
-  }),
+    http.post("*/api/resenas/:id/restaurar", ({ params }) => {
+      if (!modera) return sinPermiso();
+      const r = resenasMock.find((x) => x.id === params["id"]);
+      if (!r) return resenaNoEncontrada();
+      return r.estado === "publicada"
+        ? conflicto("La reseña ya está publicada.")
+        : HttpResponse.json({ ...r, estado: "publicada", motivo_baja: null });
+    }),
 
-  http.get("*/api/hoteles/:id/resenas", ({ params, request }) => {
-    if (!hotelesMock.some((x) => x.id === params["id"])) return hotelNoEncontrado();
-    const url = new URL(request.url);
-    const estado = url.searchParams.get("estado") ?? "publicada";
-    const delHotel = resenasMock
-      .filter((r) => r.hotel_id === params["id"] && r.estado === estado)
-      .sort((a, b) => b.fecha.localeCompare(a.fecha));
-    return HttpResponse.json(pagina(delHotel, url));
-  }),
+    http.delete("*/api/resenas/:id", ({ params }) => {
+      if (!modera) return sinPermiso();
+      return resenasMock.some((x) => x.id === params["id"])
+        ? new HttpResponse(null, { status: 204 })
+        : resenaNoEncontrada();
+    }),
+  ];
+}
 
-  http.post("*/api/hoteles/:id/resenas", async ({ params, request }) => {
-    if (!hotelesMock.some((x) => x.id === params["id"])) return hotelNoEncontrado();
-    const datos = (await request.json()) as ResenaCrear;
-    if (!puntajeValido(datos.puntaje)) return datosInvalidos("El puntaje va de 1 a 5.");
-    const nueva: Resena = {
-      ...resenaBase,
-      id: crypto.randomUUID(),
-      hotel_id: String(params["id"]),
-      cliente_id: datos.cliente_id,
-      viaje_id: datos.viaje_id ?? null,
-      puntaje: datos.puntaje,
-      comentario: datos.comentario,
-      fecha: datos.fecha,
-      estado: "publicada",
-    };
-    return HttpResponse.json(nueva, { status: 201 });
-  }),
-
-  http.patch("*/api/resenas/:id", async ({ params, request }) => {
-    const r = resenasMock.find((x) => x.id === params["id"]);
-    if (!r) return resenaNoEncontrada();
-    const cambios = (await request.json()) as ResenaEditar;
-    if (cambios.puntaje !== undefined && !puntajeValido(cambios.puntaje)) {
-      return datosInvalidos("El puntaje va de 1 a 5.");
-    }
-    return HttpResponse.json({ ...r, ...cambios });
-  }),
-
-  http.post("*/api/resenas/:id/ocultar", async ({ params, request }) => {
-    const r = resenasMock.find((x) => x.id === params["id"]);
-    if (!r) return resenaNoEncontrada();
-    const { motivo_baja } = (await request.json()) as { motivo_baja?: string };
-    if (!motivo_baja) return datosInvalidos("Indicá el motivo.");
-    return HttpResponse.json({ ...r, estado: "oculta", motivo_baja });
-  }),
-
-  http.post("*/api/resenas/:id/restaurar", ({ params }) => {
-    const r = resenasMock.find((x) => x.id === params["id"]);
-    return r
-      ? HttpResponse.json({ ...r, estado: "publicada", motivo_baja: null })
-      : resenaNoEncontrada();
-  }),
-
-  http.delete("*/api/resenas/:id", ({ params }) =>
-    resenasMock.some((x) => x.id === params["id"])
-      ? new HttpResponse(null, { status: 204 })
-      : resenaNoEncontrada(),
-  ),
-];
+/** Handlers de la empleada: escribe el catálogo y las reseñas, pero no las modera. */
+export const manejadoresHoteles: RequestHandler[] = manejadoresHotelesPara("empleado");

@@ -7530,11 +7530,11 @@
             }
           },
           "409": {
-            "description": "Conflicto con el estado actual.",
+            "description": "Ya existe un hotel con ese nombre en el destino (CU-16 A2).",
             "content": {
               "application/problem+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Problema"
+                  "$ref": "#/components/schemas/ProblemaHotelDuplicado"
                 }
               }
             }
@@ -7712,6 +7712,16 @@
               }
             }
           },
+          "409": {
+            "description": "Ya existe un hotel con ese nombre en el destino (CU-16 A2).",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemaHotelDuplicado"
+                }
+              }
+            }
+          },
           "422": {
             "description": "Datos inválidos.",
             "content": {
@@ -7799,6 +7809,16 @@
               }
             }
           },
+          "409": {
+            "description": "Conflicto con el estado actual.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
           "422": {
             "description": "Validation Error",
             "content": {
@@ -7826,7 +7846,7 @@
           "hoteles"
         ],
         "summary": "Ver las reseñas de un hotel",
-        "description": "**Roles:** admin, dueno, empleado, freelance.\n\n**Casos de uso:** CU-18.",
+        "description": "**Roles:** admin, dueno, empleado, freelance.\n\n**Casos de uso:** CU-18.\n\n**Reseñas ocultas:** solo admin y dueño ven las `oculta` (`estado=oculta`); para el resto es 403.",
         "operationId": "listar_resenas",
         "security": [
           {
@@ -7919,6 +7939,16 @@
           },
           "401": {
             "description": "Falta el token, no es válido o el usuario no tiene acceso.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "El rol no alcanza.",
             "content": {
               "application/problem+json": {
                 "schema": {
@@ -8130,6 +8160,16 @@
               }
             }
           },
+          "409": {
+            "description": "Conflicto con el estado actual.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
           "422": {
             "description": "Datos inválidos.",
             "content": {
@@ -8314,6 +8354,16 @@
               }
             }
           },
+          "409": {
+            "description": "Conflicto con el estado actual.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
           "422": {
             "description": "Datos inválidos.",
             "content": {
@@ -8392,6 +8442,16 @@
           },
           "404": {
             "description": "No existe.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflicto con el estado actual.",
             "content": {
               "application/problem+json": {
                 "schema": {
@@ -10051,10 +10111,10 @@
                 "anyOf": [
                   {
                     "type": "string",
-                    "pattern": "^-?\\d+(\\.\\d{1,4})?$",
+                    "pattern": "^([1-4](\\.\\d{1,2})?|5(\\.0{1,2})?)$",
                     "format": "decimal",
                     "examples": [
-                      "1000000.00"
+                      "4.67"
                     ]
                   },
                   {
@@ -10200,6 +10260,25 @@
         },
         "type": "object",
         "title": "HotelEditar"
+      },
+      "HotelExistente": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "nombre": {
+            "type": "string",
+            "title": "Nombre"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "nombre"
+        ],
+        "title": "HotelExistente"
       },
       "Insistencia": {
         "properties": {
@@ -11261,6 +11340,54 @@
         "title": "ProblemaDuplicado",
         "description": "409 del alta o de la edición (CU-02 A1, CU-03, DEC-0020): trae los clientes parecidos."
       },
+      "ProblemaHotelDuplicado": {
+        "properties": {
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "status": {
+            "type": "integer",
+            "title": "Status"
+          },
+          "detail": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Detail"
+          },
+          "errores": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/ErrorCampo"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Errores"
+          },
+          "existente": {
+            "$ref": "#/components/schemas/HotelExistente"
+          }
+        },
+        "type": "object",
+        "required": [
+          "title",
+          "status",
+          "existente"
+        ],
+        "title": "ProblemaHotelDuplicado",
+        "description": "409 del alta o de la edición (CU-16 A2): trae el hotel que ya existe, para abrirlo."
+      },
       "ProgresoDelDia": {
         "properties": {
           "resueltas_hoy": {
@@ -11603,8 +11730,7 @@
           },
           "comentario": {
             "type": "string",
-            "title": "Comentario",
-            "default": ""
+            "title": "Comentario"
           },
           "fecha": {
             "type": "string",

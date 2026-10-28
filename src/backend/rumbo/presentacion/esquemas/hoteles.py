@@ -4,16 +4,17 @@ RF-105, DEC-0003)."""
 import uuid
 from datetime import date
 
-from pydantic import ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field
 from pydantic.json_schema import JsonDict
 
 from rumbo.datos.modelos import EstadoHotel, EstadoResena
 from rumbo.presentacion.esquemas.comunes import (
     Auditoria,
-    DecimalConSigno,
     Edicion,
     Entrada,
     Importe,
+    Problema,
+    PuntajePromedio,
     componer_con_auditoria,
     omitible,
 )
@@ -32,7 +33,7 @@ class Hotel(Auditoria):
     precio_referencia: Importe | None = Field(description="Por noche, en ARS (DEC-0007).")
     servicios: list[str] = Field(description="Amenities filtrables: wifi, pileta, desayuno…")
     estado: EstadoHotel = Field(json_schema_extra=_SOLO_LECTURA)
-    puntaje_promedio: DecimalConSigno | None = Field(
+    puntaje_promedio: PuntajePromedio | None = Field(
         json_schema_extra=_SOLO_LECTURA,
         description="Promedio de 1 a 5 de las reseñas publicadas, con dos decimales; vacío si "
         "no tiene. Lo calcula la API (CU-18), no se guarda.",
@@ -90,7 +91,7 @@ class ResenaCrear(Entrada):
     cliente_id: uuid.UUID
     viaje_id: uuid.UUID | None = Field(default=None, description="Viaje de origen (opcional).")
     puntaje: int = Puntaje
-    comentario: str = ""
+    comentario: str = Field(default_factory=str)
     fecha: date
 
 
@@ -104,3 +105,14 @@ class ResenaEditar(Edicion):
 
 class ResenaOcultar(Entrada):
     motivo_baja: str = Field(min_length=1, description="Por qué se oculta (CU-29).")
+
+
+class HotelExistente(BaseModel):
+    id: uuid.UUID
+    nombre: str
+
+
+class ProblemaHotelDuplicado(Problema):
+    """409 del alta o de la edición (CU-16 A2): trae el hotel que ya existe, para abrirlo."""
+
+    existente: HotelExistente

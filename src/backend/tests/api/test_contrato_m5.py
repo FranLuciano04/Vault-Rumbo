@@ -3,6 +3,7 @@
 Rutas, esquemas, token, roles y 501.
 """
 
+import re
 from collections.abc import Awaitable, Callable
 from typing import Any
 
@@ -43,7 +44,7 @@ OPERACIONES: list[tuple[str, str, str, Any, str, bool, set[str]]] = [
         HOTEL_EDITAR,
         "CU-16",
         True,
-        {"403", "404", "422"},
+        {"403", "404", "409", "422"},
     ),
     (
         "post",
@@ -52,7 +53,7 @@ OPERACIONES: list[tuple[str, str, str, Any, str, bool, set[str]]] = [
         None,
         "CU-16",
         True,
-        {"403", "404"},
+        {"403", "404", "409"},
     ),
     (
         "get",
@@ -61,7 +62,7 @@ OPERACIONES: list[tuple[str, str, str, Any, str, bool, set[str]]] = [
         None,
         "CU-18",
         False,
-        {"404", "422"},
+        {"403", "404", "422"},
     ),
     (
         "post",
@@ -79,7 +80,7 @@ OPERACIONES: list[tuple[str, str, str, Any, str, bool, set[str]]] = [
         RESENA_EDITAR,
         "CU-17",
         True,
-        {"403", "404", "422"},
+        {"403", "404", "409", "422"},
     ),
     (
         "post",
@@ -88,7 +89,7 @@ OPERACIONES: list[tuple[str, str, str, Any, str, bool, set[str]]] = [
         OCULTAR,
         "CU-29",
         True,
-        {"403", "404", "422"},
+        {"403", "404", "409", "422"},
     ),
     (
         "post",
@@ -97,7 +98,7 @@ OPERACIONES: list[tuple[str, str, str, Any, str, bool, set[str]]] = [
         None,
         "CU-29",
         True,
-        {"403", "404"},
+        {"403", "404", "409"},
     ),
     (
         "delete",
@@ -117,6 +118,21 @@ RUTAS_DE_MODERACION = [
     ("post", "/api/resenas/{resena_id}/ocultar"),
     ("post", "/api/resenas/{resena_id}/restaurar"),
     ("delete", "/api/resenas/{resena_id}"),
+]
+ROLES_DE_ESCRITURA = ["admin", "dueno", "empleado"]
+ROLES_DE_MODERACION = ["admin", "dueno"]
+
+
+def _roles_de(metodo: str, ruta: str, escritura: bool) -> list[str]:
+    if (metodo, ruta) in RUTAS_DE_MODERACION:
+        return ROLES_DE_MODERACION
+    return ROLES_DE_ESCRITURA if escritura else ROLES
+
+
+CASOS_ROL = [
+    (m, c, cuerpo, rol, rol in _roles_de(m, r, esc))
+    for m, r, c, cuerpo, _, esc, _ in OPERACIONES
+    for rol in ROLES
 ]
 
 
@@ -435,10 +451,28 @@ async def test_cu16_sin_token_responde_401_problem_json(
     assert r.headers["content-type"].startswith(PROBLEM_JSON)
 
 
-@pytest.mark.parametrize("rol", ROLES)
-@pytest.mark.parametrize(("metodo", "ruta", "cuerpo"), OPERACIONES_HTTP)
-async def test_cu16_con_token_de_cualquier_rol_responde_501_problem_json(
-    cliente_como: FabricaCliente, rol: str, metodo: str, ruta: str, cuerpo: Any
+@pytest.mark.parametrize(
+    ("metodo", "ruta", "cuerpo", "rol"),
+    [(m, r, c, rol) for m, r, c, rol, permitido in CASOS_ROL if not permitido],
+)
+async def test_cu16_rol_fuera_del_contrato_responde_403_problem_json(
+    cliente_como: FabricaCliente, metodo: str, ruta: str, cuerpo: Any, rol: str
+) -> None:
+    c = await cliente_como(rol)
+
+    r = await c.request(metodo, ruta, json=cuerpo)
+
+    assert r.status_code == 403
+    assert r.headers["content-type"].startswith(PROBLEM_JSON)
+    assert r.json()["status"] == 403
+
+
+@pytest.mark.parametrize(
+    ("metodo", "ruta", "cuerpo", "rol"),
+    [(m, r, c, rol) for m, r, c, rol, permitido in CASOS_ROL if permitido],
+)
+async def test_cu16_rol_del_contrato_responde_501_problem_json(
+    cliente_como: FabricaCliente, metodo: str, ruta: str, cuerpo: Any, rol: str
 ) -> None:
     c = await cliente_como(rol)
 
@@ -447,6 +481,76 @@ async def test_cu16_con_token_de_cualquier_rol_responde_501_problem_json(
     assert r.status_code == 501
     assert r.headers["content-type"].startswith(PROBLEM_JSON)
     assert r.json()["status"] == 501
+
+
+async def test_cu16_los_roles_de_escritura_salen_de_x_roles(contrato: dict[str, Any]) -> None:
+    for metodo, ruta, _, _, _, escritura, _ in OPERACIONES:
+        publicados = contrato["paths"][ruta][metodo]["x-roles"]
+        assert publicados == _roles_de(metodo, ruta, escritura)
+
+
+@pytest.mark.parametrize(
+    ("metodo", "ruta"), [("post", "/api/hoteles"), ("patch", "/api/hoteles/{hotel_id}")]
+)
+async def test_cu16_a2_el_409_por_duplicado_trae_el_hotel_existente(
+    contrato: dict[str, Any], metodo: str, ruta: str
+) -> None:
+    """CU-16 A2 / RF-099: se ofrece abrir el existente; no hay forma de guardarlo igual."""
+    respuesta = contrato["paths"][ruta][metodo]["responses"]["409"]
+    problema = respuesta["content"][PROBLEM_JSON]["schema"]
+    esquema = contrato["components"]["schemas"][_nombre(problema["$ref"])]
+    propiedades, requeridos = _componer(contrato, _nombre(problema["$ref"]))
+    existente = _resolver(contrato, propiedades["existente"])
+
+    assert _nombre(problema["$ref"]) == "ProblemaHotelDuplicado"
+    assert "existente" in requeridos
+    assert {"id", "nombre"} <= set(existente["properties"])
+    assert "confirmar_duplicado" not in _cuerpo(contrato, metodo, ruta)["properties"]
+    assert esquema
+
+
+async def test_cu29_las_resenas_ocultas_solo_las_ven_admin_y_dueno(
+    contrato: dict[str, Any],
+) -> None:
+    operacion = contrato["paths"]["/api/hoteles/{hotel_id}/resenas"]["get"]
+    parametros = {p["name"]: p for p in operacion["parameters"] if "name" in p}
+
+    assert "403" in operacion["responses"]
+    assert PROBLEM_JSON in operacion["responses"]["403"]["content"]
+    assert _enum(contrato, parametros["estado"]["schema"]) == {"publicada", "oculta"}
+    assert "admin y dueño" in operacion["description"]
+
+
+@pytest.mark.parametrize(
+    ("metodo", "ruta"),
+    [
+        ("post", "/api/hoteles/{hotel_id}/baja"),
+        ("post", "/api/resenas/{resena_id}/ocultar"),
+        ("post", "/api/resenas/{resena_id}/restaurar"),
+        ("patch", "/api/resenas/{resena_id}"),
+    ],
+)
+async def test_cu29_los_conflictos_de_estado_se_declaran_como_409_problem_json(
+    contrato: dict[str, Any], metodo: str, ruta: str
+) -> None:
+    respuestas = contrato["paths"][ruta][metodo]["responses"]
+
+    assert PROBLEM_JSON in respuestas["409"]["content"]
+
+
+async def test_cu18_puntaje_promedio_es_texto_decimal_de_uno_a_cinco(
+    contrato: dict[str, Any],
+) -> None:
+    propiedades, _ = _componer(contrato, "Hotel")
+    promedio = propiedades["puntaje_promedio"]
+
+    assert propiedades["puntaje_promedio"]["readOnly"] is True
+    assert _es_texto_decimal(contrato, promedio)
+    patron = next(o["pattern"] for o in promedio["anyOf"] if o.get("type") == "string")
+    for valido in ("1", "3.5", "4.67", "5", "5.00"):
+        assert re.fullmatch(patron, valido), valido
+    for invalido in ("0", "0.99", "5.01", "6", "4.675"):
+        assert not re.fullmatch(patron, invalido), invalido
 
 
 @pytest.mark.parametrize(
