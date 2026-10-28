@@ -32,3 +32,16 @@ export function formatearFecha(fecha: string): string {
   const [anio = "", mes = "", d = ""] = dia.split("-");
   return `${d}/${mes}/${anio.slice(2)}`;
 }
+
+/** Puntaje promedio (texto decimal de la API, p. ej. «4.35») como «4,4»: un decimal, half-up y sin float. */
+export function formatearPuntaje(puntaje: string): string {
+  if (!/^\d+(\.\d*)?$/.test(puntaje)) throw new Error(`Puntaje inválido: «${puntaje}»`);
+  const [entero = "", decimales = ""] = puntaje.split(".");
+  const crudos = decimales.padEnd(2, "0");
+  const decimas = (
+    BigInt(`${entero}${crudos.slice(0, 1)}`) + (crudos.charCodeAt(1) >= 53 ? 1n : 0n)
+  )
+    .toString()
+    .padStart(2, "0");
+  return `${decimas.slice(0, -1)},${decimas.slice(-1)}`;
+}
