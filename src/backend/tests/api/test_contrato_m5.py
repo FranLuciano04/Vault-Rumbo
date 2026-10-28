@@ -469,8 +469,10 @@ async def test_cu16_rol_fuera_del_contrato_responde_403_problem_json(
 
 # Rutas ya implementadas: salen de los 501. T-076 (hoteles) lo cubre test_hoteles.py, T-078
 # (registrar y editar reseñas) test_resenas.py y T-079 (moderar)
-# test_moderacion_resenas.py.
+# test_moderacion_resenas.py. T-077 (buscar y listar reseñas) lo cubre test_hoteles_busqueda.py.
 IMPLEMENTADAS = {
+    ("get", "/api/hoteles"),
+    ("get", f"/api/hoteles/{ID}/resenas"),
     ("post", "/api/hoteles"),
     ("get", f"/api/hoteles/{ID}"),
     ("patch", f"/api/hoteles/{ID}"),
