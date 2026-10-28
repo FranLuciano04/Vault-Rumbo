@@ -1,15 +1,17 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { Resena } from "@rumbo/shared";
-import { useClientes, useEditarResena, useRegistrarResena } from "@rumbo/shared/hooks";
+import { useEditarResena, useRegistrarResena } from "@rumbo/shared/hooks";
 import type { AxiosInstance } from "axios";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { CampoFormulario, CLASE_SELECT } from "@/components/CampoFormulario";
+import { CampoFormulario } from "@/components/CampoFormulario";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { BuscadorCliente, type ClienteElegido } from "@/features/clientes/BuscadorCliente";
 import { aplicarErroresDelServidor } from "@/lib/errores";
+import { SelectorViaje } from "./SelectorViaje";
 
 const PUNTAJE_FUERA_DE_RANGO = "El puntaje es un número entero de 1 a 5.";
 
@@ -18,6 +20,7 @@ const esquemaBase = z.object({
     .string()
     .trim()
     .refine((valor) => /^[1-5]$/.test(valor), PUNTAJE_FUERA_DE_RANGO),
+  viaje_id: z.string(),
   comentario: z.string().trim(),
   fecha: z.string().min(1, "Ingresá la fecha de la reseña."),
 });
@@ -57,7 +60,7 @@ export function FormularioResena({
 }) {
   const edicion = resena !== undefined;
   const base = resena?.id ?? "nueva";
-  const clientes = useClientes(cliente, { por_pagina: 100 });
+  const [elegido, setElegido] = useState<ClienteElegido | null>(null);
   const registrar = useRegistrarResena(cliente);
   const editar = useEditarResena(cliente);
   const [error, setError] = useState<string | null>(null);
@@ -65,6 +68,7 @@ export function FormularioResena({
     resolver: zodResolver(edicion ? esquemaEdicion : esquemaAlta),
     defaultValues: {
       cliente_id: "",
+      viaje_id: "",
       puntaje: resena ? String(resena.puntaje) : "",
       comentario: resena?.comentario ?? "",
       fecha: resena?.fecha ?? hoy(),
@@ -72,7 +76,7 @@ export function FormularioResena({
   });
   const { errors, isSubmitting } = formulario.formState;
 
-  async function guardar({ cliente_id, puntaje, comentario, fecha }: CamposResena) {
+  async function guardar({ cliente_id, viaje_id, puntaje, comentario, fecha }: CamposResena) {
     setError(null);
     try {
       if (resena) {
@@ -85,6 +89,7 @@ export function FormularioResena({
           hotelId,
           datos: {
             cliente_id,
+            ...(viaje_id && { viaje_id }),
             puntaje: Number(puntaje),
             fecha,
             ...(comentario && { comentario }),
@@ -105,31 +110,25 @@ export function FormularioResena({
     >
       {!edicion && (
         <>
-          <CampoFormulario id={`cliente-${base}`} etiqueta="Cliente" error={errors.cliente_id}>
-            {(props) => (
-              <select
-                required
-                className={CLASE_SELECT}
-                {...props}
-                {...formulario.register("cliente_id")}
-              >
-                <option value="">Elegí un cliente</option>
-                {clientes.data?.items.map(({ id, nombre }) => (
-                  <option key={id} value={id}>
-                    {nombre}
-                  </option>
-                ))}
-              </select>
-            )}
-          </CampoFormulario>
-          {/* La reseña desde un viaje se habilita con el módulo de viajes de la web. */}
-          <CampoFormulario id={`viaje-${base}`} etiqueta="Viaje (opcional)">
-            {(props) => (
-              <select disabled className={CLASE_SELECT} {...props}>
-                <option value="">Sin viaje</option>
-              </select>
-            )}
-          </CampoFormulario>
+          <BuscadorCliente
+            cliente={cliente}
+            elegido={elegido}
+            requerido
+            error={errors.cliente_id?.message}
+            alElegir={(nuevo) => {
+              setElegido(nuevo);
+              formulario.setValue("cliente_id", nuevo?.id ?? "", {
+                shouldValidate: formulario.formState.isSubmitted,
+              });
+              formulario.setValue("viaje_id", "");
+            }}
+          />
+          <SelectorViaje
+            id={`viaje-${base}`}
+            cliente={cliente}
+            clienteId={elegido?.id}
+            {...formulario.register("viaje_id")}
+          />
         </>
       )}
       <CampoFormulario id={`puntaje-${base}`} etiqueta="Puntaje" error={errors.puntaje}>

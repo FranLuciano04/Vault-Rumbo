@@ -3,8 +3,11 @@ import {
   clientesMock,
   crearServidor,
   idHotelMock,
+  idViajeMock,
+  manejadoresClientes,
   manejadoresHotelesPara,
   manejadoresM1,
+  manejadoresViajes,
   usuariosPorRol,
   type RolMock,
 } from "@rumbo/shared/mocks";
@@ -16,7 +19,12 @@ import { MemoryRouter } from "react-router";
 import { afterAll, afterEach, beforeAll, describe, expect, it } from "vitest";
 import { DetalleHotel } from "./DetalleHotel";
 
-const servidor = crearServidor(...manejadoresHotelesPara("empleado"), ...manejadoresM1);
+const servidor = crearServidor(
+  ...manejadoresHotelesPara("empleado"),
+  ...manejadoresM1,
+  ...manejadoresClientes,
+  ...manejadoresViajes,
+);
 beforeAll(() => {
   servidor.listen({ onUnhandledRequest: "error" });
 });
@@ -71,29 +79,36 @@ function espiarEscrituras(pedidos: Escritura[]) {
 const botonNueva = () => screen.queryByRole("button", { name: /nueva reseña/i });
 const botonesEditar = () => screen.queryAllByRole("button", { name: /editar reseña/i });
 
-/** Abre el formulario de alta y espera a que se cargue la lista de clientes. */
+/** Abre el formulario de alta y devuelve el buscador de cliente. */
 async function abrirAlta(usuario: ReturnType<typeof userEvent.setup>) {
   await screen.findByText(RESENA_1);
   await usuario.click(screen.getByRole("button", { name: /nueva reseña/i }));
-  const lista = await screen.findByLabelText(/cliente/i);
-  await within(lista).findByRole("option", { name: new RegExp(camila.nombre) });
-  return lista;
+  return screen.findByLabelText(/cliente/i);
 }
 
-// Supuesto: el cliente se elige de una lista (select nativo con label «Cliente»), el puntaje es
+/** Busca al cliente en el servidor por su nombre y lo elige de los resultados. */
+async function elegirCliente(usuario: ReturnType<typeof userEvent.setup>, id: string) {
+  const elegido = clientesMock.find((c) => c.id === id);
+  if (!elegido) throw new Error("cliente inexistente en los mocks");
+  await usuario.type(screen.getByLabelText(/cliente/i), elegido.nombre.split(" ")[0] ?? "");
+  await usuario.click(await screen.findByRole("button", { name: new RegExp(elegido.nombre) }));
+}
+
+// Supuesto: el cliente se busca por nombre (buscador con label «Buscar cliente»), el puntaje es
 // un número (label «Puntaje»), y la fecha un input date (label «Fecha»).
 async function completar(
   usuario: ReturnType<typeof userEvent.setup>,
   datos: { cliente?: string; puntaje?: string; comentario?: string; fecha?: string },
 ) {
-  if (datos.cliente) await usuario.selectOptions(screen.getByLabelText(/cliente/i), datos.cliente);
+  if (datos.cliente) await elegirCliente(usuario, datos.cliente);
   if (datos.puntaje !== undefined) {
     const puntaje = screen.getByLabelText(/puntaje/i);
     await usuario.clear(puntaje);
     if (datos.puntaje) await usuario.type(puntaje, datos.puntaje);
   }
   if (datos.comentario) await usuario.type(screen.getByLabelText(/comentario/i), datos.comentario);
-  if (datos.fecha) fireEvent.change(screen.getByLabelText(/fecha/i), { target: { value: datos.fecha } });
+  if (datos.fecha)
+    fireEvent.change(screen.getByLabelText(/fecha/i), { target: { value: datos.fecha } });
 }
 
 describe("RF-101 reseña", () => {
@@ -164,8 +179,7 @@ describe("RF-101 reseña", () => {
     );
     await screen.findByText(/todavía no hay reseñas/i);
     await usuario.click(screen.getByRole("button", { name: /nueva reseña/i }));
-    const lista = await screen.findByLabelText(/cliente/i);
-    await within(lista).findByRole("option", { name: new RegExp(camila.nombre) });
+    await screen.findByLabelText(/cliente/i);
     await completar(usuario, { cliente: camila.id, puntaje: "5", fecha: "2026-10-20" });
     const antes = lecturas;
     await usuario.click(screen.getByRole("button", { name: /guardar reseña/i }));
@@ -200,7 +214,9 @@ describe("RF-101 reseña", () => {
     await abrirAlta(usuario);
     await completar(usuario, { puntaje: "4", fecha: "2026-10-20" });
     await usuario.click(screen.getByRole("button", { name: /guardar reseña/i }));
-    expect(await screen.findByText(/cliente/i, { selector: "[role=alert], p" })).toBeInTheDocument();
+    expect(
+      await screen.findByText(/cliente/i, { selector: "[role=alert], p" }),
+    ).toBeInTheDocument();
     expect(pedidos).toHaveLength(0);
   });
 
@@ -210,7 +226,15 @@ describe("RF-101 reseña", () => {
       "empleado",
       http.post("*/api/hoteles/:id/resenas", () =>
         HttpResponse.json(
-          { title: "Datos inválidos", status: 422, detail: "La fecha no puede ser futura." },
+          {
+            title: "Datos inválidos",
+            status: 422,
+            detail: "La fecha no puede ser futura.",
+            errores: [
+              { campo: "fecha", mensaje: "La fecha no puede ser futura." },
+              { campo: "body", mensaje: "Revisá los datos de la reseña." },
+            ],
+          },
           { status: 422, headers: { "content-type": "application/problem+json" } },
         ),
       ),
@@ -224,7 +248,65 @@ describe("RF-101 reseña", () => {
     });
     await usuario.click(screen.getByRole("button", { name: /guardar reseña/i }));
     expect(await screen.findByRole("alert")).toBeInTheDocument();
+    expect(screen.getByLabelText(/fecha/i)).toHaveAccessibleDescription(/no puede ser futura/i);
     expect(screen.getByLabelText(/comentario/i)).toHaveValue("Lindo");
+  });
+
+  it("busca al cliente en el servidor con lo que se escribe", async () => {
+    const buscados: (string | null)[] = [];
+    const usuario = userEvent.setup();
+    renderDetalle(
+      "empleado",
+      http.get("*/api/clientes", ({ request }) => {
+        buscados.push(new URL(request.url).searchParams.get("buscar"));
+        return HttpResponse.json({
+          items: [camila],
+          total: 1,
+          pagina: 1,
+          por_pagina: 5,
+        });
+      }),
+    );
+    await abrirAlta(usuario);
+    await usuario.type(screen.getByLabelText(/cliente/i), "Cami");
+    expect(
+      await screen.findByRole("button", { name: new RegExp(camila.nombre) }),
+    ).toBeInTheDocument();
+    expect(buscados).toContain("Cami");
+  });
+
+  it("A1: ofrece los viajes del cliente y manda el elegido como viaje_id", async () => {
+    const pedidos: Escritura[] = [];
+    espiarEscrituras(pedidos);
+    const usuario = userEvent.setup();
+    renderDetalle("empleado");
+    await abrirAlta(usuario);
+    expect(screen.getByLabelText(/viaje/i)).toBeDisabled();
+    await completar(usuario, { cliente: camila.id, puntaje: "5", fecha: "2026-10-20" });
+    const viajes = screen.getByLabelText(/viaje/i);
+    await waitFor(() => {
+      expect(viajes).toBeEnabled();
+    });
+    await usuario.selectOptions(viajes, idViajeMock.en_curso);
+    await usuario.click(screen.getByRole("button", { name: /guardar reseña/i }));
+    await waitFor(() => {
+      expect(pedidos).toHaveLength(1);
+    });
+    expect(pedidos[0]?.cuerpo).toMatchObject({
+      cliente_id: camila.id,
+      viaje_id: idViajeMock.en_curso,
+    });
+  });
+
+  it("muestra el aviso si no se pueden cargar los viajes del cliente", async () => {
+    const usuario = userEvent.setup();
+    renderDetalle(
+      "empleado",
+      http.get("*/api/viajes", () => HttpResponse.error()),
+    );
+    await abrirAlta(usuario);
+    await completar(usuario, { cliente: camila.id });
+    expect(await screen.findByRole("alert")).toHaveTextContent(/viajes del cliente/i);
   });
 
   it("muestra el aviso cuando el servidor rechaza por permisos (403)", async () => {
