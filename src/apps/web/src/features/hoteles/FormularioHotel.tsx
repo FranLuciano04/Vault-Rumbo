@@ -1,6 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CATEGORIAS_HOTEL, ErrorApi, SERVICIOS_HOTEL, type Hotel } from "@rumbo/shared";
-import { useDestinos } from "@rumbo/shared/hooks";
+import { useDestino, useDestinos } from "@rumbo/shared/hooks";
 import type { AxiosInstance } from "axios";
 import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
@@ -10,9 +10,7 @@ import { CampoFormulario, CLASE_SELECT } from "@/components/CampoFormulario";
 import { Button, variantesBoton } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { aplicarErroresDelServidor } from "@/lib/errores";
-
-/** Importe decimal como lo manda la API: «150000» o «150000.50». */
-const PRECIO_VALIDO = /^\d+(\.\d{1,2})?$/;
+import { capitalizar, PRECIO_ES_AR, precioParaLaApi, precioParaMostrar } from "./formato";
 
 const esquemaHotel = z.object({
   nombre: z.string().trim().min(1, "Ingresá el nombre.").max(120, "Usá hasta 120 caracteres."),
@@ -21,7 +19,8 @@ const esquemaHotel = z.object({
   precio_referencia: z
     .string()
     .trim()
-    .refine((precio) => precio === "" || PRECIO_VALIDO.test(precio), "Ingresá un importe válido."),
+    .refine((precio) => precio === "" || PRECIO_ES_AR.test(precio), "Ingresá un importe válido.")
+    .transform((precio) => (precio === "" ? "" : precioParaLaApi(precio))),
 });
 
 type EntradaHotel = z.input<typeof esquemaHotel>;
@@ -31,8 +30,6 @@ type CamposHotel = z.output<typeof esquemaHotel>;
 export type DatosHotel = CamposHotel & { servicios: string[] };
 
 const CAMPOS = ["nombre", "destino_id", "categoria", "precio_referencia"] as const;
-
-const capitalizar = (texto: string) => texto.charAt(0).toUpperCase() + texto.slice(1);
 
 /**
  * Formulario del hotel, común al alta y la edición (CU-16, pantalla 23): valida el formato, muestra
@@ -52,6 +49,9 @@ export function FormularioHotel({
   enviar: (datos: DatosHotel) => Promise<void>;
 }) {
   const { data: destinos } = useDestinos(cliente, { por_pagina: 100 });
+  // El destino de un hotel puede estar dado de baja: la lista de activos no lo trae.
+  const { data: destinoDelHotel } = useDestino(cliente, hotel?.destino_id ?? "");
+  const destinoDeBaja = destinoDelHotel?.activo === false ? destinoDelHotel : undefined;
   const [servicios, setServicios] = useState<string[]>(hotel?.servicios ?? []);
   const [error, setError] = useState<string | null>(null);
   const [existente, setExistente] = useState<ErrorApi["existente"]>();
@@ -61,11 +61,20 @@ export function FormularioHotel({
       nombre: hotel?.nombre ?? "",
       destino_id: hotel?.destino_id ?? "",
       categoria: hotel?.categoria ?? "",
-      precio_referencia: hotel?.precio_referencia ?? "",
+      precio_referencia: hotel?.precio_referencia ? precioParaMostrar(hotel.precio_referencia) : "",
     },
   });
+  // Una categoría o un servicio fuera de las constantes (texto libre en la API) se conserva.
+  const categoriasOfrecidas: readonly string[] =
+    hotel?.categoria && !CATEGORIAS_HOTEL.some((c) => c === hotel.categoria)
+      ? [hotel.categoria, ...CATEGORIAS_HOTEL]
+      : CATEGORIAS_HOTEL;
+  const [serviciosOfrecidos] = useState<readonly string[]>(() => [
+    ...SERVICIOS_HOTEL,
+    ...(hotel?.servicios ?? []).filter((s) => !SERVICIOS_HOTEL.some((conocido) => conocido === s)),
+  ]);
   const { errors, isSubmitting } = formulario.formState;
-  const { setFocus } = formulario;
+  const { setFocus, getFieldState } = formulario;
 
   useEffect(() => {
     setFocus("nombre");
@@ -89,6 +98,10 @@ export function FormularioHotel({
         setExistente(falla.existente);
       }
       setError(aplicarErroresDelServidor(falla, CAMPOS, formulario.setError));
+      // El foco va al primer campo con error del servidor; en un duplicado, al nombre.
+      const conError = CAMPOS.find((campo) => getFieldState(campo).error);
+      if (conError) setFocus(conError);
+      else if (falla instanceof ErrorApi && falla.existente) setFocus("nombre");
     }
   }
 
@@ -109,13 +122,16 @@ export function FormularioHotel({
             render={({ field }) => (
               <select className={CLASE_SELECT} {...props} {...field}>
                 <option value="">Elegí un destino</option>
-                {destinos?.items
-                  .filter(({ activo, id }) => activo || id === hotel?.destino_id)
-                  .map(({ id, nombre }) => (
-                    <option key={id} value={id}>
-                      {nombre}
-                    </option>
-                  ))}
+                {destinoDeBaja && (
+                  <option
+                    value={destinoDeBaja.id}
+                  >{`${destinoDeBaja.nombre} (dado de baja)`}</option>
+                )}
+                {destinos?.items.map(({ id, nombre }) => (
+                  <option key={id} value={id}>
+                    {nombre}
+                  </option>
+                ))}
               </select>
             )}
           />
@@ -125,7 +141,7 @@ export function FormularioHotel({
         {(props) => (
           <select className={CLASE_SELECT} {...props} {...formulario.register("categoria")}>
             <option value="">Sin categoría</option>
-            {CATEGORIAS_HOTEL.map((categoria) => (
+            {categoriasOfrecidas.map((categoria) => (
               <option key={categoria}>{categoria}</option>
             ))}
           </select>
@@ -146,7 +162,7 @@ export function FormularioHotel({
         )}
       </CampoFormulario>
       <div role="group" aria-label="Servicios" className="flex flex-wrap items-center gap-2">
-        {SERVICIOS_HOTEL.map((servicio) => {
+        {serviciosOfrecidos.map((servicio) => {
           const marcado = servicios.includes(servicio);
           return (
             <Button
@@ -171,9 +187,8 @@ export function FormularioHotel({
           {existente && (
             <>
               {" "}
-              Hotel existente: «{existente.nombre}».{" "}
               <Link to={`/hoteles/${existente.id}/editar`} className="underline">
-                Abrir el hotel existente
+                {`Abrir el hotel existente «${existente.nombre}»`}
               </Link>
             </>
           )}

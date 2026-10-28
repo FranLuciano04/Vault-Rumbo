@@ -151,7 +151,7 @@ describe("RF-097 alta de hotel", () => {
     const usuario = userEvent.setup();
     renderAlta("empleado", altaCapturada(cuerpos));
     await completarMinimo(usuario, "Hotel Nuevo");
-    await usuario.type(precio(), "1.234");
+    await usuario.type(precio(), "12,345");
 
     await usuario.click(registrar());
 

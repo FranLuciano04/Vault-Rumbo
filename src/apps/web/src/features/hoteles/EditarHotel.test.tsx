@@ -1,6 +1,7 @@
 import { crearCliente } from "@rumbo/shared";
 import {
   crearServidor,
+  destinosMock,
   hotelesMock,
   idHotelMock,
   manejadoresHotelesPara,
@@ -89,7 +90,7 @@ describe("RF-098 edición", () => {
       expect(screen.getByRole("combobox", { name: /destino/i })).toHaveDisplayValue("Bariloche");
     });
     expect(categoria()).toHaveDisplayValue("5 estrellas");
-    expect(precio()).toHaveValue("150000.00");
+    expect(precio()).toHaveValue("150.000");
     expect(chip("wifi")).toHaveAttribute("aria-pressed", "true");
     expect(chip("pileta")).toHaveAttribute("aria-pressed", "true");
     expect(chip("desayuno incluido")).toHaveAttribute("aria-pressed", "true");
@@ -233,11 +234,105 @@ describe("RF-098 edición", () => {
     expect(screen.queryByText("Catálogo de hoteles")).not.toBeInTheDocument();
   });
 
-  it("RF-098 editar un hotel cerrado: el 409 del servidor se muestra y no se sale", async () => {
+  it("RF-098 un hotel cerrado no se edita: avisa y no ofrece el formulario ni la baja", async () => {
+    renderEdicion("empleado", idHotelMock.playaDorada);
+
+    expect(
+      await screen.findByText(/este hotel está cerrado: no se puede editar/i),
+    ).toBeInTheDocument();
+    expect(screen.queryByDisplayValue("Hotel Playa Dorada")).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /guardar cambios/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /dar de baja/i })).not.toBeInTheDocument();
+  });
+
+  it("RF-098 si el destino del hotel está dado de baja lo ofrece igual, marcado", async () => {
+    const roma = destinosMock[2];
+    renderEdicion(
+      "empleado",
+      idHotelMock.llaoLlao,
+      http.get("*/api/hoteles/:id", () => HttpResponse.json({ ...llao, destino_id: roma.id })),
+    );
+    await nombre();
+
+    expect(await screen.findByRole("option", { name: "Roma (dado de baja)" })).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByRole("combobox", { name: /destino/i })).toHaveDisplayValue(
+        "Roma (dado de baja)",
+      );
+    });
+  });
+
+  it("RF-098 conserva una categoría y un servicio que no están en las constantes", async () => {
+    renderEdicion(
+      "empleado",
+      idHotelMock.llaoLlao,
+      http.get("*/api/hoteles/:id", () =>
+        HttpResponse.json({ ...llao, categoria: "Boutique", servicios: ["wifi", "gimnasio"] }),
+      ),
+    );
+    await nombre();
+
+    expect(categoria()).toHaveDisplayValue("Boutique");
+    expect(chip("gimnasio")).toHaveAttribute("aria-pressed", "true");
+  });
+
+  it("RF-098 el precio se carga en formato es-AR y viaja como decimal", async () => {
+    const cuerpos: Record<string, unknown>[] = [];
+    const usuario = userEvent.setup();
+    renderEdicion("empleado", idHotelMock.llaoLlao, edicionCapturada(cuerpos));
+    await nombre();
+
+    await usuario.clear(precio());
+    await usuario.type(precio(), "1.420.000,50");
+    await usuario.click(guardar());
+
+    await waitFor(() => {
+      expect(cuerpos).toHaveLength(1);
+    });
+    expect(cuerpos[0]).toEqual({ precio_referencia: "1420000.50" });
+  });
+
+  it("RF-098 un precio con más de 12 dígitos enteros se rechaza", async () => {
+    const cuerpos: Record<string, unknown>[] = [];
+    const usuario = userEvent.setup();
+    renderEdicion("empleado", idHotelMock.llaoLlao, edicionCapturada(cuerpos));
+    await nombre();
+
+    await usuario.clear(precio());
+    await usuario.type(precio(), "1234567890123");
+    await usuario.click(guardar());
+
+    expect(await screen.findByText(/ingresá un importe válido/i)).toBeInTheDocument();
+    expect(cuerpos).toHaveLength(0);
+  });
+
+  it("RF-098 tras el 422 el foco va al campo con error", async () => {
     const usuario = userEvent.setup();
     renderEdicion(
       "empleado",
-      idHotelMock.playaDorada,
+      idHotelMock.llaoLlao,
+      http.patch("*/api/hoteles/:id", () =>
+        problema(422, {
+          title: "Error de validación",
+          errores: [{ campo: "destino_id", mensaje: "El destino no existe." }],
+        }),
+      ),
+    );
+    await usuario.type(await nombre(), "!");
+
+    await usuario.click(guardar());
+
+    await screen.findByText("El destino no existe.");
+    await waitFor(() => {
+      expect(screen.getByRole("combobox", { name: /destino/i })).toHaveFocus();
+    });
+  });
+
+  it("RF-098 el 409 de un hotel que se cerró mientras tanto se muestra y no se sale", async () => {
+    const usuario = userEvent.setup();
+    renderEdicion(
+      "empleado",
+      idHotelMock.llaoLlao,
       http.patch("*/api/hoteles/:id", () =>
         problema(409, {
           title: "Conflicto",
@@ -245,7 +340,7 @@ describe("RF-098 edición", () => {
         }),
       ),
     );
-    await usuario.type(await screen.findByDisplayValue("Hotel Playa Dorada"), "!");
+    await usuario.type(await nombre(), "!");
 
     await usuario.click(guardar());
 
@@ -354,6 +449,26 @@ describe("RF-100 baja", () => {
 
     expect(await screen.findByText("Catálogo de hoteles")).toBeInTheDocument();
     expect(pedidos).toEqual([idHotelMock.llaoLlao]);
+  });
+
+  it("RF-100 la confirmación pone el foco en «Cancelar»; Escape la cierra y el foco vuelve a «Dar de baja»", async () => {
+    const usuario = userEvent.setup();
+    renderEdicion("empleado");
+    await nombre();
+    await usuario.click(darDeBaja());
+
+    const dialogo = await screen.findByRole("alertdialog");
+    expect(dialogo).toHaveAttribute("aria-modal", "true");
+    await waitFor(() => {
+      expect(within(dialogo).getByRole("button", { name: /cancelar/i })).toHaveFocus();
+    });
+
+    await usuario.keyboard("{Escape}");
+
+    await waitFor(() => {
+      expect(screen.queryByRole("alertdialog")).not.toBeInTheDocument();
+    });
+    expect(darDeBaja()).toHaveFocus();
   });
 
   it("RF-100 si el hotel ya estaba cerrado (409) muestra el mensaje del servidor y no sale", async () => {
