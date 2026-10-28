@@ -24,15 +24,6 @@ La **persona** de cada sesión es quien la corre, identificada por su identidad 
 ## Avisos pendientes por persona
 > Claude los lee al identificar a la persona (paso 1 de `CLAUDE.md`) y se los cuenta **apenas la saluda**, antes de cualquier otra tarea. Cuando la persona confirme que lo leyó o que lo hizo, **Claude borra su fila** en esa misma sesión, con un commit. Cuando no quede ninguna fila de alguien, se borra también su sección.
 
-### Nahuel (`Nahuel Viniegra`) — T-153
-- **24/10, de Paloma: el PR [#73](https://github.com/FranLuciano04/Vault-Rumbo/pull/73) (T-153) ya está mergeado** (⚠️ riesgo alto, auth). Hay un **cambio de decisión**: el 23/10 Francisco había decidido que la cuenta de Firebase sin `Usuario` se reutilizaba. La review de seguridad lo marcó como bloqueante (*pre-account hijacking*: la cuenta conserva la contraseña, los proveedores o las sesiones de quien la haya creado). Paloma decidió que esa cuenta se **borra y se crea una nueva**. CU-25 A1 se actualiza en el mismo PR. Además, el alta toma un lock por email, y nunca se borra una cuenta cuyo uid es de un `Usuario`.
-
-### Nahuel (`Nahuel Viniegra`) — DEC-0022 y DEC-0023 formalizadas
-- **28/10, de Francisco: aprobó [[DEC-0022 Suite completa solo en el CI|DEC-0022]] y [[DEC-0023 Datos mínimos de la consulta|DEC-0023]], y las dos quedaron formalizadas.**
-  - **DEC-0022:** `/implementar-ticket` pasa a la versión 1.6.0. En el paso 6, la PC corre solo los checks rápidos; la suite completa y la cobertura quedan para el CI, salvo que el ticket toque código compartido. También se actualizaron [[Flujo de implementación]] y la §4 de [[Spec de implementación]].
-  - **DEC-0023:** T-062 ya estaba hecho, así que se crearon dos tickets nuevos en M4 (Paloma): **T-167** para el backend (destino y pasajeros opcionales, migración y 409 al cotizar sin esos datos) y **T-168** para web y mobile («Destino a definir»).
-  - También se mergeó el PR #116 (T-067), que Francisco aprobó.
-
 ## Formato
 Es **obligatorio** nombrar a la persona que hizo la sesión.
 ```
