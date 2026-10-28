@@ -15,7 +15,11 @@ const ERROR_AL_DESCARGAR = "No pudimos descargar el PDF. Probá de nuevo en unos
 
 /** Descarga el PDF de la versión mediante un enlace temporal. */
 async function guardarPdf(cliente: AxiosInstance, cotizacion: Cotizacion) {
-  const url = URL.createObjectURL(await descargarDocumentoCotizacion(cliente, cotizacion.id));
+  const url = URL.createObjectURL(
+    new Blob([await descargarDocumentoCotizacion(cliente, cotizacion.id)], {
+      type: "application/pdf",
+    }),
+  );
   const enlace = document.createElement("a");
   enlace.href = url;
   enlace.download = `cotizacion-${cotizacion.id}.pdf`;
