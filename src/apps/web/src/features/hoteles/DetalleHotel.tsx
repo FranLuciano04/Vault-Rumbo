@@ -1,11 +1,12 @@
 import { formatearImporte, formatearPuntaje, type UsuarioActual } from "@rumbo/shared";
 import { useDestinos, useHotel, useResenas } from "@rumbo/shared/hooks";
 import type { AxiosInstance } from "axios";
-import { Eye, Star } from "lucide-react";
+import { Eye, Pencil, Star } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router";
 import { Button, variantesBoton } from "@/components/ui/button";
 import { mensajeDeError } from "@/lib/errores";
+import { BajaDelHotel } from "./BajaDelHotel";
 import { FormularioResena } from "./FormularioResena";
 import { PaginadorResenas } from "./PaginadorResenas";
 import { ResenaPublicada } from "./ResenaPublicada";
@@ -38,6 +39,7 @@ export function DetalleHotel({
   if (hotel.isError)
     return <p role="alert">No pudimos cargar el hotel. {mensajeDeError(hotel.error)}</p>;
   const { data } = hotel;
+  const puedeEditar = usuario.rol !== "freelance" && data.estado !== "cerrado";
   const destino = destinos?.items.find((d) => d.id === data.destino_id)?.nombre;
   return (
     <div className="flex flex-col gap-6">
@@ -50,7 +52,17 @@ export function DetalleHotel({
           <span className="rounded-full bg-muted px-2 py-0.5 text-xs font-medium">
             {data.estado === "cerrado" ? "Cerrado" : "Activo"}
           </span>
+          {puedeEditar && (
+            <Link
+              to={`/hoteles/${hotelId}/editar`}
+              className={variantesBoton({ variant: "outline", className: "ml-auto" })}
+            >
+              <Pencil aria-hidden="true" className="size-4" />
+              Editar
+            </Link>
+          )}
         </div>
+        {puedeEditar && <BajaDelHotel cliente={cliente} hotel={data} />}
         {usuario.rol === "freelance" && (
           <p
             role="note"

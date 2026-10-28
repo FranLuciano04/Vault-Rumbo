@@ -1,10 +1,11 @@
-import { crearCliente, type UsuarioActual } from "@rumbo/shared";
+import { crearCliente, DESTINO_A_DEFINIR, type UsuarioActual } from "@rumbo/shared";
 import {
   configuracionMock,
   cotizacionesMock,
   crearServidor,
   idOportunidadMock,
   manejadoresOportunidades,
+  oportunidadesMock,
   usuariosPorRol,
 } from "@rumbo/shared/mocks";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -471,5 +472,50 @@ describe("RF-022 quién puede emitir", () => {
 
     expect(await screen.findByText(/y 2 versiones anteriores/i)).toBeInTheDocument();
     expect(screen.getByRole("listitem")).toHaveTextContent(/versión 3/i);
+  });
+});
+
+describe("RF-013 consulta sin destino", () => {
+  const sinDatos = () => {
+    const base = oportunidadesMock.find((o) => o.id === enGestion);
+    if (!base) throw new Error("Falta la oportunidad en el mock");
+    return http.get(`*/api/oportunidades/${enGestion}`, () =>
+      HttpResponse.json({ ...base, destino_consultado: null, pasajeros: null }),
+    );
+  };
+
+  it("RF-013 el encabezado muestra «Destino a definir» y «—» cuando faltan destino y pasajeros", async () => {
+    servidor.use(sinDatos());
+    renderCotizaciones(enGestion);
+
+    expect(await screen.findByRole("heading", { name: DESTINO_A_DEFINIR })).toBeInTheDocument();
+    expect(screen.getByText(/—/)).toBeInTheDocument();
+    expect(screen.queryByText(/null|undefined|NaN/)).not.toBeInTheDocument();
+  });
+
+  it("RF-013 el «—» de pasajeros del encabezado tiene el nombre accesible «Pasajeros sin definir»", async () => {
+    servidor.use(sinDatos());
+    renderCotizaciones(enGestion);
+
+    expect(await screen.findByLabelText("Pasajeros sin definir")).toHaveTextContent("—");
+  });
+
+  it("RF-013 si al emitir llega el 409 por falta de destino o pasajeros, muestra el motivo", async () => {
+    const u = nuevoUsuario();
+    servidor.use(
+      sinDatos(),
+      http.post("*/api/oportunidades/:id/cotizaciones", () =>
+        problema(409, "La oportunidad necesita destino y pasajeros (DEC-0023)."),
+      ),
+    );
+    renderCotizaciones(enGestion);
+    await screen.findByRole("button", { name: /generar documento/i });
+
+    await completarItem(u, 0, "Aéreo", "780000");
+    await u.click(screen.getByRole("button", { name: /generar documento/i }));
+
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      "La oportunidad necesita destino y pasajeros (DEC-0023).",
+    );
   });
 });

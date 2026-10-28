@@ -1,4 +1,9 @@
-import { crearCliente, type EstadoOportunidad, type UsuarioActual } from "@rumbo/shared";
+import {
+  crearCliente,
+  DESTINO_A_DEFINIR,
+  type EstadoOportunidad,
+  type UsuarioActual,
+} from "@rumbo/shared";
 import {
   alertasMock,
   crearServidor,
@@ -659,4 +664,216 @@ describe("Permisos de escritura sobre la oportunidad", () => {
 
     expect(screen.getByRole("button", { name: /^ganar/i })).toBeInTheDocument();
   });
+});
+
+describe("RF-013 consulta sin destino", () => {
+  const sinDatos = (id: string) =>
+    http.get(`*/api/oportunidades/${id}`, () =>
+      HttpResponse.json({ ...porId(id), destino_consultado: null, pasajeros: null }),
+    );
+
+  it("RF-013 el detalle muestra «Destino a definir» cuando falta el destino", async () => {
+    servidor.use(sinDatos(abierta));
+    renderDetalle(abierta);
+
+    expect(await screen.findByRole("heading", { name: DESTINO_A_DEFINIR })).toBeInTheDocument();
+  });
+
+  it("RF-013 el detalle muestra «—» cuando faltan los pasajeros", async () => {
+    servidor.use(sinDatos(abierta));
+    renderDetalle(abierta);
+
+    await screen.findByRole("heading", { name: DESTINO_A_DEFINIR });
+    expect(screen.getByText(/—/)).toBeInTheDocument();
+    expect(screen.queryByText(/null|undefined|NaN/)).not.toBeInTheDocument();
+  });
+
+  it("RF-013 el «—» de pasajeros del detalle tiene el nombre accesible «Pasajeros sin definir»", async () => {
+    servidor.use(sinDatos(abierta));
+    renderDetalle(abierta);
+
+    expect(await screen.findByLabelText("Pasajeros sin definir")).toHaveTextContent("—");
+  });
+});
+
+describe("RF-013 completar destino y pasajeros", () => {
+  const sinDatos = (id: string) => ({ ...porId(id), destino_consultado: null, pasajeros: null });
+
+  /** GET que devuelve `inicial` hasta que el PATCH la actualiza; captura los cuerpos del PATCH. */
+  function oportunidadEditable(id: string, inicial: object, cuerpos: Record<string, unknown>[]) {
+    let actual: object = inicial;
+    return [
+      http.get(`*/api/oportunidades/${id}`, () => HttpResponse.json(actual)),
+      http.patch(`*/api/oportunidades/${id}`, async ({ request }) => {
+        const cuerpo = (await request.json()) as Record<string, unknown>;
+        cuerpos.push(cuerpo);
+        actual = { ...actual, ...cuerpo };
+        return HttpResponse.json(actual);
+      }),
+    ];
+  }
+
+  const abrirEdicion = async (usuario: ReturnType<typeof userEvent.setup>) => {
+    await usuario.click(await screen.findByRole("button", { name: /completar|editar/i }));
+  };
+  const guardar = () => screen.getByRole("button", { name: /guardar/i });
+
+  it("RF-013 una oportunidad sin destino ni pasajeros permite completarlos y muestra los datos nuevos", async () => {
+    const cuerpos: Record<string, unknown>[] = [];
+    servidor.use(...oportunidadEditable(abierta, sinDatos(abierta), cuerpos));
+    const usuario = userEvent.setup();
+    renderDetalle(abierta);
+    await abrirEdicion(usuario);
+
+    await usuario.type(screen.getByRole("textbox", { name: /destino/i }), "Bariloche");
+    await usuario.type(screen.getByRole("spinbutton", { name: /pasajeros/i }), "3");
+    await usuario.click(guardar());
+
+    expect(await screen.findByRole("heading", { name: "Bariloche" })).toBeInTheDocument();
+    expect(screen.getByText(/3 pasajeros/)).toBeInTheDocument();
+    expect(cuerpos).toHaveLength(1);
+    expect(cuerpos[0]).toMatchObject({ destino_consultado: "Bariloche", pasajeros: 3 });
+  });
+
+  it("RF-013 completar solo los pasajeros manda solo los pasajeros y el destino sigue a definir", async () => {
+    const cuerpos: Record<string, unknown>[] = [];
+    servidor.use(...oportunidadEditable(abierta, sinDatos(abierta), cuerpos));
+    const usuario = userEvent.setup();
+    renderDetalle(abierta);
+    await abrirEdicion(usuario);
+    await usuario.type(screen.getByRole("spinbutton", { name: /pasajeros/i }), "2");
+
+    await usuario.click(guardar());
+
+    expect(await screen.findByText(/2 pasajeros/)).toBeInTheDocument();
+    expect(cuerpos).toEqual([{ pasajeros: 2 }]);
+    expect(screen.getByRole("heading", { name: DESTINO_A_DEFINIR })).toBeInTheDocument();
+  });
+
+  it("RF-013 completar solo el destino manda solo el destino y los pasajeros siguen sin definir", async () => {
+    const cuerpos: Record<string, unknown>[] = [];
+    servidor.use(...oportunidadEditable(abierta, sinDatos(abierta), cuerpos));
+    const usuario = userEvent.setup();
+    renderDetalle(abierta);
+    await abrirEdicion(usuario);
+    await usuario.type(screen.getByRole("textbox", { name: /destino/i }), "Salta");
+
+    await usuario.click(guardar());
+
+    expect(await screen.findByRole("heading", { name: "Salta" })).toBeInTheDocument();
+    expect(cuerpos).toEqual([{ destino_consultado: "Salta" }]);
+    expect(screen.getByLabelText("Pasajeros sin definir")).toBeInTheDocument();
+  });
+
+  it("RF-013 guardar sin completar nada no manda el PATCH", async () => {
+    const cuerpos: Record<string, unknown>[] = [];
+    servidor.use(...oportunidadEditable(abierta, sinDatos(abierta), cuerpos));
+    const usuario = userEvent.setup();
+    renderDetalle(abierta);
+    await abrirEdicion(usuario);
+
+    await usuario.click(guardar());
+
+    expect(await screen.findByRole("button", { name: /completar/i })).toBeInTheDocument();
+    expect(cuerpos).toHaveLength(0);
+  });
+
+  it("RF-013 un destino de más de 200 caracteres muestra el tope y no manda el PATCH", async () => {
+    const cuerpos: Record<string, unknown>[] = [];
+    servidor.use(...oportunidadEditable(abierta, sinDatos(abierta), cuerpos));
+    const usuario = userEvent.setup();
+    renderDetalle(abierta);
+    await abrirEdicion(usuario);
+    await usuario.click(screen.getByRole("textbox", { name: /destino/i }));
+    await usuario.paste("a".repeat(201));
+
+    await usuario.click(guardar());
+
+    expect(
+      await screen.findByText("El destino puede tener hasta 200 caracteres."),
+    ).toBeInTheDocument();
+    expect(cuerpos).toHaveLength(0);
+  });
+
+  it("RF-013 cancelar descarta lo cargado y los errores", async () => {
+    servidor.use(...oportunidadEditable(abierta, porId(abierta), []));
+    const usuario = userEvent.setup();
+    renderDetalle(abierta);
+    await abrirEdicion(usuario);
+    await usuario.clear(screen.getByRole("textbox", { name: /destino/i }));
+    await usuario.click(guardar());
+    await screen.findByText("Ingresá el destino.");
+
+    await usuario.click(screen.getByRole("button", { name: /cancelar/i }));
+    await abrirEdicion(usuario);
+
+    expect(screen.getByRole("textbox", { name: /destino/i })).toHaveValue("Mendoza");
+    expect(screen.queryByText("Ingresá el destino.")).not.toBeInTheDocument();
+  });
+
+  it("RF-013 unos pasajeros en 0 muestran «Ingresá al menos un pasajero.» y no mandan el PATCH", async () => {
+    const cuerpos: Record<string, unknown>[] = [];
+    servidor.use(...oportunidadEditable(abierta, sinDatos(abierta), cuerpos));
+    const usuario = userEvent.setup();
+    renderDetalle(abierta);
+    await abrirEdicion(usuario);
+    await usuario.type(screen.getByRole("textbox", { name: /destino/i }), "Salta");
+    await usuario.type(screen.getByRole("spinbutton", { name: /pasajeros/i }), "0");
+
+    await usuario.click(guardar());
+
+    expect(await screen.findByText("Ingresá al menos un pasajero.")).toBeInTheDocument();
+    expect(cuerpos).toHaveLength(0);
+  });
+
+  it("RF-013 con los datos ya cargados, el formulario no deja guardar el destino vacío", async () => {
+    const cuerpos: Record<string, unknown>[] = [];
+    servidor.use(...oportunidadEditable(abierta, porId(abierta), cuerpos));
+    const usuario = userEvent.setup();
+    renderDetalle(abierta);
+    await abrirEdicion(usuario);
+
+    expect(screen.getByRole("textbox", { name: /destino/i })).toHaveValue("Mendoza");
+    await usuario.clear(screen.getByRole("textbox", { name: /destino/i }));
+    await usuario.click(guardar());
+
+    expect(await screen.findByText("Ingresá el destino.")).toBeInTheDocument();
+    expect(cuerpos).toHaveLength(0);
+  });
+
+  it("RF-013 con los datos ya cargados, el formulario no deja guardar los pasajeros vacíos", async () => {
+    const cuerpos: Record<string, unknown>[] = [];
+    servidor.use(...oportunidadEditable(abierta, porId(abierta), cuerpos));
+    const usuario = userEvent.setup();
+    renderDetalle(abierta);
+    await abrirEdicion(usuario);
+
+    expect(screen.getByRole("spinbutton", { name: /pasajeros/i })).toHaveValue(4);
+    await usuario.clear(screen.getByRole("spinbutton", { name: /pasajeros/i }));
+    await usuario.click(guardar());
+
+    expect(await screen.findByText("Ingresá los pasajeros.")).toBeInTheDocument();
+    expect(cuerpos).toHaveLength(0);
+  });
+});
+
+describe("RF-013 quién puede completar destino y pasajeros", () => {
+  const ajeno = { ...usuariosPorRol.empleado, id: "99999999-9999-4999-8999-999999999999" };
+
+  it("RF-013 sin permiso de escritura no se ofrece completar destino y pasajeros", async () => {
+    renderDetalle(abierta, ajeno);
+    await screen.findByRole("heading", { name: /mendoza/i });
+
+    expect(screen.queryByRole("button", { name: /completar|editar/i })).not.toBeInTheDocument();
+  });
+
+  it.each<EstadoOportunidad>(["ganada", "perdida"])(
+    "RF-013 en una oportunidad %s no se ofrece completar destino y pasajeros",
+    async (estado) => {
+      renderDetalle(idOportunidadMock[estado], usuariosPorRol.dueno);
+      await screen.findByRole("heading", { level: 1 });
+
+      expect(screen.queryByRole("button", { name: /completar|editar/i })).not.toBeInTheDocument();
+    },
+  );
 });

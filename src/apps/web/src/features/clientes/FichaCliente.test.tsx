@@ -1,4 +1,4 @@
-import { crearCliente } from "@rumbo/shared";
+import { crearCliente, DESTINO_A_DEFINIR } from "@rumbo/shared";
 import { MAX_ETIQUETAS, MAX_LARGO_ETIQUETA } from "@rumbo/shared/esquemas";
 import {
   clientesMock,
@@ -797,9 +797,7 @@ describe("RF-003 posible duplicado al editar (CU-03, H-04)", () => {
     patchConAviso(cuerpos, [sosa]);
     const usuario = await editarContactoDuplicado();
 
-    await usuario.click(
-      within(await aviso()).getByRole("button", { name: /guardar igual/i }),
-    );
+    await usuario.click(within(await aviso()).getByRole("button", { name: /guardar igual/i }));
 
     expect(await screen.findByRole("status")).toHaveTextContent("Ficha actualizada");
     expect(cuerpos).toEqual([
@@ -860,5 +858,32 @@ describe("RF-003 posible duplicado al editar (CU-03, H-04)", () => {
       expect(cuerpos).toHaveLength(2);
     });
     expect(cuerpos[1]).toEqual({ contacto: "otro.contacto@mail.test" });
+  });
+});
+
+describe("RF-013 consulta sin destino", () => {
+  it("RF-013 el historial muestra «Destino a definir» cuando la oportunidad no tiene destino", async () => {
+    servidor.use(
+      http.get("*/api/clientes/:id/historial", () =>
+        HttpResponse.json({
+          oportunidades: [
+            {
+              id: "6b2d9f08-7e41-4c5a-8d13-0a9e3c5b7f47",
+              destino_consultado: null,
+              estado: "nueva",
+              fecha_desde_tentativa: null,
+              fecha_hasta_tentativa: null,
+            },
+          ],
+          viajes: [],
+          resenas: [],
+        }),
+      ),
+    );
+    renderFicha(camila.id);
+
+    expect(
+      await screen.findByRole("link", { name: new RegExp(DESTINO_A_DEFINIR) }),
+    ).toBeInTheDocument();
   });
 });

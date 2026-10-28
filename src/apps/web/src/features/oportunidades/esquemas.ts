@@ -25,24 +25,48 @@ export const esquemaPerder = z
     message: "Contanos el motivo.",
   });
 
+/** Pasajeros: entero de al menos uno. Con el campo numérico vacío (NaN) los obligatorios piden el dato y los opcionales lo dan por ausente. */
+const sinNaN = (valor: number | undefined) => (Number.isNaN(valor) ? undefined : valor);
+const pasajerosCargados = z
+  .number("Ingresá los pasajeros.")
+  .int("Ingresá los pasajeros.")
+  .min(1, "Ingresá al menos un pasajero.");
+const pasajerosOpcionales = z
+  .custom<number>(() => true)
+  .optional()
+  .transform(sinNaN)
+  .pipe(pasajerosCargados.optional());
+
+const destinoCargado = z.string().trim().max(200, "El destino puede tener hasta 200 caracteres.");
+
+/**
+ * Completar o corregir el destino y los pasajeros de una consulta (RF-013, DEC-0023). Cada dato se
+ * completa por separado: el que ya estaba cargado es obligatorio y no se vacía; el que falta es opcional.
+ */
+export function esquemaDestinoPasajeros(cargados: { destino: boolean; pasajeros: boolean }) {
+  return z.object({
+    destino_consultado: cargados.destino
+      ? destinoCargado.min(1, "Ingresá el destino.")
+      : destinoCargado.optional(),
+    pasajeros: cargados.pasajeros ? pasajerosCargados : pasajerosOpcionales,
+  }) as z.ZodType<DatosDestinoPasajeros, EntradaDestinoPasajeros>;
+}
+
 const CANALES = [
   "instagram",
   "whatsapp",
   "presencial",
 ] as const satisfies readonly CanalOportunidad[];
 
-/** Consulta nueva (RF-010, RF-013): cliente, canal, destino y pasajeros son obligatorios; fechas y notas, no. */
+/** Consulta nueva (RF-010, RF-013): solo cliente y canal son obligatorios (DEC-0023); si se cargan, el destino y los pasajeros se validan. */
 export const esquemaConsulta = z
   .object({
     cliente_id: z.string().min(1, "Elegí un cliente."),
     canal: z.enum(CANALES, "Elegí el canal."),
-    destino_consultado: z.string().trim().min(1, "Ingresá el destino."),
+    destino_consultado: destinoCargado.optional(),
     fecha_desde_tentativa: z.string(),
     fecha_hasta_tentativa: z.string(),
-    pasajeros: z
-      .number("Ingresá los pasajeros.")
-      .int("Ingresá los pasajeros.")
-      .min(1, "Ingresá al menos un pasajero."),
+    pasajeros: pasajerosOpcionales,
     notas: z.string(),
   })
   .refine(
@@ -58,6 +82,8 @@ export const esquemaConsulta = z
 
 export type EntradaConsulta = z.input<typeof esquemaConsulta>;
 export type DatosConsulta = z.output<typeof esquemaConsulta>;
+export type EntradaDestinoPasajeros = { destino_consultado?: string; pasajeros?: number };
+export type DatosDestinoPasajeros = { destino_consultado?: string; pasajeros?: number };
 export type DatosInteraccion = z.infer<typeof esquemaInteraccion>;
 export type DatosInsistencia = z.infer<typeof esquemaInsistencia>;
 export type DatosPerder = z.input<typeof esquemaPerder>;
