@@ -61,6 +61,17 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Commits:** 80e48d8, 6d69f3b, 2f2186e, 86b7ba8, 4739374.
 - **Pendiente:** detalles de diseño de las pantallas 24 y 45, anotados en el ticket (pestañas Publicadas/Ocultas, cliente y viaje de cada reseña). En M5 quedan T-081, T-083, T-084 y T-085.
 
+## 28/10/26 — Paloma (Claude Opus 5.5) — T-085: e2e del catálogo de hoteles
+- **Hecho:** T-085 (PR [#133](https://github.com/FranLuciano04/Vault-Rumbo/pull/133), mergeado con el CI en verde). Con esto, M5 no tiene más tickets pendientes.
+  - `e2e/hoteles.spec.ts` tiene 6 tests contra el Compose real: alta, duplicado, reseña, orden por promedio, ocultar y restaurar, y el freelance con 403.
+  - Semilla de demo `semillas/hoteles.py`, con su test de idempotencia.
+  - No apareció ningún bug del sistema. La review de Opus no encontró bloqueantes, y el importante (la semilla no tenía test) y tres menores quedaron arreglados.
+- **Commits:** 9a780f9, db99dfe, 722204b, fd47b1d.
+- **Pendiente:**
+  - `/cerrar-modulo` M5.
+  - `/cerrar-modulo` M4, que lo hace Nahuel.
+  - Menor: los helpers de login se repiten en las seis specs de e2e. Convendría pasarlos a un `e2e/sesion.ts` compartido, en un ticket aparte.
+
 ## 28/10/26 — Paloma (Claude Opus 5.5) — T-168: consultas sin destino ni pasajeros en el front
 - **Hecho:** T-168 (PR [#131](https://github.com/FranLuciano04/Vault-Rumbo/pull/131), mergeado con el CI en verde). Con esto, M4 no tiene más tickets pendientes.
   - La consulta se registra solo con cliente y canal.
