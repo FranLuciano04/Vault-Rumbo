@@ -28,6 +28,7 @@ from rumbo.presentacion.esquemas.oportunidades import (
     OportunidadEditar,
     OportunidadPerder,
 )
+from rumbo.presentacion.mapeos_alertas import esquema_de_alerta
 from rumbo.presentacion.paginacion import Pagina, ParametrosPagina, parametros_pagina
 
 router = APIRouter(tags=["oportunidades"])
@@ -163,8 +164,14 @@ async def tomar_oportunidad(
     status_code=201,
     **operacion_de_registro(403, 404, 422, casos_de_uso="CU-05"),
 )
-async def agendar_insistencia(oportunidad_id: uuid.UUID, datos: Insistencia) -> Alerta:
-    raise no_implementado()
+async def agendar_insistencia(
+    oportunidad_id: uuid.UUID, datos: Insistencia, actor: ActorDep, sesion: SesionDep
+) -> Alerta:
+    return esquema_de_alerta(
+        *await oportunidades.agendar_insistencia(
+            sesion, actor, oportunidad_id, datos.fecha, datos.descripcion
+        )
+    )
 
 
 @router.post(
