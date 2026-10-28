@@ -24,28 +24,6 @@ La **persona** de cada sesión es quien la corre, identificada por su identidad 
 ## Avisos pendientes por persona
 > Claude los lee al identificar a la persona (paso 1 de `CLAUDE.md`) y se los cuenta **apenas la saluda**, antes de cualquier otra tarea. Cuando la persona confirme que lo leyó o que lo hizo, **Claude borra su fila** en esa misma sesión, con un commit. Cuando no quede ninguna fila de alguien, se borra también su sección.
 
-### Nahuel (`Nahuel Viniegra`) — el repo es público
-- **25/10, de Francisco: el repo [Vault-Rumbo](https://github.com/FranLuciano04/Vault-Rumbo) pasó a público.** GitHub Actions se había cortado porque se terminaron los minutos del plan Free; en los repos públicos los minutos son ilimitados.
-  - Antes se escaneó todo el historial, incluidas las ramas de los PR, y no hay secretos.
-  - Quedan visibles sus nombres y emails: los de los commits, y el de Paloma también en los metadatos de dos docx. Si quieren, activen *Keep my email addresses private* en GitHub y usen el email `noreply` en los commits nuevos.
-  - Nunca subir un `.env` ni una clave: ahora cualquiera lo vería al instante.
-
-### Nahuel (`Nahuel Viniegra`) — DEC-0019 y fallas de entorno local
-- **24/10, de Paloma: [[DEC-0019 Las fallas se arreglan al encontrarlas|DEC-0019]]**, la decisión que tomamos en equipo. Una falla se arregla cuando se encuentra, sin crear un ticket:
-  - si aparece durante un ticket, en su misma rama y PR;
-  - si no, en una rama `fix/…`;
-  - los hallazgos de Codex también se arreglan así.
-  - Ya están actualizadas `/implementar-ticket` 1.4.0 y `/cerrar-modulo` 1.1.0.
-- **24/10, de Paloma: el PR [#65](https://github.com/FranLuciano04/Vault-Rumbo/pull/65) ya está mergeado** (lo aprobó y mergeó Nahuel). Arregla las cuatro fallas para ver Rumbo en local. Después del pull:
-  - `pnpm dev` ya llega a la API; el destino se cambia con `RUMBO_API_PROXY` en `apps/web/.env`.
-  - Para el compose contra el Firebase real se usa `-f src/docker-compose.firebase.yml`, con `RUMBO_FIREBASE_CREDENCIALES` en `src/.env`, y se publica en el 5173 (`RUMBO_HTTP_PORT=5173`). No se amplía la restricción de la API key (ver `src/infra/firebase.md`).
-
-### Nahuel (`Nahuel Viniegra`) — DEC-0021
-- **25/10, de Paloma: [[DEC-0021 Correcciones del viaje y monto de un pago|DEC-0021]]**, que resuelve dos contradicciones del PC1 que encontró la review de T-086:
-  - **Corregir el estado del viaje:** se sigue a EST-Viaje T7 (la resolución de Nahuel del 21/09). Solo se corrige desde `en curso` y `finalizado`, y al deshacer un finalizado se cierra la alerta de reseña. Se cambió el texto de CU-08 A2 y de RF-042.
-  - **Monto de un pago:** `PATCH /pagos/{id}` solo reprograma el vencimiento. Los montos se cambian rebalanceando los pagos no cobrados o dividiendo el pago. Se cambiaron CU-11 A3, RF-065 y EST-Pago.
-  - No hay cambios de código. T-087 tiene un criterio nuevo.
-
 ### Nahuel (`Nahuel Viniegra`) — T-153
 - **24/10, de Paloma: el PR [#73](https://github.com/FranLuciano04/Vault-Rumbo/pull/73) (T-153) ya está mergeado** (⚠️ riesgo alto, auth). Hay un **cambio de decisión**: el 23/10 Francisco había decidido que la cuenta de Firebase sin `Usuario` se reutilizaba. La review de seguridad lo marcó como bloqueante (*pre-account hijacking*: la cuenta conserva la contraseña, los proveedores o las sesiones de quien la haya creado). Paloma decidió que esa cuenta se **borra y se crea una nueva**. CU-25 A1 se actualiza en el mismo PR. Además, el alta toma un lock por email, y nunca se borra una cuenta cuyo uid es de un `Usuario`.
 
