@@ -3,7 +3,7 @@ id: T-079
 titulo: Moderar las reseñas de los hoteles
 modulo: M5 — Hoteles y reseñas
 capa: backend
-estado: libre
+estado: tomado
 depende_de: [T-078]
 tamaño: S
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [CU-29, RF-111, RF-112, RF-153]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: FranLucianoo
+tomado_el: 28/10/26 12:59
+rama: feature/T-079-moderar-las-resenas-de-los-hoteles
 pr:
 ---
 # T-079 Moderar las reseñas de los hoteles
