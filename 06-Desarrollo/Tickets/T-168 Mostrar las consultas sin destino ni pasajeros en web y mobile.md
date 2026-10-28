@@ -3,7 +3,7 @@ id: T-168
 titulo: Mostrar las consultas sin destino ni pasajeros en web y mobile
 modulo: M4 — Oportunidades y cotizaciones
 capa: web
-estado: tomado
+estado: hecho
 depende_de: [T-167, T-069]
 tamaño: M
 riesgo: normal
@@ -49,3 +49,12 @@ Se ajustan los tests de RF-013 de `NuevaConsulta.test.tsx` y se suman `describe(
 - El backend, que va en T-167.
 
 ## Notas de implementación
+- **Ampliación (decisión de Paloma, 28/10/26):** la review encontró que la web no tenía dónde completar el destino ni los pasajeros. Una consulta registrada solo con cliente y canal no se podía cotizar nunca. Se sumó el criterio de editar desde el detalle y el ticket pasó de S a M. Se hizo una segunda ronda de TDD (rojo `8f61d30`, verde `77e4e76`).
+- **Edición (`EdicionDestinoPasajeros`):** cada dato se completa por separado. Lo que ya estaba cargado es obligatorio y no se vacía. El PATCH manda solo lo que cambió. El formulario se monta al abrirlo, así los valores iniciales salen de la oportunidad actual. Solo lo ve quien puede escribir y solo si la oportunidad está abierta.
+- **Formulario de consulta:** el campo «Pasajeros» arranca vacío, porque DEC-0023 descarta poner un valor de relleno. El NaN del campo vacío se convierte en `undefined` sin unión de zod, así el decimal muestra el mensaje en castellano. El destino tiene un tope de 200 caracteres.
+- **Accesibilidad:** el «—» de pasajeros usa `PasajerosOportunidad` con `role="img"` y `aria-label="Pasajeros sin definir"`. Si faltan las fechas, el encabezado de cotizaciones ya no muestra «—»; queda igual que el detalle y la tarjeta.
+- **Shared:** `textoPasajeros` en `etiquetas.ts`. Mobile no necesitó cambios de código, porque T-167 ya mostraba «Destino a definir».
+- **Review (Opus, dos rondas):** sin bloqueantes. Ronda 1: el hallazgo importante dio origen a la ampliación y los menores quedaron arreglados. Ronda 2: un importante (completar cada dato por separado) y cuatro menores (tests de permisos, montar el formulario al abrirlo, cancelar y el tope de 200), todos arreglados.
+- **Para el equipo:** el backend deja editar destino y pasajeros de una oportunidad ganada o perdida (`servicios/oportunidades.py`). El front oculta el botón, pero falta decidir si una oportunidad cerrada es de solo lectura, salvo las notas. Queda abierto para la sync.
+- **Modelos:** tests, implementación, refactor y fix con Sonnet, y review con Opus, sin escalado.
+- **Checks en la PC (toca `@rumbo/shared`):** después del merge de `main`, web da 722 passed. Antes del merge, la cobertura de web era 93,7 % de líneas. Shared da 403 y mobile 183. Lint y tipos están limpios en las tres partes.
