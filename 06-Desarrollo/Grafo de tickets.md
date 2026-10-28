@@ -18,8 +18,8 @@ tags:: #tipo/referencia
 | M1 — Usuarios y configuración | 19 | 19 | 0 | 0 | 0 | 0 | ✅ cerrado |
 | M2 — Clientes | 15 | 15 | 0 | 0 | 0 | 0 | ✅ cerrado |
 | M3 — Alertas | 14 | 14 | 0 | 0 | 0 | 0 | ✅ cerrado |
-| M4 — Oportunidades y cotizaciones | 16 | 13 | 2 | 0 | 1 | 0 | 🛠️ en curso |
-| M5 — Hoteles y reseñas | 11 | 5 | 1 | 0 | 5 | 0 | 🛠️ en curso |
+| M4 — Oportunidades y cotizaciones | 16 | 14 | 1 | 0 | 1 | 0 | 🛠️ en curso |
+| M5 — Hoteles y reseñas | 11 | 6 | 0 | 3 | 2 | 0 | 🛠️ en curso |
 | M6 — Viajes y economía | 24 | 1 | 0 | 5 | 18 | 0 | 🛠️ en curso |
 | M7 — Proceso diario y CRM proactivo | 9 | 0 | 0 | 3 | 6 | 0 | 🛠️ en curso |
 | M8 — Calendario, dashboard y reportes | 10 | 0 | 0 | 1 | 9 | 0 | 🛠️ en curso |
@@ -140,7 +140,7 @@ flowchart LR
     T071["T-071 · Seguir una oportunidad desde su detalle en la web<br/><small>web</small>"]:::hecho
     T072["T-072 · Emitir una cotización en la web<br/><small>web</small>"]:::hecho
     T073["T-073 · Registrar la respuesta a una cotización en la web<br/><small>web</small>"]:::hecho
-    T074["T-074 · Probar de punta a punta el embudo con cotización<br/><small>e2e</small><br/>👤 Nahuel Viniegra"]:::tomado
+    T074["T-074 · Probar de punta a punta el embudo con cotización<br/><small>e2e</small>"]:::hecho
     T167["T-167 · Registrar una consulta sin destino ni pasajeros<br/><small>backend</small><br/>👤 palomap2003"]:::tomado
     T168["T-168 · Mostrar las consultas sin destino ni pasajeros en web y mobile<br/><small>web</small>"]:::esperando
   end
@@ -150,11 +150,11 @@ flowchart LR
     T077["T-077 · Buscar hoteles ordenados por su puntaje<br/><small>backend</small>"]:::hecho
     T078["T-078 · Registrar las reseñas de un hotel<br/><small>backend</small>"]:::hecho
     T079["T-079 · Moderar las reseñas de los hoteles<br/><small>backend</small>"]:::hecho
-    T080["T-080 · Buscar hoteles en el catálogo web<br/><small>web</small><br/>👤 FranLucianoo"]:::tomado
-    T081["T-081 · Editar un hotel del catálogo en la web<br/><small>web</small>"]:::esperando
-    T082["T-082 · Mostrar el detalle del hotel con sus reseñas en la web<br/><small>web</small>"]:::esperando
+    T080["T-080 · Buscar hoteles en el catálogo web<br/><small>web</small>"]:::hecho
+    T081["T-081 · Editar un hotel del catálogo en la web<br/><small>web</small>"]:::disponible
+    T082["T-082 · Mostrar el detalle del hotel con sus reseñas en la web<br/><small>web</small>"]:::disponible
     T083["T-083 · Registrar una reseña en la web<br/><small>web</small>"]:::esperando
-    T084["T-084 · Recomendar hoteles al emitir una cotización<br/><small>web</small>"]:::esperando
+    T084["T-084 · Recomendar hoteles al emitir una cotización<br/><small>web</small>"]:::disponible
     T085["T-085 · Probar de punta a punta el catálogo de hoteles<br/><small>e2e</small>"]:::esperando
   end
   subgraph M6["M6 — Viajes y economía"]
