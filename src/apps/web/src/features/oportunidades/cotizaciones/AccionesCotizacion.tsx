@@ -41,6 +41,8 @@ export function AccionesCotizacion({
   const [descargando, setDescargando] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const pendiente = enviar.isPending || aceptar.isPending || rechazar.isPending || descargando;
+  const puedeResponderBorrador = puedeResponder && cotizacion.estado === "borrador";
+  const puedeResponderEnviada = puedeResponder && cotizacion.estado === "enviada";
 
   async function ejecutar(accion: () => Promise<unknown>) {
     setError(null);
@@ -68,7 +70,7 @@ export function AccionesCotizacion({
         <Download aria-hidden="true" />
         Descargar PDF
       </Button>
-      {puedeResponder && cotizacion.estado === "borrador" && (
+      {puedeResponderBorrador && (
         <Button
           size="sm"
           disabled={pendiente}
@@ -77,7 +79,7 @@ export function AccionesCotizacion({
           Marcar como enviada
         </Button>
       )}
-      {puedeResponder && cotizacion.estado === "enviada" && !confirmandoRechazo && (
+      {puedeResponderEnviada && !confirmandoRechazo && (
         <>
           <Button
             size="sm"
@@ -98,7 +100,7 @@ export function AccionesCotizacion({
           </Button>
         </>
       )}
-      {puedeResponder && cotizacion.estado === "enviada" && confirmandoRechazo && (
+      {puedeResponderEnviada && confirmandoRechazo && (
         <div role="group" aria-label="Rechazar la cotización" className="flex items-center gap-2">
           <span className="text-sm">¿Confirmás que el cliente rechazó la cotización?</span>
           <Button
