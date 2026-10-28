@@ -33,6 +33,14 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
+## 28/10/26 — Nahuel (Claude Opus 5.5) — T-084: recomendar hoteles al emitir una cotización
+- **Hecho:** T-084 (PR [#129](https://github.com/FranLuciano04/Vault-Rumbo/pull/129), mergeado con el CI en verde).
+  - «Buscar hoteles» en el formulario de cotización, filtrado por el destino de la oportunidad y ordenado por valoración, con paginación.
+  - El hotel elegido entra como ítem, porque el contrato no tiene `hotel_id`. En ARS va con el precio de referencia; en otra moneda, con el precio vacío.
+  - La review de Opus marcó 1 importante (precio en ARS cargado en cotizaciones en USD) y 4 menores, todos arreglados.
+- **Commits:** 8172587, 75f1f68, b585cdf, 230d12b.
+- **Pendiente:** si se quiere un vínculo real entre la cotización y el hotel, es un cambio de contrato de backend. En M5 quedan T-083 y T-085.
+
 ## 28/10/26 — Nahuel (Claude Opus 5.5) — T-082: detalle del hotel con reseñas en la web
 - **Hecho:** T-082 (PR [#127](https://github.com/FranLuciano04/Vault-Rumbo/pull/127), mergeado con el CI en verde).
   - Ruta `/hoteles/:hotelId` con datos, estado, destino, puntaje y reseñas paginadas.
