@@ -212,7 +212,9 @@ async def aceptar_cotizacion(
     sesion: AsyncSession, actor: Usuario, cotizacion_id: uuid.UUID
 ) -> Cotizacion:
     """Registra que el cliente aceptó (CU-06 A2, RF-025); queda lista para confirmar la reserva."""
-    return await _transicionar_cotizacion(sesion, actor, cotizacion_id, estado_cotizacion.aceptar)
+    return await _transicionar_cotizacion(
+        sesion, actor, cotizacion_id, lambda c, o: estado_cotizacion.aceptar(c, o, hoy=hoy())
+    )
 
 
 async def rechazar_cotizacion(
@@ -259,6 +261,8 @@ async def _transicionar_cotizacion(
         sesion, cotizacion.oportunidad_id, visibilidad=visibilidad(actor)
     )
     exigir_escritura(actor, oportunidad)
+    # La primera lectura, sin bloqueo, da el 404 y la oportunidad a bloquear; esta, bloqueada y
+    # releída, es la que decide la transición.
     cotizacion = await _cotizaciones.obtener_para_modificar(
         sesion, cotizacion_id, visibilidad=visibilidad(actor)
     )

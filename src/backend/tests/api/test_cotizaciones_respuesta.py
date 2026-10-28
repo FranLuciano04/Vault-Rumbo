@@ -5,6 +5,7 @@ El contrato (openapi.json) declara los tres POST sin cuerpo y la `Cotizacion` si
 solo se prueba lo que ese contrato permite.
 """
 
+from datetime import timedelta
 from collections.abc import Awaitable, Callable
 from typing import Any
 from uuid import UUID, uuid4
@@ -20,6 +21,7 @@ from rumbo.datos.modelos import (
     MotivoPerdida,
     Oportunidad,
 )
+from rumbo.core.fechas import hoy
 from tests.fabricas import ClienteFactory, CotizacionFactory, OportunidadFactory, crear
 
 PROBLEM_JSON = "application/problem+json"
@@ -34,6 +36,7 @@ async def _par(
     *,
     cot: C = C.borrador,
     op: E = E.en_gestion,
+    validez_hasta: Any = None,
 ) -> tuple[Oportunidad, Cotizacion]:
     campos: dict[str, Any] = {}
     if op is E.perdida:
@@ -47,7 +50,11 @@ async def _par(
         estado=op,
         **campos,
     )
-    cotizacion = await crear(sesion, CotizacionFactory, oportunidad_id=oportunidad.id, estado=cot)
+    vigente = hoy() + timedelta(days=30) if validez_hasta is None else validez_hasta
+    extra = {"validez_hasta": vigente}
+    cotizacion = await crear(
+        sesion, CotizacionFactory, oportunidad_id=oportunidad.id, estado=cot, **extra
+    )
     return oportunidad, cotizacion
 
 
@@ -164,6 +171,40 @@ async def test_rf025_aceptar_invalida_409(
     assert r.status_code == 409
     await sesion.refresh(cot)
     assert cot.estado is origen
+
+
+async def test_aceptar_con_validez_vencida_409(
+    cliente_como: FabricaCliente, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("empleado")
+    ayer = hoy() - timedelta(days=1)
+    op, cot = await _par(
+        sesion, c.usuario.id, cot=C.enviada, op=E.cotizada, validez_hasta=ayer  # type: ignore[attr-defined]
+    )
+
+    r = await c.post(_url(cot, "aceptar"))
+
+    assert r.status_code == 409
+    assert r.headers["content-type"].startswith(PROBLEM_JSON)
+    await sesion.refresh(cot)
+    await sesion.refresh(op)
+    assert cot.estado is C.enviada
+    assert op.estado is E.cotizada
+
+
+async def test_aceptar_con_validez_igual_a_hoy_200(
+    cliente_como: FabricaCliente, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("empleado")
+    _, cot = await _par(
+        sesion, c.usuario.id, cot=C.enviada, op=E.cotizada, validez_hasta=hoy()  # type: ignore[attr-defined]
+    )
+
+    r = await c.post(_url(cot, "aceptar"))
+
+    assert r.status_code == 200
+    await sesion.refresh(cot)
+    assert cot.estado is C.aceptada
 
 
 # ---------- rechazar (T4, RF-025) ----------

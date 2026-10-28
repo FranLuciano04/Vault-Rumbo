@@ -5,6 +5,8 @@ Supuestos de diseño (el ticket no fija la firma): `enviar`, `aceptar` y `rechaz
 existe en EST-Cotización o si la oportunidad ya está cerrada.
 """
 
+from datetime import date, timedelta
+
 import pytest
 
 from rumbo.datos import modelos as m
@@ -12,12 +14,15 @@ from rumbo.negocio.errores import TransicionInvalida
 from rumbo.negocio.estados import cotizacion as est
 from tests import fabricas as f
 
+_HOY = date(2026, 10, 27)  # fecha de negocio fija: los tests no dependen de la real
 C = m.EstadoCotizacion
 E = m.EstadoOportunidad
 
 
 def _cot(estado: str) -> m.Cotizacion:
-    return f.CotizacionFactory.build(estado=C(estado))
+    return f.CotizacionFactory.build(
+        estado=C(estado), validez_hasta=_HOY + timedelta(days=30)
+    )
 
 
 def _op(estado: str) -> m.Oportunidad:
@@ -63,7 +68,7 @@ def test_rf023_enviar_con_oportunidad_cerrada_invalida(cerrada: str) -> None:
 # T3: enviada -> aceptada (la oportunidad queda cotizada, lista para confirmar la reserva)
 def test_rf025_aceptar_desde_enviada() -> None:
     cot, op = _cot("enviada"), _op("cotizada")
-    est.aceptar(cot, op)
+    est.aceptar(cot, op, hoy=_HOY)
     assert cot.estado is C.aceptada
     assert op.estado is E.cotizada  # ganar la hace CU-07 al confirmar la reserva (M6)
 
@@ -72,7 +77,7 @@ def test_rf025_aceptar_desde_enviada() -> None:
 def test_rf025_aceptar_invalida_desde_otros_estados(origen: str) -> None:
     cot, op = _cot(origen), _op("cotizada")
     with pytest.raises(TransicionInvalida):
-        est.aceptar(cot, op)
+        est.aceptar(cot, op, hoy=_HOY)
     assert cot.estado is C(origen)
 
 
@@ -91,3 +96,23 @@ def test_rf025_rechazar_invalida_desde_otros_estados(origen: str) -> None:
     with pytest.raises(TransicionInvalida):
         est.rechazar(cot, op)
     assert cot.estado is C(origen)
+
+
+# T3 con la vigencia vencida por fecha (decisión de Paloma): una `enviada` cuya `validez_hasta`
+# ya pasó no se acepta aunque el proceso diario todavía no la haya marcado `vencida`.
+# Supuesto de firma: `aceptar(cotizacion, oportunidad, *, hoy: date)` (fecha de negocio inyectada).
+
+
+def test_aceptar_con_validez_vencida_levanta_transicion_invalida() -> None:
+    cot, op = _cot("enviada"), _op("cotizada")
+    cot.validez_hasta = _HOY - timedelta(days=1)
+    with pytest.raises(TransicionInvalida):
+        est.aceptar(cot, op, hoy=_HOY)
+    assert cot.estado is C.enviada
+
+
+def test_aceptar_con_validez_igual_a_hoy_es_valida() -> None:
+    cot, op = _cot("enviada"), _op("cotizada")
+    cot.validez_hasta = _HOY
+    est.aceptar(cot, op, hoy=_HOY)
+    assert cot.estado is C.aceptada
