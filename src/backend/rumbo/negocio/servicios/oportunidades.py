@@ -1,6 +1,7 @@
 """Servicio del módulo oportunidades: registro de consultas (CU-04), embudo, detalle, edición y
 estados (CU-05) y emisión de cotizaciones (CU-06)."""
 
+import asyncio
 import uuid
 from collections.abc import Callable
 from datetime import date
@@ -23,6 +24,7 @@ from rumbo.datos.modelos import (
 from rumbo.datos.repositorios.clientes import RepositorioClientes
 from rumbo.datos.repositorios.oportunidades import RepositorioCotizaciones, RepositorioOportunidades
 from rumbo.datos.repositorios.seguridad import RepositorioUsuarios
+from rumbo.negocio.documentos.cotizacion import pdf_cotizacion
 from rumbo.negocio.errores import DatosInvalidos, NoEncontrado
 from rumbo.negocio.estados import cotizacion as estado_cotizacion
 from rumbo.negocio.estados import oportunidad as estado
@@ -237,6 +239,19 @@ async def emitir_cotizacion(
     await sesion.flush()
     await sesion.refresh(cotizacion)
     return cotizacion
+
+
+async def documento_cotizacion(
+    sesion: AsyncSession, actor: Usuario, cotizacion_id: uuid.UUID
+) -> bytes:
+    """PDF de la cotización para enviar al cliente (CU-06, RF-021). Una que el actor no ve es
+    `NoEncontrado` (RF-151); el `Cliente` sale de su oportunidad, ya visible para el actor."""
+    cotizacion = await _cotizaciones.obtener(sesion, cotizacion_id, visibilidad=visibilidad(actor))
+    oportunidad = await _oportunidades.obtener(
+        sesion, cotizacion.oportunidad_id, visibilidad=visibilidad(actor)
+    )
+    # WeasyPrint es síncrono y pesado: fuera del bucle de eventos.
+    return await asyncio.to_thread(pdf_cotizacion, cotizacion, oportunidad.cliente)
 
 
 async def marcar_cotizacion_enviada(
