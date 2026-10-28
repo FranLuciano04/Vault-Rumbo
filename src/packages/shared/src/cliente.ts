@@ -38,6 +38,16 @@ export class ErrorApi extends Error {
   duplicados?: Cliente[];
 }
 
+/** Con `responseType: "blob"` el problem+json llega como Blob: se lee su texto para recuperar el problema. */
+async function leerCuerpoProblema(data: unknown): Promise<unknown> {
+  if (!(data instanceof Blob)) return data;
+  try {
+    return JSON.parse(await data.text()) as unknown;
+  } catch {
+    return undefined;
+  }
+}
+
 export function crearCliente({ baseURL, obtenerToken }: OpcionesCliente): AxiosInstance {
   const cliente = axios.create({ baseURL });
 
@@ -65,9 +75,9 @@ export function crearCliente({ baseURL, obtenerToken }: OpcionesCliente): AxiosI
       }
       return respuesta;
     },
-    (error: unknown) => {
+    async (error: unknown) => {
       if (!isAxiosError(error) || !error.response) throw error;
-      const data: unknown = error.response.data;
+      const data: unknown = await leerCuerpoProblema(error.response.data);
       const problema: Partial<Problema & Pick<ProblemaDuplicado, "duplicados">> =
         data && typeof data === "object" ? data : {};
       const errorApi = new ErrorApi(problema.title ?? error.message);

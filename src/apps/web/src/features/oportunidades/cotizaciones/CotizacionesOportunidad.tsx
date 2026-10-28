@@ -52,7 +52,7 @@ export function CotizacionesOportunidad({
       <VersionesCotizacion
         cliente={cliente}
         oportunidadId={oportunidadId}
-        puedeResponder={puedeEscribirOportunidad(usuario, oportunidad)}
+        puedeResponder={puedeEmitir}
       />
     </div>
   );

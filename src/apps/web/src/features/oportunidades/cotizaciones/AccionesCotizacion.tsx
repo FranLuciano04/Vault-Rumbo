@@ -9,7 +9,9 @@ import type { AxiosInstance } from "axios";
 import { Download } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { mensajeDeError } from "@/lib/errores";
+import { ERROR_AL_GUARDAR, mensajeDeError } from "@/lib/errores";
+
+const ERROR_AL_DESCARGAR = "No pudimos descargar el PDF. Probá de nuevo en unos minutos.";
 
 /** Descarga el PDF de la versión mediante un enlace temporal. */
 async function guardarPdf(cliente: AxiosInstance, cotizacion: Cotizacion) {
@@ -17,8 +19,12 @@ async function guardarPdf(cliente: AxiosInstance, cotizacion: Cotizacion) {
   const enlace = document.createElement("a");
   enlace.href = url;
   enlace.download = `cotizacion-${cotizacion.id}.pdf`;
+  document.body.append(enlace);
   enlace.click();
-  URL.revokeObjectURL(url);
+  enlace.remove();
+  setTimeout(() => {
+    URL.revokeObjectURL(url);
+  }, 0);
 }
 
 /**
@@ -44,13 +50,14 @@ export function AccionesCotizacion({
   const puedeResponderBorrador = puedeResponder && cotizacion.estado === "borrador";
   const puedeResponderEnviada = puedeResponder && cotizacion.estado === "enviada";
 
-  async function ejecutar(accion: () => Promise<unknown>) {
+  async function ejecutar(accion: () => Promise<unknown>, respaldo?: string) {
     setError(null);
     try {
       await accion();
       setConfirmandoRechazo(false);
     } catch (falla) {
-      setError(mensajeDeError(falla));
+      const mensaje = mensajeDeError(falla);
+      setError(mensaje === ERROR_AL_GUARDAR && respaldo ? respaldo : mensaje);
     }
   }
 
@@ -62,7 +69,7 @@ export function AccionesCotizacion({
         disabled={pendiente}
         onClick={() => {
           setDescargando(true);
-          void ejecutar(() => guardarPdf(cliente, cotizacion)).finally(() => {
+          void ejecutar(() => guardarPdf(cliente, cotizacion), ERROR_AL_DESCARGAR).finally(() => {
             setDescargando(false);
           });
         }}

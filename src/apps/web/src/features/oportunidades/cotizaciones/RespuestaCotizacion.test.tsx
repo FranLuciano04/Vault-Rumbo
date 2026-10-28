@@ -285,6 +285,17 @@ describe("RF-025 aceptar o rechazar", () => {
     );
   });
 
+  it("RF-025 en una oportunidad perdida no hay acciones de respuesta pero sí «Descargar PDF»", async () => {
+    servidor.use(conVersionReciente("enviada"));
+    renderCotizaciones(idOportunidadMock.perdida);
+
+    const fila = await filaReciente();
+    expect(within(fila).getByRole("button", { name: /descargar pdf/i })).toBeInTheDocument();
+    expect(
+      within(fila).queryByRole("button", { name: /aceptar|rechazar|marcar como enviada/i }),
+    ).not.toBeInTheDocument();
+  });
+
   it("RF-025 un empleado que no es el responsable ve las versiones sin acciones de respuesta", async () => {
     const otro = { ...usuariosPorRol.empleado, id: "9c1d7e52-4b3a-4f60-8a21-5e0d3b7c9a10" };
     renderCotizaciones(cotizada, otro);
@@ -337,7 +348,7 @@ describe("RF-023 descarga del PDF", () => {
     const fila = await filaReciente();
     await u.click(within(fila).getByRole("button", { name: /descargar pdf/i }));
 
-    expect(await screen.findByRole("alert")).toBeInTheDocument();
+    expect(await screen.findByRole("alert")).toHaveTextContent("No pudimos generar el PDF.");
     expect(crearObjectURL).not.toHaveBeenCalled();
   });
 
