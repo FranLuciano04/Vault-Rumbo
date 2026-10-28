@@ -11,7 +11,7 @@ import {
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { delay, http, HttpResponse } from "msw";
+import { delay, http, HttpResponse, type RequestHandler } from "msw";
 import { MemoryRouter, Route, Routes } from "react-router";
 import { afterAll, afterEach, beforeAll } from "vitest";
 import { PaginaHoteles } from "./PaginaHoteles";
@@ -32,8 +32,9 @@ const cliente = crearCliente({ baseURL: "http://localhost", obtenerToken: () => 
 const bariloche = destinosMock[0].id;
 
 /** Monta el catálogo con los handlers del rol; el alta es otro ticket, así que su ruta es un marcador. */
-function renderPagina(rol: RolMock = "empleado") {
-  servidor.use(...manejadoresHotelesPara(rol));
+function renderPagina(rol: RolMock = "empleado", ...propios: RequestHandler[]) {
+  // `use` antepone: en la lista van primero los propios del test y después los del rol.
+  servidor.use(...propios, ...manejadoresHotelesPara(rol));
   return render(
     <QueryClientProvider
       client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}
@@ -133,7 +134,8 @@ describe("RF-106 búsqueda de hoteles", () => {
     const cabanas = await tarjeta("Cabañas del Nahuel");
 
     expect(cabanas.getByText(/sin reseñas/i)).toBeInTheDocument();
-    expect(cabanas.queryByText(/\d,\d/)).not.toBeInTheDocument();
+    // Solo se descarta un puntaje tipo «4,5»; el precio («$ 60.000,00») sí lleva coma.
+    expect(cabanas.queryByText(/^\d,\d$/)).not.toBeInTheDocument();
   });
 
   it("RF-106 aclara que el puntaje es el promedio de las reseñas de los clientes", async () => {
@@ -325,8 +327,7 @@ describe("RF-106 búsqueda de hoteles", () => {
 
   it("RF-106 cada cambio de filtro vuelve a la primera página", async () => {
     const pedidos: URLSearchParams[] = [];
-    servidor.use(paginaFija(45, pedidos));
-    renderPagina();
+    renderPagina("empleado", paginaFija(45, pedidos));
     const usuario = userEvent.setup();
     await llaoLlao();
     await usuario.click(screen.getByRole("button", { name: /siguiente/i }));
@@ -344,8 +345,7 @@ describe("RF-106 búsqueda de hoteles", () => {
 
   it("RF-106 pagina: Siguiente pide la página 2 y Anterior vuelve a la 1", async () => {
     const pedidos: URLSearchParams[] = [];
-    servidor.use(paginaFija(45, pedidos));
-    renderPagina();
+    renderPagina("empleado", paginaFija(45, pedidos));
     const usuario = userEvent.setup();
     await llaoLlao();
     expect(screen.getByRole("button", { name: /anterior/i })).toBeDisabled();
@@ -369,20 +369,22 @@ describe("RF-106 búsqueda de hoteles", () => {
   });
 
   it("RF-106 muestra un estado de carga mientras llega el catálogo", async () => {
-    servidor.use(
+    renderPagina(
+      "empleado",
       http.get("*/api/hoteles", async () => {
         await delay("infinite");
         return HttpResponse.json({});
       }),
     );
-    renderPagina();
 
     expect(await screen.findByRole("status")).toHaveTextContent(/cargando hoteles/i);
   });
 
   it("RF-106 muestra un error cuando la API falla", async () => {
-    servidor.use(http.get("*/api/hoteles", () => new HttpResponse(null, { status: 500 })));
-    renderPagina();
+    renderPagina(
+      "empleado",
+      http.get("*/api/hoteles", () => new HttpResponse(null, { status: 500 })),
+    );
 
     expect(await screen.findByRole("alert")).toHaveTextContent(/no pudimos cargar los hoteles/i);
   });
@@ -474,7 +476,8 @@ describe("RF-110 sin resultados", () => {
   });
 
   it("RF-110 el botón de alta sale de lo que dice la API (puede_dar_de_alta), no del rol", async () => {
-    servidor.use(
+    renderPagina(
+      "admin",
       http.get("*/api/hoteles", () =>
         HttpResponse.json({
           items: [],
@@ -485,7 +488,6 @@ describe("RF-110 sin resultados", () => {
         }),
       ),
     );
-    renderPagina("admin");
 
     await screen.findByText(/no encontramos hoteles con esos filtros/i);
     expect(screen.queryByRole("link", { name: /dar de alta un hotel/i })).not.toBeInTheDocument();
