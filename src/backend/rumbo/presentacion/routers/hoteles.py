@@ -1,5 +1,5 @@
-"""Rutas del módulo hoteles (CU-16, CU-17, CU-18, CU-29). La búsqueda y el listado, la baja lógica,
-la restauración y la eliminación de reseñas responden 501 hasta su backend."""
+"""Rutas del módulo hoteles (CU-16, CU-17, CU-18, CU-29). La búsqueda y el listado de hoteles y
+de reseñas responden 501 hasta su backend."""
 
 import uuid
 from typing import Annotated, Any, Literal
@@ -214,9 +214,12 @@ async def editar_resena(
     summary="Eliminar una reseña (baja lógica)",
     **operacion(GESTION, "CU-29", 404, 409, 422),
 )
-async def ocultar_resena(resena_id: uuid.UUID, datos: ResenaOcultar) -> Resena:
+async def ocultar_resena(
+    resena_id: uuid.UUID, datos: ResenaOcultar, actor: ActorDep, sesion: SesionDep
+) -> Resena:
     """La reseña pasa a `oculta` y deja de contar para la recomendación."""
-    raise no_implementado()
+    resena = await resenas.ocultar_resena(sesion, actor, resena_id, datos.motivo_baja)
+    return Resena.model_validate(resena)
 
 
 @router.post(
@@ -225,8 +228,9 @@ async def ocultar_resena(resena_id: uuid.UUID, datos: ResenaOcultar) -> Resena:
     summary="Restaurar una reseña oculta",
     **operacion(GESTION, "CU-29", 404, 409),
 )
-async def restaurar_resena(resena_id: uuid.UUID) -> Resena:
-    raise no_implementado()
+async def restaurar_resena(resena_id: uuid.UUID, actor: ActorDep, sesion: SesionDep) -> Resena:
+    resena = await resenas.restaurar_resena(sesion, actor, resena_id)
+    return Resena.model_validate(resena)
 
 
 @router.delete(
@@ -236,6 +240,6 @@ async def restaurar_resena(resena_id: uuid.UUID) -> Resena:
     status_code=204,
     **operacion(GESTION, "CU-29", 404, 409),
 )
-async def eliminar_resena(resena_id: uuid.UUID) -> None:
-    """Solo si no rompe la integridad referencial; por defecto se oculta (CU-29 A2)."""
-    raise no_implementado()
+async def eliminar_resena(resena_id: uuid.UUID, actor: ActorDep, sesion: SesionDep) -> None:
+    """Solo una reseña ya `oculta`; por defecto se oculta, no se borra (CU-29 A2)."""
+    await resenas.eliminar_resena(sesion, actor, resena_id)
