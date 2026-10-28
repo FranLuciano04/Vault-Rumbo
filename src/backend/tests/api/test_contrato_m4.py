@@ -9,6 +9,9 @@ from typing import Any
 
 import pytest
 from httpx import AsyncClient
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from tests.fabricas import ClienteFactory, crear
 
 PROBLEM_JSON = "application/problem+json"
 ID = "0b8f7a52-4c1e-4f0a-9a57-1d2f6c3b7a01"
@@ -146,9 +149,11 @@ OPERACIONES: list[tuple[str, str, str, Any, str, set[str]]] = [
         {"403", "404", "409"},
     ),
 ]
-# Las que todavía responden 501 (listar, ver y editar oportunidades se implementaron en T-063;
-# las acciones de estado en T-064; emitir cotizaciones en T-066; listarlas en T-072).
+# Las que todavía responden 501 (registrar la consulta se implementó en T-062; listar, ver y
+# editar oportunidades en T-063; las acciones de estado en T-064; emitir cotizaciones en T-066;
+# listarlas en T-072).
 IMPLEMENTADAS = {
+    ("post", "/api/oportunidades"),
     ("get", "/api/oportunidades"),
     ("get", "/api/oportunidades/{oportunidad_id}"),
     ("patch", "/api/oportunidades/{oportunidad_id}"),
@@ -653,14 +658,16 @@ async def test_cu04_fechas_tentativas_invertidas_responden_422(
         {**CREAR, "fecha_desde_tentativa": "2027-03-05"},
     ],
 )
-async def test_cu04_fechas_tentativas_iguales_o_incompletas_al_crear_llegan_al_501(
-    cliente_como: FabricaCliente, cuerpo: dict[str, Any]
+async def test_cu04_fechas_tentativas_iguales_o_incompletas_al_crear_pasan_el_esquema(
+    cliente_como: FabricaCliente, sesion: AsyncSession, cuerpo: dict[str, Any]
 ) -> None:
+    """El esquema las acepta: con un cliente existente la consulta se registra."""
     c = await cliente_como("empleado")
+    cliente = await crear(sesion, ClienteFactory)
 
-    r = await c.post("/api/oportunidades", json=cuerpo)
+    r = await c.post("/api/oportunidades", json={**cuerpo, "cliente_id": str(cliente.id)})
 
-    assert r.status_code == 501
+    assert r.status_code == 201, r.text
 
 
 @pytest.mark.parametrize(
