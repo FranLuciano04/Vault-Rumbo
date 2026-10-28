@@ -3,7 +3,7 @@ id: T-082
 titulo: Mostrar el detalle del hotel con sus reseñas en la web
 modulo: M5 — Hoteles y reseñas
 capa: web
-estado: libre
+estado: tomado
 depende_de: [T-080]
 tamaño: M
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [CU-18, CU-29, RF-108, RF-111, RF-112]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: Nahuel Viniegra
+tomado_el: 28/10/26 15:55
+rama: feature/T-082-mostrar-el-detalle-del-hotel-con-sus-res
 pr:
 ---
 # T-082 Mostrar el detalle del hotel con sus reseñas en la web
