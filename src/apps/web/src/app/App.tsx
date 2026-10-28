@@ -10,9 +10,11 @@ import { SeccionClientes } from "./SeccionClientes";
 import { SeccionConfiguracion } from "./SeccionConfiguracion";
 import { SeccionFichaCliente } from "./SeccionFichaCliente";
 import { SeccionDetalleHotel } from "./SeccionDetalleHotel";
+import { SeccionEditarHotel } from "./SeccionEditarHotel";
 import { SeccionHoteles } from "./SeccionHoteles";
 import { SeccionNuevaConsulta } from "./SeccionNuevaConsulta";
 import { SeccionNuevoCliente } from "./SeccionNuevoCliente";
+import { SeccionNuevoHotel } from "./SeccionNuevoHotel";
 import { SeccionCotizaciones } from "./SeccionCotizaciones";
 import { SeccionDetalleOportunidad } from "./SeccionDetalleOportunidad";
 import { SeccionOportunidades } from "./SeccionOportunidades";
@@ -33,6 +35,8 @@ export function App({ cliente }: { cliente: AxiosInstance }) {
             <Route path="clientes/nuevo" element={<SeccionNuevoCliente cliente={cliente} />} />
             <Route path="clientes/:id" element={<SeccionFichaCliente cliente={cliente} />} />
             <Route path="hoteles" element={<SeccionHoteles cliente={cliente} />} />
+            <Route path="hoteles/nuevo" element={<SeccionNuevoHotel cliente={cliente} />} />
+            <Route path="hoteles/:id/editar" element={<SeccionEditarHotel cliente={cliente} />} />
             <Route path="hoteles/:hotelId" element={<SeccionDetalleHotel cliente={cliente} />} />
             <Route path="oportunidades" element={<SeccionOportunidades cliente={cliente} />} />
             <Route
