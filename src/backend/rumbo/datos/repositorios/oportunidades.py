@@ -2,7 +2,7 @@
 
 import uuid
 
-from sqlalchemy import func, select
+from sqlalchemy import exists, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from rumbo.core.errores import NoEncontrado
@@ -51,6 +51,22 @@ class RepositorioOportunidades(RepositorioBase[Oportunidad]):
         if oportunidad is None:
             raise NoEncontrado(f"Oportunidad {id} no encontrada")
         return oportunidad
+
+    async def existe_de_cliente(
+        self, sesion: AsyncSession, *, cliente_id: uuid.UUID, destino_consultado: str
+    ) -> bool:
+        """Si el `Cliente` ya tiene una oportunidad por ese destino, de cualquier estado. Sin
+        filtro de visibilidad: solo para semillas."""
+        return bool(
+            await sesion.scalar(
+                select(
+                    exists().where(
+                        Oportunidad.cliente_id == cliente_id,
+                        Oportunidad.destino_consultado == destino_consultado,
+                    )
+                )
+            )
+        )
 
 
 class RepositorioCotizaciones(RepositorioBase[Cotizacion]):
