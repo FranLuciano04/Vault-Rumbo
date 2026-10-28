@@ -33,6 +33,14 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
+## 28/10/26 — Nahuel (Claude Opus 5.5) — T-082: detalle del hotel con reseñas en la web
+- **Hecho:** T-082 (PR [#127](https://github.com/FranLuciano04/Vault-Rumbo/pull/127), mergeado con el CI en verde).
+  - Ruta `/hoteles/:hotelId` con datos, estado, destino, puntaje y reseñas paginadas.
+  - Admin y dueño ocultan con motivo y restauran. Freelance y empleado lo ven en solo lectura.
+  - La review de Opus marcó 2 importantes (paginación y estado del hotel) y 5 menores, todos arreglados.
+- **Commits:** 80e48d8, 6d69f3b, 2f2186e, 86b7ba8, 4739374.
+- **Pendiente:** detalles de diseño de las pantallas 24 y 45, anotados en el ticket (pestañas Publicadas/Ocultas, cliente y viaje de cada reseña). En M5 quedan T-081, T-083, T-084 y T-085.
+
 ## 28/10/26 — Paloma (Claude Opus 5.5) — T-167: consulta sin destino ni pasajeros
 - **Hecho:** T-167 (PR [#126](https://github.com/FranLuciano04/Vault-Rumbo/pull/126), mergeado con el CI en verde).
   - `destino_consultado` y `pasajeros` son opcionales al crear. Al editar se pueden completar, pero no vaciar.
