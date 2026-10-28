@@ -2,6 +2,7 @@ import { crearCliente } from "@rumbo/shared";
 import {
   crearServidor,
   destinosMock,
+  hotelesMock,
   idOportunidadMock,
   manejadoresHotelesPara,
   manejadoresM1,
@@ -28,6 +29,7 @@ beforeAll(() => {
 });
 afterEach(() => {
   servidor.resetHandlers();
+  servidor.events.removeAllListeners();
 });
 afterAll(() => {
   servidor.close();
@@ -56,7 +58,9 @@ function espiar(pedidos: URLSearchParams[]) {
 }
 
 /** El POST de emisión: guarda el cuerpo y responde una cotización con esos mismos ítems. */
-function emisionQueEco(cuerpos: { moneda: string; items: { concepto: string; precio: string }[] }[]) {
+function emisionQueEco(
+  cuerpos: { moneda: string; items: { concepto: string; precio: string }[] }[],
+) {
   return http.post("*/api/oportunidades/:id/cotizaciones", async ({ request }) => {
     const cuerpo = (await request.json()) as (typeof cuerpos)[number];
     cuerpos.push(cuerpo);
@@ -79,7 +83,7 @@ function emisionQueEco(cuerpos: { moneda: string; items: { concepto: string; pre
   });
 }
 
-function renderCotizaciones(oportunidadId = enGestion) {
+function renderCotizaciones(oportunidadId: string = enGestion) {
   return render(
     <QueryClientProvider
       client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}
@@ -212,8 +216,8 @@ describe("RF-106 recomendación en la cotización", () => {
         const params = new URL(request.url).searchParams;
         const vacio = params.has("destino_id");
         return HttpResponse.json({
-          items: vacio ? [] : [],
-          total: 0,
+          items: vacio ? [] : hotelesMock.slice(0, 1),
+          total: vacio ? 0 : 1,
           pagina: 1,
           por_pagina: 20,
           alternativas: vacio
@@ -232,6 +236,11 @@ describe("RF-106 recomendación en la cotización", () => {
     await waitFor(() => {
       expect(pedidos.at(-1)?.has("destino_id")).toBe(false);
     });
+    expect(
+      await screen.findByRole("heading", { name: hotelesMock[0]?.nombre }),
+    ).toBeInTheDocument();
+    // Dentro de la cotización no se ofrece el alta: se perdería el formulario.
+    expect(screen.queryByRole("link", { name: /dar de alta/i })).not.toBeInTheDocument();
   });
 
   it("RF-106 una oportunidad sin destino (DEC-0023) busca en todo el catálogo, sin filtrar por destino", async () => {
@@ -260,6 +269,64 @@ describe("RF-106 recomendación en la cotización", () => {
 
     expect(await screen.findByText(/no pudimos cargar los hoteles/i)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /generar documento/i })).toBeEnabled();
+  });
+
+  it("RF-106 en USD el hotel se suma sin precio: la referencia es en ARS", async () => {
+    servidor.use(conDestino("Bariloche"));
+    const u = userEvent.setup();
+    renderCotizaciones();
+    await screen.findByRole("button", { name: /buscar hoteles/i });
+    await u.click(screen.getByRole("radio", { name: "USD" }));
+    await u.click(await abrirBuscador());
+
+    await u.click(await screen.findByRole("button", { name: /agregar hotel llao llao/i }));
+
+    expect(screen.getByRole("textbox", { name: "Precio" })).toHaveValue("");
+    const total = screen.getByText(/total calculado/i).parentElement as HTMLElement;
+    expect(total).not.toHaveTextContent("150.000");
+  });
+
+  it("RF-106 avisa si el destino de la oportunidad no está en el catálogo y busca sin filtrarlo", async () => {
+    const pedidos: URLSearchParams[] = [];
+    espiar(pedidos);
+    servidor.use(conDestino("Atlantis"));
+    const u = userEvent.setup();
+    renderCotizaciones();
+
+    await u.click(await abrirBuscador());
+
+    expect(await screen.findByText(/no encontramos «atlantis»/i)).toBeInTheDocument();
+    await screen.findByRole("list", { name: /hoteles encontrados/i });
+    expect(pedidos.at(-1)?.has("destino_id")).toBe(false);
+  });
+
+  it("RF-106 pagina los resultados del catálogo", async () => {
+    const pedidos: URLSearchParams[] = [];
+    espiar(pedidos);
+    servidor.use(
+      conDestino("Bariloche"),
+      http.get("*/api/hoteles", ({ request }) => {
+        const pagina = Number(new URL(request.url).searchParams.get("pagina") ?? 1);
+        return HttpResponse.json({
+          items: hotelesMock.slice(0, 1),
+          total: 40,
+          pagina,
+          por_pagina: 20,
+          alternativas: null,
+        });
+      }),
+    );
+    const u = userEvent.setup();
+    renderCotizaciones();
+    await u.click(await abrirBuscador());
+
+    expect(await screen.findByText(/página 1 de 2/i)).toBeInTheDocument();
+    await u.click(screen.getByRole("button", { name: /siguiente/i }));
+
+    await waitFor(() => {
+      expect(pedidos.at(-1)?.get("pagina")).toBe("2");
+    });
+    expect(await screen.findByText(/página 2 de 2/i)).toBeInTheDocument();
   });
 
   it("RF-106 sobre una oportunidad ganada no se ofrece el buscador", async () => {

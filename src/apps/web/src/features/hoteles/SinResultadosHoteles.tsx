@@ -16,10 +16,13 @@ export function SinResultadosHoteles({
   alternativas,
   alQuitar,
   alLimpiar,
+  permitirAlta = true,
 }: {
   alternativas?: AlternativasHoteles | null;
   alQuitar: (filtro: FiltroAmpliable) => void;
   alLimpiar: () => void;
+  /** Falso donde dar de alta sacaría al usuario de lo que está haciendo (p. ej. una cotización). */
+  permitirAlta?: boolean;
 }) {
   return (
     <div className="flex flex-col items-start gap-3 rounded-2xl border bg-card p-6">
@@ -41,7 +44,7 @@ export function SinResultadosHoteles({
                 Quitar filtro: {ETIQUETA_FILTRO[filtro]}
               </Button>
             ))}
-            {alternativas.puede_dar_de_alta && (
+            {permitirAlta && alternativas.puede_dar_de_alta && (
               <Link to="/hoteles/nuevo" className={variantesBoton()}>
                 Dar de alta un hotel
               </Link>

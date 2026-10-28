@@ -16,6 +16,7 @@ export const esquemaCotizacion = z.object({
         precio: z.string().trim().regex(IMPORTE, "Ingresá un importe válido."),
         /** Hotel del catálogo del que salió el ítem (RF-106); no viaja a la API. */
         hotel_id: z.string().optional(),
+        hotel_nombre: z.string().optional(),
       }),
     )
     .min(1, "Cargá al menos un ítem."),

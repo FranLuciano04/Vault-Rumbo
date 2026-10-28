@@ -3,6 +3,7 @@ import { useDestinos, useHoteles } from "@rumbo/shared/hooks";
 import type { AxiosInstance } from "axios";
 import { Plus } from "lucide-react";
 import { useState } from "react";
+import { PaginadorResenas } from "../../hoteles/PaginadorResenas";
 import { SinResultadosHoteles, type FiltroAmpliable } from "../../hoteles/SinResultadosHoteles";
 import { TarjetaHotel } from "../../hoteles/TarjetaHotel";
 import { Button } from "@/components/ui/button";
@@ -44,32 +45,44 @@ function ResultadosHoteles({
         alLimpiar={() => {
           setFiltros({ pagina: 1, orden: "valoracion" });
         }}
+        permitirAlta={false}
       />
     );
   }
   return (
-    <ul aria-label="Hoteles encontrados" className="grid grid-cols-1 gap-3 md:grid-cols-2">
-      {data.items.map((hotel) => (
-        <TarjetaHotel
-          key={hotel.id}
-          hotel={hotel}
-          accion={
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              aria-label={`Agregar ${hotel.nombre}`}
-              disabled={elegidos.includes(hotel.id)}
-              onClick={() => {
-                alElegir(hotel);
-              }}
-            >
-              <Plus aria-hidden="true" /> {elegidos.includes(hotel.id) ? "Agregado" : "Agregar"}
-            </Button>
-          }
-        />
-      ))}
-    </ul>
+    <div className="space-y-3">
+      <ul aria-label="Hoteles encontrados" className="grid grid-cols-1 gap-3 md:grid-cols-2">
+        {data.items.map((hotel) => (
+          <TarjetaHotel
+            key={hotel.id}
+            hotel={hotel}
+            accion={
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                aria-label={`Agregar ${hotel.nombre}`}
+                disabled={elegidos.includes(hotel.id)}
+                onClick={() => {
+                  alElegir(hotel);
+                }}
+              >
+                <Plus aria-hidden="true" /> {elegidos.includes(hotel.id) ? "Agregado" : "Agregar"}
+              </Button>
+            }
+          />
+        ))}
+      </ul>
+      <PaginadorResenas
+        etiqueta="Paginación de hoteles"
+        pagina={filtros.pagina ?? 1}
+        total={data.total}
+        porPagina={data.por_pagina}
+        alCambiar={(pagina) => {
+          setFiltros((f) => ({ ...f, pagina }));
+        }}
+      />
+    </div>
   );
 }
 
@@ -88,18 +101,26 @@ export function BuscadorHoteles({
   elegidos: readonly string[];
   alElegir: (hotel: Hotel) => void;
 }) {
-  const destinos = useDestinos(cliente, { por_pagina: 100 });
-  // Con el catálogo de destinos todavía cargando se espera; si falla, se busca sin destino.
+  const destinos = useDestinos(cliente, { buscar: destinoConsultado ?? undefined });
+  // Con la búsqueda de destinos todavía cargando se espera; si falla, se busca sin destino.
   if (destinos.isPending) return <p role="status">Cargando hoteles…</p>;
   const destino = destinoConsultado
     ? destinos.data?.items.find((d) => sinAcentos(d.nombre) === sinAcentos(destinoConsultado))
     : undefined;
   return (
-    <ResultadosHoteles
-      cliente={cliente}
-      destinoId={destino?.id}
-      elegidos={elegidos}
-      alElegir={alElegir}
-    />
+    <div className="space-y-3">
+      {destinoConsultado && !destino && (
+        <p role="note" className="text-sm text-muted-foreground">
+          No encontramos «{destinoConsultado}» en el catálogo de destinos; mostramos todos los
+          hoteles.
+        </p>
+      )}
+      <ResultadosHoteles
+        cliente={cliente}
+        destinoId={destino?.id}
+        elegidos={elegidos}
+        alElegir={alElegir}
+      />
+    </div>
   );
 }

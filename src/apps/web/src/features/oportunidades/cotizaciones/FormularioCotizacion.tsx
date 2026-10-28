@@ -57,15 +57,18 @@ export function FormularioCotizacion({
   const total = sumarImportes(items.map((item) => item.precio));
 
   const elegidos = items.flatMap((item, i) =>
-    item.hotel_id ? [{ posicion: i, hotelId: item.hotel_id, concepto: item.concepto }] : [],
+    item.hotel_id ? [{ posicion: i, hotelId: item.hotel_id, nombre: item.hotel_nombre }] : [],
   );
 
-  // El hotel entra como ítem (concepto = nombre, precio = referencia, editables); una fila vacía se aprovecha.
+  // El hotel entra como ítem editable; una fila vacía se aprovecha. La referencia del catálogo es en
+  // ARS por noche: en USD el precio lo carga el empleado, para no sumar pesos a una cotización en dólares.
   function elegirHotel(hotel: Hotel) {
+    const enPesos = moneda === "ARS" && hotel.precio_referencia;
     const item = {
-      concepto: hotel.nombre,
-      precio: hotel.precio_referencia?.replace(".", ",") ?? "",
+      concepto: enPesos ? `${hotel.nombre} (ref. por noche)` : hotel.nombre,
+      precio: enPesos ? (hotel.precio_referencia?.replace(".", ",") ?? "") : "",
       hotel_id: hotel.id,
+      hotel_nombre: hotel.nombre,
     };
     const vacia = items.findIndex((i) => !i.concepto.trim() && !i.precio.trim());
     if (vacia >= 0) update(vacia, item);
@@ -182,12 +185,12 @@ export function FormularioCotizacion({
           {elegidos.map((e) => (
             <li key={e.hotelId} className="flex items-center gap-2 text-sm">
               <IconoHotel aria-hidden="true" className="size-4" />
-              <span>{e.concepto}</span>
+              <span>{e.nombre}</span>
               <Button
                 type="button"
                 variant="ghost"
                 size="sm"
-                aria-label={`Quitar ${e.concepto}`}
+                aria-label={`Quitar ${e.nombre ?? "hotel"}`}
                 onClick={() => {
                   quitarItem(e.posicion);
                 }}
