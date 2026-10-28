@@ -3,7 +3,7 @@ id: T-075
 titulo: Publicar el contrato de hoteles y reseñas
 modulo: M5 — Hoteles y reseñas
 capa: contrato
-estado: libre
+estado: tomado
 depende_de: [T-015]
 tamaño: S
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [CU-16, CU-17, CU-18, CU-29, RF-105, DEC-0003]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: FranLucianoo
+tomado_el: 28/10/26 09:02
+rama: feature/T-075-publicar-el-contrato-de-hoteles-y-resena
 pr:
 ---
 # T-075 Publicar el contrato de hoteles y reseñas

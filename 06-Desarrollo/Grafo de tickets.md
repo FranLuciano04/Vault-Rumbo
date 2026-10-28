@@ -15,11 +15,11 @@ tags:: #tipo/referencia
 | Módulo | Tickets | Hechos | Tomados | Disponibles | Esperando | Bloqueados | Estado del módulo |
 |---|---|---|---|---|---|---|---|
 | M0 — Fundaciones | 38 | 38 | 0 | 0 | 0 | 0 | ✅ cerrado |
-| M1 — Usuarios y configuración | 19 | 19 | 0 | 0 | 0 | 0 | ✅ cerrado |
-| M2 — Clientes | 15 | 15 | 0 | 0 | 0 | 0 | ✅ cerrado |
-| M3 — Alertas | 14 | 14 | 0 | 0 | 0 | 0 | ✅ cerrado |
+| M1 — Usuarios y configuración | 19 | 19 | 0 | 0 | 0 | 0 | 🔍 listo para la review |
+| M2 — Clientes | 15 | 15 | 0 | 0 | 0 | 0 | 🔍 listo para la review |
+| M3 — Alertas | 14 | 14 | 0 | 0 | 0 | 0 | 🔍 listo para la review |
 | M4 — Oportunidades y cotizaciones | 14 | 11 | 1 | 1 | 1 | 0 | 🛠️ en curso |
-| M5 — Hoteles y reseñas | 11 | 0 | 0 | 1 | 10 | 0 | 🛠️ en curso |
+| M5 — Hoteles y reseñas | 11 | 0 | 1 | 0 | 10 | 0 | 🛠️ en curso |
 | M6 — Viajes y economía | 24 | 1 | 0 | 4 | 19 | 0 | 🛠️ en curso |
 | M7 — Proceso diario y CRM proactivo | 9 | 0 | 0 | 3 | 6 | 0 | 🛠️ en curso |
 | M8 — Calendario, dashboard y reportes | 10 | 0 | 0 | 1 | 9 | 0 | 🛠️ en curso |
@@ -143,7 +143,7 @@ flowchart LR
     T074["T-074 · Probar de punta a punta el embudo con cotización<br/><small>e2e</small>"]:::esperando
   end
   subgraph M5["M5 — Hoteles y reseñas"]
-    T075["T-075 · Publicar el contrato de hoteles y reseñas<br/><small>contrato</small>"]:::disponible
+    T075["T-075 · Publicar el contrato de hoteles y reseñas<br/><small>contrato</small><br/>👤 FranLucianoo"]:::tomado
     T076["T-076 · Gestionar los hoteles del catálogo<br/><small>backend</small>"]:::esperando
     T077["T-077 · Buscar hoteles ordenados por su puntaje<br/><small>backend</small>"]:::esperando
     T078["T-078 · Registrar las reseñas de un hotel<br/><small>backend</small>"]:::esperando
