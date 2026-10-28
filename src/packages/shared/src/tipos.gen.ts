@@ -2400,9 +2400,13 @@ export interface components {
              */
             destino_id?: string;
             /** Categoria */
-            categoria?: string | null;
-            /** Precio Referencia */
-            precio_referencia?: string | null;
+            categoria?: string;
+            /**
+             * Precio Referencia
+             * Format: decimal
+             * @example 1000000.00
+             */
+            precio_referencia?: string;
             /** Servicios */
             servicios?: string[];
         };

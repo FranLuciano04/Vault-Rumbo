@@ -1,11 +1,17 @@
-"""Rutas del módulo hoteles (CU-16, CU-17, CU-18, CU-29). Stubs: responden 501 hasta su backend."""
+"""Rutas del módulo hoteles (CU-16, CU-17, CU-18, CU-29). La búsqueda y las reseñas responden 501
+hasta su backend."""
 
 import uuid
 from typing import Annotated, Any, Literal
 
 from fastapi import APIRouter, Depends, Query
 
+from rumbo.core.db import SesionDep
+from rumbo.datos import modelos
 from rumbo.datos.modelos import EstadoHotel, EstadoResena, RolUsuario
+from rumbo.negocio.errores import HotelDuplicado
+from rumbo.negocio.servicios import hoteles
+from rumbo.negocio.servicios.hoteles import HotelConResenas
 from rumbo.presentacion.contrato import (
     GESTION,
     TODOS,
@@ -13,11 +19,13 @@ from rumbo.presentacion.contrato import (
     operacion,
     respuesta_pagina,
 )
+from rumbo.presentacion.dependencias import usuario_actual
 from rumbo.presentacion.esquemas.comunes import Importe
 from rumbo.presentacion.esquemas.hoteles import (
     Hotel,
     HotelCrear,
     HotelEditar,
+    HotelExistente,
     ProblemaHotelDuplicado,
     Resena,
     ResenaCrear,
@@ -28,6 +36,7 @@ from rumbo.presentacion.paginacion import Pagina, ParametrosPagina, parametros_p
 
 router = APIRouter(tags=["hoteles"])
 
+ActorDep = Annotated[modelos.Usuario, Depends(usuario_actual)]
 PaginaDep = Annotated[ParametrosPagina, Depends(parametros_pagina)]
 
 # El catálogo es compartido: lo gestionan todos menos el freelance, que solo consulta (DEC-0008).
@@ -41,6 +50,17 @@ def _con_duplicado(operacion_hotel: dict[str, Any]) -> dict[str, Any]:
         "description": "Ya existe un hotel con ese nombre en el destino (CU-16 A2).",
     }
     return operacion_hotel
+
+
+def _con_existente(error: HotelDuplicado) -> HotelDuplicado:
+    """Vuelca el hotel que ya existe en el `409`, para ofrecer abrirlo."""
+    existente = error.existente
+    error.extra = {"existente": HotelExistente(id=existente.id, nombre=existente.nombre)}
+    return error
+
+
+def _hotel(resultado: HotelConResenas) -> Hotel:
+    return Hotel.desde_modelo(*resultado)
 
 
 _LISTADO_HOTELES = operacion(TODOS, "CU-18", 422)
@@ -94,8 +114,11 @@ async def listar_hoteles(
     status_code=201,
     **_con_duplicado(operacion(CATALOGO, "CU-16", 409, 422)),
 )
-async def crear_hotel(datos: HotelCrear) -> Hotel:
-    raise no_implementado()
+async def crear_hotel(datos: HotelCrear, actor: ActorDep, sesion: SesionDep) -> Hotel:
+    try:
+        return _hotel(await hoteles.crear_hotel(sesion, actor, **datos.model_dump()))
+    except HotelDuplicado as error:
+        raise _con_existente(error) from None
 
 
 @router.get(
@@ -104,8 +127,8 @@ async def crear_hotel(datos: HotelCrear) -> Hotel:
     summary="Ver un hotel",
     **operacion(TODOS, "CU-18", 404),
 )
-async def obtener_hotel(hotel_id: uuid.UUID) -> Hotel:
-    raise no_implementado()
+async def obtener_hotel(hotel_id: uuid.UUID, actor: ActorDep, sesion: SesionDep) -> Hotel:
+    return _hotel(await hoteles.obtener_hotel(sesion, actor, hotel_id))
 
 
 @router.patch(
@@ -114,8 +137,16 @@ async def obtener_hotel(hotel_id: uuid.UUID) -> Hotel:
     summary="Editar un hotel",
     **_con_duplicado(operacion(CATALOGO, "CU-16", 404, 409, 422)),
 )
-async def editar_hotel(hotel_id: uuid.UUID, cambios: HotelEditar) -> Hotel:
-    raise no_implementado()
+async def editar_hotel(
+    hotel_id: uuid.UUID, cambios: HotelEditar, actor: ActorDep, sesion: SesionDep
+) -> Hotel:
+    try:
+        resultado = await hoteles.editar_hotel(
+            sesion, actor, hotel_id, cambios.model_dump(exclude_unset=True)
+        )
+    except HotelDuplicado as error:
+        raise _con_existente(error) from None
+    return _hotel(resultado)
 
 
 @router.post(
@@ -124,9 +155,9 @@ async def editar_hotel(hotel_id: uuid.UUID, cambios: HotelEditar) -> Hotel:
     summary="Dar de baja un hotel que cerró",
     **operacion(CATALOGO, "CU-16", 404, 409),
 )
-async def dar_de_baja_hotel(hotel_id: uuid.UUID) -> Hotel:
+async def dar_de_baja_hotel(hotel_id: uuid.UUID, actor: ActorDep, sesion: SesionDep) -> Hotel:
     """Baja lógica: el hotel pasa a `cerrado` y conserva su historial."""
-    raise no_implementado()
+    return _hotel(await hoteles.dar_de_baja_hotel(sesion, actor, hotel_id))
 
 
 @router.get(

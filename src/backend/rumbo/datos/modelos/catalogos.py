@@ -99,7 +99,20 @@ class Hotel(IdMixin, AuditoriaMixin, Base):
 
     destino_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("destino.id"))
     nombre: Mapped[str] = mapped_column(String(120))
-    categoria: Mapped[str] = mapped_column(String(40))  # estrellas o tipo
-    precio_referencia: Mapped[Decimal]  # por noche
-    servicios: Mapped[str] = mapped_column(Text)  # amenities filtrables
+    categoria: Mapped[str | None] = mapped_column(String(40))  # estrellas o tipo
+    precio_referencia: Mapped[Decimal | None]  # por noche
+    # Amenities filtrables, separadas por coma (`wifi, pileta`); vacío si no se informaron.
+    servicios: Mapped[str] = mapped_column(Text, server_default=text("''"))
     estado: Mapped[EstadoHotel] = mapped_column(server_default=text("'activo'"))
+
+    @property
+    def lista_servicios(self) -> list[str]:
+        """Los `servicios` como lista, sin vacíos."""
+        return [servicio.strip() for servicio in self.servicios.split(",") if servicio.strip()]
+
+    @staticmethod
+    def texto_de_servicios(servicios: list[str]) -> str:
+        """Formato interno de `servicios`: separados por coma. Una coma dentro de un servicio lo
+        parte en dos; los vacíos se descartan."""
+        partes = (parte.strip() for servicio in servicios for parte in servicio.split(","))
+        return ", ".join(parte for parte in partes if parte)

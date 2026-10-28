@@ -3,10 +3,12 @@ RF-105, DEC-0003)."""
 
 import uuid
 from datetime import date
+from decimal import Decimal
 
 from pydantic import BaseModel, ConfigDict, Field
 from pydantic.json_schema import JsonDict
 
+from rumbo.datos import modelos
 from rumbo.datos.modelos import EstadoHotel, EstadoResena
 from rumbo.presentacion.esquemas.comunes import (
     Auditoria,
@@ -46,6 +48,19 @@ class Hotel(Auditoria):
 
     model_config = ConfigDict(from_attributes=True, json_schema_extra=componer_con_auditoria)
 
+    @classmethod
+    def desde_modelo(
+        cls, hotel: modelos.Hotel, puntaje_promedio: Decimal | None, cantidad_resenas: int
+    ) -> "Hotel":
+        """El hotel con su resumen de reseñas; `servicios` sale como lista."""
+        calculados = {"servicios", "puntaje_promedio", "cantidad_resenas"}
+        return cls(
+            **{n: getattr(hotel, n) for n in cls.model_fields if n not in calculados},
+            servicios=hotel.lista_servicios,
+            puntaje_promedio=puntaje_promedio,
+            cantidad_resenas=cantidad_resenas,
+        )
+
 
 class HotelCrear(Entrada):
     """Alta en el catálogo (CU-16). Un nombre repetido en el mismo destino responde `409`."""
@@ -60,8 +75,8 @@ class HotelCrear(Entrada):
 class HotelEditar(Edicion):
     nombre: str = omitible(min_length=1, max_length=120)
     destino_id: uuid.UUID = omitible()
-    categoria: str | None = Field(default=None, max_length=40)
-    precio_referencia: Importe | None = None
+    categoria: str = omitible(max_length=40)
+    precio_referencia: Importe = omitible()
     servicios: list[str] = omitible()
 
 

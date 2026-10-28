@@ -10223,32 +10223,18 @@
             "title": "Destino Id"
           },
           "categoria": {
-            "anyOf": [
-              {
-                "type": "string",
-                "maxLength": 40
-              },
-              {
-                "type": "null"
-              }
-            ],
+            "type": "string",
+            "maxLength": 40,
             "title": "Categoria"
           },
           "precio_referencia": {
-            "anyOf": [
-              {
-                "type": "string",
-                "pattern": "^\\d+(\\.\\d{1,4})?$",
-                "format": "decimal",
-                "examples": [
-                  "1000000.00"
-                ]
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Precio Referencia"
+            "type": "string",
+            "pattern": "^\\d+(\\.\\d{1,4})?$",
+            "format": "decimal",
+            "title": "Precio Referencia",
+            "examples": [
+              "1000000.00"
+            ]
           },
           "servicios": {
             "items": {
