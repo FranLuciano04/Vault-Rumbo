@@ -1,4 +1,4 @@
-"""T-063: embudo de oportunidades, detalle y edición de datos y notas (CU-05, RF-016, RF-151)."""
+"""T-062: registrar consulta (CU-04). T-063: embudo, detalle y edición (CU-05, RF-016, RF-151)."""
 
 from collections.abc import Awaitable, Callable
 from datetime import date
@@ -7,6 +7,7 @@ from uuid import UUID, uuid4
 
 import pytest
 from httpx import AsyncClient
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from rumbo.datos.modelos import EstadoOportunidad, Oportunidad
@@ -556,3 +557,196 @@ async def test_rf016_responsable_que_manda_su_propio_responsable_id_edita_200(
     await sesion.refresh(op)
     assert op.notas == "x"
     assert op.responsable_id == yo
+
+
+# --- T-062: registrar una consulta como oportunidad (CU-04) -----------------------------------
+
+
+def _consulta(**extra: Any) -> dict[str, Any]:
+    return {"canal": "whatsapp", "destino_consultado": "Bariloche", "pasajeros": 2, **extra}
+
+
+async def _cuenta(sesion: AsyncSession, modelo: type) -> int:
+    return (await sesion.execute(select(func.count()).select_from(modelo))).scalar_one()
+
+
+async def test_rf010_registrar_consulta(cliente_como: FabricaCliente, sesion: AsyncSession) -> None:
+    c = await cliente_como("empleado")
+    existente = await crear(sesion, ClienteFactory)
+
+    r = await c.post(
+        "/api/oportunidades",
+        json=_consulta(
+            cliente_id=str(existente.id),
+            fecha_desde_tentativa="2027-01-10",
+            fecha_hasta_tentativa="2027-01-20",
+            notas="Viaja con chicos",
+        ),
+    )
+
+    assert r.status_code == 201, r.text
+    cuerpo = r.json()
+    assert cuerpo["estado"] == "nueva"
+    assert cuerpo["cliente_id"] == str(existente.id)
+    assert cuerpo["cliente_nombre"] == existente.nombre
+    assert cuerpo["responsable_id"] == str(c.usuario.id)  # type: ignore[attr-defined]
+    assert cuerpo["canal"] == "whatsapp"
+    assert cuerpo["destino_consultado"] == "Bariloche"
+    assert cuerpo["pasajeros"] == 2
+    assert cuerpo["fecha_desde_tentativa"] == "2027-01-10"
+    assert cuerpo["notas"] == "Viaja con chicos"
+    guardada = await sesion.get(Oportunidad, UUID(cuerpo["id"]))
+    assert guardada is not None
+    assert guardada.estado == EstadoOportunidad.nueva
+    assert guardada.responsable_id == c.usuario.id  # type: ignore[attr-defined]
+
+
+async def test_rf010_el_responsable_es_quien_registra_aunque_mande_otro(
+    cliente_como: FabricaCliente, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("empleado")
+    otro = await crear(sesion, UsuarioFactory)
+    existente = await crear(sesion, ClienteFactory)
+
+    r = await c.post(
+        "/api/oportunidades",
+        json=_consulta(cliente_id=str(existente.id), responsable_id=str(otro.id)),
+    )
+
+    assert r.status_code == 201, r.text
+    assert r.json()["responsable_id"] == str(c.usuario.id)  # type: ignore[attr-defined]
+
+
+@pytest.mark.parametrize("rol", ["admin", "dueno", "empleado", "freelance"])
+async def test_rf010_todos_los_roles_registran_una_consulta(
+    cliente_como: FabricaCliente, sesion: AsyncSession, rol: str
+) -> None:
+    c = await cliente_como(rol)
+    existente = await crear(sesion, ClienteFactory)
+
+    r = await c.post("/api/oportunidades", json=_consulta(cliente_id=str(existente.id)))
+
+    assert r.status_code == 201, r.text
+
+
+async def test_rf010_sin_sesion_401(cliente_sin_sesion: AsyncClient) -> None:
+    r = await cliente_sin_sesion.post("/api/oportunidades", json=_consulta(cliente_id=str(uuid4())))
+
+    assert r.status_code == 401
+
+
+async def test_rf010_cliente_inexistente_422(cliente_como: FabricaCliente) -> None:
+    c = await cliente_como("empleado")
+
+    r = await c.post("/api/oportunidades", json=_consulta(cliente_id=str(uuid4())))
+
+    assert r.status_code == 422, r.text
+    assert r.headers["content-type"].startswith(PROBLEM_JSON)
+
+
+async def test_rf004_alta_rapida_de_cliente(
+    cliente_como: FabricaCliente, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("empleado")
+
+    alta = await c.post(
+        "/api/clientes",
+        json={"nombre": "Lucía Fernández", "contacto": "+54 9 11 4444-5555", "segmento": "pareja"},
+    )
+    assert alta.status_code == 201, alta.text
+    r = await c.post("/api/oportunidades", json=_consulta(cliente_id=alta.json()["id"]))
+
+    assert r.status_code == 201, r.text
+    assert r.json()["cliente_id"] == alta.json()["id"]
+    assert r.json()["cliente_nombre"] == "Lucía Fernández"
+    assert r.json()["estado"] == "nueva"
+    assert r.json()["responsable_id"] == str(c.usuario.id)  # type: ignore[attr-defined]
+
+
+async def test_rf012_con_oportunidad_abierta_del_mismo_cliente_crea_otra(
+    cliente_como: FabricaCliente, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("empleado")
+    existente = await crear(sesion, ClienteFactory)
+    abierta = await _oportunidad(
+        sesion,
+        c.usuario.id,
+        existente.id,
+        estado=EstadoOportunidad.en_gestion,  # type: ignore[attr-defined]
+    )
+
+    r = await c.post("/api/oportunidades", json=_consulta(cliente_id=str(existente.id)))
+
+    assert r.status_code == 201, r.text
+    assert r.json()["id"] != str(abierta.id)
+    assert r.json()["estado"] == "nueva"
+    assert await _cuenta(sesion, Oportunidad) == 2
+
+
+@pytest.mark.parametrize(
+    "estado",
+    [EstadoOportunidad.nueva, EstadoOportunidad.en_gestion, EstadoOportunidad.cotizada],
+)
+async def test_rf012_oportunidad_abierta_avisa(
+    cliente_como: FabricaCliente, sesion: AsyncSession, estado: EstadoOportunidad
+) -> None:
+    """El aviso lo arma el front con el listado filtrado por cliente y estado abierto."""
+    c = await cliente_como("empleado")
+    otro = await crear(sesion, UsuarioFactory)
+    existente = await crear(sesion, ClienteFactory)
+    abierta = await _oportunidad(sesion, otro.id, existente.id, estado=estado)
+    await _oportunidad(sesion, otro.id)  # abierta de otro cliente: no debe aparecer
+
+    r = await c.get(
+        "/api/oportunidades", params={"cliente_id": str(existente.id), "estado": estado.value}
+    )
+
+    assert r.status_code == 200
+    assert _ids(r.json()["items"]) == {str(abierta.id)}
+
+
+@pytest.mark.parametrize("faltante", ["canal", "destino_consultado", "pasajeros"])
+async def test_rf013_datos_minimos_422(
+    cliente_como: FabricaCliente, sesion: AsyncSession, faltante: str
+) -> None:
+    c = await cliente_como("empleado")
+    existente = await crear(sesion, ClienteFactory)
+    cuerpo = _consulta(cliente_id=str(existente.id))
+    del cuerpo[faltante]
+
+    r = await c.post("/api/oportunidades", json=cuerpo)
+
+    assert r.status_code == 422, r.text
+    assert r.headers["content-type"].startswith(PROBLEM_JSON)
+    assert faltante in {e["campo"] for e in r.json()["errores"]}
+    assert await _cuenta(sesion, Oportunidad) == 0
+
+
+async def test_rf013_sin_cliente_422(cliente_como: FabricaCliente, sesion: AsyncSession) -> None:
+    c = await cliente_como("empleado")
+
+    r = await c.post("/api/oportunidades", json=_consulta())
+
+    assert r.status_code == 422, r.text
+    assert r.headers["content-type"].startswith(PROBLEM_JSON)
+    assert await _cuenta(sesion, Oportunidad) == 0
+
+
+@pytest.mark.parametrize(
+    "invalido",
+    [
+        {"canal": "telegrama"},
+        {"destino_consultado": ""},
+        {"pasajeros": 0},
+        {"fecha_desde_tentativa": "2027-02-10", "fecha_hasta_tentativa": "2027-02-01"},
+    ],
+)
+async def test_rf013_valores_invalidos_422(
+    cliente_como: FabricaCliente, sesion: AsyncSession, invalido: dict[str, Any]
+) -> None:
+    c = await cliente_como("empleado")
+    existente = await crear(sesion, ClienteFactory)
+
+    r = await c.post("/api/oportunidades", json=_consulta(cliente_id=str(existente.id), **invalido))
+
+    assert r.status_code == 422, r.text
