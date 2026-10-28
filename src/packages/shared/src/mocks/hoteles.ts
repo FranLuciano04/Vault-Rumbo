@@ -186,11 +186,20 @@ export const hotelesMock: Hotel[] = [
 
 /** Orden del catálogo (CU-18 A2): por nombre, por puntaje de mayor a menor o por precio. */
 function ordenar(hoteles: Hotel[], criterio: FiltrosHoteles["orden"]): Hotel[] {
-  const numero = (valor: string | null) => Number(valor ?? 0);
+  const porNombre = (a: Hotel, b: Hotel) => a.nombre.localeCompare(b.nombre, "es");
   return [...hoteles].sort((a, b) => {
-    if (criterio === "valoracion") return numero(b.puntaje_promedio) - numero(a.puntaje_promedio);
-    if (criterio === "precio") return numero(a.precio_referencia) - numero(b.precio_referencia);
-    return a.nombre.localeCompare(b.nombre, "es");
+    if (criterio === "valoracion") {
+      // Sin reseñas, al final.
+      const diferencia = Number(b.puntaje_promedio ?? -1) - Number(a.puntaje_promedio ?? -1);
+      return diferencia || porNombre(a, b);
+    }
+    if (criterio === "precio") {
+      // Sin precio, al final.
+      const diferencia =
+        Number(a.precio_referencia ?? Infinity) - Number(b.precio_referencia ?? Infinity);
+      return Number.isNaN(diferencia) || diferencia === 0 ? porNombre(a, b) : diferencia;
+    }
+    return porNombre(a, b);
   });
 }
 
@@ -253,9 +262,10 @@ export function manejadoresHotelesPara(rol: RolMock): RequestHandler[] {
         (h) =>
           h.estado === estado &&
           (!filtro("destino_id") || h.destino_id === filtro("destino_id")) &&
-          (!filtro("categoria") || h.categoria === filtro("categoria")) &&
+          (!filtro("categoria") ||
+            h.categoria?.toLowerCase() === filtro("categoria")?.toLowerCase()) &&
           (!precioMax || Number(h.precio_referencia) <= Number(precioMax)) &&
-          (!servicio || h.servicios.includes(servicio)),
+          (!servicio || h.servicios.some((s) => s.toLowerCase() === servicio.toLowerCase())),
       );
       const resultado = pagina(ordenar(filtrados, filtro("orden") as FiltrosHoteles["orden"]), url);
       const aplicados = ["destino_id", "categoria", "precio_max", "servicio"].filter((f) =>

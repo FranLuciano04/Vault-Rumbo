@@ -74,6 +74,7 @@ _LISTADO_HOTELES["responses"][200] = respuesta_pagina(
             "si se puede dar de alta el hotel.",
         }
     },
+    modelos=[AlternativasHoteles],
 )
 _LISTADO_RESENAS = operacion(TODOS, "CU-18", 403, 404, 422)
 _LISTADO_RESENAS["description"] += (

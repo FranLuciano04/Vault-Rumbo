@@ -7,6 +7,7 @@ import type {
   HotelCrear,
   HotelEditar,
   Pagina,
+  PaginaHoteles,
   Resena,
   ResenaCrear,
   ResenaEditar,
@@ -26,7 +27,7 @@ export function useHoteles(cliente: AxiosInstance, filtros: FiltrosHoteles = {})
     queryKey: [...claveHoteles, "lista", filtros],
     placeholderData: keepPreviousData,
     queryFn: async () =>
-      (await cliente.get<Pagina<Hotel>>("/api/hoteles", { params: filtros })).data,
+      (await cliente.get<PaginaHoteles>("/api/hoteles", { params: filtros })).data,
   });
 }
 

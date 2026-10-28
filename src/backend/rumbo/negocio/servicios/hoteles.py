@@ -57,6 +57,8 @@ async def buscar_hoteles(
 ) -> ResultadoBusqueda:
     """Página de hoteles con su valoración (CU-18, RF-106 a RF-109). Sin resultados, suma las
     alternativas: los filtros que se pueden quitar y si el actor puede dar de alta (RF-110)."""
+    categoria = (categoria or "").strip() or None  # solo espacios = filtro no aplicado
+    servicio = (servicio or "").strip() or None
     filas, total = await _hoteles.buscar(
         sesion,
         destino_id=destino_id,

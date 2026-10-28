@@ -29,7 +29,7 @@ class RepositorioResenas(RepositorioBase[Resena]):
             select(Resena).where(Resena.hotel_id == hotel_id, Resena.estado == estado), Resena
         )
         total = await sesion.scalar(select(func.count()).select_from(consulta.subquery()))
-        pagina = consulta.order_by(Resena.fecha.desc(), Resena.id)
+        pagina = consulta.order_by(Resena.fecha.desc(), Resena.created_at.desc(), Resena.id)
         filas = await sesion.scalars(pagina.offset(desplazamiento).limit(limite))
         return list(filas), total or 0
 

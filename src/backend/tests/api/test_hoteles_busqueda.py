@@ -830,3 +830,57 @@ async def test_rf107_resenas_de_un_hotel_cerrado_se_pueden_consultar(
 
     assert r.status_code == 200
     assert r.json()["total"] == 1
+
+
+# --- Filtros vacíos y precio_max=0 (review) ------------------------------------------------------
+
+
+@pytest.mark.parametrize("vacio", ["", "   "])
+async def test_rf108_categoria_y_servicio_vacios_no_filtran(
+    cliente_como: Fabrica, sesion: AsyncSession, vacio: str
+) -> None:
+    c = await cliente_como("empleado")
+    d = await _destino(sesion)
+    await _hotel(sesion, d, "Hotel Sol", categoria=None, servicios=[])
+
+    r = await c.get(HOTELES, params={"categoria": vacio, "servicio": vacio})
+
+    assert r.status_code == 200
+    assert r.json()["total"] == 1
+    assert r.json()["alternativas"] is None
+
+
+@pytest.mark.parametrize("vacio", ["", "   "])
+async def test_rf110_filtros_vacios_no_aparecen_en_ampliar_filtros(
+    cliente_como: Fabrica, vacio: str
+) -> None:
+    c = await cliente_como("empleado")
+
+    r = await c.get(HOTELES, params={"categoria": vacio, "servicio": vacio, "estado": "cerrado"})
+
+    assert r.json()["total"] == 0
+    assert r.json()["alternativas"]["ampliar_filtros"] == []
+
+
+async def test_rf108_precio_max_cero_filtra_y_figura_en_las_alternativas(
+    cliente_como: Fabrica, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("empleado")
+    d = await _destino(sesion)
+    await _hotel(sesion, d, "Caro", precio_referencia=Decimal("100.00"))
+
+    r = await c.get(HOTELES, params={"precio_max": "0"})
+
+    assert r.json()["total"] == 0
+    assert r.json()["alternativas"]["ampliar_filtros"] == ["precio_max"]
+
+
+@pytest.mark.parametrize("rol", ["empleado", "freelance"])
+async def test_cu29_a1_ocultas_de_hotel_inexistente_son_403_no_404(
+    cliente_como: Fabrica, rol: str
+) -> None:
+    c = await cliente_como(rol)
+
+    r = await c.get(_url_resenas(INEXISTENTE), params={"estado": "oculta"})
+
+    assert r.status_code == 403
