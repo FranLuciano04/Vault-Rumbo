@@ -76,7 +76,19 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
   - Backend: 2003 tests, con 97,45 % de cobertura.
   - Commits: 75a8462, c77754f, 62f2b1a y 3fb2f61.
 - **Memoria:** el sistema cortó por falta de memoria los checks completos, aunque ya habían terminado en verde. Cada vez pesa más correr la suite completa en la PC (ver DEC-0022).
-- **Pendiente:** M5 (T-076 en adelante). Avisos para Francisco: DEC-0021, DEC-0022, DEC-0023 y aprobar el PR #116.
+- **DEC-0022 y DEC-0023 formalizadas** (aprobadas por Francisco). Con eso:
+  - `/implementar-ticket` pasa a la 1.6.0;
+  - se crearon T-167 y T-168 en M4;
+  - el PR #116 quedó aprobado y mergeado (commit 62c33a3).
+- **T-076** (PR [#119](https://github.com/FranLuciano04/Vault-Rumbo/pull/119), mergeado con el CI en verde): gestionar los hoteles.
+  - Alta, edición y baja de hoteles. Un duplicado del mismo nombre normalizado en el mismo destino responde 409 con el hotel existente. Lo respalda un **índice único parcial**, así que dos altas simultáneas no pueden dejar duplicados.
+  - Migración 0006: categoría y precio admiten nulo, y `servicios` pasa a `text[]`.
+  - Un destino inexistente responde 422.
+  - Review (opus): 0 bloqueantes y 3 importantes, todos arreglados. Corrigió dos decisiones mías que iban contra las convenciones: el `null` en categoría y precio, y el 404 del destino.
+  - Backend: 2102 tests.
+  - Commits: 58787e6, 023ad02, 7f966b4 y fe1df5f.
+- **Memoria:** el sistema cortó dos veces los procesos de espera por falta de memoria. No afectó el trabajo.
+- **Pendiente:** M5 sigue con T-077 (búsqueda por puntaje), T-078 (reseñas) y T-079 (moderación).
 
 ## 27/10/26 — Nahuel (Claude Opus 5.5) — T-073
 - **Hecho:** **T-073** (registrar la respuesta a una cotización en la web) mergeado, PR [#117](https://github.com/FranLuciano04/Vault-Rumbo/pull/117). Cada versión muestra sus acciones según el estado: enviar un borrador, aceptar o rechazar una enviada. El rechazo pide confirmación, sin motivo (decisión de Nahuel; coincide con T-067). Las acciones exigen la oportunidad abierta y el PDF se descarga siempre. Review de Opus: 2 importantes arreglados. El CI destapó que el `Blob` de jsdom colgaba MSW en Node 22 y que los tipos de React Native no aceptan un `Blob` armado con un `ArrayBuffer`: ahora shared devuelve los bytes y la web arma el `Blob`.
