@@ -88,7 +88,14 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
   - Pendiente: un índice en `resena (hotel_id, estado)`.
   - Commits: bac1129, 59cef88, 6e03ce4 y 325eb4e.
 - **El backend de M5 quedó completo.**
-- **Pendiente:** el front de M5, que arranca con T-080 (catálogo web). Hoy (28/10) se hicieron T-075, T-076, T-078, T-079 y T-077, más DEC-0022 y DEC-0023.
+- **T-080** (PR [#125](https://github.com/FranLuciano04/Vault-Rumbo/pull/125), mergeado con el CI en verde): catálogo de hoteles en la web (`/hoteles`).
+  - Grilla con puntaje, filtros, orden (por defecto, por valoración), paginación y alternativas cuando no hay resultados.
+  - El freelance ve el aviso «Solo consulta» y no tiene botón de alta.
+  - **Decisión:** las categorías (de 1 a 5 estrellas) y los servicios (los de la pantalla 21) quedan como constantes compartidas en `@rumbo/shared`. T-081 tiene que usar las mismas.
+  - Un commit `test(T-080)` corrigió dos errores del test: el orden de los handlers MSW y una aserción que impedía mostrar el precio.
+  - Review (opus): 0 bloqueantes y 3 importantes, arreglados (el debounce del precio, las listas y el aviso para el freelance).
+  - Commits: dd1ac9b, 6bac69f, a8eb606, 63db5c5 y 8a75f11.
+- **Pendiente:** el resto del front de M5, de T-081 a T-084, y el e2e T-085. Hoy (28/10) se hicieron T-075, T-076, T-078, T-079, T-077 y T-080, además de DEC-0022 y DEC-0023.
 - **Abierto para la sync:** ¿se puede asociar una reseña a un viaje cancelado, o a uno cuyo itinerario no incluye el hotel?
 
 ## 27/10/26 — Nahuel (Claude Opus 5.5) — T-073
