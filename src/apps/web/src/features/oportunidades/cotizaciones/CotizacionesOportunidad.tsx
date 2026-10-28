@@ -49,7 +49,11 @@ export function CotizacionesOportunidad({
       {puedeEmitir && (
         <FormularioCotizacion cliente={cliente} usuario={usuario} oportunidadId={oportunidadId} />
       )}
-      <VersionesCotizacion cliente={cliente} oportunidadId={oportunidadId} />
+      <VersionesCotizacion
+        cliente={cliente}
+        oportunidadId={oportunidadId}
+        puedeResponder={puedeEscribirOportunidad(usuario, oportunidad)}
+      />
     </div>
   );
 }
