@@ -1,4 +1,5 @@
 import {
+  DESTINO_A_DEFINIR,
   ETIQUETA_ESTADO_OPORTUNIDAD,
   ETIQUETA_MOTIVO_PERDIDA,
   formatearFecha,
@@ -8,8 +9,10 @@ import { useOportunidad } from "@rumbo/shared/hooks";
 import type { AxiosInstance } from "axios";
 import { Link, useParams } from "react-router";
 import { AccionesOportunidad } from "./AccionesOportunidad";
+import { EdicionDestinoPasajeros } from "./EdicionDestinoPasajeros";
 import { InsistenciasOportunidad } from "./InsistenciasOportunidad";
 import { InteraccionesOportunidad } from "./InteraccionesOportunidad";
+import { PasajerosOportunidad } from "./PasajerosOportunidad";
 import { oportunidadAbierta, puedeEscribirOportunidad } from "./permisos";
 
 /** Detalle de una oportunidad (CU-05): su contexto, su historia y las acciones de seguimiento. */
@@ -45,10 +48,12 @@ export function DetalleOportunidad({
   return (
     <div className="space-y-6">
       <header className="space-y-1">
-        <h1 className="text-2xl font-semibold">{oportunidad.destino_consultado}</h1>
+        <h1 className="text-2xl font-semibold">
+          {oportunidad.destino_consultado ?? DESTINO_A_DEFINIR}
+        </h1>
         <p>{oportunidad.cliente_nombre}</p>
         <p className="text-sm text-muted-foreground">
-          {oportunidad.pasajeros} {oportunidad.pasajeros === 1 ? "pasajero" : "pasajeros"}
+          <PasajerosOportunidad pasajeros={oportunidad.pasajeros} />
           {desde && hasta ? ` · ${formatearFecha(desde)} al ${formatearFecha(hasta)}` : ""}
         </p>
         <p className="text-sm font-medium">{ETIQUETA_ESTADO_OPORTUNIDAD[oportunidad.estado]}</p>
@@ -65,6 +70,9 @@ export function DetalleOportunidad({
       >
         Cotizaciones
       </Link>
+      {abierta && puedeEscribir && (
+        <EdicionDestinoPasajeros cliente={cliente} oportunidad={oportunidad} />
+      )}
       {puedeEscribir && <AccionesOportunidad cliente={cliente} oportunidad={oportunidad} />}
       <InteraccionesOportunidad
         cliente={cliente}

@@ -1,4 +1,4 @@
-import { crearCliente } from "@rumbo/shared";
+import { crearCliente, DESTINO_A_DEFINIR } from "@rumbo/shared";
 import {
   crearServidor,
   idOportunidadMock,
@@ -97,9 +97,7 @@ describe("RF-016 embudo", () => {
     expect(await screen.findByRole("heading", { name: /^Nueva\s*37$/ })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: /^Perdida\s*37$/ })).toBeInTheDocument();
     const estados = new Set(pedidos.map((p) => p.get("estado")));
-    expect(estados).toEqual(
-      new Set(["nueva", "en_gestion", "cotizada", "ganada", "perdida"]),
-    );
+    expect(estados).toEqual(new Set(["nueva", "en_gestion", "cotizada", "ganada", "perdida"]));
   });
 
   it("RF-016 cada oportunidad es una tarjeta en la columna de su estado", async () => {
@@ -362,5 +360,40 @@ describe("RF-016 embudo: responsable «todos» y «Ver más»", () => {
     expect(await within(ganada).findByText(segunda.destino_consultado ?? "")).toBeInTheDocument();
     expect(within(ganada).getByText(primera.destino_consultado ?? "")).toBeInTheDocument();
     expect(within(ganada).queryByRole("button", { name: /ver más/i })).not.toBeInTheDocument();
+  });
+});
+
+describe("RF-013 consulta sin destino", () => {
+  const sinDatosEnNueva = http.get("*/api/oportunidades", ({ request }) => {
+    const estado = new URL(request.url).searchParams.get("estado");
+    const items = oportunidadesMock
+      .filter((o) => !estado || o.estado === estado)
+      .map((o) => (o.estado === "nueva" ? { ...o, destino_consultado: null, pasajeros: null } : o));
+    return HttpResponse.json({ items, total: items.length, pagina: 1, por_pagina: 20 });
+  });
+
+  it("RF-013 la tarjeta muestra «Destino a definir» cuando falta el destino", async () => {
+    servidor.use(sinDatosEnNueva);
+    renderEmbudo("empleado");
+
+    expect(await within(await columna("Nueva")).findByText(DESTINO_A_DEFINIR)).toBeInTheDocument();
+  });
+
+  it("RF-013 la tarjeta muestra «—» cuando faltan los pasajeros", async () => {
+    servidor.use(sinDatosEnNueva);
+    renderEmbudo("empleado");
+    const nueva = await columna("Nueva");
+
+    await within(nueva).findByText(DESTINO_A_DEFINIR);
+    expect(within(nueva).getByText(/—/)).toBeInTheDocument();
+    expect(within(nueva).queryByText(/null|undefined|NaN/)).not.toBeInTheDocument();
+  });
+
+  it("RF-013 el «—» de pasajeros de la tarjeta tiene el nombre accesible «Pasajeros sin definir»", async () => {
+    servidor.use(sinDatosEnNueva);
+    renderEmbudo("empleado");
+    const nueva = await columna("Nueva");
+
+    expect(await within(nueva).findByLabelText("Pasajeros sin definir")).toHaveTextContent("—");
   });
 });

@@ -425,6 +425,20 @@ describe("RF-006 ficha mobile", () => {
     expect(vista.getByText(/excelente atención/i)).toBeTruthy();
   });
 
+  it("RF-013 el historial muestra «Destino a definir» cuando la oportunidad no tiene destino", async () => {
+    const sinDestino = {
+      ...historial,
+      oportunidades: [
+        { ...historial.oportunidades[0], id: "op-2", destino_consultado: null, estado: "nueva" },
+      ],
+    };
+    backend({ fichas: { "id-1": camila }, historiales: { "id-1": sinDestino } });
+    const vista = await renderClientes("/clientes/id-1");
+
+    expect(await vista.findByText("Destino a definir")).toBeTruthy();
+    expect(vista.queryByText(/null|undefined/)).toBeNull();
+  });
+
   it("un cliente sin movimientos muestra los vacíos del historial", async () => {
     backend({ fichas: { "id-2": sosa } });
     const vista = await renderClientes("/clientes/id-2");
