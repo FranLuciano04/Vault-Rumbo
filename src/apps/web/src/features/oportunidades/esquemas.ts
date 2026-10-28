@@ -37,11 +37,20 @@ const pasajerosOpcionales = z
   .transform(sinNaN)
   .pipe(pasajerosCargados.optional());
 
-/** Completar el destino y los pasajeros de una consulta (RF-013, DEC-0023): una vez cargados no se vacían. */
-export const esquemaDestinoPasajeros = z.object({
-  destino_consultado: z.string().trim().min(1, "Ingresá el destino."),
-  pasajeros: pasajerosCargados,
-});
+const destinoCargado = z.string().trim().max(200, "El destino puede tener hasta 200 caracteres.");
+
+/**
+ * Completar o corregir el destino y los pasajeros de una consulta (RF-013, DEC-0023). Cada dato se
+ * completa por separado: el que ya estaba cargado es obligatorio y no se vacía; el que falta es opcional.
+ */
+export function esquemaDestinoPasajeros(cargados: { destino: boolean; pasajeros: boolean }) {
+  return z.object({
+    destino_consultado: cargados.destino
+      ? destinoCargado.min(1, "Ingresá el destino.")
+      : destinoCargado.optional(),
+    pasajeros: cargados.pasajeros ? pasajerosCargados : pasajerosOpcionales,
+  }) as z.ZodType<DatosDestinoPasajeros, EntradaDestinoPasajeros>;
+}
 
 const CANALES = [
   "instagram",
@@ -54,7 +63,7 @@ export const esquemaConsulta = z
   .object({
     cliente_id: z.string().min(1, "Elegí un cliente."),
     canal: z.enum(CANALES, "Elegí el canal."),
-    destino_consultado: z.string().trim().optional(),
+    destino_consultado: destinoCargado.optional(),
     fecha_desde_tentativa: z.string(),
     fecha_hasta_tentativa: z.string(),
     pasajeros: pasajerosOpcionales,
@@ -73,8 +82,8 @@ export const esquemaConsulta = z
 
 export type EntradaConsulta = z.input<typeof esquemaConsulta>;
 export type DatosConsulta = z.output<typeof esquemaConsulta>;
-export type EntradaDestinoPasajeros = z.input<typeof esquemaDestinoPasajeros>;
-export type DatosDestinoPasajeros = z.output<typeof esquemaDestinoPasajeros>;
+export type EntradaDestinoPasajeros = { destino_consultado?: string; pasajeros?: number };
+export type DatosDestinoPasajeros = { destino_consultado?: string; pasajeros?: number };
 export type DatosInteraccion = z.infer<typeof esquemaInteraccion>;
 export type DatosInsistencia = z.infer<typeof esquemaInsistencia>;
 export type DatosPerder = z.input<typeof esquemaPerder>;

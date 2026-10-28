@@ -16,44 +16,79 @@ import {
 
 const CAMPOS = ["destino_consultado", "pasajeros"] as const;
 
-/** Completar o corregir el destino y los pasajeros desde el detalle (RF-013, DEC-0023); no se pueden vaciar. */
-export function EdicionDestinoPasajeros({
+type Props = { cliente: AxiosInstance; oportunidad: Oportunidad };
+
+/** Completar o corregir el destino y los pasajeros desde el detalle (RF-013, DEC-0023). */
+export function EdicionDestinoPasajeros({ cliente, oportunidad }: Props) {
+  const [abierto, setAbierto] = useState(false);
+  if (abierto) {
+    return (
+      <FormularioDestinoPasajeros
+        cliente={cliente}
+        oportunidad={oportunidad}
+        alCerrar={() => {
+          setAbierto(false);
+        }}
+      />
+    );
+  }
+  const incompleta = oportunidad.destino_consultado === null || oportunidad.pasajeros === null;
+  return (
+    <Button
+      variant="outline"
+      onClick={() => {
+        setAbierto(true);
+      }}
+    >
+      {incompleta ? "Completar destino y pasajeros" : "Editar destino y pasajeros"}
+    </Button>
+  );
+}
+
+/** Se monta solo mientras está abierto: los valores iniciales salen siempre de la oportunidad actual. */
+function FormularioDestinoPasajeros({
   cliente,
   oportunidad,
-}: {
-  cliente: AxiosInstance;
-  oportunidad: Oportunidad;
-}) {
+  alCerrar,
+}: Props & { alCerrar: () => void }) {
   const editar = useEditarOportunidad(cliente);
-  const [abierto, setAbierto] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const formulario = useForm<EntradaDestinoPasajeros, unknown, DatosDestinoPasajeros>({
-    resolver: zodResolver(esquemaDestinoPasajeros),
+    resolver: zodResolver(
+      esquemaDestinoPasajeros({
+        destino: oportunidad.destino_consultado !== null,
+        pasajeros: oportunidad.pasajeros !== null,
+      }),
+    ),
     defaultValues: {
       destino_consultado: oportunidad.destino_consultado ?? "",
       pasajeros: oportunidad.pasajeros ?? Number.NaN,
     },
   });
   const { errors, isSubmitting } = formulario.formState;
-  const incompleta = oportunidad.destino_consultado === null || oportunidad.pasajeros === null;
 
   async function enviar(datos: DatosDestinoPasajeros) {
     setError(null);
+    // Solo viajan los datos cargados que cambiaron; si no hay ninguno, no hay PATCH.
+    const cambios: DatosDestinoPasajeros = {};
+    if (datos.destino_consultado && datos.destino_consultado !== oportunidad.destino_consultado) {
+      cambios.destino_consultado = datos.destino_consultado;
+    }
+    if (datos.pasajeros !== undefined && datos.pasajeros !== oportunidad.pasajeros) {
+      cambios.pasajeros = datos.pasajeros;
+    }
+    if (Object.keys(cambios).length === 0) {
+      alCerrar();
+      return;
+    }
     try {
-      await editar.mutateAsync({ oportunidadId: oportunidad.id, cambios: datos });
-      setAbierto(false);
+      await editar.mutateAsync({ oportunidadId: oportunidad.id, cambios });
+      alCerrar();
     } catch (falla) {
       setError(aplicarErroresDelServidor(falla, CAMPOS, formulario.setError));
     }
   }
 
-  if (!abierto) {
-    return (
-      <Button variant="outline" onClick={() => { setAbierto(true); }}>
-        {incompleta ? "Completar destino y pasajeros" : "Editar destino y pasajeros"}
-      </Button>
-    );
-  }
   return (
     <form
       noValidate
@@ -83,7 +118,7 @@ export function EdicionDestinoPasajeros({
         <Button type="submit" disabled={isSubmitting}>
           Guardar
         </Button>
-        <Button type="button" variant="outline" onClick={() => { setAbierto(false); }}>
+        <Button type="button" variant="outline" onClick={alCerrar}>
           Cancelar
         </Button>
       </div>

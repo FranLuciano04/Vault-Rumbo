@@ -735,7 +735,7 @@ describe("RF-013 completar destino y pasajeros", () => {
     expect(cuerpos[0]).toMatchObject({ destino_consultado: "Bariloche", pasajeros: 3 });
   });
 
-  it("RF-013 un destino vacío muestra «Ingresá el destino.» y no manda el PATCH", async () => {
+  it("RF-013 completar solo los pasajeros manda solo los pasajeros y el destino sigue a definir", async () => {
     const cuerpos: Record<string, unknown>[] = [];
     servidor.use(...oportunidadEditable(abierta, sinDatos(abierta), cuerpos));
     const usuario = userEvent.setup();
@@ -745,8 +745,70 @@ describe("RF-013 completar destino y pasajeros", () => {
 
     await usuario.click(guardar());
 
-    expect(await screen.findByText("Ingresá el destino.")).toBeInTheDocument();
+    expect(await screen.findByText(/2 pasajeros/)).toBeInTheDocument();
+    expect(cuerpos).toEqual([{ pasajeros: 2 }]);
+    expect(screen.getByRole("heading", { name: DESTINO_A_DEFINIR })).toBeInTheDocument();
+  });
+
+  it("RF-013 completar solo el destino manda solo el destino y los pasajeros siguen sin definir", async () => {
+    const cuerpos: Record<string, unknown>[] = [];
+    servidor.use(...oportunidadEditable(abierta, sinDatos(abierta), cuerpos));
+    const usuario = userEvent.setup();
+    renderDetalle(abierta);
+    await abrirEdicion(usuario);
+    await usuario.type(screen.getByRole("textbox", { name: /destino/i }), "Salta");
+
+    await usuario.click(guardar());
+
+    expect(await screen.findByRole("heading", { name: "Salta" })).toBeInTheDocument();
+    expect(cuerpos).toEqual([{ destino_consultado: "Salta" }]);
+    expect(screen.getByLabelText("Pasajeros sin definir")).toBeInTheDocument();
+  });
+
+  it("RF-013 guardar sin completar nada no manda el PATCH", async () => {
+    const cuerpos: Record<string, unknown>[] = [];
+    servidor.use(...oportunidadEditable(abierta, sinDatos(abierta), cuerpos));
+    const usuario = userEvent.setup();
+    renderDetalle(abierta);
+    await abrirEdicion(usuario);
+
+    await usuario.click(guardar());
+
+    expect(await screen.findByRole("button", { name: /completar/i })).toBeInTheDocument();
     expect(cuerpos).toHaveLength(0);
+  });
+
+  it("RF-013 un destino de más de 200 caracteres muestra el tope y no manda el PATCH", async () => {
+    const cuerpos: Record<string, unknown>[] = [];
+    servidor.use(...oportunidadEditable(abierta, sinDatos(abierta), cuerpos));
+    const usuario = userEvent.setup();
+    renderDetalle(abierta);
+    await abrirEdicion(usuario);
+    await usuario.click(screen.getByRole("textbox", { name: /destino/i }));
+    await usuario.paste("a".repeat(201));
+
+    await usuario.click(guardar());
+
+    expect(
+      await screen.findByText("El destino puede tener hasta 200 caracteres."),
+    ).toBeInTheDocument();
+    expect(cuerpos).toHaveLength(0);
+  });
+
+  it("RF-013 cancelar descarta lo cargado y los errores", async () => {
+    servidor.use(...oportunidadEditable(abierta, porId(abierta), []));
+    const usuario = userEvent.setup();
+    renderDetalle(abierta);
+    await abrirEdicion(usuario);
+    await usuario.clear(screen.getByRole("textbox", { name: /destino/i }));
+    await usuario.click(guardar());
+    await screen.findByText("Ingresá el destino.");
+
+    await usuario.click(screen.getByRole("button", { name: /cancelar/i }));
+    await abrirEdicion(usuario);
+
+    expect(screen.getByRole("textbox", { name: /destino/i })).toHaveValue("Mendoza");
+    expect(screen.queryByText("Ingresá el destino.")).not.toBeInTheDocument();
   });
 
   it("RF-013 unos pasajeros en 0 muestran «Ingresá al menos un pasajero.» y no mandan el PATCH", async () => {
@@ -793,4 +855,25 @@ describe("RF-013 completar destino y pasajeros", () => {
     expect(await screen.findByText("Ingresá los pasajeros.")).toBeInTheDocument();
     expect(cuerpos).toHaveLength(0);
   });
+});
+
+describe("RF-013 quién puede completar destino y pasajeros", () => {
+  const ajeno = { ...usuariosPorRol.empleado, id: "99999999-9999-4999-8999-999999999999" };
+
+  it("RF-013 sin permiso de escritura no se ofrece completar destino y pasajeros", async () => {
+    renderDetalle(abierta, ajeno);
+    await screen.findByRole("heading", { name: /mendoza/i });
+
+    expect(screen.queryByRole("button", { name: /completar|editar/i })).not.toBeInTheDocument();
+  });
+
+  it.each<EstadoOportunidad>(["ganada", "perdida"])(
+    "RF-013 en una oportunidad %s no se ofrece completar destino y pasajeros",
+    async (estado) => {
+      renderDetalle(idOportunidadMock[estado], usuariosPorRol.dueno);
+      await screen.findByRole("heading", { level: 1 });
+
+      expect(screen.queryByRole("button", { name: /completar|editar/i })).not.toBeInTheDocument();
+    },
+  );
 });
