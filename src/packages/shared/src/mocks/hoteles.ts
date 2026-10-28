@@ -8,6 +8,7 @@ import type {
   ResenaCrear,
   ResenaEditar,
 } from "../modelos";
+import { clientesMock } from "./clientes";
 import { respuestaProblema } from "./problema";
 import type { RolMock } from "./usuarios";
 import { auditoriaMock } from "./viajes";
@@ -252,6 +253,10 @@ export function manejadoresHotelesPara(rol: RolMock): RequestHandler[] {
   const modera = rol === "admin" || rol === "dueno";
 
   return [
+    // El alta de una reseña elige al cliente de esta lista (CU-17).
+    http.get("*/api/clientes", ({ request }) =>
+      HttpResponse.json(pagina(clientesMock, new URL(request.url))),
+    ),
     http.get("*/api/hoteles", ({ request }) => {
       const url = new URL(request.url);
       const filtro = (nombre: string) => url.searchParams.get(nombre);
