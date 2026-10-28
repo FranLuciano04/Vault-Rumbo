@@ -388,4 +388,12 @@ describe("RF-013 consulta sin destino", () => {
     expect(within(nueva).getByText(/—/)).toBeInTheDocument();
     expect(within(nueva).queryByText(/null|undefined|NaN/)).not.toBeInTheDocument();
   });
+
+  it("RF-013 el «—» de pasajeros de la tarjeta tiene el nombre accesible «Pasajeros sin definir»", async () => {
+    servidor.use(sinDatosEnNueva);
+    renderEmbudo("empleado");
+    const nueva = await columna("Nueva");
+
+    expect(await within(nueva).findByLabelText("Pasajeros sin definir")).toHaveTextContent("—");
+  });
 });

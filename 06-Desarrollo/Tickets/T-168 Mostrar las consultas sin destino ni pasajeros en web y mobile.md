@@ -5,7 +5,7 @@ modulo: M4 — Oportunidades y cotizaciones
 capa: web
 estado: tomado
 depende_de: [T-167, T-069]
-tamaño: S
+tamaño: M
 riesgo: normal
 modelo_tests: sonnet
 modelo_impl: sonnet
@@ -30,6 +30,7 @@ La pantalla de nueva consulta deja registrar una oportunidad solo con cliente y 
 - [ ] `esquemaConsulta` deja opcionales el destino y los pasajeros. Una consulta sin esos datos se registra igual.
 - [ ] La tarjeta, el detalle y el historial (web y mobile) muestran «Destino a definir» o «—» cuando falta el dato.
 - [ ] Si al emitir una cotización llega el 409 por falta de destino o de pasajeros, se muestra el motivo.
+- [ ] Desde el detalle de la oportunidad se pueden completar el destino y los pasajeros (`PATCH /oportunidades/{id}`), con las mismas validaciones que al crear. Una vez cargados no se vacían. *(Se sumó el 28/10/26 por un hallazgo importante de la review, con la decisión de Paloma: sin esto, una consulta registrada solo con cliente y canal no se podía cotizar nunca desde la web.)*
 
 ## Tests esperados
 Se ajustan los tests de RF-013 de `NuevaConsulta.test.tsx` y se suman `describe('RF-013 consulta sin destino')` en la web y un test equivalente en el historial mobile.

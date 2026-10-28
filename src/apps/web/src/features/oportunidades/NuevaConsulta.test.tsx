@@ -518,7 +518,13 @@ describe("RF-013 consulta sin destino", () => {
   });
 
   it("RF-013 esquemaConsulta acepta destino y pasajeros ausentes", () => {
-    const { destino_consultado: _d, pasajeros: _p, ...sinEllos } = soloClienteYCanal;
+    const sinEllos = {
+      cliente_id: soloClienteYCanal.cliente_id,
+      canal: soloClienteYCanal.canal,
+      fecha_desde_tentativa: "",
+      fecha_hasta_tentativa: "",
+      notas: "",
+    };
     expect(esquemaConsulta.safeParse(sinEllos).success).toBe(true);
   });
 
@@ -545,8 +551,8 @@ describe("RF-013 consulta sin destino", () => {
     expect(await screen.findByText(`Detalle de la oportunidad ${NUEVA_ID}`)).toBeInTheDocument();
     expect(cuerpos).toHaveLength(1);
     expect(cuerpos[0]).toMatchObject({ cliente_id: sosa.id, canal: "instagram" });
-    expect(cuerpos[0]?.["destino_consultado"] ?? null).toBeNull();
-    expect(cuerpos[0]?.["pasajeros"] ?? null).toBeNull();
+    expect(cuerpos[0]).toHaveProperty("destino_consultado", null);
+    expect(cuerpos[0]).toHaveProperty("pasajeros", null);
   });
 
   it("RF-013 sin destino ni pasajeros no marca errores en esos campos", async () => {
@@ -589,5 +595,21 @@ describe("RF-013 consulta sin destino", () => {
     await elegirCliente(usuario, "camila", "camila benítez");
 
     expect(await screen.findByRole("alert")).toHaveTextContent(DESTINO_A_DEFINIR);
+  });
+
+  it("RF-013 unos pasajeros decimales («2.5») muestran «Ingresá los pasajeros.» y no mandan la consulta", async () => {
+    const cuerpos: Record<string, unknown>[] = [];
+    servidor.use(sinOportunidades, altaCapturada(cuerpos));
+    const usuario = userEvent.setup();
+    renderConsulta();
+    await elegirCliente(usuario, "sosa", "familia sosa");
+    await usuario.selectOptions(screen.getByRole("combobox", { name: /canal/i }), "instagram");
+    await usuario.clear(screen.getByRole("spinbutton", { name: /pasajeros/i }));
+    await usuario.type(screen.getByRole("spinbutton", { name: /pasajeros/i }), "2.5");
+
+    await usuario.click(registrar());
+
+    expect(await screen.findByText("Ingresá los pasajeros.")).toBeInTheDocument();
+    expect(cuerpos).toHaveLength(0);
   });
 });

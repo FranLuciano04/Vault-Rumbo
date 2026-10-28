@@ -493,6 +493,13 @@ describe("RF-013 consulta sin destino", () => {
     expect(screen.queryByText(/null|undefined|NaN/)).not.toBeInTheDocument();
   });
 
+  it("RF-013 el «—» de pasajeros del encabezado tiene el nombre accesible «Pasajeros sin definir»", async () => {
+    servidor.use(sinDatos());
+    renderCotizaciones(enGestion);
+
+    expect(await screen.findByLabelText("Pasajeros sin definir")).toHaveTextContent("—");
+  });
+
   it("RF-013 si al emitir llega el 409 por falta de destino o pasajeros, muestra el motivo", async () => {
     const u = nuevoUsuario();
     servidor.use(
