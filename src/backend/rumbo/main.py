@@ -9,6 +9,7 @@ from rumbo.presentacion.routers import (
     clientes,
     configuracion,
     economia,
+    hoteles,
     oportunidades,
     seguridad,
     usuarios,
@@ -39,6 +40,7 @@ def crear_app() -> FastAPI:
         oportunidades.router,
         viajes.router,
         economia.router,
+        hoteles.router,
     ):
         app.include_router(router, prefix="/api")
     return app

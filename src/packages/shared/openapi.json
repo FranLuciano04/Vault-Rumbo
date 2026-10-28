@@ -7266,6 +7266,1159 @@
           "CU-12"
         ]
       }
+    },
+    "/api/hoteles": {
+      "get": {
+        "tags": [
+          "hoteles"
+        ],
+        "summary": "Buscar y recomendar hoteles",
+        "description": "**Roles:** admin, dueno, empleado, freelance.\n\n**Casos de uso:** CU-18.",
+        "operationId": "listar_hoteles",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "destino_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Destino Id"
+            }
+          },
+          {
+            "name": "categoria",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Categoria"
+            }
+          },
+          {
+            "name": "precio_max",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "decimal",
+                  "pattern": "^\\d+(\\.\\d{1,4})?$",
+                  "examples": [
+                    "1000000.00"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Precio de referencia máximo, inclusive.",
+              "title": "Precio Max"
+            },
+            "description": "Precio de referencia máximo, inclusive."
+          },
+          {
+            "name": "servicio",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Servicio que el hotel debe ofrecer.",
+              "title": "Servicio"
+            },
+            "description": "Servicio que el hotel debe ofrecer."
+          },
+          {
+            "name": "orden",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "nombre",
+                "valoracion",
+                "precio"
+              ],
+              "type": "string",
+              "description": "`valoracion` ordena por puntaje promedio, de mayor a menor (CU-18 A2).",
+              "default": "nombre",
+              "title": "Orden"
+            },
+            "description": "`valoracion` ordena por puntaje promedio, de mayor a menor (CU-18 A2)."
+          },
+          {
+            "name": "estado",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/EstadoHotel",
+              "description": "Los `cerrado` se conservan pero salen del catálogo activo (CU-16 A4).",
+              "default": "activo"
+            },
+            "description": "Los `cerrado` se conservan pero salen del catálogo activo (CU-16 A4)."
+          },
+          {
+            "name": "pagina",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1,
+              "title": "Pagina"
+            }
+          },
+          {
+            "name": "por_pagina",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "default": 20,
+              "title": "Por Pagina"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Hoteles del catálogo, con su puntaje promedio. Por defecto, solo los activos.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Hotel"
+                      }
+                    },
+                    "total": {
+                      "type": "integer",
+                      "description": "Cantidad total de resultados."
+                    },
+                    "pagina": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "por_pagina": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "maximum": 100
+                    }
+                  },
+                  "required": [
+                    "items",
+                    "total",
+                    "pagina",
+                    "por_pagina"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Falta el token, no es válido o el usuario no tiene acceso.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Datos inválidos.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        },
+        "x-roles": [
+          "admin",
+          "dueno",
+          "empleado",
+          "freelance"
+        ],
+        "x-casos-de-uso": [
+          "CU-18"
+        ]
+      },
+      "post": {
+        "tags": [
+          "hoteles"
+        ],
+        "summary": "Dar de alta un hotel",
+        "description": "**Roles:** admin, dueno, empleado.\n\n**Casos de uso:** CU-16.",
+        "operationId": "crear_hotel",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/HotelCrear"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hotel"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Falta el token, no es válido o el usuario no tiene acceso.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "El rol no alcanza.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflicto con el estado actual.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Datos inválidos.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        },
+        "x-roles": [
+          "admin",
+          "dueno",
+          "empleado"
+        ],
+        "x-casos-de-uso": [
+          "CU-16"
+        ]
+      }
+    },
+    "/api/hoteles/{hotel_id}": {
+      "get": {
+        "tags": [
+          "hoteles"
+        ],
+        "summary": "Ver un hotel",
+        "description": "**Roles:** admin, dueno, empleado, freelance.\n\n**Casos de uso:** CU-18.",
+        "operationId": "obtener_hotel",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "hotel_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Hotel Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hotel"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Falta el token, no es válido o el usuario no tiene acceso.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No existe.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        },
+        "x-roles": [
+          "admin",
+          "dueno",
+          "empleado",
+          "freelance"
+        ],
+        "x-casos-de-uso": [
+          "CU-18"
+        ]
+      },
+      "patch": {
+        "tags": [
+          "hoteles"
+        ],
+        "summary": "Editar un hotel",
+        "description": "**Roles:** admin, dueno, empleado.\n\n**Casos de uso:** CU-16.",
+        "operationId": "editar_hotel",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "hotel_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Hotel Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/HotelEditar"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hotel"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Falta el token, no es válido o el usuario no tiene acceso.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "El rol no alcanza.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No existe.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Datos inválidos.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        },
+        "x-roles": [
+          "admin",
+          "dueno",
+          "empleado"
+        ],
+        "x-casos-de-uso": [
+          "CU-16"
+        ]
+      }
+    },
+    "/api/hoteles/{hotel_id}/baja": {
+      "post": {
+        "tags": [
+          "hoteles"
+        ],
+        "summary": "Dar de baja un hotel que cerró",
+        "description": "**Roles:** admin, dueno, empleado.\n\n**Casos de uso:** CU-16.",
+        "operationId": "dar_de_baja_hotel",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "hotel_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Hotel Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hotel"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Falta el token, no es válido o el usuario no tiene acceso.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "El rol no alcanza.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No existe.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        },
+        "x-roles": [
+          "admin",
+          "dueno",
+          "empleado"
+        ],
+        "x-casos-de-uso": [
+          "CU-16"
+        ]
+      }
+    },
+    "/api/hoteles/{hotel_id}/resenas": {
+      "get": {
+        "tags": [
+          "hoteles"
+        ],
+        "summary": "Ver las reseñas de un hotel",
+        "description": "**Roles:** admin, dueno, empleado, freelance.\n\n**Casos de uso:** CU-18.",
+        "operationId": "listar_resenas",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "hotel_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Hotel Id"
+            }
+          },
+          {
+            "name": "estado",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/EstadoResena",
+              "description": "Las `oculta` solo las ven admin y dueño, para restaurarlas (CU-29 A1).",
+              "default": "publicada"
+            },
+            "description": "Las `oculta` solo las ven admin y dueño, para restaurarlas (CU-29 A1)."
+          },
+          {
+            "name": "pagina",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1,
+              "title": "Pagina"
+            }
+          },
+          {
+            "name": "por_pagina",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "default": 20,
+              "title": "Por Pagina"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Reseñas del hotel, de la más reciente a la más antigua. Por defecto, solo las publicadas.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Resena"
+                      }
+                    },
+                    "total": {
+                      "type": "integer",
+                      "description": "Cantidad total de resultados."
+                    },
+                    "pagina": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "por_pagina": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "maximum": 100
+                    }
+                  },
+                  "required": [
+                    "items",
+                    "total",
+                    "pagina",
+                    "por_pagina"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Falta el token, no es válido o el usuario no tiene acceso.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No existe.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Datos inválidos.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        },
+        "x-roles": [
+          "admin",
+          "dueno",
+          "empleado",
+          "freelance"
+        ],
+        "x-casos-de-uso": [
+          "CU-18"
+        ]
+      },
+      "post": {
+        "tags": [
+          "hoteles"
+        ],
+        "summary": "Registrar la reseña de un cliente",
+        "description": "**Roles:** admin, dueno, empleado.\n\n**Casos de uso:** CU-17.",
+        "operationId": "registrar_resena",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "hotel_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Hotel Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResenaCrear"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Resena"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Falta el token, no es válido o el usuario no tiene acceso.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "El rol no alcanza.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No existe.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Datos inválidos.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        },
+        "x-roles": [
+          "admin",
+          "dueno",
+          "empleado"
+        ],
+        "x-casos-de-uso": [
+          "CU-17"
+        ]
+      }
+    },
+    "/api/resenas/{resena_id}": {
+      "patch": {
+        "tags": [
+          "hoteles"
+        ],
+        "summary": "Editar una reseña",
+        "description": "**Roles:** admin, dueno, empleado.\n\n**Casos de uso:** CU-17.",
+        "operationId": "editar_resena",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "resena_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Resena Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResenaEditar"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Resena"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Falta el token, no es válido o el usuario no tiene acceso.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "El rol no alcanza.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No existe.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Datos inválidos.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        },
+        "x-roles": [
+          "admin",
+          "dueno",
+          "empleado"
+        ],
+        "x-casos-de-uso": [
+          "CU-17"
+        ]
+      },
+      "delete": {
+        "tags": [
+          "hoteles"
+        ],
+        "summary": "Eliminar una reseña físicamente (excepcional)",
+        "description": "**Roles:** admin, dueno.\n\n**Casos de uso:** CU-29.",
+        "operationId": "eliminar_resena",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "resena_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Resena Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Falta el token, no es válido o el usuario no tiene acceso.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "El rol no alcanza.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No existe.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflicto con el estado actual.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        },
+        "x-roles": [
+          "admin",
+          "dueno"
+        ],
+        "x-casos-de-uso": [
+          "CU-29"
+        ]
+      }
+    },
+    "/api/resenas/{resena_id}/ocultar": {
+      "post": {
+        "tags": [
+          "hoteles"
+        ],
+        "summary": "Eliminar una reseña (baja lógica)",
+        "description": "**Roles:** admin, dueno.\n\n**Casos de uso:** CU-29.",
+        "operationId": "ocultar_resena",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "resena_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Resena Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResenaOcultar"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Resena"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Falta el token, no es válido o el usuario no tiene acceso.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "El rol no alcanza.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No existe.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Datos inválidos.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        },
+        "x-roles": [
+          "admin",
+          "dueno"
+        ],
+        "x-casos-de-uso": [
+          "CU-29"
+        ]
+      }
+    },
+    "/api/resenas/{resena_id}/restaurar": {
+      "post": {
+        "tags": [
+          "hoteles"
+        ],
+        "summary": "Restaurar una reseña oculta",
+        "description": "**Roles:** admin, dueno.\n\n**Casos de uso:** CU-29.",
+        "operationId": "restaurar_resena",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "resena_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Resena Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Resena"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Falta el token, no es válido o el usuario no tiene acceso.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "El rol no alcanza.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No existe.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        },
+        "x-roles": [
+          "admin",
+          "dueno"
+        ],
+        "x-casos-de-uso": [
+          "CU-29"
+        ]
+      }
     }
   },
   "components": {
@@ -8740,6 +9893,14 @@
         ],
         "title": "EstadoCotizacion"
       },
+      "EstadoHotel": {
+        "type": "string",
+        "enum": [
+          "activo",
+          "cerrado"
+        ],
+        "title": "EstadoHotel"
+      },
       "EstadoOportunidad": {
         "type": "string",
         "enum": [
@@ -8825,6 +9986,220 @@
         ],
         "title": "HistorialCliente",
         "description": "Memoria del cliente (CU-03): sus oportunidades, viajes y reseñas."
+      },
+      "Hotel": {
+        "allOf": [
+          {
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid",
+                "title": "Id",
+                "readOnly": true
+              },
+              "nombre": {
+                "type": "string",
+                "title": "Nombre"
+              },
+              "destino_id": {
+                "type": "string",
+                "format": "uuid",
+                "title": "Destino Id"
+              },
+              "categoria": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Categoria",
+                "description": "Estrellas o tipo, por ejemplo `5 estrellas`."
+              },
+              "precio_referencia": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "pattern": "^\\d+(\\.\\d{1,4})?$",
+                    "format": "decimal",
+                    "examples": [
+                      "1000000.00"
+                    ]
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Precio Referencia",
+                "description": "Por noche, en ARS (DEC-0007)."
+              },
+              "servicios": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array",
+                "title": "Servicios",
+                "description": "Amenities filtrables: wifi, pileta, desayuno…"
+              },
+              "estado": {
+                "$ref": "#/components/schemas/EstadoHotel",
+                "readOnly": true
+              },
+              "puntaje_promedio": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "pattern": "^-?\\d+(\\.\\d{1,4})?$",
+                    "format": "decimal",
+                    "examples": [
+                      "1000000.00"
+                    ]
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Puntaje Promedio",
+                "description": "Promedio de 1 a 5 de las reseñas publicadas, con dos decimales; vacío si no tiene. Lo calcula la API (CU-18), no se guarda.",
+                "readOnly": true
+              },
+              "cantidad_resenas": {
+                "type": "integer",
+                "minimum": 0.0,
+                "title": "Cantidad Resenas",
+                "description": "Cantidad de reseñas publicadas que alimentan el promedio.",
+                "readOnly": true
+              }
+            },
+            "type": "object",
+            "required": [
+              "id",
+              "nombre",
+              "destino_id",
+              "categoria",
+              "precio_referencia",
+              "servicios",
+              "estado",
+              "puntaje_promedio",
+              "cantidad_resenas"
+            ],
+            "description": "Hotel del catálogo compartido. Nunca se elimina: al cerrar pasa a `cerrado` (CU-16 A4)."
+          },
+          {
+            "$ref": "#/components/schemas/Auditoria"
+          }
+        ]
+      },
+      "HotelCrear": {
+        "properties": {
+          "nombre": {
+            "type": "string",
+            "maxLength": 120,
+            "minLength": 1,
+            "title": "Nombre"
+          },
+          "destino_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Destino Id"
+          },
+          "categoria": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 40
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Categoria"
+          },
+          "precio_referencia": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^\\d+(\\.\\d{1,4})?$",
+                "format": "decimal",
+                "examples": [
+                  "1000000.00"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Precio Referencia"
+          },
+          "servicios": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Servicios"
+          }
+        },
+        "type": "object",
+        "required": [
+          "nombre",
+          "destino_id"
+        ],
+        "title": "HotelCrear",
+        "description": "Alta en el catálogo (CU-16). Un nombre repetido en el mismo destino responde `409`."
+      },
+      "HotelEditar": {
+        "properties": {
+          "nombre": {
+            "type": "string",
+            "maxLength": 120,
+            "minLength": 1,
+            "title": "Nombre"
+          },
+          "destino_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Destino Id"
+          },
+          "categoria": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 40
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Categoria"
+          },
+          "precio_referencia": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^\\d+(\\.\\d{1,4})?$",
+                "format": "decimal",
+                "examples": [
+                  "1000000.00"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Precio Referencia"
+          },
+          "servicios": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Servicios"
+          }
+        },
+        "type": "object",
+        "title": "HotelEditar"
       },
       "Insistencia": {
         "properties": {
@@ -10111,6 +11486,141 @@
         "type": "object",
         "title": "RequisitoDestinoEditar"
       },
+      "Resena": {
+        "allOf": [
+          {
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid",
+                "title": "Id",
+                "readOnly": true
+              },
+              "hotel_id": {
+                "type": "string",
+                "format": "uuid",
+                "title": "Hotel Id",
+                "readOnly": true
+              },
+              "cliente_id": {
+                "type": "string",
+                "format": "uuid",
+                "title": "Cliente Id",
+                "readOnly": true
+              },
+              "viaje_id": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Viaje Id",
+                "description": "Viaje de origen, si se indicó.",
+                "readOnly": true
+              },
+              "puntaje": {
+                "type": "integer",
+                "maximum": 5.0,
+                "minimum": 1.0,
+                "title": "Puntaje",
+                "description": "Entero de 1 a 5."
+              },
+              "comentario": {
+                "type": "string",
+                "title": "Comentario"
+              },
+              "fecha": {
+                "type": "string",
+                "format": "date",
+                "title": "Fecha"
+              },
+              "estado": {
+                "$ref": "#/components/schemas/EstadoResena",
+                "readOnly": true
+              },
+              "motivo_baja": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Motivo Baja",
+                "description": "Motivo de la moderación; vacío si publicada.",
+                "readOnly": true
+              }
+            },
+            "type": "object",
+            "required": [
+              "id",
+              "hotel_id",
+              "cliente_id",
+              "puntaje",
+              "comentario",
+              "fecha",
+              "estado",
+              "motivo_baja"
+            ],
+            "description": "Opinión de un cliente sobre un hotel. Nace `publicada`; moderarla la deja `oculta`."
+          },
+          {
+            "$ref": "#/components/schemas/Auditoria"
+          }
+        ]
+      },
+      "ResenaCrear": {
+        "properties": {
+          "cliente_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Cliente Id"
+          },
+          "viaje_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Viaje Id",
+            "description": "Viaje de origen (opcional)."
+          },
+          "puntaje": {
+            "type": "integer",
+            "maximum": 5.0,
+            "minimum": 1.0,
+            "title": "Puntaje",
+            "description": "Entero de 1 a 5."
+          },
+          "comentario": {
+            "type": "string",
+            "title": "Comentario",
+            "default": ""
+          },
+          "fecha": {
+            "type": "string",
+            "format": "date",
+            "title": "Fecha"
+          }
+        },
+        "type": "object",
+        "required": [
+          "cliente_id",
+          "puntaje",
+          "fecha"
+        ],
+        "title": "ResenaCrear",
+        "description": "Reseña de un cliente sobre el hotel de la ruta (CU-17)."
+      },
       "ResenaDelCliente": {
         "properties": {
           "id": {
@@ -10151,6 +11661,44 @@
         ],
         "title": "ResenaDelCliente",
         "description": "Reseña que dejó el cliente, tal como aparece en su historial."
+      },
+      "ResenaEditar": {
+        "properties": {
+          "puntaje": {
+            "type": "integer",
+            "maximum": 5.0,
+            "minimum": 1.0,
+            "title": "Puntaje",
+            "description": "Entero de 1 a 5."
+          },
+          "comentario": {
+            "type": "string",
+            "title": "Comentario"
+          },
+          "fecha": {
+            "type": "string",
+            "format": "date",
+            "title": "Fecha"
+          }
+        },
+        "type": "object",
+        "title": "ResenaEditar",
+        "description": "Corrige la reseña (RF-105): el hotel, el cliente y el viaje no cambian."
+      },
+      "ResenaOcultar": {
+        "properties": {
+          "motivo_baja": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Motivo Baja",
+            "description": "Por qué se oculta (CU-29)."
+          }
+        },
+        "type": "object",
+        "required": [
+          "motivo_baja"
+        ],
+        "title": "ResenaOcultar"
       },
       "ResponsableAlerta": {
         "properties": {
