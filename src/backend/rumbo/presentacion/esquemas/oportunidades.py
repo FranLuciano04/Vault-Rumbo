@@ -45,12 +45,16 @@ class Oportunidad(Auditoria):
         description="Quien la registró o la sigue; define la vista personal (DEC-0005)."
     )
     canal: CanalOportunidad
-    destino_consultado: str = Field(
-        description="Texto libre; se normaliza a un Destino al confirmar la reserva (DEC-0006)."
+    destino_consultado: str | None = Field(
+        description="Texto libre; se normaliza a un Destino al confirmar la reserva (DEC-0006). "
+        "Puede faltar al registrar la consulta; hace falta para cotizar (DEC-0023)."
     )
     fecha_desde_tentativa: date | None
     fecha_hasta_tentativa: date | None
-    pasajeros: int = Field(ge=1)
+    pasajeros: int | None = Field(
+        ge=1,
+        description="Puede faltar al registrar la consulta; hace falta para cotizar (DEC-0023).",
+    )
     estado: EstadoOportunidad = Field(json_schema_extra=_SOLO_LECTURA)
     motivo_perdida: MotivoPerdida | None = Field(json_schema_extra=_SOLO_LECTURA)
     motivo_perdida_detalle: str | None = Field(
@@ -66,10 +70,10 @@ class OportunidadCrear(Entrada):
 
     cliente_id: uuid.UUID
     canal: CanalOportunidad
-    destino_consultado: str = Field(min_length=1, max_length=200)
+    destino_consultado: str | None = Field(default=None, min_length=1, max_length=200)
     fecha_desde_tentativa: date | None = None
     fecha_hasta_tentativa: date | None = None
-    pasajeros: int = Field(ge=1)
+    pasajeros: int | None = Field(default=None, ge=1)
     notas: str | None = None
 
     @model_validator(mode="after")

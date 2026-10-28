@@ -48,7 +48,10 @@ export function datosDeContexto({ contexto }: Alerta): DatoDeContexto[] {
   const { viaje, oportunidad, cliente, pago } = contexto;
   const datos: (DatoDeContexto | null)[] = [
     viaje && { etiqueta: "Viaje", valor: viaje.destino },
-    oportunidad && { etiqueta: "Oportunidad", valor: oportunidad.destino_consultado },
+    oportunidad && {
+      etiqueta: "Oportunidad",
+      valor: oportunidad.destino_consultado ?? "Sin destino",
+    },
     cliente && { etiqueta: "Cliente", valor: cliente.nombre },
     pago && {
       etiqueta: "Importe",
