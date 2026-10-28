@@ -18,7 +18,7 @@ tags:: #tipo/referencia
 | M1 — Usuarios y configuración | 19 | 19 | 0 | 0 | 0 | 0 | ✅ cerrado |
 | M2 — Clientes | 15 | 15 | 0 | 0 | 0 | 0 | ✅ cerrado |
 | M3 — Alertas | 14 | 14 | 0 | 0 | 0 | 0 | ✅ cerrado |
-| M4 — Oportunidades y cotizaciones | 16 | 15 | 0 | 1 | 0 | 0 | 🛠️ en curso |
+| M4 — Oportunidades y cotizaciones | 16 | 15 | 1 | 0 | 0 | 0 | 🛠️ en curso |
 | M5 — Hoteles y reseñas | 11 | 7 | 2 | 1 | 1 | 0 | 🛠️ en curso |
 | M6 — Viajes y economía | 24 | 1 | 0 | 5 | 18 | 0 | 🛠️ en curso |
 | M7 — Proceso diario y CRM proactivo | 9 | 0 | 0 | 3 | 6 | 0 | 🛠️ en curso |
@@ -142,7 +142,7 @@ flowchart LR
     T073["T-073 · Registrar la respuesta a una cotización en la web<br/><small>web</small>"]:::hecho
     T074["T-074 · Probar de punta a punta el embudo con cotización<br/><small>e2e</small>"]:::hecho
     T167["T-167 · Registrar una consulta sin destino ni pasajeros<br/><small>backend</small>"]:::hecho
-    T168["T-168 · Mostrar las consultas sin destino ni pasajeros en web y mobile<br/><small>web</small>"]:::disponible
+    T168["T-168 · Mostrar las consultas sin destino ni pasajeros en web y mobile<br/><small>web</small><br/>👤 palomap2003"]:::tomado
   end
   subgraph M5["M5 — Hoteles y reseñas"]
     T075["T-075 · Publicar el contrato de hoteles y reseñas<br/><small>contrato</small>"]:::hecho
