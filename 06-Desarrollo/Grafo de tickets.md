@@ -19,7 +19,7 @@ tags:: #tipo/referencia
 | M2 — Clientes | 15 | 15 | 0 | 0 | 0 | 0 | 🔍 listo para la review |
 | M3 — Alertas | 14 | 14 | 0 | 0 | 0 | 0 | 🔍 listo para la review |
 | M4 — Oportunidades y cotizaciones | 16 | 12 | 0 | 2 | 2 | 0 | 🛠️ en curso |
-| M5 — Hoteles y reseñas | 11 | 2 | 0 | 3 | 6 | 0 | 🛠️ en curso |
+| M5 — Hoteles y reseñas | 11 | 2 | 1 | 2 | 6 | 0 | 🛠️ en curso |
 | M6 — Viajes y economía | 24 | 1 | 0 | 5 | 18 | 0 | 🛠️ en curso |
 | M7 — Proceso diario y CRM proactivo | 9 | 0 | 0 | 3 | 6 | 0 | 🛠️ en curso |
 | M8 — Calendario, dashboard y reportes | 10 | 0 | 0 | 1 | 9 | 0 | 🛠️ en curso |
@@ -148,7 +148,7 @@ flowchart LR
     T075["T-075 · Publicar el contrato de hoteles y reseñas<br/><small>contrato</small>"]:::hecho
     T076["T-076 · Gestionar los hoteles del catálogo<br/><small>backend</small>"]:::hecho
     T077["T-077 · Buscar hoteles ordenados por su puntaje<br/><small>backend</small>"]:::disponible
-    T078["T-078 · Registrar las reseñas de un hotel<br/><small>backend</small>"]:::disponible
+    T078["T-078 · Registrar las reseñas de un hotel<br/><small>backend</small><br/>👤 FranLucianoo"]:::tomado
     T079["T-079 · Moderar las reseñas de los hoteles<br/><small>backend</small>"]:::esperando
     T080["T-080 · Buscar hoteles en el catálogo web<br/><small>web</small>"]:::disponible
     T081["T-081 · Editar un hotel del catálogo en la web<br/><small>web</small>"]:::esperando

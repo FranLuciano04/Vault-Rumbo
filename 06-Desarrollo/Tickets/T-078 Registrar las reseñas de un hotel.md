@@ -3,7 +3,7 @@ id: T-078
 titulo: Registrar las reseñas de un hotel
 modulo: M5 — Hoteles y reseñas
 capa: backend
-estado: libre
+estado: tomado
 depende_de: [T-076]
 tamaño: S
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [CU-17, RF-101, RF-102, RF-103, RF-104, RF-105, DEC-0003]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: FranLucianoo
+tomado_el: 28/10/26 12:16
+rama: feature/T-078-registrar-las-resenas-de-un-hotel
 pr:
 ---
 # T-078 Registrar las reseñas de un hotel
