@@ -18,8 +18,8 @@ tags:: #tipo/referencia
 | M1 — Usuarios y configuración | 19 | 19 | 0 | 0 | 0 | 0 | ✅ cerrado |
 | M2 — Clientes | 15 | 15 | 0 | 0 | 0 | 0 | ✅ cerrado |
 | M3 — Alertas | 14 | 14 | 0 | 0 | 0 | 0 | ✅ cerrado |
-| M4 — Oportunidades y cotizaciones | 16 | 12 | 1 | 1 | 2 | 0 | 🛠️ en curso |
-| M5 — Hoteles y reseñas | 11 | 3 | 0 | 3 | 5 | 0 | 🛠️ en curso |
+| M4 — Oportunidades y cotizaciones | 16 | 14 | 1 | 0 | 1 | 0 | 🛠️ en curso |
+| M5 — Hoteles y reseñas | 11 | 6 | 0 | 3 | 2 | 0 | 🛠️ en curso |
 | M6 — Viajes y economía | 24 | 1 | 0 | 5 | 18 | 0 | 🛠️ en curso |
 | M7 — Proceso diario y CRM proactivo | 9 | 0 | 0 | 3 | 6 | 0 | 🛠️ en curso |
 | M8 — Calendario, dashboard y reportes | 10 | 0 | 0 | 1 | 9 | 0 | 🛠️ en curso |
@@ -134,27 +134,27 @@ flowchart LR
     T065["T-065 · Agendar insistencias en el seguimiento de la oportunidad<br/><small>backend</small>"]:::hecho
     T066["T-066 · Emitir cotizaciones versionadas con su vigencia<br/><small>backend · ⚠️ riesgo alto</small>"]:::hecho
     T067["T-067 · Registrar la respuesta del cliente a la cotización<br/><small>backend · ⚠️ riesgo alto</small>"]:::hecho
-    T068["T-068 · Generar el documento PDF de la cotización<br/><small>backend</small>"]:::disponible
+    T068["T-068 · Generar el documento PDF de la cotización<br/><small>backend</small>"]:::hecho
     T069["T-069 · Registrar una consulta en la web<br/><small>web</small>"]:::hecho
     T070["T-070 · Mostrar el embudo de oportunidades en la web<br/><small>web</small>"]:::hecho
     T071["T-071 · Seguir una oportunidad desde su detalle en la web<br/><small>web</small>"]:::hecho
     T072["T-072 · Emitir una cotización en la web<br/><small>web</small>"]:::hecho
     T073["T-073 · Registrar la respuesta a una cotización en la web<br/><small>web</small>"]:::hecho
-    T074["T-074 · Probar de punta a punta el embudo con cotización<br/><small>e2e</small>"]:::esperando
+    T074["T-074 · Probar de punta a punta el embudo con cotización<br/><small>e2e</small>"]:::hecho
     T167["T-167 · Registrar una consulta sin destino ni pasajeros<br/><small>backend</small><br/>👤 palomap2003"]:::tomado
     T168["T-168 · Mostrar las consultas sin destino ni pasajeros en web y mobile<br/><small>web</small>"]:::esperando
   end
   subgraph M5["M5 — Hoteles y reseñas"]
     T075["T-075 · Publicar el contrato de hoteles y reseñas<br/><small>contrato</small>"]:::hecho
     T076["T-076 · Gestionar los hoteles del catálogo<br/><small>backend</small>"]:::hecho
-    T077["T-077 · Buscar hoteles ordenados por su puntaje<br/><small>backend</small>"]:::disponible
+    T077["T-077 · Buscar hoteles ordenados por su puntaje<br/><small>backend</small>"]:::hecho
     T078["T-078 · Registrar las reseñas de un hotel<br/><small>backend</small>"]:::hecho
-    T079["T-079 · Moderar las reseñas de los hoteles<br/><small>backend</small>"]:::disponible
-    T080["T-080 · Buscar hoteles en el catálogo web<br/><small>web</small>"]:::disponible
-    T081["T-081 · Editar un hotel del catálogo en la web<br/><small>web</small>"]:::esperando
-    T082["T-082 · Mostrar el detalle del hotel con sus reseñas en la web<br/><small>web</small>"]:::esperando
+    T079["T-079 · Moderar las reseñas de los hoteles<br/><small>backend</small>"]:::hecho
+    T080["T-080 · Buscar hoteles en el catálogo web<br/><small>web</small>"]:::hecho
+    T081["T-081 · Editar un hotel del catálogo en la web<br/><small>web</small>"]:::disponible
+    T082["T-082 · Mostrar el detalle del hotel con sus reseñas en la web<br/><small>web</small>"]:::disponible
     T083["T-083 · Registrar una reseña en la web<br/><small>web</small>"]:::esperando
-    T084["T-084 · Recomendar hoteles al emitir una cotización<br/><small>web</small>"]:::esperando
+    T084["T-084 · Recomendar hoteles al emitir una cotización<br/><small>web</small>"]:::disponible
     T085["T-085 · Probar de punta a punta el catálogo de hoteles<br/><small>e2e</small>"]:::esperando
   end
   subgraph M6["M6 — Viajes y economía"]

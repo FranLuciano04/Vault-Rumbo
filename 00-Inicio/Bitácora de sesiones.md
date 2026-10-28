@@ -24,37 +24,6 @@ La **persona** de cada sesión es quien la corre, identificada por su identidad 
 ## Avisos pendientes por persona
 > Claude los lee al identificar a la persona (paso 1 de `CLAUDE.md`) y se los cuenta **apenas la saluda**, antes de cualquier otra tarea. Cuando la persona confirme que lo leyó o que lo hizo, **Claude borra su fila** en esa misma sesión, con un commit. Cuando no quede ninguna fila de alguien, se borra también su sección.
 
-### Nahuel (`Nahuel Viniegra`) — el repo es público
-- **25/10, de Francisco: el repo [Vault-Rumbo](https://github.com/FranLuciano04/Vault-Rumbo) pasó a público.** GitHub Actions se había cortado porque se terminaron los minutos del plan Free; en los repos públicos los minutos son ilimitados.
-  - Antes se escaneó todo el historial, incluidas las ramas de los PR, y no hay secretos.
-  - Quedan visibles sus nombres y emails: los de los commits, y el de Paloma también en los metadatos de dos docx. Si quieren, activen *Keep my email addresses private* en GitHub y usen el email `noreply` en los commits nuevos.
-  - Nunca subir un `.env` ni una clave: ahora cualquiera lo vería al instante.
-
-### Nahuel (`Nahuel Viniegra`) — DEC-0019 y fallas de entorno local
-- **24/10, de Paloma: [[DEC-0019 Las fallas se arreglan al encontrarlas|DEC-0019]]**, la decisión que tomamos en equipo. Una falla se arregla cuando se encuentra, sin crear un ticket:
-  - si aparece durante un ticket, en su misma rama y PR;
-  - si no, en una rama `fix/…`;
-  - los hallazgos de Codex también se arreglan así.
-  - Ya están actualizadas `/implementar-ticket` 1.4.0 y `/cerrar-modulo` 1.1.0.
-- **24/10, de Paloma: el PR [#65](https://github.com/FranLuciano04/Vault-Rumbo/pull/65) ya está mergeado** (lo aprobó y mergeó Nahuel). Arregla las cuatro fallas para ver Rumbo en local. Después del pull:
-  - `pnpm dev` ya llega a la API; el destino se cambia con `RUMBO_API_PROXY` en `apps/web/.env`.
-  - Para el compose contra el Firebase real se usa `-f src/docker-compose.firebase.yml`, con `RUMBO_FIREBASE_CREDENCIALES` en `src/.env`, y se publica en el 5173 (`RUMBO_HTTP_PORT=5173`). No se amplía la restricción de la API key (ver `src/infra/firebase.md`).
-
-### Nahuel (`Nahuel Viniegra`) — DEC-0021
-- **25/10, de Paloma: [[DEC-0021 Correcciones del viaje y monto de un pago|DEC-0021]]**, que resuelve dos contradicciones del PC1 que encontró la review de T-086:
-  - **Corregir el estado del viaje:** se sigue a EST-Viaje T7 (la resolución de Nahuel del 21/09). Solo se corrige desde `en curso` y `finalizado`, y al deshacer un finalizado se cierra la alerta de reseña. Se cambió el texto de CU-08 A2 y de RF-042.
-  - **Monto de un pago:** `PATCH /pagos/{id}` solo reprograma el vencimiento. Los montos se cambian rebalanceando los pagos no cobrados o dividiendo el pago. Se cambiaron CU-11 A3, RF-065 y EST-Pago.
-  - No hay cambios de código. T-087 tiene un criterio nuevo.
-
-### Nahuel (`Nahuel Viniegra`) — T-153
-- **24/10, de Paloma: el PR [#73](https://github.com/FranLuciano04/Vault-Rumbo/pull/73) (T-153) ya está mergeado** (⚠️ riesgo alto, auth). Hay un **cambio de decisión**: el 23/10 Francisco había decidido que la cuenta de Firebase sin `Usuario` se reutilizaba. La review de seguridad lo marcó como bloqueante (*pre-account hijacking*: la cuenta conserva la contraseña, los proveedores o las sesiones de quien la haya creado). Paloma decidió que esa cuenta se **borra y se crea una nueva**. CU-25 A1 se actualiza en el mismo PR. Además, el alta toma un lock por email, y nunca se borra una cuenta cuyo uid es de un `Usuario`.
-
-### Nahuel (`Nahuel Viniegra`) — DEC-0022 y DEC-0023 formalizadas
-- **28/10, de Francisco: aprobó [[DEC-0022 Suite completa solo en el CI|DEC-0022]] y [[DEC-0023 Datos mínimos de la consulta|DEC-0023]], y las dos quedaron formalizadas.**
-  - **DEC-0022:** `/implementar-ticket` pasa a la versión 1.6.0. En el paso 6, la PC corre solo los checks rápidos; la suite completa y la cobertura quedan para el CI, salvo que el ticket toque código compartido. También se actualizaron [[Flujo de implementación]] y la §4 de [[Spec de implementación]].
-  - **DEC-0023:** T-062 ya estaba hecho, así que se crearon dos tickets nuevos en M4 (Paloma): **T-167** para el backend (destino y pasajeros opcionales, migración y 409 al cotizar sin esos datos) y **T-168** para web y mobile («Destino a definir»).
-  - También se mergeó el PR #116 (T-067), que Francisco aprobó.
-
 ## Formato
 Es **obligatorio** nombrar a la persona que hizo la sesión.
 ```
@@ -63,6 +32,18 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Commits:** <hash>, <hash>
 - **Pendiente:** …
 ```
+
+## 28/10/26 — Nahuel (Claude Opus 5.5) — T-074: e2e del embudo con cotización
+- **Hecho:** T-074 (PR [#124](https://github.com/FranLuciano04/Vault-Rumbo/pull/124), mergeado con el CI en verde). E2e `oportunidades.spec.ts` (6 tests contra el Compose real: consulta → cotización con PDF → enviada → aceptada, perder/reactivar, visibilidad del freelance) y semilla de demo de oportunidades (5 estados; la `ganada` es venta directa).
+- **Aviso:** aceptar la cotización no gana la oportunidad (sigue «Cotizada» hasta CU-07, M6); el e2e lo fija así.
+- **Commits:** 2044425, 4f65396, 82b9210, 947fcac.
+- **Pendiente:** nada del ticket.
+
+## 28/10/26 — Nahuel (Claude Opus 5.5) — T-068: PDF de la cotización
+- **Hecho:** T-068 (PR [#121](https://github.com/FranLuciano04/Vault-Rumbo/pull/121), mergeado con el CI en verde). `GET /api/cotizaciones/{id}/documento` genera el PDF con WeasyPrint desde una plantilla Jinja2, con formato local y 404 si no es visible. Se sumaron WeasyPrint, Jinja2 y las librerías de Pango al CI y al Dockerfile.
+- **Aviso:** en Windows WeasyPrint no carga sin GTK/Pango; los tests de PDF se corren en Docker (comando en las notas del ticket).
+- **Commits:** a37dc2c, f25b5c0, 795c530, 53af90b, 5dc2f88, b4dbe86.
+- **Pendiente:** menores de la review anotados en el ticket (test de escapado, `Content-Disposition`).
 
 ## 28/10/26 — Francisco (Claude Opus 5.5) — T-075: contrato de hoteles y reseñas
 - **Hecho:** T-075 (PR [#118](https://github.com/FranLuciano04/Vault-Rumbo/pull/118), mergeado con el CI en verde). Es el primer ticket de M5, que tomamos nosotros; Paloma sigue con M4.
@@ -97,7 +78,30 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
   - Review (opus): 0 bloqueantes y 1 importante, arreglado. Una consulta se salteaba la visibilidad.
   - Es el primer ticket con los checks rápidos de DEC-0022: la suite completa la corrió el CI.
   - Commits: 89286be, 99752e4, 13ee775 y 6dac2ed.
-- **Pendiente:** M5 sigue con T-077 (búsqueda por puntaje), T-079 (moderación) y T-080 (catálogo web).
+- **T-079** (PR [#122](https://github.com/FranLuciano04/Vault-Rumbo/pull/122), mergeado con el CI en verde): moderación de reseñas.
+  - Ocultar con motivo, restaurar y eliminar físicamente. Solo pueden hacerlo admin y dueña.
+  - **Decisión de Francisco (CU-29 A2):** solo se elimina físicamente una reseña que ya está oculta. Cada eliminación queda en el log.
+  - La moderación y la edición bloquean la fila (`FOR UPDATE`), así se evita borrar una reseña que se acaba de restaurar.
+  - Review (opus): 0 bloqueantes y 2 importantes, los dos arreglados (la carrera y el rastro).
+  - Commits: 3503932, 95bf795, 9c7bfa8, 56f8c33 y f061ff7.
+- **Abierto (`#accion/decidir` en CU-29):** si, además del log, hace falta un rastro de las eliminaciones que se pueda consultar dentro de Rumbo. Lo decide Paloma, que es la responsable del CU.
+- **T-077** (PR [#123](https://github.com/FranLuciano04/Vault-Rumbo/pull/123), mergeado con el CI en verde): búsqueda de hoteles.
+  - Filtra por destino, categoría, precio y servicio, y ordena por nombre, valoración o precio.
+  - El promedio se calcula sin N+1, y un test cuenta las consultas para verificarlo.
+  - Cuando no hay resultados, devuelve `alternativas` (CU-18 A1).
+  - Se agregó el listado de reseñas por hotel.
+  - Review (opus): 0 bloqueantes, 1 importante (el `openapi.py` compartido importaba un esquema de hoteles; ahora usa un registro genérico) y 6 menores.
+  - Pendiente: un índice en `resena (hotel_id, estado)`.
+  - Commits: bac1129, 59cef88, 6e03ce4 y 325eb4e.
+- **El backend de M5 quedó completo.**
+- **T-080** (PR [#125](https://github.com/FranLuciano04/Vault-Rumbo/pull/125), mergeado con el CI en verde): catálogo de hoteles en la web (`/hoteles`).
+  - Grilla con puntaje, filtros, orden (por defecto, por valoración), paginación y alternativas cuando no hay resultados.
+  - El freelance ve el aviso «Solo consulta» y no tiene botón de alta.
+  - **Decisión:** las categorías (de 1 a 5 estrellas) y los servicios (los de la pantalla 21) quedan como constantes compartidas en `@rumbo/shared`. T-081 tiene que usar las mismas.
+  - Un commit `test(T-080)` corrigió dos errores del test: el orden de los handlers MSW y una aserción que impedía mostrar el precio.
+  - Review (opus): 0 bloqueantes y 3 importantes, arreglados (el debounce del precio, las listas y el aviso para el freelance).
+  - Commits: dd1ac9b, 6bac69f, a8eb606, 63db5c5 y 8a75f11.
+- **Pendiente:** el resto del front de M5, de T-081 a T-084, y el e2e T-085. Hoy (28/10) se hicieron T-075, T-076, T-078, T-079, T-077 y T-080, además de DEC-0022 y DEC-0023.
 - **Abierto para la sync:** ¿se puede asociar una reseña a un viaje cancelado, o a uno cuyo itinerario no incluye el hotel?
 
 ## 27/10/26 — Nahuel (Claude Opus 5.5) — T-073

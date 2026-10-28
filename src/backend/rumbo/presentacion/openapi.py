@@ -5,6 +5,7 @@ from typing import Any
 from fastapi import FastAPI
 from fastapi.openapi.utils import get_openapi
 
+from rumbo.presentacion.contrato import MODELOS_A_PUBLICAR
 from rumbo.presentacion.errores import PROBLEM_JSON
 from rumbo.presentacion.esquemas.comunes import Auditoria, Problema
 from rumbo.presentacion.paginacion import Pagina
@@ -63,6 +64,14 @@ def _publicar_pagina_generica(documento: dict[str, Any]) -> None:
     documento["components"]["schemas"]["Pagina"] = esquema
 
 
+def _publicar_modelos_referenciados(documento: dict[str, Any]) -> None:
+    """Publica los modelos que una respuesta referencia a mano (ver `respuesta_pagina`)."""
+    for modelo in MODELOS_A_PUBLICAR:
+        esquema = modelo.model_json_schema(ref_template="#/components/schemas/{model}")
+        esquema.pop("title", None)
+        documento["components"]["schemas"][modelo.__name__] = esquema
+
+
 def registrar_openapi(app: FastAPI) -> None:
     def generar() -> dict[str, Any]:
         if app.openapi_schema is None:
@@ -72,6 +81,7 @@ def registrar_openapi(app: FastAPI) -> None:
             _errores_como_problem_json(documento)
             _quitar_esquemas_de_validacion_de_fastapi(documento)
             _publicar_pagina_generica(documento)
+            _publicar_modelos_referenciados(documento)
             app.openapi_schema = documento
         return app.openapi_schema
 

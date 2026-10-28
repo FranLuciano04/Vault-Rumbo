@@ -69,3 +69,22 @@ export const ETIQUETA_ESTADO_COTIZACION: Record<EstadoCotizacion, string> = {
 
 /** Texto cuando una consulta todavía no tiene destino (DEC-0023). */
 export const DESTINO_A_DEFINIR = "Destino a definir";
+
+/** Categorías de hotel que ofrece el catálogo (CU-16, CU-18); en la API son texto libre. */
+export const CATEGORIAS_HOTEL = [
+  "1 estrella",
+  "2 estrellas",
+  "3 estrellas",
+  "4 estrellas",
+  "5 estrellas",
+] as const;
+
+/** Servicios filtrables del catálogo de hoteles, en el orden de la pantalla 21 del prototipo. */
+export const SERVICIOS_HOTEL = [
+  "pileta",
+  "desayuno incluido",
+  "wifi",
+  "estacionamiento",
+  "spa",
+  "apto mascotas",
+] as const;

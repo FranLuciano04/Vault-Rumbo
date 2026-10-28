@@ -3,7 +3,7 @@ id: T-068
 titulo: Generar el documento PDF de la cotización
 modulo: M4 — Oportunidades y cotizaciones
 capa: backend
-estado: libre
+estado: hecho
 depende_de: [T-066]
 tamaño: S
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [CU-06, RF-021, RNF-16]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: Nahuel Viniegra
+tomado_el: 28/10/26 13:29
+rama: feature/T-068-generar-el-documento-pdf-de-la-cotizacio
 pr:
 ---
 # T-068 Generar el documento PDF de la cotización
@@ -48,3 +48,9 @@ Cada cotización se descarga como PDF con el formato de la agencia (importes en 
 
 ## Notas de implementación
 - **Del plan:** En Windows WeasyPrint necesita GTK/Pango: si no está, correr estos tests dentro del contenedor de la API y dejarlo documentado.
+- **Implementación:** `html_cotizacion` renderiza la plantilla Jinja2 (autoescape) con importes `1.500.000,50` y fechas `dd/mm/aa`; `pdf_cotizacion` usa WeasyPrint con import diferido (la API arranca sin Pango) y un `url_fetcher` que rechaza todo recurso externo. El servicio `documento_cotizacion` lee con la visibilidad del actor (404 si no es visible), toma el `Cliente` de `oportunidad.cliente` (solo muestra el nombre, que la oportunidad ya expone) y genera el PDF en `asyncio.to_thread`.
+- **Dependencias:** `weasyprint>=70` y `jinja2` explícita; override de mypy para `weasyprint`. Dockerfile suma `libharfbuzz-subset0`; el CI instala `libpango-1.0-0 libpangoft2-1.0-0 fonts-dejavu-core` (hallazgo importante de la review).
+- **Windows:** WeasyPrint no carga sin GTK/Pango. Los tests de PDF se corrieron en Docker: `docker run python:3.13-slim` con el repo montado, `apt-get install libpango-1.0-0 libpangoft2-1.0-0 libharfbuzz-subset0 fonts-dejavu-core`, `uv sync --frozen` con `UV_PROJECT_ENVIRONMENT=/opt/venv` y `TEST_DATABASE_URL` apuntando a `host.docker.internal`. Los 3 tests sin `%PDF` pasan también en Windows.
+- **Menores pendientes:** falta un test del escapado de la plantilla; la respuesta no manda `Content-Disposition` con nombre `.pdf` (el contrato no lo pide); la segunda lectura con visibilidad en el servicio es redundante (solo trae el join del cliente).
+- **CI:** el primer CI falló en `test_contrato_m4.py` (esperaba 501 en `/documento`); se sumó la ruta a `IMPLEMENTADAS` con `--tocar-tests` (53af90b).
+- **Modelos:** tests sonnet, impl/fix sonnet, review opus; sin escalados. El refactor no cambió nada.

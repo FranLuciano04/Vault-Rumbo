@@ -1,5 +1,4 @@
-"""Rutas del módulo hoteles (CU-16, CU-17, CU-18, CU-29). La búsqueda y el listado, la baja lógica,
-la restauración y la eliminación de reseñas responden 501 hasta su backend."""
+"""Rutas del módulo hoteles (CU-16, CU-17, CU-18, CU-29)."""
 
 import uuid
 from typing import Annotated, Any, Literal
@@ -15,17 +14,18 @@ from rumbo.negocio.servicios.hoteles import HotelConResenas
 from rumbo.presentacion.contrato import (
     GESTION,
     TODOS,
-    no_implementado,
     operacion,
     respuesta_pagina,
 )
 from rumbo.presentacion.dependencias import usuario_actual
 from rumbo.presentacion.esquemas.comunes import Importe
 from rumbo.presentacion.esquemas.hoteles import (
+    AlternativasHoteles,
     Hotel,
     HotelCrear,
     HotelEditar,
     HotelExistente,
+    PaginaHoteles,
     ProblemaHotelDuplicado,
     Resena,
     ResenaCrear,
@@ -65,7 +65,16 @@ def _hotel(resultado: HotelConResenas) -> Hotel:
 
 _LISTADO_HOTELES = operacion(TODOS, "CU-18", 422)
 _LISTADO_HOTELES["responses"][200] = respuesta_pagina(
-    "Hotel", "Hoteles del catálogo, con su puntaje promedio. Por defecto, solo los activos."
+    "Hotel",
+    "Hoteles del catálogo, con su puntaje promedio. Por defecto, solo los activos.",
+    extras={
+        "alternativas": {
+            "anyOf": [{"$ref": "#/components/schemas/AlternativasHoteles"}, {"type": "null"}],
+            "description": "Solo si no hubo ningún resultado (CU-18 A1): qué filtros ampliar y "
+            "si se puede dar de alta el hotel.",
+        }
+    },
+    modelos=[AlternativasHoteles],
 )
 _LISTADO_RESENAS = operacion(TODOS, "CU-18", 403, 404, 422)
 _LISTADO_RESENAS["description"] += (
@@ -86,6 +95,8 @@ _LISTADO_RESENAS["responses"][200] = respuesta_pagina(
     **_LISTADO_HOTELES,
 )
 async def listar_hoteles(
+    actor: ActorDep,
+    sesion: SesionDep,
     paginacion: PaginaDep,
     destino_id: Annotated[uuid.UUID | None, Query()] = None,
     categoria: Annotated[str | None, Query()] = None,
@@ -103,8 +114,30 @@ async def listar_hoteles(
         EstadoHotel,
         Query(description="Los `cerrado` se conservan pero salen del catálogo activo (CU-16 A4)."),
     ] = EstadoHotel.activo,
-) -> Pagina[Hotel]:
-    raise no_implementado()
+) -> PaginaHoteles:
+    resultado = await hoteles.buscar_hoteles(
+        sesion,
+        actor,
+        destino_id=destino_id,
+        categoria=categoria,
+        precio_max=precio_max,
+        servicio=servicio,
+        orden=orden,
+        estado=estado,
+        desplazamiento=paginacion.desplazamiento,
+        limite=paginacion.por_pagina,
+    )
+    return PaginaHoteles(
+        items=[_hotel(h) for h in resultado.hoteles],
+        total=resultado.total,
+        pagina=paginacion.pagina,
+        por_pagina=paginacion.por_pagina,
+        alternativas=(
+            AlternativasHoteles(**resultado.alternativas._asdict())
+            if resultado.alternativas
+            else None
+        ),
+    )
 
 
 @router.post(
@@ -169,13 +202,28 @@ async def dar_de_baja_hotel(hotel_id: uuid.UUID, actor: ActorDep, sesion: Sesion
 )
 async def listar_resenas(
     hotel_id: uuid.UUID,
+    actor: ActorDep,
+    sesion: SesionDep,
     paginacion: PaginaDep,
     estado: Annotated[
         EstadoResena,
         Query(description="Las `oculta` solo las ven admin y dueño, para restaurarlas (CU-29 A1)."),
     ] = EstadoResena.publicada,
 ) -> Pagina[Resena]:
-    raise no_implementado()
+    items, total = await resenas.listar_resenas(
+        sesion,
+        actor,
+        hotel_id,
+        estado=estado,
+        desplazamiento=paginacion.desplazamiento,
+        limite=paginacion.por_pagina,
+    )
+    return Pagina(
+        items=[Resena.model_validate(r) for r in items],
+        total=total,
+        pagina=paginacion.pagina,
+        por_pagina=paginacion.por_pagina,
+    )
 
 
 @router.post(
@@ -214,9 +262,12 @@ async def editar_resena(
     summary="Eliminar una reseña (baja lógica)",
     **operacion(GESTION, "CU-29", 404, 409, 422),
 )
-async def ocultar_resena(resena_id: uuid.UUID, datos: ResenaOcultar) -> Resena:
+async def ocultar_resena(
+    resena_id: uuid.UUID, datos: ResenaOcultar, actor: ActorDep, sesion: SesionDep
+) -> Resena:
     """La reseña pasa a `oculta` y deja de contar para la recomendación."""
-    raise no_implementado()
+    resena = await resenas.ocultar_resena(sesion, actor, resena_id, datos.motivo_baja)
+    return Resena.model_validate(resena)
 
 
 @router.post(
@@ -225,8 +276,9 @@ async def ocultar_resena(resena_id: uuid.UUID, datos: ResenaOcultar) -> Resena:
     summary="Restaurar una reseña oculta",
     **operacion(GESTION, "CU-29", 404, 409),
 )
-async def restaurar_resena(resena_id: uuid.UUID) -> Resena:
-    raise no_implementado()
+async def restaurar_resena(resena_id: uuid.UUID, actor: ActorDep, sesion: SesionDep) -> Resena:
+    resena = await resenas.restaurar_resena(sesion, actor, resena_id)
+    return Resena.model_validate(resena)
 
 
 @router.delete(
@@ -236,6 +288,6 @@ async def restaurar_resena(resena_id: uuid.UUID) -> Resena:
     status_code=204,
     **operacion(GESTION, "CU-29", 404, 409),
 )
-async def eliminar_resena(resena_id: uuid.UUID) -> None:
-    """Solo si no rompe la integridad referencial; por defecto se oculta (CU-29 A2)."""
-    raise no_implementado()
+async def eliminar_resena(resena_id: uuid.UUID, actor: ActorDep, sesion: SesionDep) -> None:
+    """Solo una reseña ya `oculta`; por defecto se oculta, no se borra (CU-29 A2)."""
+    await resenas.eliminar_resena(sesion, actor, resena_id)

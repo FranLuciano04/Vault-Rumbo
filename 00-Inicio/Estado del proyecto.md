@@ -12,6 +12,12 @@ actualizado: 13/10/26
 ## Fase actual
 > 🚀 **12/10 — arranca la implementación.** El equipo aprobó [[DEC-0014 Flujo de implementación con agentes]]: tickets con semáforo en Git, TDD con subagentes, review de Codex en cada módulo y código en `src/`. ✅ **Paso 1 hecho:** skills (`/tomar-ticket`, `/implementar-ticket`, `/cerrar-modulo` y 13 de Addy Osmani), subagentes, script de tickets, [[Flujo de implementación]], [[Tablero de tickets]] y [[Grafo de tickets]]. ✅ **Paso 2 (13/10):** grill con el equipo → [[DEC-0015 Decisiones de implementación]], y la autenticación pasó a Firebase con [[DEC-0016 Autenticación con Firebase]]. ✅ **Paso 3 (13/10):** [[Spec de implementación]] aprobada y formalizada; [[Plan de implementación]] (aprobado el 14/10) con **139 tickets** en el [[Grafo de tickets]]. ⏭️ **Ahora:** empezar con `/tomar-ticket` (disponibles: T-001, T-002, T-004 y T-005, el proyecto de Firebase). Meta mínima del PC2: M0 a M6; primero los 79 tickets del camino de CU-01 (T-108). Después, hasta donde lleguemos.
 >
+> 👉 **28/10 (Francisco):** **T-080** (catálogo de hoteles en la web) está hecho y mergeado (PR [#125](https://github.com/FranLuciano04/Vault-Rumbo/pull/125)). Las categorías y los servicios de hotel quedan como constantes compartidas. A M5 le faltan T-081 a T-085.
+>
+> 👉 **28/10 (Francisco):** **T-077** (búsqueda de hoteles por puntaje) está hecho y mergeado (PR [#123](https://github.com/FranLuciano04/Vault-Rumbo/pull/123)). **El backend de M5 está completo.** Queda el front, que arranca con T-080, el catálogo web.
+>
+> 👉 **28/10 (Francisco):** **T-079** (moderación de reseñas) está hecho y mergeado (PR [#122](https://github.com/FranLuciano04/Vault-Rumbo/pull/122)). Una reseña solo se elimina físicamente si ya está oculta (CU-29 A2). Con esto, el backend de reseñas de M5 queda completo.
+>
 > 👉 **28/10 (Francisco):** **T-078** (reseñas de hotel) está hecho y mergeado (PR [#120](https://github.com/FranLuciano04/Vault-Rumbo/pull/120)). Queda abierto para la sync si una reseña se puede asociar a un viaje cancelado o a uno cuyo itinerario no incluye el hotel.
 >
 > 👉 **28/10 (Francisco):** **T-076** (gestionar los hoteles) está hecho y mergeado (PR [#119](https://github.com/FranLuciano04/Vault-Rumbo/pull/119)). Un índice único parcial evita hoteles duplicados. Se formalizaron [[DEC-0022 Suite completa solo en el CI|DEC-0022]] y [[DEC-0023 Datos mínimos de la consulta|DEC-0023]].

@@ -3,6 +3,7 @@
 from typing import Any
 
 from fastapi import Depends, HTTPException
+from pydantic import BaseModel
 
 from rumbo.datos.modelos import RolUsuario
 from rumbo.presentacion.dependencias import exigir_roles, usuario_actual
@@ -27,10 +28,23 @@ def _regla(escritura: bool | str) -> str:
     return f"**Escritura:** {escritura}\n\n" if escritura else ""
 
 
-def respuesta_pagina(esquema: str, descripcion: str) -> dict[str, Any]:
+# Modelos que una respuesta referencia a mano (sin declararlos como `model`) y que `openapi.py`
+# tiene que publicar en components.
+MODELOS_A_PUBLICAR: list[type[BaseModel]] = []
+
+
+def respuesta_pagina(
+    esquema: str,
+    descripcion: str,
+    extras: dict[str, Any] | None = None,
+    modelos: list[type[BaseModel]] | None = None,
+) -> dict[str, Any]:
     """Respuesta `200` de un listado paginado con `esquema` por referencia, como el contrato (no
     el `Pagina_X_` que genera FastAPI). Va en `responses[200]`; la ruta lleva `response_model=None`.
+    `extras` suma propiedades opcionales a la página (p. ej. `alternativas` en los hoteles) y
+    `modelos` registra los esquemas que esas propiedades referencian, para publicarlos.
     """
+    MODELOS_A_PUBLICAR.extend(m for m in modelos or [] if m not in MODELOS_A_PUBLICAR)
     return {
         "description": descripcion,
         "content": {
@@ -48,6 +62,7 @@ def respuesta_pagina(esquema: str, descripcion: str) -> dict[str, Any]:
                         },
                         "pagina": {"type": "integer", "minimum": 1},
                         "por_pagina": {"type": "integer", "minimum": 1, "maximum": 100},
+                        **(extras or {}),
                     },
                     "required": ["items", "total", "pagina", "por_pagina"],
                 }

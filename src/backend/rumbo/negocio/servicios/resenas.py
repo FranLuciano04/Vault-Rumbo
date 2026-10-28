@@ -1,5 +1,6 @@
-"""Servicio de las reseñas de hoteles: registrarlas y corregirlas (CU-17)."""
+"""Servicio de las reseñas de hoteles: registrarlas, corregirlas (CU-17) y moderarlas (CU-29)."""
 
+import logging
 import uuid
 from datetime import date
 from typing import Any
@@ -14,6 +15,8 @@ from rumbo.datos.repositorios.viajes import RepositorioViajes
 from rumbo.negocio.errores import Conflicto, DatosInvalidos, NoEncontrado
 from rumbo.negocio.politicas import exigir_rol, visibilidad
 
+logger = logging.getLogger(__name__)
+
 _resenas = RepositorioResenas()
 _hoteles = RepositorioHoteles()
 _clientes = RepositorioClientes()
@@ -21,6 +24,34 @@ _viajes = RepositorioViajes()
 
 # Igual que el catálogo de hoteles: todos menos el freelance (DEC-0008).
 _GESTORES = (RolUsuario.admin, RolUsuario.dueno, RolUsuario.empleado)
+
+# Moderar es cosa de admin y dueño (RF-153).
+_MODERADORES = (RolUsuario.admin, RolUsuario.dueno)
+
+
+async def listar_resenas(
+    sesion: AsyncSession,
+    actor: Usuario,
+    hotel_id: uuid.UUID,
+    *,
+    estado: EstadoResena,
+    desplazamiento: int,
+    limite: int,
+) -> tuple[list[Resena], int]:
+    """Página de las reseñas de un hotel, activo o cerrado (CU-18 paso 3). Las `oculta` solo las
+    piden admin y dueño, para restaurarlas (CU-29 A1)."""
+    if estado is EstadoResena.oculta:
+        exigir_rol(actor, *_MODERADORES)
+    vista = visibilidad(actor)
+    await _hoteles.obtener(sesion, hotel_id, visibilidad=vista)
+    return await _resenas.paginar_por_hotel(
+        sesion,
+        hotel_id,
+        estado=estado,
+        desplazamiento=desplazamiento,
+        limite=limite,
+        visibilidad=vista,
+    )
 
 
 async def registrar_resena(
@@ -57,13 +88,68 @@ async def editar_resena(
 ) -> Resena:
     """Aplica solo los campos enviados (CU-17, RF-105); una reseña `oculta` no se edita."""
     exigir_rol(actor, *_GESTORES)
-    resena = await _resenas.obtener(sesion, resena_id, visibilidad=visibilidad(actor))
+    resena = await _resenas.obtener_para_modificar(
+        sesion, resena_id, visibilidad=visibilidad(actor)
+    )
     if resena.estado is not EstadoResena.publicada:
         raise Conflicto("La reseña está oculta: restaurala para editarla.")
     for campo, valor in cambios.items():
         setattr(resena, campo, valor)
     await sesion.flush()
     return resena
+
+
+async def ocultar_resena(
+    sesion: AsyncSession, actor: Usuario, resena_id: uuid.UUID, motivo_baja: str
+) -> Resena:
+    """Baja lógica: la reseña pasa a `oculta` con su motivo (CU-29, RF-111)."""
+    exigir_rol(actor, *_MODERADORES)
+    resena = await _resenas.obtener_para_modificar(
+        sesion, resena_id, visibilidad=visibilidad(actor)
+    )
+    if resena.estado is EstadoResena.oculta:
+        raise Conflicto("La reseña ya está oculta.")
+    resena.estado = EstadoResena.oculta
+    resena.motivo_baja = motivo_baja
+    await sesion.flush()
+    return resena
+
+
+async def restaurar_resena(sesion: AsyncSession, actor: Usuario, resena_id: uuid.UUID) -> Resena:
+    """Vuelve a `publicada` una reseña oculta y borra su motivo (CU-29 A1, RF-112)."""
+    exigir_rol(actor, *_MODERADORES)
+    resena = await _resenas.obtener_para_modificar(
+        sesion, resena_id, visibilidad=visibilidad(actor)
+    )
+    if resena.estado is EstadoResena.publicada:
+        raise Conflicto("La reseña ya está publicada.")
+    resena.estado = EstadoResena.publicada
+    resena.motivo_baja = None
+    await sesion.flush()
+    return resena
+
+
+async def eliminar_resena(sesion: AsyncSession, actor: Usuario, resena_id: uuid.UUID) -> None:
+    """Eliminación física, solo de una reseña ya `oculta` (CU-29 A2)."""
+    exigir_rol(actor, *_MODERADORES)
+    resena = await _resenas.obtener_para_modificar(
+        sesion, resena_id, visibilidad=visibilidad(actor)
+    )
+    if resena.estado is not EstadoResena.oculta:
+        raise Conflicto("Solo se elimina una reseña oculta: ocultala primero.")
+    logger.info(
+        "Reseña eliminada físicamente",
+        extra={
+            "resena_id": str(resena.id),
+            "hotel_id": str(resena.hotel_id),
+            "cliente_id": str(resena.cliente_id),
+            "puntaje": resena.puntaje,
+            "motivo_baja": resena.motivo_baja,
+            "actor_id": str(actor.id),
+        },
+    )
+    await sesion.delete(resena)
+    await sesion.flush()
 
 
 async def _exigir_cliente_y_viaje(

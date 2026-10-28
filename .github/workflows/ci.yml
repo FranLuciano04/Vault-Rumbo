@@ -109,6 +109,10 @@ jobs:
         with:
           enable-cache: true
           cache-dependency-glob: src/backend/uv.lock
+      # WeasyPrint (PDF de la cotización, T-068) necesita Pango y fuentes del sistema.
+      - name: Librerías de sistema (WeasyPrint)
+        working-directory: .
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends libpango-1.0-0 libpangoft2-1.0-0 fonts-dejavu-core
       - name: Instalar dependencias
         run: uv sync --locked
       - name: Lint (ruff)

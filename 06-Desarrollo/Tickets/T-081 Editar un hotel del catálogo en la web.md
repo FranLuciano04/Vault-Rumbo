@@ -45,3 +45,4 @@ Se da de alta un hotel, se lo edita o se lo da de baja desde la web, con el avis
 - —
 
 ## Notas de implementación
+- **De la review de T-080 (28/10/26):** el contrato no tiene un catálogo de categorías ni de servicios. Por eso el catálogo web usa las constantes compartidas `CATEGORIAS_HOTEL` (de 1 a 5 estrellas) y `SERVICIOS_HOTEL` (los de la pantalla 21 del prototipo), que viven en `@rumbo/shared`. El alta y la edición tienen que ofrecer las mismas listas: si no, un hotel cargado con otro texto no aparece al filtrar. El contrato tampoco permite filtrar por un rango de categorías ni por varios servicios a la vez, así que la pantalla no puede ofrecer esas opciones.
