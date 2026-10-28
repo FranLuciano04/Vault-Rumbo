@@ -62,6 +62,11 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
+## 27/10/26 — Nahuel (Claude Opus 5.5) — T-065
+- **Hecho:** T-065 (agendar insistencias en el seguimiento de la oportunidad) mergeado (PR [#115](https://github.com/FranLuciano04/Vault-Rumbo/pull/115)). `POST /oportunidades/{id}/insistencias` crea la alerta a nombre del responsable. Nahuel decidió que agendar sobre una oportunidad ganada o perdida, o con una fecha que no sea futura, responda 422 sin cambiar el contrato. RF-014 queda cubierto con el campo `notas`, sin historial.
+- **Commits:** 6607e17, 7ec7e55, 9b061e5, c58f7b3; merge de main 373190c; merge 284f131.
+- **Pendiente:** si se quiere un historial de interacciones (RF-014), hace falta un ticket nuevo.
+
 ## 27/10/26 — Nahuel (Claude Opus 5.5) — T-072
 - **Hecho:** T-072 (emitir una cotización en la web) mergeado (PR [#113](https://github.com/FranLuciano04/Vault-Rumbo/pull/113)). Dentro del ticket, por DEC-0019, se implementó `GET /oportunidades/{id}/cotizaciones`, que respondía 501 (falla de T-066). Borrador [[DEC-0023 Datos mínimos de la consulta]]: Nahuel respondió que destino y pasajeros son obligatorios para emitir una cotización.
 - **Commits:** 4262eb5, 8057b2e, c241558, 7cd953d, 5094e26, 0c2fb90, 31a8d22, 7a7d2b4, 8a3734b, 7a9480f; merge 9f4fe03.
