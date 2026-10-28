@@ -1,4 +1,9 @@
-import { crearCliente, type EstadoOportunidad, type UsuarioActual } from "@rumbo/shared";
+import {
+  crearCliente,
+  DESTINO_A_DEFINIR,
+  type EstadoOportunidad,
+  type UsuarioActual,
+} from "@rumbo/shared";
 import {
   alertasMock,
   crearServidor,
@@ -658,5 +663,28 @@ describe("Permisos de escritura sobre la oportunidad", () => {
     await screen.findByRole("heading", { name: /mendoza/i });
 
     expect(screen.getByRole("button", { name: /^ganar/i })).toBeInTheDocument();
+  });
+});
+
+describe("RF-013 consulta sin destino", () => {
+  const sinDatos = (id: string) =>
+    http.get(`*/api/oportunidades/${id}`, () =>
+      HttpResponse.json({ ...porId(id), destino_consultado: null, pasajeros: null }),
+    );
+
+  it("RF-013 el detalle muestra «Destino a definir» cuando falta el destino", async () => {
+    servidor.use(sinDatos(abierta));
+    renderDetalle(abierta);
+
+    expect(await screen.findByRole("heading", { name: DESTINO_A_DEFINIR })).toBeInTheDocument();
+  });
+
+  it("RF-013 el detalle muestra «—» cuando faltan los pasajeros", async () => {
+    servidor.use(sinDatos(abierta));
+    renderDetalle(abierta);
+
+    await screen.findByRole("heading", { name: DESTINO_A_DEFINIR });
+    expect(screen.getByText(/—/)).toBeInTheDocument();
+    expect(screen.queryByText(/null|undefined|NaN/)).not.toBeInTheDocument();
   });
 });

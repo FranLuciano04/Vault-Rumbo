@@ -1,4 +1,4 @@
-import { crearCliente } from "@rumbo/shared";
+import { crearCliente, DESTINO_A_DEFINIR } from "@rumbo/shared";
 import {
   clientesMock,
   crearServidor,
@@ -14,6 +14,7 @@ import userEvent from "@testing-library/user-event";
 import { http, HttpResponse } from "msw";
 import { MemoryRouter, Route, Routes, useParams } from "react-router";
 import { afterAll, afterEach, beforeAll } from "vitest";
+import { esquemaConsulta } from "./esquemas";
 import { NuevaConsulta } from "./NuevaConsulta";
 
 const servidor = crearServidor(...manejadoresClientes, ...manejadoresOportunidades);
@@ -447,20 +448,6 @@ describe("RF-013 datos mínimos (A3)", () => {
     expect(cuerpos).toHaveLength(0);
   });
 
-  it("RF-013 sin destino no manda la consulta y marca el campo", async () => {
-    const cuerpos: Record<string, unknown>[] = [];
-    servidor.use(sinOportunidades, altaCapturada(cuerpos));
-    const usuario = userEvent.setup();
-    renderConsulta();
-    await elegirCliente(usuario, "sosa", "familia sosa");
-    await usuario.selectOptions(screen.getByRole("combobox", { name: /canal/i }), "instagram");
-
-    await usuario.click(registrar());
-
-    expect(await screen.findByText("Ingresá el destino.")).toBeInTheDocument();
-    expect(cuerpos).toHaveLength(0);
-  });
-
   it("RF-013 los pasajeros tienen que ser al menos uno", async () => {
     const cuerpos: Record<string, unknown>[] = [];
     servidor.use(sinOportunidades, altaCapturada(cuerpos));
@@ -512,5 +499,95 @@ describe("RF-004 usar el cliente duplicado (A1)", () => {
       expect(consultas).toHaveLength(1);
     });
     expect(consultas[0]?.["cliente_id"]).toBe(sosa.id);
+  });
+});
+
+describe("RF-013 consulta sin destino", () => {
+  const soloClienteYCanal = {
+    cliente_id: sosa.id,
+    canal: "whatsapp",
+    destino_consultado: "",
+    fecha_desde_tentativa: "",
+    fecha_hasta_tentativa: "",
+    pasajeros: Number.NaN,
+    notas: "",
+  };
+
+  it("RF-013 esquemaConsulta acepta una consulta con solo cliente y canal", () => {
+    expect(esquemaConsulta.safeParse(soloClienteYCanal).success).toBe(true);
+  });
+
+  it("RF-013 esquemaConsulta acepta destino y pasajeros ausentes", () => {
+    const { destino_consultado: _d, pasajeros: _p, ...sinEllos } = soloClienteYCanal;
+    expect(esquemaConsulta.safeParse(sinEllos).success).toBe(true);
+  });
+
+  it("RF-013 esquemaConsulta sigue pidiendo cliente y canal", () => {
+    const r = esquemaConsulta.safeParse({ ...soloClienteYCanal, cliente_id: "", canal: "" });
+    expect(r.success).toBe(false);
+  });
+
+  it("RF-013 esquemaConsulta rechaza pasajeros menores a uno si se cargan", () => {
+    expect(esquemaConsulta.safeParse({ ...soloClienteYCanal, pasajeros: 0 }).success).toBe(false);
+  });
+
+  it("RF-013 registra la consulta con solo cliente y canal, sin destino ni pasajeros", async () => {
+    const cuerpos: Record<string, unknown>[] = [];
+    servidor.use(sinOportunidades, altaCapturada(cuerpos));
+    const usuario = userEvent.setup();
+    renderConsulta();
+    await elegirCliente(usuario, "sosa", "familia sosa");
+    await usuario.selectOptions(screen.getByRole("combobox", { name: /canal/i }), "instagram");
+    await usuario.clear(screen.getByRole("spinbutton", { name: /pasajeros/i }));
+
+    await usuario.click(registrar());
+
+    expect(await screen.findByText(`Detalle de la oportunidad ${NUEVA_ID}`)).toBeInTheDocument();
+    expect(cuerpos).toHaveLength(1);
+    expect(cuerpos[0]).toMatchObject({ cliente_id: sosa.id, canal: "instagram" });
+    expect(cuerpos[0]?.["destino_consultado"] ?? null).toBeNull();
+    expect(cuerpos[0]?.["pasajeros"] ?? null).toBeNull();
+  });
+
+  it("RF-013 sin destino ni pasajeros no marca errores en esos campos", async () => {
+    servidor.use(sinOportunidades, altaCapturada([]));
+    const usuario = userEvent.setup();
+    renderConsulta();
+    await elegirCliente(usuario, "sosa", "familia sosa");
+    await usuario.selectOptions(screen.getByRole("combobox", { name: /canal/i }), "instagram");
+    await usuario.clear(screen.getByRole("spinbutton", { name: /pasajeros/i }));
+
+    await usuario.click(registrar());
+
+    await screen.findByText(`Detalle de la oportunidad ${NUEVA_ID}`);
+    expect(screen.queryByText("Ingresá el destino.")).not.toBeInTheDocument();
+    expect(screen.queryByText("Ingresá los pasajeros.")).not.toBeInTheDocument();
+  });
+
+  it("RF-013 el aviso de oportunidad abierta muestra «Destino a definir» si falta el destino", async () => {
+    const abiertaSinDestino = {
+      ...oportunidadesMock[0],
+      cliente_id: camila.id,
+      estado: "nueva",
+      destino_consultado: null,
+      pasajeros: null,
+    };
+    servidor.use(
+      http.get("*/api/oportunidades", ({ request }) => {
+        if (new URL(request.url).searchParams.get("cliente_id") !== camila.id) return undefined;
+        return HttpResponse.json({
+          items: [abiertaSinDestino],
+          total: 1,
+          pagina: 1,
+          por_pagina: 20,
+        });
+      }),
+    );
+    const usuario = userEvent.setup();
+    renderConsulta();
+
+    await elegirCliente(usuario, "camila", "camila benítez");
+
+    expect(await screen.findByRole("alert")).toHaveTextContent(DESTINO_A_DEFINIR);
   });
 });
