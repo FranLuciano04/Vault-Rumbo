@@ -17,7 +17,10 @@ _clientes = RepositorioClientes()
 # (destino, nombre, categoría, precio por noche en ARS, servicios, reseñas). Cada reseña es
 # (contacto del cliente, puntaje, comentario, días atrás, motivo de baja o None). Con motivo la
 # reseña nace `oculta`: sirve para mostrar la moderación (CU-29).
-_HOTELES = [
+_Resena = tuple[str, int, str, int, str | None]
+_Hotel = tuple[str, str, str, str, list[str], list[_Resena]]
+
+_HOTELES: list[_Hotel] = [
     (
         "Cancún",
         "Hotel Demo Playa Caribe",
