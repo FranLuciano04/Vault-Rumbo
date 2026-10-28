@@ -66,3 +66,6 @@ export const ETIQUETA_ESTADO_COTIZACION: Record<EstadoCotizacion, string> = {
   rechazada: "Rechazada",
   vencida: "Vencida",
 };
+
+/** Texto cuando una consulta todavía no tiene destino (DEC-0023). */
+export const DESTINO_A_DEFINIR = "Destino a definir";

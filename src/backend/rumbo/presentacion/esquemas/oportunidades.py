@@ -86,9 +86,11 @@ class OportunidadEditar(Edicion):
     """Solo se envían los campos que cambian."""
 
     canal: CanalOportunidad = omitible()
+    # Anulable en la base, pero una vez cargado no se vacía: hace falta para cotizar (DEC-0023).
     destino_consultado: str = omitible(min_length=1, max_length=200)
     fecha_desde_tentativa: date | None = None
     fecha_hasta_tentativa: date | None = None
+    # Anulable en la base, pero una vez cargado no se vacía: hace falta para cotizar (DEC-0023).
     pasajeros: int = omitible(ge=1)
     notas: str | None = None
     responsable_id: uuid.UUID = omitible(

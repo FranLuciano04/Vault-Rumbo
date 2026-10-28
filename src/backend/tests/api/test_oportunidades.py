@@ -787,6 +787,42 @@ async def test_rf013_destino_y_pasajeros_se_validan_si_vienen(
     assert valido.status_code == 201, valido.text
 
 
+async def test_rf013_completar_destino_y_pasajeros_despues_permite_cotizar(
+    cliente_como: FabricaCliente, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("empleado")
+    existente = await crear(sesion, ClienteFactory)
+    creada = await c.post(
+        "/api/oportunidades", json={"cliente_id": str(existente.id), "canal": "whatsapp"}
+    )
+    assert creada.status_code == 201, creada.text
+    url = f"/api/oportunidades/{creada.json()['id']}"
+    cotizacion = {"moneda": "USD", "items": [{"concepto": "Aéreo", "precio": "100.00"}]}
+
+    assert (await c.post(f"{url}/cotizaciones", json=cotizacion)).status_code == 409
+    editada = await c.patch(url, json={"destino_consultado": "Cusco", "pasajeros": 2})
+    assert editada.status_code == 200, editada.text
+    assert editada.json()["destino_consultado"] == "Cusco"
+    assert editada.json()["pasajeros"] == 2
+
+    r = await c.post(f"{url}/cotizaciones", json=cotizacion)
+
+    assert r.status_code == 201, r.text
+
+
+@pytest.mark.parametrize("campo", ["destino_consultado", "pasajeros"])
+async def test_rf013_patch_no_vacia_destino_ni_pasajeros(
+    cliente_como: FabricaCliente, sesion: AsyncSession, campo: str
+) -> None:
+    c = await cliente_como("empleado")
+    op = await _oportunidad(sesion, c.usuario.id)  # type: ignore[attr-defined]
+
+    r = await c.patch(f"/api/oportunidades/{op.id}", json={campo: None})
+
+    assert r.status_code == 422, r.text
+    assert campo in {e["campo"] for e in r.json()["errores"]}
+
+
 async def test_rf013_sin_cliente_422(cliente_como: FabricaCliente, sesion: AsyncSession) -> None:
     c = await cliente_como("empleado")
 

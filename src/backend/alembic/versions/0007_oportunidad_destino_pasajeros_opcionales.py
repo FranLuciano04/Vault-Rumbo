@@ -2,7 +2,7 @@
 
 CU-04 A3 y DEC-0023: una consulta se registra solo con cliente y canal. `destino_consultado` y
 `pasajeros` admiten nulo; el CHECK de pasajeros solo aplica si hay valor. Para cotizar siguen
-siendo obligatorios (lo exige el servicio).
+siendo obligatorios (lo exige el servicio). El downgrade rellena con '' y 1 solo para poder volver a NOT NULL.
 
 Revision ID: 0007
 Revises: 0006
