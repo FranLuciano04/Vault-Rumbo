@@ -3,7 +3,7 @@ id: T-076
 titulo: Gestionar los hoteles del catálogo
 modulo: M5 — Hoteles y reseñas
 capa: backend
-estado: libre
+estado: tomado
 depende_de: [T-075, T-012, T-011]
 tamaño: M
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [CU-16, RF-097, RF-098, RF-099, RF-100, RF-153]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: FranLucianoo
+tomado_el: 28/10/26 10:13
+rama: feature/T-076-gestionar-los-hoteles-del-catalogo
 pr:
 ---
 # T-076 Gestionar los hoteles del catálogo
