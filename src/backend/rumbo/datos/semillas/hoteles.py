@@ -71,8 +71,8 @@ _HOTELES = [
 
 
 # Se busca por destino y nombre, sin tildes ni mayúsculas, como el índice único (RF-099): un hotel
-# ya cargado, aunque la agencia lo haya editado o cerrado, no se vuelve a crear ni se le suman
-# reseñas.
+# ya cargado, aunque esté cerrado, no se vuelve a crear ni se le suman reseñas. Si la agencia le
+# cambia el nombre, una nueva corrida lo vuelve a crear (el mismo riesgo que acepta la de clientes).
 async def sembrar_hoteles(sesion: AsyncSession) -> None:
     """Carga los hoteles de demo con sus reseñas, idempotente. Corre después de la configuración,
     de la que toma los destinos, y de la de clientes, de la que toma a quienes reseñan. Las fechas

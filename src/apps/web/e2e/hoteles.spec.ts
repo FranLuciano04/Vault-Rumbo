@@ -228,7 +228,10 @@ test.describe("CU-18 Buscar y recomendar hoteles", () => {
     const idZeta = await crearHotel(duena, destino.id, zeta);
     await crearHotel(duena, destino.id, sin);
     const cliente = await crearCliente(duena, "Orden");
-    await crearResena(duena, idAlfa, cliente.id, 2, "Regular");
+    // Alfa suma más (9) que Zeta (5), pero su promedio (3) es menor: distingue promedio de suma.
+    for (const comentario of ["Regular uno", "Regular dos", "Regular tres"]) {
+      await crearResena(duena, idAlfa, cliente.id, 3, comentario);
+    }
     await crearResena(duena, idZeta, cliente.id, 5, "Excelente");
     await ingresar(page, DUENA.email, DUENA.password);
 
@@ -236,15 +239,18 @@ test.describe("CU-18 Buscar y recomendar hoteles", () => {
     await page.getByLabel("Destino", { exact: true }).selectOption({ label: destino.nombre });
     await expect(page.getByText("3 hoteles encontrados")).toBeVisible();
     await expect(page.getByLabel("Ordenar por")).toHaveValue("valoracion");
-    await expect(page.getByRole("heading", { level: 2 })).toHaveText([zeta, alfa, sin]);
+    const resultados = page
+      .getByRole("list")
+      .filter({ has: page.getByRole("heading", { level: 2 }) });
+    await expect(resultados.getByRole("heading", { level: 2 })).toHaveText([zeta, alfa, sin]);
 
     const tarjetaZeta = page.getByRole("listitem").filter({ hasText: zeta });
     await expect(tarjetaZeta).toContainText("5,0");
-    await expect(page.getByRole("listitem").filter({ hasText: alfa })).toContainText("2,0");
+    await expect(page.getByRole("listitem").filter({ hasText: alfa })).toContainText("3,0");
 
     // Por nombre, el orden es otro.
     await page.getByLabel("Ordenar por").selectOption("nombre");
-    await expect(page.getByRole("heading", { level: 2 })).toHaveText([alfa, sin, zeta]);
+    await expect(resultados.getByRole("heading", { level: 2 })).toHaveText([alfa, sin, zeta]);
   });
 });
 
@@ -343,5 +349,14 @@ test.describe("RF-151 permisos del freelance sobre el catálogo", () => {
       servicios: [],
     });
     expect(alta.status).toBe(403);
+
+    const cliente = await crearCliente(duena, "Freelance");
+    const resena = await pedir(token, "POST", `/hoteles/${hotelId}/resenas`, {
+      cliente_id: cliente.id,
+      puntaje: 4,
+      comentario: "No debería registrarse",
+      fecha: new Date().toISOString().slice(0, 10),
+    });
+    expect(resena.status).toBe(403);
   });
 });
