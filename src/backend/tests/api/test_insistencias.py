@@ -2,6 +2,7 @@
 RF-015, RF-018, RF-019, RF-151)."""
 
 from collections.abc import Awaitable, Callable
+from datetime import timedelta
 from typing import Any
 from uuid import UUID, uuid4
 
@@ -10,6 +11,7 @@ from httpx import AsyncClient
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from rumbo.core.fechas import hoy
 from rumbo.datos.modelos import (
     Alerta,
     EstadoAlerta,
@@ -23,7 +25,10 @@ from tests.fabricas import AlertaFactory, ClienteFactory, OportunidadFactory, Us
 PROBLEM_JSON = "application/problem+json"
 FabricaCliente = Callable[[str], Awaitable[AsyncClient]]
 E = EstadoOportunidad
-CUERPO = {"fecha": "2026-11-10", "descripcion": "Volver a llamar por la cotización"}
+EN_10_DIAS = (hoy() + timedelta(days=10)).isoformat()
+EN_20_DIAS = (hoy() + timedelta(days=20)).isoformat()
+EN_30_DIAS = (hoy() + timedelta(days=30)).isoformat()
+CUERPO = {"fecha": EN_10_DIAS, "descripcion": "Volver a llamar por la cotización"}
 
 
 async def _op(
@@ -114,9 +119,9 @@ async def test_rf015_agendar_en_oportunidad_abierta(
     [
         {},
         {"descripcion": "Llamar"},
-        {"fecha": "2026-11-10"},
+        {"fecha": EN_10_DIAS},
         {"fecha": "no-es-fecha", "descripcion": "Llamar"},
-        {"fecha": "2026-11-10", "descripcion": ""},
+        {"fecha": EN_10_DIAS, "descripcion": ""},
     ],
     ids=["vacio", "sin_fecha", "sin_descripcion", "fecha_invalida", "descripcion_vacia"],
 )
@@ -212,19 +217,19 @@ async def test_rf019_reagendar(cliente_como: FabricaCliente, sesion: AsyncSessio
         tipo=TipoAlerta.insistencia,
     )
 
-    r = await c.post(_url(op), json={"fecha": "2026-11-20", "descripcion": "Segundo intento"})
+    r = await c.post(_url(op), json={"fecha": EN_20_DIAS, "descripcion": "Segundo intento"})
 
     assert r.status_code == 201
     nueva = r.json()
     assert nueva["id"] != str(vencida.id)
     assert nueva["tipo"] == "insistencia"
     assert nueva["estado"] == "pendiente"
-    assert nueva["fecha"] == "2026-11-20"
+    assert nueva["fecha"] == EN_20_DIAS
     assert nueva["oportunidad_id"] == str(op.id)
     pendientes_futuras = [
         a
         for a in await _alertas_de(sesion, op)
-        if a.estado is EstadoAlerta.pendiente and a.fecha.isoformat() == "2026-11-20"
+        if a.estado is EstadoAlerta.pendiente and a.fecha.isoformat() == EN_20_DIAS
     ]
     assert len(pendientes_futuras) == 1
 
@@ -236,11 +241,11 @@ async def test_rf019_reagendar_posponiendo_la_insistencia(
     op = await _op(sesion, c.usuario.id)  # type: ignore[attr-defined]
     creada = await c.post(_url(op), json=CUERPO)
 
-    r = await c.post(f"/api/alertas/{creada.json()['id']}/posponer", json={"fecha": "2026-11-30"})
+    r = await c.post(f"/api/alertas/{creada.json()['id']}/posponer", json={"fecha": EN_30_DIAS})
 
     assert creada.status_code == 201
     assert r.status_code == 200
-    assert r.json()["fecha"] == "2026-11-30"
+    assert r.json()["fecha"] == EN_30_DIAS
     assert r.json()["tipo"] == "insistencia"
 
 
@@ -259,7 +264,7 @@ async def test_rf018_cerrar_resuelve_insistencias(
     c = await cliente_como("empleado")
     op = await _op(sesion, c.usuario.id)  # type: ignore[attr-defined]
     primera = await c.post(_url(op), json=CUERPO)
-    segunda = await c.post(_url(op), json={"fecha": "2026-11-20", "descripcion": "Otra vez"})
+    segunda = await c.post(_url(op), json={"fecha": EN_20_DIAS, "descripcion": "Otra vez"})
 
     r = await c.post(f"/api/oportunidades/{op.id}/{accion}", json=cuerpo)
 
@@ -271,3 +276,35 @@ async def test_rf018_cerrar_resuelve_insistencias(
         await sesion.refresh(alerta)
         assert alerta.estado is EstadoAlerta.resuelta
         assert alerta.resuelta_en is not None
+
+
+# ---------- reglas de agenda (RF-015) ----------
+
+
+@pytest.mark.parametrize("estado", [E.ganada, E.perdida])
+async def test_rf015_oportunidad_cerrada_422(
+    cliente_como: FabricaCliente, sesion: AsyncSession, estado: E
+) -> None:
+    c = await cliente_como("empleado")
+    op = await _op(sesion, c.usuario.id, estado)  # type: ignore[attr-defined]
+
+    r = await c.post(_url(op), json=CUERPO)
+
+    assert r.status_code == 422
+    assert r.headers["content-type"].startswith(PROBLEM_JSON)
+    assert await _alertas_de(sesion, op) == []
+
+
+@pytest.mark.parametrize("dias", [0, -1])
+async def test_rf015_fecha_hoy_o_pasada_422(
+    cliente_como: FabricaCliente, sesion: AsyncSession, dias: int
+) -> None:
+    c = await cliente_como("empleado")
+    op = await _op(sesion, c.usuario.id)  # type: ignore[attr-defined]
+    fecha = (hoy() + timedelta(days=dias)).isoformat()
+
+    r = await c.post(_url(op), json={**CUERPO, "fecha": fecha})
+
+    assert r.status_code == 422
+    assert r.headers["content-type"].startswith(PROBLEM_JSON)
+    assert await _alertas_de(sesion, op) == []

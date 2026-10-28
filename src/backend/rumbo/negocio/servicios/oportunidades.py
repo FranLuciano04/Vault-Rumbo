@@ -154,6 +154,9 @@ async def agendar_insistencia(
         sesion, oportunidad_id, visibilidad=visibilidad(actor)
     )
     exigir_escritura(actor, oportunidad)
+    estado.exigir_agendable(oportunidad)
+    if fecha <= hoy():
+        raise DatosInvalidos("fecha", "La insistencia se agenda para una fecha posterior a hoy.")
     # Quien no es dirección solo ve su propio `Usuario` (y escribe solo si es el responsable).
     responsable = (
         actor

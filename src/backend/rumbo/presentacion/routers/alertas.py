@@ -5,14 +5,11 @@ from datetime import date
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, Query
-from pydantic import BaseModel
-from sqlalchemy import inspect
 
 from rumbo.core.db import SesionDep
 from rumbo.datos import modelos
 from rumbo.datos.modelos import EstadoAlerta, TipoAlerta
 from rumbo.negocio.servicios import alertas
-from rumbo.negocio.servicios.alertas import ContextoDeAlerta
 from rumbo.presentacion.contrato import TODOS, operacion
 from rumbo.presentacion.dependencias import usuario_actual
 from rumbo.presentacion.esquemas.alertas import (
@@ -20,14 +17,9 @@ from rumbo.presentacion.esquemas.alertas import (
     AlertaCrear,
     AlertaEditar,
     AlertaPosponer,
-    ClienteDeAlerta,
-    ContextoAlerta,
-    OportunidadDeAlerta,
-    PagoDeAlerta,
     ProgresoDelDia,
-    ResponsableAlerta,
-    ViajeDeAlerta,
 )
+from rumbo.presentacion.mapeos_alertas import esquema_de_alerta
 from rumbo.presentacion.paginacion import Pagina, ParametrosPagina, parametros_pagina
 
 router = APIRouter(prefix="/alertas", tags=["alertas"])
@@ -59,51 +51,6 @@ _AGENDA["responses"][200] = {
         }
     },
 }
-
-
-def _contexto(contexto: ContextoDeAlerta) -> ContextoAlerta:
-    def de[E: BaseModel](esquema: type[E], origen: object | None) -> E | None:
-        return None if origen is None else esquema.model_validate(origen, from_attributes=True)
-
-    viaje, pago = contexto.viaje, contexto.pago
-    return ContextoAlerta(
-        cliente=de(ClienteDeAlerta, contexto.cliente),
-        oportunidad=de(OportunidadDeAlerta, contexto.oportunidad),
-        viaje=None
-        if viaje is None
-        else ViajeDeAlerta(
-            id=viaje.viaje.id,
-            destino_id=viaje.viaje.destino_id,
-            destino=viaje.destino,
-            estado=viaje.viaje.estado,
-            fecha_salida=viaje.viaje.fecha_salida,
-            fecha_regreso=viaje.viaje.fecha_regreso,
-        ),
-        pago=None
-        if pago is None
-        else PagoDeAlerta(
-            id=pago.pago.id,
-            tipo=pago.pago.tipo,
-            monto=pago.pago.monto,
-            moneda=pago.moneda,
-            vencimiento=pago.pago.vencimiento,
-            estado=pago.pago.estado,
-        ),
-    )
-
-
-def esquema_de_alerta(alerta: modelos.Alerta, contexto: ContextoDeAlerta) -> Alerta:
-    """La `Alerta` del ORM con su responsable y su contexto, validada contra el contrato."""
-    columnas = {c.key: getattr(alerta, c.key) for c in inspect(modelos.Alerta).column_attrs}
-    return Alerta.model_validate(
-        {
-            **columnas,
-            "responsable": ResponsableAlerta.model_validate(
-                contexto.responsable, from_attributes=True
-            ),
-            "contexto": _contexto(contexto),
-        }
-    )
 
 
 @router.get(

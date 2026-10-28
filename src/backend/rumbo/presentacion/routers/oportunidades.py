@@ -28,8 +28,8 @@ from rumbo.presentacion.esquemas.oportunidades import (
     OportunidadEditar,
     OportunidadPerder,
 )
+from rumbo.presentacion.mapeos_alertas import esquema_de_alerta
 from rumbo.presentacion.paginacion import Pagina, ParametrosPagina, parametros_pagina
-from rumbo.presentacion.routers.alertas import esquema_de_alerta
 
 router = APIRouter(tags=["oportunidades"])
 
