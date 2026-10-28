@@ -19,7 +19,7 @@ tags:: #tipo/referencia
 | M2 — Clientes | 15 | 15 | 0 | 0 | 0 | 0 | ✅ cerrado |
 | M3 — Alertas | 14 | 14 | 0 | 0 | 0 | 0 | ✅ cerrado |
 | M4 — Oportunidades y cotizaciones | 16 | 16 | 0 | 0 | 0 | 0 | 🔍 listo para la review |
-| M5 — Hoteles y reseñas | 11 | 9 | 1 | 0 | 1 | 0 | 🛠️ en curso |
+| M5 — Hoteles y reseñas | 11 | 10 | 0 | 1 | 0 | 0 | 🛠️ en curso |
 | M6 — Viajes y economía | 24 | 1 | 0 | 5 | 18 | 0 | 🛠️ en curso |
 | M7 — Proceso diario y CRM proactivo | 9 | 0 | 0 | 3 | 6 | 0 | 🛠️ en curso |
 | M8 — Calendario, dashboard y reportes | 10 | 0 | 0 | 1 | 9 | 0 | 🛠️ en curso |
@@ -153,9 +153,9 @@ flowchart LR
     T080["T-080 · Buscar hoteles en el catálogo web<br/><small>web</small>"]:::hecho
     T081["T-081 · Editar un hotel del catálogo en la web<br/><small>web</small>"]:::hecho
     T082["T-082 · Mostrar el detalle del hotel con sus reseñas en la web<br/><small>web</small>"]:::hecho
-    T083["T-083 · Registrar una reseña en la web<br/><small>web</small><br/>👤 Nahuel Viniegra"]:::tomado
+    T083["T-083 · Registrar una reseña en la web<br/><small>web</small>"]:::hecho
     T084["T-084 · Recomendar hoteles al emitir una cotización<br/><small>web</small>"]:::hecho
-    T085["T-085 · Probar de punta a punta el catálogo de hoteles<br/><small>e2e</small>"]:::esperando
+    T085["T-085 · Probar de punta a punta el catálogo de hoteles<br/><small>e2e</small>"]:::disponible
   end
   subgraph M6["M6 — Viajes y economía"]
     T086["T-086 · Publicar el contrato de viajes y economía<br/><small>contrato</small>"]:::hecho
