@@ -302,3 +302,30 @@ describe("RF-108 estado y destino del hotel", () => {
     expect(screen.getByRole("note")).toHaveTextContent(/solo consulta/i);
   });
 });
+
+describe("RF-108 / RF-109 enlace para editar desde el detalle", () => {
+  it.each<RolMock>(["empleado", "admin", "dueno"])(
+    "%s ve el enlace «Editar» hacia /hoteles/<id>/editar",
+    async (rol) => {
+      renderDetalle(rol);
+      await screen.findByRole("heading", { name: llaoLlao.nombre });
+      expect(screen.getByRole("link", { name: /^editar$/i })).toHaveAttribute(
+        "href",
+        `/hoteles/${idHotelMock.llaoLlao}/editar`,
+      );
+    },
+  );
+
+  it("el freelance no ve el enlace «Editar» (DEC-0008)", async () => {
+    renderDetalle("freelance");
+    await screen.findByRole("heading", { name: llaoLlao.nombre });
+    expect(screen.queryByRole("link", { name: /editar/i })).not.toBeInTheDocument();
+  });
+
+  it("un hotel cerrado no muestra el enlace «Editar» (no se puede editar)", async () => {
+    renderDetalle("empleado", idHotelMock.playaDorada);
+    await screen.findByRole("heading", { name: "Hotel Playa Dorada" });
+    expect(screen.getByText("Cerrado")).toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: /editar/i })).not.toBeInTheDocument();
+  });
+});
