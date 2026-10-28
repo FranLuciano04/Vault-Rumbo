@@ -7,7 +7,7 @@ from typing import Any
 
 from rumbo.core.fechas import sumar_meses
 from rumbo.datos.modelos import Cotizacion, EstadoCotizacion, Moneda, Oportunidad
-from rumbo.negocio.errores import DatosInvalidos
+from rumbo.negocio.errores import DatosInvalidos, TransicionInvalida
 from rumbo.negocio.estados import oportunidad as estado_oportunidad
 
 _TOTAL_MAXIMO = Decimal("999999999999.99")  # lo que entra en la columna Numeric(14, 2)
@@ -40,16 +40,30 @@ def emitir(
     )
 
 
+def _exigir(cotizacion: Cotizacion, origen: EstadoCotizacion, *, accion: str) -> None:
+    if cotizacion.estado is not origen:
+        raise TransicionInvalida(f"No se puede {accion} una cotización {cotizacion.estado.value}.")
+
+
 def enviar(cotizacion: Cotizacion, oportunidad: Oportunidad) -> None:
-    """T2: `borrador` → `enviada`; la oportunidad pasa a `cotizada` (EST-Oportunidad T3)."""
-    raise NotImplementedError
+    """T2: `borrador` → `enviada`; la oportunidad pasa a `cotizada` (EST-Oportunidad T3). Con la
+    oportunidad cerrada no se envía."""
+    _exigir(cotizacion, EstadoCotizacion.borrador, accion="enviar")
+    estado_oportunidad.pasar_a_cotizada(oportunidad)
+    cotizacion.estado = EstadoCotizacion.enviada
 
 
 def aceptar(cotizacion: Cotizacion, oportunidad: Oportunidad) -> None:
-    """T3: `enviada` → `aceptada` (CU-06 A2)."""
-    raise NotImplementedError
+    """T3: `enviada` → `aceptada` (CU-06 A2). La oportunidad sigue `cotizada`, lista para
+    confirmar la reserva: la gana CU-07 (EST-Oportunidad T4). Con la oportunidad cerrada no se
+    acepta, porque ya no hay reserva que confirmar."""
+    _exigir(cotizacion, EstadoCotizacion.enviada, accion="aceptar")
+    estado_oportunidad.exigir_abierta(oportunidad, accion="aceptar la cotización de")
+    cotizacion.estado = EstadoCotizacion.aceptada
 
 
 def rechazar(cotizacion: Cotizacion, oportunidad: Oportunidad) -> None:
-    """T4: `enviada` → `rechazada` (CU-06 A3)."""
-    raise NotImplementedError
+    """T4: `enviada` → `rechazada` (CU-06 A3). La oportunidad no cambia: el seguimiento continúa
+    o se cierra perdida por CU-05."""
+    _exigir(cotizacion, EstadoCotizacion.enviada, accion="rechazar")
+    cotizacion.estado = EstadoCotizacion.rechazada

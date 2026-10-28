@@ -200,6 +200,28 @@ async def emitir_cotizacion(
     return cotizacion
 
 
+async def marcar_cotizacion_enviada(
+    sesion: AsyncSession, actor: Usuario, cotizacion_id: uuid.UUID
+) -> Cotizacion:
+    """Registra que la cotización se envió por fuera del sistema; la oportunidad pasa a `cotizada`
+    (CU-06 paso 4, RF-023)."""
+    return await _transicionar_cotizacion(sesion, actor, cotizacion_id, estado_cotizacion.enviar)
+
+
+async def aceptar_cotizacion(
+    sesion: AsyncSession, actor: Usuario, cotizacion_id: uuid.UUID
+) -> Cotizacion:
+    """Registra que el cliente aceptó (CU-06 A2, RF-025); queda lista para confirmar la reserva."""
+    return await _transicionar_cotizacion(sesion, actor, cotizacion_id, estado_cotizacion.aceptar)
+
+
+async def rechazar_cotizacion(
+    sesion: AsyncSession, actor: Usuario, cotizacion_id: uuid.UUID
+) -> Cotizacion:
+    """Registra que el cliente no aceptó (CU-06 A3, RF-025); la oportunidad no cambia."""
+    return await _transicionar_cotizacion(sesion, actor, cotizacion_id, estado_cotizacion.rechazar)
+
+
 async def _transicionar(
     sesion: AsyncSession,
     actor: Usuario,
@@ -221,6 +243,29 @@ async def _transicionar(
     await sesion.flush()
     await sesion.refresh(oportunidad)
     return oportunidad
+
+
+async def _transicionar_cotizacion(
+    sesion: AsyncSession,
+    actor: Usuario,
+    cotizacion_id: uuid.UUID,
+    transicion: Callable[[Cotizacion, Oportunidad], None],
+) -> Cotizacion:
+    """Aplica una transición de EST-Cotización con los permisos de su oportunidad: una que el
+    actor no ve es 404, una ajena sin permiso de escritura 403 (DEC-0005) y una inválida 409.
+    Bloquea primero la oportunidad, como `emitir_cotizacion`, y después relee la cotización."""
+    cotizacion = await _cotizaciones.obtener(sesion, cotizacion_id, visibilidad=visibilidad(actor))
+    oportunidad = await _oportunidades.obtener_para_modificar(
+        sesion, cotizacion.oportunidad_id, visibilidad=visibilidad(actor)
+    )
+    exigir_escritura(actor, oportunidad)
+    cotizacion = await _cotizaciones.obtener_para_modificar(
+        sesion, cotizacion_id, visibilidad=visibilidad(actor)
+    )
+    transicion(cotizacion, oportunidad)
+    await sesion.flush()
+    await sesion.refresh(cotizacion)
+    return cotizacion
 
 
 async def _exigir_responsable_activo(
