@@ -18,7 +18,7 @@ tags:: #tipo/referencia
 | M1 — Usuarios y configuración | 19 | 19 | 0 | 0 | 0 | 0 | ✅ cerrado |
 | M2 — Clientes | 15 | 15 | 0 | 0 | 0 | 0 | ✅ cerrado |
 | M3 — Alertas | 14 | 14 | 0 | 0 | 0 | 0 | ✅ cerrado |
-| M4 — Oportunidades y cotizaciones | 14 | 10 | 1 | 2 | 1 | 0 | 🛠️ en curso |
+| M4 — Oportunidades y cotizaciones | 14 | 10 | 2 | 1 | 1 | 0 | 🛠️ en curso |
 | M5 — Hoteles y reseñas | 11 | 0 | 0 | 1 | 10 | 0 | 🛠️ en curso |
 | M6 — Viajes y economía | 24 | 1 | 0 | 4 | 19 | 0 | 🛠️ en curso |
 | M7 — Proceso diario y CRM proactivo | 9 | 0 | 0 | 3 | 6 | 0 | 🛠️ en curso |
@@ -139,7 +139,7 @@ flowchart LR
     T070["T-070 · Mostrar el embudo de oportunidades en la web<br/><small>web</small>"]:::hecho
     T071["T-071 · Seguir una oportunidad desde su detalle en la web<br/><small>web</small>"]:::hecho
     T072["T-072 · Emitir una cotización en la web<br/><small>web</small>"]:::hecho
-    T073["T-073 · Registrar la respuesta a una cotización en la web<br/><small>web</small>"]:::disponible
+    T073["T-073 · Registrar la respuesta a una cotización en la web<br/><small>web</small><br/>👤 Nahuel Viniegra"]:::tomado
     T074["T-074 · Probar de punta a punta el embudo con cotización<br/><small>e2e</small>"]:::esperando
   end
   subgraph M5["M5 — Hoteles y reseñas"]

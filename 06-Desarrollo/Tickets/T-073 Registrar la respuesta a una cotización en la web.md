@@ -3,7 +3,7 @@ id: T-073
 titulo: Registrar la respuesta a una cotización en la web
 modulo: M4 — Oportunidades y cotizaciones
 capa: web
-estado: libre
+estado: tomado
 depende_de: [T-072]
 tamaño: S
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [CU-06, RF-023, RF-025]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: Nahuel Viniegra
+tomado_el: 27/10/26 22:54
+rama: feature/T-073-registrar-la-respuesta-a-una-cotizacion
 pr:
 ---
 # T-073 Registrar la respuesta a una cotización en la web
