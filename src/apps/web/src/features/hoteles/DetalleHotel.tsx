@@ -1,14 +1,10 @@
-import {
-  formatearImporte,
-  formatearPuntaje,
-  mensajeDeError,
-  type UsuarioActual,
-} from "@rumbo/shared";
+import { formatearImporte, formatearPuntaje, type UsuarioActual } from "@rumbo/shared";
 import { useHotel, useResenas } from "@rumbo/shared/hooks";
 import type { AxiosInstance } from "axios";
 import { Star } from "lucide-react";
 import { Link } from "react-router";
 import { variantesBoton } from "@/components/ui/button";
+import { mensajeDeError } from "@/lib/errores";
 import { ResenaPublicada } from "./ResenaPublicada";
 import { ResenasOcultas } from "./ResenasOcultas";
 
