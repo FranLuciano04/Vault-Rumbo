@@ -467,9 +467,22 @@ async def test_cu16_rol_fuera_del_contrato_responde_403_problem_json(
     assert r.json()["status"] == 403
 
 
+# Rutas ya implementadas (T-076): salen de los 501; su comportamiento lo cubre test_hoteles.py.
+IMPLEMENTADAS = {
+    ("post", "/api/hoteles"),
+    ("get", f"/api/hoteles/{ID}"),
+    ("patch", f"/api/hoteles/{ID}"),
+    ("post", f"/api/hoteles/{ID}/baja"),
+}
+
+
 @pytest.mark.parametrize(
     ("metodo", "ruta", "cuerpo", "rol"),
-    [(m, r, c, rol) for m, r, c, rol, permitido in CASOS_ROL if permitido],
+    [
+        (m, r, c, rol)
+        for m, r, c, rol, permitido in CASOS_ROL
+        if permitido and (m, r) not in IMPLEMENTADAS
+    ],
 )
 async def test_cu16_rol_del_contrato_responde_501_problem_json(
     cliente_como: FabricaCliente, metodo: str, ruta: str, cuerpo: Any, rol: str
