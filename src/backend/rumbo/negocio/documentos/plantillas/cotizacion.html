@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="es-AR">
+<head>
+<meta charset="utf-8">
+<title>Cotización</title>
+<style>
+  @page { size: A4; margin: 2cm; }
+  body { font-family: "DejaVu Sans", sans-serif; font-size: 10pt; color: #1f2933; }
+  h1 { font-size: 18pt; margin: 0 0 4pt; }
+  .meta { color: #52606d; margin-bottom: 16pt; }
+  table { width: 100%; border-collapse: collapse; }
+  th, td { padding: 6pt 4pt; border-bottom: 1px solid #cbd2d9; }
+  th { text-align: left; }
+  .importe { text-align: right; white-space: nowrap; }
+  tfoot td { font-weight: bold; border-bottom: none; }
+  .vigencia { margin-top: 16pt; }
+</style>
+</head>
+<body>
+  <h1>Cotización</h1>
+  <p class="meta">Cliente: {{ cliente.nombre }}<br>Fecha: {{ fecha }}</p>
+  <table>
+    <thead>
+      <tr><th>Concepto</th><th class="importe">Precio ({{ moneda }})</th></tr>
+    </thead>
+    <tbody>
+      {% for item in items %}
+      <tr><td>{{ item.concepto }}</td><td class="importe">{{ item.precio }}</td></tr>
+      {% endfor %}
+    </tbody>
+    <tfoot>
+      <tr><td>Total</td><td class="importe">{{ moneda }} {{ total }}</td></tr>
+    </tfoot>
+  </table>
+  <p class="vigencia">Vigencia: válida hasta el {{ validez_hasta }}.</p>
+</body>
+</html>

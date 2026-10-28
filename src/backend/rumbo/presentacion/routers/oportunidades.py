@@ -276,8 +276,10 @@ async def obtener_cotizacion(cotizacion_id: uuid.UUID) -> Cotizacion:
     response_model=None,
     **_DOCUMENTO,
 )
-async def descargar_cotizacion(cotizacion_id: uuid.UUID) -> Response:
-    raise no_implementado()
+async def descargar_cotizacion(
+    cotizacion_id: uuid.UUID, actor: ActorDep, sesion: SesionDep
+) -> Response:
+    return DocumentoPdf(await oportunidades.documento_cotizacion(sesion, actor, cotizacion_id))
 
 
 @router.post(
