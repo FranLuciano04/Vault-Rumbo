@@ -25,6 +25,24 @@ export const esquemaPerder = z
     message: "Contanos el motivo.",
   });
 
+/** Pasajeros: entero de al menos uno. Con el campo numérico vacío (NaN) los obligatorios piden el dato y los opcionales lo dan por ausente. */
+const sinNaN = (valor: number | undefined) => (Number.isNaN(valor) ? undefined : valor);
+const pasajerosCargados = z
+  .number("Ingresá los pasajeros.")
+  .int("Ingresá los pasajeros.")
+  .min(1, "Ingresá al menos un pasajero.");
+const pasajerosOpcionales = z
+  .custom<number>(() => true)
+  .optional()
+  .transform(sinNaN)
+  .pipe(pasajerosCargados.optional());
+
+/** Completar el destino y los pasajeros de una consulta (RF-013, DEC-0023): una vez cargados no se vacían. */
+export const esquemaDestinoPasajeros = z.object({
+  destino_consultado: z.string().trim().min(1, "Ingresá el destino."),
+  pasajeros: pasajerosCargados,
+});
+
 const CANALES = [
   "instagram",
   "whatsapp",
@@ -39,12 +57,7 @@ export const esquemaConsulta = z
     destino_consultado: z.string().trim().optional(),
     fecha_desde_tentativa: z.string(),
     fecha_hasta_tentativa: z.string(),
-    pasajeros: z
-      .number()
-      .int("Ingresá los pasajeros.")
-      .min(1, "Ingresá al menos un pasajero.")
-      .or(z.nan())
-      .optional(),
+    pasajeros: pasajerosOpcionales,
     notas: z.string(),
   })
   .refine(
@@ -60,6 +73,8 @@ export const esquemaConsulta = z
 
 export type EntradaConsulta = z.input<typeof esquemaConsulta>;
 export type DatosConsulta = z.output<typeof esquemaConsulta>;
+export type EntradaDestinoPasajeros = z.input<typeof esquemaDestinoPasajeros>;
+export type DatosDestinoPasajeros = z.output<typeof esquemaDestinoPasajeros>;
 export type DatosInteraccion = z.infer<typeof esquemaInteraccion>;
 export type DatosInsistencia = z.infer<typeof esquemaInsistencia>;
 export type DatosPerder = z.input<typeof esquemaPerder>;

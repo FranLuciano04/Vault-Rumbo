@@ -1,12 +1,8 @@
-import {
-  DESTINO_A_DEFINIR,
-  formatearFecha,
-  textoPasajeros,
-  type UsuarioActual,
-} from "@rumbo/shared";
+import { DESTINO_A_DEFINIR, formatearFecha, type UsuarioActual } from "@rumbo/shared";
 import { useOportunidad } from "@rumbo/shared/hooks";
 import type { AxiosInstance } from "axios";
 import { oportunidadAbierta, puedeEscribirOportunidad } from "../permisos";
+import { PasajerosOportunidad } from "../PasajerosOportunidad";
 import { FormularioCotizacion } from "./FormularioCotizacion";
 import { VersionesCotizacion } from "./VersionesCotizacion";
 
@@ -49,8 +45,8 @@ export function CotizacionesOportunidad({
         </h1>
         <p>{oportunidad.cliente_nombre}</p>
         <p className="text-sm text-muted-foreground">
-          {textoPasajeros(oportunidad.pasajeros)} ·{" "}
-          {desde && hasta ? `${formatearFecha(desde)} al ${formatearFecha(hasta)}` : "—"}
+          <PasajerosOportunidad pasajeros={oportunidad.pasajeros} />
+          {desde && hasta ? ` · ${formatearFecha(desde)} al ${formatearFecha(hasta)}` : ""}
         </p>
       </header>
       {puedeEmitir && (

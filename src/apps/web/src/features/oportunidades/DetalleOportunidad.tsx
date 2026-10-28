@@ -4,14 +4,15 @@ import {
   ETIQUETA_MOTIVO_PERDIDA,
   formatearFecha,
   type UsuarioActual,
-  textoPasajeros,
 } from "@rumbo/shared";
 import { useOportunidad } from "@rumbo/shared/hooks";
 import type { AxiosInstance } from "axios";
 import { Link, useParams } from "react-router";
 import { AccionesOportunidad } from "./AccionesOportunidad";
+import { EdicionDestinoPasajeros } from "./EdicionDestinoPasajeros";
 import { InsistenciasOportunidad } from "./InsistenciasOportunidad";
 import { InteraccionesOportunidad } from "./InteraccionesOportunidad";
+import { PasajerosOportunidad } from "./PasajerosOportunidad";
 import { oportunidadAbierta, puedeEscribirOportunidad } from "./permisos";
 
 /** Detalle de una oportunidad (CU-05): su contexto, su historia y las acciones de seguimiento. */
@@ -52,7 +53,7 @@ export function DetalleOportunidad({
         </h1>
         <p>{oportunidad.cliente_nombre}</p>
         <p className="text-sm text-muted-foreground">
-          {textoPasajeros(oportunidad.pasajeros)}
+          <PasajerosOportunidad pasajeros={oportunidad.pasajeros} />
           {desde && hasta ? ` · ${formatearFecha(desde)} al ${formatearFecha(hasta)}` : ""}
         </p>
         <p className="text-sm font-medium">{ETIQUETA_ESTADO_OPORTUNIDAD[oportunidad.estado]}</p>
@@ -69,6 +70,9 @@ export function DetalleOportunidad({
       >
         Cotizaciones
       </Link>
+      {abierta && puedeEscribir && (
+        <EdicionDestinoPasajeros cliente={cliente} oportunidad={oportunidad} />
+      )}
       {puedeEscribir && <AccionesOportunidad cliente={cliente} oportunidad={oportunidad} />}
       <InteraccionesOportunidad
         cliente={cliente}
