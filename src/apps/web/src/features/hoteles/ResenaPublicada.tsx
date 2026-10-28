@@ -7,29 +7,39 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { mensajeDeError } from "@/lib/errores";
+import { FormularioResena } from "./FormularioResena";
 
-/** Reseña publicada (CU-18); con `puedeModerar`, admin y dueña la ocultan indicando el motivo (CU-29). */
+/**
+ * Reseña publicada (CU-18); con `puedeModerar`, admin y dueña la ocultan indicando el motivo
+ * (CU-29), y con `puedeEditar` quien registra reseñas la corrige (CU-17, RF-105).
+ */
 export function ResenaPublicada({
   cliente,
   resena,
   puedeModerar,
+  puedeEditar,
 }: {
   cliente: AxiosInstance;
   resena: Resena;
   puedeModerar: boolean;
+  puedeEditar: boolean;
 }) {
+  const [editando, setEditando] = useState(false);
   const [ocultando, setOcultando] = useState(false);
   const [motivo, setMotivo] = useState("");
   const [sinMotivo, setSinMotivo] = useState(false);
   const ocultar = useOcultarResena(cliente);
   const idMotivo = `motivo-${resena.id}`;
+  const cerrarEdicion = () => {
+    setEditando(false);
+  };
   return (
     <li className="flex flex-col gap-2 rounded-2xl border bg-card p-4">
       <div className="flex items-center gap-2 text-sm">
         <Star aria-hidden="true" className="size-4 fill-amber-400 text-amber-400" />
         <span className="font-medium">{resena.puntaje}</span>
         <span className="text-muted-foreground">{formatearFecha(resena.fecha)}</span>
-        {puedeModerar && !ocultando && (
+        {puedeModerar && !ocultando && !editando && (
           <Button
             type="button"
             size="sm"
@@ -42,8 +52,30 @@ export function ResenaPublicada({
             Ocultar reseña
           </Button>
         )}
+        {puedeEditar && !ocultando && !editando && (
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            className={puedeModerar ? undefined : "ml-auto"}
+            onClick={() => {
+              setEditando(true);
+            }}
+          >
+            Editar reseña
+          </Button>
+        )}
       </div>
       <p>{resena.comentario}</p>
+      {editando && (
+        <FormularioResena
+          cliente={cliente}
+          hotelId={resena.hotel_id}
+          resena={resena}
+          alTerminar={cerrarEdicion}
+          alCancelar={cerrarEdicion}
+        />
+      )}
       {ocultando && (
         <form
           className="flex flex-wrap items-end gap-2"

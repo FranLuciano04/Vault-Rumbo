@@ -4,9 +4,10 @@ import type { AxiosInstance } from "axios";
 import { Eye, Pencil, Star } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router";
-import { variantesBoton } from "@/components/ui/button";
+import { Button, variantesBoton } from "@/components/ui/button";
 import { mensajeDeError } from "@/lib/errores";
 import { BajaDelHotel } from "./BajaDelHotel";
+import { FormularioResena } from "./FormularioResena";
 import { PaginadorResenas } from "./PaginadorResenas";
 import { ResenaPublicada } from "./ResenaPublicada";
 import { ResenasOcultas } from "./ResenasOcultas";
@@ -25,10 +26,15 @@ export function DetalleHotel({
   hotelId: string;
 }) {
   const puedeModerar = usuario.rol === "admin" || usuario.rol === "dueno";
+  const puedeRegistrar = usuario.rol !== "freelance";
+  const [registrando, setRegistrando] = useState(false);
   const hotel = useHotel(cliente, hotelId);
   const [pagina, setPagina] = useState(1);
   const resenas = useResenas(cliente, hotelId, { pagina });
   const { data: destinos } = useDestinos(cliente, { por_pagina: 100 });
+  const cerrarAlta = () => {
+    setRegistrando(false);
+  };
   if (hotel.isPending) return <p role="status">Cargando hotel…</p>;
   if (hotel.isError)
     return <p role="alert">No pudimos cargar el hotel. {mensajeDeError(hotel.error)}</p>;
@@ -105,9 +111,30 @@ export function DetalleHotel({
         )}
       </header>
       <section aria-labelledby="titulo-resenas" className="flex flex-col gap-3">
-        <h2 id="titulo-resenas" className="text-lg font-semibold">
-          Reseñas
-        </h2>
+        <div className="flex items-center justify-between gap-2">
+          <h2 id="titulo-resenas" className="text-lg font-semibold">
+            Reseñas
+          </h2>
+          {puedeRegistrar && !registrando && (
+            <Button
+              type="button"
+              size="sm"
+              onClick={() => {
+                setRegistrando(true);
+              }}
+            >
+              Nueva reseña
+            </Button>
+          )}
+        </div>
+        {registrando && (
+          <FormularioResena
+            cliente={cliente}
+            hotelId={hotelId}
+            alTerminar={cerrarAlta}
+            alCancelar={cerrarAlta}
+          />
+        )}
         {resenas.isError && (
           <p role="alert">No pudimos cargar las reseñas. {mensajeDeError(resenas.error)}</p>
         )}
@@ -122,6 +149,7 @@ export function DetalleHotel({
               cliente={cliente}
               resena={resena}
               puedeModerar={puedeModerar}
+              puedeEditar={puedeRegistrar}
             />
           ))}
         </ul>

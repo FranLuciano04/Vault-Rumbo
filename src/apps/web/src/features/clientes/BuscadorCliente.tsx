@@ -5,24 +5,26 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ResultadosClientes } from "@/features/clientes/ResultadosClientes";
 import { AltaRapidaCliente } from "./AltaRapidaCliente";
+import { ResultadosClientes } from "./ResultadosClientes";
 
 export interface ClienteElegido {
   id: string;
   nombre: string;
 }
 
-/** Elige el cliente de la consulta (CU-04 paso 2): busca en el servidor o lo da de alta en el momento (A1). */
+/** Elige un cliente (CU-04 paso 2, CU-17): busca en el servidor o lo da de alta en el momento (A1). */
 export function BuscadorCliente({
   cliente,
   elegido,
   error,
+  requerido = false,
   alElegir,
 }: {
   cliente: AxiosInstance;
   elegido: ClienteElegido | null;
   error?: string;
+  requerido?: boolean;
   alElegir: (elegido: ClienteElegido | null) => void;
 }) {
   const [texto, setTexto] = useState("");
@@ -61,6 +63,7 @@ export function BuscadorCliente({
             id="buscar-cliente"
             type="search"
             placeholder="Nombre o contacto"
+            required={requerido}
             aria-invalid={Boolean(error)}
             value={texto}
             onChange={(e) => {

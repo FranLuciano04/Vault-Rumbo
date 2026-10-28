@@ -10,7 +10,7 @@ import { Button, variantesBoton } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { aplicarErroresDelServidor } from "@/lib/errores";
 import { AvisoOportunidadAbierta } from "./AvisoOportunidadAbierta";
-import { BuscadorCliente, type ClienteElegido } from "./BuscadorCliente";
+import { BuscadorCliente, type ClienteElegido } from "@/features/clientes/BuscadorCliente";
 import { esquemaConsulta, type DatosConsulta, type EntradaConsulta } from "./esquemas";
 
 const CAMPOS = [

@@ -9,7 +9,7 @@ import type { z } from "zod";
 import { CampoFormulario } from "@/components/CampoFormulario";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { AvisoDuplicado } from "@/features/clientes/AvisoDuplicado";
+import { AvisoDuplicado } from "./AvisoDuplicado";
 import { aplicarErroresDelServidor } from "@/lib/errores";
 
 const esquemaAltaRapida = esquemaAltaCliente.pick({ nombre: true, contacto: true });
