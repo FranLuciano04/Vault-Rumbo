@@ -1,6 +1,7 @@
 import { ETIQUETA_ESTADO_COTIZACION, formatearFecha, formatearImporte } from "@rumbo/shared";
 import { useCotizaciones } from "@rumbo/shared/hooks";
 import type { AxiosInstance } from "axios";
+import { AccionesCotizacion } from "./AccionesCotizacion";
 
 const POR_PAGINA = 100;
 
@@ -8,9 +9,11 @@ const POR_PAGINA = 100;
 export function VersionesCotizacion({
   cliente,
   oportunidadId,
+  puedeResponder,
 }: {
   cliente: AxiosInstance;
   oportunidadId: string;
+  puedeResponder: boolean;
 }) {
   const consulta = useCotizaciones(cliente, oportunidadId, { por_pagina: POR_PAGINA });
   const pagina = consulta.data;
@@ -49,6 +52,11 @@ export function VersionesCotizacion({
                 <span className="rounded-full bg-muted px-2 py-0.5 text-xs font-medium">
                   {ETIQUETA_ESTADO_COTIZACION[cotizacion.estado]}
                 </span>
+                <AccionesCotizacion
+                  cliente={cliente}
+                  cotizacion={cotizacion}
+                  puedeResponder={puedeResponder}
+                />
               </li>
             ))}
           </ul>
