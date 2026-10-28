@@ -1,5 +1,5 @@
-"""Servicio del módulo oportunidades: embudo, detalle, edición y estados (CU-05) y emisión de
-cotizaciones (CU-06)."""
+"""Servicio del módulo oportunidades: registro de consultas (CU-04), embudo, detalle, edición y
+estados (CU-05) y emisión de cotizaciones (CU-06)."""
 
 import uuid
 from collections.abc import Callable
@@ -17,6 +17,7 @@ from rumbo.datos.modelos import (
     RolUsuario,
     Usuario,
 )
+from rumbo.datos.repositorios.clientes import RepositorioClientes
 from rumbo.datos.repositorios.oportunidades import RepositorioCotizaciones, RepositorioOportunidades
 from rumbo.datos.repositorios.seguridad import RepositorioUsuarios
 from rumbo.negocio.errores import DatosInvalidos, NoEncontrado
@@ -26,9 +27,25 @@ from rumbo.negocio.politicas import exigir_escritura, exigir_rol, visibilidad
 from rumbo.negocio.servicios import parametros
 from rumbo.negocio.servicios.alertas import resolver_de_origen
 
+_clientes = RepositorioClientes()
 _oportunidades = RepositorioOportunidades()
 _cotizaciones = RepositorioCotizaciones()
 _usuarios = RepositorioUsuarios()
+
+
+async def registrar_consulta(
+    sesion: AsyncSession, actor: Usuario, datos: dict[str, Any]
+) -> Oportunidad:
+    """Registra una consulta como `Oportunidad` en estado `nueva` (CU-04, RF-010, RF-013). El
+    responsable es siempre el actor, lo que envíe el cliente. El `Cliente` tiene que existir (si
+    no, 422); el aviso de una oportunidad abierta del mismo cliente lo arma el front (RF-012)."""
+    if not await _clientes.existe(sesion, datos["cliente_id"]):
+        raise DatosInvalidos("cliente_id", "El cliente no existe.")
+    oportunidad = Oportunidad(**datos, responsable_id=actor.id)
+    sesion.add(oportunidad)
+    await sesion.flush()
+    await sesion.refresh(oportunidad)
+    return oportunidad
 
 
 async def listar_oportunidades(
