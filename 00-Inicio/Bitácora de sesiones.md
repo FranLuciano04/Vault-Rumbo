@@ -88,7 +88,17 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
   - Backend: 2102 tests.
   - Commits: 58787e6, 023ad02, 7f966b4 y fe1df5f.
 - **Memoria:** el sistema cortó dos veces los procesos de espera por falta de memoria. No afectó el trabajo.
-- **Pendiente:** M5 sigue con T-077 (búsqueda por puntaje), T-078 (reseñas) y T-079 (moderación).
+- **T-078** (PR [#120](https://github.com/FranLuciano04/Vault-Rumbo/pull/120), mergeado con el CI en verde): reseñas de hotel.
+  - Se pueden registrar y editar.
+  - El viaje asociado tiene que ser del mismo cliente; si no, responde 422.
+  - Un cliente puede tener varias reseñas del mismo hotel.
+  - Un hotel cerrado se puede reseñar.
+  - Editar una reseña oculta da 409 a admin y dueña, y 404 al empleado, que no la ve.
+  - Review (opus): 0 bloqueantes y 1 importante, arreglado. Una consulta se salteaba la visibilidad.
+  - Es el primer ticket con los checks rápidos de DEC-0022: la suite completa la corrió el CI.
+  - Commits: 89286be, 99752e4, 13ee775 y 6dac2ed.
+- **Pendiente:** M5 sigue con T-077 (búsqueda por puntaje), T-079 (moderación) y T-080 (catálogo web).
+- **Abierto para la sync:** ¿se puede asociar una reseña a un viaje cancelado, o a uno cuyo itinerario no incluye el hotel?
 
 ## 27/10/26 — Nahuel (Claude Opus 5.5) — T-073
 - **Hecho:** **T-073** (registrar la respuesta a una cotización en la web) mergeado, PR [#117](https://github.com/FranLuciano04/Vault-Rumbo/pull/117). Cada versión muestra sus acciones según el estado: enviar un borrador, aceptar o rechazar una enviada. El rechazo pide confirmación, sin motivo (decisión de Nahuel; coincide con T-067). Las acciones exigen la oportunidad abierta y el PDF se descarga siempre. Review de Opus: 2 importantes arreglados. El CI destapó que el `Blob` de jsdom colgaba MSW en Node 22 y que los tipos de React Native no aceptan un `Blob` armado con un `ArrayBuffer`: ahora shared devuelve los bytes y la web arma el `Blob`.
