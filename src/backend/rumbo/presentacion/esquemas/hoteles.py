@@ -3,10 +3,12 @@ RF-105, DEC-0003)."""
 
 import uuid
 from datetime import date
+from decimal import Decimal
 
 from pydantic import BaseModel, ConfigDict, Field
 from pydantic.json_schema import JsonDict
 
+from rumbo.datos import modelos
 from rumbo.datos.modelos import EstadoHotel, EstadoResena
 from rumbo.presentacion.esquemas.comunes import (
     Auditoria,
@@ -45,6 +47,18 @@ class Hotel(Auditoria):
     )
 
     model_config = ConfigDict(from_attributes=True, json_schema_extra=componer_con_auditoria)
+
+    @classmethod
+    def desde_modelo(
+        cls, hotel: modelos.Hotel, puntaje_promedio: Decimal | None, cantidad_resenas: int
+    ) -> "Hotel":
+        """El hotel con su resumen de reseñas, que no es una columna."""
+        calculados = {"puntaje_promedio", "cantidad_resenas"}
+        return cls(
+            **{n: getattr(hotel, n) for n in cls.model_fields if n not in calculados},
+            puntaje_promedio=puntaje_promedio,
+            cantidad_resenas=cantidad_resenas,
+        )
 
 
 class HotelCrear(Entrada):

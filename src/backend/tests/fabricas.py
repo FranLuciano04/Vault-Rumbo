@@ -67,7 +67,7 @@ class HotelFactory(factory.Factory[m.Hotel]):
     nombre = factory.Faker("company")
     categoria = "4 estrellas"
     precio_referencia = factory.LazyFunction(lambda: Decimal("85000.00"))
-    servicios = "wifi, desayuno"
+    servicios = factory.LazyFunction(lambda: ["wifi", "desayuno"])
 
 
 class ClienteFactory(factory.Factory[m.Cliente]):

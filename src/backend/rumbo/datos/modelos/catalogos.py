@@ -5,6 +5,8 @@ import uuid
 from decimal import Decimal
 
 from sqlalchemy import CheckConstraint, ForeignKey, Index, SmallInteger, String, Text, text
+from sqlalchemy.dialects.postgresql import ARRAY
+from sqlalchemy.ext.mutable import MutableList
 from sqlalchemy.orm import Mapped, mapped_column
 
 from rumbo.datos.modelos.base import AuditoriaMixin, Base, IdMixin, nombre_normalizado
@@ -99,7 +101,21 @@ class Hotel(IdMixin, AuditoriaMixin, Base):
 
     destino_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("destino.id"))
     nombre: Mapped[str] = mapped_column(String(120))
-    categoria: Mapped[str] = mapped_column(String(40))  # estrellas o tipo
-    precio_referencia: Mapped[Decimal]  # por noche
-    servicios: Mapped[str] = mapped_column(Text)  # amenities filtrables
+    categoria: Mapped[str | None] = mapped_column(String(40))  # estrellas o tipo
+    precio_referencia: Mapped[Decimal | None]  # por noche
+    # Amenities filtrables (`wifi`, `pileta`…); lista vacía si no se informaron.
+    servicios: Mapped[list[str]] = mapped_column(
+        MutableList.as_mutable(ARRAY(Text)), server_default=text("'{}'")
+    )
     estado: Mapped[EstadoHotel] = mapped_column(server_default=text("'activo'"))
+
+
+INDICE_NOMBRE_HOTEL = "hotel_destino_nombre_normalizado_uq"
+# Un destino no tiene dos hoteles activos con el mismo nombre (RF-099); los cerrados no cuentan.
+Index(
+    INDICE_NOMBRE_HOTEL,
+    Hotel.destino_id,
+    nombre_normalizado(Hotel.nombre),
+    unique=True,
+    postgresql_where=text("estado = 'activo'"),
+)
