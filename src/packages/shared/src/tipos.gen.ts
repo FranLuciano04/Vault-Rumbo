@@ -1543,6 +1543,186 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/hoteles": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Buscar y recomendar hoteles
+         * @description **Roles:** admin, dueno, empleado, freelance.
+         *
+         *     **Casos de uso:** CU-18.
+         */
+        get: operations["listar_hoteles"];
+        put?: never;
+        /**
+         * Dar de alta un hotel
+         * @description **Roles:** admin, dueno, empleado.
+         *
+         *     **Casos de uso:** CU-16.
+         */
+        post: operations["crear_hotel"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/hoteles/{hotel_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Ver un hotel
+         * @description **Roles:** admin, dueno, empleado, freelance.
+         *
+         *     **Casos de uso:** CU-18.
+         */
+        get: operations["obtener_hotel"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Editar un hotel
+         * @description **Roles:** admin, dueno, empleado.
+         *
+         *     **Casos de uso:** CU-16.
+         */
+        patch: operations["editar_hotel"];
+        trace?: never;
+    };
+    "/api/hoteles/{hotel_id}/baja": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Dar de baja un hotel que cerró
+         * @description **Roles:** admin, dueno, empleado.
+         *
+         *     **Casos de uso:** CU-16.
+         */
+        post: operations["dar_de_baja_hotel"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/hoteles/{hotel_id}/resenas": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Ver las reseñas de un hotel
+         * @description **Roles:** admin, dueno, empleado, freelance.
+         *
+         *     **Casos de uso:** CU-18.
+         *
+         *     **Reseñas ocultas:** solo admin y dueño ven las `oculta` (`estado=oculta`); para el resto es 403.
+         */
+        get: operations["listar_resenas"];
+        put?: never;
+        /**
+         * Registrar la reseña de un cliente
+         * @description **Roles:** admin, dueno, empleado.
+         *
+         *     **Casos de uso:** CU-17.
+         */
+        post: operations["registrar_resena"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/resenas/{resena_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Eliminar una reseña físicamente (excepcional)
+         * @description **Roles:** admin, dueno.
+         *
+         *     **Casos de uso:** CU-29.
+         */
+        delete: operations["eliminar_resena"];
+        options?: never;
+        head?: never;
+        /**
+         * Editar una reseña
+         * @description **Roles:** admin, dueno, empleado.
+         *
+         *     **Casos de uso:** CU-17.
+         */
+        patch: operations["editar_resena"];
+        trace?: never;
+    };
+    "/api/resenas/{resena_id}/ocultar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Eliminar una reseña (baja lógica)
+         * @description **Roles:** admin, dueno.
+         *
+         *     **Casos de uso:** CU-29.
+         */
+        post: operations["ocultar_resena"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/resenas/{resena_id}/restaurar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Restaurar una reseña oculta
+         * @description **Roles:** admin, dueno.
+         *
+         *     **Casos de uso:** CU-29.
+         */
+        post: operations["restaurar_resena"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -2110,6 +2290,11 @@ export interface components {
          */
         EstadoCotizacion: "borrador" | "enviada" | "aceptada" | "rechazada" | "vencida";
         /**
+         * EstadoHotel
+         * @enum {string}
+         */
+        EstadoHotel: "activo" | "cerrado";
+        /**
          * EstadoOportunidad
          * @enum {string}
          */
@@ -2145,6 +2330,91 @@ export interface components {
             viajes: components["schemas"]["ViajeDelCliente"][];
             /** Resenas */
             resenas: components["schemas"]["ResenaDelCliente"][];
+        };
+        Hotel: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            readonly id: string;
+            /** Nombre */
+            nombre: string;
+            /**
+             * Destino Id
+             * Format: uuid
+             */
+            destino_id: string;
+            /**
+             * Categoria
+             * @description Estrellas o tipo, por ejemplo `5 estrellas`.
+             */
+            categoria: string | null;
+            /**
+             * Precio Referencia
+             * @description Por noche, en ARS (DEC-0007).
+             */
+            precio_referencia: string | null;
+            /**
+             * Servicios
+             * @description Amenities filtrables: wifi, pileta, desayuno…
+             */
+            servicios: string[];
+            readonly estado: components["schemas"]["EstadoHotel"];
+            /**
+             * Puntaje Promedio
+             * @description Promedio de 1 a 5 de las reseñas publicadas, con dos decimales; vacío si no tiene. Lo calcula la API (CU-18), no se guarda.
+             */
+            readonly puntaje_promedio: string | null;
+            /**
+             * Cantidad Resenas
+             * @description Cantidad de reseñas publicadas que alimentan el promedio.
+             */
+            readonly cantidad_resenas: number;
+        } & components["schemas"]["Auditoria"];
+        /**
+         * HotelCrear
+         * @description Alta en el catálogo (CU-16). Un nombre repetido en el mismo destino responde `409`.
+         */
+        HotelCrear: {
+            /** Nombre */
+            nombre: string;
+            /**
+             * Destino Id
+             * Format: uuid
+             */
+            destino_id: string;
+            /** Categoria */
+            categoria?: string | null;
+            /** Precio Referencia */
+            precio_referencia?: string | null;
+            /** Servicios */
+            servicios?: string[];
+        };
+        /** HotelEditar */
+        HotelEditar: {
+            /** Nombre */
+            nombre?: string;
+            /**
+             * Destino Id
+             * Format: uuid
+             */
+            destino_id?: string;
+            /** Categoria */
+            categoria?: string | null;
+            /** Precio Referencia */
+            precio_referencia?: string | null;
+            /** Servicios */
+            servicios?: string[];
+        };
+        /** HotelExistente */
+        HotelExistente: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Nombre */
+            nombre: string;
         };
         /**
          * Insistencia
@@ -2560,6 +2830,21 @@ export interface components {
             duplicados: components["schemas"]["Cliente"][];
         };
         /**
+         * ProblemaHotelDuplicado
+         * @description 409 del alta o de la edición (CU-16 A2): trae el hotel que ya existe, para abrirlo.
+         */
+        ProblemaHotelDuplicado: {
+            /** Title */
+            title: string;
+            /** Status */
+            status: number;
+            /** Detail */
+            detail?: string | null;
+            /** Errores */
+            errores?: components["schemas"]["ErrorCampo"][] | null;
+            existente: components["schemas"]["HotelExistente"];
+        };
+        /**
          * ProgresoDelDia
          * @description Avance de la agenda de hoy del usuario actual, o de toda la agencia para admin y dueño
          *     (CU-14).
@@ -2653,6 +2938,74 @@ export interface components {
             /** Anticipacion Dias */
             anticipacion_dias?: number;
         };
+        Resena: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            readonly id: string;
+            /**
+             * Hotel Id
+             * Format: uuid
+             */
+            readonly hotel_id: string;
+            /**
+             * Cliente Id
+             * Format: uuid
+             */
+            readonly cliente_id: string;
+            /**
+             * Viaje Id
+             * @description Viaje de origen, si se indicó.
+             */
+            readonly viaje_id?: string | null;
+            /**
+             * Puntaje
+             * @description Entero de 1 a 5.
+             */
+            puntaje: number;
+            /** Comentario */
+            comentario: string;
+            /**
+             * Fecha
+             * Format: date
+             */
+            fecha: string;
+            readonly estado: components["schemas"]["EstadoResena"];
+            /**
+             * Motivo Baja
+             * @description Motivo de la moderación; vacío si publicada.
+             */
+            readonly motivo_baja: string | null;
+        } & components["schemas"]["Auditoria"];
+        /**
+         * ResenaCrear
+         * @description Reseña de un cliente sobre el hotel de la ruta (CU-17).
+         */
+        ResenaCrear: {
+            /**
+             * Cliente Id
+             * Format: uuid
+             */
+            cliente_id: string;
+            /**
+             * Viaje Id
+             * @description Viaje de origen (opcional).
+             */
+            viaje_id?: string | null;
+            /**
+             * Puntaje
+             * @description Entero de 1 a 5.
+             */
+            puntaje: number;
+            /** Comentario */
+            comentario?: string;
+            /**
+             * Fecha
+             * Format: date
+             */
+            fecha: string;
+        };
         /**
          * ResenaDelCliente
          * @description Reseña que dejó el cliente, tal como aparece en su historial.
@@ -2678,6 +3031,32 @@ export interface components {
              */
             fecha: string;
             estado: components["schemas"]["EstadoResena"];
+        };
+        /**
+         * ResenaEditar
+         * @description Corrige la reseña (RF-105): el hotel, el cliente y el viaje no cambian.
+         */
+        ResenaEditar: {
+            /**
+             * Puntaje
+             * @description Entero de 1 a 5.
+             */
+            puntaje?: number;
+            /** Comentario */
+            comentario?: string;
+            /**
+             * Fecha
+             * Format: date
+             */
+            fecha?: string;
+        };
+        /** ResenaOcultar */
+        ResenaOcultar: {
+            /**
+             * Motivo Baja
+             * @description Por qué se oculta (CU-29).
+             */
+            motivo_baja: string;
         };
         /**
          * ResponsableAlerta
@@ -7459,6 +7838,715 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Pago"];
+                };
+            };
+            /** @description Falta el token, no es válido o el usuario no tiene acceso. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description El rol no alcanza. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description No existe. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Conflicto con el estado actual. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+        };
+    };
+    listar_hoteles: {
+        parameters: {
+            query?: {
+                destino_id?: string | null;
+                categoria?: string | null;
+                /** @description Precio de referencia máximo, inclusive. */
+                precio_max?: string | null;
+                /** @description Servicio que el hotel debe ofrecer. */
+                servicio?: string | null;
+                /** @description `valoracion` ordena por puntaje promedio, de mayor a menor (CU-18 A2). */
+                orden?: "nombre" | "valoracion" | "precio";
+                /** @description Los `cerrado` se conservan pero salen del catálogo activo (CU-16 A4). */
+                estado?: components["schemas"]["EstadoHotel"];
+                pagina?: number;
+                por_pagina?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Hoteles del catálogo, con su puntaje promedio. Por defecto, solo los activos. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        items: components["schemas"]["Hotel"][];
+                        /** @description Cantidad total de resultados. */
+                        total: number;
+                        pagina: number;
+                        por_pagina: number;
+                    };
+                };
+            };
+            /** @description Falta el token, no es válido o el usuario no tiene acceso. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Datos inválidos. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+        };
+    };
+    crear_hotel: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["HotelCrear"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Hotel"];
+                };
+            };
+            /** @description Falta el token, no es válido o el usuario no tiene acceso. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description El rol no alcanza. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Ya existe un hotel con ese nombre en el destino (CU-16 A2). */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemaHotelDuplicado"];
+                };
+            };
+            /** @description Datos inválidos. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+        };
+    };
+    obtener_hotel: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                hotel_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Hotel"];
+                };
+            };
+            /** @description Falta el token, no es válido o el usuario no tiene acceso. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description No existe. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+        };
+    };
+    editar_hotel: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                hotel_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["HotelEditar"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Hotel"];
+                };
+            };
+            /** @description Falta el token, no es válido o el usuario no tiene acceso. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description El rol no alcanza. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description No existe. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Ya existe un hotel con ese nombre en el destino (CU-16 A2). */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemaHotelDuplicado"];
+                };
+            };
+            /** @description Datos inválidos. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+        };
+    };
+    dar_de_baja_hotel: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                hotel_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Hotel"];
+                };
+            };
+            /** @description Falta el token, no es válido o el usuario no tiene acceso. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description El rol no alcanza. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description No existe. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Conflicto con el estado actual. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+        };
+    };
+    listar_resenas: {
+        parameters: {
+            query?: {
+                /** @description Las `oculta` solo las ven admin y dueño, para restaurarlas (CU-29 A1). */
+                estado?: components["schemas"]["EstadoResena"];
+                pagina?: number;
+                por_pagina?: number;
+            };
+            header?: never;
+            path: {
+                hotel_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Reseñas del hotel, de la más reciente a la más antigua. Por defecto, solo las publicadas. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        items: components["schemas"]["Resena"][];
+                        /** @description Cantidad total de resultados. */
+                        total: number;
+                        pagina: number;
+                        por_pagina: number;
+                    };
+                };
+            };
+            /** @description Falta el token, no es válido o el usuario no tiene acceso. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description El rol no alcanza. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description No existe. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Datos inválidos. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+        };
+    };
+    registrar_resena: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                hotel_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ResenaCrear"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Resena"];
+                };
+            };
+            /** @description Falta el token, no es válido o el usuario no tiene acceso. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description El rol no alcanza. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description No existe. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Datos inválidos. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+        };
+    };
+    eliminar_resena: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                resena_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Falta el token, no es válido o el usuario no tiene acceso. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description El rol no alcanza. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description No existe. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Conflicto con el estado actual. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+        };
+    };
+    editar_resena: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                resena_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ResenaEditar"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Resena"];
+                };
+            };
+            /** @description Falta el token, no es válido o el usuario no tiene acceso. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description El rol no alcanza. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description No existe. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Conflicto con el estado actual. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Datos inválidos. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+        };
+    };
+    ocultar_resena: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                resena_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ResenaOcultar"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Resena"];
+                };
+            };
+            /** @description Falta el token, no es válido o el usuario no tiene acceso. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description El rol no alcanza. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description No existe. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Conflicto con el estado actual. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Datos inválidos. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+        };
+    };
+    restaurar_resena: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                resena_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Resena"];
                 };
             };
             /** @description Falta el token, no es válido o el usuario no tiene acceso. */

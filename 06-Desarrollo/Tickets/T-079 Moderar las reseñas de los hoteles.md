@@ -46,3 +46,7 @@ Admin y dueña ocultan una reseña (baja lógica), la restauran o, de forma exce
 - —
 
 ## Notas de implementación
+- **De la review de T-075 (28/10/26):**
+  - Solo admin y dueña ven las reseñas ocultas: `?estado=oculta` responde 403 al resto de los roles.
+  - Ocultar una reseña ya oculta, restaurar una publicada o editar una oculta responde 409.
+  - `Resena.cliente_id` le llega al freelance también en reseñas de clientes que no son suyos. Es solo un UUID, pero hay que decidir si se oculta (DEC-0008).

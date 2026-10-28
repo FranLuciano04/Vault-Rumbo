@@ -62,6 +62,17 @@ export type CanalOportunidad = Esquemas["CanalOportunidad"];
 export type MotivoPerdida = Esquemas["MotivoPerdida"];
 export type EstadoCotizacion = Esquemas["EstadoCotizacion"];
 
+/** Hoteles y reseñas (M5): el catálogo compartido, sus reseñas y la moderación. */
+export type Hotel = Esquemas["Hotel"];
+export type HotelCrear = Esquemas["HotelCrear"];
+export type HotelEditar = Esquemas["HotelEditar"];
+export type Resena = Esquemas["Resena"];
+export type ResenaCrear = Esquemas["ResenaCrear"];
+export type ResenaEditar = Esquemas["ResenaEditar"];
+export type ResenaOcultar = Esquemas["ResenaOcultar"];
+export type EstadoHotel = Esquemas["EstadoHotel"];
+export type EstadoResena = Esquemas["EstadoResena"];
+
 /** Listado paginado: `{items, total, pagina, por_pagina}`. */
 export interface Pagina<T> {
   items: T[];
@@ -118,6 +129,28 @@ export interface FiltrosOportunidades {
   responsable_id?: string;
   estado?: EstadoOportunidad;
   cliente_id?: string;
+  pagina?: number;
+  por_pagina?: number;
+}
+
+/** Filtros del catálogo (`GET /api/hoteles`, CU-18): sin `estado`, solo los activos. */
+export interface FiltrosHoteles {
+  destino_id?: string;
+  categoria?: string;
+  /** Precio de referencia máximo, texto decimal. */
+  precio_max?: string;
+  /** Servicio que el hotel debe ofrecer. */
+  servicio?: string;
+  /** `valoracion` ordena por puntaje promedio, de mayor a menor. */
+  orden?: "nombre" | "valoracion" | "precio";
+  estado?: EstadoHotel;
+  pagina?: number;
+  por_pagina?: number;
+}
+
+/** Filtros de las reseñas de un hotel: sin `estado`, solo las publicadas (las ocultas, admin y dueño). */
+export interface FiltrosResenas {
+  estado?: EstadoResena;
   pagina?: number;
   por_pagina?: number;
 }

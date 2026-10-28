@@ -33,6 +33,11 @@ Fraccion = Annotated[  # de 0 a 1, con 4 decimales: porcentaje_pagado (0.3333 = 
     Field(ge=0, le=1, max_digits=5, decimal_places=4),
     _texto_decimal(r"^(0(\.\d{1,4})?|1(\.0{1,4})?)$", "0.3333"),
 ]
+PuntajePromedio = Annotated[  # de 1 a 5, con 2 decimales (4.67)
+    Decimal,
+    Field(ge=1, le=5, max_digits=3, decimal_places=2),
+    _texto_decimal(r"^([1-4](\.\d{1,2})?|5(\.0{1,2})?)$", "4.67"),
+]
 DecimalConSigno = Annotated[Decimal, _texto_decimal(r"^-?\d+(\.\d{1,4})?$")]  # ganancia y margen
 
 
