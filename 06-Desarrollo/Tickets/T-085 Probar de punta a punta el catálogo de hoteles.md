@@ -3,7 +3,7 @@ id: T-085
 titulo: Probar de punta a punta el catálogo de hoteles
 modulo: M5 — Hoteles y reseñas
 capa: e2e
-estado: libre
+estado: tomado
 depende_de: [T-077, T-079, T-081, T-083, T-084, T-025]
 tamaño: S
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [CU-16, CU-17, CU-18, CU-29]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: palomap2003
+tomado_el: 28/10/26 18:59
+rama: feature/T-085-probar-de-punta-a-punta-el-catalogo-de-h
 pr:
 ---
 # T-085 Probar de punta a punta el catálogo de hoteles
