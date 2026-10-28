@@ -37,10 +37,13 @@ async def registrar_consulta(
     sesion: AsyncSession, actor: Usuario, datos: dict[str, Any]
 ) -> Oportunidad:
     """Registra una consulta como `Oportunidad` en estado `nueva` (CU-04, RF-010, RF-013). El
-    responsable es siempre el actor, lo que envíe el cliente. El `Cliente` tiene que existir (si
-    no, 422); el aviso de una oportunidad abierta del mismo cliente lo arma el front (RF-012)."""
-    if not await _clientes.existe(sesion, datos["cliente_id"]):
-        raise DatosInvalidos("cliente_id", "El cliente no existe.")
+    responsable es siempre el actor, lo que envíe el cliente. El `Cliente` tiene que existir y
+    ser visible para el actor (RF-151); si no, 422 con el mismo mensaje, para no revelar si existe.
+    El aviso de una oportunidad abierta del mismo cliente lo arma el front (RF-012)."""
+    try:
+        await _clientes.obtener(sesion, datos["cliente_id"], visibilidad=visibilidad(actor))
+    except NoEncontrado:
+        raise DatosInvalidos("cliente_id", "El cliente no existe.") from None
     oportunidad = Oportunidad(**datos, responsable_id=actor.id)
     sesion.add(oportunidad)
     await sesion.flush()

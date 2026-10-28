@@ -85,11 +85,6 @@ class RepositorioClientes(RepositorioBase[Cliente]):
         consulta = consulta.order_by(Cliente.created_at, Cliente.id).limit(MAX_PARECIDOS)
         return list(await sesion.scalars(consulta))
 
-    async def existe(self, sesion: AsyncSession, id: uuid.UUID) -> bool:
-        """Si hay un `Cliente` con ese id, sin filtro de visibilidad ni fila cargada: quien
-        registra una consulta puede hacerlo sobre un cliente que todavía no ve (CU-04)."""
-        return bool(await sesion.scalar(select(exists().where(Cliente.id == id))))
-
     async def existe_contacto(
         self, sesion: AsyncSession, *, contacto: str, excluir_id: uuid.UUID | None = None
     ) -> bool:

@@ -622,7 +622,11 @@ async def test_rf010_todos_los_roles_registran_una_consulta(
     cliente_como: FabricaCliente, sesion: AsyncSession, rol: str
 ) -> None:
     c = await cliente_como(rol)
-    existente = await crear(sesion, ClienteFactory)
+    existente = await crear(
+        sesion,
+        ClienteFactory,
+        asesor_asignado_id=c.usuario.id,  # type: ignore[attr-defined]
+    )
 
     r = await c.post("/api/oportunidades", json=_consulta(cliente_id=str(existente.id)))
 
@@ -642,6 +646,22 @@ async def test_rf010_cliente_inexistente_422(cliente_como: FabricaCliente) -> No
 
     assert r.status_code == 422, r.text
     assert r.headers["content-type"].startswith(PROBLEM_JSON)
+
+
+async def test_rf010_freelance_sobre_cliente_ajeno_422(
+    cliente_como: FabricaCliente, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("freelance")
+    otro = await crear(sesion, UsuarioFactory)
+    ajeno = await crear(sesion, ClienteFactory, asesor_asignado_id=otro.id)
+
+    r = await c.post("/api/oportunidades", json=_consulta(cliente_id=str(ajeno.id)))
+    inexistente = await c.post("/api/oportunidades", json=_consulta(cliente_id=str(uuid4())))
+
+    assert r.status_code == 422, r.text
+    assert r.headers["content-type"].startswith(PROBLEM_JSON)
+    assert r.json()["errores"] == inexistente.json()["errores"]
+    assert await _cuenta(sesion, Oportunidad) == 0
 
 
 async def test_rf004_alta_rapida_de_cliente(
@@ -690,7 +710,8 @@ async def test_rf012_con_oportunidad_abierta_del_mismo_cliente_crea_otra(
 async def test_rf012_oportunidad_abierta_avisa(
     cliente_como: FabricaCliente, sesion: AsyncSession, estado: EstadoOportunidad
 ) -> None:
-    """El aviso lo arma el front con el listado filtrado por cliente y estado abierto."""
+    """Fija el contrato que usa el front (T-063): el aviso se arma con el listado filtrado por
+    cliente y estado abierto."""
     c = await cliente_como("empleado")
     otro = await crear(sesion, UsuarioFactory)
     existente = await crear(sesion, ClienteFactory)
