@@ -120,7 +120,7 @@ describe("RF-016 embudo", () => {
         const estado = new URL(request.url).searchParams.get("estado");
         const items = oportunidadesMock
           .filter((o) => !estado || o.estado === estado)
-          .map((o) => ({ ...o, cliente_nombre: `Cliente de ${o.destino_consultado}` }));
+          .map((o) => ({ ...o, cliente_nombre: `Cliente de ${o.destino_consultado ?? ""}` }));
         return HttpResponse.json({ items, total: items.length, pagina: 1, por_pagina: 20 });
       }),
     );
@@ -355,12 +355,12 @@ describe("RF-016 embudo: responsable «todos» y «Ver más»", () => {
     const usuario = userEvent.setup();
     renderEmbudo("empleado");
     const ganada = await columna("Ganada");
-    expect(within(ganada).queryByText(segunda.destino_consultado!)).not.toBeInTheDocument();
+    expect(within(ganada).queryByText(segunda.destino_consultado ?? "")).not.toBeInTheDocument();
 
     await usuario.click(within(ganada).getByRole("button", { name: /ver más/i }));
 
-    expect(await within(ganada).findByText(segunda.destino_consultado!)).toBeInTheDocument();
-    expect(within(ganada).getByText(primera.destino_consultado!)).toBeInTheDocument();
+    expect(await within(ganada).findByText(segunda.destino_consultado ?? "")).toBeInTheDocument();
+    expect(within(ganada).getByText(primera.destino_consultado ?? "")).toBeInTheDocument();
     expect(within(ganada).queryByRole("button", { name: /ver más/i })).not.toBeInTheDocument();
   });
 });
