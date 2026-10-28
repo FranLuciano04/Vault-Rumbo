@@ -18,7 +18,7 @@ tags:: #tipo/referencia
 | M1 — Usuarios y configuración | 19 | 19 | 0 | 0 | 0 | 0 | ✅ cerrado |
 | M2 — Clientes | 15 | 15 | 0 | 0 | 0 | 0 | ✅ cerrado |
 | M3 — Alertas | 14 | 14 | 0 | 0 | 0 | 0 | ✅ cerrado |
-| M4 — Oportunidades y cotizaciones | 16 | 12 | 2 | 0 | 2 | 0 | 🛠️ en curso |
+| M4 — Oportunidades y cotizaciones | 16 | 13 | 1 | 1 | 1 | 0 | 🛠️ en curso |
 | M5 — Hoteles y reseñas | 11 | 5 | 0 | 1 | 5 | 0 | 🛠️ en curso |
 | M6 — Viajes y economía | 24 | 1 | 0 | 5 | 18 | 0 | 🛠️ en curso |
 | M7 — Proceso diario y CRM proactivo | 9 | 0 | 0 | 3 | 6 | 0 | 🛠️ en curso |
@@ -134,13 +134,13 @@ flowchart LR
     T065["T-065 · Agendar insistencias en el seguimiento de la oportunidad<br/><small>backend</small>"]:::hecho
     T066["T-066 · Emitir cotizaciones versionadas con su vigencia<br/><small>backend · ⚠️ riesgo alto</small>"]:::hecho
     T067["T-067 · Registrar la respuesta del cliente a la cotización<br/><small>backend · ⚠️ riesgo alto</small>"]:::hecho
-    T068["T-068 · Generar el documento PDF de la cotización<br/><small>backend</small><br/>👤 Nahuel Viniegra"]:::tomado
+    T068["T-068 · Generar el documento PDF de la cotización<br/><small>backend</small>"]:::hecho
     T069["T-069 · Registrar una consulta en la web<br/><small>web</small>"]:::hecho
     T070["T-070 · Mostrar el embudo de oportunidades en la web<br/><small>web</small>"]:::hecho
     T071["T-071 · Seguir una oportunidad desde su detalle en la web<br/><small>web</small>"]:::hecho
     T072["T-072 · Emitir una cotización en la web<br/><small>web</small>"]:::hecho
     T073["T-073 · Registrar la respuesta a una cotización en la web<br/><small>web</small>"]:::hecho
-    T074["T-074 · Probar de punta a punta el embudo con cotización<br/><small>e2e</small>"]:::esperando
+    T074["T-074 · Probar de punta a punta el embudo con cotización<br/><small>e2e</small>"]:::disponible
     T167["T-167 · Registrar una consulta sin destino ni pasajeros<br/><small>backend</small><br/>👤 palomap2003"]:::tomado
     T168["T-168 · Mostrar las consultas sin destino ni pasajeros en web y mobile<br/><small>web</small>"]:::esperando
   end
