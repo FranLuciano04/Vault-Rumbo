@@ -6,6 +6,7 @@ import { useState } from "react";
 import { Link } from "react-router";
 import { variantesBoton } from "@/components/ui/button";
 import { mensajeDeError } from "@/lib/errores";
+import { BajaDelHotel } from "./BajaDelHotel";
 import { PaginadorResenas } from "./PaginadorResenas";
 import { ResenaPublicada } from "./ResenaPublicada";
 import { ResenasOcultas } from "./ResenasOcultas";
@@ -55,6 +56,7 @@ export function DetalleHotel({
             </Link>
           )}
         </div>
+        {puedeEditar && <BajaDelHotel cliente={cliente} hotel={data} />}
         {usuario.rol === "freelance" && (
           <p
             role="note"

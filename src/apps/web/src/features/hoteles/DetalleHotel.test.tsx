@@ -328,4 +328,23 @@ describe("RF-108 / RF-109 enlace para editar desde el detalle", () => {
     expect(screen.getByText("Cerrado")).toBeInTheDocument();
     expect(screen.queryByRole("link", { name: /editar/i })).not.toBeInTheDocument();
   });
+
+  it.each<RolMock>(["empleado", "admin", "dueno"])(
+    "%s ve el botón «Dar de baja» en un hotel activo",
+    async (rol) => {
+      renderDetalle(rol);
+      await screen.findByRole("heading", { name: llaoLlao.nombre });
+      expect(screen.getByRole("button", { name: "Dar de baja" })).toBeInTheDocument();
+    },
+  );
+
+  it("el freelance y un hotel cerrado no muestran «Dar de baja»", async () => {
+    const { unmount } = renderDetalle("freelance");
+    await screen.findByRole("heading", { name: llaoLlao.nombre });
+    expect(screen.queryByRole("button", { name: "Dar de baja" })).not.toBeInTheDocument();
+    unmount();
+    renderDetalle("empleado", idHotelMock.playaDorada);
+    await screen.findByRole("heading", { name: "Hotel Playa Dorada" });
+    expect(screen.queryByRole("button", { name: "Dar de baja" })).not.toBeInTheDocument();
+  });
 });
