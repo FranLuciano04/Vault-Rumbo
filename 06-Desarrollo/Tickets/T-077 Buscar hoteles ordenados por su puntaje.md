@@ -3,7 +3,7 @@ id: T-077
 titulo: Buscar hoteles ordenados por su puntaje
 modulo: M5 — Hoteles y reseñas
 capa: backend
-estado: libre
+estado: tomado
 depende_de: [T-076]
 tamaño: M
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [CU-18, RF-106, RF-107, RF-108, RF-109, RF-110]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: FranLucianoo
+tomado_el: 28/10/26 14:27
+rama: feature/T-077-buscar-hoteles-ordenados-por-su-puntaje
 pr:
 ---
 # T-077 Buscar hoteles ordenados por su puntaje
