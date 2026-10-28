@@ -33,6 +33,19 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
+## 28/10/26 — Paloma (Claude Opus 5.5) — T-167: consulta sin destino ni pasajeros
+- **Hecho:** T-167 (PR [#126](https://github.com/FranLuciano04/Vault-Rumbo/pull/126), mergeado con el CI en verde).
+  - `destino_consultado` y `pasajeros` son opcionales al crear. Al editar se pueden completar, pero no vaciar.
+  - La migración `0007` hace que las dos columnas admitan nulos.
+  - `emitir` responde 409 si falta destino o pasajeros.
+  - `@rumbo/shared` exporta `DESTINO_A_DEFINIR`.
+  - La regresión de tipos del front se arregló lo mínimo, según DEC-0019.
+  - La review de Opus no encontró bloqueantes ni importantes. Los 3 menores quedaron arreglados.
+  - Para mergear hubo que traer `main` (T-074 y T-080), con un conflicto en `etiquetas.ts` que se resolvió conservando las dos partes.
+- **También:** Paloma leyó el aviso de DEC-0022 y DEC-0023, y se borró su parte de la fila.
+- **Commits:** 9de17c2, a0345d4, 63dbb93, 2682e4e, b2ddd58, 3ca7b12, 3514294.
+- **Pendiente:** T-168, el último ticket de M4. Después, `/cerrar-modulo` M4.
+
 ## 28/10/26 — Nahuel (Claude Opus 5.5) — T-074: e2e del embudo con cotización
 - **Hecho:** T-074 (PR [#124](https://github.com/FranLuciano04/Vault-Rumbo/pull/124), mergeado con el CI en verde). E2e `oportunidades.spec.ts` (6 tests contra el Compose real: consulta → cotización con PDF → enviada → aceptada, perder/reactivar, visibilidad del freelance) y semilla de demo de oportunidades (5 estados; la `ganada` es venta directa).
 - **Aviso:** aceptar la cotización no gana la oportunidad (sigue «Cotizada» hasta CU-07, M6); el e2e lo fija así.
