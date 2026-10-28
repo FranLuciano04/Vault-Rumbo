@@ -38,11 +38,12 @@ export class ErrorApi extends Error {
   duplicados?: Cliente[];
 }
 
-/** Con `responseType: "blob"` el problem+json llega como Blob: se lee su texto para recuperar el problema. */
-async function leerCuerpoProblema(data: unknown): Promise<unknown> {
-  if (!(data instanceof Blob)) return data;
+/** Con `responseType: "arraybuffer"` el problem+json llega en bytes: se decodifica para recuperar el problema. */
+function leerCuerpoProblema(data: unknown): unknown {
+  const esBinario = Object.prototype.toString.call(data) === "[object ArrayBuffer]";
+  if (!esBinario) return data;
   try {
-    return JSON.parse(await data.text()) as unknown;
+    return JSON.parse(new TextDecoder().decode(data as ArrayBuffer)) as unknown;
   } catch {
     return undefined;
   }
@@ -75,9 +76,9 @@ export function crearCliente({ baseURL, obtenerToken }: OpcionesCliente): AxiosI
       }
       return respuesta;
     },
-    async (error: unknown) => {
+    (error: unknown) => {
       if (!isAxiosError(error) || !error.response) throw error;
-      const data: unknown = await leerCuerpoProblema(error.response.data);
+      const data: unknown = leerCuerpoProblema(error.response.data);
       const problema: Partial<Problema & Pick<ProblemaDuplicado, "duplicados">> =
         data && typeof data === "object" ? data : {};
       const errorApi = new ErrorApi(problema.title ?? error.message);

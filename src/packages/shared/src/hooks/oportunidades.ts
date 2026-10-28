@@ -185,14 +185,17 @@ export const useAceptarCotizacion = (cliente: AxiosInstance) =>
 export const useRechazarCotizacion = (cliente: AxiosInstance) =>
   useTransicionCotizacion(cliente, "rechazar");
 
-/** Descarga el documento PDF de la cotización (`GET /api/cotizaciones/{id}/documento`, CU-06). */
+/**
+ * Descarga el documento PDF de la cotización (`GET /api/cotizaciones/{id}/documento`, CU-06).
+ * Se pide como `arraybuffer` y no como `blob`: el `Blob` de jsdom no tiene `stream()` y el XHR de MSW
+ * se cae en Node 22 al armar la respuesta.
+ */
 export async function descargarDocumentoCotizacion(
   cliente: AxiosInstance,
   cotizacionId: string,
 ): Promise<Blob> {
-  return (
-    await cliente.get<Blob>(`/api/cotizaciones/${cotizacionId}/documento`, {
-      responseType: "blob",
-    })
-  ).data;
+  const { data } = await cliente.get<ArrayBuffer>(`/api/cotizaciones/${cotizacionId}/documento`, {
+    responseType: "arraybuffer",
+  });
+  return new Blob([data], { type: "application/pdf" });
 }
