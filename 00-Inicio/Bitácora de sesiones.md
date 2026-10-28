@@ -69,6 +69,11 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
+## 27/10/26 — Nahuel (Claude Opus 5.5) — T-073
+- **Hecho:** **T-073** (registrar la respuesta a una cotización en la web) mergeado, PR [#117](https://github.com/FranLuciano04/Vault-Rumbo/pull/117). Cada versión muestra sus acciones según el estado: enviar un borrador, aceptar o rechazar una enviada. El rechazo pide confirmación, sin motivo (decisión de Nahuel; coincide con T-067). Las acciones exigen la oportunidad abierta y el PDF se descarga siempre. Review de Opus: 2 importantes arreglados. El CI destapó que el `Blob` de jsdom colgaba MSW en Node 22 y que los tipos de React Native no aceptan un `Blob` armado con un `ArrayBuffer`: ahora shared devuelve los bytes y la web arma el `Blob`.
+- **Commits:** T-073: 18912ad, beddecd, f2540f0, 96dbcbb, 77eba66, 83f189b, 4cee5b6, d7184d2; merge bc9ba6b.
+- **Pendiente:** la web ofrece «Aceptar» en versiones viejas que siguen `enviada`; conviene que el backend (T-067) responda 409 o que se acepte solo la versión vigente.
+
 ## 27/10/26 — Paloma (Claude Opus 5.5) — T-062 y T-067
 - **Hecho:**
   - **T-062** (registrar una consulta como oportunidad) mergeado, PR [#114](https://github.com/FranLuciano04/Vault-Rumbo/pull/114). Paloma decidió seguir el contrato vigente y la web de T-069 (sin `cliente_nuevo` ni 409 por oportunidad abierta). La review encontró un bloqueante, ya arreglado: un freelance podía registrar consultas sobre clientes ajenos.
