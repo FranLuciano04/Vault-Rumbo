@@ -49,6 +49,17 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Commits:** 80e48d8, 6d69f3b, 2f2186e, 86b7ba8, 4739374.
 - **Pendiente:** detalles de diseño de las pantallas 24 y 45, anotados en el ticket (pestañas Publicadas/Ocultas, cliente y viaje de cada reseña). En M5 quedan T-081, T-083, T-084 y T-085.
 
+## 28/10/26 — Paloma (Claude Opus 5.5) — T-168: consultas sin destino ni pasajeros en el front
+- **Hecho:** T-168 (PR [#131](https://github.com/FranLuciano04/Vault-Rumbo/pull/131), mergeado con el CI en verde). Con esto, M4 no tiene más tickets pendientes.
+  - La consulta se registra solo con cliente y canal.
+  - Las pantallas muestran «Destino a definir» o «—» (que se anuncia como «Pasajeros sin definir»).
+  - **Ampliación** (decisión de Paloma, por un hallazgo importante de la review): `EdicionDestinoPasajeros` permite completar desde el detalle cada dato por separado. Lo que ya estaba cargado no se vacía.
+  - Hubo dos rondas de TDD y de review con Opus, sin bloqueantes.
+- **Commits:** 18ab45e, 25dc59a, 8f61d30, 77e4e76, 2a2576b, 43c0b89, 5e1195a.
+- **Pendiente:**
+  - `/cerrar-modulo` M4.
+  - Para la sync: decidir si una oportunidad ganada o perdida es de solo lectura. Hoy el backend deja editar el destino y los pasajeros.
+
 ## 28/10/26 — Paloma (Claude Opus 5.5) — T-167: consulta sin destino ni pasajeros
 - **Hecho:** T-167 (PR [#126](https://github.com/FranLuciano04/Vault-Rumbo/pull/126), mergeado con el CI en verde).
   - `destino_consultado` y `pasajeros` son opcionales al crear. Al editar se pueden completar, pero no vaciar.
