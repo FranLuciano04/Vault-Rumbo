@@ -3,7 +3,7 @@ id: T-081
 titulo: Editar un hotel del catálogo en la web
 modulo: M5 — Hoteles y reseñas
 capa: web
-estado: libre
+estado: tomado
 depende_de: [T-080]
 tamaño: S
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [CU-16, RF-097, RF-098, RF-099, RF-100]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: FranLucianoo
+tomado_el: 28/10/26 16:16
+rama: feature/T-081-editar-un-hotel-del-catalogo-en-la-web
 pr:
 ---
 # T-081 Editar un hotel del catálogo en la web
