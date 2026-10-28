@@ -3,7 +3,7 @@ id: T-167
 titulo: Registrar una consulta sin destino ni pasajeros
 modulo: M4 — Oportunidades y cotizaciones
 capa: backend
-estado: libre
+estado: tomado
 depende_de: [T-062, T-066]
 tamaño: S
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [CU-04, RF-013, DEC-0023]
 origen: hallazgo T-069
-asignado:
-tomado_el:
-rama:
+asignado: palomap2003
+tomado_el: 28/10/26 12:56
+rama: feature/T-167-registrar-una-consulta-sin-destino-ni-pa
 pr:
 ---
 # T-167 Registrar una consulta sin destino ni pasajeros

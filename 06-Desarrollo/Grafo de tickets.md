@@ -18,7 +18,7 @@ tags:: #tipo/referencia
 | M1 — Usuarios y configuración | 19 | 19 | 0 | 0 | 0 | 0 | ✅ cerrado |
 | M2 — Clientes | 15 | 15 | 0 | 0 | 0 | 0 | ✅ cerrado |
 | M3 — Alertas | 14 | 14 | 0 | 0 | 0 | 0 | ✅ cerrado |
-| M4 — Oportunidades y cotizaciones | 16 | 12 | 0 | 2 | 2 | 0 | 🛠️ en curso |
+| M4 — Oportunidades y cotizaciones | 16 | 12 | 1 | 1 | 2 | 0 | 🛠️ en curso |
 | M5 — Hoteles y reseñas | 11 | 3 | 0 | 3 | 5 | 0 | 🛠️ en curso |
 | M6 — Viajes y economía | 24 | 1 | 0 | 5 | 18 | 0 | 🛠️ en curso |
 | M7 — Proceso diario y CRM proactivo | 9 | 0 | 0 | 3 | 6 | 0 | 🛠️ en curso |
@@ -141,7 +141,7 @@ flowchart LR
     T072["T-072 · Emitir una cotización en la web<br/><small>web</small>"]:::hecho
     T073["T-073 · Registrar la respuesta a una cotización en la web<br/><small>web</small>"]:::hecho
     T074["T-074 · Probar de punta a punta el embudo con cotización<br/><small>e2e</small>"]:::esperando
-    T167["T-167 · Registrar una consulta sin destino ni pasajeros<br/><small>backend</small>"]:::disponible
+    T167["T-167 · Registrar una consulta sin destino ni pasajeros<br/><small>backend</small><br/>👤 palomap2003"]:::tomado
     T168["T-168 · Mostrar las consultas sin destino ni pasajeros en web y mobile<br/><small>web</small>"]:::esperando
   end
   subgraph M5["M5 — Hoteles y reseñas"]
