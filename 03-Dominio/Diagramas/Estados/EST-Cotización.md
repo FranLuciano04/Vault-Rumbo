@@ -4,7 +4,7 @@ estado: formalizado
 modulo: [cotizaciones]
 responsable: Guardián del dominio
 pc: pc1
-actualizado: 29/09/26
+actualizado: 27/10/26
 fecha_aprobacion: 29/09/26
 ---
 # EST-Cotización — Especificación de estados
@@ -39,6 +39,8 @@ El diagrama de abajo se dibujó el 21/09/26 siguiendo estas convenciones, comune
 **Estado inicial:** `borrador`.
 **Estados finales:** `aceptada`, `rechazada` y `vencida`.
 
+> ℹ️ **27/10/26 (Paloma, review de T-067): T3 corregida.** Se sumó la guarda de `validez_hasta`, para que una cotización vencida por fecha no se pueda aceptar antes de que corra el proceso diario. El efecto sobre la [[Oportunidad]] se alineó con [[EST-Oportunidad]] T4 (sync 29/09): al aceptar queda `cotizada` y la gana CU-07. El diagrama no cambia.
+
 > ℹ️ **`vencida` se sumó el 21/09 (Nahuel).** El enum pasa de 4 a **5 valores** y [[Cotización]] gana el atributo **`validez_hasta`**. Motivo: en turismo los precios cambian, así que una cotización no puede quedar vigente para siempre. **Default: 1 mes** desde la `fecha` de emisión, como parámetro global configurable por `admin` (mismo patrón que la anticipación de la [[Alerta]] `salida`). ✅ El valor de 1 mes lo propuso Nahuel y **la agencia lo validó** el 29/09.
 
 ## Transiciones
@@ -47,7 +49,7 @@ El diagrama de abajo se dibujó el 21/09/26 siguiendo estas convenciones, comune
 |---|---|---|---|---|---|---|---|
 | T1 | *(inicial)* | `borrador` | El empleado genera la cotización desde una **plantilla + formulario** | empleado | [[CU-06 Emitir cotización]] pasos 1-3 | Existe una [[Oportunidad]]; se cargan `moneda`, ítems y el sistema calcula el `total` | Se genera el **documento** y queda asociada a la [[Oportunidad]] |
 | T2 | `borrador` | `enviada` | El empleado **envía** la cotización al cliente y la marca como enviada | empleado | [[CU-06 Emitir cotización]] paso 4 | El envío ocurre **por fuera del sistema** (WhatsApp/email); el sistema solo registra el hecho | La [[Oportunidad]] pasa a `cotizada` ([[EST-Oportunidad]] T3) |
-| T3 | `enviada` | `aceptada` | El cliente **acepta** | empleado (lo registra) | [[CU-06 Emitir cotización]] A2 | — | Habilita [[CU-07 Confirmar reserva]]; la `moneda` de esta cotización queda como **moneda de referencia del [[Viaje]]**; la [[Oportunidad]] se cierra `ganada` |
+| T3 | `enviada` | `aceptada` | El cliente **acepta** | empleado (lo registra) | [[CU-06 Emitir cotización]] A2 | `validez_hasta` no vencida, aunque el proceso diario todavía no la haya marcado `vencida` | Habilita [[CU-07 Confirmar reserva]]; la `moneda` de esta cotización queda como **moneda de referencia del [[Viaje]]**; la [[Oportunidad]] queda `cotizada`, lista para confirmar la reserva: la cierra `ganada` CU-07 ([[EST-Oportunidad]] T4) |
 | T4 | `enviada` | `rechazada` | El cliente **no acepta** | empleado (lo registra) | [[CU-06 Emitir cotización]] A3 | — | El seguimiento continúa o la [[Oportunidad]] se cierra `perdida` ([[CU-05 Seguir oportunidad]]) |
 | T5 | `enviada` | `vencida` | **Pasó la `validez_hasta`** sin respuesta del cliente | **sistema** (proceso automático) | *ninguno* — no es un CU con actor | Solo desde `enviada`: un `borrador` nunca vence porque el cliente no lo vio | La [[Oportunidad]] **no cambia de estado** (sigue `cotizada`). Para retomar hay que emitir una cotización nueva |
 

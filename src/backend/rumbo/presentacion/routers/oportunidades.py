@@ -286,8 +286,12 @@ async def descargar_cotizacion(cotizacion_id: uuid.UUID) -> Response:
     summary="Marcar la cotización como enviada",
     **operacion_de_registro(403, 404, 409, casos_de_uso="CU-06"),
 )
-async def marcar_cotizacion_enviada(cotizacion_id: uuid.UUID) -> Cotizacion:
-    raise no_implementado()
+async def marcar_cotizacion_enviada(
+    cotizacion_id: uuid.UUID, actor: ActorDep, sesion: SesionDep
+) -> Cotizacion:
+    return Cotizacion.model_validate(
+        await oportunidades.marcar_cotizacion_enviada(sesion, actor, cotizacion_id)
+    )
 
 
 @router.post(
@@ -296,8 +300,12 @@ async def marcar_cotizacion_enviada(cotizacion_id: uuid.UUID) -> Cotizacion:
     summary="Registrar que el cliente aceptó la cotización",
     **operacion_de_registro(403, 404, 409, casos_de_uso="CU-06"),
 )
-async def aceptar_cotizacion(cotizacion_id: uuid.UUID) -> Cotizacion:
-    raise no_implementado()
+async def aceptar_cotizacion(
+    cotizacion_id: uuid.UUID, actor: ActorDep, sesion: SesionDep
+) -> Cotizacion:
+    return Cotizacion.model_validate(
+        await oportunidades.aceptar_cotizacion(sesion, actor, cotizacion_id)
+    )
 
 
 @router.post(
@@ -306,5 +314,9 @@ async def aceptar_cotizacion(cotizacion_id: uuid.UUID) -> Cotizacion:
     summary="Registrar que el cliente rechazó la cotización",
     **operacion_de_registro(403, 404, 409, casos_de_uso="CU-06"),
 )
-async def rechazar_cotizacion(cotizacion_id: uuid.UUID) -> Cotizacion:
-    raise no_implementado()
+async def rechazar_cotizacion(
+    cotizacion_id: uuid.UUID, actor: ActorDep, sesion: SesionDep
+) -> Cotizacion:
+    return Cotizacion.model_validate(
+        await oportunidades.rechazar_cotizacion(sesion, actor, cotizacion_id)
+    )

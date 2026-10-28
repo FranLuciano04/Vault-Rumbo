@@ -3,7 +3,7 @@ id: T-067
 titulo: Registrar la respuesta del cliente a la cotización
 modulo: M4 — Oportunidades y cotizaciones
 capa: backend
-estado: tomado
+estado: hecho
 depende_de: [T-066]
 tamaño: S
 riesgo: alto
@@ -47,3 +47,11 @@ Se marca una cotización como enviada y se registra si el cliente la aceptó o l
 - Confirmar la reserva (M6).
 
 ## Notas de implementación
+- **Criterios aclarados con el vault:** aceptar deja la oportunidad `cotizada`; la cierra `ganada` CU-07 ([[EST-Oportunidad]] T4, sync 29/09), no T-067. Rechazar no registra motivo: CU-06 A3 y EST-Cotización T4 no lo tienen y el contrato no declara cuerpo. El motivo es el de perder la oportunidad (CU-05).
+- **Decisiones del implementador, confirmadas por la review:** aceptar con la oportunidad cerrada responde 409 y rechazar no exige que esté abierta. Se bloquea primero la oportunidad y después la cotización, como en `emitir_cotizacion`.
+- **Review de seguridad, sin bloqueantes:**
+  - **Importante:** aceptar una `enviada` con `validez_hasta` vencida antes de que corriera el proceso diario. Paloma decidió que responda 409 (validez igual a hoy sigue aceptable), y se alineó EST-Cotización T3: guarda de validez y oportunidad `cotizada`.
+  - **Menor:** se agregó un comentario sobre la doble lectura de la cotización.
+- **Tests:** los de aceptar usan una validez relativa a hoy. `CotizacionFactory` fija `validez_hasta = 01/11/26` y los habría hecho fallar desde el 02/11; la factory no se tocó porque `test_cotizaciones.py` (T-066) depende de esa fecha. `test_contrato_m4.py` suma las tres rutas a `IMPLEMENTADAS` (autorizado).
+- **Pendiente fuera de alcance:** `obtener_para_modificar` quedó repetido en los repositorios de oportunidades y cotizaciones (posible refactor a `RepositorioBase`).
+- **Modelos:** tests con Sonnet; verde, refactor y fix con Opus; review de seguridad con Sonnet. Sin escalados.

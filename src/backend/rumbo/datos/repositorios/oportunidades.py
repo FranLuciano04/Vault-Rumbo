@@ -76,3 +76,15 @@ class RepositorioCotizaciones(RepositorioBase[Cotizacion]):
         )
         filas = await sesion.scalars(pagina.offset(desplazamiento).limit(limite))
         return list(filas), total or 0
+
+    async def obtener_para_modificar(
+        self, sesion: AsyncSession, id: uuid.UUID, *, visibilidad: Visibilidad
+    ) -> Cotizacion:
+        """Como `obtener`, pero bloqueada hasta el fin de la transacción y releída de la base,
+        para que dos respuestas simultáneas no partan del mismo estado (EST-Cotización)."""
+        consulta = visibilidad.aplicar(select(Cotizacion).where(Cotizacion.id == id), Cotizacion)
+        consulta = consulta.with_for_update(of=Cotizacion).execution_options(populate_existing=True)
+        cotizacion = await sesion.scalar(consulta)
+        if cotizacion is None:
+            raise NoEncontrado(f"Cotizacion {id} no encontrada")
+        return cotizacion

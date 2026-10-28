@@ -34,6 +34,12 @@ def pasar_a_en_gestion(oportunidad: Oportunidad) -> None:
     oportunidad.estado = EstadoOportunidad.en_gestion
 
 
+def pasar_a_cotizada(oportunidad: Oportunidad) -> None:
+    """T3: se envía una cotización; si ya estaba `cotizada` (otra versión), queda igual."""
+    exigir_abierta(oportunidad, accion="cotizar")
+    oportunidad.estado = EstadoOportunidad.cotizada
+
+
 def perder(oportunidad: Oportunidad, motivo: MotivoPerdida, detalle: str | None = None) -> None:
     """T5: cierra una abierta como perdida con su motivo (RF-017, CU-05 A2)."""
     _exigir(oportunidad, *_ABIERTAS, accion="perder")
