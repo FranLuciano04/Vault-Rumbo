@@ -107,8 +107,11 @@ async def listar_oportunidades(
     status_code=201,
     **operacion(TODOS, "CU-04, CU-30", 422),
 )
-async def registrar_consulta(datos: OportunidadCrear) -> Oportunidad:
-    raise no_implementado()
+async def registrar_consulta(
+    datos: OportunidadCrear, actor: ActorDep, sesion: SesionDep
+) -> Oportunidad:
+    oportunidad = await oportunidades.registrar_consulta(sesion, actor, datos.model_dump())
+    return Oportunidad.model_validate(oportunidad)
 
 
 @router.get(

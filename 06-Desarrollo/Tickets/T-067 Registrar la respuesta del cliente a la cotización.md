@@ -3,7 +3,7 @@ id: T-067
 titulo: Registrar la respuesta del cliente a la cotización
 modulo: M4 — Oportunidades y cotizaciones
 capa: backend
-estado: libre
+estado: tomado
 depende_de: [T-066]
 tamaño: S
 riesgo: alto
@@ -12,9 +12,9 @@ modelo_impl: opus
 modelo_review: sonnet
 trazabilidad: [CU-06, RF-023, RF-025]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: palomap2003
+tomado_el: 27/10/26 21:46
+rama: feature/T-067-registrar-la-respuesta-del-cliente-a-la
 pr:
 ---
 # T-067 Registrar la respuesta del cliente a la cotización

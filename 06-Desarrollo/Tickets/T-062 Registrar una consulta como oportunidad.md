@@ -3,7 +3,7 @@ id: T-062
 titulo: Registrar una consulta como oportunidad
 modulo: M4 — Oportunidades y cotizaciones
 capa: backend
-estado: tomado
+estado: hecho
 depende_de: [T-061, T-040]
 tamaño: M
 riesgo: normal
@@ -49,3 +49,8 @@ Se registra una consulta como oportunidad `nueva` de un cliente existente o de u
 - Consulta derivada del recontacto (M7).
 
 ## Notas de implementación
+- **Desvío decidido por Paloma (27/10/26):** se sigue el contrato vigente y el flujo de la web (T-069). `POST /oportunidades` recibe solo `cliente_id`; el alta rápida (A1) es `POST /clientes` + `POST /oportunidades`, así que no es una sola transacción. El aviso de oportunidad abierta (A2) lo da el front con el listado filtrado (T-063): el servidor no responde 409 y crea igual la segunda. `test_rf012_oportunidad_abierta_avisa` fija ese listado, no código de este ticket.
+- **DEC-0023** sigue en revisión: destino y pasajeros quedan obligatorios. Si se aprueba, el cambio va en un ticket nuevo.
+- **Review (bloqueante, arreglado):** el cliente se validaba sin visibilidad y un freelance podía registrar una consulta sobre un cliente ajeno (DEC-0008, RN-10, DEC-0020). Ahora se lee con `visibilidad(actor)` y un cliente ajeno da el mismo 422 que uno inexistente. Se corrigió `test_rf010_todos_los_roles_registran_una_consulta` y se sumó `test_rf010_freelance_sobre_cliente_ajeno_422` (tests autorizados).
+- **Checks:** `test_contrato_m4.py` esperaba el 501 de `POST /oportunidades`; se sumó a `IMPLEMENTADAS` y el test de fechas pasa a esperar 201 (tests autorizados, como en T-072).
+- **Modelos:** tests, verde, refactor y fix con Sonnet; review con Opus (dos rondas). Sin escalados.
