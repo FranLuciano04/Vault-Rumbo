@@ -73,7 +73,16 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
   - Review (opus): 0 bloqueantes y 2 importantes, los dos arreglados (la carrera y el rastro).
   - Commits: 3503932, 95bf795, 9c7bfa8, 56f8c33 y f061ff7.
 - **Abierto (`#accion/decidir` en CU-29):** si, además del log, hace falta un rastro de las eliminaciones que se pueda consultar dentro de Rumbo. Lo decide Paloma, que es la responsable del CU.
-- **Pendiente:** M5 sigue con T-077 (búsqueda por puntaje y listado de reseñas) y T-080 (catálogo web). El backend de reseñas está completo.
+- **T-077** (PR [#123](https://github.com/FranLuciano04/Vault-Rumbo/pull/123), mergeado con el CI en verde): búsqueda de hoteles.
+  - Filtra por destino, categoría, precio y servicio, y ordena por nombre, valoración o precio.
+  - El promedio se calcula sin N+1, y un test cuenta las consultas para verificarlo.
+  - Cuando no hay resultados, devuelve `alternativas` (CU-18 A1).
+  - Se agregó el listado de reseñas por hotel.
+  - Review (opus): 0 bloqueantes, 1 importante (el `openapi.py` compartido importaba un esquema de hoteles; ahora usa un registro genérico) y 6 menores.
+  - Pendiente: un índice en `resena (hotel_id, estado)`.
+  - Commits: bac1129, 59cef88, 6e03ce4 y 325eb4e.
+- **El backend de M5 quedó completo.**
+- **Pendiente:** el front de M5, que arranca con T-080 (catálogo web). Hoy (28/10) se hicieron T-075, T-076, T-078, T-079 y T-077, más DEC-0022 y DEC-0023.
 - **Abierto para la sync:** ¿se puede asociar una reseña a un viaje cancelado, o a uno cuyo itinerario no incluye el hotel?
 
 ## 27/10/26 — Nahuel (Claude Opus 5.5) — T-073
