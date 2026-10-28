@@ -5,8 +5,8 @@ El contrato (openapi.json) declara los tres POST sin cuerpo y la `Cotizacion` si
 solo se prueba lo que ese contrato permite.
 """
 
-from datetime import timedelta
 from collections.abc import Awaitable, Callable
+from datetime import timedelta
 from typing import Any
 from uuid import UUID, uuid4
 
@@ -14,6 +14,7 @@ import pytest
 from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from rumbo.core.fechas import hoy
 from rumbo.datos.modelos import (
     Cotizacion,
     EstadoCotizacion,
@@ -21,7 +22,6 @@ from rumbo.datos.modelos import (
     MotivoPerdida,
     Oportunidad,
 )
-from rumbo.core.fechas import hoy
 from tests.fabricas import ClienteFactory, CotizacionFactory, OportunidadFactory, crear
 
 PROBLEM_JSON = "application/problem+json"
@@ -179,7 +179,11 @@ async def test_aceptar_con_validez_vencida_409(
     c = await cliente_como("empleado")
     ayer = hoy() - timedelta(days=1)
     op, cot = await _par(
-        sesion, c.usuario.id, cot=C.enviada, op=E.cotizada, validez_hasta=ayer  # type: ignore[attr-defined]
+        sesion,
+        c.usuario.id,
+        cot=C.enviada,
+        op=E.cotizada,
+        validez_hasta=ayer,  # type: ignore[attr-defined]
     )
 
     r = await c.post(_url(cot, "aceptar"))
@@ -197,7 +201,11 @@ async def test_aceptar_con_validez_igual_a_hoy_200(
 ) -> None:
     c = await cliente_como("empleado")
     _, cot = await _par(
-        sesion, c.usuario.id, cot=C.enviada, op=E.cotizada, validez_hasta=hoy()  # type: ignore[attr-defined]
+        sesion,
+        c.usuario.id,
+        cot=C.enviada,
+        op=E.cotizada,
+        validez_hasta=hoy(),  # type: ignore[attr-defined]
     )
 
     r = await c.post(_url(cot, "aceptar"))
@@ -316,9 +324,7 @@ async def test_rf151_freelance_propia_200(
 
 
 @pytest.mark.parametrize("accion", ["enviar", "aceptar", "rechazar"])
-async def test_rf025_cotizacion_inexistente_404(
-    cliente_como: FabricaCliente, accion: str
-) -> None:
+async def test_rf025_cotizacion_inexistente_404(cliente_como: FabricaCliente, accion: str) -> None:
     c = await cliente_como("empleado")
 
     r = await c.post(_url(uuid4(), accion))

@@ -20,9 +20,7 @@ E = m.EstadoOportunidad
 
 
 def _cot(estado: str) -> m.Cotizacion:
-    return f.CotizacionFactory.build(
-        estado=C(estado), validez_hasta=_HOY + timedelta(days=30)
-    )
+    return f.CotizacionFactory.build(estado=C(estado), validez_hasta=_HOY + timedelta(days=30))
 
 
 def _op(estado: str) -> m.Oportunidad:
