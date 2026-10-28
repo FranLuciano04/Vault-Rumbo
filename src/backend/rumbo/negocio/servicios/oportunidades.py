@@ -3,18 +3,21 @@ cotizaciones (CU-06)."""
 
 import uuid
 from collections.abc import Callable
+from datetime import date
 from typing import Any
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from rumbo.core.fechas import hoy
 from rumbo.datos.modelos import (
+    Alerta,
     Cotizacion,
     EstadoOportunidad,
     Moneda,
     MotivoPerdida,
     Oportunidad,
     RolUsuario,
+    TipoAlerta,
     Usuario,
 )
 from rumbo.datos.repositorios.oportunidades import RepositorioCotizaciones, RepositorioOportunidades
@@ -24,7 +27,12 @@ from rumbo.negocio.estados import cotizacion as estado_cotizacion
 from rumbo.negocio.estados import oportunidad as estado
 from rumbo.negocio.politicas import exigir_escritura, exigir_rol, visibilidad
 from rumbo.negocio.servicios import parametros
-from rumbo.negocio.servicios.alertas import resolver_de_origen
+from rumbo.negocio.servicios.alertas import (
+    ContextoDeAlerta,
+    crear,
+    obtener_alerta,
+    resolver_de_origen,
+)
 
 _oportunidades = RepositorioOportunidades()
 _cotizaciones = RepositorioCotizaciones()
@@ -130,6 +138,34 @@ async def ganar_oportunidad(
     """Venta directa sin cotización formal: queda ganada, lista para confirmar la reserva
     (CU-05 A4, RF-016); resuelve las alertas automáticas abiertas (RN-08)."""
     return await _transicionar(sesion, actor, oportunidad_id, estado.ganar, resolver_alertas=True)
+
+
+async def agendar_insistencia(
+    sesion: AsyncSession,
+    actor: Usuario,
+    oportunidad_id: uuid.UUID,
+    fecha: date,
+    descripcion: str,
+) -> tuple[Alerta, ContextoDeAlerta]:
+    """Agenda un recontacto en la agenda del responsable (CU-05 A1, RF-015). Reagendar es
+    agendar otra: la anterior no se toca (RF-019). Lo agenda el responsable, admin o dueño
+    (DEC-0005); la alerta es siempre del responsable."""
+    oportunidad = await _oportunidades.obtener_para_modificar(
+        sesion, oportunidad_id, visibilidad=visibilidad(actor)
+    )
+    exigir_escritura(actor, oportunidad)
+    # Quien no es dirección solo ve su propio `Usuario` (y escribe solo si es el responsable).
+    responsable = (
+        actor
+        if actor.id == oportunidad.responsable_id
+        else await _usuarios.obtener(
+            sesion, oportunidad.responsable_id, visibilidad=visibilidad(actor)
+        )
+    )
+    alerta = await crear(
+        sesion, TipoAlerta.insistencia, fecha, descripcion, responsable, oportunidad
+    )
+    return await obtener_alerta(sesion, actor, alerta.id)
 
 
 async def listar_cotizaciones(

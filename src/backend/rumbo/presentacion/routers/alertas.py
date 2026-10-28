@@ -92,7 +92,7 @@ def _contexto(contexto: ContextoDeAlerta) -> ContextoAlerta:
     )
 
 
-def _alerta(alerta: modelos.Alerta, contexto: ContextoDeAlerta) -> Alerta:
+def esquema_de_alerta(alerta: modelos.Alerta, contexto: ContextoDeAlerta) -> Alerta:
     """La `Alerta` del ORM con su responsable y su contexto, validada contra el contrato."""
     columnas = {c.key: getattr(alerta, c.key) for c in inspect(modelos.Alerta).column_attrs}
     return Alerta.model_validate(
@@ -171,7 +171,7 @@ async def listar_alertas(
         limite=paginacion.por_pagina,
     )
     return Pagina(
-        items=[_alerta(a, contexto) for a, contexto in items],
+        items=[esquema_de_alerta(a, contexto) for a, contexto in items],
         total=total,
         pagina=paginacion.pagina,
         por_pagina=paginacion.por_pagina,
@@ -186,7 +186,7 @@ async def listar_alertas(
     **operacion(TODOS, "CU-28", 404, 422),
 )
 async def crear_recordatorio(datos: AlertaCrear, actor: ActorDep, sesion: SesionDep) -> Alerta:
-    return _alerta(
+    return esquema_de_alerta(
         *await alertas.crear_recordatorio(
             sesion,
             actor,
@@ -218,7 +218,7 @@ async def ver_progreso_del_dia(actor: ActorDep, sesion: SesionDep) -> ProgresoDe
     **operacion(TODOS, "CU-14", 404),
 )
 async def obtener_alerta(alerta_id: uuid.UUID, actor: ActorDep, sesion: SesionDep) -> Alerta:
-    return _alerta(*await alertas.obtener_alerta(sesion, actor, alerta_id))
+    return esquema_de_alerta(*await alertas.obtener_alerta(sesion, actor, alerta_id))
 
 
 @router.patch(
@@ -241,7 +241,7 @@ async def obtener_alerta(alerta_id: uuid.UUID, actor: ActorDep, sesion: SesionDe
 async def editar_recordatorio(
     alerta_id: uuid.UUID, cambios: AlertaEditar, actor: ActorDep, sesion: SesionDep
 ) -> Alerta:
-    return _alerta(
+    return esquema_de_alerta(
         *await alertas.editar_recordatorio(
             sesion, actor, alerta_id, cambios.model_dump(exclude_unset=True)
         )
@@ -255,7 +255,7 @@ async def editar_recordatorio(
     **operacion(TODOS, "CU-14", 403, 404, 409, escritura=True),
 )
 async def marcar_alerta_vista(alerta_id: uuid.UUID, actor: ActorDep, sesion: SesionDep) -> Alerta:
-    return _alerta(*await alertas.marcar_vista(sesion, actor, alerta_id))
+    return esquema_de_alerta(*await alertas.marcar_vista(sesion, actor, alerta_id))
 
 
 @router.post(
@@ -265,7 +265,7 @@ async def marcar_alerta_vista(alerta_id: uuid.UUID, actor: ActorDep, sesion: Ses
     **operacion(TODOS, "CU-14", 403, 404, 409, escritura=True),
 )
 async def resolver_alerta(alerta_id: uuid.UUID, actor: ActorDep, sesion: SesionDep) -> Alerta:
-    return _alerta(*await alertas.resolver(sesion, actor, alerta_id))
+    return esquema_de_alerta(*await alertas.resolver(sesion, actor, alerta_id))
 
 
 @router.post(
@@ -277,4 +277,4 @@ async def resolver_alerta(alerta_id: uuid.UUID, actor: ActorDep, sesion: SesionD
 async def posponer_alerta(
     alerta_id: uuid.UUID, datos: AlertaPosponer, actor: ActorDep, sesion: SesionDep
 ) -> Alerta:
-    return _alerta(*await alertas.posponer(sesion, actor, alerta_id, datos.fecha))
+    return esquema_de_alerta(*await alertas.posponer(sesion, actor, alerta_id, datos.fecha))
