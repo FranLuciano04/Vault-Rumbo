@@ -86,6 +86,7 @@ const filtroDestino = () => screen.findByRole("combobox", { name: /destino/i });
 const filtroCategoria = () => screen.findByRole("combobox", { name: /categoría/i });
 const filtroOrden = () => screen.findByRole("combobox", { name: /ordenar por/i });
 const filtroPrecio = () => screen.findByRole("spinbutton", { name: /precio máximo/i });
+const filtroPrecioActual = () => screen.getByRole("spinbutton", { name: /precio máximo/i });
 const chipSpa = () => screen.getByRole("button", { name: /^spa$/i });
 
 describe("RF-106 búsqueda de hoteles", () => {
@@ -141,7 +142,9 @@ describe("RF-106 búsqueda de hoteles", () => {
   it("RF-106 aclara que el puntaje es el promedio de las reseñas de los clientes", async () => {
     renderPagina();
 
-    expect(await screen.findByText(/el puntaje es el promedio de las reseñas/i)).toBeInTheDocument();
+    expect(
+      await screen.findByText(/el puntaje es el promedio de las reseñas/i),
+    ).toBeInTheDocument();
   });
 
   it("RF-106 indica cuántos hoteles se encontraron", async () => {
@@ -405,6 +408,69 @@ describe("RF-106 búsqueda de hoteles", () => {
     await llaoLlao();
     expect(screen.queryByRole("link", { name: /nuevo hotel/i })).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /nuevo hotel/i })).not.toBeInTheDocument();
+    expect(screen.getByRole("note")).toHaveTextContent(
+      "Solo consulta: el catálogo de hoteles es compartido. El alta de hoteles la hacen empleados y administración.",
+    );
+  });
+
+  it("RF-106 limpiar filtros no reaplica el precio máximo ya demorado", async () => {
+    const pedidos: URLSearchParams[] = [];
+    espiar(pedidos);
+    renderPagina();
+    const usuario = userEvent.setup();
+    await llaoLlao();
+    await usuario.type(await filtroPrecio(), "150000");
+    await waitFor(() => {
+      expect(pedidos.at(-1)?.get("precio_max")).toBe("150000");
+    });
+
+    await usuario.click(screen.getByRole("button", { name: /limpiar filtros/i }));
+    const desde = pedidos.length;
+    await new Promise((resolver) => setTimeout(resolver, 600));
+
+    expect(filtroPrecioActual()).toHaveValue(null);
+    expect(pedidos.slice(desde).some((p) => p.has("precio_max"))).toBe(false);
+    expect(pedidos.at(-1)?.has("precio_max")).toBe(false);
+  });
+
+  it("RF-106 un precio máximo inválido muestra un error en el campo y no se manda", async () => {
+    const pedidos: URLSearchParams[] = [];
+    espiar(pedidos);
+    renderPagina();
+    const usuario = userEvent.setup();
+    await llaoLlao();
+
+    await usuario.type(await filtroPrecio(), "1.234");
+    await new Promise((resolver) => setTimeout(resolver, 600));
+
+    expect(screen.getByText(/ingresá un importe válido/i)).toBeInTheDocument();
+    expect(pedidos.some((p) => p.has("precio_max"))).toBe(false);
+  });
+
+  it("RF-106 usa el singular con un solo hotel", async () => {
+    const [llao] = hotelesMock;
+    const propios = [
+      http.get("*/api/hoteles", () =>
+        HttpResponse.json({
+          items: [llao],
+          total: 1,
+          pagina: 1,
+          por_pagina: 20,
+          alternativas: null,
+        }),
+      ),
+    ];
+    renderPagina("empleado", ...propios);
+
+    expect(await screen.findByText("1 hotel encontrado")).toBeInTheDocument();
+  });
+
+  it("RF-106 los chips de servicio están agrupados bajo «Servicios»", async () => {
+    renderPagina();
+    await llaoLlao();
+
+    const grupo = screen.getByRole("group", { name: "Servicios" });
+    expect(within(grupo).getAllByRole("button")).toHaveLength(6);
   });
 });
 
@@ -499,5 +565,44 @@ describe("RF-110 sin resultados", () => {
 
     expect(screen.queryByText(/no encontramos hoteles/i)).not.toBeInTheDocument();
     expect(screen.queryByRole("link", { name: /dar de alta un hotel/i })).not.toBeInTheDocument();
+  });
+
+  it("RF-110 sin resultados y sin alternativas ofrece «Limpiar filtros»", async () => {
+    const propios = [
+      http.get("*/api/hoteles", () =>
+        HttpResponse.json({ items: [], total: 0, pagina: 1, por_pagina: 20, alternativas: null }),
+      ),
+    ];
+    renderPagina("empleado", ...propios);
+
+    await screen.findByText(/no encontramos hoteles con esos filtros/i);
+    expect(screen.getAllByRole("button", { name: /limpiar filtros/i })).toHaveLength(2);
+  });
+
+  it("RF-110 quitar el precio máximo sugerido no lo reaplica", async () => {
+    const pedidos: URLSearchParams[] = [];
+    const propios = [
+      http.get("*/api/hoteles", ({ request }) => {
+        const params = new URL(request.url).searchParams;
+        pedidos.push(params);
+        const vacio = params.has("precio_max");
+        return HttpResponse.json({
+          items: vacio ? [] : hotelesMock.slice(0, 1),
+          total: vacio ? 0 : 1,
+          pagina: 1,
+          por_pagina: 20,
+          alternativas: vacio ? { ampliar_filtros: ["precio_max"], puede_dar_de_alta: true } : null,
+        });
+      }),
+    ];
+    renderPagina("empleado", ...propios);
+    const usuario = userEvent.setup();
+    await llaoLlao();
+    await usuario.type(await filtroPrecio(), "10");
+    await usuario.click(await screen.findByRole("button", { name: /quitar.*precio/i }));
+    await llaoLlao();
+    await new Promise((resolver) => setTimeout(resolver, 600));
+
+    expect(pedidos.at(-1)?.has("precio_max")).toBe(false);
   });
 });

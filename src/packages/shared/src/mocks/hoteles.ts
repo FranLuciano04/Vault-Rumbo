@@ -139,7 +139,7 @@ export const hotelesMock: Hotel[] = [
     destino_id: destino.bariloche,
     categoria: "5 estrellas",
     precio_referencia: "150000.00",
-    servicios: ["wifi", "pileta", "desayuno"],
+    servicios: ["wifi", "pileta", "desayuno incluido"],
   }),
   hotel({
     id: idHotelMock.cabanas,
@@ -147,7 +147,7 @@ export const hotelesMock: Hotel[] = [
     destino_id: destino.bariloche,
     categoria: "3 estrellas",
     precio_referencia: "60000.00",
-    servicios: ["wifi", "cocina"],
+    servicios: ["wifi", "estacionamiento"],
   }),
   hotel({
     id: idHotelMock.copacabana,
@@ -155,7 +155,7 @@ export const hotelesMock: Hotel[] = [
     destino_id: destino.brasil,
     categoria: "5 estrellas",
     precio_referencia: "320000.00",
-    servicios: ["wifi", "pileta", "desayuno", "spa"],
+    servicios: ["wifi", "pileta", "desayuno incluido", "spa"],
   }),
   hotel({
     id: idHotelMock.pousada,
@@ -163,7 +163,7 @@ export const hotelesMock: Hotel[] = [
     destino_id: destino.brasil,
     categoria: "4 estrellas",
     precio_referencia: "140000.00",
-    servicios: ["wifi", "desayuno"],
+    servicios: ["wifi", "desayuno incluido"],
   }),
   hotel({
     id: idHotelMock.riu,
@@ -171,7 +171,7 @@ export const hotelesMock: Hotel[] = [
     destino_id: destino.puntaCana,
     categoria: "5 estrellas",
     precio_referencia: "210000.00",
-    servicios: ["wifi", "pileta", "all inclusive"],
+    servicios: ["wifi", "pileta", "apto mascotas"],
   }),
   hotel({
     id: idHotelMock.playaDorada,

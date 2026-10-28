@@ -1,8 +1,5 @@
-import { formatearImporte, type Hotel } from "@rumbo/shared";
+import { formatearImporte, formatearPuntaje, type Hotel } from "@rumbo/shared";
 import { Star } from "lucide-react";
-
-/** Puntaje promedio con coma decimal («4,5»); la API lo manda con dos decimales. */
-const formatearPuntaje = (puntaje: string) => Number(puntaje).toFixed(1).replace(".", ",");
 
 /** Tarjeta del catálogo (CU-18, pantallas 21 y 44): datos del hotel y su puntaje por reseñas. */
 export function TarjetaHotel({ hotel, destino }: { hotel: Hotel; destino?: string }) {

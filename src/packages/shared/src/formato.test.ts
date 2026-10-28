@@ -1,4 +1,4 @@
-import { formatearFecha, formatearImporte } from "./formato";
+import { formatearFecha, formatearImporte, formatearPuntaje } from "./formato";
 
 const normalizar = (texto: string) => texto.replace(/[\u00a0\u202f]/g, " ");
 
@@ -56,5 +56,15 @@ describe("RF-141 lib/formato (importes ARS/USD y fechas dd/mm/aa)", () => {
   it("rechaza una fecha vacía o inválida", () => {
     expect(() => formatearFecha("")).toThrow(/fecha/i);
     expect(() => formatearFecha("no es fecha")).toThrow(/fecha/i);
+  });
+});
+
+describe("RF-106 formatearPuntaje", () => {
+  it("muestra un decimal con coma y redondea half-up sobre el texto", () => {
+    expect(formatearPuntaje("4.50")).toBe("4,5");
+    expect(formatearPuntaje("4.35")).toBe("4,4");
+    expect(formatearPuntaje("4.34")).toBe("4,3");
+    expect(formatearPuntaje("5.00")).toBe("5,0");
+    expect(formatearPuntaje("4.95")).toBe("5,0");
   });
 });
