@@ -69,6 +69,20 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
+## 28/10/26 — Francisco (Claude Opus 5.5) — T-075: contrato de hoteles y reseñas
+- **Hecho:** T-075 (PR [#118](https://github.com/FranLuciano04/Vault-Rumbo/pull/118), mergeado con el CI en verde). Es el primer ticket de M5, que tomamos nosotros; Paloma sigue con M4.
+  - 11 rutas stub con la guardia de rol real: admin, dueño y empleado escriben el catálogo y las reseñas; admin y dueño moderan; el freelance solo consulta.
+  - Se agrega `PATCH /resenas/{id}` (RF-105).
+  - `Hotel` y `Resena` se definieron a partir de la entidad y de los CU, porque en el PC1 estaban sin detallar. `Hotel` suma `puntaje_promedio` y `cantidad_resenas`.
+  - El 409 de duplicado devuelve el hotel existente (CU-16 A2).
+  - Hay 409 en las transiciones inválidas, y las reseñas ocultas solo las ven admin y dueño (403).
+  - Review (opus): 0 bloqueantes y 5 importantes, todos arreglados. El principal: un helper publicaba los roles pero no los exigía.
+  - Quedaron notas en T-076 (migración NOT NULL y regla de duplicado), T-078 y T-079.
+  - Backend: 2003 tests, con 97,45 % de cobertura.
+  - Commits: 75a8462, c77754f, 62f2b1a y 3fb2f61.
+- **Memoria:** el sistema cortó por falta de memoria los checks completos, aunque ya habían terminado en verde. Cada vez pesa más correr la suite completa en la PC (ver DEC-0022).
+- **Pendiente:** M5 (T-076 en adelante). Avisos para Francisco: DEC-0021, DEC-0022, DEC-0023 y aprobar el PR #116.
+
 ## 27/10/26 — Nahuel (Claude Opus 5.5) — T-073
 - **Hecho:** **T-073** (registrar la respuesta a una cotización en la web) mergeado, PR [#117](https://github.com/FranLuciano04/Vault-Rumbo/pull/117). Cada versión muestra sus acciones según el estado: enviar un borrador, aceptar o rechazar una enviada. El rechazo pide confirmación, sin motivo (decisión de Nahuel; coincide con T-067). Las acciones exigen la oportunidad abierta y el PDF se descarga siempre. Review de Opus: 2 importantes arreglados. El CI destapó que el `Blob` de jsdom colgaba MSW en Node 22 y que los tipos de React Native no aceptan un `Blob` armado con un `ArrayBuffer`: ahora shared devuelve los bytes y la web arma el `Blob`.
 - **Commits:** T-073: 18912ad, beddecd, f2540f0, 96dbcbb, 77eba66, 83f189b, 4cee5b6, d7184d2; merge bc9ba6b.
