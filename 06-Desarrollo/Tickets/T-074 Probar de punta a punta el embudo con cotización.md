@@ -3,7 +3,7 @@ id: T-074
 titulo: Probar de punta a punta el embudo con cotización
 modulo: M4 — Oportunidades y cotizaciones
 capa: e2e
-estado: libre
+estado: tomado
 depende_de: [T-062, T-065, T-067, T-068, T-069, T-073, T-049]
 tamaño: S
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [CU-04, CU-05, CU-06]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: Nahuel Viniegra
+tomado_el: 28/10/26 15:10
+rama: feature/T-074-probar-de-punta-a-punta-el-embudo-con-co
 pr:
 ---
 # T-074 Probar de punta a punta el embudo con cotización
