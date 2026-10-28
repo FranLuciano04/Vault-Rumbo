@@ -18,8 +18,8 @@ tags:: #tipo/referencia
 | M1 — Usuarios y configuración | 19 | 19 | 0 | 0 | 0 | 0 | ✅ cerrado |
 | M2 — Clientes | 15 | 15 | 0 | 0 | 0 | 0 | ✅ cerrado |
 | M3 — Alertas | 14 | 14 | 0 | 0 | 0 | 0 | ✅ cerrado |
-| M4 — Oportunidades y cotizaciones | 16 | 15 | 0 | 1 | 0 | 0 | 🛠️ en curso |
-| M5 — Hoteles y reseñas | 11 | 6 | 2 | 1 | 2 | 0 | 🛠️ en curso |
+| M4 — Oportunidades y cotizaciones | 16 | 15 | 1 | 0 | 0 | 0 | 🛠️ en curso |
+| M5 — Hoteles y reseñas | 11 | 7 | 2 | 1 | 1 | 0 | 🛠️ en curso |
 | M6 — Viajes y economía | 24 | 1 | 0 | 5 | 18 | 0 | 🛠️ en curso |
 | M7 — Proceso diario y CRM proactivo | 9 | 0 | 0 | 3 | 6 | 0 | 🛠️ en curso |
 | M8 — Calendario, dashboard y reportes | 10 | 0 | 0 | 1 | 9 | 0 | 🛠️ en curso |
@@ -142,7 +142,7 @@ flowchart LR
     T073["T-073 · Registrar la respuesta a una cotización en la web<br/><small>web</small>"]:::hecho
     T074["T-074 · Probar de punta a punta el embudo con cotización<br/><small>e2e</small>"]:::hecho
     T167["T-167 · Registrar una consulta sin destino ni pasajeros<br/><small>backend</small>"]:::hecho
-    T168["T-168 · Mostrar las consultas sin destino ni pasajeros en web y mobile<br/><small>web</small>"]:::disponible
+    T168["T-168 · Mostrar las consultas sin destino ni pasajeros en web y mobile<br/><small>web</small><br/>👤 palomap2003"]:::tomado
   end
   subgraph M5["M5 — Hoteles y reseñas"]
     T075["T-075 · Publicar el contrato de hoteles y reseñas<br/><small>contrato</small>"]:::hecho
@@ -152,9 +152,9 @@ flowchart LR
     T079["T-079 · Moderar las reseñas de los hoteles<br/><small>backend</small>"]:::hecho
     T080["T-080 · Buscar hoteles en el catálogo web<br/><small>web</small>"]:::hecho
     T081["T-081 · Editar un hotel del catálogo en la web<br/><small>web</small><br/>👤 FranLucianoo"]:::tomado
-    T082["T-082 · Mostrar el detalle del hotel con sus reseñas en la web<br/><small>web</small><br/>👤 Nahuel Viniegra"]:::tomado
-    T083["T-083 · Registrar una reseña en la web<br/><small>web</small>"]:::esperando
-    T084["T-084 · Recomendar hoteles al emitir una cotización<br/><small>web</small>"]:::disponible
+    T082["T-082 · Mostrar el detalle del hotel con sus reseñas en la web<br/><small>web</small>"]:::hecho
+    T083["T-083 · Registrar una reseña en la web<br/><small>web</small>"]:::disponible
+    T084["T-084 · Recomendar hoteles al emitir una cotización<br/><small>web</small><br/>👤 Nahuel Viniegra"]:::tomado
     T085["T-085 · Probar de punta a punta el catálogo de hoteles<br/><small>e2e</small>"]:::esperando
   end
   subgraph M6["M6 — Viajes y economía"]

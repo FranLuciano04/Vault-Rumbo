@@ -3,7 +3,7 @@ id: T-168
 titulo: Mostrar las consultas sin destino ni pasajeros en web y mobile
 modulo: M4 — Oportunidades y cotizaciones
 capa: web
-estado: libre
+estado: tomado
 depende_de: [T-167, T-069]
 tamaño: S
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [CU-04, RF-013, DEC-0023]
 origen: hallazgo T-069
-asignado:
-tomado_el:
-rama:
+asignado: palomap2003
+tomado_el: 28/10/26 16:38
+rama: feature/T-168-mostrar-las-consultas-sin-destino-ni-pas
 pr:
 ---
 # T-168 Mostrar las consultas sin destino ni pasajeros en web y mobile
