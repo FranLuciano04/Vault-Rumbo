@@ -2,7 +2,7 @@
 (CU-05, RF-016, RF-017, RF-020). Pasar a `cotizada` lo hace la cotización (CU-06)."""
 
 from rumbo.datos.modelos import EstadoOportunidad, MotivoPerdida, Oportunidad
-from rumbo.negocio.errores import TransicionInvalida
+from rumbo.negocio.errores import DatosInvalidos, TransicionInvalida
 
 _ABIERTAS = (EstadoOportunidad.nueva, EstadoOportunidad.en_gestion, EstadoOportunidad.cotizada)
 
@@ -17,6 +17,15 @@ def _exigir(oportunidad: Oportunidad, *validos: EstadoOportunidad, accion: str) 
 def exigir_abierta(oportunidad: Oportunidad, *, accion: str) -> None:
     """`TransicionInvalida` si la oportunidad ya está cerrada (`ganada` o `perdida`)."""
     _exigir(oportunidad, *_ABIERTAS, accion=accion)
+
+
+def exigir_agendable(oportunidad: Oportunidad) -> None:
+    """`DatosInvalidos` si la oportunidad ya está cerrada: no admite insistencias (RF-015)."""
+    if oportunidad.estado not in _ABIERTAS:
+        raise DatosInvalidos(
+            "estado",
+            f"No se puede agendar una insistencia en una oportunidad {oportunidad.estado.value}.",
+        )
 
 
 def pasar_a_en_gestion(oportunidad: Oportunidad) -> None:

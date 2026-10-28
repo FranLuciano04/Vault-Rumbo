@@ -3,7 +3,7 @@ id: T-065
 titulo: Agendar insistencias en el seguimiento de la oportunidad
 modulo: M4 — Oportunidades y cotizaciones
 capa: backend
-estado: tomado
+estado: hecho
 depende_de: [T-064, T-051]
 tamaño: M
 riesgo: normal
@@ -45,3 +45,16 @@ El seguimiento de una oportunidad registra interacciones y agenda insistencias c
 - Las alertas en la agenda (M3).
 
 ## Notas de implementación
+- **RF-014:** se cubre con el campo `notas` de la oportunidad (`PATCH`, T-063). Es un único campo editable, sin historial de interacciones; si el equipo quiere historial, hace falta otro ticket. `test_rf014_interaccion` ya pasaba en el rojo.
+- **Reagendar (RF-019):** es un nuevo `POST` (la insistencia anterior no se toca) o posponer la alerta con `/alertas/{id}/posponer`.
+- **RF-018:** ya funcionaba desde T-064 (`resolver_de_origen` al ganar o perder).
+- La alerta siempre queda a nombre del responsable, aunque la agenden el admin o el dueño.
+- **Review (opus):**
+  - Agendar sobre una oportunidad `ganada` o `perdida` responde 422 (`exigir_agendable`). Lo decidió Nahuel: 422 en vez de 409, para no tocar el contrato.
+  - También responde 422 una fecha de hoy o anterior.
+  - `esquema_de_alerta` pasó a `presentacion/mapeos_alertas.py`, para que no haya imports entre routers.
+  - Las fechas de los tests pasaron a ser relativas a `hoy()`.
+- **Tests tocados con autorización:**
+  - En `test_contrato_m4.py`, insistencias pasó a `IMPLEMENTADAS`.
+  - En el fix se agregaron casos y se cambiaron las fechas de `test_insistencias.py`.
+- **Modelos:** tests, implementación y refactor con sonnet (el refactor no tuvo cambios); review con opus. No hubo escalados.
