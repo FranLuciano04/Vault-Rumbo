@@ -31,18 +31,20 @@ const CANALES = [
   "presencial",
 ] as const satisfies readonly CanalOportunidad[];
 
-/** Consulta nueva (RF-010, RF-013): cliente, canal, destino y pasajeros son obligatorios; fechas y notas, no. */
+/** Consulta nueva (RF-010, RF-013): solo cliente y canal son obligatorios (DEC-0023); si se cargan, el destino y los pasajeros se validan. */
 export const esquemaConsulta = z
   .object({
     cliente_id: z.string().min(1, "Elegí un cliente."),
     canal: z.enum(CANALES, "Elegí el canal."),
-    destino_consultado: z.string().trim().min(1, "Ingresá el destino."),
+    destino_consultado: z.string().trim().optional(),
     fecha_desde_tentativa: z.string(),
     fecha_hasta_tentativa: z.string(),
     pasajeros: z
-      .number("Ingresá los pasajeros.")
+      .number()
       .int("Ingresá los pasajeros.")
-      .min(1, "Ingresá al menos un pasajero."),
+      .min(1, "Ingresá al menos un pasajero.")
+      .or(z.nan())
+      .optional(),
     notas: z.string(),
   })
   .refine(

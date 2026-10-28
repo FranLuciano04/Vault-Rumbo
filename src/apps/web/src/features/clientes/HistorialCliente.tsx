@@ -1,4 +1,9 @@
-import { ETIQUETA_ESTADO_OPORTUNIDAD, ETIQUETA_ESTADO_VIAJE, formatearFecha } from "@rumbo/shared";
+import {
+  DESTINO_A_DEFINIR,
+  ETIQUETA_ESTADO_OPORTUNIDAD,
+  ETIQUETA_ESTADO_VIAJE,
+  formatearFecha,
+} from "@rumbo/shared";
 import { useHistorialCliente } from "@rumbo/shared/hooks";
 import type { AxiosInstance } from "axios";
 import type { ReactNode } from "react";
@@ -60,7 +65,7 @@ export function HistorialCliente({ cliente, id }: { cliente: AxiosInstance; id: 
             {data.oportunidades.map((o) => (
               <li key={o.id}>
                 <Link to={`/oportunidades/${o.id}`} className={CLASE_ENLACE}>
-                  <span className="font-medium">{o.destino_consultado}</span>
+                  <span className="font-medium">{o.destino_consultado ?? DESTINO_A_DEFINIR}</span>
                   <Estado>{ETIQUETA_ESTADO_OPORTUNIDAD[o.estado]}</Estado>
                 </Link>
               </li>

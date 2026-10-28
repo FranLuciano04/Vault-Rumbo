@@ -1,4 +1,9 @@
-import { ETIQUETA_MOTIVO_PERDIDA, type Oportunidad } from "@rumbo/shared";
+import {
+  DESTINO_A_DEFINIR,
+  ETIQUETA_MOTIVO_PERDIDA,
+  textoPasajeros,
+  type Oportunidad,
+} from "@rumbo/shared";
 import { Link } from "react-router";
 
 /** Fecha `aaaa-mm-dd` como `dd/mm/aa` (sin pasar por `Date`, para no correrla por zona horaria). */
@@ -20,10 +25,12 @@ export function TarjetaOportunidad({ oportunidad }: { oportunidad: Oportunidad }
         to={`/oportunidades/${oportunidad.id}`}
         className="block space-y-1 rounded-lg border bg-card p-3 text-sm hover:bg-accent"
       >
-        <span className="block font-medium">{oportunidad.destino_consultado}</span>
+        <span className="block font-medium">
+          {oportunidad.destino_consultado ?? DESTINO_A_DEFINIR}
+        </span>
         <span className="block">{oportunidad.cliente_nombre}</span>
         <span className="block text-muted-foreground">
-          {oportunidad.pasajeros} {oportunidad.pasajeros === 1 ? "pasajero" : "pasajeros"}
+          {textoPasajeros(oportunidad.pasajeros)}
           {desde && hasta ? ` · ${fechaCorta(desde)} al ${fechaCorta(hasta)}` : ""}
         </span>
         {motivo_perdida && (

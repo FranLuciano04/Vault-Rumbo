@@ -1,4 +1,4 @@
-import { ETIQUETA_ESTADO_OPORTUNIDAD, type Oportunidad } from "@rumbo/shared";
+import { DESTINO_A_DEFINIR, ETIQUETA_ESTADO_OPORTUNIDAD, type Oportunidad } from "@rumbo/shared";
 import { TriangleAlert } from "lucide-react";
 import { Link } from "react-router";
 import { Button, variantesBoton } from "@/components/ui/button";
@@ -29,7 +29,7 @@ export function AvisoOportunidadAbierta({
         {abiertas.map(({ id, destino_consultado, estado }) => (
           <li key={id} className="flex items-center justify-between gap-3">
             <span>
-              <span className="font-medium">{destino_consultado}</span> ·{" "}
+              <span className="font-medium">{destino_consultado ?? DESTINO_A_DEFINIR}</span> ·{" "}
               {ETIQUETA_ESTADO_OPORTUNIDAD[estado]}
             </span>
             <Link to={`/oportunidades/${id}`} className={variantesBoton({ variant: "outline" })}>

@@ -70,6 +70,12 @@ export const ETIQUETA_ESTADO_COTIZACION: Record<EstadoCotizacion, string> = {
 /** Texto cuando una consulta todavía no tiene destino (DEC-0023). */
 export const DESTINO_A_DEFINIR = "Destino a definir";
 
+/** Pasajeros de una consulta como se muestran: «1 pasajero», «3 pasajeros» o «—» si faltan (DEC-0023). */
+export function textoPasajeros(pasajeros: number | null): string {
+  if (pasajeros === null) return "—";
+  return `${String(pasajeros)} ${pasajeros === 1 ? "pasajero" : "pasajeros"}`;
+}
+
 /** Categorías de hotel que ofrece el catálogo (CU-16, CU-18); en la API son texto libre. */
 export const CATEGORIAS_HOTEL = [
   "1 estrella",

@@ -74,7 +74,7 @@ export function NuevaConsulta({ cliente }: { cliente: AxiosInstance; usuario: Us
       destino_consultado: "",
       fecha_desde_tentativa: "",
       fecha_hasta_tentativa: "",
-      pasajeros: 1,
+      pasajeros: Number.NaN,
       notas: "",
     },
   });
@@ -93,8 +93,8 @@ export function NuevaConsulta({ cliente }: { cliente: AxiosInstance; usuario: Us
       const nueva = await registrar.mutateAsync({
         cliente_id: datos.cliente_id,
         canal: datos.canal,
-        destino_consultado: datos.destino_consultado,
-        pasajeros: datos.pasajeros,
+        destino_consultado: datos.destino_consultado || null,
+        pasajeros: datos.pasajeros || null,
         fecha_desde_tentativa: datos.fecha_desde_tentativa || null,
         fecha_hasta_tentativa: datos.fecha_hasta_tentativa || null,
         notas: datos.notas.trim() || null,
