@@ -1,19 +1,34 @@
-"""Servicio del módulo economía: registro de la economía del viaje (CU-10, RN-01, DEC-0007)."""
+"""Servicio del módulo economía: registro de la economía del viaje y su plan de pagos (CU-10,
+CU-11, RN-01, DEC-0007)."""
 
 import uuid
 from dataclasses import dataclass, field
+from datetime import date
 from decimal import Decimal
 from typing import Any
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from rumbo.datos.modelos import EstadoViaje, Pago, RolUsuario, TipoComision, Usuario, Viaje
+from rumbo.core.fechas import sumar_meses
+from rumbo.datos.modelos import (
+    EstadoPago,
+    EstadoViaje,
+    Pago,
+    RolUsuario,
+    TipoAlerta,
+    TipoComision,
+    TipoPago,
+    Usuario,
+    Viaje,
+)
 from rumbo.datos.repositorios.operadores import RepositorioOperadores
 from rumbo.datos.repositorios.seguridad import RepositorioUsuarios
 from rumbo.datos.repositorios.viajes import RepositorioPagos, RepositorioViajes
 from rumbo.negocio import calculos
 from rumbo.negocio.errores import Conflicto, DatosInvalidos, NoEncontrado
+from rumbo.negocio.estados import pago as estado_pago
 from rumbo.negocio.politicas import exigir_escritura, visibilidad
+from rumbo.negocio.servicios import alertas
 
 GANANCIA_NEGATIVA = "ganancia_negativa"
 MARGEN_NEGATIVO = "margen_negativo"
@@ -21,6 +36,13 @@ PLAN_DESBALANCEADO = "plan_desbalanceado"
 
 # Un viaje cancelado o finalizado ya no admite cambios en su economía; en curso, sí.
 _CERRADOS = (EstadoViaje.cancelado, EstadoViaje.finalizado)
+
+# Cómo nombra la alerta `pago` a cada tipo de pago (CU-11).
+_NOMBRE_DEL_PAGO = {
+    TipoPago.sena: "La seña",
+    TipoPago.cuota: "Una cuota",
+    TipoPago.saldo: "El saldo",
+}
 
 _viajes = RepositorioViajes()
 _pagos = RepositorioPagos()
@@ -79,6 +101,84 @@ async def registrar_economia(
         porcentaje_pagado=calculos.porcentaje_pagado(viaje.precio_venta, pagos),
         advertencias=_advertencias(viaje, pagos),
     )
+
+
+async def listar_pagos(sesion: AsyncSession, actor: Usuario, viaje_id: uuid.UUID) -> list[Pago]:
+    """El plan de pagos del viaje, cobrados incluidos y sin los anulados, por vencimiento: el
+    checklist de cobros (CU-11, CU-12). Un viaje que el actor no ve es `NoEncontrado`."""
+    viaje = await _viajes.obtener(sesion, viaje_id, visibilidad=visibilidad(actor))
+    return await _plan(sesion, actor, viaje)
+
+
+async def definir_plan_de_pagos(
+    sesion: AsyncSession, actor: Usuario, viaje_id: uuid.UUID, items: list[dict[str, Any]]
+) -> list[Pago]:
+    """Define o rebalancea el plan de pagos del viaje (CU-11, RF-059 a RF-064). Los pagos no
+    cobrados se anulan y cierran su alerta; los cobrados quedan como están (A5). Los nuevos
+    nacen `pendiente`, cada uno con su alerta `pago` en la agenda del responsable, un mes antes
+    del vencimiento. Cobrados más nuevos tienen que sumar el precio de venta (A1); un solo pago
+    es válido (A2). Escribe el responsable, admin o dueño (DEC-0005)."""
+    viaje = await _viajes.obtener_para_modificar(sesion, viaje_id, visibilidad=visibilidad(actor))
+    exigir_escritura(actor, viaje)
+    if viaje.estado in _CERRADOS:
+        raise Conflicto(f"No se define el plan de pagos de un viaje {viaje.estado.value}.")
+    actuales = await _plan(sesion, actor, viaje)
+    cobrados = [p for p in actuales if p.estado is EstadoPago.pagado]
+    reemplazados = [p for p in actuales if p.estado is not EstadoPago.pagado]
+    _exigir_montos_positivos(items)
+    _exigir_que_sume_el_precio(viaje, cobrados, items)
+
+    for reemplazado in reemplazados:
+        estado_pago.anular(reemplazado)
+        await alertas.resolver_de_origen(sesion, reemplazado, (TipoAlerta.pago,))
+    responsable = (
+        actor
+        if actor.id == viaje.responsable_id
+        else await _usuarios.obtener(sesion, viaje.responsable_id, visibilidad=visibilidad(actor))
+    )
+    for item in items:
+        pago = Pago(viaje_id=viaje.id, estado=EstadoPago.pendiente, **item)
+        sesion.add(pago)
+        await alertas.crear(
+            sesion,
+            TipoAlerta.pago,
+            sumar_meses(pago.vencimiento, -1),
+            _descripcion_alerta(pago.tipo, pago.vencimiento),
+            responsable,
+            pago,
+        )
+    return await _plan(sesion, actor, viaje)
+
+
+async def _plan(sesion: AsyncSession, actor: Usuario, viaje: Viaje) -> list[Pago]:
+    pagos = await _pagos.listar_de_viaje(sesion, viaje.id, visibilidad=visibilidad(actor))
+    return [p for p in pagos if p.estado is not EstadoPago.anulado]
+
+
+def _exigir_montos_positivos(items: list[dict[str, Any]]) -> None:
+    """Cada pago es por un monto mayor a cero: el esquema admite cero para todo `Importe`, pero
+    un pago de cero violaría `monto > 0` en la base."""
+    if any(i["monto"] <= 0 for i in items):
+        raise DatosInvalidos("pagos", "Cada pago del plan tiene que ser por un monto mayor a cero.")
+
+
+def _exigir_que_sume_el_precio(
+    viaje: Viaje, cobrados: list[Pago], items: list[dict[str, Any]]
+) -> None:
+    """Cobrados más nuevos suman el precio de venta (CU-11 A1)."""
+    total = sum((p.monto for p in cobrados), Decimal(0)) + sum(
+        (i["monto"] for i in items), Decimal(0)
+    )
+    if total != viaje.precio_venta:
+        raise DatosInvalidos(
+            "pagos",
+            f"El plan suma {total} y el precio de venta es {viaje.precio_venta} "
+            f"(diferencia: {total - viaje.precio_venta}).",
+        )
+
+
+def _descripcion_alerta(tipo: TipoPago, vencimiento: date) -> str:
+    return f"{_NOMBRE_DEL_PAGO[tipo]} del viaje vence el {vencimiento.strftime('%d/%m/%y')}."
 
 
 def _advertencias(viaje: Viaje, pagos: list[Pago]) -> list[str]:

@@ -3,7 +3,7 @@ id: T-092
 titulo: Definir el plan de pagos del viaje
 modulo: M6 — Viajes y economía
 capa: backend
-estado: tomado
+estado: hecho
 depende_de: [T-090, T-088, T-051]
 tamaño: M
 riesgo: alto
@@ -47,3 +47,8 @@ Se define (o rebalancea) el plan de pagos del viaje: seña, cuotas y saldo que s
 - Reprogramar, anular y dividir (ticket propio).
 
 ## Notas de implementación
+- Rebalancear **anula** (no borra) los pagos `pendiente`/`vencido` y resuelve sus alertas `pago` (EST-Pago T5/T8). La suma que tiene que cerrar con `precio_venta` es cobrados + nuevos (A1/A5), validada antes de modificar nada.
+- Alerta de cada pago: un mes antes del vencimiento (`sumar_meses(vencimiento, -1)`), en la agenda del responsable del viaje. Viaje cancelado o finalizado → 409.
+- Tests corregidos con autorización de la persona (`--tocar-tests`): `test_rf059_rebalancear_respeta_cobrados` guardaba `viejo.id` después de `expire_all()` (`MissingGreenlet`); `test_contrato_m6.py` saca GET/PUT `/viajes/{id}/pagos` de los stubs 501.
+- Review (seguridad): importante arreglado — monto 0 daba 500 por `CheckConstraint("monto > 0")`; ahora 422 en el servicio, con `test_rf061_monto_cero_422`. Menores sin arreglar: (1) un pago con vencimiento pasado nace `pendiente` y no `vencido` (falta decidir si se rechaza o lo corrige el proceso diario); (2) el 409 de `PUT /pagos` no está declarado en el OpenAPI (ticket de contrato).
+- Modelos: tests sonnet, implementación/refactor/fix opus, review sonnet. Sin escalados.
