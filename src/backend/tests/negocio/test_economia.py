@@ -414,3 +414,52 @@ async def test_rf056_tipo_sin_valor_es_invalido(sesion: AsyncSession) -> None:
             viaje,
             _datos(vendedor_id=vendedor.id, comision_tipo=m.TipoComision("importe")),
         )
+
+
+async def test_cu10_vendedor_de_baja_que_no_cambia_se_guarda(sesion: AsyncSession) -> None:
+    vendedor = await _empleado(
+        sesion,
+        activo=False,
+        comision_default_tipo=m.TipoComision("porcentaje"),
+        comision_default_valor=Decimal("10.00"),
+    )
+    viaje = await _viaje(sesion, vendedor_id=vendedor.id)
+
+    r = await _registrar(sesion, viaje, _datos(vendedor_id=vendedor.id))
+
+    assert r.viaje.vendedor_id == vendedor.id
+    assert r.viaje.comision_tipo == m.TipoComision("porcentaje")
+    assert r.viaje.comision_vendedor == Decimal("10.00")
+    assert r.viaje.precio_venta == Decimal("1000000.00")
+
+
+async def test_cu10_operador_de_baja_que_no_cambia_se_guarda(sesion: AsyncSession) -> None:
+    operador = await f.crear(sesion, f.OperadorFactory, activo=False)
+    viaje = await _viaje(sesion, operador_id=operador.id)
+
+    r = await _registrar(sesion, viaje, _datos(operador_id=operador.id))
+
+    assert r.viaje.operador_id == operador.id
+    assert r.viaje.costo == Decimal("800000.00")
+
+
+async def test_cu10_cambiar_a_otro_vendedor_de_baja_es_invalido(sesion: AsyncSession) -> None:
+    actual = await _empleado(sesion, activo=False)
+    otro = await _empleado(sesion, activo=False)
+    viaje = await _viaje(sesion, vendedor_id=actual.id)
+
+    with pytest.raises(DatosInvalidos) as e:
+        await _registrar(sesion, viaje, _datos(vendedor_id=otro.id))
+
+    assert e.value.extra["errores"][0]["campo"] == "vendedor_id"
+
+
+async def test_cu10_cambiar_a_otro_operador_de_baja_es_invalido(sesion: AsyncSession) -> None:
+    actual = await f.crear(sesion, f.OperadorFactory, activo=False)
+    otro = await f.crear(sesion, f.OperadorFactory, activo=False)
+    viaje = await _viaje(sesion, operador_id=actual.id)
+
+    with pytest.raises(DatosInvalidos) as e:
+        await _registrar(sesion, viaje, _datos(operador_id=otro.id))
+
+    assert e.value.extra["errores"][0]["campo"] == "operador_id"

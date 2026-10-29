@@ -52,9 +52,9 @@ async def registrar_economia(
     if viaje.estado in _CERRADOS:
         raise Conflicto(f"No se edita la economía de un viaje {viaje.estado.value}.")
     operador_id = datos.get("operador_id")
-    if operador_id is not None:
+    if operador_id is not None and operador_id != viaje.operador_id:
         await _exigir_operador(sesion, actor, operador_id)
-    vendedor = await _vendedor(sesion, actor, datos.get("vendedor_id"))
+    vendedor = await _vendedor(sesion, actor, datos.get("vendedor_id"), viaje.vendedor_id)
 
     viaje.precio_venta = datos["precio_venta"]
     viaje.costo = datos["costo"]
@@ -105,14 +105,17 @@ async def _exigir_operador(sesion: AsyncSession, actor: Usuario, operador_id: uu
 
 
 async def _vendedor(
-    sesion: AsyncSession, actor: Usuario, vendedor_id: uuid.UUID | None
+    sesion: AsyncSession, actor: Usuario, vendedor_id: uuid.UUID | None, actual_id: uuid.UUID | None
 ) -> Usuario | None:
     """El vendedor elegido. El actor puede elegirse a sí mismo aunque no vea a los demás
-    usuarios (el freelance); otro tiene que existir, ser visible y estar activo."""
+    usuarios (el freelance); el que el viaje ya tiene se conserva aunque esté de baja (su id
+    viene de un viaje visible); otro tiene que existir, ser visible y estar activo."""
     if vendedor_id is None:
         return None
     if vendedor_id == actor.id:
         return actor
+    if vendedor_id == actual_id:
+        return await sesion.get_one(Usuario, vendedor_id)
     try:
         vendedor = await _usuarios.obtener(sesion, vendedor_id, visibilidad=visibilidad(actor))
     except NoEncontrado:
