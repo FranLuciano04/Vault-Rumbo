@@ -11,6 +11,7 @@ from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 from dataclasses import dataclass
 
+import pytest
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession
 
@@ -32,7 +33,10 @@ class Escenario:
 async def _hay_alguien_bloqueado(motor: AsyncEngine) -> bool:
     async with motor.connect() as conexion:
         n = await conexion.scalar(
-            text("SELECT count(*) FROM pg_stat_activity WHERE wait_event_type = 'Lock'")
+            text(
+                "SELECT count(*) FROM pg_stat_activity "
+                "WHERE wait_event_type = 'Lock' AND datname = current_database()"
+            )
         )
     return bool(n)
 
@@ -42,6 +46,7 @@ async def _esperar_bloqueo(motor: AsyncEngine, tarea: asyncio.Task[object]) -> N
         if await _hay_alguien_bloqueado(motor) or tarea.done():
             return
         await asyncio.sleep(0.05)
+    pytest.fail("Nadie quedó esperando el bloqueo de fila en 5 s: la carrera no se produjo.")
 
 
 @asynccontextmanager

@@ -22,7 +22,10 @@ class RepositorioHoteles(RepositorioBase[Hotel]):
         """Como `obtener`, pero bloqueado hasta el fin de la transacción y releído de la base,
         para que dos ediciones o bajas concurrentes no se pisen."""
         consulta = visibilidad.aplicar(select(Hotel).where(Hotel.id == id), Hotel)
-        consulta = consulta.with_for_update().execution_options(populate_existing=True)
+        # key_share = FOR NO KEY UPDATE: no frena a quien referencia el hotel (reseña, cotización).
+        consulta = consulta.with_for_update(key_share=True).execution_options(
+            populate_existing=True
+        )
         hotel = await sesion.scalar(consulta)
         if hotel is None:
             raise NoEncontrado(f"Hotel {id} no encontrado")
