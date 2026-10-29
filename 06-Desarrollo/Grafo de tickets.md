@@ -20,7 +20,7 @@ tags:: #tipo/referencia
 | M3 — Alertas | 14 | 14 | 0 | 0 | 0 | 0 | ✅ cerrado |
 | M4 — Oportunidades y cotizaciones | 16 | 16 | 0 | 0 | 0 | 0 | 🔍 listo para la review |
 | M5 — Hoteles y reseñas | 11 | 11 | 0 | 0 | 0 | 0 | 🔍 listo para la review |
-| M6 — Viajes y economía | 24 | 1 | 0 | 5 | 18 | 0 | 🛠️ en curso |
+| M6 — Viajes y economía | 24 | 1 | 1 | 4 | 18 | 0 | 🛠️ en curso |
 | M7 — Proceso diario y CRM proactivo | 9 | 0 | 0 | 3 | 6 | 0 | 🛠️ en curso |
 | M8 — Calendario, dashboard y reportes | 10 | 0 | 0 | 1 | 9 | 0 | 🛠️ en curso |
 | M9 — Redes e IA | 6 | 0 | 0 | 1 | 5 | 0 | 🛠️ en curso |
@@ -159,7 +159,7 @@ flowchart LR
   end
   subgraph M6["M6 — Viajes y economía"]
     T086["T-086 · Publicar el contrato de viajes y economía<br/><small>contrato</small>"]:::hecho
-    T087["T-087 · Implementar la máquina de estados del viaje<br/><small>backend · ⚠️ riesgo alto</small>"]:::disponible
+    T087["T-087 · Implementar la máquina de estados del viaje<br/><small>backend · ⚠️ riesgo alto</small><br/>👤 palomap2003"]:::tomado
     T088["T-088 · Implementar los estados del pago<br/><small>backend · ⚠️ riesgo alto</small>"]:::disponible
     T089["T-089 · Confirmar la reserva creando el viaje<br/><small>backend · ⚠️ riesgo alto</small>"]:::esperando
     T090["T-090 · Registrar la economía del viaje con su comisión<br/><small>backend · ⚠️ riesgo alto</small>"]:::esperando

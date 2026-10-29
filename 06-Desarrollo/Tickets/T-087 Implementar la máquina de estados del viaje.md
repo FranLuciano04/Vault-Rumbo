@@ -3,7 +3,7 @@ id: T-087
 titulo: Implementar la máquina de estados del viaje
 modulo: M6 — Viajes y economía
 capa: backend
-estado: libre
+estado: tomado
 depende_de: [T-007, T-009]
 tamaño: M
 riesgo: alto
@@ -12,9 +12,9 @@ modelo_impl: opus
 modelo_review: sonnet
 trazabilidad: [CU-08, CU-12, CU-27, RF-038, RF-040, RF-042]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: palomap2003
+tomado_el: 28/10/26 21:08
+rama: feature/T-087-implementar-la-maquina-de-estados-del-vi
 pr:
 ---
 # T-087 Implementar la máquina de estados del viaje
