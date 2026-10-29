@@ -1,6 +1,17 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { formatearImporte, type EconomiaRegistrada, type Viaje } from "@rumbo/shared";
-import { useRegistrarEconomia } from "@rumbo/shared/hooks";
+import {
+  formatearImporte,
+  type EconomiaRegistrada,
+  type UsuarioActual,
+  type Viaje,
+} from "@rumbo/shared";
+import {
+  useAsesores,
+  useOperador,
+  useOperadores,
+  useRegistrarEconomia,
+  useUsuarios,
+} from "@rumbo/shared/hooks";
 import type { AxiosInstance } from "axios";
 import { useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
@@ -8,19 +19,12 @@ import { CampoFormulario, CLASE_SELECT } from "@/components/CampoFormulario";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { mensajeDeError } from "@/lib/errores";
+import { calcularResultado, porcentajeDeGanancia } from "./calculos";
 import { esquemaEconomia, type DatosEconomia } from "./esquemas";
 
 const AVISO_NEGATIVO = "La ganancia o el margen quedan negativos. Igual podés guardar la economía.";
 const AVISO_REBALANCEO =
   "El precio de venta cambió y los pagos ya no lo suman: rebalanceá el plan de pagos.";
-
-/** Ganancia (importe) y margen (fracción) de un precio y un costo; `null` si todavía no son números. */
-function calcular(precio: string, costo: string) {
-  const p = Number(precio);
-  const c = Number(costo);
-  if (!precio.trim() || !costo.trim() || Number.isNaN(p) || Number.isNaN(c)) return null;
-  return { ganancia: (p - c).toFixed(2), margen: p > 0 ? (p - c) / p : null };
-}
 
 /** «25 %», «16,7 %» o «—» cuando no hay margen que mostrar. */
 function formatearMargen(margen: number | null) {
@@ -78,6 +82,34 @@ function Resultado({
   );
 }
 
+type Economia = Pick<
+  EconomiaRegistrada,
+  "precio_venta" | "costo" | "operador_id" | "vendedor_id" | "comision_tipo" | "comision_vendedor"
+>;
+
+/** Valores del formulario a partir de lo que tiene el servidor: un id vacío es «sin elegir». */
+function valoresDe(viaje: Economia): DatosEconomia {
+  return {
+    precio_venta: viaje.precio_venta,
+    costo: viaje.costo,
+    operador_id: viaje.operador_id ?? "",
+    vendedor_id: viaje.vendedor_id ?? "",
+    comision_tipo: viaje.comision_tipo,
+    comision_vendedor: viaje.comision_vendedor,
+  };
+}
+
+/** Las opciones del catálogo, más la actual si el catálogo no la trae (de baja o no visible). */
+function conActual(
+  opciones: { id: string; nombre: string }[],
+  actualId: string | null,
+  nombreActual: string,
+) {
+  return actualId && !opciones.some((o) => o.id === actualId)
+    ? [...opciones, { id: actualId, nombre: nombreActual }]
+    : opciones;
+}
+
 /**
  * Economía de la ficha del viaje (CU-10, pantallas 15 y 43). Editable para quien administra el
  * viaje; el freelance y los viajes finalizados o cancelados la ven en solo lectura. Ganancia y
@@ -85,35 +117,44 @@ function Resultado({
  */
 export function SeccionEconomia({
   cliente,
+  usuario,
   viaje,
   editable,
 }: {
   cliente: AxiosInstance;
+  usuario: UsuarioActual;
   viaje: Viaje;
   editable: boolean;
 }) {
   const registrar = useRegistrarEconomia(cliente);
-  const [avisos, setAvisos] = useState<readonly string[]>(
-    () => (viaje as Partial<EconomiaRegistrada>).advertencias ?? [],
+  const { data: operadores } = useOperadores(cliente, { por_pagina: 100 });
+  const { data: operadorActual } = useOperador(cliente, viaje.operador_id ?? "");
+  // Solo admin y dueño listan usuarios (con su comisión por defecto); el resto elige entre los asesores.
+  const { data: usuarios } = useUsuarios(cliente, { por_pagina: 100 });
+  const { data: asesores } = useAsesores(cliente);
+  const vendedores = (usuarios?.items.filter((u) => u.activo) ?? asesores ?? []).map(
+    ({ id, nombre }) => ({ id, nombre }),
   );
+  const opcionesOperador = (operadores?.items ?? [])
+    .filter((o) => o.activo)
+    .map(({ id, nombre }) => ({ id, nombre }));
+
+  const [avisos, setAvisos] = useState<readonly string[]>([]);
   const [guardado, setGuardado] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // La comisión sigue al vendedor mientras nadie la toque (RN-01).
+  const [comisionEditada, setComisionEditada] = useState(false);
   const formulario = useForm<DatosEconomia>({
     resolver: zodResolver(esquemaEconomia),
-    defaultValues: {
-      precio_venta: viaje.precio_venta,
-      costo: viaje.costo,
-      comision_tipo: viaje.comision_tipo,
-      comision_vendedor: viaje.comision_vendedor,
-    },
+    defaultValues: valoresDe(viaje),
   });
   const { errors, isDirty, isSubmitting } = formulario.formState;
-  const [precio, costo] = useWatch({
+  const [precio, costo, vendedorId] = useWatch({
     control: formulario.control,
-    name: ["precio_venta", "costo"],
+    name: ["precio_venta", "costo", "vendedor_id"],
   });
 
-  const enVivo = calcular(precio, costo);
+  const enVivo = calcularResultado(precio, costo);
   const ganancia = editable ? (enVivo?.ganancia ?? viaje.ganancia) : viaje.ganancia;
   const margen =
     editable && enVivo ? enVivo.margen : viaje.margen === null ? null : Number(viaje.margen);
@@ -128,16 +169,40 @@ export function SeccionEconomia({
     ...(error ? [error] : []),
   ];
 
+  function elegirVendedor(id: string) {
+    setComisionEditada(false);
+    const elegido = usuarios?.items.find((u) => u.id === id);
+    if (elegido?.comision_default_tipo && elegido.comision_default_valor) {
+      formulario.setValue("comision_tipo", elegido.comision_default_tipo, { shouldDirty: true });
+      formulario.setValue("comision_vendedor", elegido.comision_default_valor, {
+        shouldDirty: true,
+      });
+    }
+  }
+
   async function guardar(datos: DatosEconomia) {
     setError(null);
     setGuardado(false);
+    // Con otro vendedor y la comisión sin tocar no se manda: la API aplica la del vendedor (RN-01).
+    const vendedorCambiado = datos.vendedor_id !== (viaje.vendedor_id ?? "");
+    const sinComision = datos.vendedor_id === "" || (vendedorCambiado && !comisionEditada);
     try {
       const registrada = await registrar.mutateAsync({
         viajeId: viaje.id,
-        datos: { ...datos },
+        datos: {
+          precio_venta: datos.precio_venta,
+          costo: datos.costo,
+          operador_id: datos.operador_id || null,
+          vendedor_id: datos.vendedor_id || null,
+          ...(!sinComision && {
+            comision_tipo: datos.comision_tipo,
+            comision_vendedor: datos.comision_vendedor,
+          }),
+        },
       });
       setAvisos(registrada.advertencias);
-      formulario.reset(datos);
+      formulario.reset(valoresDe(registrada));
+      setComisionEditada(false);
       setGuardado(true);
     } catch (falla) {
       setError(mensajeDeError(falla));
@@ -146,12 +211,17 @@ export function SeccionEconomia({
 
   /** Comisión en importe: la cargada, o el porcentaje sobre la ganancia (RN-01). */
   const comisionImporte = formatearImporte(
-    (viaje.comision_tipo === "porcentaje"
-      ? (Number(ganancia) * Number(viaje.comision_vendedor)) / 100
-      : Number(viaje.comision_vendedor)
-    ).toFixed(2),
+    viaje.comision_tipo === "porcentaje"
+      ? porcentajeDeGanancia(ganancia, viaje.comision_vendedor)
+      : viaje.comision_vendedor,
     viaje.moneda,
   );
+  const nombreVendedor =
+    viaje.vendedor_id === usuario.id
+      ? `${usuario.nombre} (vos)`
+      : (vendedores.find((v) => v.id === viaje.vendedor_id)?.nombre ?? "—");
+  const nombreOperador = operadorActual?.nombre ?? "—";
+  const sinVendedor = vendedorId === "";
 
   return (
     <section aria-labelledby="titulo-economia" className="rounded-2xl border bg-card p-5">
@@ -188,9 +258,50 @@ export function SeccionEconomia({
             {(props) => <Input inputMode="decimal" {...props} {...formulario.register("costo")} />}
           </CampoFormulario>
           <Resultado ganancia={ganancia} margen={margen} moneda={viaje.moneda} />
+          <CampoFormulario id="operador" etiqueta="Operador">
+            {(props) => (
+              <select className={CLASE_SELECT} {...props} {...formulario.register("operador_id")}>
+                <option value="">Sin operador</option>
+                {conActual(opcionesOperador, viaje.operador_id, nombreOperador).map((o) => (
+                  <option key={o.id} value={o.id}>
+                    {o.nombre}
+                  </option>
+                ))}
+              </select>
+            )}
+          </CampoFormulario>
+          <CampoFormulario id="vendedor" etiqueta="Vendedor">
+            {(props) => (
+              <select
+                className={CLASE_SELECT}
+                {...props}
+                {...formulario.register("vendedor_id", {
+                  onChange: (evento: { target: { value: string } }) => {
+                    elegirVendedor(evento.target.value);
+                  },
+                })}
+              >
+                <option value="">Sin vendedor</option>
+                {conActual(vendedores, viaje.vendedor_id, nombreVendedor).map((v) => (
+                  <option key={v.id} value={v.id}>
+                    {v.nombre}
+                  </option>
+                ))}
+              </select>
+            )}
+          </CampoFormulario>
           <CampoFormulario id="comision-tipo" etiqueta="Tipo de comisión">
             {(props) => (
-              <select className={CLASE_SELECT} {...props} {...formulario.register("comision_tipo")}>
+              <select
+                className={CLASE_SELECT}
+                disabled={sinVendedor}
+                {...props}
+                {...formulario.register("comision_tipo", {
+                  onChange: () => {
+                    setComisionEditada(true);
+                  },
+                })}
+              >
                 <option value="importe">Importe</option>
                 <option value="porcentaje">Porcentaje</option>
               </select>
@@ -202,11 +313,23 @@ export function SeccionEconomia({
             error={errors.comision_vendedor}
           >
             {(props) => (
-              <Input inputMode="decimal" {...props} {...formulario.register("comision_vendedor")} />
+              <Input
+                inputMode="decimal"
+                disabled={sinVendedor}
+                {...props}
+                {...formulario.register("comision_vendedor", {
+                  onChange: () => {
+                    setComisionEditada(true);
+                  },
+                })}
+              />
             )}
           </CampoFormulario>
           <p className="text-xs text-muted-foreground">
             La ganancia y el margen se calculan solos a partir del precio y el costo.
+            {sinVendedor
+              ? " Sin vendedor no hay comisión."
+              : " Si no tocás la comisión, se aplica la del vendedor."}
           </p>
           <div className="flex items-center gap-3">
             <Button type="submit" disabled={isSubmitting || registrar.isPending}>
@@ -228,7 +351,9 @@ export function SeccionEconomia({
             <Fila etiqueta="Costo del operador">{formatearImporte(viaje.costo, viaje.moneda)}</Fila>
           </dl>
           <Resultado ganancia={ganancia} margen={margen} moneda={viaje.moneda} />
-          <dl>
+          <dl className="mt-3 flex flex-col gap-2">
+            <Fila etiqueta="Operador">{nombreOperador}</Fila>
+            <Fila etiqueta="Vendedor">{nombreVendedor}</Fila>
             <Fila etiqueta="Comisión del vendedor">
               {viaje.comision_tipo === "porcentaje" ? (
                 <>

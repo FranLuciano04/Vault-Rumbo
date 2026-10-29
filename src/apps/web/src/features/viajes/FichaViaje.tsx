@@ -1,10 +1,12 @@
 import {
+  ErrorApi,
   ETIQUETA_ESTADO_VIAJE,
   formatearFecha,
   formatearImporte,
+  formatearPorcentaje,
   type UsuarioActual,
 } from "@rumbo/shared";
-import { useCliente, useDestinos, useViaje } from "@rumbo/shared/hooks";
+import { useCliente, useDestino, useViaje } from "@rumbo/shared/hooks";
 import type { AxiosInstance } from "axios";
 import type { ReactNode } from "react";
 import { SeccionEconomia } from "./SeccionEconomia";
@@ -43,17 +45,23 @@ export function FichaViaje({
   usuario: UsuarioActual;
   viajeId: string;
 }) {
-  const { data: viaje, isPending, isError } = useViaje(cliente, viajeId);
+  const { data: viaje, isPending, isError, error } = useViaje(cliente, viajeId);
   const { data: titular } = useCliente(cliente, viaje?.cliente_id ?? "");
-  const { data: destinos } = useDestinos(cliente, { por_pagina: 100 });
+  const { data: destino } = useDestino(cliente, viaje?.destino_id ?? "");
 
   if (isPending) return <p role="status">Cargando viaje…</p>;
   if (isError) {
-    return <p role="alert">No pudimos cargar el viaje. Probá de nuevo en unos minutos.</p>;
+    const noExiste = error instanceof ErrorApi && error.status === 404;
+    return (
+      <p role="alert">
+        {noExiste
+          ? "No encontramos el viaje. Puede que ya no exista o que no lo puedas ver."
+          : "No pudimos cargar el viaje. Probá de nuevo en unos minutos."}
+      </p>
+    );
   }
 
   const editable = usuario.rol !== "freelance" && !ESTADOS_SIN_EDICION.includes(viaje.estado);
-  const destino = destinos?.items.find((d) => d.id === viaje.destino_id)?.nombre ?? "Viaje";
 
   return (
     <div className="flex flex-col gap-4">
@@ -62,7 +70,7 @@ export function FichaViaje({
           <p className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
             Viajes / Ficha
           </p>
-          <h1 className="text-3xl font-semibold">{destino}</h1>
+          <h1 className="text-3xl font-semibold">{destino?.nombre ?? "Viaje"}</h1>
         </div>
         <span className="rounded-full bg-secondary px-2.5 py-0.5 text-xs font-medium text-secondary-foreground">
           {ETIQUETA_ESTADO_VIAJE[viaje.estado]}
@@ -77,7 +85,7 @@ export function FichaViaje({
         <Dato etiqueta="Saldo pendiente">
           {formatearImporte(viaje.saldo_pendiente, viaje.moneda)}
         </Dato>
-        <Dato etiqueta="Pagado">{Math.floor(Number(viaje.porcentaje_pagado) * 100)} %</Dato>
+        <Dato etiqueta="Pagado">{formatearPorcentaje(viaje.porcentaje_pagado)}</Dato>
       </dl>
 
       <div className="grid gap-4 lg:grid-cols-[2fr_1fr]">
@@ -86,7 +94,7 @@ export function FichaViaje({
           <Seccion titulo="Itinerario">El itinerario del viaje se arma acá.</Seccion>
           <Seccion titulo="Acciones">Los cambios de estado del viaje se hacen desde acá.</Seccion>
         </div>
-        <SeccionEconomia cliente={cliente} viaje={viaje} editable={editable} />
+        <SeccionEconomia cliente={cliente} usuario={usuario} viaje={viaje} editable={editable} />
       </div>
     </div>
   );

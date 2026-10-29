@@ -107,8 +107,26 @@ describe("RF-037 encabezado de la ficha", () => {
     );
     renderFicha("vendido");
 
-    expect(await screen.findByRole("alert")).toHaveTextContent(/no pudimos cargar el viaje/i);
+    expect(await screen.findByRole("alert")).toHaveTextContent(/no encontramos el viaje/i);
     expect(screen.queryByRole("region", { name: /economía/i })).not.toBeInTheDocument();
+  });
+
+  it("RF-037 si falla la carga por otro motivo pide probar de nuevo", async () => {
+    servidor.use(http.get("*/api/viajes/:id", () => HttpResponse.json({}, { status: 500 })));
+    renderFicha("vendido");
+
+    expect(await screen.findByRole("alert")).toHaveTextContent(/no pudimos cargar el viaje/i);
+  });
+
+  it("RF-037 muestra el porcentaje pagado sin perder un punto por el float (0.2900 es 29 %)", async () => {
+    servidor.use(
+      http.get("*/api/viajes/:id", () =>
+        HttpResponse.json({ ...viaje("vendido"), porcentaje_pagado: "0.2900" }),
+      ),
+    );
+    renderFicha("vendido");
+
+    expect(await screen.findByText("29 %")).toBeInTheDocument();
   });
 });
 
@@ -180,6 +198,56 @@ describe("RF-054 economía", () => {
     });
     expect(cuerpos[0]?.["comision_tipo"]).toBe("porcentaje");
     expect(Number(cuerpos[0]?.["comision_vendedor"])).toBe(12);
+  });
+
+  it("RF-054 manda el operador y el vendedor del viaje en cada guardado", async () => {
+    const cuerpos: Record<string, unknown>[] = [];
+    servidor.use(registrarEconomia(cuerpos));
+    renderFicha("vendido");
+    const economia = await seccionEconomia();
+
+    await userEvent.click(
+      await within(economia).findByRole("button", { name: /guardar economía/i }),
+    );
+
+    await waitFor(() => {
+      expect(cuerpos).toHaveLength(1);
+    });
+    expect(cuerpos[0]?.["operador_id"]).toBe(viaje("vendido").operador_id);
+    expect(cuerpos[0]?.["vendedor_id"]).toBe(viaje("vendido").vendedor_id);
+  });
+
+  it("RF-056 al cambiar de vendedor precarga su comisión y, si no se toca, no la manda (RN-01)", async () => {
+    const cuerpos: Record<string, unknown>[] = [];
+    servidor.use(registrarEconomia(cuerpos));
+    renderFicha("vendido");
+    const economia = await seccionEconomia();
+
+    const vendedor = await within(economia).findByLabelText(/vendedor/i, { selector: "select" });
+    await within(economia).findByRole("option", { name: /tomás roldán/i });
+    await userEvent.selectOptions(vendedor, usuariosPorRol.freelance.id);
+
+    expect(within(economia).getByLabelText(/tipo de comisión/i)).toHaveValue("importe");
+    expect(numero(within(economia).getByLabelText(/comisión del vendedor/i))).toBe(15000);
+    await userEvent.click(within(economia).getByRole("button", { name: /guardar economía/i }));
+
+    await waitFor(() => {
+      expect(cuerpos).toHaveLength(1);
+    });
+    expect(cuerpos[0]?.["vendedor_id"]).toBe(usuariosPorRol.freelance.id);
+    expect(cuerpos[0]).not.toHaveProperty("comision_tipo");
+    expect(cuerpos[0]).not.toHaveProperty("comision_vendedor");
+  });
+
+  it("RF-056 sin vendedor la comisión queda deshabilitada (A2)", async () => {
+    renderFicha("vendido");
+    const economia = await seccionEconomia();
+
+    const vendedor = await within(economia).findByLabelText(/vendedor/i, { selector: "select" });
+    await userEvent.selectOptions(vendedor, "");
+
+    expect(within(economia).getByLabelText(/tipo de comisión/i)).toBeDisabled();
+    expect(within(economia).getByLabelText(/comisión del vendedor/i)).toBeDisabled();
   });
 
   it("RF-054 guarda el precio y el costo editados con PUT y confirma que se guardó", async () => {
@@ -319,7 +387,6 @@ describe("RF-058 advertencia", () => {
           costo: "2000000.00",
           ganancia: "-200000.00",
           margen: "-0.1111",
-          advertencias: ["ganancia_negativa", "margen_negativo"],
         }),
       ),
     );
@@ -329,7 +396,7 @@ describe("RF-058 advertencia", () => {
   });
 });
 
-describe("RF-056 vista del freelance (pantalla 43)", () => {
+describe("RF-037 vista del freelance (pantalla 43)", () => {
   it("RF-056 el freelance ve precio, costo y ganancia del viaje", async () => {
     renderFicha("vendido", "freelance");
     const economia = await seccionEconomia();
