@@ -56,6 +56,28 @@ function Indicador({
   );
 }
 
+/** Ganancia y margen del viaje, en rojo cuando son negativos. */
+function Resultado({
+  ganancia,
+  margen,
+  moneda,
+}: {
+  ganancia: string;
+  margen: number | null;
+  moneda: Viaje["moneda"];
+}) {
+  return (
+    <div className="grid grid-cols-2 gap-3">
+      <Indicador
+        etiqueta="Ganancia"
+        valor={formatearImporte(ganancia, moneda)}
+        negativo={Number(ganancia) < 0}
+      />
+      <Indicador etiqueta="Margen" valor={formatearMargen(margen)} negativo={(margen ?? 0) < 0} />
+    </div>
+  );
+}
+
 /**
  * Economía de la ficha del viaje (CU-10, pantallas 15 y 43). Editable para quien administra el
  * viaje; el freelance y los viajes finalizados o cancelados la ven en solo lectura. Ganancia y
@@ -165,18 +187,7 @@ export function SeccionEconomia({
           <CampoFormulario id="costo" etiqueta="Costo del operador" error={errors.costo}>
             {(props) => <Input inputMode="decimal" {...props} {...formulario.register("costo")} />}
           </CampoFormulario>
-          <div className="grid grid-cols-2 gap-3">
-            <Indicador
-              etiqueta="Ganancia"
-              valor={formatearImporte(ganancia, viaje.moneda)}
-              negativo={Number(ganancia) < 0}
-            />
-            <Indicador
-              etiqueta="Margen"
-              valor={formatearMargen(margen)}
-              negativo={(margen ?? 0) < 0}
-            />
-          </div>
+          <Resultado ganancia={ganancia} margen={margen} moneda={viaje.moneda} />
           <CampoFormulario id="comision-tipo" etiqueta="Tipo de comisión">
             {(props) => (
               <select className={CLASE_SELECT} {...props} {...formulario.register("comision_tipo")}>
@@ -216,18 +227,7 @@ export function SeccionEconomia({
             </Fila>
             <Fila etiqueta="Costo del operador">{formatearImporte(viaje.costo, viaje.moneda)}</Fila>
           </dl>
-          <div className="my-3 grid grid-cols-2 gap-3">
-            <Indicador
-              etiqueta="Ganancia"
-              valor={formatearImporte(viaje.ganancia, viaje.moneda)}
-              negativo={Number(viaje.ganancia) < 0}
-            />
-            <Indicador
-              etiqueta="Margen"
-              valor={formatearMargen(margen)}
-              negativo={(margen ?? 0) < 0}
-            />
-          </div>
+          <Resultado ganancia={ganancia} margen={margen} moneda={viaje.moneda} />
           <dl>
             <Fila etiqueta="Comisión del vendedor">
               {viaje.comision_tipo === "porcentaje" ? (

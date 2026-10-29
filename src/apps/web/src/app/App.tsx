@@ -17,9 +17,9 @@ import { SeccionNuevoCliente } from "./SeccionNuevoCliente";
 import { SeccionNuevoHotel } from "./SeccionNuevoHotel";
 import { SeccionCotizaciones } from "./SeccionCotizaciones";
 import { SeccionDetalleOportunidad } from "./SeccionDetalleOportunidad";
+import { SeccionFichaViaje } from "./SeccionFichaViaje";
 import { SeccionOportunidades } from "./SeccionOportunidades";
 import { SeccionPendiente } from "./SeccionPendiente";
-import { SeccionFichaViaje } from "./SeccionFichaViaje";
 import { SeccionViajes } from "./SeccionViajes";
 
 export function App({ cliente }: { cliente: AxiosInstance }) {
