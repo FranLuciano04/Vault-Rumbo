@@ -7,6 +7,7 @@ from typing import Literal
 from sqlalchemy import exists, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from rumbo.core.errores import NoEncontrado
 from rumbo.datos.modelos import EstadoHotel, EstadoResena, Hotel, Resena
 from rumbo.datos.modelos.base import nombre_normalizado
 from rumbo.datos.repositorios.base import RepositorioBase, Visibilidad, normalizar
@@ -14,6 +15,21 @@ from rumbo.datos.repositorios.base import RepositorioBase, Visibilidad, normaliz
 
 class RepositorioHoteles(RepositorioBase[Hotel]):
     modelo = Hotel
+
+    async def obtener_para_modificar(
+        self, sesion: AsyncSession, id: uuid.UUID, *, visibilidad: Visibilidad
+    ) -> Hotel:
+        """Como `obtener`, pero bloqueado hasta el fin de la transacción y releído de la base,
+        para que dos ediciones o bajas concurrentes no se pisen."""
+        consulta = visibilidad.aplicar(select(Hotel).where(Hotel.id == id), Hotel)
+        # key_share = FOR NO KEY UPDATE: no frena a quien referencia el hotel (reseña, cotización).
+        consulta = consulta.with_for_update(key_share=True).execution_options(
+            populate_existing=True
+        )
+        hotel = await sesion.scalar(consulta)
+        if hotel is None:
+            raise NoEncontrado(f"Hotel {id} no encontrado")
+        return hotel
 
     async def buscar_activo_por_nombre(
         self,
