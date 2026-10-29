@@ -30,6 +30,7 @@ Cada rol lista viajes según su visibilidad y abre la ficha con la economía, el
 - [ ] `GET /viajes` filtra por estado, fechas y «lo mío», paginado; el `freelance` ve solo lo suyo.
 - [ ] `GET /viajes/{id}` devuelve la ficha con ganancia, margen, comisión, saldo y porcentaje pagado calculados por `negocio/calculos.py` (ajeno → 404).
 - [ ] Los importes salen como texto decimal.
+- [ ] Cada viaje del listado y de la ficha trae `cliente_nombre` y `destino_nombre` resueltos, como `cliente_nombre` en `Oportunidad` (hallazgo de la review de T-100). Agregarlos al esquema `Viaje` del contrato y regenerar `openapi.json` y los tipos de `@rumbo/shared`; después, `TablaViajes.tsx` los usa en lugar de buscarlos con `useClientes` y `useDestinos`.
 - [ ] `GET /viajes?cliente_id=…` filtra por cliente, respetando la visibilidad del actor: lo usa `SelectorViaje` al registrar una reseña (CU-17 A1, hallazgo H-04 de la review de M5). Verificar contra la API real que la web registra una reseña vinculada a un viaje.
 
 ## Tests esperados
@@ -50,3 +51,4 @@ Cada rol lista viajes según su visibilidad y abre la ficha con la economía, el
 
 ## Notas de implementación
 - **De T-078 (28/10/26):** `src/backend/rumbo/datos/repositorios/viajes.py` ya existe con un `RepositorioViajes` mínimo (`RepositorioBase[Viaje]`), que crearon las reseñas para validar el viaje asociado. Extendelo en lugar de crear otro.
+- **De T-100 (29/10/26):** la web resuelve hoy el nombre del cliente y del destino con la primera página de `/api/clientes` y `/api/destinos` (`por_pagina: 100`, el máximo). Con más de 100 clientes, algunas filas quedan sin nombre. Lo resuelve el criterio de `cliente_nombre` y `destino_nombre` de arriba.
