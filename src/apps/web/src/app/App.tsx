@@ -19,6 +19,7 @@ import { SeccionCotizaciones } from "./SeccionCotizaciones";
 import { SeccionDetalleOportunidad } from "./SeccionDetalleOportunidad";
 import { SeccionOportunidades } from "./SeccionOportunidades";
 import { SeccionPendiente } from "./SeccionPendiente";
+import { SeccionViajes } from "./SeccionViajes";
 
 export function App({ cliente }: { cliente: AxiosInstance }) {
   const [queryClient] = useState(() => crearQueryClient());
@@ -51,6 +52,7 @@ export function App({ cliente }: { cliente: AxiosInstance }) {
               path="oportunidades/:id/cotizaciones"
               element={<SeccionCotizaciones cliente={cliente} />}
             />
+            <Route path="viajes" element={<SeccionViajes cliente={cliente} />} />
             <Route path=":seccion/*" element={<SeccionPendiente />} />
           </Route>
         </Routes>
