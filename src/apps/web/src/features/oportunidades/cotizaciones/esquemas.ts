@@ -17,6 +17,8 @@ export const esquemaCotizacion = z.object({
         /** Hotel del catálogo del que salió el ítem (RF-106); no viaja a la API. */
         hotel_id: z.string().optional(),
         hotel_nombre: z.string().optional(),
+        /** Precio que se autocompletó desde el catálogo: si sigue igual, es un precio sin tocar. */
+        precio_autocompletado: z.string().optional(),
       }),
     )
     .min(1, "Cargá al menos un ítem."),

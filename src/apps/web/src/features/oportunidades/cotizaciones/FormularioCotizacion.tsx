@@ -22,6 +22,7 @@ import { esquemaCotizacion, type DatosCotizacion } from "./esquemas";
 import { importeComoTexto, sumarImportes, sumarMesesAHoy } from "./calculos";
 
 const MONEDAS: Moneda[] = ["ARS", "USD"];
+const SUFIJO_REFERENCIA = " (ref. por noche)";
 
 /** Emisión de una cotización (RF-021, RF-022): ítems, moneda, total y vigencia a la vista. */
 export function FormularioCotizacion({
@@ -51,6 +52,7 @@ export function FormularioCotizacion({
     control: formulario.control,
     name: "items",
   });
+  const registroMoneda = formulario.register("moneda");
   const { errors, isSubmitting } = formulario.formState;
   const moneda = useWatch({ control: formulario.control, name: "moneda" });
   const items = useWatch({ control: formulario.control, name: "items" });
@@ -64,15 +66,30 @@ export function FormularioCotizacion({
   // ARS por noche: en USD el precio lo carga el empleado, para no sumar pesos a una cotización en dólares.
   function elegirHotel(hotel: Hotel) {
     const enPesos = moneda === "ARS" && hotel.precio_referencia;
+    const precio = enPesos ? (hotel.precio_referencia?.replace(".", ",") ?? "") : "";
     const item = {
-      concepto: enPesos ? `${hotel.nombre} (ref. por noche)` : hotel.nombre,
-      precio: enPesos ? (hotel.precio_referencia?.replace(".", ",") ?? "") : "",
+      concepto: enPesos ? `${hotel.nombre}${SUFIJO_REFERENCIA}` : hotel.nombre,
+      precio,
+      precio_autocompletado: precio || undefined,
       hotel_id: hotel.id,
       hotel_nombre: hotel.nombre,
     };
     const vacia = items.findIndex((i) => !i.concepto.trim() && !i.precio.trim());
     if (vacia >= 0) update(vacia, item);
     else append(item);
+  }
+
+  // Al pasar a USD, la referencia en ARS ya no vale: se vacían solo los precios que nadie tocó.
+  function soltarReferenciasEnPesos() {
+    formulario.getValues("items").forEach((item, i) => {
+      if (!item.precio_autocompletado || item.precio.trim() !== item.precio_autocompletado) return;
+      update(i, {
+        ...item,
+        concepto: item.concepto.replace(SUFIJO_REFERENCIA, ""),
+        precio: "",
+        precio_autocompletado: undefined,
+      });
+    });
   }
 
   function quitarItem(posicion: number) {
@@ -113,7 +130,15 @@ export function FormularioCotizacion({
         <legend className="mb-2 text-sm font-medium">Moneda de la operación</legend>
         {MONEDAS.map((opcion) => (
           <Label key={opcion} className="flex items-center gap-2">
-            <input type="radio" value={opcion} {...formulario.register("moneda")} />
+            <input
+              type="radio"
+              value={opcion}
+              {...registroMoneda}
+              onChange={(evento) => {
+                void registroMoneda.onChange(evento);
+                if (opcion === "USD") soltarReferenciasEnPesos();
+              }}
+            />
             {opcion}
           </Label>
         ))}

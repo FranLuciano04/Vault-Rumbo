@@ -286,6 +286,81 @@ describe("RF-106 recomendación en la cotización", () => {
     expect(total).not.toHaveTextContent("150.000");
   });
 
+  it("RF-106 agregar en ARS y pasar a USD vacía el precio autocompletado y quita «(ref. por noche)»; emitir sin cargarlo no llama a la API", async () => {
+    const cuerpos: { moneda: string; items: { concepto: string; precio: string }[] }[] = [];
+    servidor.use(conDestino("Bariloche"), emisionQueEco(cuerpos));
+    const u = userEvent.setup();
+    renderCotizaciones();
+    await u.click(await abrirBuscador());
+    await u.click(await screen.findByRole("button", { name: /agregar hotel llao llao/i }));
+    expect(screen.getByRole("textbox", { name: "Precio" })).toHaveValue("150000,00");
+
+    await u.click(screen.getByRole("radio", { name: "USD" }));
+
+    expect(screen.getByRole("textbox", { name: "Precio" })).toHaveValue("");
+    expect(screen.getByRole("textbox", { name: "Concepto" })).toHaveValue("Hotel Llao Llao");
+    await u.click(screen.getByRole("button", { name: /generar documento/i }));
+    expect(await screen.findByText(/cargá al menos un ítem con concepto y precio válidos/i)).toBeInTheDocument();
+    expect(cuerpos).toHaveLength(0);
+  });
+
+  it("RF-106 un precio escrito o corregido a mano no se toca al cambiar de moneda", async () => {
+    servidor.use(conDestino("Bariloche"));
+    const u = userEvent.setup();
+    renderCotizaciones();
+    await u.click(await abrirBuscador());
+    await u.click(await screen.findByRole("button", { name: /agregar hotel llao llao/i }));
+    const precio = screen.getByRole("textbox", { name: "Precio" });
+    await u.clear(precio);
+    await u.type(precio, "180000");
+
+    await u.click(screen.getByRole("radio", { name: "USD" }));
+
+    expect(screen.getByRole("textbox", { name: "Precio" })).toHaveValue("180000");
+  });
+
+  it("RF-106 un ítem cargado a mano sin hotel no se toca al cambiar de moneda", async () => {
+    servidor.use(conDestino("Bariloche"));
+    const u = userEvent.setup();
+    renderCotizaciones();
+    await screen.findByRole("button", { name: /buscar hoteles/i });
+    await u.type(screen.getByRole("textbox", { name: "Concepto" }), "Traslado");
+    await u.type(screen.getByRole("textbox", { name: "Precio" }), "5000");
+
+    await u.click(screen.getByRole("radio", { name: "USD" }));
+
+    expect(screen.getByRole("textbox", { name: "Precio" })).toHaveValue("5000");
+    expect(screen.getByRole("textbox", { name: "Concepto" })).toHaveValue("Traslado");
+  });
+
+  it("RF-106 agregar el hotel con USD ya elegido deja el precio vacío y el concepto sin «(ref. por noche)»", async () => {
+    servidor.use(conDestino("Bariloche"));
+    const u = userEvent.setup();
+    renderCotizaciones();
+    await screen.findByRole("button", { name: /buscar hoteles/i });
+    await u.click(screen.getByRole("radio", { name: "USD" }));
+    await u.click(await abrirBuscador());
+
+    await u.click(await screen.findByRole("button", { name: /agregar hotel llao llao/i }));
+
+    expect(screen.getByRole("textbox", { name: "Precio" })).toHaveValue("");
+    expect(screen.getByRole("textbox", { name: "Concepto" })).toHaveValue("Hotel Llao Llao");
+  });
+
+  it("RF-106 volver de USD a ARS no rellena el precio ni restaura el concepto", async () => {
+    servidor.use(conDestino("Bariloche"));
+    const u = userEvent.setup();
+    renderCotizaciones();
+    await u.click(await abrirBuscador());
+    await u.click(await screen.findByRole("button", { name: /agregar hotel llao llao/i }));
+    await u.click(screen.getByRole("radio", { name: "USD" }));
+
+    await u.click(screen.getByRole("radio", { name: "ARS" }));
+
+    expect(screen.getByRole("textbox", { name: "Precio" })).toHaveValue("");
+    expect(screen.getByRole("textbox", { name: "Concepto" })).toHaveValue("Hotel Llao Llao");
+  });
+
   it("RF-106 avisa si el destino de la oportunidad no está en el catálogo y busca sin filtrarlo", async () => {
     const pedidos: URLSearchParams[] = [];
     espiar(pedidos);
