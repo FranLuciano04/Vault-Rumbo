@@ -4,8 +4,8 @@ Contrato del punto de entrada que los tests fijan (lo sigue el implementador):
 
 - Existe `rumbo.core.logs.configurar_logs() -> None`. Es idempotente (llamarla dos veces no duplica
   handlers) y es la configuración que usa el arranque real.
-- Deja el logger `rumbo` en nivel INFO y le agrega un handler que escribe en la salida estándar.
-  El handler tiene que resolver `sys.stdout` al llamar a `configurar_logs()` (no al importar el
+- Deja el logger `rumbo` en nivel INFO y le agrega un handler que escribe en la salida de error.
+  El handler tiene que resolver `sys.stderr` al llamar a `configurar_logs()` (no al importar el
   módulo), para que `capsys` lo vea.
 - El formato imprime, en el texto, el mensaje y los campos `extra` del registro: `resena_id`,
   `hotel_id`, `cliente_id`, `puntaje`, `motivo_baja` y `actor_id`, cada uno como `campo=valor`
@@ -16,7 +16,7 @@ Contrato del punto de entrada que los tests fijan (lo sigue el implementador):
   de la eliminación, con el mensaje que contiene «eliminada».
 
 Los tests no usan `caplog.at_level`: parten del logger `rumbo` sin configurar (como en el arranque
-del contenedor) y miden lo que sale por la salida estándar tras `configurar_logs()`.
+del contenedor) y miden lo que sale por la salida de error tras `configurar_logs()`.
 """
 
 import logging
@@ -82,17 +82,17 @@ def test_cu29_a2_configurar_logs_es_idempotente(logs_de_arranque: Any) -> None:
     assert len(logger.handlers) == cantidad
 
 
-async def test_cu29_a2_la_linea_de_eliminacion_sale_por_stdout_con_los_campos(
+async def test_cu29_a2_la_linea_de_eliminacion_sale_por_stderr_con_los_campos(
     sesion: AsyncSession, logs_de_arranque: Any, capsys: pytest.CaptureFixture[str]
 ) -> None:
-    """Con la configuración de arranque (sin forzar el nivel) la línea sale por stdout."""
+    """Con la configuración de arranque (sin forzar el nivel) la línea sale por stderr."""
     admin = await crear(sesion, UsuarioFactory, rol="admin")
     resena = await _oculta(sesion, puntaje=2, estado="oculta", motivo_baja="Spam")
     capsys.readouterr()  # descarta lo emitido por la preparación
 
     await resenas.eliminar_resena(sesion, admin, resena.id)
 
-    salida = capsys.readouterr().out
+    salida = capsys.readouterr().err
     assert "eliminada" in salida
     for campo, valor in {
         "resena_id": str(resena.id),
@@ -123,7 +123,7 @@ async def test_cu29_a2_si_el_flush_falla_no_hay_linea_de_eliminada(
     with pytest.raises(RuntimeError):
         await resenas.eliminar_resena(sesion, admin, resena.id)
 
-    assert "eliminada" not in capsys.readouterr().out
+    assert "eliminada" not in capsys.readouterr().err
 
 
 async def test_cu29_a2_eliminar_una_publicada_409_no_deja_la_linea(
@@ -136,4 +136,4 @@ async def test_cu29_a2_eliminar_una_publicada_409_no_deja_la_linea(
     with pytest.raises(Conflicto):
         await resenas.eliminar_resena(sesion, admin, resena.id)
 
-    assert "eliminada" not in capsys.readouterr().out
+    assert "eliminada" not in capsys.readouterr().err

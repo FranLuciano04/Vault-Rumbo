@@ -1,4 +1,6 @@
-"""Configuración de logging del arranque: el logger `rumbo` emite INFO por la salida estándar.
+"""Configuración de logging del arranque: el logger `rumbo` emite INFO por stderr (como Uvicorn).
+
+`docker logs` junta stdout y stderr.
 
 Uvicorn solo configura sus propios loggers; sin esto, `logger.info` de la aplicación se descarta
 (hereda WARNING del raíz). No se tocan el raíz ni `uvicorn`.
@@ -28,12 +30,12 @@ class FormatoConCampos(logging.Formatter):
         return f"{linea} " + " ".join(f"{c}={v!r}" for c, v in campos.items())
 
 
-class _HandlerStdout(logging.Handler):
-    """Escribe en el `sys.stdout` vigente al emitir (como `logging.lastResort` con stderr)."""
+class _HandlerStderr(logging.Handler):
+    """Escribe en el `sys.stderr` vigente al emitir (como `logging.lastResort`)."""
 
     def emit(self, record: logging.LogRecord) -> None:
         try:
-            stream = sys.stdout
+            stream = sys.stderr
             stream.write(self.format(record) + "\n")
             stream.flush()
         except Exception:  # noqa: BLE001 (igual que StreamHandler)
@@ -41,11 +43,11 @@ class _HandlerStdout(logging.Handler):
 
 
 def configurar_logs() -> None:
-    """Deja el logger `rumbo` en INFO con un handler a stdout. Idempotente."""
+    """Deja el logger `rumbo` en INFO con un handler a stderr. Idempotente."""
     logger = logging.getLogger("rumbo")
     logger.setLevel(logging.INFO)
-    if any(isinstance(h, _HandlerStdout) for h in logger.handlers):
+    if any(isinstance(h, _HandlerStderr) for h in logger.handlers):
         return
-    handler = _HandlerStdout()
+    handler = _HandlerStderr()
     handler.setFormatter(FormatoConCampos("%(levelname)s %(name)s: %(message)s"))
     logger.addHandler(handler)
