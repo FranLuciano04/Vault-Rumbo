@@ -8,6 +8,7 @@ Supuestos de diseño (el ticket no fija la firma): funciones puras sobre el `Via
 Las inválidas lanzan `TransicionInvalida` y dejan el viaje intacto.
 """
 
+import uuid
 from collections.abc import Callable
 from datetime import UTC, date, datetime
 from decimal import Decimal
@@ -225,3 +226,48 @@ def test_cu27_cancelar_y_revertir_es_ida_y_vuelta() -> None:
 @pytest.mark.parametrize("origen", [e for e in TODOS if e != "cancelado"])
 def test_cu27_revertir_cancelacion_invalido_si_no_esta_cancelado(origen: str) -> None:
     _no_cambia(origen, est.revertir_cancelacion)
+
+
+# Bordes señalados por la review de seguridad
+@pytest.mark.parametrize("previo", [None, "finalizado", "cancelado"])
+def test_cu27_revertir_cancelacion_invalido_si_el_estado_previo_no_es_cancelable(
+    previo: str | None,
+) -> None:
+    viaje = _viaje("cancelado", estado_previo=V(previo) if previo else None)
+    with pytest.raises(TransicionInvalida):
+        est.revertir_cancelacion(viaje)
+    assert viaje.estado is V.cancelado
+    assert viaje.estado_previo == (V(previo) if previo else None)
+    assert viaje.motivo_cancelacion == "Error de carga"
+    assert viaje.fecha_cancelacion == _HOY
+
+
+def test_cu27_cancelar_desde_en_curso_deja_en_curso_como_estado_previo() -> None:
+    viaje = _viaje("en_curso")
+    est.cancelar(viaje, motivo="Temporal", fecha=_HOY)
+    assert viaje.estado is V.cancelado
+    assert viaje.estado_previo is V.en_curso
+
+
+@pytest.mark.parametrize("origen", ["reservado", "vendido"])
+def test_rf038_cobro_con_saldo_negativo_es_invalido(origen: str) -> None:
+    _no_cambia(origen, lambda v: est.al_registrar_cobro(v, saldo=Decimal("-1.00")))
+
+
+@pytest.mark.parametrize("saldo", [CERO, Decimal("-1.00")])
+def test_rf038_revertir_cobro_de_confirmado_sin_saldo_es_invalido(saldo: Decimal) -> None:
+    _no_cambia("confirmado", lambda v: est.al_revertir_cobro(v, saldo=saldo, quedan_cobros=True))
+
+
+def test_rf042_corregir_finalizado_no_toca_la_resena_de_otro_viaje() -> None:
+    viaje = _viaje("finalizado", id=uuid.uuid4())
+    propia = f.AlertaFactory.build(
+        tipo=m.TipoAlerta.resena, estado=m.EstadoAlerta.pendiente, viaje_id=viaje.id
+    )
+    ajena = f.AlertaFactory.build(
+        tipo=m.TipoAlerta.resena, estado=m.EstadoAlerta.pendiente, viaje_id=uuid.uuid4()
+    )
+    est.corregir(viaje, alertas=[propia, ajena], ahora=_AHORA)
+    assert propia.estado is m.EstadoAlerta.resuelta
+    assert ajena.estado is m.EstadoAlerta.pendiente
+    assert ajena.resuelta_en is None
