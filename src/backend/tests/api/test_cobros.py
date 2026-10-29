@@ -304,6 +304,42 @@ async def test_rf069_saldo_en_otra_moneda_se_calcula_sobre_el_plan(
     assert calculos.porcentaje_pagado(PRECIO, pagos) == Decimal("0.2500")
 
 
+async def test_cu10_a4_plan_descalzado_queda_vendido(
+    cliente_como: Fabrica, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("empleado")
+    viaje = await _viaje(sesion, _yo(c))
+    await _pago(
+        sesion, viaje.id, "300000.00", estado=m.EstadoPago.pagado, forma_pago=m.FormaPago.efectivo,
+        moneda_pago=m.Moneda.ARS, monto_cobrado=Decimal("300000.00"), fecha_cobro=date(2026, 11, 1),
+    )  # fmt: skip
+    ultimo = await _pago(sesion, viaje.id, "500000.00", tipo=m.TipoPago.saldo)  # suma 800.000
+
+    r = await c.post(_url(ultimo.id), json=COBRO)
+
+    assert r.status_code == 200
+    assert r.json()["estado"] == "pagado"
+    await sesion.refresh(viaje)
+    assert viaje.estado == m.EstadoViaje.vendido  # no confirma sin rebalancear el plan
+
+
+async def test_rf068_monto_cobrado_fuera_de_rango_422(
+    cliente_como: Fabrica, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("empleado")
+    viaje = await _viaje(sesion, _yo(c), moneda=m.Moneda.USD)
+    pago = await _pago(sesion, viaje.id, "1000000.00", tipo=m.TipoPago.saldo)
+
+    # 1.000.000 x 9.999.999.999 no entra en numeric(14,2)
+    r = await c.post(_url(pago.id), json={**COBRO, "tipo_cambio": "9999999999.0000"})
+
+    assert r.status_code == 422
+    assert r.headers["content-type"].startswith(PROBLEM_JSON)
+    await sesion.refresh(pago)
+    assert pago.estado == m.EstadoPago.pendiente
+    assert pago.monto_cobrado is None
+
+
 async def test_cu12_pago_ya_cobrado_409(cliente_como: Fabrica, sesion: AsyncSession) -> None:
     c = await cliente_como("empleado")
     viaje = await _viaje(sesion, _yo(c))
