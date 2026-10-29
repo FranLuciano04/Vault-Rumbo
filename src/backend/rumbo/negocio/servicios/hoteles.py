@@ -124,7 +124,7 @@ async def editar_hotel(
 ) -> HotelConResenas:
     """Aplica solo los campos enviados (CU-16, RF-097); un hotel cerrado no se edita."""
     exigir_rol(actor, *_GESTORES)
-    hotel = await _hoteles.obtener(sesion, hotel_id, visibilidad=visibilidad(actor))
+    hotel = await _hoteles.obtener_para_modificar(sesion, hotel_id, visibilidad=visibilidad(actor))
     _exigir_activo(hotel)
     if "destino_id" in cambios:
         await _exigir_destino(sesion, actor, cambios["destino_id"])
@@ -147,7 +147,7 @@ async def dar_de_baja_hotel(
 ) -> HotelConResenas:
     """Baja lógica: el hotel pasa a `cerrado` y conserva sus reseñas (CU-16 A4, RF-100)."""
     exigir_rol(actor, *_GESTORES)
-    hotel = await _hoteles.obtener(sesion, hotel_id, visibilidad=visibilidad(actor))
+    hotel = await _hoteles.obtener_para_modificar(sesion, hotel_id, visibilidad=visibilidad(actor))
     _exigir_activo(hotel)
     hotel.estado = EstadoHotel.cerrado
     await sesion.flush()
