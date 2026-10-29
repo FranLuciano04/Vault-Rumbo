@@ -130,8 +130,12 @@ export function SeccionEconomia({
   const { data: operadores } = useOperadores(cliente, { por_pagina: 100 });
   const { data: operadorActual } = useOperador(cliente, viaje.operador_id ?? "");
   // Solo admin y dueño listan usuarios (con su comisión por defecto); el resto elige entre los asesores.
-  const { data: usuarios } = useUsuarios(cliente, { por_pagina: 100 });
-  const { data: asesores } = useAsesores(cliente);
+  const { data: usuarios } = useUsuarios(
+    cliente,
+    { por_pagina: 100 },
+    { enabled: usuario.rol === "admin" || usuario.rol === "dueno" },
+  );
+  const { data: asesores } = useAsesores(cliente, { enabled: editable });
   const vendedores = (usuarios?.items.filter((u) => u.activo) ?? asesores ?? []).map(
     ({ id, nombre }) => ({ id, nombre }),
   );
@@ -144,6 +148,8 @@ export function SeccionEconomia({
   const [error, setError] = useState<string | null>(null);
   // La comisión sigue al vendedor mientras nadie la toque (RN-01).
   const [comisionEditada, setComisionEditada] = useState(false);
+  // Nombre del vendedor nuevo cuando no conocemos su comisión por defecto: la aplica la API.
+  const [comisionDe, setComisionDe] = useState<string | null>(null);
   const formulario = useForm<DatosEconomia>({
     resolver: zodResolver(esquemaEconomia),
     defaultValues: valoresDe(viaje),
@@ -171,12 +177,22 @@ export function SeccionEconomia({
 
   function elegirVendedor(id: string) {
     setComisionEditada(false);
-    const elegido = usuarios?.items.find((u) => u.id === id);
-    if (elegido?.comision_default_tipo && elegido.comision_default_valor) {
-      formulario.setValue("comision_tipo", elegido.comision_default_tipo, { shouldDirty: true });
-      formulario.setValue("comision_vendedor", elegido.comision_default_valor, {
+    setComisionDe(null);
+    if (id === "") return;
+    if (id === viaje.vendedor_id) {
+      // Volver al vendedor original conserva la comisión pactada del viaje.
+      formulario.setValue("comision_tipo", viaje.comision_tipo, { shouldDirty: true });
+      formulario.setValue("comision_vendedor", viaje.comision_vendedor, { shouldDirty: true });
+    } else if (usuarios) {
+      const elegido = usuarios.items.find((u) => u.id === id);
+      formulario.setValue("comision_tipo", elegido?.comision_default_tipo ?? viaje.comision_tipo, {
         shouldDirty: true,
       });
+      formulario.setValue("comision_vendedor", elegido?.comision_default_valor ?? "0.00", {
+        shouldDirty: true,
+      });
+    } else {
+      setComisionDe(vendedores.find((v) => v.id === id)?.nombre ?? "el vendedor");
     }
   }
 
@@ -203,6 +219,7 @@ export function SeccionEconomia({
       setAvisos(registrada.advertencias);
       formulario.reset(valoresDe(registrada));
       setComisionEditada(false);
+      setComisionDe(null);
       setGuardado(true);
     } catch (falla) {
       setError(mensajeDeError(falla));
@@ -290,41 +307,49 @@ export function SeccionEconomia({
               </select>
             )}
           </CampoFormulario>
-          <CampoFormulario id="comision-tipo" etiqueta="Tipo de comisión">
-            {(props) => (
-              <select
-                className={CLASE_SELECT}
-                disabled={sinVendedor}
-                {...props}
-                {...formulario.register("comision_tipo", {
-                  onChange: () => {
-                    setComisionEditada(true);
-                  },
-                })}
+          {comisionDe ? (
+            <p className="text-sm text-muted-foreground">
+              Se aplicará la comisión por defecto de {comisionDe}.
+            </p>
+          ) : (
+            <>
+              <CampoFormulario id="comision-tipo" etiqueta="Tipo de comisión">
+                {(props) => (
+                  <select
+                    className={CLASE_SELECT}
+                    disabled={sinVendedor}
+                    {...props}
+                    {...formulario.register("comision_tipo", {
+                      onChange: () => {
+                        setComisionEditada(true);
+                      },
+                    })}
+                  >
+                    <option value="importe">Importe</option>
+                    <option value="porcentaje">Porcentaje</option>
+                  </select>
+                )}
+              </CampoFormulario>
+              <CampoFormulario
+                id="comision-vendedor"
+                etiqueta="Comisión del vendedor"
+                error={errors.comision_vendedor}
               >
-                <option value="importe">Importe</option>
-                <option value="porcentaje">Porcentaje</option>
-              </select>
-            )}
-          </CampoFormulario>
-          <CampoFormulario
-            id="comision-vendedor"
-            etiqueta="Comisión del vendedor"
-            error={errors.comision_vendedor}
-          >
-            {(props) => (
-              <Input
-                inputMode="decimal"
-                disabled={sinVendedor}
-                {...props}
-                {...formulario.register("comision_vendedor", {
-                  onChange: () => {
-                    setComisionEditada(true);
-                  },
-                })}
-              />
-            )}
-          </CampoFormulario>
+                {(props) => (
+                  <Input
+                    inputMode="decimal"
+                    disabled={sinVendedor}
+                    {...props}
+                    {...formulario.register("comision_vendedor", {
+                      onChange: () => {
+                        setComisionEditada(true);
+                      },
+                    })}
+                  />
+                )}
+              </CampoFormulario>
+            </>
+          )}
           <p className="text-xs text-muted-foreground">
             La ganancia y el margen se calculan solos a partir del precio y el costo.
             {sinVendedor

@@ -217,10 +217,10 @@ describe("RF-054 economía", () => {
     expect(cuerpos[0]?.["vendedor_id"]).toBe(viaje("vendido").vendedor_id);
   });
 
-  it("RF-056 al cambiar de vendedor precarga su comisión y, si no se toca, no la manda (RN-01)", async () => {
+  it("RF-056 como admin, al cambiar de vendedor precarga su comisión y, si no se toca, no la manda (RN-01)", async () => {
     const cuerpos: Record<string, unknown>[] = [];
     servidor.use(registrarEconomia(cuerpos));
-    renderFicha("vendido");
+    renderFicha("vendido", "admin");
     const economia = await seccionEconomia();
 
     const vendedor = await within(economia).findByLabelText(/vendedor/i, { selector: "select" });
@@ -235,6 +235,73 @@ describe("RF-054 economía", () => {
       expect(cuerpos).toHaveLength(1);
     });
     expect(cuerpos[0]?.["vendedor_id"]).toBe(usuariosPorRol.freelance.id);
+    expect(cuerpos[0]).not.toHaveProperty("comision_tipo");
+    expect(cuerpos[0]).not.toHaveProperty("comision_vendedor");
+  });
+
+  it("RF-056 ir a otro vendedor y volver al original conserva la comisión pactada del viaje", async () => {
+    const cuerpos: Record<string, unknown>[] = [];
+    servidor.use(registrarEconomia(cuerpos));
+    renderFicha("vendido", "admin");
+    const economia = await seccionEconomia();
+
+    const vendedor = await within(economia).findByLabelText(/vendedor/i, { selector: "select" });
+    await within(economia).findByRole("option", { name: /tomás roldán/i });
+    await userEvent.selectOptions(vendedor, usuariosPorRol.freelance.id);
+    await userEvent.selectOptions(vendedor, viaje("vendido").vendedor_id ?? "");
+
+    expect(within(economia).getByLabelText(/tipo de comisión/i)).toHaveValue("importe");
+    expect(numero(within(economia).getByLabelText(/comisión del vendedor/i))).toBe(25000);
+    await userEvent.click(within(economia).getByRole("button", { name: /guardar economía/i }));
+
+    await waitFor(() => {
+      expect(cuerpos).toHaveLength(1);
+    });
+    expect(cuerpos[0]?.["comision_tipo"]).toBe("importe");
+    expect(Number(cuerpos[0]?.["comision_vendedor"])).toBe(25000);
+  });
+
+  it("RF-056 sin acceso a los usuarios, el vendedor nuevo no muestra la comisión del anterior y la API aplica la suya", async () => {
+    const cuerpos: Record<string, unknown>[] = [];
+    servidor.use(
+      http.get("*/api/usuarios", () => HttpResponse.json({ title: "Prohibido" }, { status: 403 })),
+      registrarEconomia(cuerpos),
+    );
+    renderFicha("vendido", "empleado");
+    const economia = await seccionEconomia();
+
+    const vendedor = await within(economia).findByLabelText(/vendedor/i, { selector: "select" });
+    await within(economia).findByRole("option", { name: /marta giménez/i });
+    await userEvent.selectOptions(vendedor, usuariosPorRol.dueno.id);
+
+    expect(
+      within(economia).getByText(/se aplicará la comisión por defecto de marta giménez/i),
+    ).toBeInTheDocument();
+    expect(within(economia).queryByLabelText(/comisión del vendedor/i)).toBeNull();
+    await userEvent.click(within(economia).getByRole("button", { name: /guardar economía/i }));
+
+    await waitFor(() => {
+      expect(cuerpos).toHaveLength(1);
+    });
+    expect(cuerpos[0]?.["vendedor_id"]).toBe(usuariosPorRol.dueno.id);
+    expect(cuerpos[0]).not.toHaveProperty("comision_tipo");
+    expect(cuerpos[0]).not.toHaveProperty("comision_vendedor");
+  });
+
+  it("RF-056 guardar sin vendedor manda vendedor_id null y no manda comisión (A2)", async () => {
+    const cuerpos: Record<string, unknown>[] = [];
+    servidor.use(registrarEconomia(cuerpos));
+    renderFicha("vendido");
+    const economia = await seccionEconomia();
+
+    const vendedor = await within(economia).findByLabelText(/vendedor/i, { selector: "select" });
+    await userEvent.selectOptions(vendedor, "");
+    await userEvent.click(within(economia).getByRole("button", { name: /guardar economía/i }));
+
+    await waitFor(() => {
+      expect(cuerpos).toHaveLength(1);
+    });
+    expect(cuerpos[0]?.["vendedor_id"]).toBeNull();
     expect(cuerpos[0]).not.toHaveProperty("comision_tipo");
     expect(cuerpos[0]).not.toHaveProperty("comision_vendedor");
   });
