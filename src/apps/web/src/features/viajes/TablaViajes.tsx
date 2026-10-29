@@ -56,7 +56,7 @@ export function TablaViajes({
               {formatearImporte(v.saldo_pendiente, v.moneda)}
             </td>
             <td className="px-3 py-3 tabular-nums">
-              {Math.round(Number(v.porcentaje_pagado) * 100)} %
+              {Math.floor(Number(v.porcentaje_pagado) * 100)} %
             </td>
           </tr>
         ))}

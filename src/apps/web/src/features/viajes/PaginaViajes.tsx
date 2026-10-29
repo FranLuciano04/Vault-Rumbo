@@ -56,9 +56,12 @@ export function PaginaViajes({
     <div className="flex flex-col gap-4">
       <header>
         <p className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
-          Operaciones
+          Operación
         </p>
         <h1 className="text-3xl font-semibold">Viajes</h1>
+        <p className="text-sm text-muted-foreground">
+          Los viajes se crean al confirmar la reserva desde una oportunidad.
+        </p>
       </header>
 
       {esFreelance && (
@@ -67,14 +70,15 @@ export function PaginaViajes({
           className="flex items-center gap-2 rounded-xl bg-amber-50 px-4 py-3 text-sm text-amber-900"
         >
           <Eye aria-hidden="true" className="size-4 shrink-0" />
-          Estás viendo solo tus viajes: los que tenés asignados.
+          Estás viendo solo tus viajes. Podés gestionarlos y cobrarlos; ves tu comisión, no la
+          rentabilidad de la agencia.
         </p>
       )}
 
       <div className="flex flex-wrap items-end gap-3">
-        {!esFreelance && (
-          <div role="tablist" aria-label="Vista" className="flex rounded-lg border bg-card p-1">
-            {PESTANAS.map(({ clave, etiqueta }) => (
+        <div role="tablist" aria-label="Vista" className="flex rounded-lg border bg-card p-1">
+          {PESTANAS.filter(({ clave }) => !esFreelance || clave === "mios").map(
+            ({ clave, etiqueta }) => (
               <Button
                 key={clave}
                 role="tab"
@@ -87,9 +91,9 @@ export function PaginaViajes({
               >
                 {etiqueta}
               </Button>
-            ))}
-          </div>
-        )}
+            ),
+          )}
+        </div>
         {ESTADOS.map((estado) => (
           <Button
             key={estado}

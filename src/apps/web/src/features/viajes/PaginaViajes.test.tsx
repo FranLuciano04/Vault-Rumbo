@@ -86,7 +86,7 @@ describe("RF-037 listado de viajes", () => {
     renderListado("empleado");
 
     const v = viaje("confirmado");
-    const texto = (await fila("Brasil")).textContent ?? "";
+    const texto = (await fila("Brasil")).textContent;
     expect(texto).toContain(formatearFecha(v.fecha_salida));
     expect(texto).toContain(formatearFecha(v.fecha_regreso));
   });
@@ -125,7 +125,9 @@ describe("RF-037 listado de viajes", () => {
 
     await userEvent.click(screen.getByRole("button", { name: "Reservado" }));
 
-    await waitFor(() => expect(pedidos.at(-1)?.get("estado")).toBe("reservado"));
+    await waitFor(() => {
+      expect(pedidos.at(-1)?.get("estado")).toBe("reservado");
+    });
     await waitFor(() => expect(screen.queryByText("Brasil")).not.toBeInTheDocument());
     expect(screen.getByText("Europa")).toBeInTheDocument();
   });
@@ -164,7 +166,9 @@ describe("RF-037 listado de viajes", () => {
 
     await userEvent.click(screen.getByRole("tab", { name: "Toda la agencia" }));
 
-    await waitFor(() => expect(pedidos.at(-1)?.has("mios")).toBe(false));
+    await waitFor(() => {
+      expect(pedidos.at(-1)?.has("mios")).toBe(false);
+    });
     expect(screen.getByRole("tab", { name: "Toda la agencia" })).toHaveAttribute(
       "aria-selected",
       "true",
@@ -177,9 +181,17 @@ describe("RF-037 listado de viajes", () => {
     renderListado("dueno");
     await fila("Europa");
 
+    expect(pedidos[0]?.has("mios")).toBe(false);
+    expect(screen.getByRole("tab", { name: "Toda la agencia" })).toHaveAttribute(
+      "aria-selected",
+      "true",
+    );
+
     await userEvent.click(screen.getByRole("tab", { name: "Mis viajes" }));
 
-    await waitFor(() => expect(pedidos.at(-1)?.get("mios")).toBe("true"));
+    await waitFor(() => {
+      expect(pedidos.at(-1)?.get("mios")).toBe("true");
+    });
   });
 
   it("RF-037 el freelance ve el aviso de que solo ve lo suyo y no tiene «Toda la agencia»", async () => {
