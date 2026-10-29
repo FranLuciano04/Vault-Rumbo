@@ -1,12 +1,16 @@
 """Esquemas del módulo viajes: reserva, ficha, estados, cancelación e itinerario (CU-07 a CU-10,
 CU-27, DEC-0007, DEC-0013)."""
 
+import enum
 import uuid
 from datetime import date
+from decimal import Decimal
+from typing import Literal
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 from pydantic.json_schema import JsonDict
 
+from rumbo.datos import modelos
 from rumbo.datos.modelos import CategoriaViaje, EstadoViaje, Moneda
 from rumbo.presentacion.esquemas.comunes import (
     Auditoria,
@@ -72,6 +76,45 @@ class Viaje(Auditoria):
     )
 
     model_config = ConfigDict(from_attributes=True, json_schema_extra=componer_con_auditoria)
+
+    @field_validator("comision_tipo", mode="before")
+    @classmethod
+    def _valor_del_enum(cls, valor: object) -> object:
+        """El modelo guarda el enum de la base; el contrato publica su valor en texto."""
+        return valor.value if isinstance(valor, enum.Enum) else valor
+
+
+AdvertenciaEconomia = Literal["ganancia_negativa", "margen_negativo", "plan_desbalanceado"]
+
+
+class EconomiaRegistrada(Viaje):
+    """El viaje con su economía guardada y lo que conviene revisar, que no impidió guardar
+    (CU-10 A3 y A4)."""
+
+    advertencias: list[AdvertenciaEconomia] = Field(
+        json_schema_extra=_SOLO_LECTURA,
+        description="Vacía si no hay nada que advertir. `plan_desbalanceado`: los pagos ya no "
+        "suman el precio de venta y hay que rebalancearlos (CU-11).",
+    )
+
+    @classmethod
+    def desde_modelo(
+        cls,
+        viaje: modelos.Viaje,
+        saldo_pendiente: Decimal,
+        porcentaje_pagado: Decimal,
+        advertencias: list[str],
+    ) -> "EconomiaRegistrada":
+        """El viaje con su saldo, su porcentaje pagado y las advertencias, que no son columnas."""
+        calculados = {"saldo_pendiente", "porcentaje_pagado", "advertencias"}
+        return cls.model_validate(
+            {n: getattr(viaje, n) for n in cls.model_fields if n not in calculados}
+            | {
+                "saldo_pendiente": saldo_pendiente,
+                "porcentaje_pagado": porcentaje_pagado,
+                "advertencias": advertencias,
+            }
+        )
 
 
 class ConfirmarReserva(Entrada):

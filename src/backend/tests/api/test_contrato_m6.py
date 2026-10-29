@@ -433,7 +433,7 @@ async def test_cu10_economia_exige_precio_y_costo_como_texto_decimal(
     )
     for campo in ("precio_venta", "costo", "comision_vendedor"):
         assert _es_texto_decimal(contrato, esquema["properties"][campo])
-    assert _ref(_respuesta(contrato, "put", ruta, "200")) == "Viaje"
+    assert _ref(_respuesta(contrato, "put", ruta, "200")) == "EconomiaRegistrada"
 
 
 async def test_cu10_registrar_economia_responde_con_advertencias(

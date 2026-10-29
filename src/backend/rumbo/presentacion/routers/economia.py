@@ -1,12 +1,16 @@
-"""Rutas del módulo economía (CU-10, CU-11, CU-12). Stubs: responden 501 hasta su backend."""
+"""Rutas del módulo economía (CU-10, CU-11, CU-12). Las que todavía son stubs responden 501."""
 
 import uuid
 from typing import Annotated
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from pydantic import Field
 
+from rumbo.core.db import SesionDep
+from rumbo.datos import modelos
+from rumbo.negocio.servicios import economia
 from rumbo.presentacion.contrato import no_implementado, operacion_de_registro
+from rumbo.presentacion.dependencias import usuario_actual
 from rumbo.presentacion.esquemas.economia import (
     CobroRegistrar,
     EconomiaViaje,
@@ -15,9 +19,11 @@ from rumbo.presentacion.esquemas.economia import (
     PagoReprogramar,
     PlanDePagos,
 )
-from rumbo.presentacion.esquemas.viajes import Viaje
+from rumbo.presentacion.esquemas.viajes import EconomiaRegistrada
 
 router = APIRouter(tags=["economia"])
+
+ActorDep = Annotated[modelos.Usuario, Depends(usuario_actual)]
 
 
 @router.put(
@@ -26,8 +32,13 @@ router = APIRouter(tags=["economia"])
     summary="Registrar la economía del viaje",
     **operacion_de_registro(403, 404, 409, 422, casos_de_uso="CU-10"),
 )
-async def registrar_economia(viaje_id: uuid.UUID, datos: EconomiaViaje) -> Viaje:
-    raise no_implementado()
+async def registrar_economia(
+    viaje_id: uuid.UUID, datos: EconomiaViaje, actor: ActorDep, sesion: SesionDep
+) -> EconomiaRegistrada:
+    r = await economia.registrar_economia(sesion, actor, viaje_id, datos.model_dump())
+    return EconomiaRegistrada.desde_modelo(
+        r.viaje, r.saldo_pendiente, r.porcentaje_pagado, r.advertencias
+    )
 
 
 @router.get(

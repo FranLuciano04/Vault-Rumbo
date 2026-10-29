@@ -2,12 +2,12 @@ import { useQuery } from "@tanstack/react-query";
 import type { AxiosInstance } from "axios";
 import type {
   CobroRegistrar,
+  EconomiaRegistrada,
   EconomiaViaje,
   Pago,
   PagoDividir,
   PagoReprogramar,
   PlanDePagos,
-  Viaje,
 } from "../modelos";
 import { claveAlertas } from "./alertas";
 import { useAccion } from "./useAccion";
@@ -30,7 +30,7 @@ export function useRegistrarEconomia(cliente: AxiosInstance) {
   return useAccion(
     claveViajes,
     async ({ viajeId, datos }: { viajeId: string; datos: EconomiaViaje }) =>
-      (await cliente.put<Viaje>(`/api/viajes/${viajeId}/economia`, datos)).data,
+      (await cliente.put<EconomiaRegistrada>(`/api/viajes/${viajeId}/economia`, datos)).data,
   );
 }
 

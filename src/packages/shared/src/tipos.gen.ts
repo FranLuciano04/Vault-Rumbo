@@ -2242,6 +2242,113 @@ export interface components {
             /** Notas */
             notas?: string | null;
         };
+        EconomiaRegistrada: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            readonly id: string;
+            /**
+             * Cliente Id
+             * Format: uuid
+             */
+            readonly cliente_id: string;
+            /**
+             * Oportunidad Id
+             * @description Oportunidad de origen.
+             */
+            readonly oportunidad_id: string | null;
+            /**
+             * Destino Id
+             * Format: uuid
+             */
+            destino_id: string;
+            /** Operador Id */
+            operador_id: string | null;
+            /**
+             * Responsable Id
+             * Format: uuid
+             */
+            responsable_id: string;
+            /** Vendedor Id */
+            vendedor_id: string | null;
+            /**
+             * Fecha Salida
+             * Format: date
+             */
+            fecha_salida: string;
+            /**
+             * Fecha Regreso
+             * Format: date
+             */
+            fecha_regreso: string;
+            categoria: components["schemas"]["CategoriaViaje"];
+            readonly estado: components["schemas"]["EstadoViaje"];
+            /** @description Estado en que estaba antes de cancelarse: al que vuelve revertir-cancelacion. Vacío si no está cancelado. */
+            readonly estado_previo: components["schemas"]["EstadoViaje"] | null;
+            /** Motivo Cancelacion */
+            readonly motivo_cancelacion: string | null;
+            /** Fecha Cancelacion */
+            readonly fecha_cancelacion: string | null;
+            /** @description Se fija al confirmar la reserva (DEC-0013). */
+            readonly moneda: components["schemas"]["Moneda"];
+            /**
+             * Precio Venta
+             * Format: decimal
+             * @example 1000000.00
+             */
+            precio_venta: string;
+            /**
+             * Costo
+             * Format: decimal
+             * @description Costo del operador.
+             * @example 1000000.00
+             */
+            costo: string;
+            /**
+             * Ganancia
+             * Format: decimal
+             * @description precio_venta − costo.
+             * @example 1000000.00
+             */
+            readonly ganancia: string;
+            /**
+             * Margen
+             * @description ganancia / precio_venta, como fracción (0.25 = 25 %).
+             */
+            readonly margen: string | null;
+            /**
+             * Comision Tipo
+             * @enum {string}
+             */
+            comision_tipo: "importe" | "porcentaje";
+            /**
+             * Comision Vendedor
+             * Format: decimal
+             * @description Importe, o porcentaje sobre la ganancia, según comision_tipo.
+             * @example 1000000.00
+             */
+            comision_vendedor: string;
+            /**
+             * Saldo Pendiente
+             * Format: decimal
+             * @description Suma de los pagos no cobrados, en la moneda del viaje. Lo calcula la API (CU-12).
+             * @example 1000000.00
+             */
+            readonly saldo_pendiente: string;
+            /**
+             * Porcentaje Pagado
+             * Format: decimal
+             * @description Porción del precio de venta ya cobrada. Lo calcula la API (CU-12).
+             * @example 0.3333
+             */
+            readonly porcentaje_pagado: string;
+            /**
+             * Advertencias
+             * @description Vacía si no hay nada que advertir. `plan_desbalanceado`: los pagos ya no suman el precio de venta y hay que rebalancearlos (CU-11).
+             */
+            readonly advertencias: ("ganancia_negativa" | "margen_negativo" | "plan_desbalanceado")[];
+        } & components["schemas"]["Auditoria"];
         /**
          * EconomiaViaje
          * @description Control económico del viaje (CU-10). Los importes van en la moneda del viaje.
@@ -7395,7 +7502,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["Viaje"];
+                    "application/json": components["schemas"]["EconomiaRegistrada"];
                 };
             };
             /** @description Falta el token, no es válido o el usuario no tiene acceso. */

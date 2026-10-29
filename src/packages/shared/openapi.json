@@ -6491,7 +6491,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Viaje"
+                  "$ref": "#/components/schemas/EconomiaRegistrada"
                 }
               }
             }
@@ -9839,6 +9839,266 @@
         },
         "type": "object",
         "title": "DestinoEditar"
+      },
+      "EconomiaRegistrada": {
+        "allOf": [
+          {
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid",
+                "title": "Id",
+                "readOnly": true
+              },
+              "cliente_id": {
+                "type": "string",
+                "format": "uuid",
+                "title": "Cliente Id",
+                "readOnly": true
+              },
+              "oportunidad_id": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Oportunidad Id",
+                "description": "Oportunidad de origen.",
+                "readOnly": true
+              },
+              "destino_id": {
+                "type": "string",
+                "format": "uuid",
+                "title": "Destino Id"
+              },
+              "operador_id": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Operador Id"
+              },
+              "responsable_id": {
+                "type": "string",
+                "format": "uuid",
+                "title": "Responsable Id"
+              },
+              "vendedor_id": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Vendedor Id"
+              },
+              "fecha_salida": {
+                "type": "string",
+                "format": "date",
+                "title": "Fecha Salida"
+              },
+              "fecha_regreso": {
+                "type": "string",
+                "format": "date",
+                "title": "Fecha Regreso"
+              },
+              "categoria": {
+                "$ref": "#/components/schemas/CategoriaViaje"
+              },
+              "estado": {
+                "$ref": "#/components/schemas/EstadoViaje",
+                "readOnly": true
+              },
+              "estado_previo": {
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/EstadoViaje"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "description": "Estado en que estaba antes de cancelarse: al que vuelve revertir-cancelacion. Vacío si no está cancelado.",
+                "readOnly": true
+              },
+              "motivo_cancelacion": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Motivo Cancelacion",
+                "readOnly": true
+              },
+              "fecha_cancelacion": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "format": "date"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Fecha Cancelacion",
+                "readOnly": true
+              },
+              "moneda": {
+                "$ref": "#/components/schemas/Moneda",
+                "description": "Se fija al confirmar la reserva (DEC-0013).",
+                "readOnly": true
+              },
+              "precio_venta": {
+                "type": "string",
+                "pattern": "^\\d+(\\.\\d{1,4})?$",
+                "format": "decimal",
+                "title": "Precio Venta",
+                "examples": [
+                  "1000000.00"
+                ]
+              },
+              "costo": {
+                "type": "string",
+                "pattern": "^\\d+(\\.\\d{1,4})?$",
+                "format": "decimal",
+                "title": "Costo",
+                "description": "Costo del operador.",
+                "examples": [
+                  "1000000.00"
+                ]
+              },
+              "ganancia": {
+                "type": "string",
+                "pattern": "^-?\\d+(\\.\\d{1,4})?$",
+                "format": "decimal",
+                "title": "Ganancia",
+                "description": "precio_venta − costo.",
+                "readOnly": true,
+                "examples": [
+                  "1000000.00"
+                ]
+              },
+              "margen": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "pattern": "^-?\\d+(\\.\\d{1,4})?$",
+                    "format": "decimal",
+                    "examples": [
+                      "1000000.00"
+                    ]
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Margen",
+                "description": "ganancia / precio_venta, como fracción (0.25 = 25 %).",
+                "readOnly": true
+              },
+              "comision_tipo": {
+                "type": "string",
+                "enum": [
+                  "importe",
+                  "porcentaje"
+                ],
+                "title": "Comision Tipo"
+              },
+              "comision_vendedor": {
+                "type": "string",
+                "pattern": "^\\d+(\\.\\d{1,4})?$",
+                "format": "decimal",
+                "title": "Comision Vendedor",
+                "description": "Importe, o porcentaje sobre la ganancia, según comision_tipo.",
+                "examples": [
+                  "1000000.00"
+                ]
+              },
+              "saldo_pendiente": {
+                "type": "string",
+                "pattern": "^\\d+(\\.\\d{1,4})?$",
+                "format": "decimal",
+                "title": "Saldo Pendiente",
+                "description": "Suma de los pagos no cobrados, en la moneda del viaje. Lo calcula la API (CU-12).",
+                "readOnly": true,
+                "examples": [
+                  "1000000.00"
+                ]
+              },
+              "porcentaje_pagado": {
+                "type": "string",
+                "pattern": "^(0(\\.\\d{1,4})?|1(\\.0{1,4})?)$",
+                "format": "decimal",
+                "title": "Porcentaje Pagado",
+                "description": "Porción del precio de venta ya cobrada. Lo calcula la API (CU-12).",
+                "readOnly": true,
+                "examples": [
+                  "0.3333"
+                ]
+              },
+              "advertencias": {
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "ganancia_negativa",
+                    "margen_negativo",
+                    "plan_desbalanceado"
+                  ]
+                },
+                "type": "array",
+                "title": "Advertencias",
+                "description": "Vacía si no hay nada que advertir. `plan_desbalanceado`: los pagos ya no suman el precio de venta y hay que rebalancearlos (CU-11).",
+                "readOnly": true
+              }
+            },
+            "type": "object",
+            "required": [
+              "id",
+              "cliente_id",
+              "oportunidad_id",
+              "destino_id",
+              "operador_id",
+              "responsable_id",
+              "vendedor_id",
+              "fecha_salida",
+              "fecha_regreso",
+              "categoria",
+              "estado",
+              "estado_previo",
+              "motivo_cancelacion",
+              "fecha_cancelacion",
+              "moneda",
+              "precio_venta",
+              "costo",
+              "ganancia",
+              "margen",
+              "comision_tipo",
+              "comision_vendedor",
+              "saldo_pendiente",
+              "porcentaje_pagado",
+              "advertencias"
+            ],
+            "description": "El viaje con su economía guardada y lo que conviene revisar, que no impidió guardar\n(CU-10 A3 y A4)."
+          },
+          {
+            "$ref": "#/components/schemas/Auditoria"
+          }
+        ]
       },
       "EconomiaViaje": {
         "properties": {
