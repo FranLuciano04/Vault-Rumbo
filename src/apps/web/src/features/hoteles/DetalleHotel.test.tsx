@@ -448,4 +448,25 @@ describe("RF-111 / RF-112 la moderación no deja una página fuera de rango (H-0
     expect(publicadas.getByText(/Página 2 de 2/)).toBeInTheDocument();
     expect(publicadas.queryByText("Comentario publicada 1")).not.toBeInTheDocument();
   });
+
+  it("ocultar y restaurar la única de la página 2 y volver a «Siguiente» no rebota por una caché vieja", async () => {
+    const usuario = userEvent.setup();
+    renderConManejadores("admin", idHotelMock.llaoLlao, ...moderacionConEstado(21, 0));
+    await screen.findByText("Comentario publicada 1");
+    await usuario.click(screen.getByRole("button", { name: /siguiente/i }));
+    const unica = await screen.findByText("Comentario publicada 21");
+    await usuario.click(
+      (unica.closest("li") as HTMLElement).querySelector("button") as HTMLButtonElement,
+    );
+    await usuario.type(await screen.findByRole("textbox", { name: /motivo/i }), "Spam");
+    await usuario.click(screen.getByRole("button", { name: /confirmar/i }));
+    await waitFor(() => {
+      expect(textosDe("publicada", "Reseñas")).toHaveLength(20);
+    });
+    await usuario.click(await screen.findByRole("button", { name: /restaurar/i }));
+    await screen.findByText(/Página 1 de 2/);
+    await usuario.click(screen.getByRole("button", { name: /siguiente/i }));
+    expect(await screen.findByText("Comentario publicada 21")).toBeInTheDocument();
+    expect(screen.getByText(/Página 2 de 2/)).toBeInTheDocument();
+  });
 });

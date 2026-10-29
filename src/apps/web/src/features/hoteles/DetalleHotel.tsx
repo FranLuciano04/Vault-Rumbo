@@ -32,7 +32,7 @@ export function DetalleHotel({
   const hotel = useHotel(cliente, hotelId);
   const [pagina, setPagina] = useState(1);
   const resenas = useResenas(cliente, hotelId, { pagina });
-  useAjustarPagina(pagina, setPagina, resenas.data);
+  useAjustarPagina(pagina, setPagina, resenas);
   const { data: destinos } = useDestinos(cliente, { por_pagina: 100 });
   const cerrarAlta = () => {
     setRegistrando(false);

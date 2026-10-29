@@ -26,9 +26,11 @@ describe("RF-112 DELETE /resenas/{id} del mock (CU-29 A2)", () => {
     conRol("admin");
     const respuesta = await eliminar(deEstado("publicada"));
     expect(respuesta.status).toBe(409);
-    const cuerpo = (await respuesta.json()) as { status: number; detail: string };
+    const cuerpo = (await respuesta.json()) as { status: number; title: string; detail: string };
     expect(cuerpo.status).toBe(409);
     expect(cuerpo.detail).toBe("Solo se elimina una reseña oculta: ocultala primero.");
+    expect(cuerpo).toMatchObject({ title: "Conflicto" });
+    expect(respuesta.headers.get("content-type")).toContain("application/problem+json");
   });
 
   it("RF-112 una reseña oculta responde 204", async () => {
