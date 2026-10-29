@@ -73,12 +73,12 @@ La revisión fue estática, con una comprobación puntual de la configuración e
 
 | Hallazgo | Resultado | Verificación | Rama | PR |
 |---|---|---|---|---|
-| H-01 | ✅ confirmado (bloqueante) | `FormularioCotizacion.tsx` `elegirHotel` mira `moneda` solo al agregar el hotel; no hay ningún efecto sobre el cambio del radio, y `enviar` manda `datos.moneda` con los precios tal cual. | `fix/M5-moneda-cotizacion` | — |
-| H-02 | ✅ confirmado (bloqueante) | No hay `dictConfig`, `basicConfig` ni `--log-config` en `rumbo/`, el `Dockerfile` ni `pyproject.toml`; el `CMD` arranca `uvicorn rumbo.main:app` sin configurar el logger `rumbo`, que hereda `WARNING` del raíz, así que el `logger.info` se descarta. Además se loguea antes del `delete`/`flush`, no después de confirmar. | `fix/M5-log-eliminacion-resena` | — |
-| H-03 | ✅ confirmado (importante) | `DetalleHotel.tsx:32` y `ResenasOcultas.tsx:11` guardan `pagina` en `useState` y nunca la ajustan; `PaginadorResenas` devuelve `null` cuando `ultima === 1`, aunque `pagina` sea 2. | `fix/M5-moderacion-web` | — |
+| H-01 | ✅ confirmado (bloqueante) | `FormularioCotizacion.tsx` `elegirHotel` mira `moneda` solo al agregar el hotel; no hay ningún efecto sobre el cambio del radio, y `enviar` manda `datos.moneda` con los precios tal cual. | `fix/M5-moneda-cotizacion` | [#140](https://github.com/FranLuciano04/Vault-Rumbo/pull/140) |
+| H-02 | ✅ confirmado (bloqueante) | No hay `dictConfig`, `basicConfig` ni `--log-config` en `rumbo/`, el `Dockerfile` ni `pyproject.toml`; el `CMD` arranca `uvicorn rumbo.main:app` sin configurar el logger `rumbo`, que hereda `WARNING` del raíz, así que el `logger.info` se descarta. Además se loguea antes del `delete`/`flush`, no después de confirmar. | `fix/M5-log-eliminacion-resena` | [#141](https://github.com/FranLuciano04/Vault-Rumbo/pull/141) |
+| H-03 | ✅ confirmado (importante) | `DetalleHotel.tsx:32` y `ResenasOcultas.tsx:11` guardan `pagina` en `useState` y nunca la ajustan; `PaginadorResenas` devuelve `null` cuando `ultima === 1`, aunque `pagina` sea 2. | `fix/M5-moderacion-web` | [#142](https://github.com/FranLuciano04/Vault-Rumbo/pull/142) |
 | H-04 | ✅ confirmado (importante) | `routers/viajes.py` `listar_viajes` sigue en `raise no_implementado()`; `SelectorViaje` depende de `useViajes`. El listado es [[T-091 Listar los viajes con su situación económica|T-091]] (M6, libre). Tampoco se pueden crear viajes desde la API (`confirmar_reserva` también es stub), así que hoy solo existen los de la semilla. | pasa a T-091 | — |
-| H-05 | ✅ confirmado (importante) | `editar_hotel` y `dar_de_baja_hotel` usan `_hoteles.obtener` sin `with_for_update`; `_guardar_sin_duplicado` toma `destino_id` del objeto leído, que puede estar desactualizado cuando el `PATCH` no trae el destino. El rescate busca en el destino viejo y relanza el `IntegrityError` → 500. | `fix/M5-edicion-hotel-concurrente` | — |
-| H-06 | ✅ confirmado (importante) | `mocks/hoteles.ts:391` responde 204 a cualquier reseña existente; el servicio real (`eliminar_resena`) da 409 si no está `oculta`. | `fix/M5-moderacion-web` | — |
+| H-05 | ✅ confirmado (importante) | `editar_hotel` y `dar_de_baja_hotel` usan `_hoteles.obtener` sin `with_for_update`; `_guardar_sin_duplicado` toma `destino_id` del objeto leído, que puede estar desactualizado cuando el `PATCH` no trae el destino. El rescate busca en el destino viejo y relanza el `IntegrityError` → 500. | `fix/M5-edicion-hotel-concurrente` | [#143](https://github.com/FranLuciano04/Vault-Rumbo/pull/143) |
+| H-06 | ✅ confirmado (importante) | `mocks/hoteles.ts:391` responde 204 a cualquier reseña existente; el servicio real (`eliminar_resena`) da 409 si no está `oculta`. | `fix/M5-moderacion-web` | [#142](https://github.com/FranLuciano04/Vault-Rumbo/pull/142) |
 
 ### Alcance de cada arreglo
 
@@ -89,7 +89,7 @@ La revisión fue estática, con una comprobación puntual de la configuración e
 - Volver de USD a ARS no rellena el precio solo (no se convierte ni se restaura).
 
 **H-02 · `fix/M5-log-eliminacion-resena`** (backend, riesgo normal)
-- Con la configuración de logging que usa el arranque real (la misma que aplica el `CMD` del `Dockerfile`), el logger `rumbo` emite INFO y la línea de la eliminación sale por la salida estándar con `resena_id`, `hotel_id`, `cliente_id`, `puntaje`, `motivo_baja` y `actor_id`.
+- Con la configuración de logging que usa el arranque real (la misma que aplica el `CMD` del `Dockerfile`), el logger `rumbo` emite INFO y la línea de la eliminación sale por stderr (corregido en el PR: por stdout rompía el aviso del emulador de M1, que se lee en stderr) con `resena_id`, `hotel_id`, `cliente_id`, `puntaje`, `motivo_baja` y `actor_id`.
 - El test no fuerza el nivel con `caplog.at_level`: verifica la salida con la configuración del arranque.
 - El registro se emite después de que la eliminación se volcó a la base; si el `flush` falla, no hay línea de «eliminada».
 - Eliminar una publicada (409) no deja la línea.
