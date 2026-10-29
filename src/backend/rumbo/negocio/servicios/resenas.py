@@ -137,6 +137,9 @@ async def eliminar_resena(sesion: AsyncSession, actor: Usuario, resena_id: uuid.
     )
     if resena.estado is not EstadoResena.oculta:
         raise Conflicto("Solo se elimina una reseña oculta: ocultala primero.")
+    await sesion.delete(resena)
+    await sesion.flush()
+    # Después del flush: solo se registra una eliminación que la base aceptó.
     logger.info(
         "Reseña eliminada físicamente",
         extra={
@@ -148,8 +151,6 @@ async def eliminar_resena(sesion: AsyncSession, actor: Usuario, resena_id: uuid.
             "actor_id": str(actor.id),
         },
     )
-    await sesion.delete(resena)
-    await sesion.flush()
 
 
 async def _exigir_cliente_y_viaje(
