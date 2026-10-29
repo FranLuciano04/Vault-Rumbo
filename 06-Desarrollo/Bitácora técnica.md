@@ -129,3 +129,26 @@ tags:: #tipo/referencia
   - Hay avisos de Prettier previos en `AccionesOportunidad.tsx` y `RespuestaCotizacion.test.tsx`.
 - **Decisiones tocadas:** [[DEC-0002 Modelar la consulta como Oportunidad]], [[DEC-0005 Autenticación y modelo de roles]], [[DEC-0013 Datos que faltaban en el ER]], [[DEC-0019 Las fallas se arreglan al encontrarlas]], [[DEC-0020 Cliente traído por dos asesores]], [[DEC-0023 Datos mínimos de la consulta]].
 - Aprobación del equipo: 28/10/26. Tag `mod-4` sobre `c0ed646`.
+
+### 29/10/26 — Nahuel (con el equipo) — M5 Hoteles y reseñas cerrado (`mod-5`)
+- **Qué quedó:**
+  - Catálogo de `Hotel`: alta con solo nombre y destino, edición, baja lógica y duplicado por destino y nombre normalizado (migración `0006`, índice único parcial). Editar y dar de baja bloquean la fila (`FOR NO KEY UPDATE`).
+  - Búsqueda ordenada por puntaje, que solo pondera las reseñas publicadas.
+  - `Reseña` de un `Cliente`, con `Viaje` opcional ([[DEC-0003 Relación Viaje–Hotel y Reseña|DEC-0003]]). Moderación: ocultar con motivo, restaurar y eliminación física solo de una oculta (CU-29 A2), que queda en el log.
+  - Primera configuración de logging del backend: `rumbo.core.logs.configurar_logs()`, que deja el logger `rumbo` en INFO por stderr con los campos `extra`.
+  - Contrato en `@rumbo/shared`, pantallas web (catálogo, alta y edición, detalle con reseñas, registrar reseña, moderación), recomendación de hoteles al cotizar y e2e del catálogo.
+- **Tickets:** 11, de T-075 a T-085. Detalle y merges en [[M5 — pedido de review]].
+- **Review de Codex** ([[M5 — review Codex]]): 6 hallazgos, todos confirmados en el triage.
+  - H-01, bloqueante → PR #140, de riesgo alto: un precio de referencia en ARS se emitía como USD si se cambiaba la moneda después de agregar el hotel. Se mergeó sin la aprobación de otro integrante registrada en GitHub; el equipo aceptó el cierre así.
+  - H-02, bloqueante → PR #141: la línea de la eliminación física se descartaba porque no había configuración de logging.
+  - H-03 y H-06, importantes → PR #142: la lista de reseñas quedaba en una página fuera de rango después de moderar, y el mock dejaba borrar una publicada.
+  - H-05, importante → PR #143: una edición en carrera con un cambio de destino daba 500 en lugar de 409.
+  - H-04, importante, pasó a [[T-091 Listar los viajes con su situación económica|T-091]]: `GET /viajes` es un stub, así que `SelectorViaje` no carga viajes contra la API real. T-091 suma el filtro `cliente_id` y la verificación de CU-17 A1.
+- **Pendientes que no bloquean** (anotados en los PR):
+  - La protección de moneda vive en el `onChange` del radio y no en el esquema (#140).
+  - La línea del log sale después del `flush`, no del commit (#141).
+  - Puede haber un parpadeo de un frame al ajustar la página, y `DetalleHotel` no vuelve a la página 1 al cambiar de hotel (#142).
+  - `test_oportunidades_concurrencia.py` espera bloqueos de todo el servidor, no solo de su base; hay varias copias de `obtener_para_modificar` que se podrían subir a `RepositorioBase` (#143).
+  - Sigue abierto el `#accion/decidir` de CU-29 sobre una tabla de auditoría.
+- **Decisiones tocadas:** [[DEC-0003 Relación Viaje–Hotel y Reseña]], [[DEC-0005 Autenticación y modelo de roles]], [[DEC-0019 Las fallas se arreglan al encontrarlas]], [[DEC-0022 Suite completa solo en el CI]].
+- Aprobación del equipo: 29/10/26 (Nahuel, en nombre del equipo). Tag `mod-5` sobre `fbedf55`.

@@ -33,6 +33,16 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
+## 29/10/26 — Nahuel (Claude Opus 5.5) — cierre de M5: review de Codex, arreglos y tag `mod-5`
+- **Hecho:**
+  - `/cerrar-modulo M5`: pedido de review (5fe3ca4) y triage de los 6 hallazgos de Codex, todos confirmados (0cea1ff, 1c9695f, 01db374).
+  - Arreglos en ramas `fix/M5-…`: H-01 (#140, riesgo alto), H-02 (#141), H-03/H-06 (#142) y H-05 (#143), mergeados con el CI en verde. H-04 pasó a T-091.
+  - Con la aprobación del equipo, tag `mod-5` sobre `fbedf55`, grafo publicado, [[Bitácora técnica]] y estado actualizados.
+- **Pendiente:**
+  - Los menores anotados en los PR #140 a #143.
+  - Borrar las ramas `fix/M5-…` (locales y en `origin`): el permiso de la sesión no dejó borrarlas.
+- **Para tener en cuenta:** el #140 se mergeó sin una aprobación de otro integrante registrada en GitHub. Desde el #141, los logs de `rumbo` salen por stderr. En Windows, pytest necesita `--basetemp` por un problema de permisos del tmp, y los tests del PDF fallan por las librerías de WeasyPrint.
+
 ## 28/10/26 — Nahuel (Claude Opus 5.5) — cierre de M4: review de Codex, arreglos y tag `mod-4`
 - **Hecho:**
   - `/cerrar-modulo M4`: pedido de review (1712af9) y triage de los 6 hallazgos de Codex, todos confirmados (4f48d21, c13cb8d).
