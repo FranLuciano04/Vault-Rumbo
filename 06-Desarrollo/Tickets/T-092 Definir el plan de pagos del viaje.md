@@ -3,7 +3,7 @@ id: T-092
 titulo: Definir el plan de pagos del viaje
 modulo: M6 — Viajes y economía
 capa: backend
-estado: libre
+estado: tomado
 depende_de: [T-090, T-088, T-051]
 tamaño: M
 riesgo: alto
@@ -12,9 +12,9 @@ modelo_impl: opus
 modelo_review: sonnet
 trazabilidad: [CU-11, RF-060, RF-061, RF-062, RF-063, RF-064, RF-059]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: Nahuel Viniegra
+tomado_el: 29/10/26 19:01
+rama: feature/T-092-definir-el-plan-de-pagos-del-viaje
 pr:
 ---
 # T-092 Definir el plan de pagos del viaje
