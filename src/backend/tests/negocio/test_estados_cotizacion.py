@@ -114,3 +114,11 @@ def test_aceptar_con_validez_igual_a_hoy_es_valida() -> None:
     cot.validez_hasta = _HOY
     est.aceptar(cot, op, hoy=_HOY)
     assert cot.estado is C.aceptada
+
+
+# H-02: reactivar deja la oportunidad en gestión; aceptar la vuelve cotizada
+def test_rf025_aceptar_con_oportunidad_en_gestion_la_deja_cotizada() -> None:
+    cot, op = _cot("enviada"), _op("en_gestion")
+    est.aceptar(cot, op, hoy=_HOY)
+    assert cot.estado is C.aceptada
+    assert op.estado is E.cotizada

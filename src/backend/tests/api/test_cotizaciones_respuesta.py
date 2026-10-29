@@ -6,7 +6,7 @@ solo se prueba lo que ese contrato permite.
 """
 
 from collections.abc import Awaitable, Callable
-from datetime import timedelta
+from datetime import UTC, datetime, timedelta
 from typing import Any
 from uuid import UUID, uuid4
 
@@ -213,6 +213,192 @@ async def test_aceptar_con_validez_igual_a_hoy_200(
     assert r.status_code == 200
     await sesion.refresh(cot)
     assert cot.estado is C.aceptada
+
+
+# ---------- aceptar: una sola aceptada y solo la vigente (H-01) ----------
+
+
+async def _versiones(
+    sesion: AsyncSession,
+    responsable_id: UUID,
+    *,
+    estados: list[C],
+    fechas: list[Any] | None = None,
+) -> tuple[Oportunidad, list[Cotizacion]]:
+    """Versiones de una misma oportunidad, de la más vieja a la más nueva por `created_at`
+    (explícito: dentro de la transacción del test `now()` es igual para todas). Con `fechas`
+    se fija la `fecha` de cada una."""
+    cliente = await crear(sesion, ClienteFactory)
+    op = await crear(
+        sesion,
+        OportunidadFactory,
+        cliente_id=cliente.id,
+        responsable_id=responsable_id,
+        estado=E.cotizada,
+    )
+    base = datetime(2026, 10, 1, 12, 0, tzinfo=UTC)
+    versiones = []
+    for i, est in enumerate(estados):
+        extra: dict[str, Any] = {}
+        if fechas is not None:
+            extra["fecha"] = fechas[i]
+        versiones.append(
+            await crear(
+                sesion,
+                CotizacionFactory,
+                oportunidad_id=op.id,
+                estado=est,
+                validez_hasta=hoy() + timedelta(days=30),
+                created_at=base + timedelta(minutes=i),
+                **extra,
+            )
+        )
+    return op, versiones
+
+
+async def test_rf025_aceptar_con_otra_version_ya_aceptada_409(
+    cliente_como: FabricaCliente, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("empleado")
+    _, (aceptada, nueva) = await _versiones(
+        sesion,
+        c.usuario.id,  # type: ignore[attr-defined]
+        estados=[C.aceptada, C.enviada],
+    )
+
+    r = await c.post(_url(nueva, "aceptar"))
+
+    assert r.status_code == 409
+    assert r.headers["content-type"].startswith(PROBLEM_JSON)
+    await sesion.refresh(aceptada)
+    await sesion.refresh(nueva)
+    assert aceptada.estado is C.aceptada
+    assert nueva.estado is C.enviada
+
+
+async def test_rf025_aceptar_version_que_no_es_la_vigente_409(
+    cliente_como: FabricaCliente, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("empleado")
+    _, (vieja, vigente) = await _versiones(
+        sesion,
+        c.usuario.id,  # type: ignore[attr-defined]
+        estados=[C.enviada, C.enviada],
+    )
+
+    r = await c.post(_url(vieja, "aceptar"))
+
+    assert r.status_code == 409
+    await sesion.refresh(vieja)
+    await sesion.refresh(vigente)
+    assert vieja.estado is C.enviada
+    assert vigente.estado is C.enviada
+
+
+async def test_rf025_la_vigente_es_la_de_mayor_fecha_aunque_se_creo_antes(
+    cliente_como: FabricaCliente, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("empleado")
+    hoy_ = hoy()
+    # la primera creada tiene la fecha más nueva: manda `fecha` antes que `created_at`
+    _, (creada_antes, creada_despues) = await _versiones(
+        sesion,
+        c.usuario.id,  # type: ignore[attr-defined]
+        estados=[C.enviada, C.enviada],
+        fechas=[hoy_, hoy_ - timedelta(days=5)],
+    )
+
+    r_no_vigente = await c.post(_url(creada_despues, "aceptar"))
+    r_vigente = await c.post(_url(creada_antes, "aceptar"))
+
+    assert r_no_vigente.status_code == 409
+    assert r_vigente.status_code == 200
+    await sesion.refresh(creada_antes)
+    await sesion.refresh(creada_despues)
+    assert creada_antes.estado is C.aceptada
+    assert creada_despues.estado is C.enviada
+
+
+async def test_rf025_con_misma_fecha_la_vigente_es_la_de_created_at_mayor(
+    cliente_como: FabricaCliente, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("empleado")
+    mismo_dia = hoy()
+    _, (vieja, nueva) = await _versiones(
+        sesion,
+        c.usuario.id,  # type: ignore[attr-defined]
+        estados=[C.enviada, C.enviada],
+        fechas=[mismo_dia, mismo_dia],
+    )
+
+    r_vieja = await c.post(_url(vieja, "aceptar"))
+    r_nueva = await c.post(_url(nueva, "aceptar"))
+
+    assert r_vieja.status_code == 409
+    assert r_nueva.status_code == 200
+
+
+async def test_rf025_aceptar_la_vigente_enviada_200(
+    cliente_como: FabricaCliente, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("empleado")
+    op, (vieja, vigente) = await _versiones(
+        sesion,
+        c.usuario.id,  # type: ignore[attr-defined]
+        estados=[C.rechazada, C.enviada],
+    )
+
+    r = await c.post(_url(vigente, "aceptar"))
+
+    assert r.status_code == 200
+    assert r.json()["estado"] == "aceptada"
+    await sesion.refresh(vigente)
+    await sesion.refresh(vieja)
+    await sesion.refresh(op)
+    assert vigente.estado is C.aceptada
+    assert vieja.estado is C.rechazada
+    assert op.estado is E.cotizada
+
+
+async def test_rf025_rechazar_version_vieja_sigue_permitido(
+    cliente_como: FabricaCliente, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("empleado")
+    _, (vieja, _vigente) = await _versiones(
+        sesion,
+        c.usuario.id,  # type: ignore[attr-defined]
+        estados=[C.enviada, C.enviada],
+    )
+
+    r = await c.post(_url(vieja, "rechazar"))
+
+    assert r.status_code == 200
+    await sesion.refresh(vieja)
+    assert vieja.estado is C.rechazada
+
+
+# ---------- aceptar tras perder y reactivar (H-02) ----------
+
+
+async def test_rf025_enviar_perder_reactivar_y_aceptar_deja_la_oportunidad_cotizada(
+    cliente_como: FabricaCliente, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("empleado")
+    op, cot = await _par(sesion, c.usuario.id)  # type: ignore[attr-defined]
+
+    assert (await c.post(_url(cot, "enviar"))).status_code == 200
+    perder = await c.post(f"/api/oportunidades/{op.id}/perder", json={"motivo_perdida": "precio"})
+    assert perder.status_code == 200
+    reactivar = await c.post(f"/api/oportunidades/{op.id}/reactivar")
+    assert reactivar.status_code == 200
+
+    r = await c.post(_url(cot, "aceptar"))
+
+    assert r.status_code == 200
+    await sesion.refresh(cot)
+    await sesion.refresh(op)
+    assert cot.estado is C.aceptada
+    assert op.estado is E.cotizada
 
 
 # ---------- rechazar (T4, RF-025) ----------
