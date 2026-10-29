@@ -37,6 +37,13 @@ PLAN_DESBALANCEADO = "plan_desbalanceado"
 # Un viaje cancelado o finalizado ya no admite cambios en su economía; en curso, sí.
 _CERRADOS = (EstadoViaje.cancelado, EstadoViaje.finalizado)
 
+# Cómo nombra la alerta `pago` a cada tipo de pago (CU-11).
+_NOMBRE_DEL_PAGO = {
+    TipoPago.sena: "La seña",
+    TipoPago.cuota: "Una cuota",
+    TipoPago.saldo: "El saldo",
+}
+
 _viajes = RepositorioViajes()
 _pagos = RepositorioPagos()
 _operadores = RepositorioOperadores()
@@ -117,17 +124,10 @@ async def definir_plan_de_pagos(
         raise Conflicto(f"No se define el plan de pagos de un viaje {viaje.estado.value}.")
     actuales = await _plan(sesion, actor, viaje)
     cobrados = [p for p in actuales if p.estado is EstadoPago.pagado]
-    total = sum((p.monto for p in cobrados), Decimal(0)) + sum(
-        (i["monto"] for i in items), Decimal(0)
-    )
-    if total != viaje.precio_venta:
-        raise DatosInvalidos(
-            "pagos",
-            f"El plan suma {total} y el precio de venta es {viaje.precio_venta} "
-            f"(diferencia: {total - viaje.precio_venta}).",
-        )
+    reemplazados = [p for p in actuales if p.estado is not EstadoPago.pagado]
+    _exigir_que_sume_el_precio(viaje, cobrados, items)
 
-    for reemplazado in (p for p in actuales if p.estado is not EstadoPago.pagado):
+    for reemplazado in reemplazados:
         estado_pago.anular(reemplazado)
         await alertas.resolver_de_origen(sesion, reemplazado, (TipoAlerta.pago,))
     responsable = (
@@ -154,9 +154,23 @@ async def _plan(sesion: AsyncSession, actor: Usuario, viaje: Viaje) -> list[Pago
     return [p for p in pagos if p.estado is not EstadoPago.anulado]
 
 
+def _exigir_que_sume_el_precio(
+    viaje: Viaje, cobrados: list[Pago], items: list[dict[str, Any]]
+) -> None:
+    """Cobrados más nuevos suman el precio de venta (CU-11 A1)."""
+    total = sum((p.monto for p in cobrados), Decimal(0)) + sum(
+        (i["monto"] for i in items), Decimal(0)
+    )
+    if total != viaje.precio_venta:
+        raise DatosInvalidos(
+            "pagos",
+            f"El plan suma {total} y el precio de venta es {viaje.precio_venta} "
+            f"(diferencia: {total - viaje.precio_venta}).",
+        )
+
+
 def _descripcion_alerta(tipo: TipoPago, vencimiento: date) -> str:
-    nombre = {TipoPago.sena: "La seña", TipoPago.cuota: "Una cuota", TipoPago.saldo: "El saldo"}
-    return f"{nombre[tipo]} del viaje vence el {vencimiento.strftime('%d/%m/%y')}."
+    return f"{_NOMBRE_DEL_PAGO[tipo]} del viaje vence el {vencimiento.strftime('%d/%m/%y')}."
 
 
 def _advertencias(viaje: Viaje, pagos: list[Pago]) -> list[str]:
