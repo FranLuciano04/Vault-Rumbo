@@ -150,7 +150,7 @@ class Viaje(IdMixin, AuditoriaMixin, Base):
         Computed("precio_venta - costo", persisted=True)
     )
     margen: Mapped[Decimal | None] = mapped_column(
-        Numeric(7, 4),
+        Numeric(20, 4),
         Computed(
             "CASE WHEN precio_venta > 0 THEN (precio_venta - costo) / precio_venta END",
             persisted=True,

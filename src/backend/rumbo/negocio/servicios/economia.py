@@ -7,17 +7,20 @@ from typing import Any
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from rumbo.datos.modelos import Pago, TipoComision, Usuario, Viaje
+from rumbo.datos.modelos import EstadoViaje, Pago, RolUsuario, TipoComision, Usuario, Viaje
 from rumbo.datos.repositorios.operadores import RepositorioOperadores
 from rumbo.datos.repositorios.seguridad import RepositorioUsuarios
 from rumbo.datos.repositorios.viajes import RepositorioPagos, RepositorioViajes
 from rumbo.negocio import calculos
-from rumbo.negocio.errores import DatosInvalidos, NoEncontrado
+from rumbo.negocio.errores import Conflicto, DatosInvalidos, NoEncontrado
 from rumbo.negocio.politicas import exigir_escritura, visibilidad
 
 GANANCIA_NEGATIVA = "ganancia_negativa"
 MARGEN_NEGATIVO = "margen_negativo"
 PLAN_DESBALANCEADO = "plan_desbalanceado"
+
+# Un viaje cancelado o finalizado ya no admite cambios en su economía; en curso, sí.
+_CERRADOS = (EstadoViaje.cancelado, EstadoViaje.finalizado)
 
 _viajes = RepositorioViajes()
 _pagos = RepositorioPagos()
@@ -46,6 +49,8 @@ async def registrar_economia(
     pagos se rebalancean aparte (CU-11). Escribe el responsable, admin o dueño (DEC-0005)."""
     viaje = await _viajes.obtener_para_modificar(sesion, viaje_id, visibilidad=visibilidad(actor))
     exigir_escritura(actor, viaje)
+    if viaje.estado in _CERRADOS:
+        raise Conflicto(f"No se edita la economía de un viaje {viaje.estado.value}.")
     operador_id = datos.get("operador_id")
     if operador_id is not None:
         await _exigir_operador(sesion, actor, operador_id)
@@ -55,8 +60,14 @@ async def registrar_economia(
     viaje.costo = datos["costo"]
     viaje.operador_id = operador_id
     viaje.vendedor_id = vendedor.id if vendedor else None
+    # el freelance no fija su propia comisión: se aplica el default del vendedor (RN-01)
+    tipo, valor = (
+        (None, None)
+        if actor.rol is RolUsuario.freelance
+        else (datos.get("comision_tipo"), datos.get("comision_vendedor"))
+    )
     viaje.comision_tipo, viaje.comision_vendedor = _comision(
-        vendedor, datos.get("comision_tipo"), datos.get("comision_vendedor"), viaje.comision_tipo
+        vendedor, tipo, valor, viaje.comision_tipo
     )
     await sesion.flush()
     await sesion.refresh(viaje)  # ganancia y margen son columnas generadas
@@ -84,10 +95,13 @@ def _advertencias(viaje: Viaje, pagos: list[Pago]) -> list[str]:
 
 
 async def _exigir_operador(sesion: AsyncSession, actor: Usuario, operador_id: uuid.UUID) -> None:
+    """El operador tiene que existir y estar activo en el catálogo (DEC-0009)."""
     try:
-        await _operadores.obtener(sesion, operador_id, visibilidad=visibilidad(actor))
+        operador = await _operadores.obtener(sesion, operador_id, visibilidad=visibilidad(actor))
     except NoEncontrado:
-        raise DatosInvalidos("operador_id", "El operador no existe.") from None
+        operador = None
+    if operador is None or not operador.activo:
+        raise DatosInvalidos("operador_id", "El operador no existe o está de baja.")
 
 
 async def _vendedor(
@@ -116,17 +130,19 @@ def _comision(
 ) -> tuple[TipoComision, Decimal]:
     """Tipo y valor de la comisión del viaje (RN-01, DEC-0007): sin vendedor, cero (A2); sin
     valor enviado, el default del vendedor; si no, el enviado (override, A1). El porcentaje es
-    sobre la ganancia y no supera 100."""
+    sobre la ganancia y no supera 100; un tipo sin valor es inválido."""
     elegido = TipoComision(tipo) if tipo is not None else None
     if vendedor is None:
         return elegido or tipo_actual, Decimal("0.00")
     if valor is None:
+        if elegido is not None:
+            raise DatosInvalidos("comision_vendedor", "Indicá el valor de la comisión.")
         if (
             vendedor.comision_default_tipo is not None
             and vendedor.comision_default_valor is not None
         ):
             return vendedor.comision_default_tipo, vendedor.comision_default_valor
-        return elegido or tipo_actual, Decimal("0.00")
+        return tipo_actual, Decimal("0.00")
     final = elegido or vendedor.comision_default_tipo or tipo_actual
     if final is TipoComision.porcentaje and valor > 100:
         raise DatosInvalidos("comision_vendedor", "Un porcentaje de comisión no puede superar 100.")

@@ -6,6 +6,7 @@ comportamiento. Las advertencias viajan en `advertencias` del cuerpo (`EconomiaR
 
 import uuid
 from collections.abc import Awaitable, Callable
+from datetime import date
 from decimal import Decimal
 from typing import Any
 
@@ -227,6 +228,104 @@ async def test_rn01_porcentaje_mayor_a_100_422(cliente_como: Fabrica, sesion: As
     r = await c.put(
         _url(viaje.id),
         json={**CUERPO, "comision_tipo": "porcentaje", "comision_vendedor": "101.00"},
+    )
+
+    assert r.status_code == 422
+    assert r.headers["content-type"].startswith(PROBLEM_JSON)
+
+
+def _campos_estado(estado: str) -> dict[str, Any]:
+    if estado != "cancelado":
+        return {"estado": m.EstadoViaje(estado)}
+    return {
+        "estado": m.EstadoViaje("cancelado"),
+        "estado_previo": m.EstadoViaje("reservado"),
+        "motivo_cancelacion": "El cliente desistió",
+        "fecha_cancelacion": date(2026, 11, 5),
+    }
+
+
+@pytest.mark.parametrize("estado", ["cancelado", "finalizado"])
+async def test_cu10_viaje_cerrado_409(
+    cliente_como: Fabrica, sesion: AsyncSession, estado: str
+) -> None:
+    c = await cliente_como("empleado")
+    viaje = await _viaje(sesion, _yo(c), **_campos_estado(estado))
+
+    r = await c.put(_url(viaje.id), json={"precio_venta": "10.00", "costo": "5.00"})
+
+    assert r.status_code == 409
+    assert r.headers["content-type"].startswith(PROBLEM_JSON)
+    await sesion.refresh(viaje)
+    assert viaje.costo == Decimal("750000.00")
+
+
+async def test_cu10_viaje_en_curso_200(cliente_como: Fabrica, sesion: AsyncSession) -> None:
+    c = await cliente_como("empleado")
+    viaje = await _viaje(sesion, _yo(c), estado=m.EstadoViaje("en_curso"))
+
+    r = await c.put(_url(viaje.id), json=CUERPO)
+
+    assert r.status_code == 200
+
+
+async def test_rf058_margen_extremo_200_con_advertencias(
+    cliente_como: Fabrica, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("empleado")
+    viaje = await _viaje(sesion, _yo(c))
+
+    r = await c.put(_url(viaje.id), json={"precio_venta": "1.00", "costo": "5000.00"})
+
+    assert r.status_code == 200
+    assert Decimal(r.json()["ganancia"]) == Decimal("-4999.00")
+    assert Decimal(r.json()["margen"]) == Decimal("-4999.0000")
+    assert {"ganancia_negativa", "margen_negativo"} <= _advertencias(r)
+
+
+async def test_rn01_freelance_ignora_la_comision_enviada(
+    cliente_como: Fabrica, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("freelance")
+    c.usuario.comision_default_tipo = m.TipoComision("porcentaje")  # type: ignore[attr-defined]
+    c.usuario.comision_default_valor = Decimal("7.50")  # type: ignore[attr-defined]
+    await sesion.flush()
+    viaje = await _viaje(sesion, _yo(c))
+
+    r = await c.put(
+        _url(viaje.id),
+        json={
+            **CUERPO,
+            "vendedor_id": str(_yo(c)),
+            "comision_tipo": "importe",
+            "comision_vendedor": "99999.00",
+        },
+    )
+
+    assert r.status_code == 200
+    assert r.json()["comision_tipo"] == "porcentaje"
+    assert Decimal(r.json()["comision_vendedor"]) == Decimal("7.50")
+
+
+async def test_cu10_operador_de_baja_422(cliente_como: Fabrica, sesion: AsyncSession) -> None:
+    c = await cliente_como("admin")
+    operador = await f.crear(sesion, f.OperadorFactory, activo=False)
+    viaje = await _viaje(sesion, _yo(c))
+
+    r = await c.put(_url(viaje.id), json={**CUERPO, "operador_id": str(operador.id)})
+
+    assert r.status_code == 422
+    assert r.headers["content-type"].startswith(PROBLEM_JSON)
+
+
+async def test_rf056_tipo_sin_valor_422(cliente_como: Fabrica, sesion: AsyncSession) -> None:
+    c = await cliente_como("admin")
+    vendedor = await f.crear(sesion, f.UsuarioFactory, rol=m.RolUsuario("empleado"))
+    viaje = await _viaje(sesion, _yo(c))
+
+    r = await c.put(
+        _url(viaje.id),
+        json={**CUERPO, "vendedor_id": str(vendedor.id), "comision_tipo": "importe"},
     )
 
     assert r.status_code == 422

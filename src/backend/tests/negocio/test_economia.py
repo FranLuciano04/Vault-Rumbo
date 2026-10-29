@@ -11,6 +11,7 @@ Supuestos de diseño (el ticket no fija la firma ni el transporte de las adverte
 """
 
 import uuid
+from datetime import date
 from decimal import Decimal
 from typing import Any
 
@@ -19,7 +20,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from rumbo.datos import modelos as m
-from rumbo.negocio.errores import DatosInvalidos, NoEncontrado, SinPermiso
+from rumbo.negocio.errores import Conflicto, DatosInvalidos, NoEncontrado, SinPermiso
 from rumbo.negocio.servicios import economia
 from tests import fabricas as f
 
@@ -316,3 +317,102 @@ async def test_rf151_freelance_ajeno_ve_404(sesion: AsyncSession) -> None:
 
     with pytest.raises(NoEncontrado):
         await _registrar(sesion, viaje, _datos(), actor=freelance)
+
+
+def _campos_estado(estado: str) -> dict[str, Any]:
+    if estado != "cancelado":
+        return {"estado": m.EstadoViaje(estado)}
+    return {
+        "estado": m.EstadoViaje("cancelado"),
+        "estado_previo": m.EstadoViaje("reservado"),
+        "motivo_cancelacion": "El cliente desistió",
+        "fecha_cancelacion": date(2026, 11, 5),
+    }
+
+
+@pytest.mark.parametrize("estado", ["cancelado", "finalizado"])
+async def test_cu10_viaje_cerrado_no_admite_economia(sesion: AsyncSession, estado: str) -> None:
+    viaje = await _viaje(sesion, **_campos_estado(estado))
+
+    with pytest.raises(Conflicto):
+        await _registrar(sesion, viaje, _datos(costo=Decimal("1.00")))
+
+    await sesion.refresh(viaje)
+    assert viaje.costo == Decimal("750000.00")  # intacto
+    assert viaje.precio_venta == Decimal("1000000.00")
+
+
+async def test_cu10_viaje_en_curso_admite_economia(sesion: AsyncSession) -> None:
+    viaje = await _viaje(sesion, estado=m.EstadoViaje("en_curso"))
+
+    r = await _registrar(sesion, viaje, _datos(costo=Decimal("700000.00")))
+
+    assert r.viaje.costo == Decimal("700000.00")
+
+
+async def test_rf058_margen_extremo_se_guarda_y_advierte(sesion: AsyncSession) -> None:
+    viaje = await _viaje(sesion)
+
+    r = await _registrar(
+        sesion, viaje, _datos(precio_venta=Decimal("1.00"), costo=Decimal("5000.00"))
+    )
+
+    assert r.viaje.ganancia == Decimal("-4999.00")
+    assert r.viaje.margen == Decimal("-4999.0000")
+    assert economia.GANANCIA_NEGATIVA in r.advertencias
+    assert economia.MARGEN_NEGATIVO in r.advertencias
+
+
+async def test_rn01_freelance_ignora_la_comision_enviada(sesion: AsyncSession) -> None:
+    freelance = await f.crear(
+        sesion,
+        f.UsuarioFactory,
+        rol=m.RolUsuario("freelance"),
+        comision_default_tipo=m.TipoComision("porcentaje"),
+        comision_default_valor=Decimal("7.50"),
+    )
+    cliente = await f.crear(sesion, f.ClienteFactory)
+    destino = await f.crear(sesion, f.DestinoFactory)
+    viaje = await f.crear(
+        sesion,
+        f.ViajeFactory,
+        cliente_id=cliente.id,
+        destino_id=destino.id,
+        responsable_id=freelance.id,
+    )
+
+    r = await _registrar(
+        sesion,
+        viaje,
+        _datos(
+            vendedor_id=freelance.id,
+            comision_tipo=m.TipoComision("importe"),
+            comision_vendedor=Decimal("99999.00"),
+        ),
+        actor=freelance,
+    )
+
+    assert r.viaje.comision_tipo == m.TipoComision("porcentaje")
+    assert r.viaje.comision_vendedor == Decimal("7.50")
+
+
+async def test_cu10_operador_de_baja_es_invalido(sesion: AsyncSession) -> None:
+    operador = await f.crear(sesion, f.OperadorFactory, activo=False)
+    viaje = await _viaje(sesion)
+
+    with pytest.raises(DatosInvalidos) as e:
+        await _registrar(sesion, viaje, _datos(operador_id=operador.id))
+
+    assert e.value.extra["errores"][0]["campo"] == "operador_id"
+
+
+async def test_rf056_tipo_sin_valor_es_invalido(sesion: AsyncSession) -> None:
+    vendedor = await _empleado(sesion)
+    viaje = await _viaje(sesion)
+
+    with pytest.raises(DatosInvalidos):
+        await _registrar(
+            sesion,
+            viaje,
+            _datos(vendedor_id=vendedor.id, comision_tipo=m.TipoComision("importe")),
+        )

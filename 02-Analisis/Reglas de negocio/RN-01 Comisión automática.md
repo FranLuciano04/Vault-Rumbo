@@ -25,6 +25,7 @@ Al registrar la economía de un [[Viaje]], el agente **carga precio de venta, co
 ## Restricciones
 - **Moneda por operación (ARS / USD)** — multimoneda, ya no solo ARS. Fechas `dd/mm/aa`.
 - No procesa pagos online: registra montos, cuotas y vencimientos ([[Pago]]), no cobra. Ver [[Alcance y fuera de alcance]].
+- **Quién sobrescribe la comisión** *(propuesta 29/10, Paloma, en T-090; #accion/decidir: ratificar en la próxima sync)*: admin, dueño y empleado pueden sobrescribirla por viaje. Si quien registra la economía es un **freelance**, se ignora la comisión que envíe y se aplica siempre el default del vendedor, para que no pueda fijarse su propia comisión.
 
 ## Aplica en
 - [[Viaje]] · [[Pago]] · [[CU-10 Registrar economía del viaje]] · [[CU-01 De la consulta a la venta]] (paso 4)
