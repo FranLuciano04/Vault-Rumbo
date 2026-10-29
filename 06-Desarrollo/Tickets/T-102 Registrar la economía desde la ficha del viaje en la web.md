@@ -3,7 +3,7 @@ id: T-102
 titulo: Registrar la economía desde la ficha del viaje en la web
 modulo: M6 — Viajes y economía
 capa: web
-estado: libre
+estado: tomado
 depende_de: [T-100]
 tamaño: M
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [CU-10, CU-08, RF-037, RF-054, RF-055, RF-056, RF-058]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: palomap2003
+tomado_el: 29/10/26 19:37
+rama: feature/T-102-registrar-la-economia-desde-la-ficha-del
 pr:
 ---
 # T-102 Registrar la economía desde la ficha del viaje en la web
