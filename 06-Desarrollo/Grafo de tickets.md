@@ -19,8 +19,8 @@ tags:: #tipo/referencia
 | M2 — Clientes | 15 | 15 | 0 | 0 | 0 | 0 | ✅ cerrado |
 | M3 — Alertas | 14 | 14 | 0 | 0 | 0 | 0 | ✅ cerrado |
 | M4 — Oportunidades y cotizaciones | 16 | 16 | 0 | 0 | 0 | 0 | ✅ cerrado |
-| M5 — Hoteles y reseñas | 11 | 11 | 0 | 0 | 0 | 0 | ✅ cerrado |
-| M6 — Viajes y economía | 24 | 4 | 2 | 5 | 13 | 0 | 🛠️ en curso |
+| M5 — Hoteles y reseñas | 11 | 11 | 0 | 0 | 0 | 0 | 🔍 listo para la review |
+| M6 — Viajes y economía | 24 | 5 | 1 | 6 | 12 | 0 | 🛠️ en curso |
 | M7 — Proceso diario y CRM proactivo | 9 | 0 | 0 | 3 | 6 | 0 | 🛠️ en curso |
 | M8 — Calendario, dashboard y reportes | 10 | 0 | 0 | 1 | 9 | 0 | 🛠️ en curso |
 | M9 — Redes e IA | 6 | 0 | 0 | 1 | 5 | 0 | 🛠️ en curso |
@@ -172,9 +172,9 @@ flowchart LR
     T097["T-097 · Armar el itinerario de hoteles del viaje<br/><small>backend</small>"]:::disponible
     T098["T-098 · Registrar el pago al proveedor de cada tramo<br/><small>backend · ⚠️ riesgo alto</small>"]:::esperando
     T099["T-099 · Cancelar un viaje con su reversión<br/><small>backend · ⚠️ riesgo alto</small>"]:::esperando
-    T100["T-100 · Listar los viajes en la web<br/><small>web</small><br/>👤 palomap2003"]:::tomado
+    T100["T-100 · Listar los viajes en la web<br/><small>web</small>"]:::hecho
     T101["T-101 · Confirmar la reserva desde la oportunidad en la web<br/><small>web</small>"]:::disponible
-    T102["T-102 · Registrar la economía desde la ficha del viaje en la web<br/><small>web</small>"]:::esperando
+    T102["T-102 · Registrar la economía desde la ficha del viaje en la web<br/><small>web</small>"]:::disponible
     T103["T-103 · Definir el plan de cuotas en la web<br/><small>web</small>"]:::esperando
     T104["T-104 · Registrar el cobro de un pago en la web<br/><small>web</small>"]:::esperando
     T105["T-105 · Cambiar el estado del viaje en la web<br/><small>web</small>"]:::esperando
