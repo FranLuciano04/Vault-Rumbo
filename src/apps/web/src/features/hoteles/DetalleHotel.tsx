@@ -11,6 +11,7 @@ import { FormularioResena } from "./FormularioResena";
 import { PaginadorResenas } from "./PaginadorResenas";
 import { ResenaPublicada } from "./ResenaPublicada";
 import { ResenasOcultas } from "./ResenasOcultas";
+import { useAjustarPagina } from "./useAjustarPagina";
 
 /**
  * Detalle del hotel con sus reseñas (CU-18 paso 3, pantallas 24, 45 y 48). Admin y dueña moderan
@@ -31,6 +32,7 @@ export function DetalleHotel({
   const hotel = useHotel(cliente, hotelId);
   const [pagina, setPagina] = useState(1);
   const resenas = useResenas(cliente, hotelId, { pagina });
+  useAjustarPagina(pagina, setPagina, resenas.data);
   const { data: destinos } = useDestinos(cliente, { por_pagina: 100 });
   const cerrarAlta = () => {
     setRegistrando(false);

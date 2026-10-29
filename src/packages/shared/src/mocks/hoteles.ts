@@ -390,9 +390,11 @@ export function manejadoresHotelesPara(rol: RolMock): RequestHandler[] {
 
     http.delete("*/api/resenas/:id", ({ params }) => {
       if (!modera) return sinPermiso();
-      return resenasMock.some((x) => x.id === params["id"])
+      const r = resenasMock.find((x) => x.id === params["id"]);
+      if (!r) return resenaNoEncontrada();
+      return r.estado === "oculta"
         ? new HttpResponse(null, { status: 204 })
-        : resenaNoEncontrada();
+        : conflicto("Solo se elimina una reseña oculta: ocultala primero.");
     }),
   ];
 }

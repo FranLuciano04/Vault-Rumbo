@@ -391,8 +391,10 @@ function moderacionConEstado(publicadas: number, ocultas: number) {
   ];
 }
 
-const textosDe = (prefijo: string) =>
-  screen.queryAllByText(new RegExp(`^Comentario ${prefijo} \\d+$`));
+const textosDe = (prefijo: string, region: string) =>
+  within(screen.getByRole("region", { name: region })).queryAllByText(
+    new RegExp(`^Comentario ${prefijo} \\d+$`),
+  );
 
 describe("RF-111 / RF-112 la moderación no deja una página fuera de rango (H-03)", () => {
   it("21 publicadas, página 2: ocultar la única de esa página muestra la página 1 con 20", async () => {
@@ -401,14 +403,14 @@ describe("RF-111 / RF-112 la moderación no deja una página fuera de rango (H-0
     await screen.findByText("Comentario publicada 1");
     await usuario.click(screen.getByRole("button", { name: /siguiente/i }));
     const unica = await screen.findByText("Comentario publicada 21");
-    expect(textosDe("publicada")).toHaveLength(1);
+    expect(textosDe("publicada", "Reseñas")).toHaveLength(1);
     const fila = unica.closest("li") as HTMLElement;
     await usuario.click(fila.querySelector("button") as HTMLButtonElement);
     await usuario.type(await screen.findByRole("textbox", { name: /motivo/i }), "Spam");
     await usuario.click(screen.getByRole("button", { name: /confirmar/i }));
     expect(await screen.findByText("Comentario publicada 1")).toBeInTheDocument();
     await waitFor(() => {
-      expect(textosDe("publicada")).toHaveLength(20);
+      expect(textosDe("publicada", "Reseñas")).toHaveLength(20);
     });
   });
 
@@ -418,11 +420,11 @@ describe("RF-111 / RF-112 la moderación no deja una página fuera de rango (H-0
     await screen.findByText("Comentario oculta 1");
     await usuario.click(screen.getByRole("button", { name: /siguiente/i }));
     await screen.findByText("Comentario oculta 21");
-    expect(textosDe("oculta")).toHaveLength(1);
+    expect(textosDe("oculta", "Reseñas ocultas")).toHaveLength(1);
     await usuario.click(screen.getByRole("button", { name: /restaurar/i }));
     expect(await screen.findByText("Comentario oculta 1")).toBeInTheDocument();
     await waitFor(() => {
-      expect(textosDe("oculta")).toHaveLength(20);
+      expect(textosDe("oculta", "Reseñas ocultas")).toHaveLength(20);
     });
   });
 
@@ -432,7 +434,7 @@ describe("RF-111 / RF-112 la moderación no deja una página fuera de rango (H-0
     await screen.findByText("Comentario publicada 1");
     await usuario.click(screen.getByRole("button", { name: /siguiente/i }));
     const primera = await screen.findByText("Comentario publicada 21");
-    expect(textosDe("publicada")).toHaveLength(2);
+    expect(textosDe("publicada", "Reseñas")).toHaveLength(2);
     const fila = primera.closest("li") as HTMLElement;
     await usuario.click(fila.querySelector("button") as HTMLButtonElement);
     await usuario.type(await screen.findByRole("textbox", { name: /motivo/i }), "Spam");
