@@ -3,7 +3,7 @@ id: T-090
 titulo: Registrar la economía del viaje con su comisión
 modulo: M6 — Viajes y economía
 capa: backend
-estado: tomado
+estado: hecho
 depende_de: [T-086, T-087, T-030]
 tamaño: M
 riesgo: alto
@@ -50,3 +50,26 @@ Se registra la economía del viaje: precio de venta, costo, ganancia, margen y l
 - Multimoneda de cobros (ticket de cobro).
 
 ## Notas de implementación
+- **Contrato ampliado (decisión de Paloma):** la respuesta 200 de `PUT /viajes/{id}/economia` es `EconomiaRegistrada`, que agrega a `Viaje` el campo `advertencias` con los códigos `ganancia_negativa`, `margen_negativo` y `plan_desbalanceado`. Se regeneraron `openapi.json` y `tipos.gen.ts`, y el mock devuelve `advertencias: []`. En el verde se corrigió con `--tocar-tests` una línea del test de contrato viejo (`"Viaje"` → `"EconomiaRegistrada"`).
+- **Plan desbalanceado:** es un dato derivado, sin columna: la suma de los pagos no anulados es distinta del precio de venta. El precio nuevo se guarda igual y el rebalanceo es un paso aparte. `negocio/calculos.py` calcula el descalce, el saldo pendiente y el porcentaje pagado.
+- **Comisión:**
+  - Sin vendedor, queda en 0.
+  - Si no viene una comisión, se aplica el default del vendedor (RN-01).
+  - El vendedor tiene que estar activo y ser visible para quien guarda.
+  - **Freelance (decisión de Paloma):** se ignora la comisión que envía y se aplica su default. Quedó como propuesta `#accion/decidir` en RN-01.
+- **Es un PUT de reemplazo completo:** si se omite el operador o el vendedor, queda vacío.
+- **Review (`reviewer-seguridad`, sonnet, dos rondas):** la primera encontró 1 bloqueante, 3 importantes y 3 menores. Se arreglaron:
+  - El viaje cancelado o finalizado da 409.
+  - La migración `0008` ensancha `margen` a `Numeric(20,4)`.
+  - El freelance no sobrescribe la comisión.
+  - El operador dado de baja da 422.
+  - El tipo de comisión sin valor da 422.
+
+  La segunda ronda confirmó todo cerrado.
+- **Menores que quedan:**
+  - Si el freelance vuelve a guardar la economía, pisa con su default el override que había fijado el admin. Se decide en la sync.
+  - El descarte de la comisión del freelance, y la de un viaje sin vendedor, no se avisa en la respuesta.
+  - Si viene el valor de la comisión sin el tipo, se usa el tipo del default del vendedor.
+  - Los pagos se leen sin bloquear la fila, así que con dos pedidos a la vez la advertencia de descalce puede quedar vieja. Solo afecta a la advertencia.
+- **Fuera del ticket:** `obtener_viaje` y los demás endpoints de viaje van a necesitar el saldo y el porcentaje pagado de `negocio/calculos.py`.
+- **Modelos:** tests sonnet, implementación y refactor opus, review sonnet. Sin escalados.

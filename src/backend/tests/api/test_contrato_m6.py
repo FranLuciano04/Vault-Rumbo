@@ -433,7 +433,21 @@ async def test_cu10_economia_exige_precio_y_costo_como_texto_decimal(
     )
     for campo in ("precio_venta", "costo", "comision_vendedor"):
         assert _es_texto_decimal(contrato, esquema["properties"][campo])
-    assert _ref(_respuesta(contrato, "put", ruta, "200")) == "Viaje"
+    assert _ref(_respuesta(contrato, "put", ruta, "200")) == "EconomiaRegistrada"
+
+
+async def test_cu10_registrar_economia_responde_con_advertencias(
+    contrato: dict[str, Any],
+) -> None:
+    esquema = _respuesta(contrato, "put", "/api/viajes/{viaje_id}/economia", "200")
+    assert _ref(esquema) == "EconomiaRegistrada"
+
+    propiedades, requeridos = _componer(contrato, "EconomiaRegistrada")
+
+    assert {"id", "ganancia", "margen", "advertencias"} <= set(propiedades)
+    assert "advertencias" in requeridos
+    items = _resolver(contrato, propiedades["advertencias"]["items"])
+    assert set(items["enum"]) == {"ganancia_negativa", "margen_negativo", "plan_desbalanceado"}
 
 
 async def test_cu07_confirmar_reserva_exige_destino_fechas_categoria_economia_y_plan(
@@ -603,8 +617,14 @@ async def test_cu07_sin_token_responde_401_problem_json(
     assert r.headers["content-type"].startswith(PROBLEM_JSON)
 
 
+# registrar_economia ya no es un stub (T-090): su comportamiento está en test_economia.py
+OPERACIONES_STUB = [
+    op for op in OPERACIONES_HTTP if not (op[0] == "put" and op[1] == f"/api/viajes/{ID}/economia")
+]
+
+
 @pytest.mark.parametrize("rol", ROLES)
-@pytest.mark.parametrize(("metodo", "ruta", "cuerpo"), OPERACIONES_HTTP)
+@pytest.mark.parametrize(("metodo", "ruta", "cuerpo"), OPERACIONES_STUB)
 async def test_cu07_con_token_de_cualquier_rol_responde_501_problem_json(
     cliente_como: FabricaCliente, rol: str, metodo: str, ruta: str, cuerpo: Any
 ) -> None:

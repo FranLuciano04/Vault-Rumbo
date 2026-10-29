@@ -38,6 +38,7 @@ export type CategoriaViaje = Esquemas["CategoriaViaje"];
 
 /** Economía y cobros (M6): control económico, plan de pagos y checklist de pagos. */
 export type EconomiaViaje = Esquemas["EconomiaViaje"];
+export type EconomiaRegistrada = Esquemas["EconomiaRegistrada"];
 export type PlanDePagos = Esquemas["PlanDePagos"];
 export type PagoPlanItem = Esquemas["PagoPlanItem"];
 export type Pago = Esquemas["Pago"];

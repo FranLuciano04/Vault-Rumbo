@@ -1,6 +1,7 @@
 import { http, HttpResponse, type RequestHandler } from "msw";
 import type {
   CobroRegistrar,
+  EconomiaRegistrada,
   EconomiaViaje,
   Pago,
   PagoDividir,
@@ -162,7 +163,7 @@ export const manejadoresEconomia: RequestHandler[] = [
       return viajeNoModificable(viaje, "No se edita la economía");
     }
     const datos = (await request.json()) as EconomiaViaje;
-    return HttpResponse.json({
+    return HttpResponse.json<EconomiaRegistrada>({
       ...viaje,
       precio_venta: datos.precio_venta,
       costo: datos.costo,
@@ -171,6 +172,7 @@ export const manejadoresEconomia: RequestHandler[] = [
       vendedor_id: datos.vendedor_id ?? viaje.vendedor_id,
       comision_tipo: datos.comision_tipo ?? viaje.comision_tipo,
       comision_vendedor: datos.comision_vendedor ?? viaje.comision_vendedor,
+      advertencias: [],
     });
   }),
 
