@@ -5,12 +5,15 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { mensajeDeError } from "@/lib/errores";
 import { PaginadorResenas } from "./PaginadorResenas";
+import { useAjustarPagina } from "./useAjustarPagina";
 
 /** Reseñas ocultas con su motivo y la acción de restaurarlas (CU-29; solo admin y dueña, RF-111). */
 export function ResenasOcultas({ cliente, hotelId }: { cliente: AxiosInstance; hotelId: string }) {
   const [pagina, setPagina] = useState(1);
-  const { data, isError, error } = useResenas(cliente, hotelId, { estado: "oculta", pagina });
+  const consulta = useResenas(cliente, hotelId, { estado: "oculta", pagina });
+  const { data, isError, error } = consulta;
   const restaurar = useRestaurarResena(cliente);
+  useAjustarPagina(pagina, setPagina, consulta);
   if (isError)
     return (
       <p role="alert" className="text-sm text-destructive">
