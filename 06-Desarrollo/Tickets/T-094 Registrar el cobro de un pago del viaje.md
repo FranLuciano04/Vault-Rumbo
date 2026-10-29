@@ -3,7 +3,7 @@ id: T-094
 titulo: Registrar el cobro de un pago del viaje
 modulo: M6 — Viajes y economía
 capa: backend
-estado: tomado
+estado: hecho
 depende_de: [T-092, T-087]
 tamaño: M
 riesgo: alto
@@ -50,3 +50,9 @@ Se registra el cobro íntegro de un pago, con su forma de pago y, si corresponde
 - Revertir el cobro (ticket propio).
 
 ## Notas de implementación
+- Otra moneda: `monto_cobrado = monto × tipo_cambio` (ROUND_HALF_UP al centavo); sin `tipo_cambio` → 422; con la misma moneda el `tipo_cambio` se descarta (null). El cobro siempre es íntegro: los campos extra del cuerpo se ignoran. Saldo y % pagado se calculan sobre los `monto` del plan.
+- Se bloquea el viaje y se relee el pago (dos cobros simultáneos → 409). Pagado/anulado → 409; viaje fuera de `reservado`/`vendido` → 409.
+- **Decisión de la persona (CU-10 A4):** si el plan está descalzado del precio, el cobro se registra pero el viaje no pasa a `confirmado` (queda `vendido`) hasta rebalancear. `estados.viaje.al_registrar_cobro` recibe `plan_balanceado` (por defecto `True`).
+- Tests corregidos con autorización de la persona (`--tocar-tests`): fixture de `test_rf072_cobro_integro` (el plan no sumaba el precio y el primer cobro confirmaba el viaje); `test_contrato_m6.py` saca `POST /pagos/{id}/cobrar` de los stubs 501.
+- Review (seguridad): 2 importantes arreglados en el fix — plan descalzado (arriba, `test_cu10_a4_plan_descalzado_queda_vendido`) y `monto_cobrado` fuera de `0 < x ≤ 999.999.999.999,99` daba 500 → 422 (`test_rf068_monto_cobrado_fuera_de_rango_422`). Menores sin arreglar: `fecha_cobro` acepta fechas futuras (CU-12 no fija límite); el `tipo_cambio` con misma moneda se descarta sin aviso; el viaje se busca dos veces con visibilidad (redundante, correcto).
+- Modelos: tests sonnet, implementación/refactor/fix opus (refactor sin cambios), review sonnet. Sin escalados.
