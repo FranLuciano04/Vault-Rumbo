@@ -3,7 +3,7 @@ id: T-094
 titulo: Registrar el cobro de un pago del viaje
 modulo: M6 — Viajes y economía
 capa: backend
-estado: libre
+estado: tomado
 depende_de: [T-092, T-087]
 tamaño: M
 riesgo: alto
@@ -12,9 +12,9 @@ modelo_impl: opus
 modelo_review: sonnet
 trazabilidad: [CU-12, RF-038, RF-067, RF-068, RF-069, RF-071, RF-072, RNF-05]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: Nahuel Viniegra
+tomado_el: 29/10/26 19:56
+rama: feature/T-094-registrar-el-cobro-de-un-pago-del-viaje
 pr:
 ---
 # T-094 Registrar el cobro de un pago del viaje
