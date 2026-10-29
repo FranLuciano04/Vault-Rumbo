@@ -1,0 +1,49 @@
+"""Configuración de logging del arranque: el logger `rumbo` emite INFO por la salida estándar.
+
+Uvicorn solo configura sus propios loggers; sin esto, `logger.info` de la aplicación se descarta
+(hereda WARNING del raíz). No se tocan el raíz ni `uvicorn`.
+"""
+
+import logging
+import sys
+from typing import TextIO
+
+# Atributos que todo registro trae; lo demás en `__dict__` son los campos `extra`.
+_ATRIBUTOS_ESTANDAR = frozenset(logging.LogRecord("", 0, "", 0, "", (), None).__dict__) | {
+    "message",
+    "asctime",
+    "taskName",
+}
+
+
+class FormatoConCampos(logging.Formatter):
+    """Imprime el mensaje seguido de los campos `extra` presentes, como `campo=valor`."""
+
+    def format(self, record: logging.LogRecord) -> str:
+        linea = super().format(record)
+        campos = {c: v for c, v in record.__dict__.items() if c not in _ATRIBUTOS_ESTANDAR}
+        if not campos:
+            return linea
+        return f"{linea} " + " ".join(f"{c}={v}" for c, v in campos.items())
+
+
+class _HandlerStdout(logging.StreamHandler):  # type: ignore[type-arg]
+    """Escribe en el `sys.stdout` vigente al emitir (como `logging.lastResort` con stderr)."""
+
+    def __init__(self) -> None:
+        logging.Handler.__init__(self)
+
+    @property
+    def stream(self) -> TextIO:
+        return sys.stdout
+
+
+def configurar_logs() -> None:
+    """Deja el logger `rumbo` en INFO con un handler a stdout. Idempotente."""
+    logger = logging.getLogger("rumbo")
+    logger.setLevel(logging.INFO)
+    if any(isinstance(h, _HandlerStdout) for h in logger.handlers):
+        return
+    handler = _HandlerStdout()
+    handler.setFormatter(FormatoConCampos("%(levelname)s %(name)s: %(message)s"))
+    logger.addHandler(handler)
