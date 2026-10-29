@@ -29,7 +29,7 @@ function insistencia(n: number, estado: EstadoAlerta): Alerta {
     estado,
     oportunidad_id: OPORTUNIDAD,
     fecha: "2026-10-26",
-    descripcion: `Insistencia ${estado} ${n}`,
+    descripcion: `Insistencia ${estado} ${String(n)}`,
   } as Alerta;
 }
 
@@ -82,8 +82,8 @@ describe("RF-015 insistencias de la oportunidad: estados (H-05)", () => {
     await screen.findByText(/Insistencia pendiente 2/);
     const filas = screen.getAllByRole("listitem");
     expect(filas).toHaveLength(2);
-    expect(within(filas[0]).getByText("Pendiente")).toBeInTheDocument();
-    expect(within(filas[1]).getByText("Atendida")).toBeInTheDocument();
+    expect(within(filas[0] as HTMLElement).getByText("Pendiente")).toBeInTheDocument();
+    expect(within(filas[1] as HTMLElement).getByText("Atendida")).toBeInTheDocument();
   });
 });
 
