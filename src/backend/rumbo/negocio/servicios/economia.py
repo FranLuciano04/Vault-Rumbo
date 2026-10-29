@@ -7,7 +7,7 @@ from typing import Any
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from rumbo.datos.modelos import TipoComision, Usuario, Viaje
+from rumbo.datos.modelos import Pago, TipoComision, Usuario, Viaje
 from rumbo.datos.repositorios.operadores import RepositorioOperadores
 from rumbo.datos.repositorios.seguridad import RepositorioUsuarios
 from rumbo.datos.repositorios.viajes import RepositorioPagos, RepositorioViajes
@@ -62,6 +62,17 @@ async def registrar_economia(
     await sesion.refresh(viaje)  # ganancia y margen son columnas generadas
 
     pagos = await _pagos.listar_de_viaje(sesion, viaje.id, visibilidad=visibilidad(actor))
+    return ResultadoEconomia(
+        viaje=viaje,
+        saldo_pendiente=calculos.saldo_pendiente(pagos),
+        porcentaje_pagado=calculos.porcentaje_pagado(viaje.precio_venta, pagos),
+        advertencias=_advertencias(viaje, pagos),
+    )
+
+
+def _advertencias(viaje: Viaje, pagos: list[Pago]) -> list[str]:
+    """Lo que conviene revisar y no impide guardar: ganancia o margen negativos (A3) y un plan
+    de pagos que ya no suma el precio de venta (A4)."""
     advertencias = []
     if viaje.ganancia is not None and viaje.ganancia < 0:
         advertencias.append(GANANCIA_NEGATIVA)
@@ -69,12 +80,7 @@ async def registrar_economia(
         advertencias.append(MARGEN_NEGATIVO)
     if calculos.plan_desbalanceado(viaje.precio_venta, pagos):
         advertencias.append(PLAN_DESBALANCEADO)
-    return ResultadoEconomia(
-        viaje=viaje,
-        saldo_pendiente=calculos.saldo_pendiente(pagos),
-        porcentaje_pagado=calculos.porcentaje_pagado(viaje.precio_venta, pagos),
-        advertencias=advertencias,
-    )
+    return advertencias
 
 
 async def _exigir_operador(sesion: AsyncSession, actor: Usuario, operador_id: uuid.UUID) -> None:

@@ -35,9 +35,12 @@ ActorDep = Annotated[modelos.Usuario, Depends(usuario_actual)]
 async def registrar_economia(
     viaje_id: uuid.UUID, datos: EconomiaViaje, actor: ActorDep, sesion: SesionDep
 ) -> EconomiaRegistrada:
-    r = await economia.registrar_economia(sesion, actor, viaje_id, datos.model_dump())
+    resultado = await economia.registrar_economia(sesion, actor, viaje_id, datos.model_dump())
     return EconomiaRegistrada.desde_modelo(
-        r.viaje, r.saldo_pendiente, r.porcentaje_pagado, r.advertencias
+        resultado.viaje,
+        resultado.saldo_pendiente,
+        resultado.porcentaje_pagado,
+        resultado.advertencias,
     )
 
 
