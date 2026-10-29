@@ -1,6 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { formatearFecha, type EstadoAlerta } from "@rumbo/shared";
-import { useAgendarInsistencia, useAlertas } from "@rumbo/shared/hooks";
+import { useAgendarInsistencia, useAlertasPorPaginas } from "@rumbo/shared/hooks";
 import type { AxiosInstance } from "axios";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -13,10 +13,16 @@ import { esquemaInsistencia, type DatosInsistencia } from "./esquemas";
 const CAMPOS = ["fecha", "descripcion"] as const;
 const ETIQUETA_ESTADO: Partial<Record<EstadoAlerta, string>> = {
   pendiente: "Pendiente",
+  vista: "Vista",
   resuelta: "Atendida",
 };
+const VER_MAS: Partial<Record<EstadoAlerta, string>> = {
+  pendiente: "Ver más pendientes",
+  vista: "Ver más vistas",
+  resuelta: "Ver más atendidas",
+};
 
-/** Insistencias de la oportunidad (RF-015): las pendientes y las atendidas, y el alta de una nueva. */
+/** Insistencias de la oportunidad (RF-015): las pendientes, vistas y atendidas, paginadas por estado, y el alta de una nueva. */
 export function InsistenciasOportunidad({
   cliente,
   oportunidadId,
@@ -27,8 +33,14 @@ export function InsistenciasOportunidad({
   puedeAgendar: boolean;
 }) {
   const filtros = { oportunidad_id: oportunidadId, tipo: "insistencia" } as const;
-  const pendientes = useAlertas(cliente, { ...filtros, estado: "pendiente" });
-  const atendidas = useAlertas(cliente, { ...filtros, estado: "resuelta" });
+  const pendientes = useAlertasPorPaginas(cliente, { ...filtros, estado: "pendiente" });
+  const vistas = useAlertasPorPaginas(cliente, { ...filtros, estado: "vista" });
+  const atendidas = useAlertasPorPaginas(cliente, { ...filtros, estado: "resuelta" });
+  const porEstado = [
+    { estado: "pendiente", consulta: pendientes },
+    { estado: "vista", consulta: vistas },
+    { estado: "resuelta", consulta: atendidas },
+  ] as const;
   const agendar = useAgendarInsistencia(cliente);
   const [abierto, setAbierto] = useState(false);
   const [agendada, setAgendada] = useState(false);
@@ -38,7 +50,9 @@ export function InsistenciasOportunidad({
     defaultValues: { fecha: "", descripcion: "" },
   });
   const { errors, isSubmitting } = formulario.formState;
-  const insistencias = [...(pendientes.data?.items ?? []), ...(atendidas.data?.items ?? [])];
+  const insistencias = porEstado.flatMap(({ consulta }) =>
+    (consulta.data?.pages ?? []).flatMap((pagina) => pagina.items),
+  );
 
   async function enviar(datos: DatosInsistencia) {
     setError(null);
@@ -57,7 +71,7 @@ export function InsistenciasOportunidad({
       <h2 id="titulo-insistencias" className="text-lg font-semibold">
         Insistencias
       </h2>
-      {pendientes.isError || atendidas.isError ? (
+      {porEstado.some(({ consulta }) => consulta.isError && !consulta.isFetchNextPageError) ? (
         <p role="alert" className="text-sm text-destructive">
           No pudimos cargar las insistencias.
         </p>
@@ -77,6 +91,25 @@ export function InsistenciasOportunidad({
             </li>
           ))}
         </ul>
+      )}
+      {porEstado.map(
+        ({ estado, consulta }) =>
+          consulta.hasNextPage && (
+            <div key={estado} className="flex items-center gap-3">
+              <Button
+                variant="outline"
+                disabled={consulta.isFetchingNextPage}
+                onClick={() => void consulta.fetchNextPage()}
+              >
+                {VER_MAS[estado]}
+              </Button>
+              {consulta.isFetchNextPageError && (
+                <p role="alert" className="text-sm text-destructive">
+                  No pudimos cargar más.
+                </p>
+              )}
+            </div>
+          ),
       )}
       {agendada && (
         <p role="status" className="text-sm text-muted-foreground">
