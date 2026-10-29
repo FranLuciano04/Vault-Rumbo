@@ -10,7 +10,7 @@ import {
   type RolMock,
 } from "@rumbo/shared/mocks";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { http, HttpResponse, type RequestHandler } from "msw";
 import { MemoryRouter } from "react-router";
@@ -346,5 +346,104 @@ describe("RF-108 / RF-109 enlace para editar desde el detalle", () => {
     renderDetalle("empleado", idHotelMock.playaDorada);
     await screen.findByRole("heading", { name: "Hotel Playa Dorada" });
     expect(screen.queryByRole("button", { name: "Dar de baja" })).not.toBeInTheDocument();
+  });
+});
+
+/** Reseñas con estado: 20 por página; ocultar y restaurar mueven la reseña de una lista a la otra. */
+function moderacionConEstado(publicadas: number, ocultas: number) {
+  const base = resenasMock.find((r) => r.id === ID_RESENA_2);
+  if (!base) throw new Error("falta la reseña base en los mocks");
+  const todas = Array.from({ length: publicadas + ocultas }, (_, i) => {
+    const estado = i < publicadas ? ("publicada" as const) : ("oculta" as const);
+    return {
+      ...base,
+      id: `00000000-0000-4000-8000-${String(i).padStart(12, "0")}`,
+      estado,
+      motivo_baja: estado === "oculta" ? "Motivo previo" : null,
+      comentario: `Comentario ${estado} ${String(estado === "publicada" ? i + 1 : i - publicadas + 1)}`,
+    };
+  });
+  return [
+    http.get("*/api/hoteles/:id/resenas", ({ request }) => {
+      const url = new URL(request.url);
+      const numero = Number(url.searchParams.get("pagina") ?? 1);
+      const pedido = url.searchParams.get("estado") ?? "publicada";
+      const delEstado = todas.filter((r) => r.estado === pedido);
+      return HttpResponse.json({
+        items: delEstado.slice((numero - 1) * 20, numero * 20),
+        total: delEstado.length,
+        pagina: numero,
+        por_pagina: 20,
+      });
+    }),
+    http.post("*/api/resenas/:id/ocultar", ({ params }) => {
+      const r = todas.find((x) => x.id === params["id"]);
+      if (!r) return new HttpResponse(null, { status: 404 });
+      r.estado = "oculta";
+      return HttpResponse.json(r);
+    }),
+    http.post("*/api/resenas/:id/restaurar", ({ params }) => {
+      const r = todas.find((x) => x.id === params["id"]);
+      if (!r) return new HttpResponse(null, { status: 404 });
+      r.estado = "publicada";
+      return HttpResponse.json(r);
+    }),
+  ];
+}
+
+const textosDe = (prefijo: string) =>
+  screen.queryAllByText(new RegExp(`^Comentario ${prefijo} \\d+$`));
+
+describe("RF-111 / RF-112 la moderación no deja una página fuera de rango (H-03)", () => {
+  it("21 publicadas, página 2: ocultar la única de esa página muestra la página 1 con 20", async () => {
+    const usuario = userEvent.setup();
+    renderConManejadores("admin", idHotelMock.llaoLlao, ...moderacionConEstado(21, 0));
+    await screen.findByText("Comentario publicada 1");
+    await usuario.click(screen.getByRole("button", { name: /siguiente/i }));
+    const unica = await screen.findByText("Comentario publicada 21");
+    expect(textosDe("publicada")).toHaveLength(1);
+    const fila = unica.closest("li") as HTMLElement;
+    await usuario.click(fila.querySelector("button") as HTMLButtonElement);
+    await usuario.type(await screen.findByRole("textbox", { name: /motivo/i }), "Spam");
+    await usuario.click(screen.getByRole("button", { name: /confirmar/i }));
+    expect(await screen.findByText("Comentario publicada 1")).toBeInTheDocument();
+    await waitFor(() => {
+      expect(textosDe("publicada")).toHaveLength(20);
+    });
+  });
+
+  it("21 ocultas, página 2: restaurar la única de esa página muestra la página 1 con 20", async () => {
+    const usuario = userEvent.setup();
+    renderConManejadores("admin", idHotelMock.llaoLlao, ...moderacionConEstado(0, 21));
+    await screen.findByText("Comentario oculta 1");
+    await usuario.click(screen.getByRole("button", { name: /siguiente/i }));
+    await screen.findByText("Comentario oculta 21");
+    expect(textosDe("oculta")).toHaveLength(1);
+    await usuario.click(screen.getByRole("button", { name: /restaurar/i }));
+    expect(await screen.findByText("Comentario oculta 1")).toBeInTheDocument();
+    await waitFor(() => {
+      expect(textosDe("oculta")).toHaveLength(20);
+    });
+  });
+
+  it("si el total no reduce las páginas, se conserva la página elegida", async () => {
+    const usuario = userEvent.setup();
+    renderConManejadores("admin", idHotelMock.llaoLlao, ...moderacionConEstado(22, 0));
+    await screen.findByText("Comentario publicada 1");
+    await usuario.click(screen.getByRole("button", { name: /siguiente/i }));
+    const primera = await screen.findByText("Comentario publicada 21");
+    expect(textosDe("publicada")).toHaveLength(2);
+    const fila = primera.closest("li") as HTMLElement;
+    await usuario.click(fila.querySelector("button") as HTMLButtonElement);
+    await usuario.type(await screen.findByRole("textbox", { name: /motivo/i }), "Spam");
+    await usuario.click(screen.getByRole("button", { name: /confirmar/i }));
+    // La oculta conserva su comentario en «Reseñas ocultas»: se mira solo la lista de publicadas.
+    const publicadas = within(screen.getByRole("region", { name: "Reseñas" }));
+    await waitFor(() => {
+      expect(publicadas.queryByText("Comentario publicada 21")).not.toBeInTheDocument();
+    });
+    expect(await publicadas.findByText("Comentario publicada 22")).toBeInTheDocument();
+    expect(publicadas.getByText(/Página 2 de 2/)).toBeInTheDocument();
+    expect(publicadas.queryByText("Comentario publicada 1")).not.toBeInTheDocument();
   });
 });
