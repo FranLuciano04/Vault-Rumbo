@@ -50,8 +50,9 @@ async def registrar_economia(
     summary="Ver el plan de pagos y su checklist",
     **operacion_de_registro(404, casos_de_uso="CU-11, CU-12", escritura=False),
 )
-async def listar_pagos(viaje_id: uuid.UUID) -> list[Pago]:
-    raise no_implementado()
+async def listar_pagos(viaje_id: uuid.UUID, actor: ActorDep, sesion: SesionDep) -> list[Pago]:
+    pagos = await economia.listar_pagos(sesion, actor, viaje_id)
+    return [Pago.model_validate(p) for p in pagos]
 
 
 @router.put(
@@ -60,8 +61,12 @@ async def listar_pagos(viaje_id: uuid.UUID) -> list[Pago]:
     summary="Definir o rebalancear el plan de pagos",
     **operacion_de_registro(403, 404, 422, casos_de_uso="CU-11"),
 )
-async def definir_plan_de_pagos(viaje_id: uuid.UUID, datos: PlanDePagos) -> list[Pago]:
-    raise no_implementado()
+async def definir_plan_de_pagos(
+    viaje_id: uuid.UUID, datos: PlanDePagos, actor: ActorDep, sesion: SesionDep
+) -> list[Pago]:
+    items = [item.model_dump() for item in datos.pagos]
+    pagos = await economia.definir_plan_de_pagos(sesion, actor, viaje_id, items)
+    return [Pago.model_validate(p) for p in pagos]
 
 
 @router.patch(

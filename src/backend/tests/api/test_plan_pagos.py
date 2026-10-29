@@ -221,8 +221,9 @@ async def test_rf059_rebalancear_respeta_cobrados(
     assert cobrado.monto == Decimal("300000.00")
     assert cobrado.monto_cobrado == Decimal("300000.00")
     # la alerta del pago reemplazado ya no está pendiente; los nuevos tienen la suya
+    viejo_id = viejo.id
     sesion.expire_all()
-    vivas = [a for a in await _alertas_de(sesion, [viejo.id]) if a.estado.value == "pendiente"]
+    vivas = [a for a in await _alertas_de(sesion, [viejo_id]) if a.estado.value == "pendiente"]
     assert vivas == []
     assert len(await _alertas_de(sesion, [uuid.UUID(p["id"]) for p in pendientes])) == 2
 

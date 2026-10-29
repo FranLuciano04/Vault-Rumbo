@@ -617,10 +617,14 @@ async def test_cu07_sin_token_responde_401_problem_json(
     assert r.headers["content-type"].startswith(PROBLEM_JSON)
 
 
-# registrar_economia ya no es un stub (T-090): su comportamiento está en test_economia.py
-OPERACIONES_STUB = [
-    op for op in OPERACIONES_HTTP if not (op[0] == "put" and op[1] == f"/api/viajes/{ID}/economia")
-]
+# Ya no son stubs: registrar_economia (T-090, test_economia.py) y listar y definir el plan de
+# pagos (T-092, test_plan_pagos.py)
+_IMPLEMENTADAS = {
+    ("put", f"/api/viajes/{ID}/economia"),
+    ("get", f"/api/viajes/{ID}/pagos"),
+    ("put", f"/api/viajes/{ID}/pagos"),
+}
+OPERACIONES_STUB = [op for op in OPERACIONES_HTTP if (op[0], op[1]) not in _IMPLEMENTADAS]
 
 
 @pytest.mark.parametrize("rol", ROLES)
