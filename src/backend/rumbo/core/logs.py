@@ -2,11 +2,12 @@
 
 Uvicorn solo configura sus propios loggers; sin esto, `logger.info` de la aplicación se descarta
 (hereda WARNING del raíz). No se tocan el raíz ni `uvicorn`.
+Se deja `propagate` (`caplog` engancha en el raíz): si alguien agrega un handler al raíz, la línea
+saldría duplicada.
 """
 
 import logging
 import sys
-from typing import TextIO
 
 # Atributos que todo registro trae; lo demás en `__dict__` son los campos `extra`.
 _ATRIBUTOS_ESTANDAR = frozenset(logging.LogRecord("", 0, "", 0, "", (), None).__dict__) | {
@@ -24,18 +25,19 @@ class FormatoConCampos(logging.Formatter):
         campos = {c: v for c, v in record.__dict__.items() if c not in _ATRIBUTOS_ESTANDAR}
         if not campos:
             return linea
-        return f"{linea} " + " ".join(f"{c}={v}" for c, v in campos.items())
+        return f"{linea} " + " ".join(f"{c}={v!r}" for c, v in campos.items())
 
 
-class _HandlerStdout(logging.StreamHandler):  # type: ignore[type-arg]
+class _HandlerStdout(logging.Handler):
     """Escribe en el `sys.stdout` vigente al emitir (como `logging.lastResort` con stderr)."""
 
-    def __init__(self) -> None:
-        logging.Handler.__init__(self)
-
-    @property
-    def stream(self) -> TextIO:
-        return sys.stdout
+    def emit(self, record: logging.LogRecord) -> None:
+        try:
+            stream = sys.stdout
+            stream.write(self.format(record) + "\n")
+            stream.flush()
+        except Exception:  # noqa: BLE001 (igual que StreamHandler)
+            self.handleError(record)
 
 
 def configurar_logs() -> None:

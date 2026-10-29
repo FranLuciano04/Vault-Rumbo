@@ -85,7 +85,7 @@ def test_cu29_a2_configurar_logs_es_idempotente(logs_de_arranque: Any) -> None:
 async def test_cu29_a2_la_linea_de_eliminacion_sale_por_stdout_con_los_campos(
     sesion: AsyncSession, logs_de_arranque: Any, capsys: pytest.CaptureFixture[str]
 ) -> None:
-    """Con la configuración de arranque (sin forzar el nivel) la línea sale por la salida estándar."""
+    """Con la configuración de arranque (sin forzar el nivel) la línea sale por stdout."""
     admin = await crear(sesion, UsuarioFactory, rol="admin")
     resena = await _oculta(sesion, puntaje=2, estado="oculta", motivo_baja="Spam")
     capsys.readouterr()  # descarta lo emitido por la preparación
