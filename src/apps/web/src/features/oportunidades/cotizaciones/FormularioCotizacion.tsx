@@ -82,7 +82,7 @@ export function FormularioCotizacion({
   // Al pasar a USD, la referencia en ARS ya no vale: se vacían solo los precios que nadie tocó.
   function soltarReferenciasEnPesos() {
     formulario.getValues("items").forEach((item, i) => {
-      if (!item.precio_autocompletado || item.precio !== item.precio_autocompletado) return;
+      if (!item.precio_autocompletado || item.precio.trim() !== item.precio_autocompletado) return;
       update(i, {
         ...item,
         concepto: item.concepto.replace(SUFIJO_REFERENCIA, ""),
