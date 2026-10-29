@@ -3,7 +3,7 @@ id: T-100
 titulo: Listar los viajes en la web
 modulo: M6 — Viajes y economía
 capa: web
-estado: libre
+estado: tomado
 depende_de: [T-086, T-020]
 tamaño: S
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [CU-08, RF-037]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: palomap2003
+tomado_el: 29/10/26 18:50
+rama: feature/T-100-listar-los-viajes-en-la-web
 pr:
 ---
 # T-100 Listar los viajes en la web
