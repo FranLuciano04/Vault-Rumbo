@@ -190,6 +190,8 @@ async def test_rf072_cobro_integro(cliente_como: Fabrica, sesion: AsyncSession) 
     c = await cliente_como("empleado")
     viaje = await _viaje(sesion, _yo(c))
     pago = await _pago(sesion, viaje.id, "300000.00")
+    otro = await _pago(sesion, viaje.id, "200000.00", tipo=m.TipoPago.cuota)
+    await _pago(sesion, viaje.id, "500000.00", tipo=m.TipoPago.saldo)
 
     # intentar un cobro parcial: el importe lo fija el servidor, siempre el monto completo
     r = await c.post(_url(pago.id), json={**COBRO, "monto_cobrado": "100000.00"})
@@ -201,7 +203,6 @@ async def test_rf072_cobro_integro(cliente_como: Fabrica, sesion: AsyncSession) 
     else:
         assert pago.estado == m.EstadoPago.pendiente
     # el camino sin cuerpo parcial siempre cobra todo
-    otro = await _pago(sesion, viaje.id, "200000.00", tipo=m.TipoPago.cuota)
     ok = await c.post(_url(otro.id), json=COBRO)
     assert ok.status_code == 200
     assert Decimal(ok.json()["monto_cobrado"]) == Decimal("200000.00")
