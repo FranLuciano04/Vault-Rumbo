@@ -851,3 +851,78 @@ async def test_rf013_valores_invalidos_422(
     r = await c.post("/api/oportunidades", json=_consulta(cliente_id=str(existente.id), **invalido))
 
     assert r.status_code == 422, r.text
+
+
+# ---------- editar: solo oportunidades abiertas (CU-05 precondiciones) ----------
+
+
+@pytest.mark.parametrize("estado", [EstadoOportunidad.ganada, EstadoOportunidad.perdida])
+async def test_rf016_patch_de_oportunidad_cerrada_409_y_no_cambia(
+    cliente_como: FabricaCliente, sesion: AsyncSession, estado: EstadoOportunidad
+) -> None:
+    c = await cliente_como("empleado")
+    campos: dict[str, Any] = {}
+    if estado is EstadoOportunidad.perdida:
+        campos["motivo_perdida"] = "precio"
+    op = await _oportunidad(
+        sesion,
+        c.usuario.id,  # type: ignore[attr-defined]
+        estado=estado,
+        destino_consultado="Bariloche",
+        pasajeros=2,
+        **campos,
+    )
+
+    r = await c.patch(
+        f"/api/oportunidades/{op.id}", json={"destino_consultado": "Otro destino", "pasajeros": 3}
+    )
+
+    assert r.status_code == 409
+    assert r.headers["content-type"].startswith(PROBLEM_JSON)
+    await sesion.refresh(op)
+    assert op.destino_consultado == "Bariloche"
+    assert op.pasajeros == 2
+    assert op.estado == estado
+
+
+async def test_rf016_patch_cerrada_ajena_sin_escritura_403_antes_que_409(
+    cliente_como: FabricaCliente, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("empleado")
+    otro = await crear(sesion, UsuarioFactory)
+    ajena = await _oportunidad(sesion, otro.id, estado=EstadoOportunidad.ganada, notas="original")
+
+    r = await c.patch(f"/api/oportunidades/{ajena.id}", json={"notas": "pisada"})
+
+    assert r.status_code == 403
+    await sesion.refresh(ajena)
+    assert ajena.notas == "original"
+
+
+async def test_rf151_patch_cerrada_no_visible_404_antes_que_409(
+    cliente_como: FabricaCliente, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("freelance")
+    otro = await crear(sesion, UsuarioFactory)
+    ajena = await _oportunidad(sesion, otro.id, estado=EstadoOportunidad.ganada, notas="original")
+
+    r = await c.patch(f"/api/oportunidades/{ajena.id}", json={"notas": "pisada"})
+
+    assert r.status_code == 404
+    await sesion.refresh(ajena)
+    assert ajena.notas == "original"
+
+
+@pytest.mark.parametrize(
+    "estado", [EstadoOportunidad.nueva, EstadoOportunidad.en_gestion, EstadoOportunidad.cotizada]
+)
+async def test_rf016_patch_de_oportunidad_abierta_sigue_dando_200(
+    cliente_como: FabricaCliente, sesion: AsyncSession, estado: EstadoOportunidad
+) -> None:
+    c = await cliente_como("empleado")
+    op = await _oportunidad(sesion, c.usuario.id, estado=estado)  # type: ignore[attr-defined]
+
+    r = await c.patch(f"/api/oportunidades/{op.id}", json={"notas": "Editada"})
+
+    assert r.status_code == 200
+    assert r.json()["notas"] == "Editada"

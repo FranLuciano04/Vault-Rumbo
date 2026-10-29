@@ -50,7 +50,7 @@ OPERACIONES: list[tuple[str, str, str, Any, str, set[str]]] = [
         f"/api/oportunidades/{ID}",
         EDITAR,
         "CU-05",
-        {"403", "404", "422"},
+        {"403", "404", "409", "422"},
     ),
     (
         "post",
@@ -165,6 +165,7 @@ IMPLEMENTADAS = {
     ("post", "/api/oportunidades/{oportunidad_id}/cotizaciones"),
     ("get", "/api/oportunidades/{oportunidad_id}/cotizaciones"),
     ("post", "/api/oportunidades/{oportunidad_id}/insistencias"),
+    ("get", "/api/cotizaciones/{cotizacion_id}"),
     ("post", "/api/cotizaciones/{cotizacion_id}/enviar"),
     ("post", "/api/cotizaciones/{cotizacion_id}/aceptar"),
     ("post", "/api/cotizaciones/{cotizacion_id}/rechazar"),
@@ -506,6 +507,14 @@ async def test_cu06_acciones_de_estado_devuelven_la_cotizacion(
     ruta = f"/api/cotizaciones/{{cotizacion_id}}/{accion}"
 
     assert _ref(_respuesta(contrato, "post", ruta, "200")) == "Cotizacion"
+
+
+async def test_cu06_consulta_individual_de_cotizacion_devuelve_cotizacion(
+    contrato: dict[str, Any],
+) -> None:
+    ruta = "/api/cotizaciones/{cotizacion_id}"
+
+    assert _ref(_respuesta(contrato, "get", ruta, "200")) == "Cotizacion"
 
 
 async def test_cu06_documento_de_la_cotizacion_es_application_pdf(

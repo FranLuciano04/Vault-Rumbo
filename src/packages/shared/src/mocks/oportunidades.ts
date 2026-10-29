@@ -303,6 +303,9 @@ export const manejadoresOportunidades: RequestHandler[] = [
   http.patch(`${BASE}/:id`, async ({ params, request }) => {
     const o = oportunidadesMock.find((x) => x.id === params["id"]);
     if (!o) return oportunidadNoEncontrada();
+    if (o.estado === "ganada" || o.estado === "perdida") {
+      return conflicto(`No se puede editar una oportunidad ${o.estado}.`);
+    }
     const cambios = (await request.json()) as OportunidadEditar;
     return HttpResponse.json({ ...o, ...cambios });
   }),

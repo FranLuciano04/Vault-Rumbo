@@ -97,12 +97,14 @@ async def editar_oportunidad(
     sesion: AsyncSession, actor: Usuario, oportunidad_id: uuid.UUID, cambios: dict[str, Any]
 ) -> Oportunidad:
     """Aplica solo los campos enviados a los datos y las notas (CU-05, RF-016). No toca el
-    `estado`: eso va por las acciones. Edita el responsable, admin o dueño (DEC-0005); reasignar
+    `estado`: eso va por las acciones. Edita el responsable, admin o dueño (DEC-0005), y solo
+    mientras está abierta: una cerrada es 409 (CU-05 §Precondiciones); reasignar
     `responsable_id` es solo de admin y dueño, y el nuevo tiene que ser un `Usuario` activo."""
     oportunidad = await _oportunidades.obtener_para_modificar(
         sesion, oportunidad_id, visibilidad=visibilidad(actor)
     )
     exigir_escritura(actor, oportunidad)
+    estado.exigir_abierta(oportunidad, accion="editar")
     if cambios.get("responsable_id", oportunidad.responsable_id) != oportunidad.responsable_id:
         exigir_rol(actor, RolUsuario.admin, RolUsuario.dueno)
         await _exigir_responsable_activo(sesion, actor, cambios["responsable_id"])
@@ -239,6 +241,13 @@ async def emitir_cotizacion(
     await sesion.flush()
     await sesion.refresh(cotizacion)
     return cotizacion
+
+
+async def obtener_cotizacion(
+    sesion: AsyncSession, actor: Usuario, cotizacion_id: uuid.UUID
+) -> Cotizacion:
+    """Una `Cotizacion` (CU-06, RF-024). Una que el actor no ve es `NoEncontrado` (RF-151)."""
+    return await _cotizaciones.obtener(sesion, cotizacion_id, visibilidad=visibilidad(actor))
 
 
 async def documento_cotizacion(

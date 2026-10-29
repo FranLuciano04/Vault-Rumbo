@@ -22,7 +22,13 @@ from rumbo.datos.modelos import (
     MotivoPerdida,
     Oportunidad,
 )
-from tests.fabricas import ClienteFactory, CotizacionFactory, OportunidadFactory, crear
+from tests.fabricas import (
+    ClienteFactory,
+    CotizacionFactory,
+    OportunidadFactory,
+    UsuarioFactory,
+    crear,
+)
 
 PROBLEM_JSON = "application/problem+json"
 FabricaCliente = Callable[[str], Awaitable[AsyncClient]]
@@ -554,3 +560,52 @@ async def test_rf024_listar_sin_sesion_401(cliente_sin_sesion: AsyncClient) -> N
     r = await cliente_sin_sesion.get(_url(uuid4()))
 
     assert r.status_code == 401
+
+
+# ---------- consultar una cotización (CU-06, H-04) ----------
+
+
+async def test_rf024_obtener_cotizacion_visible_200_con_el_esquema(
+    cliente_como: FabricaCliente, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("empleado")
+    op = await _op(sesion, c.usuario.id, E.cotizada)  # type: ignore[attr-defined]
+    cot = await crear(
+        sesion, CotizacionFactory, oportunidad_id=op.id, estado=EstadoCotizacion.enviada
+    )
+
+    r = await c.get(f"/api/cotizaciones/{cot.id}")
+
+    assert r.status_code == 200
+    cuerpo = r.json()
+    assert cuerpo["id"] == str(cot.id)
+    assert cuerpo["oportunidad_id"] == str(op.id)
+    assert cuerpo["estado"] == "enviada"
+    assert cuerpo["moneda"] == "ARS"
+    assert cuerpo["items"] == [{"concepto": "Paquete", "precio": "1500000.00"}]
+    assert Decimal(cuerpo["total"]) == Decimal("1500000.00")
+
+
+async def test_rf024_obtener_cotizacion_inexistente_404(cliente_como: FabricaCliente) -> None:
+    c = await cliente_como("empleado")
+
+    r = await c.get(f"/api/cotizaciones/{uuid4()}")
+
+    assert r.status_code == 404
+    assert r.headers["content-type"].startswith(PROBLEM_JSON)
+
+
+async def test_rf151_freelance_cotizacion_de_oportunidad_ajena_404(
+    cliente_como: FabricaCliente, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("freelance")
+    otro = await crear(sesion, UsuarioFactory)
+    op = await _op(sesion, otro.id, E.cotizada)
+    cot = await crear(
+        sesion, CotizacionFactory, oportunidad_id=op.id, estado=EstadoCotizacion.enviada
+    )
+
+    r = await c.get(f"/api/cotizaciones/{cot.id}")
+
+    assert r.status_code == 404
+    assert r.headers["content-type"].startswith(PROBLEM_JSON)

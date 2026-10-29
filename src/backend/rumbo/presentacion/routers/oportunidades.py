@@ -1,5 +1,4 @@
-"""Rutas del módulo oportunidades y cotizaciones (CU-04, CU-05, CU-06). Las que siguen en 501
-esperan su ticket de backend."""
+"""Rutas del módulo oportunidades y cotizaciones (CU-04, CU-05, CU-06)."""
 
 import uuid
 from typing import Annotated
@@ -12,7 +11,6 @@ from rumbo.datos.modelos import EstadoOportunidad
 from rumbo.negocio.servicios import oportunidades
 from rumbo.presentacion.contrato import (
     TODOS,
-    no_implementado,
     operacion,
     operacion_de_registro,
     respuesta_pagina,
@@ -132,7 +130,7 @@ async def obtener_oportunidad(
     "/oportunidades/{oportunidad_id}",
     operation_id="editar_oportunidad",
     summary="Editar una oportunidad o sus notas de seguimiento",
-    **operacion_de_registro(403, 404, 422, casos_de_uso="CU-05"),
+    **operacion_de_registro(403, 404, 409, 422, casos_de_uso="CU-05"),
 )
 async def editar_oportunidad(
     oportunidad_id: uuid.UUID, cambios: OportunidadEditar, actor: ActorDep, sesion: SesionDep
@@ -264,8 +262,12 @@ async def emitir_cotizacion(
     summary="Ver una cotización",
     **operacion_de_registro(404, casos_de_uso="CU-06", escritura=False),
 )
-async def obtener_cotizacion(cotizacion_id: uuid.UUID) -> Cotizacion:
-    raise no_implementado()
+async def obtener_cotizacion(
+    cotizacion_id: uuid.UUID, actor: ActorDep, sesion: SesionDep
+) -> Cotizacion:
+    return Cotizacion.model_validate(
+        await oportunidades.obtener_cotizacion(sesion, actor, cotizacion_id)
+    )
 
 
 @router.get(

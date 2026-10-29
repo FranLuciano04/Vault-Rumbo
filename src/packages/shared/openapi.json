@@ -3987,6 +3987,16 @@
               }
             }
           },
+          "409": {
+            "description": "Conflicto con el estado actual.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
           "422": {
             "description": "Datos inválidos.",
             "content": {
