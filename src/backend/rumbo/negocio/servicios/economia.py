@@ -125,6 +125,7 @@ async def definir_plan_de_pagos(
     actuales = await _plan(sesion, actor, viaje)
     cobrados = [p for p in actuales if p.estado is EstadoPago.pagado]
     reemplazados = [p for p in actuales if p.estado is not EstadoPago.pagado]
+    _exigir_montos_positivos(items)
     _exigir_que_sume_el_precio(viaje, cobrados, items)
 
     for reemplazado in reemplazados:
@@ -152,6 +153,13 @@ async def definir_plan_de_pagos(
 async def _plan(sesion: AsyncSession, actor: Usuario, viaje: Viaje) -> list[Pago]:
     pagos = await _pagos.listar_de_viaje(sesion, viaje.id, visibilidad=visibilidad(actor))
     return [p for p in pagos if p.estado is not EstadoPago.anulado]
+
+
+def _exigir_montos_positivos(items: list[dict[str, Any]]) -> None:
+    """Cada pago es por un monto mayor a cero: el esquema admite cero para todo `Importe`, pero
+    un pago de cero violaría `monto > 0` en la base."""
+    if any(i["monto"] <= 0 for i in items):
+        raise DatosInvalidos("pagos", "Cada pago del plan tiene que ser por un monto mayor a cero.")
 
 
 def _exigir_que_sume_el_precio(

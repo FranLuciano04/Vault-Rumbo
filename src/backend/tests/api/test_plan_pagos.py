@@ -137,6 +137,24 @@ async def test_rf061_suma_de_mas_422(cliente_como: Fabrica, sesion: AsyncSession
     assert await _pagos_de(sesion, viaje.id) == []
 
 
+async def test_rf061_monto_cero_422(cliente_como: Fabrica, sesion: AsyncSession) -> None:
+    c = await cliente_como("empleado")
+    viaje = await _viaje(sesion, _yo(c))
+    viejo = await f.crear(
+        sesion, f.PagoFactory, viaje_id=viaje.id, monto=PRECIO, tipo=m.TipoPago.saldo
+    )
+    # suma el precio de venta, pero un pago de cero no es un pago
+    con_cero = _plan(("1000000.00", "saldo", "2027-01-05"), ("0.00", "cuota", "2027-02-05"))
+
+    r = await c.put(_url(viaje.id), json=con_cero)
+
+    assert r.status_code == 422
+    assert r.headers["content-type"].startswith(PROBLEM_JSON)
+    await sesion.refresh(viejo)
+    assert viejo.estado == m.EstadoPago.pendiente  # no se anuló nada
+    assert [p.id for p in await _pagos_de(sesion, viaje.id)] == [viejo.id]  # ni se guardó
+
+
 async def test_rf062_pagos_pendientes(cliente_como: Fabrica, sesion: AsyncSession) -> None:
     c = await cliente_como("empleado")
     viaje = await _viaje(sesion, _yo(c))
