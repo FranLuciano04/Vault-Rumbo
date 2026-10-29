@@ -110,3 +110,22 @@ tags:: #tipo/referencia
   - Dos sesiones que corren pytest sobre la misma base `rumbo_test` se pisan: conviene una base propia por sesión (`TEST_DATABASE_URL`).
 - **Decisiones tocadas:** [[DEC-0017 Contacto mínimo del cliente]], [[DEC-0019 Las fallas se arreglan al encontrarlas]], [[DEC-0020 Cliente traído por dos asesores]].
 - Aprobación del equipo: 27/10/26. Tag `mod-2` sobre `c5d8c9c`.
+
+### 28/10/26 — Nahuel (con el equipo) — M4 Oportunidades y cotizaciones cerrado (`mod-4`)
+- **Qué quedó:**
+  - Alta de una consulta como `Oportunidad`, con aviso si el `Cliente` ya tiene una abierta. Destino y pasajeros son opcionales ([[DEC-0023 Datos mínimos de la consulta|DEC-0023]], migración `0007`), y cotizar sin ellos da 409.
+  - Embudo según el rol, con filtro por responsable para admin y dueño. Máquina de estados de la oportunidad (nueva → en gestión → cotizada → ganada | perdida, con reactivar) y bloqueo `FOR UPDATE` en cada transición. Una oportunidad cerrada es de solo lectura: el `PATCH` da 409.
+  - Insistencias de seguimiento que crean `Alerta` con el servicio de M3. El detalle muestra las pendientes, las vistas y las resueltas, con «Ver más» por estado.
+  - `Cotización` versionada con su vigencia, respuesta del cliente y PDF con WeasyPrint. Solo se acepta la versión vigente, una sola por oportunidad, y aceptar deja la oportunidad `cotizada`.
+  - Contrato en `@rumbo/shared`, pantallas web (nueva consulta, embudo, detalle, emisión y respuesta de cotizaciones) y e2e del embudo con cotización.
+- **Tickets:** 16, de T-061 a T-074 más T-167 y T-168. Detalle y merges en [[M4 — pedido de review]].
+- **Review de Codex** ([[M4 — review Codex]]): 6 hallazgos, todos confirmados en el triage y arreglados sin ticket ([[DEC-0019 Las fallas se arreglan al encontrarlas|DEC-0019]]).
+  - H-01 y H-02, bloqueantes → PR #135, de riesgo alto y aprobado por Paloma: se podían aceptar varias versiones de la misma oportunidad, y aceptar después de reactivar la dejaba `en_gestion`. Ahora `aceptar` exige la versión vigente sin otra aceptada, leída con la oportunidad bloqueada, y pasa la oportunidad a `cotizada`.
+  - H-03, bloqueante, y H-04, importante → PR #136, de riesgo alto y aprobado por Paloma: el `PATCH` modificaba oportunidades cerradas (ahora 409), y `GET /cotizaciones/{id}` respondía 501 (ahora resuelve la visibilidad por su oportunidad). Resuelve el punto abierto de T-168 sobre editar una oportunidad cerrada.
+  - H-05 y H-06, importantes → PR #137: el detalle no mostraba las insistencias vistas y se cortaba en la primera página.
+- **Pendientes que no bloquean** (anotados en el PR #137):
+  - No hay estado de carga al abrir el detalle de la oportunidad.
+  - Faltan tests de dónde van las vistas en el orden, de un «Ver más» por estado, de que una insistencia recién agendada aparezca en la lista y del aviso «No pudimos cargar más.».
+  - Hay avisos de Prettier previos en `AccionesOportunidad.tsx` y `RespuestaCotizacion.test.tsx`.
+- **Decisiones tocadas:** [[DEC-0002 Modelar la consulta como Oportunidad]], [[DEC-0005 Autenticación y modelo de roles]], [[DEC-0013 Datos que faltaban en el ER]], [[DEC-0019 Las fallas se arreglan al encontrarlas]], [[DEC-0020 Cliente traído por dos asesores]], [[DEC-0023 Datos mínimos de la consulta]].
+- Aprobación del equipo: 28/10/26. Tag `mod-4` sobre `c0ed646`.

@@ -33,6 +33,14 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
+## 28/10/26 — Nahuel (Claude Opus 5.5) — cierre de M4: review de Codex, arreglos y tag `mod-4`
+- **Hecho:**
+  - `/cerrar-modulo M4`: pedido de review (1712af9) y triage de los 6 hallazgos de Codex, todos confirmados (4f48d21, c13cb8d).
+  - Arreglos en ramas `fix/M4-…`: H-01/H-02 (#135) y H-03/H-04 (#136), de riesgo alto y aprobados por Paloma; H-05/H-06 (#137). Los tres están mergeados con el CI en verde.
+  - Con la aprobación del equipo, tag `mod-4` sobre `c0ed646`, [[Bitácora técnica]] y estado actualizados.
+- **Pendiente:** los menores del #137 (estado de carga del detalle y cuatro tests de insistencias). M5 está listo para `/cerrar-modulo` M5.
+- **Para tener en cuenta:** H-01 se interpretó como «solo se acepta la versión vigente» (EST-Cotización, hueco 1). Si el equipo prefiere permitir aceptar una versión anterior, alcanza con la regla de una sola aceptada.
+
 ## 28/10/26 — Nahuel (Claude Opus 5.5) — T-083: registrar una reseña en la web
 - **Hecho:** T-083 (PR [#132](https://github.com/FranLuciano04/Vault-Rumbo/pull/132), mergeado con el CI en verde).
   - Alta y edición de reseñas desde el detalle del hotel, para empleado, admin y dueño.
