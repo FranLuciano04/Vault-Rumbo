@@ -6,7 +6,7 @@ bloqueada en la base, a que la primera confirme.
 """
 
 import asyncio
-from datetime import UTC, datetime, timedelta
+from datetime import timedelta
 
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession
@@ -17,6 +17,7 @@ from rumbo.datos.modelos import (
     EstadoCotizacion,
     EstadoOportunidad,
     MotivoPerdida,
+    Moneda,
     Oportunidad,
     RolUsuario,
     Usuario,
@@ -97,9 +98,11 @@ async def test_rf017_perder_y_ganar_en_paralelo_una_sola_gana(motor: AsyncEngine
             await conexion.execute(text("DELETE FROM usuario WHERE id = :i"), {"i": ids[0]})
 
 
-async def test_rf025_aceptar_dos_versiones_en_paralelo_una_sola_queda_aceptada(
+async def test_rf025_aceptar_una_version_que_otra_sesion_deja_de_ser_vigente_da_409(
     motor: AsyncEngine,
 ) -> None:
+    """V2 es la vigente. Mientras la sesión 1 emite V3 (con la oportunidad bloqueada, sin commit),
+    la sesión 2 acepta V2 y espera el bloqueo; al confirmar la 1, V2 ya no es la vigente."""
     async with AsyncSession(motor, expire_on_commit=False) as preparacion:
         usuario = await crear(preparacion, UsuarioFactory, rol=RolUsuario.admin)
         cliente = await crear(preparacion, ClienteFactory)
@@ -110,22 +113,12 @@ async def test_rf025_aceptar_dos_versiones_en_paralelo_una_sola_queda_aceptada(
             responsable_id=usuario.id,
             estado=EstadoOportunidad.cotizada,
         )
-        base = datetime(2026, 10, 1, 12, 0, tzinfo=UTC)
-        vieja = await crear(
+        v2 = await crear(
             preparacion,
             CotizacionFactory,
             oportunidad_id=op.id,
             estado=EstadoCotizacion.enviada,
             validez_hasta=hoy() + timedelta(days=30),
-            created_at=base,
-        )
-        vigente = await crear(
-            preparacion,
-            CotizacionFactory,
-            oportunidad_id=op.id,
-            estado=EstadoCotizacion.enviada,
-            validez_hasta=hoy() + timedelta(days=30),
-            created_at=base + timedelta(minutes=1),
         )
         await preparacion.commit()
     ids = (usuario.id, cliente.id, op.id)
@@ -140,33 +133,34 @@ async def test_rf025_aceptar_dos_versiones_en_paralelo_una_sola_queda_aceptada(
             assert actor_1 is not None
             assert actor_2 is not None
 
-            # la primera aceptación (la vigente) queda abierta, con la oportunidad tomada
-            await oportunidades.aceptar_cotizacion(primera, actor_1, vigente.id)
-
-            # la segunda (otra versión) arranca mientras la primera sigue abierta
-            segunda_tarea = asyncio.create_task(
-                oportunidades.aceptar_cotizacion(segunda, actor_2, vieja.id)
+            # la sesión 1 emite V3 y queda abierta, con la oportunidad bloqueada
+            await oportunidades.emitir_cotizacion(
+                primera,
+                actor_1,
+                op.id,
+                Moneda.ARS,
+                [{"concepto": "Paquete", "precio": "1000.00"}],
             )
+
+            # la sesión 2 acepta V2 (todavía la vigente para ella) y espera el bloqueo
+            aceptar = asyncio.create_task(oportunidades.aceptar_cotizacion(segunda, actor_2, v2.id))
             for _ in range(100):
-                if await _hay_alguien_bloqueado(motor) or segunda_tarea.done():
+                if await _hay_alguien_bloqueado(motor) or aceptar.done():
                     break
                 await asyncio.sleep(0.05)
             await primera.commit()
 
-            resultado = (await asyncio.gather(segunda_tarea, return_exceptions=True))[0]
+            resultado = (await asyncio.gather(aceptar, return_exceptions=True))[0]
             if not isinstance(resultado, BaseException):
                 await segunda.commit()
 
         assert isinstance(resultado, TransicionInvalida), (
-            "la segunda aceptación no dio 409: quedarían dos versiones aceptadas"
+            "la aceptación no dio 409: se aceptó una versión que ya no era la vigente"
         )
         async with AsyncSession(motor) as lectura:
-            v = await lectura.get(Cotizacion, vieja.id)
-            g = await lectura.get(Cotizacion, vigente.id)
-            assert v is not None
-            assert g is not None
-            assert g.estado is EstadoCotizacion.aceptada
-            assert v.estado is EstadoCotizacion.enviada
+            final = await lectura.get(Cotizacion, v2.id)
+            assert final is not None
+            assert final.estado is EstadoCotizacion.enviada
     finally:
         async with motor.begin() as conexion:
             await conexion.execute(
