@@ -1766,3 +1766,13 @@ Se **especificaron los CU faltantes de Francisco** (todos a `en-revision`): [[CU
 - **Hecho:** Se resolvieron tres decisiones de dominio ([[DEC-0003 Relación Viaje–Hotel y Reseña]], [[DEC-0004 Comisión configurable por porcentaje]], [[DEC-0005 Autenticación y modelo de roles]]) y se reconcilió [[Actores]] con los nuevos roles. Se definió el **catálogo completo de casos de uso** (24 CU + núcleo [[CU-01 De la consulta a la venta|CU-01]]) con [[DGM — Casos de uso|diagrama]] y división entre los tres. Se creó el flujo **md-fuente / docx-derivado** ([[Especificación de casos de uso — flujo]]) y la sección [[Entregables — índice]]; se registró **pandoc** en [[Skills compartidas]] y se agregaron punteros en [[CLAUDE|CLAUDE.md]] y el Home. Se instauró esta **bitácora de sesiones** como dinámica de cierre. Se especificó [[CU-04 Registrar consulta]] como ejemplo de referencia y se dejó de versionar `.obsidian/graph.json`. Se amplió el **checklist de PC1** con el set completo de entregables UML (obligatorios vs recomendados), fijando que los diagramas van en Mermaid y el prototipo UI en Figma (MCP). Se agregó la **identidad por sesión**: cada sesión se reconoce por la identidad Git y se registra a nombre de quien la corre (mapa "Quién es quién").
 - **Commits:** 20f3cc8, 1bea1f9, f17a0dd, a1dbcf5, 7c6e5fe.
 - **Pendiente:** ratificar DEC-0003/0004/0005 y formalizar [[DEC-0001 Stack tecnológico]] en la sync; especificar los CU restantes (en `borrador`); definir mecanismo de autenticación e infraestructura; instalar pandoc al compilar el primer entregable.
+
+## 28/10/26 — Paloma (Claude Opus 5.5) — T-087: máquina de estados del viaje
+- **Hecho:** T-087, PR [#134](https://github.com/FranLuciano04/Vault-Rumbo/pull/134). El CI está en verde. **Espera la aprobación de otro integrante, porque es de riesgo alto.**
+  - `negocio/estados/viaje.py` implementa las transiciones T2 a T10 de EST-Viaje como funciones puras, con 63 casos de test.
+  - La review de seguridad (sonnet) no encontró bloqueantes. Los 2 importantes quedaron arreglados (`estado_previo` cancelable y la comisión de CU-27 A4 por `estado_previo`), y también 3 de los 4 menores.
+- **Commits:** 18a0c2b, db2c5f3, 2d6be1e, 89cb6d6.
+- **Pendiente:**
+  - Aprobar y mergear el PR #134.
+  - Los efectos sobre pagos, alertas y comisión al cancelar, revertir y finalizar quedan para los servicios de CU-27 y CU-08.
+  - `/cerrar-modulo` M4 y M5, que los hace Nahuel.
