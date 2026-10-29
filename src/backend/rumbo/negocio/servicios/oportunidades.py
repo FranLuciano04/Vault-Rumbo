@@ -265,9 +265,14 @@ async def marcar_cotizacion_enviada(
 async def aceptar_cotizacion(
     sesion: AsyncSession, actor: Usuario, cotizacion_id: uuid.UUID
 ) -> Cotizacion:
-    """Registra que el cliente aceptó (CU-06 A2, RF-025); queda lista para confirmar la reserva."""
+    """Registra que el cliente aceptó la versión vigente (CU-06 A2, RF-025); la oportunidad queda
+    `cotizada`, lista para confirmar la reserva."""
     return await _transicionar_cotizacion(
-        sesion, actor, cotizacion_id, lambda c, o: estado_cotizacion.aceptar(c, o, hoy=hoy())
+        sesion,
+        actor,
+        cotizacion_id,
+        lambda c, o: estado_cotizacion.aceptar(c, o, hoy=hoy()),
+        exigir_vigente=True,
     )
 
 
@@ -306,10 +311,14 @@ async def _transicionar_cotizacion(
     actor: Usuario,
     cotizacion_id: uuid.UUID,
     transicion: Callable[[Cotizacion, Oportunidad], None],
+    *,
+    exigir_vigente: bool = False,
 ) -> Cotizacion:
     """Aplica una transición de EST-Cotización con los permisos de su oportunidad: una que el
     actor no ve es 404, una ajena sin permiso de escritura 403 (DEC-0005) y una inválida 409.
-    Bloquea primero la oportunidad, como `emitir_cotizacion`, y después relee la cotización."""
+    Bloquea primero la oportunidad, como `emitir_cotizacion`, y después relee la cotización. Con
+    `exigir_vigente`, además, la cotización tiene que ser la vigente y sin otra aceptada; leer las
+    versiones con la oportunidad bloqueada serializa dos aceptaciones simultáneas."""
     cotizacion = await _cotizaciones.obtener(sesion, cotizacion_id, visibilidad=visibilidad(actor))
     oportunidad = await _oportunidades.obtener_para_modificar(
         sesion, cotizacion.oportunidad_id, visibilidad=visibilidad(actor)
@@ -320,6 +329,11 @@ async def _transicionar_cotizacion(
     cotizacion = await _cotizaciones.obtener_para_modificar(
         sesion, cotizacion_id, visibilidad=visibilidad(actor)
     )
+    if exigir_vigente:
+        versiones = await _cotizaciones.listar_de_oportunidad(
+            sesion, oportunidad.id, visibilidad=visibilidad(actor)
+        )
+        estado_cotizacion.exigir_vigente_sin_aceptada(cotizacion, versiones)
     transicion(cotizacion, oportunidad)
     await sesion.flush()
     await sesion.refresh(cotizacion)

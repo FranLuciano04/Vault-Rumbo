@@ -2,7 +2,7 @@
 
 import uuid
 
-from sqlalchemy import exists, func, select
+from sqlalchemy import Select, exists, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from rumbo.core.errores import NoEncontrado
@@ -69,6 +69,15 @@ class RepositorioOportunidades(RepositorioBase[Oportunidad]):
         )
 
 
+def _historial(oportunidad_id: uuid.UUID, visibilidad: Visibilidad) -> Select[Cotizacion]:
+    """Versiones de la oportunidad, la más reciente primero: por `fecha` y, si empatan, por
+    `created_at` (y `id`, para que el orden sea total). La primera es la vigente."""
+    consulta = visibilidad.aplicar(
+        select(Cotizacion).where(Cotizacion.oportunidad_id == oportunidad_id), Cotizacion
+    )
+    return consulta.order_by(Cotizacion.fecha.desc(), Cotizacion.created_at.desc(), Cotizacion.id)
+
+
 class RepositorioCotizaciones(RepositorioBase[Cotizacion]):
     modelo = Cotizacion
 
@@ -81,17 +90,18 @@ class RepositorioCotizaciones(RepositorioBase[Cotizacion]):
         limite: int,
         visibilidad: Visibilidad,
     ) -> tuple[list[Cotizacion], int]:
-        """Versiones de la oportunidad, la más reciente primero (por `fecha` y, si empatan, por
-        `created_at`), y el total."""
-        consulta = visibilidad.aplicar(
-            select(Cotizacion).where(Cotizacion.oportunidad_id == oportunidad_id), Cotizacion
-        )
+        """Versiones de la oportunidad, la más reciente primero (ver `_historial`), y el total."""
+        consulta = _historial(oportunidad_id, visibilidad)
         total = await sesion.scalar(select(func.count()).select_from(consulta.subquery()))
-        pagina = consulta.order_by(
-            Cotizacion.fecha.desc(), Cotizacion.created_at.desc(), Cotizacion.id
-        )
-        filas = await sesion.scalars(pagina.offset(desplazamiento).limit(limite))
+        filas = await sesion.scalars(consulta.offset(desplazamiento).limit(limite))
         return list(filas), total or 0
+
+    async def listar_de_oportunidad(
+        self, sesion: AsyncSession, oportunidad_id: uuid.UUID, *, visibilidad: Visibilidad
+    ) -> list[Cotizacion]:
+        """Todas las versiones de la oportunidad en el orden del historial: la primera es la
+        vigente (EST-Cotización)."""
+        return list(await sesion.scalars(_historial(oportunidad_id, visibilidad)))
 
     async def obtener_para_modificar(
         self, sesion: AsyncSession, id: uuid.UUID, *, visibilidad: Visibilidad
