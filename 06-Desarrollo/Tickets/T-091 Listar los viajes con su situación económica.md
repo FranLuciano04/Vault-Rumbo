@@ -30,6 +30,7 @@ Cada rol lista viajes según su visibilidad y abre la ficha con la economía, el
 - [ ] `GET /viajes` filtra por estado, fechas y «lo mío», paginado; el `freelance` ve solo lo suyo.
 - [ ] `GET /viajes/{id}` devuelve la ficha con ganancia, margen, comisión, saldo y porcentaje pagado calculados por `negocio/calculos.py` (ajeno → 404).
 - [ ] Los importes salen como texto decimal.
+- [ ] `GET /viajes?cliente_id=…` filtra por cliente, respetando la visibilidad del actor: lo usa `SelectorViaje` al registrar una reseña (CU-17 A1, hallazgo H-04 de la review de M5). Verificar contra la API real que la web registra una reseña vinculada a un viaje.
 
 ## Tests esperados
 `tests/api/test_viajes.py`: `test_rf037_ficha_con_saldo`, `test_rf151_freelance_solo_lo_suyo`, filtros.
