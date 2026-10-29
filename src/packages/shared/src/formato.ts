@@ -45,3 +45,10 @@ export function formatearPuntaje(puntaje: string): string {
     .padStart(2, "0");
   return `${decimas.slice(0, -1)},${decimas.slice(-1)}`;
 }
+
+/** Fracción decimal de la API (p. ej. «0.2900») como «29 %»: entero, hacia abajo y sin pasar por float. */
+export function formatearPorcentaje(fraccion: string): string {
+  if (!/^\d+(\.\d*)?$/.test(fraccion)) throw new Error(`Fracción inválida: «${fraccion}»`);
+  const [entero = "", decimales = ""] = fraccion.split(".");
+  return `${BigInt(`${entero}${decimales.padEnd(2, "0").slice(0, 2)}`).toString()} %`;
+}

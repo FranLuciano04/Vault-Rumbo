@@ -1,4 +1,10 @@
-import { ETIQUETA_ESTADO_VIAJE, formatearFecha, formatearImporte, type Viaje } from "@rumbo/shared";
+import {
+  ETIQUETA_ESTADO_VIAJE,
+  formatearFecha,
+  formatearImporte,
+  formatearPorcentaje,
+  type Viaje,
+} from "@rumbo/shared";
 import { Link } from "react-router";
 
 const ENCABEZADOS = [
@@ -55,9 +61,7 @@ export function TablaViajes({
             <td className="px-3 py-3 tabular-nums">
               {formatearImporte(v.saldo_pendiente, v.moneda)}
             </td>
-            <td className="px-3 py-3 tabular-nums">
-              {Math.floor(Number(v.porcentaje_pagado) * 100)} %
-            </td>
+            <td className="px-3 py-3 tabular-nums">{formatearPorcentaje(v.porcentaje_pagado)}</td>
           </tr>
         ))}
       </tbody>

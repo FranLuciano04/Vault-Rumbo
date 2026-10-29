@@ -1,4 +1,4 @@
-import { formatearFecha, formatearImporte, formatearPuntaje } from "./formato";
+import { formatearFecha, formatearImporte, formatearPorcentaje, formatearPuntaje } from "./formato";
 
 const normalizar = (texto: string) => texto.replace(/[\u00a0\u202f]/g, " ");
 
@@ -66,5 +66,18 @@ describe("RF-106 formatearPuntaje", () => {
     expect(formatearPuntaje("4.34")).toBe("4,3");
     expect(formatearPuntaje("5.00")).toBe("5,0");
     expect(formatearPuntaje("4.95")).toBe("5,0");
+  });
+});
+
+describe("RF-037 formatearPorcentaje (porción pagada)", () => {
+  it("muestra 0.2900 como 29 % sin el error de float de 0.29 * 100", () => {
+    expect(formatearPorcentaje("0.2900")).toBe("29 %");
+  });
+
+  it("redondea hacia abajo y admite 0 y 1", () => {
+    expect(formatearPorcentaje("0.3333")).toBe("33 %");
+    expect(formatearPorcentaje("0.9999")).toBe("99 %");
+    expect(formatearPorcentaje("0")).toBe("0 %");
+    expect(formatearPorcentaje("1.0000")).toBe("100 %");
   });
 });

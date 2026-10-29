@@ -15,18 +15,24 @@ import { claveYo } from "./useYo";
 export const claveUsuarios = ["usuarios"] as const;
 
 /** Listado de usuarios (`GET /api/usuarios`, CU-25; admin y dueño). */
-export function useUsuarios(cliente: AxiosInstance, filtros: Omit<FiltrosListado, "buscar"> = {}) {
+export function useUsuarios(
+  cliente: AxiosInstance,
+  filtros: Omit<FiltrosListado, "buscar"> = {},
+  { enabled = true } = {},
+) {
   return useQuery({
     queryKey: [...claveUsuarios, "lista", filtros],
+    enabled,
     queryFn: async () =>
       (await cliente.get<Pagina<Usuario>>("/api/usuarios", { params: filtros })).data,
   });
 }
 
 /** Asesores activos para asignar un cliente (`GET /api/usuarios/asesores`; todos menos el freelance). */
-export function useAsesores(cliente: AxiosInstance) {
+export function useAsesores(cliente: AxiosInstance, { enabled = true } = {}) {
   return useQuery({
     queryKey: [...claveUsuarios, "asesores"],
+    enabled,
     queryFn: async () => (await cliente.get<AsesorDelCliente[]>("/api/usuarios/asesores")).data,
   });
 }
