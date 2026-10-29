@@ -211,9 +211,7 @@ async def test_rf058_ganancia_cero_no_advierte(sesion: AsyncSession) -> None:
 
 
 async def _con_plan(sesion: AsyncSession) -> m.Viaje:
-    viaje = await _viaje(
-        sesion, precio_venta=Decimal("1000000.00"), costo=Decimal("750000.00")
-    )
+    viaje = await _viaje(sesion, precio_venta=Decimal("1000000.00"), costo=Decimal("750000.00"))
     await f.crear(
         sesion,
         f.PagoFactory,
