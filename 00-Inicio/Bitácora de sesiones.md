@@ -1768,11 +1768,10 @@ Se **especificaron los CU faltantes de Francisco** (todos a `en-revision`): [[CU
 - **Pendiente:** ratificar DEC-0003/0004/0005 y formalizar [[DEC-0001 Stack tecnológico]] en la sync; especificar los CU restantes (en `borrador`); definir mecanismo de autenticación e infraestructura; instalar pandoc al compilar el primer entregable.
 
 ## 28/10/26 — Paloma (Claude Opus 5.5) — T-087: máquina de estados del viaje
-- **Hecho:** T-087, PR [#134](https://github.com/FranLuciano04/Vault-Rumbo/pull/134). El CI está en verde. **Espera la aprobación de otro integrante, porque es de riesgo alto.**
+- **Hecho:** T-087, PR [#134](https://github.com/FranLuciano04/Vault-Rumbo/pull/134). Es de riesgo alto: Nahuel lo aprobó y lo mergeó con el CI en verde.
   - `negocio/estados/viaje.py` implementa las transiciones T2 a T10 de EST-Viaje como funciones puras, con 63 casos de test.
   - La review de seguridad (sonnet) no encontró bloqueantes. Los 2 importantes quedaron arreglados (`estado_previo` cancelable y la comisión de CU-27 A4 por `estado_previo`), y también 3 de los 4 menores.
 - **Commits:** 18a0c2b, db2c5f3, 2d6be1e, 89cb6d6.
 - **Pendiente:**
-  - Aprobar y mergear el PR #134.
   - Los efectos sobre pagos, alertas y comisión al cancelar, revertir y finalizar quedan para los servicios de CU-27 y CU-08.
   - `/cerrar-modulo` M4 y M5, que los hace Nahuel.
