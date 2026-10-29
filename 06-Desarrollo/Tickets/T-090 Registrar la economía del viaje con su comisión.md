@@ -3,7 +3,7 @@ id: T-090
 titulo: Registrar la economía del viaje con su comisión
 modulo: M6 — Viajes y economía
 capa: backend
-estado: libre
+estado: tomado
 depende_de: [T-086, T-087, T-030]
 tamaño: M
 riesgo: alto
@@ -12,9 +12,9 @@ modelo_impl: opus
 modelo_review: sonnet
 trazabilidad: [CU-10, RF-054, RF-055, RF-056, RF-057, RF-058, RF-059, RN-01, DEC-0007, DEC-0004]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: palomap2003
+tomado_el: 28/10/26 21:35
+rama: feature/T-090-registrar-la-economia-del-viaje-con-su-c
 pr:
 ---
 # T-090 Registrar la economía del viaje con su comisión
