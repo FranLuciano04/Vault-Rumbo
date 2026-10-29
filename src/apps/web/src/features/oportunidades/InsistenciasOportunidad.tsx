@@ -22,7 +22,7 @@ const VER_MAS: Partial<Record<EstadoAlerta, string>> = {
   resuelta: "Ver más atendidas",
 };
 
-/** Insistencias de la oportunidad (RF-015): las pendientes y las atendidas, y el alta de una nueva. */
+/** Insistencias de la oportunidad (RF-015): las pendientes, vistas y atendidas, paginadas por estado, y el alta de una nueva. */
 export function InsistenciasOportunidad({
   cliente,
   oportunidadId,
@@ -71,7 +71,7 @@ export function InsistenciasOportunidad({
       <h2 id="titulo-insistencias" className="text-lg font-semibold">
         Insistencias
       </h2>
-      {porEstado.some(({ consulta }) => consulta.isError) ? (
+      {porEstado.some(({ consulta }) => consulta.isError && !consulta.isFetchNextPageError) ? (
         <p role="alert" className="text-sm text-destructive">
           No pudimos cargar las insistencias.
         </p>
@@ -95,14 +95,20 @@ export function InsistenciasOportunidad({
       {porEstado.map(
         ({ estado, consulta }) =>
           consulta.hasNextPage && (
-            <Button
-              key={estado}
-              variant="outline"
-              disabled={consulta.isFetchingNextPage}
-              onClick={() => void consulta.fetchNextPage()}
-            >
-              {VER_MAS[estado]}
-            </Button>
+            <div key={estado} className="flex items-center gap-3">
+              <Button
+                variant="outline"
+                disabled={consulta.isFetchingNextPage}
+                onClick={() => void consulta.fetchNextPage()}
+              >
+                {VER_MAS[estado]}
+              </Button>
+              {consulta.isFetchNextPageError && (
+                <p role="alert" className="text-sm text-destructive">
+                  No pudimos cargar más.
+                </p>
+              )}
+            </div>
           ),
       )}
       {agendada && (
