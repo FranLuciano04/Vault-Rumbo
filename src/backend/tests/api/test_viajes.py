@@ -176,9 +176,7 @@ async def test_rf151_freelance_solo_lo_suyo(cliente_como: Fabrica, sesion: Async
     assert str(ajeno_viaje_id) not in _ids(r)
 
 
-async def test_rf151_freelance_ficha_ajena_404(
-    cliente_como: Fabrica, sesion: AsyncSession
-) -> None:
+async def test_rf151_freelance_ficha_ajena_404(cliente_como: Fabrica, sesion: AsyncSession) -> None:
     c = await cliente_como("freelance")
     ajeno = await _viaje(sesion, await _empleado_ajeno(sesion))
     ajeno_id = ajeno.id
@@ -368,9 +366,7 @@ async def test_rf037_listado_paginado(cliente_como: Fabrica, sesion: AsyncSessio
     c = await cliente_como("empleado")
     yo = _yo(c)
     creados = [
-        await _viaje(
-            sesion, yo, fecha_salida=date(2027, mes, 1), fecha_regreso=date(2027, mes, 9)
-        )
+        await _viaje(sesion, yo, fecha_salida=date(2027, mes, 1), fecha_regreso=date(2027, mes, 9))
         for mes in (1, 2, 3)
     ]
     ids = [str(v.id) for v in creados]
