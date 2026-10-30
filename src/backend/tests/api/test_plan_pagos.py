@@ -358,3 +358,357 @@ async def test_cu11_viaje_cancelado_409(cliente_como: Fabrica, sesion: AsyncSess
 
     assert r.status_code == 409
     assert r.headers["content-type"].startswith(PROBLEM_JSON)
+
+
+# --- T-093: reprogramar, anular y dividir un pago (CU-11 A3, A4 y A6; RF-065, RF-066, RF-153) ---
+#
+# Supuestos que fijan estos tests y que el ticket no dice de forma explícita:
+# - Reprogramar mueve la alerta pendiente del pago (fecha = vencimiento nuevo menos un mes); no
+#   deja una segunda pendiente.
+# - Anular resuelve la alerta (estado `resuelta`); el pago anulado no figura en el GET del plan.
+# - Dividir devuelve [original con `monto_ahora`, nuevo con el resto]; el original conserva su
+#   vencimiento y su tipo; el nuevo tiene `vencimiento_resto`.
+# - Permisos como en el PUT del plan: empleado no responsable 403, freelance ajeno 404.
+
+
+def _url_pago(pago_id: uuid.UUID, accion: str = "") -> str:
+    return f"/api/pagos/{pago_id}{accion}"
+
+
+async def _pago_con_alerta(
+    sesion: AsyncSession,
+    viaje: m.Viaje,
+    propietario_id: uuid.UUID,
+    **campos: Any,
+) -> m.Pago:
+    datos: dict[str, Any] = {
+        "monto": Decimal("400000.00"),
+        "tipo": m.TipoPago.cuota,
+        "vencimiento": date(2027, 1, 5),
+    }
+    datos.update(campos)
+    pago = await f.crear(sesion, f.PagoFactory, viaje_id=viaje.id, **datos)
+    await f.crear(
+        sesion,
+        f.AlertaFactory,
+        propietario_id=propietario_id,
+        pago_id=pago.id,
+        tipo=m.TipoAlerta.pago,
+        fecha=sumar_meses(datos["vencimiento"], -1),
+    )
+    return pago
+
+
+async def test_rf065_reprogramar(cliente_como: Fabrica, sesion: AsyncSession) -> None:
+    c = await cliente_como("empleado")
+    viaje = await _viaje(sesion, _yo(c))
+    pago = await _pago_con_alerta(sesion, viaje, _yo(c))
+    pago_id = pago.id
+
+    r = await c.patch(_url_pago(pago_id), json={"vencimiento": "2027-03-10"})
+
+    assert r.status_code == 200
+    assert r.json()["id"] == str(pago_id)
+    assert r.json()["vencimiento"] == "2027-03-10"
+    assert Decimal(r.json()["monto"]) == Decimal("400000.00")
+    sesion.expire_all()
+    alertas = await _alertas_de(sesion, [pago_id])
+    pendientes = [a for a in alertas if a.estado == m.EstadoAlerta.pendiente]
+    assert len(pendientes) == 1  # la alerta se mueve, no se duplica
+    assert pendientes[0].fecha == date(2027, 2, 10)
+
+
+async def test_rf065_reprogramar_vencido_a_fecha_futura_vuelve_a_pendiente(
+    cliente_como: Fabrica, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("empleado")
+    viaje = await _viaje(sesion, _yo(c))
+    pago = await _pago_con_alerta(
+        sesion, viaje, _yo(c), estado=m.EstadoPago.vencido, vencimiento=date(2020, 1, 5)
+    )
+
+    r = await c.patch(_url_pago(pago.id), json={"vencimiento": "2999-03-10"})
+
+    assert r.status_code == 200
+    assert r.json()["estado"] == "pendiente"
+    assert r.json()["vencimiento"] == "2999-03-10"
+
+
+async def test_rf065_reprogramar_cobrado_409(cliente_como: Fabrica, sesion: AsyncSession) -> None:
+    c = await cliente_como("empleado")
+    viaje = await _viaje(sesion, _yo(c))
+    viaje_id = viaje.id
+    cobrado = await _pago_cobrado(sesion, viaje_id)
+
+    r = await c.patch(_url_pago(cobrado.id), json={"vencimiento": "2027-03-10"})
+
+    assert r.status_code == 409
+    assert r.headers["content-type"].startswith(PROBLEM_JSON)
+    sesion.expire_all()
+    (guardado,) = await _pagos_de(sesion, viaje_id)
+    assert guardado.vencimiento == date(2026, 12, 1)
+
+
+async def test_rf065_reprogramar_anulado_409(cliente_como: Fabrica, sesion: AsyncSession) -> None:
+    c = await cliente_como("empleado")
+    viaje = await _viaje(sesion, _yo(c))
+    pago = await _pago_con_alerta(sesion, viaje, _yo(c), estado=m.EstadoPago.anulado)
+
+    r = await c.patch(_url_pago(pago.id), json={"vencimiento": "2027-03-10"})
+
+    assert r.status_code == 409
+    assert r.headers["content-type"].startswith(PROBLEM_JSON)
+
+
+async def test_rf065_reprogramar_pago_inexistente_404(cliente_como: Fabrica) -> None:
+    c = await cliente_como("empleado")
+
+    r = await c.patch(_url_pago(uuid.uuid4()), json={"vencimiento": "2027-03-10"})
+
+    assert r.status_code == 404
+    assert r.headers["content-type"].startswith(PROBLEM_JSON)
+
+
+async def test_rf153_reprogramar_empleado_no_responsable_403(
+    cliente_como: Fabrica, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("empleado")
+    otro = await f.crear(sesion, f.UsuarioFactory, rol=m.RolUsuario("empleado"))
+    viaje = await _viaje(sesion, otro.id)
+    pago = await _pago_con_alerta(sesion, viaje, otro.id)
+
+    r = await c.patch(_url_pago(pago.id), json={"vencimiento": "2027-03-10"})
+
+    assert r.status_code == 403
+    assert r.headers["content-type"].startswith(PROBLEM_JSON)
+
+
+async def test_rf153_reprogramar_freelance_viaje_ajeno_404(
+    cliente_como: Fabrica, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("freelance")
+    otro = await f.crear(sesion, f.UsuarioFactory, rol=m.RolUsuario("empleado"))
+    viaje = await _viaje(sesion, otro.id)
+    pago = await _pago_con_alerta(sesion, viaje, otro.id)
+
+    r = await c.patch(_url_pago(pago.id), json={"vencimiento": "2027-03-10"})
+
+    assert r.status_code == 404
+
+
+async def test_rf066_anular(cliente_como: Fabrica, sesion: AsyncSession) -> None:
+    c = await cliente_como("empleado")
+    viaje = await _viaje(sesion, _yo(c))
+    viaje_id = viaje.id
+    pago = await _pago_con_alerta(sesion, viaje, _yo(c))
+    pago_id = pago.id
+
+    r = await c.post(_url_pago(pago_id, "/anular"))
+
+    assert r.status_code == 200
+    assert r.json()["id"] == str(pago_id)
+    assert r.json()["estado"] == "anulado"
+    sesion.expire_all()
+    (guardado,) = await _pagos_de(sesion, viaje_id)  # baja lógica: el registro se conserva
+    assert guardado.estado == m.EstadoPago.anulado
+    (alerta,) = await _alertas_de(sesion, [pago_id])
+    assert alerta.estado == m.EstadoAlerta.resuelta
+    assert alerta.resuelta_en is not None
+    # el plan queda desbalanceado hasta rebalancear: el anulado ya no figura
+    plan = await c.get(_url(viaje_id))
+    assert plan.status_code == 200
+    assert plan.json() == []
+
+
+async def test_rf066_anular_pago_vencido(cliente_como: Fabrica, sesion: AsyncSession) -> None:
+    c = await cliente_como("empleado")
+    viaje = await _viaje(sesion, _yo(c))
+    pago = await _pago_con_alerta(
+        sesion, viaje, _yo(c), estado=m.EstadoPago.vencido, vencimiento=date(2020, 1, 5)
+    )
+
+    r = await c.post(_url_pago(pago.id, "/anular"))
+
+    assert r.status_code == 200
+    assert r.json()["estado"] == "anulado"
+
+
+async def test_rf066_anular_cobrado_409(cliente_como: Fabrica, sesion: AsyncSession) -> None:
+    c = await cliente_como("empleado")
+    viaje = await _viaje(sesion, _yo(c))
+    viaje_id = viaje.id
+    cobrado = await _pago_cobrado(sesion, viaje_id)
+
+    r = await c.post(_url_pago(cobrado.id, "/anular"))
+
+    assert r.status_code == 409
+    assert r.headers["content-type"].startswith(PROBLEM_JSON)
+    sesion.expire_all()
+    (guardado,) = await _pagos_de(sesion, viaje_id)
+    assert guardado.estado == m.EstadoPago.pagado
+
+
+async def test_rf066_anular_ya_anulado_409(cliente_como: Fabrica, sesion: AsyncSession) -> None:
+    c = await cliente_como("empleado")
+    viaje = await _viaje(sesion, _yo(c))
+    pago = await _pago_con_alerta(sesion, viaje, _yo(c), estado=m.EstadoPago.anulado)
+
+    r = await c.post(_url_pago(pago.id, "/anular"))
+
+    assert r.status_code == 409
+
+
+async def test_rf153_anular_empleado_no_responsable_403(
+    cliente_como: Fabrica, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("empleado")
+    otro = await f.crear(sesion, f.UsuarioFactory, rol=m.RolUsuario("empleado"))
+    viaje = await _viaje(sesion, otro.id)
+    pago = await _pago_con_alerta(sesion, viaje, otro.id)
+
+    r = await c.post(_url_pago(pago.id, "/anular"))
+
+    assert r.status_code == 403
+
+
+async def test_rf066_anular_pago_inexistente_404(cliente_como: Fabrica) -> None:
+    c = await cliente_como("empleado")
+
+    r = await c.post(_url_pago(uuid.uuid4(), "/anular"))
+
+    assert r.status_code == 404
+
+
+async def test_dividir_cuota(cliente_como: Fabrica, sesion: AsyncSession) -> None:
+    c = await cliente_como("empleado")
+    viaje = await _viaje(sesion, _yo(c))
+    viaje_id = viaje.id
+    pago = await _pago_con_alerta(sesion, viaje, _yo(c))
+    pago_id = pago.id
+
+    r = await c.post(
+        _url_pago(pago_id, "/dividir"),
+        json={"monto_ahora": "150000.00", "vencimiento_resto": "2027-02-20"},
+    )
+
+    assert r.status_code == 201
+    ahora, resto = r.json()
+    assert ahora["id"] == str(pago_id)
+    assert Decimal(ahora["monto"]) == Decimal("150000.00")
+    assert ahora["vencimiento"] == "2027-01-05"
+    assert Decimal(resto["monto"]) == Decimal("250000.00")
+    assert resto["vencimiento"] == "2027-02-20"
+    assert resto["id"] != ahora["id"]
+    assert resto["viaje_id"] == str(viaje_id)
+    assert resto["estado"] == "pendiente"
+    resto_id = uuid.UUID(resto["id"])
+    sesion.expire_all()
+    guardados = await _pagos_de(sesion, viaje_id)
+    assert len(guardados) == 2
+    assert sum(p.monto for p in guardados) == Decimal("400000.00")  # suman lo mismo
+    ids = [pago_id, resto_id]
+    alertas = await _alertas_de(sesion, ids)
+    pendientes = [a for a in alertas if a.estado == m.EstadoAlerta.pendiente]
+    assert sorted(a.pago_id for a in pendientes) == sorted(ids)  # una por pago
+    por_pago = {a.pago_id: a for a in pendientes}
+    assert por_pago[pago_id].fecha == date(2026, 12, 5)
+    assert por_pago[resto_id].fecha == date(2027, 1, 20)
+    assert por_pago[resto_id].propietario_id == _yo(c)
+    assert por_pago[resto_id].tipo == m.TipoAlerta.pago
+
+
+async def test_dividir_cuota_pago_vencido(cliente_como: Fabrica, sesion: AsyncSession) -> None:
+    c = await cliente_como("empleado")
+    viaje = await _viaje(sesion, _yo(c))
+    pago = await _pago_con_alerta(
+        sesion, viaje, _yo(c), estado=m.EstadoPago.vencido, vencimiento=date(2020, 1, 5)
+    )
+
+    r = await c.post(
+        _url_pago(pago.id, "/dividir"),
+        json={"monto_ahora": "100000.00", "vencimiento_resto": "2999-02-20"},
+    )
+
+    assert r.status_code == 201
+
+
+async def test_dividir_cuota_monto_ahora_igual_o_mayor_al_pago_422(
+    cliente_como: Fabrica, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("empleado")
+    viaje = await _viaje(sesion, _yo(c))
+    viaje_id = viaje.id
+    pago = await _pago_con_alerta(sesion, viaje, _yo(c))
+    pago_id = pago.id
+
+    for monto in ("400000.00", "400000.01"):
+        r = await c.post(
+            _url_pago(pago_id, "/dividir"),
+            json={"monto_ahora": monto, "vencimiento_resto": "2027-02-20"},
+        )
+
+        assert r.status_code == 422
+        assert r.headers["content-type"].startswith(PROBLEM_JSON)
+    sesion.expire_all()
+    assert len(await _pagos_de(sesion, viaje_id)) == 1
+
+
+async def test_dividir_cuota_monto_ahora_cero_422(
+    cliente_como: Fabrica, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("empleado")
+    viaje = await _viaje(sesion, _yo(c))
+    pago = await _pago_con_alerta(sesion, viaje, _yo(c))
+
+    r = await c.post(
+        _url_pago(pago.id, "/dividir"),
+        json={"monto_ahora": "0.00", "vencimiento_resto": "2027-02-20"},
+    )
+
+    assert r.status_code == 422
+
+
+async def test_dividir_cuota_cobrada_409(cliente_como: Fabrica, sesion: AsyncSession) -> None:
+    c = await cliente_como("empleado")
+    viaje = await _viaje(sesion, _yo(c))
+    viaje_id = viaje.id
+    cobrado = await _pago_cobrado(sesion, viaje_id)
+
+    r = await c.post(
+        _url_pago(cobrado.id, "/dividir"),
+        json={"monto_ahora": "100000.00", "vencimiento_resto": "2027-02-20"},
+    )
+
+    assert r.status_code == 409
+    assert r.headers["content-type"].startswith(PROBLEM_JSON)
+    sesion.expire_all()
+    assert len(await _pagos_de(sesion, viaje_id)) == 1
+
+
+async def test_dividir_cuota_anulada_409(cliente_como: Fabrica, sesion: AsyncSession) -> None:
+    c = await cliente_como("empleado")
+    viaje = await _viaje(sesion, _yo(c))
+    pago = await _pago_con_alerta(sesion, viaje, _yo(c), estado=m.EstadoPago.anulado)
+
+    r = await c.post(
+        _url_pago(pago.id, "/dividir"),
+        json={"monto_ahora": "100000.00", "vencimiento_resto": "2027-02-20"},
+    )
+
+    assert r.status_code == 409
+
+
+async def test_rf153_dividir_freelance_viaje_ajeno_404(
+    cliente_como: Fabrica, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("freelance")
+    otro = await f.crear(sesion, f.UsuarioFactory, rol=m.RolUsuario("empleado"))
+    viaje = await _viaje(sesion, otro.id)
+    pago = await _pago_con_alerta(sesion, viaje, otro.id)
+
+    r = await c.post(
+        _url_pago(pago.id, "/dividir"),
+        json={"monto_ahora": "100000.00", "vencimiento_resto": "2027-02-20"},
+    )
+
+    assert r.status_code == 404
