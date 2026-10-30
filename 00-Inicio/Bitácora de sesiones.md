@@ -33,6 +33,19 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
+## 29/10/26 — Paloma (Claude Opus 5.5) — T-090, T-088, T-100, T-102 y T-096 (M6)
+- **Hecho:**
+  - T-090: economía del viaje con comisión (PR [#138](https://github.com/FranLuciano04/Vault-Rumbo/pull/138), mergeado con la aprobación de Nahuel).
+  - T-088: máquina de estados del pago (PR [#139](https://github.com/FranLuciano04/Vault-Rumbo/pull/139)).
+  - T-100: listado de viajes en la web (PR [#144](https://github.com/FranLuciano04/Vault-Rumbo/pull/144)). Se sumó a T-091 que el contrato traiga `cliente_nombre` y `destino_nombre`.
+  - T-102: ficha del viaje con la economía en la web (PR [#146](https://github.com/FranLuciano04/Vault-Rumbo/pull/146)). En el mismo PR se arregló una falla del backend (DEC-0019): el vendedor o el operador de baja que el viaje ya tiene se acepta; uno nuevo se sigue validando.
+  - T-096: iniciar, finalizar y corregir el estado del viaje, con la reseña post-viaje (PR [#149](https://github.com/FranLuciano04/Vault-Rumbo/pull/149), abierto). Review de seguridad sin bloqueantes; los tests faltantes se agregaron.
+- **Commits:** d18d752, 6b865c8, 7e705e5, 46ffa28 (T-096); los de los demás tickets están en sus PR.
+- **Pendiente:**
+  - PR #149 (T-096, riesgo alto): necesita la aprobación de otro integrante en GitHub; después, `/implementar-ticket T-096` para mergear con el CI en verde.
+  - Decidir con el equipo: la reseña post-viaje se agenda el mismo día en que se finaliza (RF-041 no fija desfasaje).
+  - Menores anotados en los tickets: `vendedor_nombre` en `Viaje` para la vista del freelance y el default de comisión en `AsesorDelCliente` (T-102); pendientes de UI de la pantalla 14 (T-100); la Alerta `viaje` de la sugerencia por fecha no se resuelve al confirmar el paso (T-096, para M7).
+
 ## 29/10/26 — Nahuel (Claude Opus 5.5) — T-097: itinerario de hoteles del viaje
 - **Hecho:** T-097 (PR [#148](https://github.com/FranLuciano04/Vault-Rumbo/pull/148), mergeado con el CI en verde).
   - `GET/POST /viajes/{id}/itinerario` y `PATCH/DELETE /tramos/{id}`, con fechas dentro del viaje y sin solaparse, hotel repetido en tramos no consecutivos y alerta de pago al proveedor un mes antes.
