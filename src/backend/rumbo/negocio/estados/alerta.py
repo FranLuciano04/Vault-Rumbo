@@ -50,3 +50,11 @@ def posponer(alerta: Alerta, nueva_fecha: date, hoy: date | None = None) -> None
     if nueva_fecha <= max(alerta.fecha, hoy or hoy_argentina()):
         raise DatosInvalidos("fecha", "La nueva fecha tiene que ser posterior a hoy y a la actual.")
     alerta.fecha = nueva_fecha
+
+
+def reagendar(alerta: Alerta, fecha: date, descripcion: str) -> None:
+    """Una pendiente o vista sigue a su origen cuando este cambia de fecha (CU-11 A3): a
+    diferencia de `posponer`, la fecha nueva puede ser pasada, si el origen ya venció."""
+    _exigir(alerta, EstadoAlerta.pendiente, EstadoAlerta.vista, accion="reagendar")
+    alerta.fecha = fecha
+    alerta.descripcion = descripcion

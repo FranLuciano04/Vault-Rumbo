@@ -145,12 +145,7 @@ async def definir_plan_de_pagos(
     for reemplazado in reemplazados:
         estado_pago.anular(reemplazado)
         await alertas.resolver_de_origen(sesion, reemplazado, (TipoAlerta.pago,))
-    responsable = (
-        actor
-        if actor.id == viaje.responsable_id
-        else await _usuarios.obtener(sesion, viaje.responsable_id, visibilidad=visibilidad(actor))
-    )
-    await agendar_pagos(sesion, viaje, responsable, items)
+    await agendar_pagos(sesion, viaje, await _responsable(sesion, actor, viaje), items)
     return await _plan(sesion, actor, viaje)
 
 
@@ -162,22 +157,97 @@ def exigir_plan_valido(viaje: Viaje, cobrados: list[Pago], items: list[dict[str,
 
 
 async def agendar_pagos(
-    sesion: AsyncSession, viaje: Viaje, responsable: Usuario, items: list[dict[str, Any]]
-) -> None:
+    sesion: AsyncSession,
+    viaje: Viaje,
+    responsable: Usuario,
+    items: list[dict[str, Any]],
+    *,
+    campo: str = "pagos",
+) -> list[Pago]:
     """Agrega los pagos nuevos `pendiente` del viaje ya guardado, cada uno con su alerta `pago`
-    en la agenda de `responsable`, un mes antes del vencimiento (CU-11, RF-063). Los valida
-    quien llama, con `exigir_plan_valido`."""
+    en la agenda de `responsable`, un mes antes del vencimiento (CU-11, RF-063), y los
+    devuelve. Los valida quien llama, con `exigir_plan_valido`; un vencimiento sin fecha de
+    alerta posible es `DatosInvalidos` sobre `campo`."""
+    pagos = []
     for item in items:
         pago = Pago(viaje_id=viaje.id, estado=EstadoPago.pendiente, **item)
         sesion.add(pago)
         await alertas.crear(
             sesion,
             TipoAlerta.pago,
-            sumar_meses(pago.vencimiento, -1),
+            _fecha_alerta(pago.vencimiento, campo),
             _descripcion_alerta(pago.tipo, pago.vencimiento),
             responsable,
             pago,
         )
+        pagos.append(pago)
+    return pagos
+
+
+async def reprogramar_pago(
+    sesion: AsyncSession, actor: Usuario, pago_id: uuid.UUID, vencimiento: date
+) -> Pago:
+    """Cambia el vencimiento de un pago `pendiente` o `vencido` y mueve su alerta `pago` a un
+    mes antes de la fecha nueva (CU-11 A3, RF-065). Si la fecha nueva es hoy o posterior queda
+    `pendiente`; si ya pasó, `vencido`. Uno cobrado o anulado es `TransicionInvalida`. Todo en
+    la transacción del pedido, con el viaje bloqueado. Escribe el responsable, admin o dueño."""
+    pago, _ = await _pago_para_ajustar(sesion, actor, pago_id)
+    fecha_alerta = _fecha_alerta(vencimiento, "vencimiento")
+    estado_pago.reprogramar(pago, vencimiento, hoy=hoy())
+    await alertas.reagendar_de_origen(
+        sesion,
+        pago,
+        (TipoAlerta.pago,),
+        fecha_alerta,
+        _descripcion_alerta(pago.tipo, vencimiento),
+    )
+    await sesion.flush()
+    await sesion.refresh(pago)
+    return pago
+
+
+async def anular_pago(sesion: AsyncSession, actor: Usuario, pago_id: uuid.UUID) -> Pago:
+    """Anula (baja lógica) un pago `pendiente` o `vencido` y resuelve su alerta `pago` (CU-11
+    A4, RF-066). El plan queda sin sumar el precio de venta hasta que se rebalancee con
+    `definir_plan_de_pagos`. Uno cobrado o ya anulado es `TransicionInvalida`. Todo en la
+    transacción del pedido, con el viaje bloqueado. Escribe el responsable, admin o dueño."""
+    pago, _ = await _pago_para_ajustar(sesion, actor, pago_id)
+    estado_pago.anular(pago)
+    await alertas.resolver_de_origen(sesion, pago, (TipoAlerta.pago,))
+    await sesion.flush()
+    await sesion.refresh(pago)
+    return pago
+
+
+async def dividir_pago(
+    sesion: AsyncSession,
+    actor: Usuario,
+    pago_id: uuid.UUID,
+    monto_ahora: Decimal,
+    vencimiento_resto: date,
+) -> tuple[Pago, Pago]:
+    """Divide un pago `pendiente` o `vencido` para cobrar una parte (CU-11 A6): el original
+    queda por `monto_ahora`, con su vencimiento, su tipo y su alerta; el resto va a un pago
+    nuevo del mismo tipo, con vencimiento `vencimiento_resto` y su propia alerta `pago`. El
+    nuevo nace `pendiente`, o `vencido` si ese vencimiento ya pasó, como al reprogramar. El plan
+    sigue sumando lo mismo. Devuelve `(original, nuevo)`. Todo en la transacción del pedido,
+    con el viaje bloqueado. Escribe el responsable, admin o dueño."""
+    pago, viaje = await _pago_para_ajustar(sesion, actor, pago_id)
+    resto = estado_pago.dividir(pago, monto_ahora)
+    (nuevo,) = await agendar_pagos(
+        sesion,
+        viaje,
+        await _responsable(sesion, actor, viaje),
+        [{"monto": resto, "tipo": pago.tipo, "vencimiento": vencimiento_resto}],
+        campo="vencimiento_resto",
+    )
+    dia = hoy()
+    if nuevo.vencimiento < dia:
+        estado_pago.vencer(nuevo, hoy=dia)
+    await sesion.flush()
+    await sesion.refresh(pago)
+    await sesion.refresh(nuevo)
+    return pago, nuevo
 
 
 async def registrar_cobro(
@@ -268,6 +338,30 @@ def _monto_cobrado(monto: Decimal, tipo_cambio: Decimal | None) -> Decimal:
     return monto_cobrado
 
 
+async def _pago_para_ajustar(
+    sesion: AsyncSession, actor: Usuario, pago_id: uuid.UUID
+) -> tuple[Pago, Viaje]:
+    """El pago a reprogramar, anular o dividir y su viaje: el pago se relee con el viaje ya
+    bloqueado, así dos ajustes o un ajuste y un cobro no se pisan. Pide permiso de escritura
+    sobre el viaje, como el plan (DEC-0005), y que el viaje no esté cancelado ni finalizado."""
+    pago = await _pagos.obtener(sesion, pago_id, visibilidad=visibilidad(actor))
+    viaje = await _viajes.obtener_para_modificar(
+        sesion, pago.viaje_id, visibilidad=visibilidad(actor)
+    )
+    exigir_escritura(actor, viaje)
+    if viaje.estado in _CERRADOS:
+        raise Conflicto(f"No se ajustan los pagos de un viaje {viaje.estado.value}.")
+    await sesion.refresh(pago)
+    return pago, viaje
+
+
+async def _responsable(sesion: AsyncSession, actor: Usuario, viaje: Viaje) -> Usuario:
+    """El responsable del viaje, en cuya agenda van las alertas de sus pagos (CU-11)."""
+    if actor.id == viaje.responsable_id:
+        return actor
+    return await _usuarios.obtener(sesion, viaje.responsable_id, visibilidad=visibilidad(actor))
+
+
 async def _plan(sesion: AsyncSession, actor: Usuario, viaje: Viaje) -> list[Pago]:
     pagos = await _pagos.listar_de_viaje(sesion, viaje.id, visibilidad=visibilidad(actor))
     return [p for p in pagos if p.estado is not EstadoPago.anulado]
@@ -293,6 +387,17 @@ def _exigir_que_sume_el_precio(
             f"El plan suma {total} y el precio de venta es {viaje.precio_venta} "
             f"(diferencia: {total - viaje.precio_venta}).",
         )
+
+
+def _fecha_alerta(vencimiento: date, campo: str) -> date:
+    """La alerta de un pago es un mes antes de su vencimiento (CU-11 paso 6). Un vencimiento en
+    enero del año 1 no tiene mes anterior: `DatosInvalidos` sobre `campo`, no un error 500."""
+    try:
+        return sumar_meses(vencimiento, -1)
+    except ValueError:
+        raise DatosInvalidos(
+            campo, f"El vencimiento {vencimiento.isoformat()} está fuera de rango."
+        ) from None
 
 
 def _descripcion_alerta(tipo: TipoPago, vencimiento: date) -> str:
