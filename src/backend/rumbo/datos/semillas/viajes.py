@@ -1,4 +1,4 @@
-"""Semilla de demo de M6 (T-108): viajes ficticios en distintos estados, con su economía y sus pagos."""
+"""Semilla de demo de M6 (T-108): viajes ficticios en distintos estados, con sus pagos."""
 
 from datetime import timedelta
 from decimal import Decimal
@@ -22,10 +22,12 @@ from rumbo.datos.modelos.base import nombre_normalizado
 from rumbo.datos.repositorios.base import normalizar
 from rumbo.datos.repositorios.clientes import RepositorioClientes
 from rumbo.datos.repositorios.seguridad import RepositorioUsuarios
+from rumbo.datos.repositorios.viajes import RepositorioViajes
 from rumbo.negocio.estados import viaje as estado_viaje
 
 _clientes = RepositorioClientes()
 _usuarios = RepositorioUsuarios()
+_viajes = RepositorioViajes()
 
 _PRECIO = Decimal("1000000.00")
 _COSTO = Decimal("700000.00")
@@ -86,13 +88,14 @@ _VIAJES = [
 ]
 
 
-# Se busca por cliente, destino y fecha de salida: un viaje ya cargado, aunque la agencia lo haya
-# movido de estado, no se vuelve a crear ni se pisa.
 async def sembrar_viajes(sesion: AsyncSession) -> None:
-    """Carga los viajes de demo, idempotente. Corre después de la configuración, de la que toma
-    los destinos y el responsable de demo, y de la de clientes, de la que toma los clientes.
-    Responde el asesor del cliente o, si no tiene, la empleada de demo. Las fechas son relativas
-    al día en que corre."""
+    """Carga los viajes de demo, idempotente por cliente y destino (los pares de `_VIAJES` son
+    únicos): un viaje ya cargado, aunque la agencia lo haya movido de estado, no se vuelve a
+    crear ni se pisa, y correrla otro día no lo duplica. Corre después de la configuración, de la
+    que toma los destinos y el responsable de demo, y de la de clientes, de la que toma los
+    clientes. Responde el asesor del cliente o, si no tiene, la empleada de demo. Las fechas son
+    relativas al día en que corre. Arma `Viaje` y `Pago` sin pasar por los servicios, así que no
+    genera las alertas (salida, pagos, reseña) que generaría el uso real."""
     empleada = await _usuarios.buscar_por_email(sesion, "empleada.demo@rumbo.test")
     dia = hoy()
     for contacto, nombre_destino, dias, duracion, estado, pagos in _VIAJES:
@@ -106,14 +109,7 @@ async def sembrar_viajes(sesion: AsyncSession) -> None:
         if cliente is None or destino is None or responsable_id is None:
             continue
         salida = dia + timedelta(days=dias)
-        existente = await sesion.scalar(
-            select(Viaje.id).where(
-                Viaje.cliente_id == cliente.id,
-                Viaje.destino_id == destino.id,
-                Viaje.fecha_salida == salida,
-            )
-        )
-        if existente is not None:
+        if await _viajes.existe_de_cliente(sesion, cliente_id=cliente.id, destino_id=destino.id):
             continue
         viaje = Viaje(
             cliente_id=cliente.id,
@@ -150,7 +146,9 @@ async def sembrar_viajes(sesion: AsyncSession) -> None:
         await sesion.flush()
 
 
-def _llevar_al_estado(viaje: Viaje, estado: str, pagos: list[tuple[TipoPago, str, int, bool]]) -> None:
+def _llevar_al_estado(
+    viaje: Viaje, estado: str, pagos: list[tuple[TipoPago, str, int, bool]]
+) -> None:
     """Aplica las transiciones del negocio hasta el estado pedido (EST-Viaje)."""
     if estado == "reservado":
         return
