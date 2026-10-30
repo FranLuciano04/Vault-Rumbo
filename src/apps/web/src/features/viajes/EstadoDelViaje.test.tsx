@@ -134,6 +134,19 @@ describe("RF-039 avanzar estado", () => {
     expect(region).toHaveTextContent(/solo el responsable del viaje, admin o dueño/i);
   });
 
+  it.each(["confirmado", "en_curso"] as const)(
+    "RF-039 un empleado que no es responsable de un viaje %s no ve avanzar ni corregir",
+    async (estado) => {
+      const ajeno = { ...usuariosPorRol.empleado, id: "00000000-0000-4000-8000-000000000001" };
+      renderFicha(estado, "empleado", ajeno);
+      const region = await acciones();
+
+      expect(within(region).queryByRole("button", { name: AVANZAR })).toBeNull();
+      expect(within(region).queryByRole("button", { name: CORREGIR })).toBeNull();
+      expect(region).toHaveTextContent(/solo el responsable del viaje, admin o dueño/i);
+    },
+  );
+
   it("RF-039 el freelance responsable del viaje sí puede avanzarlo", async () => {
     const responsable = { ...usuariosPorRol.freelance, id: usuariosPorRol.empleado.id };
     renderFicha("confirmado", "freelance", responsable);
