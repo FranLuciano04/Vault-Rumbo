@@ -3,7 +3,7 @@ id: T-097
 titulo: Armar el itinerario de hoteles del viaje
 modulo: M6 — Viajes y economía
 capa: backend
-estado: tomado
+estado: hecho
 depende_de: [T-086, T-076, T-012]
 tamaño: M
 riesgo: normal
@@ -47,3 +47,10 @@ Se arma el itinerario del viaje agregando hoteles del catálogo por tramo (fecha
 - Pago al proveedor (ticket propio).
 
 ## Notas de implementación
+- Servicio nuevo `negocio/servicios/itinerario.py`; schemas `Tramo`, `TramoCrear` y `TramoEditar` (PATCH parcial). Fechas dentro del viaje con extremos inclusivos; el check-out de un tramo puede ser el check-in del siguiente. `orden` repetido → 422; viaje cancelado → 409 (también en DELETE). Hotel inexistente o `cerrado` → 422 sobre `hotel_id` (convención de FK del cuerpo, como `hoteles._exigir_destino`).
+- Alerta `pago` un mes antes de `vencimiento_pago_proveedor` (CU-09 paso 5): se reagenda (fecha y descripción) al editar el vencimiento o al desmarcar el pago, y se resuelve al marcar el pago, quitar el vencimiento o quitar el tramo.
+- «Operador, costo» del objetivo no existen en CU-09 ni en DEC-0003 (`viaje_hotel`): manda la DEC; si el negocio los necesita, va como cambio de CU-09 con una DEC.
+- Tests corregidos con autorización (`--tocar-tests`): ids guardados antes de `expire_all` en `test_itinerario.py`; las 4 rutas del itinerario a `_IMPLEMENTADAS` en `test_contrato_m6.py`; en el fix, el 404 de hotel fuera del catálogo pasó a 422 y se sumaron tests de la review.
+- `shared`: hooks con `TramoCrear`/`TramoEditar`; mocks con 409 solo para viaje cancelado. Tipos regenerados con `npx openapi-typescript` (pnpm fuera del PATH).
+- Menores que quedan: los cambios del itinerario no tocan `updated_by` del viaje (auditoría RF-152, decidir con el equipo); se aceptan tramos de 0 noches.
+- Modelos: tests sonnet, implementación y fix sonnet, review opus. Sin escalados.
