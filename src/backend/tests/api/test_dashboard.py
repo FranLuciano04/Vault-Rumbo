@@ -565,3 +565,16 @@ async def test_rf124_freelance_suma_comision_de_los_viajes_donde_es_vendedor(
 
     assert r.status_code == 200
     assert _montos(r.json()["comisiones"]) == {"ARS": Decimal("2500.00")}
+
+
+async def test_rf124_empleado_suma_la_comision_de_un_viaje_que_vendio_y_lleva_otro(
+    cliente_como: Fabrica, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("empleado")
+    otro = await f.crear(sesion, f.UsuarioFactory, rol=m.RolUsuario("empleado"))
+    await _viaje(sesion, otro.id, vendedor_id=_yo(c), **_con_comision("6000.00"))
+
+    r = await c.get(URL, params=PERIODO)
+
+    assert r.status_code == 200
+    assert _montos(r.json()["comisiones"]) == {"ARS": Decimal("6000.00")}
