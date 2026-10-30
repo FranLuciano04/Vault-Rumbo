@@ -18,7 +18,7 @@ comportamiento. Supuestos que fijan estos tests y que el ticket no dice de forma
 
 import uuid
 from collections.abc import Awaitable, Callable
-from datetime import date
+from datetime import UTC, date, datetime
 from decimal import Decimal
 from typing import Any
 
@@ -429,5 +429,350 @@ async def test_rf151_direccion_cobra_el_pago_de_otro(
     pago = await _pago(sesion, viaje.id, "300000.00")
 
     r = await c.post(_url(pago.id), json=COBRO)
+
+    assert r.status_code == 200
+
+
+# --- T-095: POST /pagos/{id}/revertir-cobro (CU-12 A3; RF-070) ---------------------------------
+# Supuestos que fijan estos tests y que el ticket no dice de forma explícita:
+# - Respuesta: el `Pago` ya revertido (200), con los campos del cobro en null.
+# - Solo se revierte un pago `pagado`; `pendiente`, `vencido` o `anulado` responde 409.
+# - Vuelve a `pendiente` si el vencimiento es hoy o posterior, a `vencido` si ya pasó (EST-Pago T6).
+# - La alerta `pago` resuelta se reabre (`pendiente`, sin `resuelta_en`).
+# - Un viaje `en_curso` o `finalizado` no retrocede: EST-Viaje solo admite revertir un cobro
+#   sobre `vendido` o `confirmado`, así que responde 409 y nada cambia.
+# - Mismos permisos que cobrar: responsable, admin o dueño escriben; otro empleado 403; un
+#   freelance ajeno 404.
+FUTURO = date(2099, 1, 1)
+PASADO = date(2020, 1, 1)
+
+
+def _url_rev(pago_id: uuid.UUID) -> str:
+    return f"/api/pagos/{pago_id}/revertir-cobro"
+
+
+async def _cobrado(sesion: AsyncSession, viaje_id: uuid.UUID, monto: str, **campos: Any) -> m.Pago:
+    datos: dict[str, Any] = {
+        "estado": m.EstadoPago.pagado,
+        "forma_pago": m.FormaPago.efectivo,
+        "moneda_pago": m.Moneda.ARS,
+        "monto_cobrado": Decimal(monto),
+        "fecha_cobro": date(2026, 11, 1),
+        "vencimiento": FUTURO,
+    }
+    return await _pago(sesion, viaje_id, monto, **{**datos, **campos})
+
+
+async def _alerta_resuelta(
+    sesion: AsyncSession, dueno_id: uuid.UUID, pago_id: uuid.UUID
+) -> m.Alerta:
+    return await f.crear(
+        sesion,
+        f.AlertaFactory,
+        propietario_id=dueno_id,
+        pago_id=pago_id,
+        tipo=m.TipoAlerta.pago,
+        fecha=date(2026, 11, 1),
+        estado=m.EstadoAlerta.resuelta,
+        resuelta_en=datetime(2026, 11, 1, 12, 0, tzinfo=UTC),
+    )
+
+
+async def test_rf070_revertir(cliente_como: Fabrica, sesion: AsyncSession) -> None:
+    c = await cliente_como("empleado")
+    viaje = await _viaje(sesion, _yo(c), estado=m.EstadoViaje.vendido)
+    pago = await _cobrado(sesion, viaje.id, "300000.00")
+    await _cobrado(sesion, viaje.id, "200000.00", tipo=m.TipoPago.cuota)
+    await _pago(sesion, viaje.id, "500000.00", tipo=m.TipoPago.saldo)
+
+    r = await c.post(_url_rev(pago.id))
+
+    assert r.status_code == 200
+    assert r.json()["id"] == str(pago.id)
+    assert r.json()["estado"] == "pendiente"
+    await sesion.refresh(pago)
+    assert pago.estado == m.EstadoPago.pendiente
+
+
+async def test_rf070_vuelve_a_vendido(cliente_como: Fabrica, sesion: AsyncSession) -> None:
+    c = await cliente_como("empleado")
+    viaje = await _viaje(sesion, _yo(c), estado=m.EstadoViaje.confirmado)
+    await _cobrado(sesion, viaje.id, "300000.00")
+    saldo = await _cobrado(sesion, viaje.id, "700000.00", tipo=m.TipoPago.saldo)
+
+    r = await c.post(_url_rev(saldo.id))
+
+    assert r.status_code == 200
+    await sesion.refresh(viaje)
+    assert viaje.estado == m.EstadoViaje.vendido  # A3: confirmado por saldo cero -> vendido
+    pagos = await _pagos_de(sesion, viaje.id)
+    assert calculos.saldo_pendiente(pagos) == Decimal("700000.00")
+
+
+async def test_rf070_sigue_vendido_si_quedan_otros_cobros(
+    cliente_como: Fabrica, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("empleado")
+    viaje = await _viaje(sesion, _yo(c), estado=m.EstadoViaje.vendido)
+    await _cobrado(sesion, viaje.id, "300000.00")
+    cuota = await _cobrado(sesion, viaje.id, "200000.00", tipo=m.TipoPago.cuota)
+    await _pago(sesion, viaje.id, "500000.00", tipo=m.TipoPago.saldo)
+
+    r = await c.post(_url_rev(cuota.id))
+
+    assert r.status_code == 200
+    await sesion.refresh(viaje)
+    assert viaje.estado == m.EstadoViaje.vendido  # queda otro cobro: no retrocede a reservado
+
+
+async def test_rf070_unico_cobro_vuelve_a_reservado(
+    cliente_como: Fabrica, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("empleado")
+    viaje = await _viaje(sesion, _yo(c), estado=m.EstadoViaje.vendido)
+    sena = await _cobrado(sesion, viaje.id, "300000.00")
+    await _pago(sesion, viaje.id, "700000.00", tipo=m.TipoPago.saldo)
+
+    r = await c.post(_url_rev(sena.id))
+
+    assert r.status_code == 200
+    await sesion.refresh(viaje)
+    assert viaje.estado == m.EstadoViaje.reservado  # A3: era el único cobro (A0)
+
+
+async def test_rf070_pago_unico_confirmado_vuelve_a_reservado(
+    cliente_como: Fabrica, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("empleado")
+    viaje = await _viaje(sesion, _yo(c), estado=m.EstadoViaje.confirmado)
+    unico = await _cobrado(sesion, viaje.id, "1000000.00", tipo=m.TipoPago.saldo)
+
+    r = await c.post(_url_rev(unico.id))
+
+    assert r.status_code == 200
+    await sesion.refresh(viaje)
+    assert viaje.estado == m.EstadoViaje.reservado  # encadena confirmado -> vendido -> reservado
+
+
+async def test_rf070_reabre_alerta(cliente_como: Fabrica, sesion: AsyncSession) -> None:
+    c = await cliente_como("empleado")
+    viaje = await _viaje(sesion, _yo(c), estado=m.EstadoViaje.vendido)
+    pago = await _cobrado(sesion, viaje.id, "300000.00")
+    await _pago(sesion, viaje.id, "700000.00", tipo=m.TipoPago.saldo)
+    alerta = await _alerta_resuelta(sesion, _yo(c), pago.id)
+
+    r = await c.post(_url_rev(pago.id))
+
+    assert r.status_code == 200
+    await sesion.refresh(alerta)
+    assert alerta.estado == m.EstadoAlerta.pendiente
+    assert alerta.resuelta_en is None
+
+
+async def test_rf070_pago_vencido_vuelve_a_vencido(
+    cliente_como: Fabrica, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("empleado")
+    viaje = await _viaje(sesion, _yo(c), estado=m.EstadoViaje.vendido)
+    pago = await _cobrado(sesion, viaje.id, "300000.00", vencimiento=PASADO)
+
+    r = await c.post(_url_rev(pago.id))
+
+    assert r.status_code == 200
+    assert r.json()["estado"] == "vencido"
+    await sesion.refresh(pago)
+    assert pago.estado == m.EstadoPago.vencido
+
+
+async def test_rf070_pago_con_vencimiento_futuro_vuelve_a_pendiente(
+    cliente_como: Fabrica, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("empleado")
+    viaje = await _viaje(sesion, _yo(c), estado=m.EstadoViaje.vendido)
+    pago = await _cobrado(sesion, viaje.id, "300000.00", vencimiento=FUTURO)
+
+    r = await c.post(_url_rev(pago.id))
+
+    assert r.status_code == 200
+    assert r.json()["estado"] == "pendiente"
+
+
+async def test_rf070_limpia_los_datos_del_cobro(
+    cliente_como: Fabrica, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("empleado")
+    viaje = await _viaje(sesion, _yo(c), estado=m.EstadoViaje.vendido, moneda=m.Moneda.USD)
+    pago = await _cobrado(
+        sesion, viaje.id, "1000.00", forma_pago=m.FormaPago.tarjeta_credito,
+        tipo_cambio=Decimal("1200.5000"), monto_cobrado=Decimal("1200500.00"),
+    )  # fmt: skip
+
+    r = await c.post(_url_rev(pago.id))
+
+    assert r.status_code == 200
+    cuerpo = r.json()
+    for campo in ("fecha_cobro", "forma_pago", "moneda_pago", "tipo_cambio", "monto_cobrado"):
+        assert cuerpo[campo] is None, campo
+    await sesion.refresh(pago)
+    assert pago.fecha_cobro is None
+    assert pago.forma_pago is None
+    assert pago.moneda_pago is None
+    assert pago.tipo_cambio is None
+    assert pago.monto_cobrado is None
+    assert pago.monto == Decimal("1000.00")  # el plan no se toca
+
+
+async def test_rf070_se_puede_volver_a_cobrar_despues_de_revertir(
+    cliente_como: Fabrica, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("empleado")
+    viaje = await _viaje(sesion, _yo(c))
+    pago = await _pago(sesion, viaje.id, "300000.00", vencimiento=FUTURO)
+    await _pago(sesion, viaje.id, "700000.00", tipo=m.TipoPago.saldo, vencimiento=FUTURO)
+    assert (await c.post(_url(pago.id), json=COBRO)).status_code == 200
+
+    assert (await c.post(_url_rev(pago.id))).status_code == 200
+    r = await c.post(_url(pago.id), json=COBRO)
+
+    assert r.status_code == 200
+    assert r.json()["estado"] == "pagado"
+
+
+async def test_rf070_pago_pendiente_409(cliente_como: Fabrica, sesion: AsyncSession) -> None:
+    c = await cliente_como("empleado")
+    viaje = await _viaje(sesion, _yo(c))
+    pago = await _pago(sesion, viaje.id, "300000.00", vencimiento=FUTURO)
+
+    r = await c.post(_url_rev(pago.id))
+
+    assert r.status_code == 409
+    assert r.headers["content-type"].startswith(PROBLEM_JSON)
+    await sesion.refresh(pago)
+    assert pago.estado == m.EstadoPago.pendiente
+
+
+async def test_rf070_pago_vencido_sin_cobro_409(
+    cliente_como: Fabrica, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("empleado")
+    viaje = await _viaje(sesion, _yo(c))
+    pago = await _pago(
+        sesion, viaje.id, "300000.00", estado=m.EstadoPago.vencido, vencimiento=PASADO
+    )
+
+    r = await c.post(_url_rev(pago.id))
+
+    assert r.status_code == 409
+    assert r.headers["content-type"].startswith(PROBLEM_JSON)
+    await sesion.refresh(pago)
+    assert pago.estado == m.EstadoPago.vencido
+
+
+async def test_rf070_pago_anulado_409(cliente_como: Fabrica, sesion: AsyncSession) -> None:
+    c = await cliente_como("empleado")
+    viaje = await _viaje(sesion, _yo(c))
+    pago = await _pago(sesion, viaje.id, "300000.00", estado=m.EstadoPago.anulado)
+
+    r = await c.post(_url_rev(pago.id))
+
+    assert r.status_code == 409
+    assert r.headers["content-type"].startswith(PROBLEM_JSON)
+    await sesion.refresh(pago)
+    assert pago.estado == m.EstadoPago.anulado
+
+
+async def test_rf070_revertir_dos_veces_409(cliente_como: Fabrica, sesion: AsyncSession) -> None:
+    c = await cliente_como("empleado")
+    viaje = await _viaje(sesion, _yo(c), estado=m.EstadoViaje.vendido)
+    pago = await _cobrado(sesion, viaje.id, "300000.00")
+    assert (await c.post(_url_rev(pago.id))).status_code == 200
+
+    r = await c.post(_url_rev(pago.id))
+
+    assert r.status_code == 409
+
+
+async def test_rf070_viaje_en_curso_no_retrocede_409(
+    cliente_como: Fabrica, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("empleado")
+    viaje = await _viaje(sesion, _yo(c), estado=m.EstadoViaje.en_curso)
+    pago = await _cobrado(sesion, viaje.id, "1000000.00", tipo=m.TipoPago.saldo)
+
+    r = await c.post(_url_rev(pago.id))
+
+    assert r.status_code == 409
+    assert r.headers["content-type"].startswith(PROBLEM_JSON)
+    await sesion.refresh(pago)
+    await sesion.refresh(viaje)
+    assert pago.estado == m.EstadoPago.pagado
+    assert pago.monto_cobrado == Decimal("1000000.00")
+    assert viaje.estado == m.EstadoViaje.en_curso
+
+
+async def test_rf070_viaje_finalizado_no_retrocede_409(
+    cliente_como: Fabrica, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("empleado")
+    viaje = await _viaje(sesion, _yo(c), estado=m.EstadoViaje.finalizado)
+    pago = await _cobrado(sesion, viaje.id, "1000000.00", tipo=m.TipoPago.saldo)
+
+    r = await c.post(_url_rev(pago.id))
+
+    assert r.status_code == 409
+    await sesion.refresh(pago)
+    await sesion.refresh(viaje)
+    assert pago.estado == m.EstadoPago.pagado
+    assert viaje.estado == m.EstadoViaje.finalizado
+
+
+async def test_rf070_pago_inexistente_404(cliente_como: Fabrica) -> None:
+    c = await cliente_como("admin")
+
+    r = await c.post(_url_rev(uuid.uuid4()))
+
+    assert r.status_code == 404
+    assert r.headers["content-type"].startswith(PROBLEM_JSON)
+
+
+async def test_rf151_revertir_freelance_viaje_ajeno_404(
+    cliente_como: Fabrica, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("freelance")
+    otro = await f.crear(sesion, f.UsuarioFactory, rol=m.RolUsuario("empleado"))
+    viaje = await _viaje(sesion, otro.id, estado=m.EstadoViaje.vendido)
+    pago = await _cobrado(sesion, viaje.id, "300000.00")
+
+    r = await c.post(_url_rev(pago.id))
+
+    assert r.status_code == 404
+    await sesion.refresh(pago)
+    assert pago.estado == m.EstadoPago.pagado
+
+
+async def test_rf151_revertir_empleado_no_responsable_403(
+    cliente_como: Fabrica, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("empleado")
+    otro = await f.crear(sesion, f.UsuarioFactory, rol=m.RolUsuario("empleado"))
+    viaje = await _viaje(sesion, otro.id, estado=m.EstadoViaje.vendido)
+    pago = await _cobrado(sesion, viaje.id, "300000.00")
+
+    r = await c.post(_url_rev(pago.id))
+
+    assert r.status_code == 403
+    await sesion.refresh(pago)
+    assert pago.estado == m.EstadoPago.pagado
+
+
+async def test_rf151_revertir_direccion_revierte_el_pago_de_otro(
+    cliente_como: Fabrica, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("dueno")
+    otro = await f.crear(sesion, f.UsuarioFactory, rol=m.RolUsuario("empleado"))
+    viaje = await _viaje(sesion, otro.id, estado=m.EstadoViaje.vendido)
+    pago = await _cobrado(sesion, viaje.id, "300000.00")
+
+    r = await c.post(_url_rev(pago.id))
 
     assert r.status_code == 200

@@ -624,6 +624,7 @@ _IMPLEMENTADAS = {
     ("get", f"/api/viajes/{ID}/pagos"),
     ("put", f"/api/viajes/{ID}/pagos"),
     ("post", f"/api/pagos/{ID}/cobrar"),  # T-094, test_cobros.py
+    ("post", f"/api/pagos/{ID}/revertir-cobro"),  # T-095, test_cobros.py
     ("get", f"/api/viajes/{ID}/itinerario"),  # T-097, test_itinerario.py
     ("post", f"/api/viajes/{ID}/itinerario"),  # T-097, test_itinerario.py
     ("patch", f"/api/tramos/{ID}"),  # T-097, test_itinerario.py

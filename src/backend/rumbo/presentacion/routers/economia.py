@@ -122,5 +122,6 @@ async def registrar_cobro(
     summary="Revertir un cobro cargado por error",
     **operacion_de_registro(403, 404, 409, casos_de_uso="CU-12"),
 )
-async def revertir_cobro(pago_id: uuid.UUID) -> Pago:
-    raise no_implementado()
+async def revertir_cobro(pago_id: uuid.UUID, actor: ActorDep, sesion: SesionDep) -> Pago:
+    pago = await economia.revertir_cobro(sesion, actor, pago_id)
+    return Pago.model_validate(pago)
