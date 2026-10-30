@@ -11,7 +11,8 @@ no dice de forma explícita y que fijan estos tests:
   (extremos inclusivos); `check_out >= check_in`. Si no, 422.
 - Sin solaparse: dos tramos se solapan si `check_in < otro.check_out` y `otro.check_in <
   check_out` (el check-out de uno puede ser el check-in del siguiente). Si no, 422.
-- Hotel fuera del catálogo (A2): `hotel_id` inexistente responde 404 y no se crea nada.
+- Hotel fuera del catálogo (A2): `hotel_id` inexistente responde 422 sobre `hotel_id` y no se
+  crea nada; un hotel cerrado también.
 - El GET devuelve los tramos ordenados por `orden`.
 - Con `vencimiento_pago_proveedor` se genera una Alerta `pago` un mes antes, atada al tramo
   (`viaje_hotel_id`); al editar el vencimiento se reagenda, al marcar
@@ -254,6 +255,7 @@ async def test_rf046_editar_vencimiento_reagenda_la_alerta(
     alertas = await _alertas_de_tramo(sesion, tramo_id)
     assert len(alertas) == 1  # se reagenda, no se duplica
     assert alertas[0].fecha == date(2026, 12, 9)
+    assert "09/01/27" in alertas[0].descripcion
     assert alertas[0].estado == m.EstadoAlerta.pendiente
 
 
@@ -417,7 +419,7 @@ async def test_editar_un_tramo_no_se_solapa_consigo_mismo(
     assert r.status_code == 200
 
 
-async def test_cu09_a2_hotel_fuera_del_catalogo_404(
+async def test_cu09_a2_hotel_fuera_del_catalogo_422(
     cliente_como: Fabrica, sesion: AsyncSession
 ) -> None:
     c = await cliente_como("empleado")
@@ -425,8 +427,9 @@ async def test_cu09_a2_hotel_fuera_del_catalogo_404(
 
     r = await c.post(_url(viaje.id), json=_cuerpo(uuid.uuid4()))
 
-    assert r.status_code == 404
+    assert r.status_code == 422
     assert r.headers["content-type"].startswith(PROBLEM_JSON)
+    assert r.json()["errores"][0]["campo"] == "hotel_id"
     assert await _tramos_de(sesion, viaje.id) == []
 
 
@@ -508,3 +511,99 @@ async def test_rf151_direccion_arma_el_itinerario_de_otro(
     r = await c.post(_url(viaje.id), json=_cuerpo(hotel.id))
 
     assert r.status_code == 201
+
+
+async def test_rf046_desmarcar_pago_proveedor_vuelve_a_agendar(
+    cliente_como: Fabrica, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("empleado")
+    viaje = await _viaje(sesion, _yo(c))
+    hotel = await _hotel(sesion)
+    creado = await c.post(
+        _url(viaje.id), json=_cuerpo(hotel.id, vencimiento_pago_proveedor="2027-01-05")
+    )
+    tramo_id = uuid.UUID(creado.json()["id"])
+    await c.patch(_url_tramo(tramo_id), json={"pago_proveedor_realizado": True})
+
+    r = await c.patch(_url_tramo(tramo_id), json={"pago_proveedor_realizado": False})
+
+    assert r.status_code == 200
+    abiertas = [
+        a for a in await _alertas_de_tramo(sesion, tramo_id) if a.estado == m.EstadoAlerta.pendiente
+    ]
+    assert [a.fecha for a in abiertas] == [date(2026, 12, 5)]
+
+
+async def test_cu09_hotel_cerrado_422(cliente_como: Fabrica, sesion: AsyncSession) -> None:
+    c = await cliente_como("empleado")
+    viaje = await _viaje(sesion, _yo(c))
+    destino = await f.crear(sesion, f.DestinoFactory)
+    cerrado = await f.crear(
+        sesion, f.HotelFactory, destino_id=destino.id, estado=m.EstadoHotel.cerrado
+    )
+
+    r = await c.post(_url(viaje.id), json=_cuerpo(cerrado.id))
+
+    assert r.status_code == 422
+    assert r.json()["errores"][0]["campo"] == "hotel_id"
+    assert await _tramos_de(sesion, viaje.id) == []
+
+
+async def test_editar_a_hotel_cerrado_o_inexistente_422_y_otros_campos_con_hotel_cerrado_ok(
+    cliente_como: Fabrica, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("empleado")
+    viaje = await _viaje(sesion, _yo(c))
+    destino = await f.crear(sesion, f.DestinoFactory)
+    cerrado = await f.crear(
+        sesion, f.HotelFactory, destino_id=destino.id, estado=m.EstadoHotel.cerrado
+    )
+    activo = await _hotel(sesion)
+    tramo = await _tramo(sesion, viaje.id, activo.id)
+    tramo_id, cerrado_id = tramo.id, cerrado.id
+    cerrado_tramo = await _tramo(
+        sesion,
+        viaje.id,
+        cerrado_id,
+        orden=2,
+        check_in=date(2027, 1, 15),
+        check_out=date(2027, 1, 18),
+    )
+
+    inexistente = await c.patch(_url_tramo(tramo_id), json={"hotel_id": str(uuid.uuid4())})
+    a_cerrado = await c.patch(_url_tramo(tramo_id), json={"hotel_id": str(cerrado_id)})
+    otros_campos = await c.patch(_url_tramo(cerrado_tramo.id), json={"check_out": "2027-01-19"})
+
+    assert (inexistente.status_code, a_cerrado.status_code) == (422, 422)
+    assert inexistente.json()["errores"][0]["campo"] == "hotel_id"
+    assert otros_campos.status_code == 200
+
+
+async def test_orden_repetido_422(cliente_como: Fabrica, sesion: AsyncSession) -> None:
+    c = await cliente_como("empleado")
+    viaje = await _viaje(sesion, _yo(c))
+    h1, h2 = await _hotel(sesion), await _hotel(sesion)
+    await _tramo(
+        sesion, viaje.id, h1.id, orden=1, check_in=date(2027, 1, 10), check_out=date(2027, 1, 15)
+    )
+
+    r = await c.post(
+        _url(viaje.id), json=_cuerpo(h2.id, check_in="2027-01-15", check_out="2027-01-18", orden=1)
+    )
+
+    assert r.status_code == 422
+    assert r.json()["errores"][0]["campo"] == "orden"
+    assert len(await _tramos_de(sesion, viaje.id)) == 1
+
+
+async def test_check_out_fuera_del_viaje_marca_check_out(
+    cliente_como: Fabrica, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("empleado")
+    viaje = await _viaje(sesion, _yo(c))
+    hotel = await _hotel(sesion)
+
+    r = await c.post(_url(viaje.id), json=_cuerpo(hotel.id, check_out="2027-01-21"))
+
+    assert r.status_code == 422
+    assert r.json()["errores"][0]["campo"] == "check_out"
