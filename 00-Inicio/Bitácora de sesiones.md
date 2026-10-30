@@ -33,6 +33,14 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
+## 30/10/26 — Nahuel (Claude Opus 5.5) — T-108: e2e del circuito completo de CU-01
+- **Hecho:** T-108 (PR [#166](https://github.com/FranLuciano04/Vault-Rumbo/pull/166), mergeado con el CI en verde, e2e incluido). Es la meta mínima del PC2.
+  - `e2e/cu01.spec.ts`: del cliente al viaje `confirmado` (con A3 y A2), un `test.step` por RF, y el `freelance` que no ve el viaje ajeno (RF-151). No destapó bugs del sistema.
+  - Semilla `semillas/viajes.py`: 6 viajes de demo, uno por estado. La review de Opus encontró que duplicaba los viajes si se corría otro día; se arregló con un test propio (`test_semilla_viajes.py`).
+  - Trazabilidad del ticket: sale RF-101 (la reseña queda fuera del circuito) y entra RF-151.
+- **Commits:** 599c35e, 697230d, 959662b, 87131ad.
+- **Pendiente:** las alertas de pago no traen `viaje_id` y `GET /alertas` no filtra por viaje; el e2e filtra del lado del cliente. Los e2e locales chocan con la demo `rumbo-local` por el puerto 9099.
+
 ## 30/10/26 — Francisco (Claude Opus 5.5) — T-091, T-104, T-105, T-095 y T-107 (M6) y T-119, T-121 y T-126 (M8)
 - **Hecho:** T-091 (PR [#152](https://github.com/FranLuciano04/Vault-Rumbo/pull/152), mergeado con el CI en verde).
   - `GET /viajes` (filtros por estado, fechas, «lo mío» y `cliente_id`, con paginación y visibilidad) y `GET /viajes/{id}` con la economía, el saldo y el porcentaje pagado.
