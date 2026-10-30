@@ -1,7 +1,8 @@
 import type { Cotizacion, Oportunidad } from "@rumbo/shared";
-import { useCotizaciones, useDestinos } from "@rumbo/shared/hooks";
+import { useCotizaciones, useDestinos, useViajes } from "@rumbo/shared/hooks";
 import type { AxiosInstance } from "axios";
 import { useState } from "react";
+import { Link } from "react-router";
 import { Button } from "@/components/ui/button";
 import { DialogoReserva } from "./DialogoReserva";
 
@@ -16,11 +17,11 @@ export function ConfirmarReserva({
   cliente: AxiosInstance;
   oportunidad: Oportunidad;
 }) {
-  const { data: cotizaciones } = useCotizaciones(cliente, oportunidad.id);
+  const { data: cotizaciones } = useCotizaciones(cliente, oportunidad.id, { por_pagina: 100 });
   if (!cotizaciones || oportunidad.estado === "perdida") return null;
 
   const aceptada = cotizaciones.items.findLast((c) => c.estado === "aceptada");
-  const ventaDirecta = oportunidad.estado === "ganada" && cotizaciones.total === 0;
+  const ventaDirecta = oportunidad.estado === "ganada" && !aceptada;
   if (!aceptada && !ventaDirecta) return null;
 
   return <ReservaConfirmable cliente={cliente} oportunidad={oportunidad} aceptada={aceptada} />;
@@ -36,9 +37,22 @@ function ReservaConfirmable({
   aceptada?: Cotizacion;
 }) {
   const [abierto, setAbierto] = useState(false);
-  // El botón espera al catálogo de destinos: el diálogo lo necesita completo al abrirse.
+  // El botón espera al catálogo de destinos (el diálogo lo necesita al abrirse) y a saber si ya hay viaje.
   const { data: destinos } = useDestinos(cliente, { por_pagina: 100 });
-  if (!destinos) return null;
+  const { data: viajes } = useViajes(cliente, {
+    cliente_id: oportunidad.cliente_id,
+    por_pagina: 100,
+  });
+  if (!destinos || !viajes) return null;
+
+  const viaje = viajes.items.find((v) => v.oportunidad_id === oportunidad.id);
+  if (viaje) {
+    return (
+      <Link to={`/viajes/${viaje.id}`} className="text-sm font-medium underline">
+        Ver viaje
+      </Link>
+    );
+  }
   return abierto ? (
     <DialogoReserva
       cliente={cliente}

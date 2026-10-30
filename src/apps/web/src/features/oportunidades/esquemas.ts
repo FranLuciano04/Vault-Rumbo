@@ -2,6 +2,7 @@ import {
   ETIQUETA_MOTIVO_PERDIDA,
   type CanalOportunidad,
   type CategoriaViaje,
+  hoyEnBuenosAires,
   type Moneda,
   type MotivoPerdida,
   type TipoPago,
@@ -108,10 +109,15 @@ export const esquemaReserva = z
     categoria: z.enum(CATEGORIAS, "Elegí una categoría."),
     responsable_id: z.string(),
     moneda: z.enum(MONEDAS),
-    precio_venta: importe,
+    precio_venta: importe.refine(
+      (v) => Number(v) > 0,
+      "El precio de venta tiene que ser mayor a cero.",
+    ),
     costo: importe,
     tipo_de_pago: z.enum(TIPOS_DE_PAGO),
-    vencimiento: z.iso.date("Ingresá la fecha de vencimiento."),
+    vencimiento: z.iso
+      .date("Ingresá la fecha de vencimiento.")
+      .refine((v) => v >= hoyEnBuenosAires(), "El vencimiento no puede ser anterior a hoy."),
   })
   .refine((d) => d.fecha_regreso >= d.fecha_salida, {
     path: ["fecha_regreso"],

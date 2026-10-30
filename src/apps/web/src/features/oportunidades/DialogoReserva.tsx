@@ -3,14 +3,13 @@ import type { Cotizacion, Destino, Oportunidad } from "@rumbo/shared";
 import { useAsesores, useConfirmarReserva } from "@rumbo/shared/hooks";
 import type { AxiosInstance } from "axios";
 import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { useNavigate } from "react-router";
 import { CampoFormulario, CLASE_SELECT } from "@/components/CampoFormulario";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { aplicarErroresDelServidor } from "@/lib/errores";
 import { ETIQUETA_TIPO_PAGO } from "../viajes/plan/etiquetas";
-import { sumarMesesAHoy } from "./cotizaciones/calculos";
 import { esquemaReserva, type DatosReserva } from "./esquemas";
 
 const CAMPOS = [
@@ -55,13 +54,15 @@ export function DialogoReserva({
       fecha_regreso: "",
       responsable_id: "",
       moneda: "ARS",
-      precio_venta: aceptada?.total ?? "0",
-      costo: "0",
+      precio_venta: aceptada?.total ?? "",
+      costo: "",
       tipo_de_pago: "saldo",
-      vencimiento: sumarMesesAHoy(0),
+      vencimiento: "",
     },
   });
   const { errors, isSubmitting } = formulario.formState;
+  const monedaElegida = useWatch({ control: formulario.control, name: "moneda" });
+  const moneda = aceptada?.moneda ?? monedaElegida;
 
   async function enviar(datos: DatosReserva) {
     setError(null);
@@ -166,14 +167,14 @@ export function DialogoReserva({
         <div className="grid gap-4 sm:grid-cols-2">
           <CampoFormulario
             id="reserva-precio"
-            etiqueta={`Precio de venta${aceptada ? ` (${aceptada.moneda})` : ""}`}
+            etiqueta={`Precio de venta (${moneda})`}
             error={errors.precio_venta}
           >
             {(props) => (
               <Input inputMode="decimal" {...props} {...formulario.register("precio_venta")} />
             )}
           </CampoFormulario>
-          <CampoFormulario id="reserva-costo" etiqueta="Costo" error={errors.costo}>
+          <CampoFormulario id="reserva-costo" etiqueta={`Costo (${moneda})`} error={errors.costo}>
             {(props) => <Input inputMode="decimal" {...props} {...formulario.register("costo")} />}
           </CampoFormulario>
           <CampoFormulario
