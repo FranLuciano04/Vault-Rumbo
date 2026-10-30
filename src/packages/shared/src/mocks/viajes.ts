@@ -366,8 +366,8 @@ export const manejadoresViajes: RequestHandler[] = [
     return HttpResponse.json(
       {
         vencimiento_pago_proveedor: null,
-        ...datos,
         pago_proveedor_realizado: false,
+        ...datos,
         id: crypto.randomUUID(),
         viaje_id: v.id,
       },

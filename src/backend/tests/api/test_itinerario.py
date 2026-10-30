@@ -798,6 +798,28 @@ async def test_rf047_crear_tramo_ya_pagado_no_genera_alerta(
     assert await _alertas_de_tramo(sesion, uuid.UUID(r.json()["id"])) == []
 
 
+async def test_rf047_despagar_vuelve_a_crear_la_alerta(
+    cliente_como: Fabrica, sesion: AsyncSession
+) -> None:
+    """Un tramo que nació pagado no tiene alerta: al desmarcarlo con vencimiento, se crea."""
+    c = await cliente_como("empleado")
+    viaje = await _viaje(sesion, _yo(c))
+    hotel = await _hotel(sesion)
+    creado = await c.post(
+        _url(viaje.id),
+        json=_cuerpo(
+            hotel.id, vencimiento_pago_proveedor="2027-01-05", pago_proveedor_realizado=True
+        ),
+    )
+    tramo_id = uuid.UUID(creado.json()["id"])
+
+    r = await c.patch(_url_tramo(tramo_id), json={"pago_proveedor_realizado": False})
+
+    assert r.status_code == 200
+    alertas = await _alertas_de_tramo(sesion, tramo_id)
+    assert [(a.estado, a.fecha) for a in alertas] == [(m.EstadoAlerta.pendiente, date(2026, 12, 5))]
+
+
 async def test_quitar_tramo_cierra_alerta(cliente_como: Fabrica, sesion: AsyncSession) -> None:
     """Con el tramo creado por la API: la alerta queda resuelta, no borrada ni abierta."""
     c = await cliente_como("empleado")
@@ -817,6 +839,31 @@ async def test_quitar_tramo_cierra_alerta(cliente_como: Fabrica, sesion: AsyncSe
     assert alerta is not None
     assert alerta.estado == m.EstadoAlerta.resuelta
     assert alerta.viaje_hotel_id is None  # FK SET NULL: ya no apunta al tramo borrado
+
+
+async def test_quitar_tramo_cierra_la_alerta_vista(
+    cliente_como: Fabrica, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("empleado")
+    viaje = await _viaje(sesion, _yo(c))
+    hotel = await _hotel(sesion)
+    creado = await c.post(
+        _url(viaje.id), json=_cuerpo(hotel.id, vencimiento_pago_proveedor="2027-01-05")
+    )
+    tramo_id = uuid.UUID(creado.json()["id"])
+    alerta = (await _alertas_de_tramo(sesion, tramo_id))[0]
+    alerta_id = alerta.id
+    alerta.estado = m.EstadoAlerta.vista
+    await sesion.commit()
+
+    r = await c.delete(_url_tramo(tramo_id))
+
+    assert r.status_code == 204
+    sesion.expire_all()
+    cerrada = await sesion.get(m.Alerta, alerta_id)
+    assert cerrada is not None
+    assert cerrada.estado == m.EstadoAlerta.resuelta
+    assert cerrada.viaje_hotel_id is None
 
 
 async def test_quitar_tramo_no_toca_la_alerta_de_otro_tramo(
