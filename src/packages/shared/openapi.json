@@ -10280,6 +10280,24 @@
             "title": "Ganancia Estimada",
             "readOnly": true
           },
+          "margen": {
+            "items": {
+              "$ref": "#/components/schemas/MontoPorMoneda"
+            },
+            "type": "array",
+            "title": "Margen",
+            "description": "Fracción de la venta que es ganancia (0.2500 = 25 %), ponderada por moneda.",
+            "readOnly": true
+          },
+          "comisiones": {
+            "items": {
+              "$ref": "#/components/schemas/MontoPorMoneda"
+            },
+            "type": "array",
+            "title": "Comisiones",
+            "description": "Comisión de los vendedores sobre las ventas.",
+            "readOnly": true
+          },
           "ticket_promedio": {
             "items": {
               "$ref": "#/components/schemas/MontoPorMoneda"
@@ -10380,6 +10398,8 @@
           "ventas",
           "ventas_mensuales",
           "ganancia_estimada",
+          "margen",
+          "comisiones",
           "ticket_promedio",
           "cobrado",
           "pendiente_de_cobrar",

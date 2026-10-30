@@ -1,15 +1,32 @@
-"""Rutas del dashboard y los reportes (CU-21, CU-22). Todas son stubs que responden 501."""
+"""Rutas del dashboard y los reportes (CU-21, CU-22). El dashboard calcula el embudo y los
+indicadores económicos; los reportes siguen siendo stubs que responden 501."""
 
 import uuid
-from datetime import date
+from datetime import date, timedelta
+from decimal import Decimal
 from typing import Annotated, Literal
 
-from fastapi import APIRouter, Path, Query
+from fastapi import APIRouter, Depends, Path, Query
 
+from rumbo.core.db import SesionDep
+from rumbo.core.fechas import hoy, sumar_meses
+from rumbo.datos import modelos
+from rumbo.datos.modelos import Moneda
+from rumbo.negocio.servicios import dashboard
 from rumbo.presentacion.contrato import GESTION, TODOS, no_implementado, operacion
-from rumbo.presentacion.esquemas.dashboard import Dashboard, Reporte, ReporteCatalogo
+from rumbo.presentacion.dependencias import usuario_actual
+from rumbo.presentacion.esquemas.dashboard import (
+    Dashboard,
+    Embudo,
+    EtapaEmbudo,
+    MontoPorMoneda,
+    Reporte,
+    ReporteCatalogo,
+)
 
 router = APIRouter(tags=["dashboard"])
+
+ActorDep = Annotated[modelos.Usuario, Depends(usuario_actual)]
 
 XLSX = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
 _ARCHIVO = {"schema": {"type": "string", "format": "binary"}}
@@ -35,6 +52,8 @@ _REPORTE["responses"][200] = {
     **_DASHBOARD,
 )
 async def ver_dashboard(
+    actor: ActorDep,
+    sesion: SesionDep,
     desde: Annotated[
         date | None, Query(description="Inicio del período. Sin él, el mes en curso.")
     ] = None,
@@ -49,7 +68,45 @@ async def ver_dashboard(
         ),
     ] = None,
 ) -> Dashboard:
-    raise no_implementado()
+    primero_del_mes = hoy().replace(day=1)
+    desde = desde or primero_del_mes
+    hasta = hasta or sumar_meses(primero_del_mes, 1) - timedelta(days=1)
+    indicadores = await dashboard.calcular_indicadores(
+        sesion, actor, desde=desde, hasta=hasta, responsable_id=responsable_id
+    )
+    return Dashboard(
+        desde=desde,
+        hasta=hasta,
+        embudo=Embudo(
+            etapas=[EtapaEmbudo(estado=e, cantidad=n) for e, n in indicadores.etapas.items()],
+            tasa_conversion=indicadores.tasa_conversion,
+        ),
+        ventas=_montos(indicadores.ventas),
+        ganancia_estimada=_montos(indicadores.ganancia_estimada),
+        margen=_montos(indicadores.margen),
+        comisiones=_montos(indicadores.comisiones),
+        cobrado=_montos(indicadores.cobrado),
+        pendiente_de_cobrar=_montos(indicadores.pendiente_de_cobrar),
+        # Sin implementar: `ventas_mensuales`, `pendiente_de_pagar` y `proximos_vencimientos`
+        # (RF-124) quedan pendientes y se anotan en T-122; el resto es de T-122. Vacíos o en cero.
+        ventas_mensuales=[],
+        ticket_promedio=[],
+        pendiente_de_pagar=[],
+        proximos_vencimientos=[],
+        viajes_proximos=[],
+        consultas_pendientes=0,
+        presupuestos_abiertos=0,
+        reservas_confirmadas=0,
+        alertas_pendientes=0,
+        destinos_mas_vendidos=[],
+        ventas_por_vendedor=[],
+    )
+
+
+def _montos(totales: dict[Moneda, Decimal]) -> list[MontoPorMoneda]:
+    return [
+        MontoPorMoneda(moneda=m, monto=totales[m]) for m in sorted(totales, key=lambda m: m.value)
+    ]
 
 
 @router.get(
