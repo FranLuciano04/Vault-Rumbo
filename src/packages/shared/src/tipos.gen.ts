@@ -2367,13 +2367,8 @@ export interface components {
             readonly destinos_mas_vendidos: components["schemas"]["DestinoVendido"][];
             /** Ventas Por Vendedor */
             readonly ventas_por_vendedor: components["schemas"]["VentaPorVendedor"][];
-            /**
-             * Detalles
-             * @description Por contador (`consultas_pendientes`, `presupuestos_abiertos`, `reservas_confirmadas`, `viajes_activos`, `alertas_pendientes`), el listado al que lleva.
-             */
-            readonly detalles: {
-                [key: string]: components["schemas"]["DetalleIndicador"];
-            };
+            /** @description Por contador, el listado al que lleva con los filtros que ese listado acepta: `estado` (un solo valor), `mios` (el empleado) y `responsable_id` o `propietario_id` (la dirección, donde el listado lo tiene). */
+            readonly detalles: components["schemas"]["DetallesIndicadores"];
         };
         /** Destino */
         Destino: {
@@ -2469,6 +2464,17 @@ export interface components {
             filtros: {
                 [key: string]: string;
             };
+        };
+        /**
+         * DetallesIndicadores
+         * @description Un detalle por contador del dashboard (RF-128).
+         */
+        DetallesIndicadores: {
+            consultas_pendientes: components["schemas"]["DetalleIndicador"];
+            presupuestos_abiertos: components["schemas"]["DetalleIndicador"];
+            reservas_confirmadas: components["schemas"]["DetalleIndicador"];
+            viajes_activos: components["schemas"]["DetalleIndicador"];
+            alertas_pendientes: components["schemas"]["DetalleIndicador"];
         };
         EconomiaRegistrada: {
             /**
@@ -4035,6 +4041,11 @@ export interface components {
              */
             fecha_salida: string;
             estado: components["schemas"]["EstadoViaje"];
+            /**
+             * Pasajeros
+             * @description De la oportunidad de origen; vacío si no hay.
+             */
+            pasajeros: number | null;
         };
         /** @description Columnas de auditoría (DEC-0008): las completa el servidor, el cliente no las envía. */
         Auditoria: {

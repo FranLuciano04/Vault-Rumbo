@@ -1044,31 +1044,134 @@ async def test_rf128_cada_indicador_trae_lo_necesario_para_navegar_a_su_detalle(
     ]
     assert [d["destino_id"] for d in cuerpo["destinos_mas_vendidos"]] == [str(destino.id)]
     assert [v["vendedor_id"] for v in cuerpo["ventas_por_vendedor"]] == [str(ana.id)]
-    detalles = cuerpo.get("detalles", {})
+    detalles = cuerpo["detalles"]
     esperado = {
-        "consultas_pendientes": ("oportunidades", {"estado": "nueva,en_gestion"}),
-        "presupuestos_abiertos": ("oportunidades", {"estado": "cotizada"}),
+        "consultas_pendientes": ("oportunidades", {"responsable_id": str(ana.id)}),
+        "presupuestos_abiertos": (
+            "oportunidades",
+            {"estado": "cotizada", "responsable_id": str(ana.id)},
+        ),
         "reservas_confirmadas": ("viajes", {"estado": "confirmado"}),
-        "viajes_activos": ("viajes", {"activo": "true"}),
-        "alertas_pendientes": ("alertas", {"estado": "pendiente"}),
+        "viajes_activos": ("viajes", {}),
+        "alertas_pendientes": (
+            "alertas",
+            {"estado": "pendiente", "propietario_id": str(ana.id)},
+        ),
     }
-    assert set(detalles) >= set(esperado)
+    assert set(detalles) == set(esperado)
     for indicador, (seccion, filtros) in esperado.items():
-        assert detalles[indicador]["seccion"] == seccion
-        assert detalles[indicador]["filtros"] == {**filtros, "responsable_id": str(ana.id)}
+        assert detalles[indicador] == {"seccion": seccion, "filtros": filtros}
 
 
 async def test_rf128_los_filtros_de_detalle_no_llevan_responsable_si_no_se_filtro(
     cliente_como: Fabrica,
 ) -> None:
+    """Sin filtro de la dirección, los listados no llevan responsable ni propietario."""
     c = await cliente_como("dueno")
 
     r = await c.get(URL, params=PERIODO)
 
     assert r.status_code == 200
-    assert r.json().get("detalles", {}).get("viajes_activos", {}).get("filtros") == {
-        "activo": "true"
+    detalles = r.json()["detalles"]
+    assert detalles["viajes_activos"]["filtros"] == {}
+    assert detalles["consultas_pendientes"]["filtros"] == {}
+    assert detalles["alertas_pendientes"]["filtros"] == {"estado": "pendiente"}
+
+
+async def test_rf128_el_empleado_enlaza_a_lo_suyo_con_mios(cliente_como: Fabrica) -> None:
+    c = await cliente_como("empleado")
+
+    r = await c.get(URL, params=PERIODO)
+
+    assert r.status_code == 200
+    detalles = r.json()["detalles"]
+    assert detalles["consultas_pendientes"]["filtros"] == {"mios": "true"}
+    assert detalles["presupuestos_abiertos"]["filtros"] == {"estado": "cotizada", "mios": "true"}
+    assert detalles["reservas_confirmadas"]["filtros"] == {"estado": "confirmado", "mios": "true"}
+    assert detalles["viajes_activos"]["filtros"] == {"mios": "true"}
+    assert detalles["alertas_pendientes"]["filtros"] == {"estado": "pendiente"}
+
+
+async def test_rf125_alertas_fuera_de_la_ventana_o_de_proveedor_no_cuentan(
+    cliente_como: Fabrica, sesion: AsyncSession
+) -> None:
+    """Supuesto: cuenta la alerta pendiente de pasajeros con fecha hasta hoy + 7 días; una
+    futura más allá, o la de un tramo de hotel (pago al proveedor), no."""
+    c = await cliente_como("admin")
+    hotel = await f.crear(
+        sesion, f.HotelFactory, destino_id=(await f.crear(sesion, f.DestinoFactory)).id
+    )
+    viaje = await _viaje(sesion, _yo(c))
+    tramo = await f.crear(
+        sesion, f.ViajeHotelFactory, viaje_id=viaje.id, hotel_id=hotel.id, orden=1
+    )
+    for fecha, extra in [
+        (_en(0), {}),
+        (_en(VENTANA_AGENDA), {}),
+        (_en(VENTANA_AGENDA + 1), {}),
+        (_en(0), {"viaje_hotel_id": tramo.id}),
+    ]:
+        await f.crear(
+            sesion,
+            f.AlertaFactory,
+            propietario_id=_yo(c),
+            tipo=m.TipoAlerta.pago,
+            estado=m.EstadoAlerta.pendiente,
+            fecha=fecha,
+            **extra,
+        )
+
+    r = await c.get(URL, params=PERIODO)
+
+    assert r.status_code == 200
+    assert r.json()["alertas_pendientes"] == 2
+
+
+async def test_rf125_viajes_proximos_traen_los_pasajeros_de_la_oportunidad(
+    cliente_como: Fabrica, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("admin")
+    destino = await f.crear(sesion, f.DestinoFactory)
+    op = await _con_pasajeros(sesion, _yo(c), 3)
+    con = await _viaje_a(sesion, _yo(c), destino, oportunidad_id=op.id, **_salida(1))
+    sin = await _viaje_a(sesion, _yo(c), destino, **_salida(2))
+
+    r = await c.get(URL, params=PERIODO)
+
+    assert r.status_code == 200
+    assert {v["viaje_id"]: v["pasajeros"] for v in r.json()["viajes_proximos"]} == {
+        str(con.id): 3,
+        str(sin.id): None,
     }
+
+
+async def test_rf126_el_empleado_no_ve_la_fila_de_quien_vendio_un_viaje_que_lleva(
+    cliente_como: Fabrica, sesion: AsyncSession
+) -> None:
+    """Fuera de la dirección el ranking trae solo la fila propia, armada con lo que vendió."""
+    c = await cliente_como("empleado")
+    otro = await f.crear(sesion, f.UsuarioFactory, rol=m.RolUsuario("empleado"))
+    await _viaje(sesion, _yo(c), vendedor_id=otro.id)
+    await _viaje(sesion, _yo(c), "200000.00", vendedor_id=_yo(c))
+
+    r = await c.get(URL, params=PERIODO)
+
+    assert r.status_code == 200
+    filas = r.json()["ventas_por_vendedor"]
+    assert [v["vendedor_id"] for v in filas] == [str(_yo(c))]
+    assert _montos(filas[0]["ventas"]) == {"ARS": Decimal("200000.00")}
+
+
+async def test_rf124_pendiente_de_pagar_no_suma_un_viaje_sin_tramos(
+    cliente_como: Fabrica, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("admin")
+    await _viaje(sesion, _yo(c), "500000.00", "400000.00")
+
+    r = await c.get(URL, params=PERIODO)
+
+    assert r.status_code == 200
+    assert r.json()["pendiente_de_pagar"] == []
 
 
 @pytest.mark.parametrize("rol", ["empleado", "freelance"])

@@ -54,6 +54,7 @@ class ViajeProximo(BaseModel):
     destino_nombre: str
     fecha_salida: date
     estado: EstadoViaje
+    pasajeros: int | None = Field(description="De la oportunidad de origen; vacío si no hay.")
 
 
 class DestinoVendido(BaseModel):
@@ -81,6 +82,16 @@ class DetalleIndicador(BaseModel):
 
     seccion: Seccion
     filtros: dict[str, str]
+
+
+class DetallesIndicadores(BaseModel):
+    """Un detalle por contador del dashboard (RF-128)."""
+
+    consultas_pendientes: DetalleIndicador
+    presupuestos_abiertos: DetalleIndicador
+    reservas_confirmadas: DetalleIndicador
+    viajes_activos: DetalleIndicador
+    alertas_pendientes: DetalleIndicador
 
 
 class Dashboard(BaseModel):
@@ -128,10 +139,11 @@ class Dashboard(BaseModel):
     )
     destinos_mas_vendidos: list[DestinoVendido] = Field(json_schema_extra=_SOLO_LECTURA)
     ventas_por_vendedor: list[VentaPorVendedor] = Field(json_schema_extra=_SOLO_LECTURA)
-    detalles: dict[str, DetalleIndicador] = Field(
+    detalles: DetallesIndicadores = Field(
         json_schema_extra=_SOLO_LECTURA,
-        description="Por contador (`consultas_pendientes`, `presupuestos_abiertos`, "
-        "`reservas_confirmadas`, `viajes_activos`, `alertas_pendientes`), el listado al que lleva.",
+        description="Por contador, el listado al que lleva con los filtros que ese listado "
+        "acepta: `estado` (un solo valor), `mios` (el empleado) y `responsable_id` o "
+        "`propietario_id` (la dirección, donde el listado lo tiene).",
     )
 
 

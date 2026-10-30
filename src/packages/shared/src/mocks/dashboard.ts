@@ -68,6 +68,7 @@ export const dashboardMock: Dashboard = {
       destino_nombre: v.destino_nombre,
       fecha_salida: v.fecha_salida,
       estado: v.estado,
+      pasajeros: null,
     })),
   consultas_pendientes: 10,
   presupuestos_abiertos: 5,
@@ -105,10 +106,10 @@ export const dashboardMock: Dashboard = {
     },
   ],
   detalles: {
-    consultas_pendientes: { seccion: "oportunidades", filtros: { estado: "nueva,en_gestion" } },
+    consultas_pendientes: { seccion: "oportunidades", filtros: {} },
     presupuestos_abiertos: { seccion: "oportunidades", filtros: { estado: "cotizada" } },
     reservas_confirmadas: { seccion: "viajes", filtros: { estado: "confirmado" } },
-    viajes_activos: { seccion: "viajes", filtros: { activo: "true" } },
+    viajes_activos: { seccion: "viajes", filtros: {} },
     alertas_pendientes: { seccion: "alertas", filtros: { estado: "pendiente" } },
   },
 };

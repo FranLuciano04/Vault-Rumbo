@@ -49,7 +49,8 @@ class VentasDeVendedor:
 @dataclass(frozen=True)
 class IndicadoresEconomicos:
     """Embudo, importes por moneda (las monedas sin movimiento no figuran), agenda, contadores
-    y ranking. `filtro_responsable` es la persona que la dirección pidió ver, si pidió alguna."""
+    y ranking. `filtro_responsable` es la persona que la dirección pidió ver, si pidió alguna;
+    `solo_lo_propio` marca la vista del empleado, acotada a lo que lleva."""
 
     etapas: dict[EstadoOportunidad, int]
     tasa_conversion: Decimal
@@ -72,6 +73,7 @@ class IndicadoresEconomicos:
     destinos_mas_vendidos: list[DestinoDelPeriodo]
     ventas_por_vendedor: list[VentasDeVendedor]
     filtro_responsable: uuid.UUID | None
+    solo_lo_propio: bool
 
 
 async def calcular_indicadores(
@@ -149,7 +151,7 @@ async def calcular_indicadores(
         sesion, responsable_id=responsable_id, visibilidad=vista
     )
     alertas = await _dashboard.alertas_pendientes(
-        sesion, responsable_id=responsable_id, visibilidad=vista
+        sesion, hasta=hasta_agenda, responsable_id=responsable_id, visibilidad=vista
     )
     destinos = await _dashboard.destinos_mas_vendidos(
         sesion,
@@ -214,8 +216,9 @@ async def calcular_indicadores(
         ),
         alertas_pendientes=alertas,
         destinos_mas_vendidos=destinos,
-        ventas_por_vendedor=_por_vendedor(viajes),
+        ventas_por_vendedor=_por_vendedor(viajes if es_direccion(actor) else vendidos),
         filtro_responsable=filtro_responsable,
+        solo_lo_propio=actor.rol is RolUsuario.empleado,
     )
 
 
@@ -224,7 +227,8 @@ def _comision(venta: VentaDelPeriodo) -> Decimal:
 
 
 def _por_vendedor(viajes: list[VentaDelPeriodo]) -> list[VentasDeVendedor]:
-    """Ventas y comisiones por vendedor; primero quien más viajes vendió."""
+    """Ventas y comisiones por vendedor; primero quien más viajes vendió. Fuera de la dirección
+    se pasan solo los viajes que vendió el actor, así que queda su fila."""
     filas: dict[uuid.UUID, VentasDeVendedor] = {}
     for v in viajes:
         fila = filas.setdefault(v.vendedor_id, VentasDeVendedor(v.vendedor_id, v.vendedor_nombre))

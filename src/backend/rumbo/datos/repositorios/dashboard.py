@@ -69,6 +69,7 @@ class ViajeDelPeriodo(NamedTuple):
     destino_nombre: str
     fecha_salida: date
     estado: EstadoViaje
+    pasajeros: int | None
 
 
 class DestinoDelPeriodo(NamedTuple):
@@ -236,13 +237,18 @@ class RepositorioDashboard:
         self,
         sesion: AsyncSession,
         *,
+        hasta: date,
         responsable_id: uuid.UUID | None,
         visibilidad: Visibilidad,
     ) -> int:
-        """Foto de hoy: alertas pendientes de pasajeros. `responsable_id` deja las de esa
-        persona; sin él, las que el actor ve."""
+        """Foto de hoy: alertas pendientes de pasajeros con fecha hasta `hasta` inclusive. Las
+        de un tramo de hotel son pagos al proveedor y no cuentan. `responsable_id` deja las de
+        esa persona; sin él, las que el actor ve."""
         consulta = visibilidad.aplicar(select(func.count()).select_from(Alerta), Alerta).where(
-            Alerta.estado == EstadoAlerta.pendiente, Alerta.tipo.in_(_ALERTAS_DE_PASAJEROS)
+            Alerta.estado == EstadoAlerta.pendiente,
+            Alerta.tipo.in_(_ALERTAS_DE_PASAJEROS),
+            Alerta.fecha <= hasta,
+            Alerta.viaje_hotel_id.is_(None),
         )
         if responsable_id is not None:
             consulta = consulta.where(Alerta.propietario_id == responsable_id)
@@ -296,6 +302,7 @@ class RepositorioDashboard:
             visibilidad.aplicar(select(Viaje), Viaje)
             .join(Cliente, Cliente.id == Viaje.cliente_id)
             .join(Destino, Destino.id == Viaje.destino_id)
+            .outerjoin(Oportunidad, Oportunidad.id == Viaje.oportunidad_id)
             .where(
                 Viaje.estado.not_in(_VIAJES_CERRADOS),
                 Viaje.fecha_salida >= desde,
@@ -305,9 +312,14 @@ class RepositorioDashboard:
         if responsable_id is not None:
             consulta = consulta.where(Viaje.responsable_id == responsable_id)
         columnas = consulta.with_only_columns(
-            Viaje.id, Cliente.nombre, Destino.nombre, Viaje.fecha_salida, Viaje.estado
+            Viaje.id,
+            Cliente.nombre,
+            Destino.nombre,
+            Viaje.fecha_salida,
+            Viaje.estado,
+            Oportunidad.pasajeros,
         ).order_by(Viaje.fecha_salida, Viaje.id)
-        return [ViajeDelPeriodo(*fila) for fila in await sesion.execute(columnas)]
+        return [ViajeDelPeriodo._make(fila) for fila in await sesion.execute(columnas)]
 
     async def destinos_mas_vendidos(
         self,

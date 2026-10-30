@@ -10397,12 +10397,8 @@
             "readOnly": true
           },
           "detalles": {
-            "additionalProperties": {
-              "$ref": "#/components/schemas/DetalleIndicador"
-            },
-            "type": "object",
-            "title": "Detalles",
-            "description": "Por contador (`consultas_pendientes`, `presupuestos_abiertos`, `reservas_confirmadas`, `viajes_activos`, `alertas_pendientes`), el listado al que lleva.",
+            "$ref": "#/components/schemas/DetallesIndicadores",
+            "description": "Por contador, el listado al que lleva con los filtros que ese listado acepta: `estado` (un solo valor), `mios` (el empleado) y `responsable_id` o `propietario_id` (la dirección, donde el listado lo tiene).",
             "readOnly": true
           }
         },
@@ -10676,6 +10672,35 @@
         ],
         "title": "DetalleIndicador",
         "description": "Listado al que lleva un contador (RF-128): sección de la web y sus filtros."
+      },
+      "DetallesIndicadores": {
+        "properties": {
+          "consultas_pendientes": {
+            "$ref": "#/components/schemas/DetalleIndicador"
+          },
+          "presupuestos_abiertos": {
+            "$ref": "#/components/schemas/DetalleIndicador"
+          },
+          "reservas_confirmadas": {
+            "$ref": "#/components/schemas/DetalleIndicador"
+          },
+          "viajes_activos": {
+            "$ref": "#/components/schemas/DetalleIndicador"
+          },
+          "alertas_pendientes": {
+            "$ref": "#/components/schemas/DetalleIndicador"
+          }
+        },
+        "type": "object",
+        "required": [
+          "consultas_pendientes",
+          "presupuestos_abiertos",
+          "reservas_confirmadas",
+          "viajes_activos",
+          "alertas_pendientes"
+        ],
+        "title": "DetallesIndicadores",
+        "description": "Un detalle por contador del dashboard (RF-128)."
       },
       "EconomiaRegistrada": {
         "allOf": [
@@ -14219,6 +14244,18 @@
           },
           "estado": {
             "$ref": "#/components/schemas/EstadoViaje"
+          },
+          "pasajeros": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pasajeros",
+            "description": "De la oportunidad de origen; vacío si no hay."
           }
         },
         "type": "object",
@@ -14227,7 +14264,8 @@
           "cliente_nombre",
           "destino_nombre",
           "fecha_salida",
-          "estado"
+          "estado",
+          "pasajeros"
         ],
         "title": "ViajeProximo"
       },

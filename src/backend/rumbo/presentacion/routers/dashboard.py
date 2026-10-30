@@ -20,12 +20,12 @@ from rumbo.presentacion.esquemas.dashboard import (
     Dashboard,
     DestinoVendido,
     DetalleIndicador,
+    DetallesIndicadores,
     Embudo,
     EtapaEmbudo,
     MontoPorMoneda,
     Reporte,
     ReporteCatalogo,
-    Seccion,
     VencimientoProximo,
     VentaMensual,
     VentaPorVendedor,
@@ -125,25 +125,34 @@ async def ver_dashboard(
             )
             for v in indicadores.ventas_por_vendedor
         ],
-        detalles=_detalles(indicadores.filtro_responsable),
+        detalles=_detalles(indicadores.filtro_responsable, indicadores.solo_lo_propio),
     )
 
 
-def _detalles(responsable_id: uuid.UUID | None) -> dict[str, DetalleIndicador]:
-    """A qué listado lleva cada contador (RF-128); la dirección que filtró por responsable
-    llega con ese filtro."""
-    propio = {} if responsable_id is None else {"responsable_id": str(responsable_id)}
-    contadores: list[tuple[str, Seccion, dict[str, str]]] = [
-        ("consultas_pendientes", "oportunidades", {"estado": "nueva,en_gestion"}),
-        ("presupuestos_abiertos", "oportunidades", {"estado": "cotizada"}),
-        ("reservas_confirmadas", "viajes", {"estado": "confirmado"}),
-        ("viajes_activos", "viajes", {"activo": "true"}),
-        ("alertas_pendientes", "alertas", {"estado": "pendiente"}),
-    ]
-    return {
-        indicador: DetalleIndicador(seccion=seccion, filtros={**filtros, **propio})
-        for indicador, seccion, filtros in contadores
-    }
+def _detalles(responsable_id: uuid.UUID | None, mios: bool) -> DetallesIndicadores:
+    """A qué listado lleva cada contador (RF-128), con filtros que ese listado acepta. Las
+    oportunidades filtran un solo `estado`, así que las consultas (nueva y en gestión) llevan
+    sin estado. Los viajes no filtran por responsable ni por activo: el empleado lleva `mios` y
+    la dirección, sin filtro. Las alertas filtran por `propietario_id`."""
+    de_oportunidades = {"mios": "true"} if mios else {}
+    de_viajes = {"mios": "true"} if mios else {}
+    if responsable_id is not None:
+        de_oportunidades = {"responsable_id": str(responsable_id)}
+    return DetallesIndicadores(
+        consultas_pendientes=DetalleIndicador(seccion="oportunidades", filtros=de_oportunidades),
+        presupuestos_abiertos=DetalleIndicador(
+            seccion="oportunidades", filtros={"estado": "cotizada", **de_oportunidades}
+        ),
+        reservas_confirmadas=DetalleIndicador(
+            seccion="viajes", filtros={"estado": "confirmado", **de_viajes}
+        ),
+        viajes_activos=DetalleIndicador(seccion="viajes", filtros=de_viajes),
+        alertas_pendientes=DetalleIndicador(
+            seccion="alertas",
+            filtros={"estado": "pendiente"}
+            | ({} if responsable_id is None else {"propietario_id": str(responsable_id)}),
+        ),
+    )
 
 
 def _montos(totales: dict[Moneda, Decimal]) -> list[MontoPorMoneda]:
