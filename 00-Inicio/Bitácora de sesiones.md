@@ -33,7 +33,7 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
-## 30/10/26 — Francisco (Claude Opus 5.5) — T-091, T-104, T-105, T-095 y T-107 (M6) y T-119 (M8)
+## 30/10/26 — Francisco (Claude Opus 5.5) — T-091, T-104, T-105, T-095 y T-107 (M6) y T-119 y T-121 (M8)
 - **Hecho:** T-091 (PR [#152](https://github.com/FranLuciano04/Vault-Rumbo/pull/152), mergeado con el CI en verde).
   - `GET /viajes` (filtros por estado, fechas, «lo mío» y `cliente_id`, con paginación y visibilidad) y `GET /viajes/{id}` con la economía, el saldo y el porcentaje pagado.
   - `Viaje` trae `cliente_nombre` y `destino_nombre`, y `TablaViajes` los usa. Así se cierra el hallazgo H-04 de M5.
@@ -63,9 +63,18 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
   - `GET /api/dashboard`, `/api/reportes`, `/api/reportes/{id}` (json, xlsx y pdf) y `/api/calendario`, con stubs 501, tipos, hooks y mocks.
   - Review de Opus: 4 importantes. Se arreglaron 3: visibilidad del freelance en el calendario, `responsable_id` en el dashboard y la descarga de reportes.
   - Commits: 587b6e2, 269d6be, cf58c89, b62d81a.
+- **Hecho (7):** T-121, embudo e indicadores económicos del dashboard (PR [#161](https://github.com/FranLuciano04/Vault-Rumbo/pull/161), mergeado con el CI en verde).
+  - `GET /api/dashboard` calcula el embudo con conversión y, por moneda, ventas, ganancia, margen, comisiones, cobrado y pendiente de cobrar. Empleado y freelance ven solo lo suyo.
+  - Francisco decidió, como propuesta para ratificar: pendiente de cobrar = foto del momento; comisión porcentual con ganancia ≤ 0 = 0.
+  - Review de Opus: 3 importantes. Se arreglaron 2 y el tercero (indicadores de RF-124 sin dueño) quedó anotado en T-122.
 - **Pendiente:**
   - El e2e de la reseña con viaje (CU-17 A1) espera a T-089, porque hoy no hay forma de crear un viaje. Va en el e2e de CU-01 de M6.
   - Decidir con el equipo si «lo mío» del freelance en viajes significa «los que llevo» o «lo que veo». Hoy es `responsable_id`.
+  - Ratificar con el equipo (T-121):
+    - Oportunidades y ventas entran al período por `created_at`; los cobros, por `fecha_cobro`.
+    - Venta = viaje no cancelado.
+    - Las dos decisiones de Francisco.
+    - El freelance ve en el dashboard solo los viajes donde es responsable.
   - Decidir con el equipo (T-119):
     - ¿Las alertas van en el calendario? CU-23 las incluye y el contrato no; si no van, hay que acotar CU-23 con una DEC.
     - Cómo se cuentan los pasajeros por destino.
