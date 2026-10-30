@@ -18,3 +18,4 @@ export * from "./economia";
 export * from "./viajes";
 export * from "./oportunidades";
 export * from "./hoteles";
+export * from "./dashboard";

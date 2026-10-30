@@ -13,3 +13,5 @@ export * from "./oportunidades";
 export * from "./useDebouncedValue";
 export * from "./useTotalesAgenda";
 export * from "./hoteles";
+export * from "./dashboard";
+export * from "./calendario";

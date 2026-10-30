@@ -165,3 +165,41 @@ export interface FiltrosResenas {
   pagina?: number;
   por_pagina?: number;
 }
+
+/** Dashboard y reportes (M8): los indicadores del período y el catálogo de reportes de CU-22. */
+export type Dashboard = Esquemas["Dashboard"];
+export type Embudo = Esquemas["Embudo"];
+export type MontoPorMoneda = Esquemas["MontoPorMoneda"];
+export type VentaMensual = Esquemas["VentaMensual"];
+export type VencimientoProximo = Esquemas["VencimientoProximo"];
+export type ViajeProximo = Esquemas["ViajeProximo"];
+export type DestinoVendido = Esquemas["DestinoVendido"];
+export type VentaPorVendedor = Esquemas["VentaPorVendedor"];
+export type ReporteCatalogo = Esquemas["ReporteCatalogo"];
+export type ColumnaReporte = Esquemas["ColumnaReporte"];
+export type Reporte = Esquemas["Reporte"];
+
+/** Calendario (M8): viajes y vencimientos de pagos, de solo lectura. */
+export type EventoCalendario = Esquemas["EventoCalendario"];
+
+/** Período del dashboard (`GET /api/dashboard`, CU-21): sin fechas, el mes en curso. */
+export interface FiltrosDashboard {
+  /** Fecha ISO (`aaaa-mm-dd`). */
+  desde?: string;
+  hasta?: string;
+}
+
+/** Período, comparación y formato de un reporte (`GET /api/reportes/{reporte_id}`, CU-22). */
+export interface FiltrosReporte extends FiltrosDashboard {
+  comparar_desde?: string;
+  comparar_hasta?: string;
+  formato?: "json" | "xlsx" | "pdf";
+}
+
+/** Filtros del calendario (`GET /api/calendario`, CU-23). */
+export interface FiltrosCalendario extends FiltrosDashboard {
+  /** Solo lo que tengo asignado. */
+  mios?: boolean;
+  tipo?: EventoCalendario["tipo"];
+  responsable_id?: string;
+}
