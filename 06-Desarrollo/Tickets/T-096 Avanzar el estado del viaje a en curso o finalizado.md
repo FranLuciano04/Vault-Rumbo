@@ -3,7 +3,7 @@ id: T-096
 titulo: Avanzar el estado del viaje a en curso o finalizado
 modulo: M6 — Viajes y economía
 capa: backend
-estado: libre
+estado: tomado
 depende_de: [T-086, T-087, T-051]
 tamaño: M
 riesgo: alto
@@ -12,9 +12,9 @@ modelo_impl: opus
 modelo_review: sonnet
 trazabilidad: [CU-08, RF-039, RF-040, RF-041, RF-042]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: palomap2003
+tomado_el: 29/10/26 22:52
+rama: feature/T-096-avanzar-el-estado-del-viaje-a-en-curso-o
 pr:
 ---
 # T-096 Avanzar el estado del viaje a en curso o finalizado
