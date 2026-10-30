@@ -46,6 +46,16 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
   - Decidir con el equipo: la reseña post-viaje se agenda el mismo día en que se finaliza (RF-041 no fija desfasaje).
   - Menores anotados en los tickets: `vendedor_nombre` en `Viaje` para la vista del freelance y el default de comisión en `AsesorDelCliente` (T-102); pendientes de UI de la pantalla 14 (T-100); la Alerta `viaje` de la sugerencia por fecha no se resuelve al confirmar el paso (T-096, para M7).
 
+## 30/10/26 — Nahuel (Claude Opus 5.5) — T-106: itinerario de hoteles en la web
+- **Hecho:** T-106 (PR [#150](https://github.com/FranLuciano04/Vault-Rumbo/pull/150), mergeado con el CI en verde).
+  - Itinerario embebido en la ficha del viaje: lista de tramos, buscador de hoteles del destino del viaje, alta, edición (fechas, orden y vencimiento), baja y marca de pago al proveedor.
+  - La review de Opus marcó 3 importantes: A2, el orden editable y el buscador limitado a 100 hoteles. Se arreglaron junto con 2 menores, el lint del test y los handlers de hoteles en la ficha.
+- **Commits:** f95b7a5, 947813f, 847ecb3, 7c0dafe.
+- **Pendiente (decidir con el equipo):**
+  - «Quitar» borra un tramo sin confirmar.
+  - El `editable` de la ficha no coincide con el backend: un freelance responsable y un viaje finalizado pueden escribir el itinerario según el backend.
+  - Diferencias cosméticas con la pantalla 17.
+
 ## 29/10/26 — Nahuel (Claude Opus 5.5) — T-097: itinerario de hoteles del viaje
 - **Hecho:** T-097 (PR [#148](https://github.com/FranLuciano04/Vault-Rumbo/pull/148), mergeado con el CI en verde).
   - `GET/POST /viajes/{id}/itinerario` y `PATCH/DELETE /tramos/{id}`, con fechas dentro del viaje y sin solaparse, hotel repetido en tramos no consecutivos y alerta de pago al proveedor un mes antes.
