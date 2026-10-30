@@ -3,7 +3,7 @@ id: T-098
 titulo: Registrar el pago al proveedor de cada tramo
 modulo: M6 — Viajes y economía
 capa: backend
-estado: libre
+estado: tomado
 depende_de: [T-097, T-051]
 tamaño: S
 riesgo: alto
@@ -12,9 +12,9 @@ modelo_impl: opus
 modelo_review: sonnet
 trazabilidad: [CU-09, RF-045, RF-047, DEC-0013]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: palomap2003
+tomado_el: 30/10/26 15:19
+rama: feature/T-098-registrar-el-pago-al-proveedor-de-cada-t
 pr:
 ---
 # T-098 Registrar el pago al proveedor de cada tramo
