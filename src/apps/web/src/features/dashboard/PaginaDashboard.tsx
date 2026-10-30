@@ -1,7 +1,7 @@
 import { formatearFecha, formatearImporte, type UsuarioActual } from "@rumbo/shared";
 import { useDashboard } from "@rumbo/shared/hooks";
 import type { AxiosInstance } from "axios";
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { Link } from "react-router";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -13,7 +13,31 @@ interface Vendedor {
   nombre: string;
 }
 
-const CLASE_PANEL = "rounded-2xl border bg-card p-4";
+/** Panel con título y lista; sin elementos muestra el mensaje `vacio`. */
+function PanelLista({
+  id,
+  titulo,
+  vacio,
+  children,
+}: {
+  id: string;
+  titulo: string;
+  vacio: string;
+  children: ReactNode[];
+}) {
+  return (
+    <section aria-labelledby={`titulo-${id}`} className="rounded-2xl border bg-card p-4">
+      <h2 id={`titulo-${id}`} className="text-lg font-semibold">
+        {titulo}
+      </h2>
+      {children.length === 0 ? (
+        <p className="mt-2 text-sm text-muted-foreground">{vacio}</p>
+      ) : (
+        <ul className="mt-2 flex flex-col gap-1 text-sm">{children}</ul>
+      )}
+    </section>
+  );
+}
 
 /**
  * Dashboard (CU-21, pantallas 28, 46 y 47). Admin y dueño ven toda la agencia y pueden filtrar por
@@ -170,88 +194,60 @@ export function PaginaDashboard({
           </div>
 
           <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
-            <section aria-labelledby="titulo-vencimientos" className={CLASE_PANEL}>
-              <h2 id="titulo-vencimientos" className="text-lg font-semibold">
-                Próximos vencimientos
-              </h2>
-              {data.proximos_vencimientos.length === 0 ? (
-                <p className="mt-2 text-sm text-muted-foreground">No hay vencimientos próximos.</p>
-              ) : (
-                <ul className="mt-2 flex flex-col gap-1 text-sm">
-                  {data.proximos_vencimientos.map((v) => (
-                    <li key={v.pago_id}>
-                      <Link to={`/viajes/${v.viaje_id}`} className="flex justify-between gap-2">
-                        <span>
-                          {formatearFecha(v.vencimiento)} · {v.cliente_nombre}
-                        </span>
-                        <span>{formatearImporte(v.monto, v.moneda)}</span>
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </section>
+            <PanelLista
+              id="vencimientos"
+              titulo="Próximos vencimientos"
+              vacio="No hay vencimientos próximos."
+            >
+              {data.proximos_vencimientos.map((v) => (
+                <li key={v.pago_id}>
+                  <Link to={`/viajes/${v.viaje_id}`} className="flex justify-between gap-2">
+                    <span>
+                      {formatearFecha(v.vencimiento)} · {v.cliente_nombre}
+                    </span>
+                    <span>{formatearImporte(v.monto, v.moneda)}</span>
+                  </Link>
+                </li>
+              ))}
+            </PanelLista>
 
-            <section aria-labelledby="titulo-viajes" className={CLASE_PANEL}>
-              <h2 id="titulo-viajes" className="text-lg font-semibold">
-                Viajes próximos
-              </h2>
-              {data.viajes_proximos.length === 0 ? (
-                <p className="mt-2 text-sm text-muted-foreground">No hay viajes próximos.</p>
-              ) : (
-                <ul className="mt-2 flex flex-col gap-1 text-sm">
-                  {data.viajes_proximos.map((v) => (
-                    <li key={v.viaje_id}>
-                      <Link to={`/viajes/${v.viaje_id}`} className="flex justify-between gap-2">
-                        <span>
-                          {v.destino_nombre} · {v.cliente_nombre}
-                        </span>
-                        <span>{formatearFecha(v.fecha_salida)}</span>
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </section>
+            <PanelLista id="viajes" titulo="Viajes próximos" vacio="No hay viajes próximos.">
+              {data.viajes_proximos.map((v) => (
+                <li key={v.viaje_id}>
+                  <Link to={`/viajes/${v.viaje_id}`} className="flex justify-between gap-2">
+                    <span>
+                      {v.destino_nombre} · {v.cliente_nombre}
+                    </span>
+                    <span>{formatearFecha(v.fecha_salida)}</span>
+                  </Link>
+                </li>
+              ))}
+            </PanelLista>
 
-            <section aria-labelledby="titulo-destinos" className={CLASE_PANEL}>
-              <h2 id="titulo-destinos" className="text-lg font-semibold">
-                Destinos más vendidos
-              </h2>
-              {data.destinos_mas_vendidos.length === 0 ? (
-                <p className="mt-2 text-sm text-muted-foreground">Todavía no hay ventas.</p>
-              ) : (
-                <ul className="mt-2 flex flex-col gap-1 text-sm">
-                  {data.destinos_mas_vendidos.map((d) => (
-                    <li key={d.destino_id} className="flex justify-between gap-2">
-                      <span>{d.destino_nombre}</span>
-                      <span>{d.viajes} viajes</span>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </section>
+            <PanelLista id="destinos" titulo="Destinos más vendidos" vacio="Todavía no hay ventas.">
+              {data.destinos_mas_vendidos.map((d) => (
+                <li key={d.destino_id} className="flex justify-between gap-2">
+                  <span>{d.destino_nombre}</span>
+                  <span>{d.viajes} viajes</span>
+                </li>
+              ))}
+            </PanelLista>
 
             {veAgencia && (
-              <section aria-labelledby="titulo-vendedores" className={CLASE_PANEL}>
-                <h2 id="titulo-vendedores" className="text-lg font-semibold">
-                  Ventas por vendedor
-                </h2>
-                {data.ventas_por_vendedor.length === 0 ? (
-                  <p className="mt-2 text-sm text-muted-foreground">Todavía no hay ventas.</p>
-                ) : (
-                  <ul className="mt-2 flex flex-col gap-1 text-sm">
-                    {data.ventas_por_vendedor.map((v) => (
-                      <li key={v.vendedor_id} className="flex justify-between gap-2">
-                        <span>{v.vendedor_nombre}</span>
-                        <span className="text-right">
-                          <Importes montos={v.ventas} />
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </section>
+              <PanelLista
+                id="vendedores"
+                titulo="Ventas por vendedor"
+                vacio="Todavía no hay ventas."
+              >
+                {data.ventas_por_vendedor.map((v) => (
+                  <li key={v.vendedor_id} className="flex justify-between gap-2">
+                    <span>{v.vendedor_nombre}</span>
+                    <span className="text-right">
+                      <Importes montos={v.ventas} />
+                    </span>
+                  </li>
+                ))}
+              </PanelLista>
             )}
           </div>
         </>
