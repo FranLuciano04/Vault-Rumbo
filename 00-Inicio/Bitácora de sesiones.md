@@ -33,7 +33,7 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
-## 30/10/26 — Francisco (Claude Opus 5.5) — T-091 y T-104 (M6)
+## 30/10/26 — Francisco (Claude Opus 5.5) — T-091, T-104, T-105 y T-095 (M6)
 - **Hecho:** T-091 (PR [#152](https://github.com/FranLuciano04/Vault-Rumbo/pull/152), mergeado con el CI en verde).
   - `GET /viajes` (filtros por estado, fechas, «lo mío» y `cliente_id`, con paginación y visibilidad) y `GET /viajes/{id}` con la economía, el saldo y el porcentaje pagado.
   - `Viaje` trae `cliente_nombre` y `destino_nombre`, y `TablaViajes` los usa. Así se cierra el hallazgo H-04 de M5.
@@ -45,9 +45,19 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
   - La review de Opus marcó 1 importante: «1.250» se tomaba como 1,25. Se arregló.
   - Commits: a73125c, 64237b8, e567672, 08d8ca0.
   - Revertir el cobro en el backend es T-095 y sigue en 501.
+- **Hecho (3):** T-105 (PR [#154](https://github.com/FranLuciano04/Vault-Rumbo/pull/154), mergeado con el CI en verde).
+  - `AccionesDelViaje` en la ficha: iniciar, finalizar y corregir el estado, con la confirmación de la pantalla 16.
+  - Las acciones las ven admin, dueño o el responsable del viaje, igual que el backend (`_escribe_operacion`).
+  - Review de Opus en dos rondas: 1 bloqueante (el permiso se decidía por rol) y 3 importantes, todos arreglados.
+  - Commits: 95af8c6, 260c662, 2ec6c07, feb6237, c041041.
+- **Hecho (4):** T-095 (PR [#155](https://github.com/FranLuciano04/Vault-Rumbo/pull/155), riesgo alto, mergeado con la aprobación de Nahuel y el CI en verde).
+  - `POST /pagos/{id}/revertir-cobro`: el pago vuelve a `pendiente` o `vencido`, la alerta se reabre y el viaje retrocede (`confirmado` → `vendido`, o a `reservado` si no queda ningún cobro).
+  - Review de seguridad (Sonnet): 0 bloqueantes y 2 menores, anotados en el ticket.
+  - Commits: a23774d, 34bf481, 67ed070, 2e56bfd.
 - **Pendiente:**
   - El e2e de la reseña con viaje (CU-17 A1) espera a T-089, porque hoy no hay forma de crear un viaje. Va en el e2e de CU-01 de M6.
   - Decidir con el equipo si «lo mío» del freelance en viajes significa «los que llevo» o «lo que veo». Hoy es `responsable_id`.
+  - Decidir con el equipo (T-095): al revertir un cobro también se reabre una alerta que alguien resolvió a mano. Y revertir sobre un viaje `cancelado` hoy da 409, pero CU-12 no lo define (se ve con T-099).
 
 ## 29/10/26 — Paloma (Claude Opus 5.5) — T-090, T-088, T-100, T-102 y T-096 (M6)
 - **Hecho:**
