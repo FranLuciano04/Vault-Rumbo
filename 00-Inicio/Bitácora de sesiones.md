@@ -41,7 +41,7 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Commits:** 599c35e, 697230d, 959662b, 87131ad.
 - **Pendiente:** las alertas de pago no traen `viaje_id` y `GET /alertas` no filtra por viaje; el e2e filtra del lado del cliente. Los e2e locales chocan con la demo `rumbo-local` por el puerto 9099.
 
-## 30/10/26 — Francisco (Claude Opus 5.5) — T-091, T-104, T-105, T-095 y T-107 (M6) y T-119, T-121 y T-126 (M8)
+## 30/10/26 — Francisco (Claude Opus 5.5) — T-091, T-104, T-105, T-095 y T-107 (M6) y T-119, T-121, T-126 y T-122 (M8)
 - **Hecho:** T-091 (PR [#152](https://github.com/FranLuciano04/Vault-Rumbo/pull/152), mergeado con el CI en verde).
   - `GET /viajes` (filtros por estado, fechas, «lo mío» y `cliente_id`, con paginación y visibilidad) y `GET /viajes/{id}` con la economía, el saldo y el porcentaje pagado.
   - `Viaje` trae `cliente_nombre` y `destino_nombre`, y `TablaViajes` los usa. Así se cierra el hallazgo H-04 de M5.
@@ -83,9 +83,17 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
   - Embudo, ventas por mes, tarjetas por rol (pantallas 28, 46 y 47) y filtros de período y de empleado.
   - Review de Opus: 4 importantes y 6 menores, todos arreglados.
   - «Tus viajes activos» queda como «Viajes próximos» hasta que T-122 sume el contador.
+- **Hecho (11):** T-122, indicadores operativos del dashboard (PR [#167](https://github.com/FranLuciano04/Vault-Rumbo/pull/167), mergeado con el CI en verde).
+  - El dashboard trae contadores, agenda de 7 días, top de destinos con pasajeros, ranking por vendedor, ticket promedio, ventas de 6 meses, pendiente a operadores y enlaces al detalle.
+  - Review de Opus en dos rondas. El bloqueante (filtros de enlaces inválidos) quedó arreglado.
 - **Decisiones:** el equipo aprobó las 15 recomendaciones en [[DEC-0024 Reglas del dashboard, calendario y criterios de M6|DEC-0024]]. Cierran los pendientes de T-091, T-095, T-119 y T-121, y la reseña post-viaje de T-096.
 - **Pendiente:**
   - El e2e de la reseña con viaje (CU-17 A1) va en T-108.
+  - Confirmar con la agencia (T-122): `pendiente_de_pagar` suma el costo completo del viaje si le queda algún tramo sin pagar al proveedor (no hay importe por tramo).
+  - Sumar `estado` multivalor y `responsable_id` a los listados de oportunidades y viajes, para que los enlaces del dashboard lleguen filtrados (anotado en T-122).
+  - La web (T-126) todavía no usa `viajes_activos` ni `detalles`.
+  - Faltan los índices en `pago.viaje_id` y `viaje.created_at`.
+  - T-109 (último de M6) lo toma Nahuel.
 
 ## 29/10/26 — Paloma (Claude Opus 5.5) — T-090, T-088, T-100, T-102 y T-096 (M6)
 - **Hecho:**

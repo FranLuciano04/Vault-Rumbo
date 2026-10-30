@@ -14,6 +14,8 @@ actualizado: 30/10/26
 >
 > 🏁 **29/10 — M5 Hoteles y reseñas cerrado.** Se arreglaron 5 de los 6 hallazgos de Codex (PR #140 a #143) y H-04 pasó a T-091 (`GET /viajes` con filtro por cliente). El equipo lo aprobó y se puso el tag `mod-5`. El backend ahora tiene logging configurado (`rumbo.core.logs`). El resumen está en [[Bitácora técnica]].
 >
+> 👉 **30/10 (Francisco):** **T-122** (indicadores operativos del dashboard) está hecho y mergeado (PR [#167](https://github.com/FranLuciano04/Vault-Rumbo/pull/167)). M8 lleva 4 de 10. A M6 solo le falta T-109, que lo toma Nahuel.
+
 > 👉 **30/10 (Francisco):** **T-126** (dashboard en la web) está hecho y mergeado (PR [#165](https://github.com/FranLuciano04/Vault-Rumbo/pull/165)). También se mergeó el fix del dashboard con DEC-0024 (PR #162). Los indicadores operativos se ven vacíos hasta T-122.
 
 > 👉 **30/10 (Francisco):** **T-121** (embudo e indicadores económicos del dashboard) está hecho y mergeado (PR [#161](https://github.com/FranLuciano04/Vault-Rumbo/pull/161)). Los indicadores operativos y tres de RF-124 siguen vacíos y van en T-122.
