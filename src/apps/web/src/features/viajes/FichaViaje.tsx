@@ -9,6 +9,7 @@ import {
 import { useCliente, useDestino, useViaje } from "@rumbo/shared/hooks";
 import type { AxiosInstance } from "axios";
 import type { ReactNode } from "react";
+import { AccionesDelViaje } from "./AccionesDelViaje";
 import { ItinerarioViaje } from "./itinerario/ItinerarioViaje";
 import { PlanDePagos } from "./plan/PlanDePagos";
 import { SeccionEconomia } from "./SeccionEconomia";
@@ -98,7 +99,9 @@ export function FichaViaje({
           <Seccion titulo="Itinerario">
             <ItinerarioViaje cliente={cliente} viaje={viaje} editable={editable} />
           </Seccion>
-          <Seccion titulo="Acciones">Los cambios de estado del viaje se hacen desde acá.</Seccion>
+          <Seccion titulo="Acciones">
+            <AccionesDelViaje cliente={cliente} usuario={usuario} viaje={viaje} />
+          </Seccion>
         </div>
         <SeccionEconomia cliente={cliente} usuario={usuario} viaje={viaje} editable={editable} />
       </div>
