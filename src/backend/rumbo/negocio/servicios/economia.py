@@ -157,11 +157,17 @@ def exigir_plan_valido(viaje: Viaje, cobrados: list[Pago], items: list[dict[str,
 
 
 async def agendar_pagos(
-    sesion: AsyncSession, viaje: Viaje, responsable: Usuario, items: list[dict[str, Any]]
+    sesion: AsyncSession,
+    viaje: Viaje,
+    responsable: Usuario,
+    items: list[dict[str, Any]],
+    *,
+    campo: str = "pagos",
 ) -> list[Pago]:
     """Agrega los pagos nuevos `pendiente` del viaje ya guardado, cada uno con su alerta `pago`
     en la agenda de `responsable`, un mes antes del vencimiento (CU-11, RF-063), y los
-    devuelve. Los valida quien llama, con `exigir_plan_valido`."""
+    devuelve. Los valida quien llama, con `exigir_plan_valido`; un vencimiento sin fecha de
+    alerta posible es `DatosInvalidos` sobre `campo`."""
     pagos = []
     for item in items:
         pago = Pago(viaje_id=viaje.id, estado=EstadoPago.pendiente, **item)
@@ -169,7 +175,7 @@ async def agendar_pagos(
         await alertas.crear(
             sesion,
             TipoAlerta.pago,
-            _fecha_alerta(pago.vencimiento),
+            _fecha_alerta(pago.vencimiento, campo),
             _descripcion_alerta(pago.tipo, pago.vencimiento),
             responsable,
             pago,
@@ -186,12 +192,13 @@ async def reprogramar_pago(
     `pendiente`; si ya pasó, `vencido`. Uno cobrado o anulado es `TransicionInvalida`. Todo en
     la transacción del pedido, con el viaje bloqueado. Escribe el responsable, admin o dueño."""
     pago, _ = await _pago_para_ajustar(sesion, actor, pago_id)
+    fecha_alerta = _fecha_alerta(vencimiento, "vencimiento")
     estado_pago.reprogramar(pago, vencimiento, hoy=hoy())
     await alertas.reagendar_de_origen(
         sesion,
         pago,
         (TipoAlerta.pago,),
-        _fecha_alerta(vencimiento),
+        fecha_alerta,
         _descripcion_alerta(pago.tipo, vencimiento),
     )
     await sesion.flush()
@@ -221,9 +228,10 @@ async def dividir_pago(
 ) -> tuple[Pago, Pago]:
     """Divide un pago `pendiente` o `vencido` para cobrar una parte (CU-11 A6): el original
     queda por `monto_ahora`, con su vencimiento, su tipo y su alerta; el resto va a un pago
-    nuevo `pendiente` del mismo tipo, con vencimiento `vencimiento_resto` y su propia alerta
-    `pago`. El plan sigue sumando lo mismo. Devuelve `(original, nuevo)`. Todo en la
-    transacción del pedido, con el viaje bloqueado. Escribe el responsable, admin o dueño."""
+    nuevo del mismo tipo, con vencimiento `vencimiento_resto` y su propia alerta `pago`. El
+    nuevo nace `pendiente`, o `vencido` si ese vencimiento ya pasó, como al reprogramar. El plan
+    sigue sumando lo mismo. Devuelve `(original, nuevo)`. Todo en la transacción del pedido,
+    con el viaje bloqueado. Escribe el responsable, admin o dueño."""
     pago, viaje = await _pago_para_ajustar(sesion, actor, pago_id)
     resto = estado_pago.dividir(pago, monto_ahora)
     (nuevo,) = await agendar_pagos(
@@ -231,7 +239,11 @@ async def dividir_pago(
         viaje,
         await _responsable(sesion, actor, viaje),
         [{"monto": resto, "tipo": pago.tipo, "vencimiento": vencimiento_resto}],
+        campo="vencimiento_resto",
     )
+    dia = hoy()
+    if nuevo.vencimiento < dia:
+        estado_pago.vencer(nuevo, hoy=dia)
     await sesion.flush()
     await sesion.refresh(pago)
     await sesion.refresh(nuevo)
@@ -377,9 +389,15 @@ def _exigir_que_sume_el_precio(
         )
 
 
-def _fecha_alerta(vencimiento: date) -> date:
-    """La alerta de un pago es un mes antes de su vencimiento (CU-11 paso 6)."""
-    return sumar_meses(vencimiento, -1)
+def _fecha_alerta(vencimiento: date, campo: str) -> date:
+    """La alerta de un pago es un mes antes de su vencimiento (CU-11 paso 6). Un vencimiento en
+    enero del año 1 no tiene mes anterior: `DatosInvalidos` sobre `campo`, no un error 500."""
+    try:
+        return sumar_meses(vencimiento, -1)
+    except ValueError:
+        raise DatosInvalidos(
+            campo, f"El vencimiento {vencimiento.isoformat()} está fuera de rango."
+        ) from None
 
 
 def _descripcion_alerta(tipo: TipoPago, vencimiento: date) -> str:

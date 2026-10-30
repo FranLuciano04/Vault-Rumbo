@@ -713,3 +713,89 @@ async def test_rf153_dividir_freelance_viaje_ajeno_404(
     )
 
     assert r.status_code == 404
+
+
+async def test_dividir_cuota_resto_con_vencimiento_pasado_queda_vencido(
+    cliente_como: Fabrica, sesion: AsyncSession
+) -> None:
+    # mismo vencimiento, mismo estado que al reprogramar: si ya pasó, `vencido`
+    c = await cliente_como("empleado")
+    viaje = await _viaje(sesion, _yo(c))
+    pago = await _pago_con_alerta(sesion, viaje, _yo(c))
+
+    r = await c.post(
+        _url_pago(pago.id, "/dividir"),
+        json={"monto_ahora": "100000.00", "vencimiento_resto": "2020-02-20"},
+    )
+
+    assert r.status_code == 201
+    ahora, resto = r.json()
+    assert ahora["estado"] == "pendiente"
+    assert resto["estado"] == "vencido"
+    assert resto["vencimiento"] == "2020-02-20"
+
+
+async def test_rf065_reprogramar_vencimiento_fuera_de_rango_422(
+    cliente_como: Fabrica, sesion: AsyncSession
+) -> None:
+    # enero del año 1 no tiene un mes antes para la alerta
+    c = await cliente_como("empleado")
+    viaje = await _viaje(sesion, _yo(c))
+    viaje_id = viaje.id
+    pago = await _pago_con_alerta(sesion, viaje, _yo(c))
+    pago_id = pago.id
+
+    r = await c.patch(_url_pago(pago_id), json={"vencimiento": "0001-01-15"})
+
+    assert r.status_code == 422
+    assert r.headers["content-type"].startswith(PROBLEM_JSON)
+    sesion.expire_all()
+    (guardado,) = await _pagos_de(sesion, viaje_id)
+    assert guardado.vencimiento == date(2027, 1, 5)
+
+
+async def test_rf065_reprogramar_al_ultimo_dia_admitido(
+    cliente_como: Fabrica, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("empleado")
+    viaje = await _viaje(sesion, _yo(c))
+    pago = await _pago_con_alerta(sesion, viaje, _yo(c))
+
+    r = await c.patch(_url_pago(pago.id), json={"vencimiento": "9999-12-31"})
+
+    assert r.status_code == 200
+    assert r.json()["vencimiento"] == "9999-12-31"
+
+
+async def test_dividir_cuota_vencimiento_resto_fuera_de_rango_422(
+    cliente_como: Fabrica, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("empleado")
+    viaje = await _viaje(sesion, _yo(c))
+    viaje_id = viaje.id
+    pago = await _pago_con_alerta(sesion, viaje, _yo(c))
+    pago_id = pago.id
+
+    r = await c.post(
+        _url_pago(pago_id, "/dividir"),
+        json={"monto_ahora": "100000.00", "vencimiento_resto": "0001-01-15"},
+    )
+
+    assert r.status_code == 422
+    assert r.headers["content-type"].startswith(PROBLEM_JSON)
+    sesion.expire_all()
+    (guardado,) = await _pagos_de(sesion, viaje_id)  # nada se partió
+    assert guardado.monto == Decimal("400000.00")
+
+
+async def test_rf061_vencimiento_fuera_de_rango_422(
+    cliente_como: Fabrica, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("empleado")
+    viaje = await _viaje(sesion, _yo(c))
+
+    r = await c.put(_url(viaje.id), json=_plan(("1000000.00", "saldo", "0001-01-15")))
+
+    assert r.status_code == 422
+    assert r.headers["content-type"].startswith(PROBLEM_JSON)
+    assert await _pagos_de(sesion, viaje.id) == []
