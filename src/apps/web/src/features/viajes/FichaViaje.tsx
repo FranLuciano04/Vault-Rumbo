@@ -100,11 +100,7 @@ export function FichaViaje({
             <ItinerarioViaje cliente={cliente} viaje={viaje} editable={editable} />
           </Seccion>
           <Seccion titulo="Acciones">
-            {usuario.rol === "freelance" ? (
-              "Tu rol no puede cambiar el estado del viaje."
-            ) : (
-              <AccionesDelViaje cliente={cliente} viaje={viaje} />
-            )}
+            <AccionesDelViaje cliente={cliente} usuario={usuario} viaje={viaje} />
           </Seccion>
         </div>
         <SeccionEconomia cliente={cliente} usuario={usuario} viaje={viaje} editable={editable} />

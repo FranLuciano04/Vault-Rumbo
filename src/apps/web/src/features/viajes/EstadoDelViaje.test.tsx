@@ -1,4 +1,4 @@
-import { crearCliente } from "@rumbo/shared";
+import { crearCliente, type UsuarioActual } from "@rumbo/shared";
 import {
   crearServidor,
   idViajeMock,
@@ -45,13 +45,17 @@ afterAll(() => {
 
 const cliente = crearCliente({ baseURL: "http://localhost", obtenerToken: () => "token" });
 
-function renderFicha(estado: keyof typeof idViajeMock, rol: RolMock = "empleado") {
+function renderFicha(
+  estado: keyof typeof idViajeMock,
+  rol: RolMock = "empleado",
+  usuario: UsuarioActual = usuariosPorRol[rol],
+) {
   return render(
     <QueryClientProvider
       client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}
     >
       <MemoryRouter initialEntries={[`/viajes/${idViajeMock[estado]}`]}>
-        <FichaViaje cliente={cliente} usuario={usuariosPorRol[rol]} viajeId={idViajeMock[estado]} />
+        <FichaViaje cliente={cliente} usuario={usuario} viajeId={idViajeMock[estado]} />
       </MemoryRouter>
     </QueryClientProvider>,
   );
@@ -121,20 +125,34 @@ describe("RF-039 avanzar estado", () => {
     },
   );
 
-  it("RF-039 el freelance no ve acciones de estado", async () => {
+  it("RF-039 quien no es responsable del viaje (empleado o freelance) no ve acciones de estado", async () => {
     renderFicha("confirmado", "freelance");
     const region = await acciones();
 
     expect(within(region).queryByRole("button", { name: AVANZAR })).toBeNull();
     expect(within(region).queryByRole("button", { name: CORREGIR })).toBeNull();
+    expect(region).toHaveTextContent(/solo el responsable del viaje, admin o dueño/i);
   });
 
-  it.each(["admin", "dueno"] as const)("RF-039 el %s también puede avanzar el viaje", async (rol) => {
-    renderFicha("confirmado", rol);
+  it("RF-039 el freelance responsable del viaje sí puede avanzarlo", async () => {
+    const responsable = { ...usuariosPorRol.freelance, id: usuariosPorRol.empleado.id };
+    renderFicha("confirmado", "freelance", responsable);
     const region = await acciones();
 
     expect(await within(region).findByRole("button", { name: /pasar a en curso/i })).toBeEnabled();
   });
+
+  it.each(["admin", "dueno"] as const)(
+    "RF-039 el %s también puede avanzar el viaje",
+    async (rol) => {
+      renderFicha("confirmado", rol);
+      const region = await acciones();
+
+      expect(
+        await within(region).findByRole("button", { name: /pasar a en curso/i }),
+      ).toBeEnabled();
+    },
+  );
 
   it("RF-039 pide confirmación antes de pasar a en curso y no llama a la API todavía", async () => {
     const llamadas: string[] = [];
@@ -265,11 +283,19 @@ describe("RF-042 corregir", () => {
     },
   );
 
-  it("RF-042 el freelance no puede corregir el estado", async () => {
+  it("RF-042 quien no es responsable del viaje no puede corregir el estado", async () => {
     renderFicha("finalizado", "freelance");
     const region = await acciones();
 
     expect(within(region).queryByRole("button", { name: CORREGIR })).toBeNull();
+  });
+
+  it("RF-042 el freelance responsable del viaje sí puede corregir el estado", async () => {
+    const responsable = { ...usuariosPorRol.freelance, id: usuariosPorRol.empleado.id };
+    renderFicha("finalizado", "freelance", responsable);
+    const region = await acciones();
+
+    expect(await within(region).findByRole("button", { name: CORREGIR })).toBeEnabled();
   });
 
   it("RF-042 la confirmación nombra el estado al que vuelve el viaje (en curso → confirmado)", async () => {
