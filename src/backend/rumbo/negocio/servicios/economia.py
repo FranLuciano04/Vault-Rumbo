@@ -9,7 +9,7 @@ from typing import Any
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from rumbo.core.fechas import sumar_meses
+from rumbo.core.fechas import hoy, sumar_meses
 from rumbo.datos.modelos import (
     EstadoPago,
     EstadoViaje,
@@ -186,6 +186,32 @@ async def registrar_cobro(
         plan_balanceado=not calculos.plan_desbalanceado(viaje.precio_venta, pagos),
     )
     await alertas.resolver_de_origen(sesion, pago, (TipoAlerta.pago,))
+    await sesion.flush()
+    await sesion.refresh(pago)
+    return pago
+
+
+async def revertir_cobro(sesion: AsyncSession, actor: Usuario, pago_id: uuid.UUID) -> Pago:
+    """Revierte un cobro cargado por error (CU-12 A3, RF-070): el pago `pagado` vuelve a
+    `pendiente` o `vencido` según su vencimiento, sin los datos del cobro, y su alerta se
+    reabre. El viaje retrocede: `confirmado` vuelve a `vendido` y, si no queda ningún cobro, a
+    `reservado`; en curso o finalizado no retrocede (`TransicionInvalida`). Todo en la
+    transacción del pedido, con el viaje bloqueado. Escribe el responsable, admin o dueño."""
+    pago = await _pagos.obtener(sesion, pago_id, visibilidad=visibilidad(actor))
+    viaje = await _viajes.obtener_para_modificar(
+        sesion, pago.viaje_id, visibilidad=visibilidad(actor)
+    )
+    exigir_escritura(actor, viaje)
+    await sesion.refresh(pago)  # releído con el viaje ya bloqueado: dos reversiones no se pisan
+
+    estado_pago.revertir_cobro(pago, hoy=hoy())
+    pagos = await _pagos.listar_de_viaje(sesion, viaje.id, visibilidad=visibilidad(actor))
+    estado_viaje.al_revertir_cobro(
+        viaje,
+        saldo=calculos.saldo_pendiente(pagos),
+        quedan_cobros=any(p.estado is EstadoPago.pagado for p in pagos),
+    )
+    await alertas.reabrir_de_origen(sesion, pago)
     await sesion.flush()
     await sesion.refresh(pago)
     return pago
