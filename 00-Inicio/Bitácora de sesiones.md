@@ -67,20 +67,11 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
   - `GET /api/dashboard` calcula el embudo con conversión y, por moneda, ventas, ganancia, margen, comisiones, cobrado y pendiente de cobrar. Empleado y freelance ven solo lo suyo.
   - Francisco decidió, como propuesta para ratificar: pendiente de cobrar = foto del momento; comisión porcentual con ganancia ≤ 0 = 0.
   - Review de Opus: 3 importantes. Se arreglaron 2 y el tercero (indicadores de RF-124 sin dueño) quedó anotado en T-122.
+- **Decisiones:** el equipo aprobó las 15 recomendaciones en [[DEC-0024 Reglas del dashboard, calendario y criterios de M6|DEC-0024]]. Cierran los pendientes de T-091, T-095, T-119 y T-121, y la reseña post-viaje de T-096.
 - **Pendiente:**
-  - El e2e de la reseña con viaje (CU-17 A1) espera a T-089, porque hoy no hay forma de crear un viaje. Va en el e2e de CU-01 de M6.
-  - Decidir con el equipo si «lo mío» del freelance en viajes significa «los que llevo» o «lo que veo». Hoy es `responsable_id`.
-  - Ratificar con el equipo (T-121):
-    - Oportunidades y ventas entran al período por `created_at`; los cobros, por `fecha_cobro`.
-    - Venta = viaje no cancelado.
-    - Las dos decisiones de Francisco.
-    - El freelance ve en el dashboard solo los viajes donde es responsable.
-  - Decidir con el equipo (T-119):
-    - ¿Las alertas van en el calendario? CU-23 las incluye y el contrato no; si no van, hay que acotar CU-23 con una DEC.
-    - Cómo se cuentan los pasajeros por destino.
-    - El catálogo de reportes.
-    - Alinear `05-Diseño/API/generar-openapi.js` con `responsable_id` en el dashboard.
-  - Decidir con el equipo (T-095): al revertir un cobro también se reabre una alerta que alguien resolvió a mano. Y revertir sobre un viaje `cancelado` hoy da 409, pero CU-12 no lo define (se ve con T-099).
+  - Aplicar DEC-0024 en el dashboard ya mergeado: freelance con su visibilidad y comisiones por vendedor (puntos 5 y 6). Va en una rama `fix/` (DEC-0019).
+  - Actualizar `05-Diseño/API/generar-openapi.js` (punto 11).
+  - El e2e de la reseña con viaje (CU-17 A1) va en T-108.
 
 ## 29/10/26 — Paloma (Claude Opus 5.5) — T-090, T-088, T-100, T-102 y T-096 (M6)
 - **Hecho:**
