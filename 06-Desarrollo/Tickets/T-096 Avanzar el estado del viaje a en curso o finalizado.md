@@ -3,7 +3,7 @@ id: T-096
 titulo: Avanzar el estado del viaje a en curso o finalizado
 modulo: M6 — Viajes y economía
 capa: backend
-estado: tomado
+estado: hecho
 depende_de: [T-086, T-087, T-051]
 tamaño: M
 riesgo: alto
@@ -47,3 +47,9 @@ Una persona confirma que el viaje empezó o terminó, o corrige un estado cargad
 - La sugerencia automática por fecha (proceso diario, M7).
 
 ## Notas de implementación
+- `negocio/servicios/viajes.py` (nuevo) con `iniciar`, `finalizar` y `corregir_estado`: bloquean el viaje (`FOR UPDATE`), aplican visibilidad y `exigir_escritura`, y delegan las transiciones T4, T5 y T7 en `negocio/estados/viaje.py`. La respuesta es el `Viaje` con `saldo_pendiente` y `porcentaje_pagado` (`Viaje.desde_ficha`, que también puede usar `obtener_viaje` en T-091).
+- Reseña post-viaje (RF-041): `finalizar` crea la Alerta `resena` con fecha `hoy()` en la agenda del responsable del viaje, aunque finalice un admin. RF-041 no fija un desfasaje; si el negocio lo quiere, hace falta una DEC. `corregir_estado` desde `finalizado` resuelve la `resena` pendiente o vista; una ya resuelta no se toca.
+- RF-040 sin código propio: calendario y dashboard leen `Viaje.estado` de la base en la misma transacción.
+- Tests tocados con autorización de Paloma en el verde: el fixture del viaje cancelado (restricción `viaje_estado_previo_ck`) y las tres operaciones en `_IMPLEMENTADAS` de `test_contrato_m6.py`. En el fix se agregaron 11 casos (permisos 404/403, alerta del admin, reseña vista, fecha, finalizar-corregir-finalizar, reseña resuelta) sin modificar los existentes.
+- Review (`reviewer-seguridad`, sonnet): 0 bloqueantes, 2 importantes (tests de permisos y de la alerta) y 2 menores; arreglados salvo uno que queda para M7: `iniciar` y `finalizar` no resuelven la Alerta `viaje` de la sugerencia por fecha, que todavía no existe (la crea el proceso diario).
+- Modelos: tests sonnet; implementación, refactor (sin cambios) y fix opus; review sonnet. Sin escalados.
