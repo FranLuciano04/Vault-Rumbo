@@ -3,7 +3,7 @@ id: T-122
 titulo: Calcular los indicadores operativos del dashboard
 modulo: M8 — Calendario, dashboard y reportes
 capa: backend
-estado: libre
+estado: tomado
 depende_de: [T-121]
 tamaño: M
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [CU-21, RF-125, RF-126, RF-128]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: FranLucianoo
+tomado_el: 30/10/26 17:23
+rama: feature/T-122-calcular-los-indicadores-operativos-del
 pr:
 ---
 # T-122 Calcular los indicadores operativos del dashboard
