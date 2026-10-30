@@ -3,7 +3,7 @@ id: T-119
 titulo: Publicar el contrato de calendario, dashboard y reportes
 modulo: M8 — Calendario, dashboard y reportes
 capa: contrato
-estado: libre
+estado: tomado
 depende_de: [T-015]
 tamaño: S
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [CU-21, CU-22, CU-23]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: FranLucianoo
+tomado_el: 30/10/26 14:17
+rama: feature/T-119-publicar-el-contrato-de-calendario-dashb
 pr:
 ---
 # T-119 Publicar el contrato de calendario, dashboard y reportes

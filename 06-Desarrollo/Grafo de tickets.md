@@ -22,7 +22,7 @@ tags:: #tipo/referencia
 | M5 — Hoteles y reseñas | 11 | 11 | 0 | 0 | 0 | 0 | ✅ cerrado |
 | M6 — Viajes y economía | 24 | 17 | 2 | 3 | 2 | 0 | 🛠️ en curso |
 | M7 — Proceso diario y CRM proactivo | 9 | 0 | 0 | 3 | 6 | 0 | 🛠️ en curso |
-| M8 — Calendario, dashboard y reportes | 10 | 0 | 0 | 1 | 9 | 0 | 🛠️ en curso |
+| M8 — Calendario, dashboard y reportes | 10 | 0 | 1 | 0 | 9 | 0 | 🛠️ en curso |
 | M9 — Redes e IA | 6 | 0 | 0 | 1 | 5 | 0 | 🛠️ en curso |
 | M10 — Despliegue on-premise | 5 | 0 | 0 | 1 | 4 | 0 | 🛠️ en curso |
 
@@ -195,7 +195,7 @@ flowchart LR
     T118["T-118 · Probar de punta a punta el proceso diario<br/><small>e2e</small>"]:::esperando
   end
   subgraph M8["M8 — Calendario, dashboard y reportes"]
-    T119["T-119 · Publicar el contrato de calendario, dashboard y reportes<br/><small>contrato</small>"]:::disponible
+    T119["T-119 · Publicar el contrato de calendario, dashboard y reportes<br/><small>contrato</small><br/>👤 FranLucianoo"]:::tomado
     T120["T-120 · Consultar el calendario consolidado<br/><small>backend</small>"]:::esperando
     T121["T-121 · Calcular el embudo con los indicadores económicos<br/><small>backend</small>"]:::esperando
     T122["T-122 · Calcular los indicadores operativos del dashboard<br/><small>backend</small>"]:::esperando
