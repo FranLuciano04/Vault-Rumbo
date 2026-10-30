@@ -2354,6 +2354,11 @@ export interface components {
             /** Reservas Confirmadas */
             readonly reservas_confirmadas: number;
             /**
+             * Viajes Activos
+             * @description Viajes que no están finalizados ni cancelados.
+             */
+            readonly viajes_activos: number;
+            /**
              * Alertas Pendientes
              * @description Alertas de pasajeros próximos a viajar (documentación, pagos, requisitos).
              */
@@ -2362,6 +2367,8 @@ export interface components {
             readonly destinos_mas_vendidos: components["schemas"]["DestinoVendido"][];
             /** Ventas Por Vendedor */
             readonly ventas_por_vendedor: components["schemas"]["VentaPorVendedor"][];
+            /** @description Por contador, el listado al que lleva con los filtros que ese listado acepta: `estado` (un solo valor), `mios` (el empleado) y `responsable_id` o `propietario_id` (la dirección, donde el listado lo tiene). */
+            readonly detalles: components["schemas"]["DetallesIndicadores"];
         };
         /** Destino */
         Destino: {
@@ -2437,6 +2444,37 @@ export interface components {
              * @description Viajes vendidos al destino en el período.
              */
             viajes: number;
+            /**
+             * Pasajeros
+             * @description Pasajeros de las oportunidades de origen de esos viajes.
+             */
+            pasajeros: number;
+        };
+        /**
+         * DetalleIndicador
+         * @description Listado al que lleva un contador (RF-128): sección de la web y sus filtros.
+         */
+        DetalleIndicador: {
+            /**
+             * Seccion
+             * @enum {string}
+             */
+            seccion: "oportunidades" | "viajes" | "alertas";
+            /** Filtros */
+            filtros: {
+                [key: string]: string;
+            };
+        };
+        /**
+         * DetallesIndicadores
+         * @description Un detalle por contador del dashboard (RF-128).
+         */
+        DetallesIndicadores: {
+            consultas_pendientes: components["schemas"]["DetalleIndicador"];
+            presupuestos_abiertos: components["schemas"]["DetalleIndicador"];
+            reservas_confirmadas: components["schemas"]["DetalleIndicador"];
+            viajes_activos: components["schemas"]["DetalleIndicador"];
+            alertas_pendientes: components["schemas"]["DetalleIndicador"];
         };
         EconomiaRegistrada: {
             /**
@@ -3815,6 +3853,8 @@ export interface components {
             viajes: number;
             /** Ventas */
             ventas: components["schemas"]["MontoPorMoneda"][];
+            /** Comisiones */
+            comisiones: components["schemas"]["MontoPorMoneda"][];
         };
         Viaje: {
             /**
@@ -4001,6 +4041,11 @@ export interface components {
              */
             fecha_salida: string;
             estado: components["schemas"]["EstadoViaje"];
+            /**
+             * Pasajeros
+             * @description De la oportunidad de origen; vacío si no hay.
+             */
+            pasajeros: number | null;
         };
         /** @description Columnas de auditoría (DEC-0008): las completa el servidor, el cliente no las envía. */
         Auditoria: {
