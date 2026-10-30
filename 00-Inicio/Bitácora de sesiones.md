@@ -88,6 +88,14 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
   - Decidir con el equipo: la reseña post-viaje se agenda el mismo día en que se finaliza (RF-041 no fija desfasaje).
   - Menores anotados en los tickets: `vendedor_nombre` en `Viaje` para la vista del freelance y el default de comisión en `AsesorDelCliente` (T-102); pendientes de UI de la pantalla 14 (T-100); la Alerta `viaje` de la sugerencia por fecha no se resuelve al confirmar el paso (T-096, para M7).
 
+## 30/10/26 — Nahuel (Claude Opus 5.5) — T-101: confirmar la reserva desde la oportunidad en la web
+- **Hecho:** T-101 (PR [#164](https://github.com/FranLuciano04/Vault-Rumbo/pull/164), mergeado con el CI en verde).
+  - Diálogo «Confirmar reserva» en la oportunidad: destino, fechas, categoría, responsable y economía inicial (precio, costo y una cuota `saldo`); venta directa (A1) y navegación a la ficha del viaje. Si ya hay viaje, muestra «Ver viaje».
+  - Nahuel decidió pedir la economía en el diálogo porque el contrato `ConfirmarReserva` la exige, aunque el ticket la dejaba para la ficha. Queda anotado en el ticket.
+  - La review de Opus marcó 5 importantes (valores en 0, vencimiento hoy, botón con viaje existente, ganada sin aceptada, tests de la economía); se arreglaron con tests ajustados y autorizados.
+- **Commits:** 090bf1a, 1a37c5c, d55264a, 417d216.
+- **Pendiente (decidir con el equipo):** exponer `viaje_id` en `Oportunidad` en el contrato simplificaría saber si ya tiene viaje (hoy se busca por cliente).
+
 ## 30/10/26 — Nahuel (Claude Opus 5.5) — T-106: itinerario de hoteles en la web
 - **Hecho:** T-106 (PR [#150](https://github.com/FranLuciano04/Vault-Rumbo/pull/150), mergeado con el CI en verde).
   - Itinerario embebido en la ficha del viaje: lista de tramos, buscador de hoteles del destino del viaje, alta, edición (fechas, orden y vencimiento), baja y marca de pago al proveedor.
