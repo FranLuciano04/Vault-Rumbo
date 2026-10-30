@@ -9,6 +9,7 @@ import { useOportunidad } from "@rumbo/shared/hooks";
 import type { AxiosInstance } from "axios";
 import { Link, useParams } from "react-router";
 import { AccionesOportunidad } from "./AccionesOportunidad";
+import { ConfirmarReserva } from "./ConfirmarReserva";
 import { EdicionDestinoPasajeros } from "./EdicionDestinoPasajeros";
 import { InsistenciasOportunidad } from "./InsistenciasOportunidad";
 import { InteraccionesOportunidad } from "./InteraccionesOportunidad";
@@ -74,6 +75,7 @@ export function DetalleOportunidad({
         <EdicionDestinoPasajeros cliente={cliente} oportunidad={oportunidad} />
       )}
       {puedeEscribir && <AccionesOportunidad cliente={cliente} oportunidad={oportunidad} />}
+      {puedeEscribir && <ConfirmarReserva cliente={cliente} oportunidad={oportunidad} />}
       <InteraccionesOportunidad
         cliente={cliente}
         usuario={usuario}

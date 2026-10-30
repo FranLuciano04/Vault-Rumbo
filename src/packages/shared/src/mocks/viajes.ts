@@ -50,6 +50,9 @@ const nombreDeDestino: Record<string, string> = {
   "9c1d2e3f-4a5b-4c6d-8e7f-0a1b2c3d4e04": "Salta",
   "9c1d2e3f-4a5b-4c6d-8e7f-0a1b2c3d4e05": "Punta Cana",
   "9c1d2e3f-4a5b-4c6d-8e7f-0a1b2c3d4e06": "Lisboa",
+  "3f6a1c20-8b4d-4e57-a9c1-5d2e7b9f0a11": "Bariloche",
+  "9c2d4e61-1a7f-4b38-8d05-6e3f1a2b4c22": "Cancún",
+  "d4b81f93-5c2e-4a60-b7d9-0f8e6c1a3d33": "Roma",
 };
 
 function nombrePorId(nombres: Record<string, string>, id: string): string {

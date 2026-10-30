@@ -1,5 +1,14 @@
-import { ETIQUETA_MOTIVO_PERDIDA, type CanalOportunidad, type MotivoPerdida } from "@rumbo/shared";
+import {
+  ETIQUETA_MOTIVO_PERDIDA,
+  type CanalOportunidad,
+  type CategoriaViaje,
+  hoyEnBuenosAires,
+  type Moneda,
+  type MotivoPerdida,
+  type TipoPago,
+} from "@rumbo/shared";
 import { z } from "zod";
+import { DECIMAL } from "../viajes/esquemas";
 
 /** Interacción nueva de la línea de tiempo (RF-014): solo el texto; la fecha y el nombre los pone la pantalla. */
 export const esquemaInteraccion = z.object({
@@ -80,6 +89,42 @@ export const esquemaConsulta = z
     },
   );
 
+const importe = z
+  .string()
+  .trim()
+  .regex(DECIMAL, "Ingresá un importe válido, por ejemplo 150000 o 1200.50.");
+const CATEGORIAS = ["grupal", "individual"] as const satisfies readonly CategoriaViaje[];
+const MONEDAS = ["ARS", "USD"] as const satisfies readonly Moneda[];
+const TIPOS_DE_PAGO = ["sena", "cuota", "saldo"] as const satisfies readonly TipoPago[];
+
+/**
+ * Confirmar la reserva (RF-032, RF-033): destino, fechas y categoría son obligatorios; el contrato
+ * también pide la economía y una cuota única por el precio de venta, que luego se ajustan en la ficha.
+ */
+export const esquemaReserva = z
+  .object({
+    destino_id: z.string().min(1, "Elegí un destino."),
+    fecha_salida: z.iso.date("Ingresá la fecha de salida."),
+    fecha_regreso: z.iso.date("Ingresá la fecha de regreso."),
+    categoria: z.enum(CATEGORIAS, "Elegí una categoría."),
+    responsable_id: z.string(),
+    moneda: z.enum(MONEDAS),
+    precio_venta: importe.refine(
+      (v) => Number(v) > 0,
+      "El precio de venta tiene que ser mayor a cero.",
+    ),
+    costo: importe,
+    tipo_de_pago: z.enum(TIPOS_DE_PAGO),
+    vencimiento: z.iso
+      .date("Ingresá la fecha de vencimiento.")
+      .refine((v) => v >= hoyEnBuenosAires(), "El vencimiento no puede ser anterior a hoy."),
+  })
+  .refine((d) => d.fecha_regreso >= d.fecha_salida, {
+    path: ["fecha_regreso"],
+    message: "El regreso no puede ser anterior a la salida.",
+  });
+
+export type DatosReserva = z.infer<typeof esquemaReserva>;
 export type EntradaConsulta = z.input<typeof esquemaConsulta>;
 export type DatosConsulta = z.output<typeof esquemaConsulta>;
 export type EntradaDestinoPasajeros = { destino_consultado?: string; pasajeros?: number };
