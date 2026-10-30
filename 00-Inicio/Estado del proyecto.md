@@ -14,6 +14,8 @@ actualizado: 30/10/26
 >
 > 🏁 **29/10 — M5 Hoteles y reseñas cerrado.** Se arreglaron 5 de los 6 hallazgos de Codex (PR #140 a #143) y H-04 pasó a T-091 (`GET /viajes` con filtro por cliente). El equipo lo aprobó y se puso el tag `mod-5`. El backend ahora tiene logging configurado (`rumbo.core.logs`). El resumen está en [[Bitácora técnica]].
 >
+> 👉 **30/10 (Francisco):** **T-104** (registrar y revertir el cobro de un pago en la web) está hecho y mergeado (PR [#153](https://github.com/FranLuciano04/Vault-Rumbo/pull/153)). Revertir en el backend es T-095, todavía en 501.
+>
 > 👉 **30/10 (Francisco):** **T-091** (listado y ficha de viajes con economía) está hecho y mergeado (PR [#152](https://github.com/FranLuciano04/Vault-Rumbo/pull/152)). `Viaje` trae `cliente_nombre` y `destino_nombre`, y `GET /viajes?cliente_id=` cierra el hallazgo H-04 de M5. El e2e de la reseña con viaje espera a T-089.
 >
 > 👉 **28/10 (Paloma):** **T-087** (máquina de estados del viaje, primer ticket de M6) está hecho y mergeado (PR [#134](https://github.com/FranLuciano04/Vault-Rumbo/pull/134), aprobado y mergeado por Nahuel). Destraba 19 tickets de M6.

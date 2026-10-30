@@ -33,12 +33,18 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
-## 30/10/26 — Francisco (Claude Opus 5.5) — T-091: listar los viajes con su situación económica
+## 30/10/26 — Francisco (Claude Opus 5.5) — T-091 y T-104 (M6)
 - **Hecho:** T-091 (PR [#152](https://github.com/FranLuciano04/Vault-Rumbo/pull/152), mergeado con el CI en verde).
   - `GET /viajes` (filtros por estado, fechas, «lo mío» y `cliente_id`, con paginación y visibilidad) y `GET /viajes/{id}` con la economía, el saldo y el porcentaje pagado.
   - `Viaje` trae `cliente_nombre` y `destino_nombre`, y `TablaViajes` los usa. Así se cierra el hallazgo H-04 de M5.
   - Review de Opus: 1 importante (la web forzaba «lo mío» al freelance) y 2 menores. Se arreglaron el importante y uno de los menores.
 - **Commits:** d8aa6a8, 6c0b194, 22cc9f8, 8476469, 83a6ce7.
+- **Hecho (2):** T-104 (PR [#153](https://github.com/FranLuciano04/Vault-Rumbo/pull/153), mergeado con el CI en verde).
+  - Diálogo «Registrar cobro» en el plan de pagos, con forma de pago, moneda y tipo de cambio en formato es-AR.
+  - «Revertir cobro» con confirmación.
+  - La review de Opus marcó 1 importante: «1.250» se tomaba como 1,25. Se arregló.
+  - Commits: a73125c, 64237b8, e567672, 08d8ca0.
+  - Revertir el cobro en el backend es T-095 y sigue en 501.
 - **Pendiente:**
   - El e2e de la reseña con viaje (CU-17 A1) espera a T-089, porque hoy no hay forma de crear un viaje. Va en el e2e de CU-01 de M6.
   - Decidir con el equipo si «lo mío» del freelance en viajes significa «los que llevo» o «lo que veo». Hoy es `responsable_id`.
