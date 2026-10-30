@@ -3,7 +3,7 @@ id: T-089
 titulo: Confirmar la reserva creando el viaje
 modulo: M6 — Viajes y economía
 capa: backend
-estado: libre
+estado: tomado
 depende_de: [T-086, T-087, T-064, T-032, T-051, T-029]
 tamaño: M
 riesgo: alto
@@ -12,9 +12,9 @@ modelo_impl: opus
 modelo_review: sonnet
 trazabilidad: [CU-07, RF-032, RF-033, RF-034, RF-035, RF-036, RNF-05]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: palomap2003
+tomado_el: 30/10/26 09:35
+rama: feature/T-089-confirmar-la-reserva-creando-el-viaje
 pr:
 ---
 # T-089 Confirmar la reserva creando el viaje
