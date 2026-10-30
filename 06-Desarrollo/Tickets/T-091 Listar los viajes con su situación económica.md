@@ -3,7 +3,7 @@ id: T-091
 titulo: Listar los viajes con su situación económica
 modulo: M6 — Viajes y economía
 capa: backend
-estado: libre
+estado: tomado
 depende_de: [T-086, T-012, T-090]
 tamaño: S
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [CU-08, RF-037, RF-151]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: FranLucianoo
+tomado_el: 30/10/26 10:18
+rama: feature/T-091-listar-los-viajes-con-su-situacion-econo
 pr:
 ---
 # T-091 Listar los viajes con su situación económica
