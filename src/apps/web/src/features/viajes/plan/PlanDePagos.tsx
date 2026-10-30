@@ -5,17 +5,25 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { aCentesimas } from "../calculos";
 import { EditorDelPlan } from "./EditorDelPlan";
-import { ETIQUETA_ESTADO_PAGO, ETIQUETA_TIPO_PAGO, estaSinCobrar } from "./etiquetas";
+import { CobroDePago } from "./CobroDePago";
+import {
+  ETIQUETA_ESTADO_PAGO,
+  ETIQUETA_FORMA_PAGO,
+  ETIQUETA_TIPO_PAGO,
+  estaSinCobrar,
+} from "./etiquetas";
 import { PanelDePago, type AccionDePago } from "./PanelDePago";
 
 const AVISO_REBALANCEO =
   "El precio de venta cambió y los pagos ya no lo suman: rebalanceá el plan de pagos.";
 
 const ACCIONES: { tipo: AccionDePago["tipo"]; texto: string }[] = [
+  { tipo: "cobrar", texto: "Registrar cobro" },
   { tipo: "reprogramar", texto: "Reprogramar" },
   { tipo: "dividir", texto: "Dividir" },
   { tipo: "anular", texto: "Anular" },
 ];
+const ACCIONES_DE_COBRADO: typeof ACCIONES = [{ tipo: "revertir", texto: "Revertir cobro" }];
 
 /** Sin pagos vigentes todavía no hay plan que rebalancear; si los hay, suman el precio (CU-11 A5). */
 const sumaElPrecio = (pagos: Pago[], precioVenta: string) => {
@@ -47,9 +55,12 @@ function FilaPago({
       <span className="rounded-full bg-secondary px-2.5 py-0.5 text-xs font-medium text-secondary-foreground">
         {ETIQUETA_ESTADO_PAGO[pago.estado]}
       </span>
-      {editable && estaSinCobrar(pago.estado) && (
+      {pago.forma_pago && (
+        <p className="text-sm text-muted-foreground">{ETIQUETA_FORMA_PAGO[pago.forma_pago]}</p>
+      )}
+      {editable && (estaSinCobrar(pago.estado) || pago.estado === "pagado") && (
         <div className="flex gap-2">
-          {ACCIONES.map(({ tipo, texto }) => (
+          {(estaSinCobrar(pago.estado) ? ACCIONES : ACCIONES_DE_COBRADO).map(({ tipo, texto }) => (
             <Button
               key={tipo}
               type="button"
@@ -137,7 +148,18 @@ export function PlanDePagos({
           ))}
         </ul>
       )}
-      {accion && editable && (
+      {accion?.tipo === "cobrar" && editable && (
+        <CobroDePago
+          key={accion.pago.id}
+          cliente={cliente}
+          viaje={viaje}
+          pago={accion.pago}
+          cerrar={() => {
+            setAccion(null);
+          }}
+        />
+      )}
+      {accion && accion.tipo !== "cobrar" && editable && (
         <PanelDePago
           key={`${accion.tipo}-${accion.pago.id}`}
           cliente={cliente}
