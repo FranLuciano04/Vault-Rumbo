@@ -3,7 +3,7 @@ id: T-120
 titulo: Consultar el calendario consolidado
 modulo: M8 — Calendario, dashboard y reportes
 capa: backend
-estado: libre
+estado: tomado
 depende_de: [T-119, T-012]
 tamaño: S
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [CU-23, RF-136, RF-137, RF-138, RF-139]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: FranLucianoo
+tomado_el: 30/10/26 18:12
+rama: feature/T-120-consultar-el-calendario-consolidado
 pr:
 ---
 # T-120 Consultar el calendario consolidado
