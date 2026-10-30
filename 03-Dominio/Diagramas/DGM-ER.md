@@ -109,6 +109,7 @@ erDiagram
         numeric tipo_cambio "nullable, si difiere de VIAJE.moneda"
         numeric monto_cobrado "nullable, real recibido"
         date fecha_cobro "nullable, fecha efectiva del cobro"
+        boolean anulado_por_cancelacion "default false, solo si anulado"
     }
     DESTINO {
         uuid id PK
@@ -235,6 +236,7 @@ erDiagram
 - `VIAJE.destino_id` y `HOTEL.destino_id` son FK a `DESTINO` (antes texto libre): ver [[DEC-0006 Destino como entidad de catálogo]]. `OPORTUNIDAD.destino_consultado` sigue siendo **texto libre** y se normaliza recién al derivar en `VIAJE`.
 - `VIAJE` suma `operador_id`, `vendedor_id`, `moneda`, `costo`, `ganancia`, `margen` y `comision_vendedor` — ver [[DEC-0007 Modelo económico — ganancia, margen y comisión de vendedor]] y [[DEC-0009 Operador-Proveedor como entidad de catálogo]] (sync 17/09). `ganancia` y `margen` son **calculados**: se pueden materializar como columnas generadas o resolver en la vista.
 - **Datos sumados al escribir el SQL** ([[DEC-0013 Datos que faltaban en el ER]], 29/09, ratificada el 30/09): `PAGO.fecha_cobro`; `VIAJE.comision_tipo` (`importe` o `porcentaje`), `VIAJE.estado_previo` (para revertir una cancelación), `VIAJE.motivo_cancelacion` y `fecha_cancelacion`; en `OPORTUNIDAD`, `notas` y el motivo de pérdida (lista fija más detalle si es `otro`); `RESENA.motivo_baja`; `ALERTA.viaje_hotel_id` como quinto origen , `ALERTA.descripcion` y `ALERTA.resuelta_en` (para el progreso del día de CU-14); `CONTENIDO_RED.texto`; en `USUARIO`, `activo` (baja lógica), `acceso_redes` y la comisión por defecto del vendedor (`comision_default_tipo` y `comision_default_valor`); y la tabla **`CONFIGURACION`**, de una sola fila, con los parámetros que edita `admin` (vigencia de la cotización, anticipación de la alerta `salida` y plazo del recontacto). `CONFIGURACION` es una tabla de parámetros, no una entidad del dominio, y no se relaciona con las demás. Con ella el esquema tiene **15 tablas**.
+- **`PAGO.anulado_por_cancelacion`** (T-099, 30/10/26, aprobado por Paloma): marca los pagos que anuló la cancelación del `VIAJE` ([[CU-27 Cancelar viaje]] paso 4), para que revertirla (A3) reabra solo esos y no los anulados antes por un cambio del plan ([[CU-11 Definir plan de cuotas]] A4). `NOT NULL DEFAULT false`, con el CHECK `NOT anulado_por_cancelacion OR estado = 'anulado'`. Es posterior a `rumbo.sql`: la agrega la migración `0009` de Alembic.
 - `COTIZACION.items` se modela como **`jsonb`**, no como tabla propia: decidido el 21/09 no promoverlo a entidad ([[DGM — Diagrama de clases]], punto 4). Si más adelante hacen falta reportes por concepto, se reabre.
 - Relación N:M `VIAJE`–`HOTEL` y objeto de la `RESENA` (Hotel + Cliente, con Viaje opcional): ver [[DEC-0003 Relación Viaje–Hotel y Reseña]].
 

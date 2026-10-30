@@ -109,6 +109,7 @@ classDiagram
         +Decimal tipoCambio
         +Decimal montoCobrado
         +Date fechaCobro
+        +Boolean anuladoPorCancelacion
     }
     class Operador {
         +UUID id

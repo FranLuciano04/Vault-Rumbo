@@ -34,6 +34,7 @@ tags:: #tipo/modulo #estado/formalizado
 - [[DEC-0021 Correcciones del viaje y monto de un pago]] (formalizada el 25/10/26): la corrección del viaje sigue a EST-Viaje T7 (desde `en curso` y `finalizado`; al deshacer un finalizado se cierra la alerta de reseña), y el monto de un pago se cambia rebalanceando el plan o dividiendo, no con el PATCH del pago.
 - [[DEC-0022 Suite completa solo en el CI]] (formalizada el 28/10/26): el paso 6 de `/implementar-ticket` corre en la PC solo lint, type-check y los tests del ticket y sus vecinos; la suite completa y la cobertura quedan para el CI, salvo que el ticket toque código compartido.
 - [[DEC-0023 Datos mínimos de la consulta]] (formalizada el 28/10/26): destino y pasajeros son opcionales al registrar una consulta, para que el contrato coincida con CU-04 A3 y RF-013 (mínimo: cliente y canal).
+- [[DEC-0024 Pagos anulados por la cancelación]] (formalizada el 30/10/26): `Pago.anulado_por_cancelacion` marca los pagos que anuló la cancelación, y revertirla restaura solo esos (CU-27 A3).
 
 ## Todas (Dataview)
 ```dataview

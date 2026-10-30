@@ -27,6 +27,7 @@ Registro de un pago o cuota de un [[Viaje]], con vencimiento y estado. El sistem
 | tipo_cambio | Decimal (se completa al cobrar, opcional) | Cotización que **carga el empleado al cobrar** cuando `moneda_pago` ≠ `Viaje.moneda`; permite reconstruir el equivalente en la moneda de referencia |
 | monto_cobrado | Decimal (se completa al cobrar) | Importe **real recibido** en `moneda_pago` (= `monto` si misma moneda; `monto × tipo_cambio` si difiere). Sirve para caja y para el reporte de formas de pago |
 | fecha_cobro | Date (dd/mm/aa, se completa al cobrar) | **Fecha efectiva** del cobro ([[CU-12 Registrar cobro de un pago|CU-12]]); se borra si se revierte el cobro — [[DEC-0013 Datos que faltaban en el ER|DEC-0013]] |
+| anulado_por_cancelacion | Boolean (por defecto falso) | Lo anuló la **cancelación del [[Viaje]]** ([[CU-27 Cancelar viaje|CU-27]] paso 4). Al revertir la cancelación (A3) solo vuelven a `pendiente` o `vencido` los pagos con esta marca, que se borra; los anulados antes por un cambio del plan siguen anulados. Solo puede ser verdadero en un pago `anulado` (T-099, migración `0009`) |
 
 ## Relaciones
 - *..1 con [[Viaje]]

@@ -187,6 +187,7 @@ TABLAS: dict[str, tuple[str, set[str]]] = {
             "tipo_cambio",
             "monto_cobrado",
             "fecha_cobro",
+            "anulado_por_cancelacion",  # posterior a rumbo.sql: migración 0009 (T-099)
         },
     ),
     "viaje_hotel": (
