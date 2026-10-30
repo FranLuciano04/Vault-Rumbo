@@ -249,6 +249,13 @@ describe("RF-059 plan desbalanceado tras cambiar el precio (A5)", () => {
     expect(screen.queryByText(/rebalance/i)).not.toBeInTheDocument();
   });
 
+  it("RF-059 con el plan de solo lectura no avisa de rebalanceo aunque no sume", async () => {
+    renderPlan(viajeDe("reservado", { precio_venta: "1200000.00" }), false);
+
+    await filaDe("2026-11-01");
+    expect(screen.queryByText(/rebalance/i)).not.toBeInTheDocument();
+  });
+
   it("el editor controla la suma contra el precio de venta nuevo", async () => {
     renderPlan(viajeDe("reservado", { precio_venta: "1200000.00" }));
     await abrirEditor();

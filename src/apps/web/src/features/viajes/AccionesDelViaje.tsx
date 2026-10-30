@@ -5,14 +5,22 @@ import {
   type UsuarioActual,
   type Viaje,
 } from "@rumbo/shared";
-import { useCorregirEstadoViaje, useFinalizarViaje, useIniciarViaje } from "@rumbo/shared/hooks";
+import {
+  useCorregirEstadoViaje,
+  useFinalizarViaje,
+  useIniciarViaje,
+  useRevertirCancelacion,
+} from "@rumbo/shared/hooks";
 import type { AxiosInstance } from "axios";
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { CancelarViaje } from "./CancelarViaje";
 
-type Accion = "iniciar" | "finalizar" | "corregir";
+type Accion = "iniciar" | "finalizar" | "corregir" | "cancelar" | "revertir";
 
 const ESTADO_ANTERIOR = { en_curso: "confirmado", finalizado: "en_curso" } as const;
+/** Estados desde los que se puede cancelar (RF-048); un viaje finalizado ya no. */
+const CANCELABLES = ["reservado", "vendido", "confirmado", "en_curso"];
 
 /** Diálogo de confirmación de un cambio de estado (pantalla 16); el servidor decide si se puede. */
 function ConfirmarEstado({
@@ -92,10 +100,11 @@ function ConfirmarEstado({
 }
 
 /**
- * Acciones de estado de la ficha (CU-08, RF-039, RF-042, pantalla 16): avanzar de confirmado a en
- * curso y de en curso a finalizado, y corregir al estado anterior. Cada una pide confirmación; las
- * guardas de EST-Viaje las valida la API y su motivo se muestra tal cual. Solo las ve quien puede
- * cambiar el estado: admin, dueño o el responsable del viaje.
+ * Acciones de estado de la ficha (CU-08, CU-27, RF-039, RF-042, RF-048, RF-053, pantallas 16 y
+ * 19): avanzar de confirmado a en curso y de en curso a finalizado, corregir al estado anterior,
+ * cancelar y revertir la cancelación. Cada una pide confirmación; las guardas de EST-Viaje las
+ * valida la API y su motivo se muestra tal cual. Solo las ve quien puede cambiar el estado:
+ * admin, dueño o el responsable del viaje.
  */
 export function AccionesDelViaje({
   cliente,
@@ -109,6 +118,7 @@ export function AccionesDelViaje({
   const iniciar = useIniciarViaje(cliente);
   const finalizar = useFinalizarViaje(cliente);
   const corregir = useCorregirEstadoViaje(cliente);
+  const revertir = useRevertirCancelacion(cliente);
   const [abierta, setAbierta] = useState<Accion | null>(null);
   const cerrar = () => {
     setAbierta(null);
@@ -142,7 +152,10 @@ export function AccionesDelViaje({
   if (!puedeCambiarEstado) {
     return <p>Solo el responsable del viaje, admin o dueño pueden cambiar su estado.</p>;
   }
-  if (!avanzar && !anterior) return <p>No hay cambios de estado disponibles para este viaje.</p>;
+  const cancelable = CANCELABLES.includes(viaje.estado);
+  const cancelado = viaje.estado === "cancelado";
+  if (!avanzar && !anterior && !cancelable && !cancelado)
+    return <p>No hay cambios de estado disponibles para este viaje.</p>;
 
   return (
     <div className="flex flex-col gap-3">
@@ -170,6 +183,30 @@ export function AccionesDelViaje({
             Corregir estado
           </Button>
         )}
+        {cancelable && (
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              setAbierta("cancelar");
+            }}
+          >
+            Cancelar viaje
+          </Button>
+        )}
+        {cancelado && (
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              setAbierta("revertir");
+            }}
+          >
+            Revertir cancelación
+          </Button>
+        )}
       </div>
       {avanzar && abierta === avanzar.accion && (
         <ConfirmarEstado
@@ -194,6 +231,18 @@ export function AccionesDelViaje({
           detalle={`El viaje vuelve a «${ETIQUETA_ESTADO_VIAJE[anterior]}». Usalo solo si el cambio de estado fue un error.`}
           confirmar="Corregir estado"
           ejecutar={() => corregir.mutateAsync(viaje.id)}
+          cerrar={cerrar}
+        />
+      )}
+      {cancelable && abierta === "cancelar" && (
+        <CancelarViaje cliente={cliente} viaje={viaje} cerrar={cerrar} />
+      )}
+      {cancelado && abierta === "revertir" && (
+        <ConfirmarEstado
+          titulo="Revertir la cancelación del viaje"
+          detalle={`El viaje ${viaje.estado_previo ? `vuelve a «${ETIQUETA_ESTADO_VIAJE[viaje.estado_previo]}»` : "vuelve al estado que tenía antes de cancelarse"}. Usalo solo si la cancelación fue un error.`}
+          confirmar="Revertir cancelación"
+          ejecutar={() => revertir.mutateAsync(viaje.id)}
           cerrar={cerrar}
         />
       )}

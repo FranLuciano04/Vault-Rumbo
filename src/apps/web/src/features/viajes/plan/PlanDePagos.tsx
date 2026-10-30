@@ -126,7 +126,7 @@ export function PlanDePagos({
 
   return (
     <div className="flex flex-col gap-3">
-      {!sumaElPrecio(lista, viaje.precio_venta) && (
+      {editable && !sumaElPrecio(lista, viaje.precio_venta) && (
         <p role="alert" className="rounded-xl bg-amber-50 px-4 py-3 text-sm text-amber-900">
           {AVISO_REBALANCEO}
         </p>
