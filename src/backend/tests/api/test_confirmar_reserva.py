@@ -750,3 +750,136 @@ async def test_rf151_direccion_confirma_oportunidad_ajena(
     assert r.status_code == 201
     assert r.json()["responsable_id"] == str(otro_id)  # hereda el de la oportunidad, no el actor
     assert await _estado_de(sesion, oportunidad_id) == m.EstadoOportunidad.ganada
+
+
+# --- Fix de la review: las decisiones del verde con su test ---
+
+
+def _campos_con_error(r: Any) -> list[str]:
+    return [e["campo"] for e in r.json()["errores"]]
+
+
+async def test_venta_directa_sin_moneda_422(cliente_como: Fabrica, sesion: AsyncSession) -> None:
+    """Sin cotización aceptada no hay de dónde tomar la moneda: es obligatoria en el pedido."""
+    c = await cliente_como("empleado")
+    destino = await _destino(sesion)
+    oportunidad = await _oportunidad(sesion, _yo(c), m.EstadoOportunidad.ganada, cotizacion=None)
+    oportunidad_id = oportunidad.id
+
+    r = await c.post(_url(oportunidad_id), json=_cuerpo(destino.id))
+
+    assert r.status_code == 422
+    assert r.headers["content-type"].startswith(PROBLEM_JSON)
+    assert _campos_con_error(r) == ["moneda"]
+    assert await _viajes_de(sesion, oportunidad_id) == []
+
+
+@pytest.mark.parametrize("de_baja", [False, True], ids=["inexistente", "de_baja"])
+async def test_rf032_responsable_invalido_422(
+    cliente_como: Fabrica, sesion: AsyncSession, de_baja: bool
+) -> None:
+    c = await cliente_como("empleado")
+    destino = await _destino(sesion)
+    oportunidad = await _oportunidad(sesion, _yo(c))
+    oportunidad_id = oportunidad.id
+    if de_baja:
+        otro = await f.crear(sesion, f.UsuarioFactory, rol=m.RolUsuario("empleado"), activo=False)
+        responsable_id = otro.id
+    else:
+        responsable_id = uuid.uuid4()
+
+    r = await c.post(
+        _url(oportunidad_id), json=_cuerpo(destino.id, responsable_id=str(responsable_id))
+    )
+
+    assert r.status_code == 422
+    assert r.headers["content-type"].startswith(PROBLEM_JSON)
+    assert _campos_con_error(r) == ["responsable_id"]
+    assert await _viajes_de(sesion, oportunidad_id) == []
+    assert await _estado_de(sesion, oportunidad_id) == m.EstadoOportunidad.cotizada
+
+
+async def test_rf033_destino_de_baja_422(cliente_como: Fabrica, sesion: AsyncSession) -> None:
+    c = await cliente_como("empleado")
+    destino = await f.crear(sesion, f.DestinoFactory, activo=False)
+    oportunidad = await _oportunidad(sesion, _yo(c))
+    oportunidad_id = oportunidad.id
+
+    r = await c.post(_url(oportunidad_id), json=_cuerpo(destino.id))
+
+    assert r.status_code == 422
+    assert r.headers["content-type"].startswith(PROBLEM_JSON)
+    assert _campos_con_error(r) == ["destino_id"]
+    assert await _viajes_de(sesion, oportunidad_id) == []
+    assert await _estado_de(sesion, oportunidad_id) == m.EstadoOportunidad.cotizada
+
+
+async def test_rn08_ganarla_resuelve_las_insistencias_pendientes(
+    cliente_como: Fabrica, sesion: AsyncSession
+) -> None:
+    """Al cerrar la oportunidad como ganada, sus alertas automáticas se resuelven (RN-08)."""
+    c = await cliente_como("empleado")
+    yo = _yo(c)
+    destino = await _destino(sesion)
+    oportunidad = await _oportunidad(sesion, yo)
+    oportunidad_id = oportunidad.id
+    insistencia = await f.crear(
+        sesion,
+        f.AlertaFactory,
+        tipo=m.TipoAlerta.insistencia,
+        estado=m.EstadoAlerta.pendiente,
+        propietario_id=yo,
+        oportunidad_id=oportunidad_id,
+    )
+    insistencia_id = insistencia.id
+
+    r = await c.post(_url(oportunidad_id), json=_cuerpo(destino.id))
+
+    assert r.status_code == 201
+    sesion.expire_all()
+    alerta = await sesion.get(m.Alerta, insistencia_id)
+    assert alerta is not None
+    assert alerta.estado == m.EstadoAlerta.resuelta
+
+
+async def test_rn01_freelance_no_fija_su_comision(
+    cliente_como: Fabrica, sesion: AsyncSession
+) -> None:
+    """Como en CU-10: el freelance que se elige vendedor recibe su comisión por defecto, aunque
+    mande otra."""
+    c = await cliente_como("freelance")
+    yo = _yo(c)
+    usuario = await sesion.get(m.Usuario, yo)
+    assert usuario is not None
+    usuario.comision_default_tipo = m.TipoComision("porcentaje")
+    usuario.comision_default_valor = Decimal("5.00")
+    await sesion.flush()
+    economia = {
+        **ECONOMIA,
+        "vendedor_id": str(yo),
+        "comision_tipo": "importe",
+        "comision_vendedor": "90000.00",
+    }
+
+    viaje = await _confirmar_ok(c, sesion, economia=economia)
+
+    assert viaje.vendedor_id == yo
+    assert viaje.comision_tipo == m.TipoComision("porcentaje")
+    assert viaje.comision_vendedor == Decimal("5.00")
+
+
+async def test_rf055_operador_de_baja_422(cliente_como: Fabrica, sesion: AsyncSession) -> None:
+    c = await cliente_como("empleado")
+    destino = await _destino(sesion)
+    operador = await f.crear(sesion, f.OperadorFactory, activo=False)
+    oportunidad = await _oportunidad(sesion, _yo(c))
+    oportunidad_id = oportunidad.id
+    economia = {**ECONOMIA, "operador_id": str(operador.id)}
+
+    r = await c.post(_url(oportunidad_id), json=_cuerpo(destino.id, economia=economia))
+
+    assert r.status_code == 422
+    assert r.headers["content-type"].startswith(PROBLEM_JSON)
+    assert _campos_con_error(r) == ["operador_id"]
+    assert await _viajes_de(sesion, oportunidad_id) == []
+    assert await _estado_de(sesion, oportunidad_id) == m.EstadoOportunidad.cotizada
