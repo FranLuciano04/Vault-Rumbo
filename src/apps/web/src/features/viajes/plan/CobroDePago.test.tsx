@@ -1,4 +1,10 @@
-import { crearCliente, formatearFecha, formatearImporte, type Pago, type Viaje } from "@rumbo/shared";
+import {
+  crearCliente,
+  formatearFecha,
+  formatearImporte,
+  type Pago,
+  type Viaje,
+} from "@rumbo/shared";
 import {
   crearServidor,
   idViajeMock,
@@ -291,8 +297,36 @@ describe("RF-068 otra moneda", () => {
       fecha_cobro: "2026-10-25",
       forma_pago: "efectivo",
       moneda_pago: "USD",
-      tipo_cambio: expect.stringMatching(/^1250(\.0+)?$/),
+      tipo_cambio: expect.stringMatching(/^1250(\.0+)?$/) as string,
     });
+  });
+
+  it("interpreta 1.250,50 en es-AR como 1250.50: vista previa y POST", async () => {
+    const cuerpos: Record<string, unknown>[] = [];
+    servidor.use(
+      http.post("*/api/pagos/:id/cobrar", async ({ request }) => {
+        cuerpos.push((await request.clone().json()) as Record<string, unknown>);
+        return undefined;
+      }),
+    );
+    renderPlan(viajeDe("reservado"));
+    const { user, dialogo } = await abrirCobroDeLaCuota();
+
+    cargarFecha(dialogo, "2026-10-25");
+    await user.click(opcion(/efectivo/i));
+    await user.click(opcion(/^usd$/i));
+    const campo = within(dialogo).getByLabelText(/tipo de cambio/i);
+    await user.type(campo, "1.250");
+    // El punto agrupa miles: 300.000 ARS a 1.250 son 240 USD, no 240.000.
+    expect(within(dialogo).getByText(formatearImporte("240.00", "USD"))).toBeInTheDocument();
+    await user.clear(campo);
+    await user.type(campo, "1.250,50");
+    await user.click(within(dialogo).getByRole("button", { name: /^registrar cobro$/i }));
+
+    await waitFor(() => {
+      expect(cuerpos).toHaveLength(1);
+    });
+    expect(cuerpos[0]).toMatchObject({ tipo_cambio: "1250.50" });
   });
 
   it("no cobra en otra moneda sin tipo de cambio", async () => {

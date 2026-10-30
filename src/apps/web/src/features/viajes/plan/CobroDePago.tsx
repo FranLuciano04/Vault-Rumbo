@@ -8,15 +8,16 @@ import {
 } from "@rumbo/shared";
 import { useRegistrarCobro } from "@rumbo/shared/hooks";
 import type { AxiosInstance } from "axios";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { mensajeDeError } from "@/lib/errores";
+import { importeComoTexto } from "../../oportunidades/cotizaciones/calculos";
+import { IMPORTE } from "../../oportunidades/cotizaciones/esquemas";
 import { ETIQUETA_FORMA_PAGO, ETIQUETA_TIPO_PAGO } from "./etiquetas";
 
 const MONEDAS: Moneda[] = ["ARS", "USD"];
-const TIPO_DE_CAMBIO = /^\d+(\.\d+)?$/;
 
 /** Monto cobrado en otra moneda que la del viaje: el tipo de cambio son pesos por dólar (CU-12 A0). */
 function montoCobrado(monto: string, moneda: Moneda, tipoDeCambio: number) {
@@ -82,8 +83,13 @@ export function CobroDePago({
   const [tipoDeCambio, setTipoDeCambio] = useState("");
   const [error, setError] = useState<string | null>(null);
   const otraMoneda = moneda !== viaje.moneda;
-  const cambio = tipoDeCambio.trim();
-  const cambioValido = TIPO_DE_CAMBIO.test(cambio) && Number(cambio) > 0;
+  const primerCampo = useRef<HTMLInputElement>(null);
+  useEffect(() => {
+    primerCampo.current?.focus();
+  }, []);
+  // El tipo de cambio se escribe en es-AR («1.250,50») y viaja a la API como «1250.50».
+  const cambio = importeComoTexto(tipoDeCambio);
+  const cambioValido = IMPORTE.test(tipoDeCambio.trim()) && Number(cambio) > 0;
 
   async function confirmar() {
     setError(null);
@@ -114,7 +120,6 @@ export function CobroDePago({
   return (
     <form
       role="dialog"
-      aria-modal="true"
       aria-label="Registrar cobro"
       className="flex flex-col gap-4 rounded-xl border bg-background p-4"
       onKeyDown={(evento) => {
@@ -140,6 +145,7 @@ export function CobroDePago({
         <Label htmlFor="fecha-cobro">Fecha efectiva del cobro</Label>
         <Input
           id="fecha-cobro"
+          ref={primerCampo}
           type="date"
           value={fecha}
           onChange={(evento) => {
@@ -172,7 +178,7 @@ export function CobroDePago({
       </div>
       {otraMoneda && (
         <div className="flex flex-col gap-1">
-          <Label htmlFor="tipo-cambio">Tipo de cambio</Label>
+          <Label htmlFor="tipo-cambio">Tipo de cambio (ARS por USD)</Label>
           <Input
             id="tipo-cambio"
             inputMode="decimal"
