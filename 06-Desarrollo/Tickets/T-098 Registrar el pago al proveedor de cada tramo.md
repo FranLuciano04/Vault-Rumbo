@@ -3,7 +3,7 @@ id: T-098
 titulo: Registrar el pago al proveedor de cada tramo
 modulo: M6 — Viajes y economía
 capa: backend
-estado: tomado
+estado: hecho
 depende_de: [T-097, T-051]
 tamaño: S
 riesgo: alto
@@ -46,3 +46,11 @@ Cada tramo con vencimiento de pago al proveedor genera su alerta; al marcarlo pa
 - Contabilidad de proveedores (fuera de alcance).
 
 ## Notas de implementación
+- **Alcance real:** T-097 ya creaba, reagendaba y resolvía la alerta del tramo. De los 12 tests del rojo, 10 pasaban de entrada y fijan ese comportamiento. Los otros 2 destaparon dos huecos, que se arreglaron:
+  - una alerta `vista` no se movía al cambiar el vencimiento, y se creaba una segunda; ahora se usa `alertas.reagendar_de_origen`;
+  - un tramo que nacía pagado creaba una alerta abierta.
+- **Contrato:** `TramoCrear` acepta `pago_proveedor_realizado` (default `false`); antes el esquema lo descartaba. Se regeneraron `openapi.json` y `tipos.gen.ts`, y en `modelos.ts` el campo queda opcional. El mock de `POST /itinerario` respeta el valor enviado.
+- **Decisiones:** una alerta `vista` movida conserva el estado `vista`, igual que en T-093. Despagar un tramo con vencimiento crea una alerta nueva.
+- **Pendiente de front, fuera del ticket:** el formulario web del itinerario todavía no permite marcar un tramo como pagado en el alta.
+- **Review:** `reviewer-seguridad`, con 0 bloqueantes, 0 importantes y 3 menores, todos arreglados en el fix (2 tests y el mock).
+- **Modelos:** tests sonnet, implementación y fix opus, refactor opus (sin cambios), review sonnet.
