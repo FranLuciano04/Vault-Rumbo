@@ -48,3 +48,4 @@ El dashboard suma los indicadores operativos y de agenda y la analítica comerci
 - **Hallazgo de T-121 (review):** RF-124 también pide `ventas_mensuales` (comparación con meses anteriores), `pendiente_de_pagar` (a operadores) y `proximos_vencimientos`. Ningún ticket los tenía; quedan para este. Hoy `GET /api/dashboard` los devuelve vacíos o en cero.
 - Conviene sumar índices en `pago.viaje_id` y `viaje.created_at`: el dashboard los recorre enteros.
 - **DEC-0024 punto 7:** pasajeros por destino = suma de `Oportunidad.pasajeros` de las ventas del período; los viajes sin oportunidad no suman pasajeros.
+- **Hallazgo de T-126 (review):** las pantallas 46 y 47 muestran «Tus viajes activos» (cantidad), pero el contrato no tiene ese contador. Hay que sumarlo al esquema `Dashboard`, y la web pasa a usarlo en lugar de «Viajes próximos».
