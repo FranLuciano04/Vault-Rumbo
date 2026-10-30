@@ -1,5 +1,10 @@
 import { formatearFecha, formatearImporte, type Pago, type Viaje } from "@rumbo/shared";
-import { useAnularPago, useDividirPago, useReprogramarPago } from "@rumbo/shared/hooks";
+import {
+  useAnularPago,
+  useDividirPago,
+  useReprogramarPago,
+  useRevertirCobro,
+} from "@rumbo/shared/hooks";
 import type { AxiosInstance } from "axios";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -10,11 +15,16 @@ import { aCentesimas } from "../calculos";
 import { DECIMAL } from "../esquemas";
 import { nombreDePago } from "./etiquetas";
 
-export type AccionDePago = { tipo: "reprogramar" | "anular" | "dividir"; pago: Pago };
+export type AccionDelPanel = {
+  tipo: "reprogramar" | "anular" | "dividir" | "revertir";
+  pago: Pago;
+};
+export type AccionDePago = AccionDelPanel | { tipo: "cobrar"; pago: Pago };
 
 /**
- * Panel de la acción elegida sobre un pago sin cobrar (CU-11): reprogramar (RF-065), anular
- * (RF-066) o dividir (A6). Las reglas las aplica la API; acá se valida solo el formato.
+ * Panel de la acción elegida sobre un pago (CU-11): reprogramar (RF-065), anular (RF-066) o
+ * dividir (A6) uno sin cobrar, o revertir el cobro de uno cobrado (RF-070). Las reglas las aplica
+ * la API; acá se valida solo el formato. El cobro (`cobrar`) tiene su propio diálogo.
  */
 export function PanelDePago({
   cliente,
@@ -24,19 +34,22 @@ export function PanelDePago({
 }: {
   cliente: AxiosInstance;
   viaje: Viaje;
-  accion: AccionDePago;
+  accion: AccionDelPanel;
   cerrar: () => void;
 }) {
   const reprogramar = useReprogramarPago(cliente);
   const anular = useAnularPago(cliente);
   const dividir = useDividirPago(cliente);
+  const revertir = useRevertirCobro(cliente);
   const [fecha, setFecha] = useState("");
   const [montoAhora, setMontoAhora] = useState("");
   const [error, setError] = useState<string | null>(null);
-  const enCurso = reprogramar.isPending || anular.isPending || dividir.isPending;
+  const enCurso =
+    reprogramar.isPending || anular.isPending || dividir.isPending || revertir.isPending;
   const descripcion = `${nombreDePago(pago.tipo)} de ${formatearImporte(pago.monto, viaje.moneda)} del ${formatearFecha(pago.vencimiento)}`;
   const titulo = {
     anular: `¿Anular ${descripcion}?`,
+    revertir: `¿Revertir el cobro de ${descripcion}? El pago vuelve a quedar sin cobrar.`,
     reprogramar: `Reprogramar ${descripcion}`,
     dividir: `Dividir ${descripcion}`,
   }[tipo];
@@ -46,6 +59,8 @@ export function PanelDePago({
     try {
       if (tipo === "anular") {
         await anular.mutateAsync(pago.id);
+      } else if (tipo === "revertir") {
+        await revertir.mutateAsync(pago.id);
       } else if (tipo === "reprogramar") {
         if (fecha === "") {
           setError("Elegí el nuevo vencimiento.");
@@ -102,7 +117,7 @@ export function PanelDePago({
           />
         </div>
       )}
-      {tipo !== "anular" && (
+      {(tipo === "reprogramar" || tipo === "dividir") && (
         <div className="flex flex-col gap-1">
           <Label htmlFor="fecha-accion">
             {tipo === "dividir" ? "Vencimiento del resto" : "Nuevo vencimiento"}
