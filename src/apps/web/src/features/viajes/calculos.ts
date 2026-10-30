@@ -1,14 +1,14 @@
 import { DECIMAL } from "./esquemas";
 
 /** Importe decimal (hasta 2 decimales, con signo opcional) como centésimas enteras, sin float. */
-function aCentesimas(valor: string): bigint {
+export function aCentesimas(valor: string): bigint {
   const negativo = valor.startsWith("-");
   const [entero = "0", decimales = ""] = valor.replace(/^[-+]/, "").split(".");
   const centesimas = BigInt(`${entero}${decimales.padEnd(2, "0").slice(0, 2)}`);
   return negativo ? -centesimas : centesimas;
 }
 
-function deCentesimas(centesimas: bigint): string {
+export function deCentesimas(centesimas: bigint): string {
   const absoluto = (centesimas < 0n ? -centesimas : centesimas).toString().padStart(3, "0");
   return `${centesimas < 0n ? "-" : ""}${absoluto.slice(0, -2)}.${absoluto.slice(-2)}`;
 }
