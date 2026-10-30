@@ -43,6 +43,8 @@ export const dashboardMock: Dashboard = {
     { mes: "2026-10-01", ventas: ars("5400000.00") },
   ],
   ganancia_estimada: ars("1080000.00"),
+  margen: ars("0.2000"),
+  comisiones: ars("108000.00"),
   ticket_promedio: ars("1800000.00"),
   cobrado: ars("2700000.00"),
   pendiente_de_cobrar: ars("2700000.00"),

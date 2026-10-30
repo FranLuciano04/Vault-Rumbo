@@ -38,7 +38,7 @@ RUTAS_SOLO_ADMIN_Y_DUENO = [
     ("get", "/api/reportes"),
     ("get", f"/api/reportes/{REPORTE}"),
 ]
-RUTAS_PARA_TODOS = [("get", "/api/dashboard"), ("get", "/api/calendario")]
+RUTAS_STUB_PARA_TODOS = [("get", "/api/calendario")]  # el dashboard ya se calcula (T-121)
 
 
 @pytest.fixture
@@ -251,8 +251,8 @@ async def test_cu22_reporte_con_periodo_y_comparacion_valida_responde_501(
 
 
 @pytest.mark.parametrize("rol", ROLES)
-@pytest.mark.parametrize(("metodo", "ruta"), RUTAS_PARA_TODOS)
-async def test_cu21_dashboard_y_calendario_con_cualquier_rol_responden_501_problem_json(
+@pytest.mark.parametrize(("metodo", "ruta"), RUTAS_STUB_PARA_TODOS)
+async def test_cu23_calendario_con_cualquier_rol_responde_501_problem_json(
     cliente_como: FabricaCliente, rol: str, metodo: str, ruta: str
 ) -> None:
     c = await cliente_como(rol)

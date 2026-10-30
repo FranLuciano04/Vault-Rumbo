@@ -82,6 +82,13 @@ class Dashboard(BaseModel):
         json_schema_extra=_SOLO_LECTURA, description="Comparación con los meses anteriores."
     )
     ganancia_estimada: list[MontoPorMoneda] = Field(json_schema_extra=_SOLO_LECTURA)
+    margen: list[MontoPorMoneda] = Field(
+        json_schema_extra=_SOLO_LECTURA,
+        description="Fracción de la venta que es ganancia (0.2500 = 25 %), ponderada por moneda.",
+    )
+    comisiones: list[MontoPorMoneda] = Field(
+        json_schema_extra=_SOLO_LECTURA, description="Comisión de los vendedores sobre las ventas."
+    )
     ticket_promedio: list[MontoPorMoneda] = Field(json_schema_extra=_SOLO_LECTURA)
     cobrado: list[MontoPorMoneda] = Field(json_schema_extra=_SOLO_LECTURA)
     pendiente_de_cobrar: list[MontoPorMoneda] = Field(

@@ -46,3 +46,4 @@ Admin y dueña generan los reportes del catálogo para un período, los comparan
 - Exportar (ticket siguiente).
 
 ## Notas de implementación
+- **DEC-0024 punto 10:** el catálogo de reportes es el de CU-22 paso 1, con los ids `ventas`, `ganancia`, `cobranzas`, `pagos-operadores`, `ventas-por-destino`, `ventas-por-operador`, `ventas-por-vendedor`, `pasajeros`, `formas-de-pago` y `comparacion-mensual`. Las comisiones se atribuyen al vendedor (punto 6).

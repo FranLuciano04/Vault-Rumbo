@@ -33,7 +33,7 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
-## 30/10/26 — Francisco (Claude Opus 5.5) — T-091, T-104, T-105, T-095 y T-107 (M6) y T-119 (M8)
+## 30/10/26 — Francisco (Claude Opus 5.5) — T-091, T-104, T-105, T-095 y T-107 (M6) y T-119 y T-121 (M8)
 - **Hecho:** T-091 (PR [#152](https://github.com/FranLuciano04/Vault-Rumbo/pull/152), mergeado con el CI en verde).
   - `GET /viajes` (filtros por estado, fechas, «lo mío» y `cliente_id`, con paginación y visibilidad) y `GET /viajes/{id}` con la economía, el saldo y el porcentaje pagado.
   - `Viaje` trae `cliente_nombre` y `destino_nombre`, y `TablaViajes` los usa. Así se cierra el hallazgo H-04 de M5.
@@ -63,15 +63,17 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
   - `GET /api/dashboard`, `/api/reportes`, `/api/reportes/{id}` (json, xlsx y pdf) y `/api/calendario`, con stubs 501, tipos, hooks y mocks.
   - Review de Opus: 4 importantes. Se arreglaron 3: visibilidad del freelance en el calendario, `responsable_id` en el dashboard y la descarga de reportes.
   - Commits: 587b6e2, 269d6be, cf58c89, b62d81a.
+- **Hecho (7):** T-121, embudo e indicadores económicos del dashboard (PR [#161](https://github.com/FranLuciano04/Vault-Rumbo/pull/161), mergeado con el CI en verde).
+  - `GET /api/dashboard` calcula el embudo con conversión y, por moneda, ventas, ganancia, margen, comisiones, cobrado y pendiente de cobrar. Empleado y freelance ven solo lo suyo.
+  - Francisco decidió, como propuesta para ratificar: pendiente de cobrar = foto del momento; comisión porcentual con ganancia ≤ 0 = 0.
+  - Review de Opus: 3 importantes. Se arreglaron 2 y el tercero (indicadores de RF-124 sin dueño) quedó anotado en T-122.
+- **Hecho (8):** fix del dashboard con DEC-0024 puntos 5 y 6 (PR [#162](https://github.com/FranLuciano04/Vault-Rumbo/pull/162), mergeado con el CI en verde).
+  - El freelance ve su visibilidad de DEC-0008 y las comisiones se atribuyen al vendedor.
+  - Review de Opus sin bloqueantes. Se aclaró en DEC-0024 que la comisión de un viaje fuera de la visibilidad del freelance no aparece en su vista propia.
+- **Hecho (9):** contrato de PC1 alineado con DEC-0024 punto 11: `responsable_id` en `/dashboard` y `tipo = alerta` en `/calendario`. `05-Diseño/API/openapi.json` está regenerado.
+- **Decisiones:** el equipo aprobó las 15 recomendaciones en [[DEC-0024 Reglas del dashboard, calendario y criterios de M6|DEC-0024]]. Cierran los pendientes de T-091, T-095, T-119 y T-121, y la reseña post-viaje de T-096.
 - **Pendiente:**
-  - El e2e de la reseña con viaje (CU-17 A1) espera a T-089, porque hoy no hay forma de crear un viaje. Va en el e2e de CU-01 de M6.
-  - Decidir con el equipo si «lo mío» del freelance en viajes significa «los que llevo» o «lo que veo». Hoy es `responsable_id`.
-  - Decidir con el equipo (T-119):
-    - ¿Las alertas van en el calendario? CU-23 las incluye y el contrato no; si no van, hay que acotar CU-23 con una DEC.
-    - Cómo se cuentan los pasajeros por destino.
-    - El catálogo de reportes.
-    - Alinear `05-Diseño/API/generar-openapi.js` con `responsable_id` en el dashboard.
-  - Decidir con el equipo (T-095): al revertir un cobro también se reabre una alerta que alguien resolvió a mano. Y revertir sobre un viaje `cancelado` hoy da 409, pero CU-12 no lo define (se ve con T-099).
+  - El e2e de la reseña con viaje (CU-17 A1) va en T-108.
 
 ## 29/10/26 — Paloma (Claude Opus 5.5) — T-090, T-088, T-100, T-102 y T-096 (M6)
 - **Hecho:**

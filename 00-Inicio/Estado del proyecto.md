@@ -14,6 +14,8 @@ actualizado: 30/10/26
 >
 > 🏁 **29/10 — M5 Hoteles y reseñas cerrado.** Se arreglaron 5 de los 6 hallazgos de Codex (PR #140 a #143) y H-04 pasó a T-091 (`GET /viajes` con filtro por cliente). El equipo lo aprobó y se puso el tag `mod-5`. El backend ahora tiene logging configurado (`rumbo.core.logs`). El resumen está en [[Bitácora técnica]].
 >
+> 👉 **30/10 (Francisco):** **T-121** (embudo e indicadores económicos del dashboard) está hecho y mergeado (PR [#161](https://github.com/FranLuciano04/Vault-Rumbo/pull/161)). Los indicadores operativos y tres de RF-124 siguen vacíos y van en T-122.
+
 > 👉 **30/10 (Francisco):** **T-119** (contrato de M8: dashboard, reportes y calendario) está hecho y mergeado (PR [#158](https://github.com/FranLuciano04/Vault-Rumbo/pull/158)). Quedan disponibles T-120 a T-127. Hay decisiones abiertas: alertas en el calendario (CU-23), pasajeros por destino y catálogo de reportes.
 
 > 👉 **30/10 (Francisco):** **T-107** (cancelar un viaje y revertir la cancelación en la web) está hecho y mergeado (PR [#157](https://github.com/FranLuciano04/Vault-Rumbo/pull/157)). El backend de cancelar es T-099, todavía en 501.

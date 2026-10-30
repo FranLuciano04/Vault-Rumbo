@@ -45,3 +45,4 @@ Admin y dueña eligen un reporte y un período, lo ven, lo comparan con otro per
 - —
 
 ## Notas de implementación
+- **DEC-0024 punto 10:** el catálogo de reportes es el de CU-22 paso 1 (ids en la DEC).

@@ -46,3 +46,4 @@ El calendario muestra viajes, vencimientos y alertas por mes, semana o día, con
 
 ## Notas de implementación
 - **Del plan:** Si hace falta una librería de calendario que no está en la spec §3, preguntar antes.
+- **DEC-0024 punto 8:** el calendario muestra también las alertas programadas, con el filtro por tipo viaje / vencimiento / alerta. El filtro por estado se hace en el cliente (punto 9).

@@ -46,3 +46,4 @@ El calendario devuelve en un rango los viajes (salida y regreso), los vencimient
 - —
 
 ## Notas de implementación
+- **DEC-0024 punto 8:** el calendario incluye las alertas programadas (CU-23). Suma `tipo = alerta` con `alerta_id` al contrato (esquema, enum del filtro, tipos y mocks) y a la consulta. El filtro por estado se resuelve en el cliente (punto 9).
