@@ -631,6 +631,7 @@ _IMPLEMENTADAS = {
     ("post", f"/api/viajes/{ID}/iniciar"),  # T-096, test_viajes_estado.py
     ("post", f"/api/viajes/{ID}/finalizar"),  # T-096, test_viajes_estado.py
     ("post", f"/api/viajes/{ID}/corregir-estado"),  # T-096, test_viajes_estado.py
+    ("post", f"/api/oportunidades/{ID}/confirmar-reserva"),  # T-089, test_confirmar_reserva.py
 }
 OPERACIONES_STUB = [op for op in OPERACIONES_HTTP if (op[0], op[1]) not in _IMPLEMENTADAS]
 
