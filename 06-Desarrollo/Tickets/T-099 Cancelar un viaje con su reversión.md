@@ -3,7 +3,7 @@ id: T-099
 titulo: Cancelar un viaje con su reversión
 modulo: M6 — Viajes y economía
 capa: backend
-estado: libre
+estado: tomado
 depende_de: [T-094, T-051]
 tamaño: M
 riesgo: alto
@@ -12,9 +12,9 @@ modelo_impl: opus
 modelo_review: sonnet
 trazabilidad: [CU-27, RF-048, RF-049, RF-050, RF-051, RF-052, RF-053, RF-153]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: palomap2003
+tomado_el: 30/10/26 15:56
+rama: feature/T-099-cancelar-un-viaje-con-su-reversion
 pr:
 ---
 # T-099 Cancelar un viaje con su reversión
