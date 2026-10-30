@@ -3,7 +3,7 @@ id: T-106
 titulo: Armar el itinerario de hoteles en la web
 modulo: M6 — Viajes y economía
 capa: web
-estado: libre
+estado: tomado
 depende_de: [T-102, T-075]
 tamaño: M
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [CU-09, RF-043, RF-044, RF-046, RF-047]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: Nahuel Viniegra
+tomado_el: 29/10/26 22:44
+rama: feature/T-106-armar-el-itinerario-de-hoteles-en-la-web
 pr:
 ---
 # T-106 Armar el itinerario de hoteles en la web
