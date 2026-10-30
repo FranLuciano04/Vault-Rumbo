@@ -7,7 +7,7 @@ fecha_aprobacion: 30/10/26
 supersede:
 actualizado: 30/10/26
 ---
-# DEC-0024 Pagos anulados por la cancelación
+# DEC-0025 Pagos anulados por la cancelación
 
 tags:: #tipo/decision #estado/formalizado #pc/pc2
 

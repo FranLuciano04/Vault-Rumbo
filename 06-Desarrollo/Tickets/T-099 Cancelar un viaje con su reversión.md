@@ -52,13 +52,13 @@ Se cancela un viaje no finalizado: se anulan sus pagos pendientes, se cierran su
 - **De la review de T-051 (25/10/26):** las alertas de los Pagos anulados están ligadas por `pago_id`, no por `viaje_id`.
   - Al cancelar (CU-27, paso 4), llamá a `servicios.alertas.resolver_de_origen(sesion, origen, por_cancelacion=True)` una vez por el Viaje y otra por cada Pago anulado.
   - Al revertir (A3), llamá a `reabrir_de_origen(sesion, origen, solo_por_cancelacion=True)` con los mismos orígenes, así no vuelven las alertas resueltas por otro motivo.
-- **Decisión de Paloma, aprobada por el equipo el 30/10/26, en [[DEC-0024 Pagos anulados por la cancelación|DEC-0024]]:** la columna `Pago.anulado_por_cancelacion` (migración `0009`) distingue los pagos que anuló la cancelación de los anulados antes por un ajuste del plan. Revertir restaura solo los marcados. Se actualizaron CU-27 A3, [[Pago]], [[DGM-ER]], el diagrama de clases (no se regeneraron los PNG de `Clases/`) y un comentario en `rumbo.sql`.
+- **Decisión de Paloma, aprobada por el equipo el 30/10/26, en [[DEC-0025 Pagos anulados por la cancelación|DEC-0025]]:** la columna `Pago.anulado_por_cancelacion` (migración `0009`) distingue los pagos que anuló la cancelación de los anulados antes por un ajuste del plan. Revertir restaura solo los marcados. Se actualizaron CU-27 A3, [[Pago]], [[DGM-ER]], el diagrama de clases (no se regeneraron los PNG de `Clases/`) y un comentario en `rumbo.sql`.
 - **Decisiones del verde:**
   - la marca la pone y la saca la máquina de estados de `Pago`;
   - la comisión no se toca, y su efecto se deriva de `estado_previo`;
   - los cobros se informan con `porcentaje_pagado` en la respuesta;
   - cancelar o revertir dos veces da 409.
 - **Test de soporte tocado con autorización de Paloma:** una línea en `test_modelos.py` por la columna nueva.
-- **Fix:** al cancelar, las alertas de pago al proveedor de los tramos quedaban abiertas, porque el criterio del ticket solo nombraba el viaje y los pagos. Ahora se cierran por cancelación y se reabren al revertir, con dos tests nuevos. A DEC-0024 se le sumó la nota de concurrencia.
+- **Fix:** al cancelar, las alertas de pago al proveedor de los tramos quedaban abiertas, porque el criterio del ticket solo nombraba el viaje y los pagos. Ahora se cierran por cancelación y se reabren al revertir, con dos tests nuevos. A DEC-0025 se le sumó la nota de concurrencia.
 - **Suite completa en la PC:** fallan `test_cotizacion_pdf.py::test_rf021_documento_pdf` y `test_rf021_documento_de_la_propia_para_freelance`, pero también fallan en el árbol limpio. Parece algo del entorno local con el PDF y queda para confirmar con el CI.
 - **Modelos:** tests sonnet, implementación y fix opus, refactor opus (sin cambios), review sonnet (`reviewer-seguridad`).
