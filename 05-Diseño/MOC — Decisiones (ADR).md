@@ -35,6 +35,7 @@ tags:: #tipo/modulo #estado/formalizado
 - [[DEC-0022 Suite completa solo en el CI]] (formalizada el 28/10/26): el paso 6 de `/implementar-ticket` corre en la PC solo lint, type-check y los tests del ticket y sus vecinos; la suite completa y la cobertura quedan para el CI, salvo que el ticket toque código compartido.
 - [[DEC-0023 Datos mínimos de la consulta]] (formalizada el 28/10/26): destino y pasajeros son opcionales al registrar una consulta, para que el contrato coincida con CU-04 A3 y RF-013 (mínimo: cliente y canal).
 - [[DEC-0024 Reglas del dashboard, calendario y criterios de M6]] (formalizada el 30/10/26): pendiente de cobrar como foto del momento, comisión porcentual en 0 sin ganancia, comisiones por vendedor, freelance con su visibilidad en el dashboard, alertas en el calendario, catálogo de reportes de CU-22 y criterios de revertir cobros.
+- [[DEC-0025 Pagos anulados por la cancelación]] (formalizada el 30/10/26): `Pago.anulado_por_cancelacion` marca los pagos que anuló la cancelación, y revertirla restaura solo esos (CU-27 A3).
 
 ## Todas (Dataview)
 ```dataview

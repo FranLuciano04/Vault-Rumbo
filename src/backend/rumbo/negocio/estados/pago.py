@@ -44,6 +44,13 @@ def anular(pago: Pago) -> None:
     pago.estado = EstadoPago.anulado
 
 
+def anular_por_cancelacion(pago: Pago) -> None:
+    """T7: anula el pago no cobrado de un viaje que se cancela y lo marca, para que revertir la
+    cancelación reabra solo los que anuló ella (CU-27 A3)."""
+    anular(pago)
+    pago.anulado_por_cancelacion = True
+
+
 def reprogramar(pago: Pago, vencimiento: date, *, hoy: date) -> None:
     """CU-11 A3: cambia el vencimiento de un pago `pendiente` o `vencido`, que queda `pendiente`
     si la fecha nueva es hoy o posterior y `vencido` si ya pasó."""
@@ -67,9 +74,11 @@ def dividir(pago: Pago, monto_ahora: Decimal) -> Decimal:
 
 
 def revertir_anulacion(pago: Pago, *, hoy: date) -> None:
-    """T10: al revertir la cancelación del viaje, `anulado` → `pendiente` o `vencido`."""
+    """T10: al revertir la cancelación del viaje, `anulado` → `pendiente` o `vencido`, y se
+    quita la marca de anulado por la cancelación."""
     _exigir(pago, EstadoPago.anulado, accion="revertir la anulación de")
     _reabrir(pago, hoy=hoy)
+    pago.anulado_por_cancelacion = False
 
 
 def vencer(pago: Pago, *, hoy: date) -> None:

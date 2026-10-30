@@ -177,6 +177,10 @@ class Pago(IdMixin, AuditoriaMixin, Base):
         CheckConstraint("monto > 0"),
         CheckConstraint("tipo_cambio > 0"),
         CheckConstraint("monto_cobrado > 0"),
+        CheckConstraint(
+            "NOT anulado_por_cancelacion OR estado = 'anulado'",
+            name="pago_anulado_por_cancelacion_ck",
+        ),
     )
 
     viaje_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("viaje.id"))
@@ -189,6 +193,8 @@ class Pago(IdMixin, AuditoriaMixin, Base):
     tipo_cambio: Mapped[Decimal | None] = mapped_column(Numeric(14, 4))  # si difiere de la moneda
     monto_cobrado: Mapped[Decimal | None]  # real recibido
     fecha_cobro: Mapped[date | None]  # fecha efectiva del cobro (DEC-0013)
+    # lo anuló la cancelación del viaje: revertirla lo reabre (CU-27 A3; migración 0009)
+    anulado_por_cancelacion: Mapped[bool] = mapped_column(server_default=text("false"))
 
 
 class ViajeHotel(IdMixin, Base):

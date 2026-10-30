@@ -232,6 +232,8 @@ CREATE TABLE pago (
     tipo_cambio   numeric(14,4) CHECK (tipo_cambio > 0),     -- si difiere de viaje.moneda
     monto_cobrado numeric(14,2) CHECK (monto_cobrado > 0),   -- real recibido
     fecha_cobro   date,                                      -- fecha efectiva del cobro (DEC-0013)
+    -- Posterior a este DDL (T-099, migración Alembic 0009): anulado_por_cancelacion boolean
+    -- NOT NULL DEFAULT false, con CHECK (NOT anulado_por_cancelacion OR estado = 'anulado').
     created_by    uuid REFERENCES usuario (id),
     updated_by    uuid REFERENCES usuario (id),
     created_at    timestamptz NOT NULL DEFAULT now(),

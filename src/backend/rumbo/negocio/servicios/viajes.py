@@ -1,6 +1,7 @@
 """Servicio del módulo viajes: la confirmación de la reserva que crea el viaje (CU-07, RF-032 a
 RF-036, EST-Viaje T1), el listado y la ficha con su economía (CU-08, RF-037), el avance manual
-del estado del viaje y su corrección (RF-039 a RF-042, EST-Viaje T4, T5 y T7)."""
+del estado del viaje y su corrección (RF-039 a RF-042, EST-Viaje T4, T5 y T7), y la cancelación
+con su reversión (CU-27, RF-048 a RF-053, EST-Viaje T6 y T9)."""
 
 import uuid
 from collections import defaultdict
@@ -17,6 +18,7 @@ from rumbo.datos.modelos import (
     EstadoAlerta,
     EstadoCotizacion,
     EstadoOportunidad,
+    EstadoPago,
     EstadoViaje,
     Moneda,
     Oportunidad,
@@ -31,16 +33,18 @@ from rumbo.datos.repositorios.destinos import RepositorioDestinos
 from rumbo.datos.repositorios.oportunidades import RepositorioCotizaciones, RepositorioOportunidades
 from rumbo.datos.repositorios.requisitos import RepositorioRequisitos
 from rumbo.datos.repositorios.seguridad import RepositorioUsuarios
-from rumbo.datos.repositorios.viajes import RepositorioPagos, RepositorioViajes
+from rumbo.datos.repositorios.viajes import RepositorioPagos, RepositorioTramos, RepositorioViajes
 from rumbo.negocio import calculos
 from rumbo.negocio.errores import Conflicto, DatosInvalidos, NoEncontrado
 from rumbo.negocio.estados import oportunidad as estado_oportunidad
+from rumbo.negocio.estados import pago as estado_pago
 from rumbo.negocio.estados import viaje as estado_viaje
 from rumbo.negocio.politicas import exigir_escritura, visibilidad
 from rumbo.negocio.servicios import alertas, economia, parametros
 
 _viajes = RepositorioViajes()
 _pagos = RepositorioPagos()
+_tramos = RepositorioTramos()
 _usuarios = RepositorioUsuarios()
 _alertas = RepositorioAlertas()
 _oportunidades = RepositorioOportunidades()
@@ -262,6 +266,50 @@ async def corregir_estado(sesion: AsyncSession, actor: Usuario, viaje_id: uuid.U
         else []
     )
     estado_viaje.corregir(viaje, alertas=sin_atender)
+    return await _guardar(sesion, actor, viaje)
+
+
+async def cancelar(
+    sesion: AsyncSession, actor: Usuario, viaje_id: uuid.UUID, motivo: str, fecha: date
+) -> FichaViaje:
+    """Cancela un viaje no finalizado con su motivo y fecha (T6, CU-27, RF-048, RF-049). Anula
+    sus pagos no cobrados, `pendiente` o `vencido` (EST-Pago T7), y resuelve las alertas
+    vigentes del viaje, de cada pago anulado y de cada tramo del itinerario (el pago al
+    proveedor) como cerradas por la cancelación (RF-050). Los
+    cobrados no se tocan: la ficha informa lo cobrado y deja el saldo en cero (A2, RF-052). La
+    comisión configurada se conserva: no se realiza si el viaje no había empezado y se mantiene
+    si estaba `en_curso` (RF-051, A4), lo que se lee de `estado_previo`. Un viaje `finalizado`
+    o ya `cancelado` es `TransicionInvalida`. Todo en la transacción del pedido."""
+    viaje = await _viaje_a_cambiar(sesion, actor, viaje_id)
+    estado_viaje.cancelar(viaje, motivo=motivo, fecha=fecha)
+    await alertas.resolver_de_origen(sesion, viaje, por_cancelacion=True)
+    for tramo in await _tramos.listar_de_viaje(sesion, viaje.id, visibilidad=visibilidad(actor)):
+        await alertas.resolver_de_origen(sesion, tramo, por_cancelacion=True)
+    for pago in await _pagos.listar_de_viaje(sesion, viaje.id, visibilidad=visibilidad(actor)):
+        if pago.estado in (EstadoPago.pendiente, EstadoPago.vencido):
+            estado_pago.anular_por_cancelacion(pago)
+            await alertas.resolver_de_origen(sesion, pago, por_cancelacion=True)
+    return await _guardar(sesion, actor, viaje)
+
+
+async def revertir_cancelacion(
+    sesion: AsyncSession, actor: Usuario, viaje_id: uuid.UUID
+) -> FichaViaje:
+    """Deshace una cancelación cargada por error (T9, CU-27 A3, RF-053): el viaje vuelve a su
+    `estado_previo`, los pagos que anuló la cancelación vuelven a `pendiente` o `vencido` según
+    su vencimiento (EST-Pago T10) y se reabren solo las alertas que ella cerró. Los pagos
+    anulados antes, por un cambio del plan, siguen anulados. Un viaje no cancelado es
+    `TransicionInvalida`."""
+    viaje = await _viaje_a_cambiar(sesion, actor, viaje_id)
+    estado_viaje.revertir_cancelacion(viaje)
+    await alertas.reabrir_de_origen(sesion, viaje, solo_por_cancelacion=True)
+    for tramo in await _tramos.listar_de_viaje(sesion, viaje.id, visibilidad=visibilidad(actor)):
+        await alertas.reabrir_de_origen(sesion, tramo, solo_por_cancelacion=True)
+    dia = hoy()
+    for pago in await _pagos.listar_de_viaje(sesion, viaje.id, visibilidad=visibilidad(actor)):
+        if pago.anulado_por_cancelacion:
+            estado_pago.revertir_anulacion(pago, hoy=dia)
+            await alertas.reabrir_de_origen(sesion, pago, solo_por_cancelacion=True)
     return await _guardar(sesion, actor, viaje)
 
 

@@ -1,4 +1,4 @@
-"""Rutas del módulo viajes (CU-07 a CU-10, CU-27). Las que todavía son stubs responden 501."""
+"""Rutas del módulo viajes (CU-07 a CU-10, CU-27)."""
 
 import uuid
 from datetime import date
@@ -12,7 +12,6 @@ from rumbo.datos.modelos import EstadoViaje
 from rumbo.negocio.servicios import itinerario, viajes
 from rumbo.presentacion.contrato import (
     TODOS,
-    no_implementado,
     operacion,
     operacion_de_registro,
     respuesta_pagina,
@@ -144,8 +143,13 @@ async def corregir_estado_viaje(viaje_id: uuid.UUID, actor: ActorDep, sesion: Se
     summary="Cancelar el viaje",
     **operacion_de_registro(403, 404, 409, 422, casos_de_uso="CU-27"),
 )
-async def cancelar_viaje(viaje_id: uuid.UUID, datos: Cancelacion) -> Viaje:
-    raise no_implementado()
+async def cancelar_viaje(
+    viaje_id: uuid.UUID, datos: Cancelacion, actor: ActorDep, sesion: SesionDep
+) -> Viaje:
+    ficha = await viajes.cancelar(
+        sesion, actor, viaje_id, datos.motivo_cancelacion, datos.fecha_cancelacion
+    )
+    return Viaje.desde_ficha(ficha.viaje, ficha.saldo_pendiente, ficha.porcentaje_pagado)
 
 
 @router.post(
@@ -154,8 +158,9 @@ async def cancelar_viaje(viaje_id: uuid.UUID, datos: Cancelacion) -> Viaje:
     summary="Revertir la cancelación",
     **operacion_de_registro(403, 404, 409, casos_de_uso="CU-27"),
 )
-async def revertir_cancelacion(viaje_id: uuid.UUID) -> Viaje:
-    raise no_implementado()
+async def revertir_cancelacion(viaje_id: uuid.UUID, actor: ActorDep, sesion: SesionDep) -> Viaje:
+    ficha = await viajes.revertir_cancelacion(sesion, actor, viaje_id)
+    return Viaje.desde_ficha(ficha.viaje, ficha.saldo_pendiente, ficha.porcentaje_pagado)
 
 
 @router.get(
