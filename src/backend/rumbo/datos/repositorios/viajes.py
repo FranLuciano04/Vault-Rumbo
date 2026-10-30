@@ -66,6 +66,19 @@ class RepositorioViajes(RepositorioBase[Viaje]):
             await sesion.scalar(select(exists().where(Viaje.oportunidad_id == oportunidad_id)))
         )
 
+    async def existe_de_cliente(
+        self, sesion: AsyncSession, *, cliente_id: uuid.UUID, destino_id: uuid.UUID
+    ) -> bool:
+        """Si el `Cliente` ya tiene un viaje a ese `Destino`, de cualquier estado. Sin filtro de
+        visibilidad: solo para semillas."""
+        return bool(
+            await sesion.scalar(
+                select(
+                    exists().where(Viaje.cliente_id == cliente_id, Viaje.destino_id == destino_id)
+                )
+            )
+        )
+
 
 class RepositorioPagos(RepositorioBase[Pago]):
     modelo = Pago
