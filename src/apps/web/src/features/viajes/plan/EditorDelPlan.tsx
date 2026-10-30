@@ -126,12 +126,15 @@ export function EditorDelPlan({
       )}
       <ul className="flex flex-col gap-3">
         {filas.map((fila, i) => {
-          const numeroDeCuota = filas.slice(0, i + 1).filter((f) => f.tipo === "cuota").length;
+          const cuotasCobradas = cobrados.filter((p) => p.tipo === "cuota").length;
+          const numeroDeCuota =
+            cuotasCobradas + filas.slice(0, i + 1).filter((f) => f.tipo === "cuota").length;
           const nombre = nombreDePago(fila.tipo, numeroDeCuota);
+          const deNombre = nombre.replace(/^el /, "del ").replace(/^la /, "de la ");
           return (
             <li key={fila.clave} className="grid grid-cols-[1fr_1fr_auto] items-end gap-3">
               <div className="flex flex-col gap-1">
-                <Label htmlFor={`monto-${fila.clave}`}>{`Monto de ${nombre}`}</Label>
+                <Label htmlFor={`monto-${fila.clave}`}>{`Monto ${deNombre}`}</Label>
                 <Input
                   id={`monto-${fila.clave}`}
                   inputMode="decimal"
@@ -143,7 +146,7 @@ export function EditorDelPlan({
                 />
               </div>
               <div className="flex flex-col gap-1">
-                <Label htmlFor={`vencimiento-${fila.clave}`}>{`Vencimiento de ${nombre}`}</Label>
+                <Label htmlFor={`vencimiento-${fila.clave}`}>{`Vencimiento ${deNombre}`}</Label>
                 <Input
                   id={`vencimiento-${fila.clave}`}
                   type="date"
@@ -153,19 +156,17 @@ export function EditorDelPlan({
                   }}
                 />
               </div>
-              {
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  aria-label={`Quitar ${nombre}`}
-                  onClick={() => {
-                    setFilas(filas.filter((f) => f.clave !== fila.clave));
-                  }}
-                >
-                  Quitar
-                </Button>
-              }
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                aria-label={`Quitar ${nombre}`}
+                onClick={() => {
+                  setFilas(filas.filter((f) => f.clave !== fila.clave));
+                }}
+              >
+                Quitar
+              </Button>
             </li>
           );
         })}
@@ -177,10 +178,14 @@ export function EditorDelPlan({
         <p className="text-sm text-destructive">
           {`Diferencia con el precio de venta: ${formatearImporte(deCentesimas(diferencia < 0n ? -diferencia : diferencia), viaje.moneda)} (${diferencia > 0n ? "faltan" : "sobran"})`}
         </p>
+      ) : !montosPositivos ? (
+        <p className="text-sm text-destructive">Cada pago tiene que ser mayor que cero.</p>
       ) : (
-        <p role="status" className="text-sm text-emerald-700">
-          La suma de los pagos coincide con el precio de venta.
-        </p>
+        filas.length > 0 && (
+          <p role="status" className="text-sm text-emerald-700">
+            La suma de los pagos coincide con el precio de venta.
+          </p>
+        )
       )}
       {pendiente <= 0n && (
         <p className="text-sm text-muted-foreground">No queda saldo por planificar.</p>

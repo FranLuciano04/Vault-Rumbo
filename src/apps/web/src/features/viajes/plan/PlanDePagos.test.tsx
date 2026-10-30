@@ -435,7 +435,8 @@ describe("T-103 fix de la review", () => {
     await cambiarMonto(user, 0, "0");
     await cambiarMonto(user, 1, "700000");
 
-    expect(screen.getByText(/coincide con el precio/i)).toBeInTheDocument();
+    expect(screen.getByText(/cada pago tiene que ser mayor que cero/i)).toBeInTheDocument();
+    expect(screen.queryByText(/coincide con el precio/i)).not.toBeInTheDocument();
     expect(screen.getByRole("button", { name: /guardar plan/i })).toBeDisabled();
   });
 
