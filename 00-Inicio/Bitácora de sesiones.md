@@ -67,9 +67,11 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
   - `GET /api/dashboard` calcula el embudo con conversión y, por moneda, ventas, ganancia, margen, comisiones, cobrado y pendiente de cobrar. Empleado y freelance ven solo lo suyo.
   - Francisco decidió, como propuesta para ratificar: pendiente de cobrar = foto del momento; comisión porcentual con ganancia ≤ 0 = 0.
   - Review de Opus: 3 importantes. Se arreglaron 2 y el tercero (indicadores de RF-124 sin dueño) quedó anotado en T-122.
+- **Hecho (8):** fix del dashboard con DEC-0024 puntos 5 y 6 (PR [#162](https://github.com/FranLuciano04/Vault-Rumbo/pull/162), mergeado con el CI en verde).
+  - El freelance ve su visibilidad de DEC-0008 y las comisiones se atribuyen al vendedor.
+  - Review de Opus sin bloqueantes. Se aclaró en DEC-0024 que la comisión de un viaje fuera de la visibilidad del freelance no aparece en su vista propia.
 - **Decisiones:** el equipo aprobó las 15 recomendaciones en [[DEC-0024 Reglas del dashboard, calendario y criterios de M6|DEC-0024]]. Cierran los pendientes de T-091, T-095, T-119 y T-121, y la reseña post-viaje de T-096.
 - **Pendiente:**
-  - Aplicar DEC-0024 en el dashboard ya mergeado: freelance con su visibilidad y comisiones por vendedor (puntos 5 y 6). Va en una rama `fix/` (DEC-0019).
   - Actualizar `05-Diseño/API/generar-openapi.js` (punto 11).
   - El e2e de la reseña con viaje (CU-17 A1) va en T-108.
 
