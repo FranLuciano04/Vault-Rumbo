@@ -6,6 +6,8 @@ import type {
   FiltrosViajes,
   Pagina,
   Tramo,
+  TramoCrear,
+  TramoEditar,
   Viaje,
 } from "../modelos";
 import { claveAlertas } from "./alertas";
@@ -93,7 +95,7 @@ export function useItinerario(cliente: AxiosInstance, viajeId: string) {
 export function useAgregarTramo(cliente: AxiosInstance) {
   return useAccion(
     claveViajes,
-    async ({ viajeId, datos }: { viajeId: string; datos: Tramo }) =>
+    async ({ viajeId, datos }: { viajeId: string; datos: TramoCrear }) =>
       (await cliente.post<Tramo>(`/api/viajes/${viajeId}/itinerario`, datos)).data,
     [claveAlertas],
   );
@@ -103,7 +105,7 @@ export function useAgregarTramo(cliente: AxiosInstance) {
 export function useEditarTramo(cliente: AxiosInstance) {
   return useAccion(
     claveViajes,
-    async ({ tramoId, cambios }: { tramoId: string; cambios: Tramo }) =>
+    async ({ tramoId, cambios }: { tramoId: string; cambios: TramoEditar }) =>
       (await cliente.patch<Tramo>(`/api/tramos/${tramoId}`, cambios)).data,
     [claveAlertas],
   );

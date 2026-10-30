@@ -33,6 +33,8 @@ export type Viaje = Esquemas["Viaje"];
 export type ConfirmarReserva = Esquemas["ConfirmarReserva"];
 export type Cancelacion = Esquemas["Cancelacion"];
 export type Tramo = Esquemas["Tramo"];
+export type TramoCrear = Esquemas["TramoCrear"];
+export type TramoEditar = Esquemas["TramoEditar"];
 export type EstadoViaje = Esquemas["EstadoViaje"];
 export type CategoriaViaje = Esquemas["CategoriaViaje"];
 

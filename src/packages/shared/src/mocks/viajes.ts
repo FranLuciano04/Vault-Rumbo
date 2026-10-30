@@ -1,5 +1,13 @@
 import { http, HttpResponse, type RequestHandler } from "msw";
-import type { Cancelacion, ConfirmarReserva, EstadoViaje, Tramo, Viaje } from "../modelos";
+import type {
+  Cancelacion,
+  ConfirmarReserva,
+  EstadoViaje,
+  Tramo,
+  TramoCrear,
+  TramoEditar,
+  Viaje,
+} from "../modelos";
 import { respuestaProblema } from "./problema";
 
 /** Ana Pérez, la empleada de `usuariosPorRol`; no se importa de ahí porque `index` carga este archivo. */
@@ -148,7 +156,7 @@ export const viajesMock: Viaje[] = [
   }),
 ];
 
-/** Itinerario ficticio del viaje de la Familia Sosa, con los nombres de CU-09 y del ER (`Tramo` acepta cualquier objeto hasta el backend). */
+/** Itinerario ficticio del viaje de la Familia Sosa, con los nombres de CU-09 y del ER. */
 export const tramosMock: Tramo[] = [
   {
     id: "b3c4d5e6-f7a8-4b9c-8d0e-1f2a3b4c5d01",
@@ -178,6 +186,14 @@ export function viajeNoEncontrado() {
   return respuestaProblema(404, "No encontrado", {
     detail: "El viaje no existe o no lo podés ver.",
   });
+}
+
+function viajeDelTramo(tramo: Tramo) {
+  return viajesMock.find((v) => v.id === tramo.viaje_id);
+}
+
+function itinerarioCancelado() {
+  return conflicto("No se cambia el itinerario de un viaje cancelado.");
 }
 
 function conflicto(detail: string) {
@@ -320,12 +336,16 @@ export const manejadoresViajes: RequestHandler[] = [
   http.post(`${BASE}/:id/itinerario`, async ({ params, request }) => {
     const v = viajesMock.find((x) => x.id === params["id"]);
     if (!v) return viajeNoEncontrado();
-    if (v.estado === "cancelado" || v.estado === "finalizado") {
-      return conflicto(`No se edita el itinerario de un viaje ${v.estado}.`);
-    }
-    const datos = (await request.json()) as Tramo;
+    if (v.estado === "cancelado") return itinerarioCancelado();
+    const datos = (await request.json()) as TramoCrear;
     return HttpResponse.json(
-      { ...datos, id: crypto.randomUUID(), viaje_id: v.id },
+      {
+        vencimiento_pago_proveedor: null,
+        ...datos,
+        pago_proveedor_realizado: false,
+        id: crypto.randomUUID(),
+        viaje_id: v.id,
+      },
       { status: 201 },
     );
   }),
@@ -333,14 +353,16 @@ export const manejadoresViajes: RequestHandler[] = [
   http.patch("*/api/tramos/:id", async ({ params, request }) => {
     const tramo = tramosMock.find((t) => t["id"] === params["id"]);
     if (!tramo) return tramoNoEncontrado();
-    return HttpResponse.json({ ...tramo, ...((await request.json()) as Tramo) });
+    if (viajeDelTramo(tramo)?.estado === "cancelado") return itinerarioCancelado();
+    return HttpResponse.json({ ...tramo, ...((await request.json()) as TramoEditar) });
   }),
 
-  http.delete("*/api/tramos/:id", ({ params }) =>
-    tramosMock.some((t) => t["id"] === params["id"])
-      ? new HttpResponse(null, { status: 204 })
-      : tramoNoEncontrado(),
-  ),
+  http.delete("*/api/tramos/:id", ({ params }) => {
+    const tramo = tramosMock.find((t) => t["id"] === params["id"]);
+    if (!tramo) return tramoNoEncontrado();
+    if (viajeDelTramo(tramo)?.estado === "cancelado") return itinerarioCancelado();
+    return new HttpResponse(null, { status: 204 });
+  }),
 ];
 
 function tramoNoEncontrado() {

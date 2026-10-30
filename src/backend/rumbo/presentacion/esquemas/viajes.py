@@ -15,11 +15,13 @@ from rumbo.datos.modelos import CategoriaViaje, EstadoViaje, Moneda
 from rumbo.presentacion.esquemas.comunes import (
     Auditoria,
     DecimalConSigno,
+    Edicion,
     Entrada,
     Fraccion,
     Importe,
     TipoComision,
     componer_con_auditoria,
+    omitible,
 )
 from rumbo.presentacion.esquemas.economia import EconomiaViaje, PlanDePagos
 
@@ -143,8 +145,40 @@ class Cancelacion(Entrada):
     fecha_cancelacion: date
 
 
-class Tramo(BaseModel):
-    """Hotel del itinerario. Esquema preliminar: acepta cualquier objeto hasta que el ticket de
-    backend de CU-09 fije sus campos."""
+class TramoCrear(Entrada):
+    """Hotel del catálogo en un tramo del itinerario (CU-09). Un hotel puede repetirse en tramos
+    no consecutivos (A5)."""
 
-    model_config = ConfigDict(extra="allow")
+    hotel_id: uuid.UUID = Field(description="Del catálogo de hoteles.")
+    check_in: date = Field(description="Dentro de las fechas del viaje.")
+    check_out: date = Field(description="Dentro de las fechas del viaje; no anterior al check-in.")
+    orden: int = Field(ge=1, description="Posición del tramo en el itinerario; única por viaje.")
+    vencimiento_pago_proveedor: date | None = Field(
+        default=None, description="Si se envía, avisa un mes antes con una alerta `pago`."
+    )
+
+
+class TramoEditar(Edicion):
+    hotel_id: uuid.UUID = omitible()
+    check_in: date = omitible()
+    check_out: date = omitible()
+    orden: int = omitible(ge=1)
+    vencimiento_pago_proveedor: date | None = None
+    pago_proveedor_realizado: bool = omitible(
+        description="Al marcarlo se resuelve la alerta del pago al proveedor."
+    )
+
+
+class Tramo(BaseModel):
+    """Hotel del itinerario del viaje (DEC-0003)."""
+
+    id: uuid.UUID = Field(json_schema_extra=_SOLO_LECTURA)
+    viaje_id: uuid.UUID = Field(json_schema_extra=_SOLO_LECTURA)
+    hotel_id: uuid.UUID
+    check_in: date
+    check_out: date
+    orden: int
+    vencimiento_pago_proveedor: date | None
+    pago_proveedor_realizado: bool
+
+    model_config = ConfigDict(from_attributes=True)

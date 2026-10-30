@@ -1,4 +1,4 @@
-"""Rutas del módulo viajes (CU-07 a CU-10, CU-27). Stubs: responden 501 hasta su backend."""
+"""Rutas del módulo viajes (CU-07 a CU-10, CU-27). Las que todavía son stubs responden 501."""
 
 import uuid
 from datetime import date
@@ -6,7 +6,10 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, Query
 
+from rumbo.core.db import SesionDep
+from rumbo.datos import modelos
 from rumbo.datos.modelos import EstadoViaje
+from rumbo.negocio.servicios import itinerario
 from rumbo.presentacion.contrato import (
     TODOS,
     no_implementado,
@@ -14,11 +17,20 @@ from rumbo.presentacion.contrato import (
     operacion_de_registro,
     respuesta_pagina,
 )
-from rumbo.presentacion.esquemas.viajes import Cancelacion, ConfirmarReserva, Tramo, Viaje
+from rumbo.presentacion.dependencias import usuario_actual
+from rumbo.presentacion.esquemas.viajes import (
+    Cancelacion,
+    ConfirmarReserva,
+    Tramo,
+    TramoCrear,
+    TramoEditar,
+    Viaje,
+)
 from rumbo.presentacion.paginacion import Pagina, ParametrosPagina, parametros_pagina
 
 router = APIRouter(tags=["viajes"])
 
+ActorDep = Annotated[modelos.Usuario, Depends(usuario_actual)]
 PaginaDep = Annotated[ParametrosPagina, Depends(parametros_pagina)]
 
 _LISTADO = operacion(TODOS, "CU-08", 422, visibilidad=True)
@@ -127,8 +139,11 @@ async def revertir_cancelacion(viaje_id: uuid.UUID) -> Viaje:
     summary="Ver el itinerario de hoteles",
     **operacion_de_registro(404, casos_de_uso="CU-09", escritura=False),
 )
-async def obtener_itinerario(viaje_id: uuid.UUID) -> list[Tramo]:
-    raise no_implementado()
+async def obtener_itinerario(
+    viaje_id: uuid.UUID, actor: ActorDep, sesion: SesionDep
+) -> list[Tramo]:
+    tramos = await itinerario.listar_itinerario(sesion, actor, viaje_id)
+    return [Tramo.model_validate(t) for t in tramos]
 
 
 @router.post(
@@ -138,8 +153,11 @@ async def obtener_itinerario(viaje_id: uuid.UUID) -> list[Tramo]:
     status_code=201,
     **operacion_de_registro(403, 404, 409, 422, casos_de_uso="CU-09"),
 )
-async def agregar_tramo(viaje_id: uuid.UUID, datos: Tramo) -> Tramo:
-    raise no_implementado()
+async def agregar_tramo(
+    viaje_id: uuid.UUID, datos: TramoCrear, actor: ActorDep, sesion: SesionDep
+) -> Tramo:
+    tramo = await itinerario.agregar_tramo(sesion, actor, viaje_id, datos.model_dump())
+    return Tramo.model_validate(tramo)
 
 
 @router.patch(
@@ -148,8 +166,13 @@ async def agregar_tramo(viaje_id: uuid.UUID, datos: Tramo) -> Tramo:
     summary="Editar un tramo o marcar pagado al proveedor",
     **operacion_de_registro(403, 404, 409, 422, casos_de_uso="CU-09"),
 )
-async def editar_tramo(tramo_id: uuid.UUID, cambios: Tramo) -> Tramo:
-    raise no_implementado()
+async def editar_tramo(
+    tramo_id: uuid.UUID, cambios: TramoEditar, actor: ActorDep, sesion: SesionDep
+) -> Tramo:
+    tramo = await itinerario.editar_tramo(
+        sesion, actor, tramo_id, cambios.model_dump(exclude_unset=True)
+    )
+    return Tramo.model_validate(tramo)
 
 
 @router.delete(
@@ -157,8 +180,8 @@ async def editar_tramo(tramo_id: uuid.UUID, cambios: Tramo) -> Tramo:
     operation_id="quitar_tramo",
     summary="Quitar un hotel del itinerario",
     status_code=204,
-    **operacion_de_registro(403, 404, casos_de_uso="CU-09"),
+    **operacion_de_registro(403, 404, 409, casos_de_uso="CU-09"),
 )
-async def quitar_tramo(tramo_id: uuid.UUID) -> None:
+async def quitar_tramo(tramo_id: uuid.UUID, actor: ActorDep, sesion: SesionDep) -> None:
     """Quita el tramo; su alerta se cierra."""
-    raise no_implementado()
+    await itinerario.quitar_tramo(sesion, actor, tramo_id)
