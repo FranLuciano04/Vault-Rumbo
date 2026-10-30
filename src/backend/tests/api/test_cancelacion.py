@@ -751,3 +751,72 @@ async def test_rf153_freelance_cancela_y_revierte_su_propio_viaje(
     r = await c.post(_revertir(viaje_id))
     assert r.status_code == 200
     assert (await _estado_en_base(sesion, viaje_id)).estado == m.EstadoViaje.vendido
+
+
+# --- Alertas del pago al proveedor de cada tramo (RF-050, RF-053; fix de la review) ---
+
+
+async def _tramo(sesion: AsyncSession, viaje: m.Viaje, orden: int, **campos: Any) -> m.ViajeHotel:
+    hotel = await f.crear(sesion, f.HotelFactory, destino_id=viaje.destino_id)
+    return await f.crear(
+        sesion, f.ViajeHotelFactory, viaje_id=viaje.id, hotel_id=hotel.id, orden=orden, **campos
+    )
+
+
+async def test_rf050_cancelar_cierra_la_alerta_del_pago_al_proveedor_de_un_tramo(
+    cliente_como: Fabrica, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("empleado")
+    yo = _yo(c)
+    viaje = await _viaje(sesion, yo, m.EstadoViaje.vendido)
+    viaje_id = viaje.id
+    tramo = await _tramo(sesion, viaje, 1, vencimiento_pago_proveedor=date(2026, 12, 20))
+    alerta = await _alerta(sesion, yo, viaje_hotel_id=tramo.id, tipo=m.TipoAlerta.pago)
+    alerta_id = alerta.id
+
+    r = await c.post(_cancelar(viaje_id), json=CANCELACION)
+
+    assert r.status_code == 200
+    en_base = await _alerta_en_base(sesion, alerta_id)
+    assert en_base.estado == m.EstadoAlerta.resuelta
+    assert en_base.resuelta_en is not None
+    assert en_base.cerrada_por_cancelacion is True
+
+
+async def test_rf053_revertir_reabre_la_alerta_del_tramo_y_no_la_del_ya_pagado_al_proveedor(
+    cliente_como: Fabrica, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("empleado")
+    yo = _yo(c)
+    viaje = await _viaje(sesion, yo, m.EstadoViaje.vendido)
+    viaje_id = viaje.id
+    impago = await _tramo(sesion, viaje, 1, vencimiento_pago_proveedor=date(2026, 12, 20))
+    pagado = await _tramo(
+        sesion,
+        viaje,
+        2,
+        vencimiento_pago_proveedor=date(2026, 12, 22),
+        pago_proveedor_realizado=True,
+    )
+    abierta = await _alerta(sesion, yo, viaje_hotel_id=impago.id, tipo=m.TipoAlerta.pago)
+    ya_resuelta = await _alerta(
+        sesion,
+        yo,
+        viaje_hotel_id=pagado.id,
+        tipo=m.TipoAlerta.pago,
+        estado=m.EstadoAlerta.resuelta,
+        resuelta_en=datetime(2026, 10, 25, 12, 0, tzinfo=UTC),
+    )
+    abierta_id, ya_resuelta_id = abierta.id, ya_resuelta.id
+    assert (await c.post(_cancelar(viaje_id), json=CANCELACION)).status_code == 200
+
+    r = await c.post(_revertir(viaje_id))
+
+    assert r.status_code == 200
+    reabierta = await _alerta_en_base(sesion, abierta_id)
+    assert reabierta.estado == m.EstadoAlerta.pendiente
+    assert reabierta.resuelta_en is None
+    assert reabierta.cerrada_por_cancelacion is False
+    sigue = await _alerta_en_base(sesion, ya_resuelta_id)
+    assert sigue.estado == m.EstadoAlerta.resuelta
+    assert sigue.cerrada_por_cancelacion is False

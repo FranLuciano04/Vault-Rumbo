@@ -28,6 +28,7 @@ Se agrega `Pago.anulado_por_cancelacion` (booleano, por defecto `false`, con el 
 - Al **cancelar**, los pagos que se anulan quedan marcados.
 - Al **revertir**, se restauran **solo los pagos marcados**, según su fecha, y la marca vuelve a `false`. Los anulados por otro motivo siguen anulados.
 - El campo no se expone en el contrato de la API.
+- **Concurrencia:** cancelar, revertir, cobrar y ajustar el plan bloquean primero el [[Viaje]] (`SELECT … FOR UPDATE`), así que no se pueden cruzar ni marcar un pago dos veces.
 
 ## Alternativas consideradas
 | Opción | Pros | Contras | ¿Elegida? |

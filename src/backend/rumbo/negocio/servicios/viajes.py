@@ -33,7 +33,7 @@ from rumbo.datos.repositorios.destinos import RepositorioDestinos
 from rumbo.datos.repositorios.oportunidades import RepositorioCotizaciones, RepositorioOportunidades
 from rumbo.datos.repositorios.requisitos import RepositorioRequisitos
 from rumbo.datos.repositorios.seguridad import RepositorioUsuarios
-from rumbo.datos.repositorios.viajes import RepositorioPagos, RepositorioViajes
+from rumbo.datos.repositorios.viajes import RepositorioPagos, RepositorioTramos, RepositorioViajes
 from rumbo.negocio import calculos
 from rumbo.negocio.errores import Conflicto, DatosInvalidos, NoEncontrado
 from rumbo.negocio.estados import oportunidad as estado_oportunidad
@@ -44,6 +44,7 @@ from rumbo.negocio.servicios import alertas, economia, parametros
 
 _viajes = RepositorioViajes()
 _pagos = RepositorioPagos()
+_tramos = RepositorioTramos()
 _usuarios = RepositorioUsuarios()
 _alertas = RepositorioAlertas()
 _oportunidades = RepositorioOportunidades()
@@ -273,7 +274,8 @@ async def cancelar(
 ) -> FichaViaje:
     """Cancela un viaje no finalizado con su motivo y fecha (T6, CU-27, RF-048, RF-049). Anula
     sus pagos no cobrados, `pendiente` o `vencido` (EST-Pago T7), y resuelve las alertas
-    vigentes del viaje y de cada pago anulado como cerradas por la cancelación (RF-050). Los
+    vigentes del viaje, de cada pago anulado y de cada tramo del itinerario (el pago al
+    proveedor) como cerradas por la cancelación (RF-050). Los
     cobrados no se tocan: la ficha informa lo cobrado y deja el saldo en cero (A2, RF-052). La
     comisión configurada se conserva: no se realiza si el viaje no había empezado y se mantiene
     si estaba `en_curso` (RF-051, A4), lo que se lee de `estado_previo`. Un viaje `finalizado`
@@ -281,6 +283,8 @@ async def cancelar(
     viaje = await _viaje_a_cambiar(sesion, actor, viaje_id)
     estado_viaje.cancelar(viaje, motivo=motivo, fecha=fecha)
     await alertas.resolver_de_origen(sesion, viaje, por_cancelacion=True)
+    for tramo in await _tramos.listar_de_viaje(sesion, viaje.id, visibilidad=visibilidad(actor)):
+        await alertas.resolver_de_origen(sesion, tramo, por_cancelacion=True)
     for pago in await _pagos.listar_de_viaje(sesion, viaje.id, visibilidad=visibilidad(actor)):
         if pago.estado in (EstadoPago.pendiente, EstadoPago.vencido):
             estado_pago.anular_por_cancelacion(pago)
@@ -299,6 +303,8 @@ async def revertir_cancelacion(
     viaje = await _viaje_a_cambiar(sesion, actor, viaje_id)
     estado_viaje.revertir_cancelacion(viaje)
     await alertas.reabrir_de_origen(sesion, viaje, solo_por_cancelacion=True)
+    for tramo in await _tramos.listar_de_viaje(sesion, viaje.id, visibilidad=visibilidad(actor)):
+        await alertas.reabrir_de_origen(sesion, tramo, solo_por_cancelacion=True)
     dia = hoy()
     for pago in await _pagos.listar_de_viaje(sesion, viaje.id, visibilidad=visibilidad(actor)):
         if pago.anulado_por_cancelacion:
