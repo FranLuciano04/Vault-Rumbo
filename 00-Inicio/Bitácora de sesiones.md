@@ -70,9 +70,9 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Hecho (8):** fix del dashboard con DEC-0024 puntos 5 y 6 (PR [#162](https://github.com/FranLuciano04/Vault-Rumbo/pull/162), mergeado con el CI en verde).
   - El freelance ve su visibilidad de DEC-0008 y las comisiones se atribuyen al vendedor.
   - Review de Opus sin bloqueantes. Se aclaró en DEC-0024 que la comisión de un viaje fuera de la visibilidad del freelance no aparece en su vista propia.
+- **Hecho (9):** contrato de PC1 alineado con DEC-0024 punto 11: `responsable_id` en `/dashboard` y `tipo = alerta` en `/calendario`. `05-Diseño/API/openapi.json` está regenerado.
 - **Decisiones:** el equipo aprobó las 15 recomendaciones en [[DEC-0024 Reglas del dashboard, calendario y criterios de M6|DEC-0024]]. Cierran los pendientes de T-091, T-095, T-119 y T-121, y la reseña post-viaje de T-096.
 - **Pendiente:**
-  - Actualizar `05-Diseño/API/generar-openapi.js` (punto 11).
   - El e2e de la reseña con viaje (CU-17 A1) va en T-108.
 
 ## 29/10/26 — Paloma (Claude Opus 5.5) — T-090, T-088, T-100, T-102 y T-096 (M6)

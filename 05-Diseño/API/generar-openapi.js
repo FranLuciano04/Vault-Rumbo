@@ -422,12 +422,12 @@ const ops = [
 
   // ------------------------------------------------------------ dashboard y calendario
   ['get', '/dashboard', 'dashboard', 'verDashboard', 'Ver indicadores y embudo de ventas', ['CU-21'], TODOS, [200, SD, 'KPIs y embudo del período.'], null,
-    { q: P('desde', 'hasta'), desc: 'admin y dueño ven toda la agencia; empleado y freelance ven lo suyo (CU-21 A1, DEC-0008).' }],
+    { q: [...P('desde', 'hasta'), q('responsable_id', { type: 'string', format: 'uuid' }, 'Solo admin y dueño (CU-21 paso 4); para empleado y freelance se ignora (DEC-0024).')], desc: 'admin y dueño ven toda la agencia; empleado y freelance ven lo suyo (CU-21 A1, DEC-0008, DEC-0024).' }],
   ['get', '/reportes', 'dashboard', 'listarReportes', 'Ver el catálogo de reportes', ['CU-22'], GESTION, [200, SD, 'Reportes disponibles.'], null, {}],
   ['get', '/reportes/{reporte_id}', 'dashboard', 'generarReporte', 'Generar un reporte del período', ['CU-22'], GESTION, [200, 'reporte', 'Reporte en JSON, Excel o PDF.'], null,
     { q: [...P('desde', 'hasta'), q('comparar_desde', { type: 'string', format: 'date' }, 'Período de comparación (CU-22 A2).'), q('comparar_hasta', { type: 'string', format: 'date' }), q('formato', { type: 'string', enum: ['json', 'xlsx', 'pdf'], default: 'json' })] }],
-  ['get', '/calendario', 'calendario', 'verCalendario', 'Ver viajes y vencimientos en el calendario', ['CU-23'], TODOS, [200, SD, 'Eventos del período: salidas, regresos y vencimientos de pagos.'], null,
-    { q: [...P('desde', 'hasta', 'mios'), q('tipo', { type: 'string', enum: ['viaje', 'vencimiento'] }), q('responsable_id', { type: 'string', format: 'uuid' })], freelance: true }],
+  ['get', '/calendario', 'calendario', 'verCalendario', 'Ver viajes, vencimientos y alertas en el calendario', ['CU-23'], TODOS, [200, SD, 'Eventos del período: salidas, regresos, vencimientos de pagos y alertas programadas (DEC-0024).'], null,
+    { q: [...P('desde', 'hasta', 'mios'), q('tipo', { type: 'string', enum: ['viaje', 'vencimiento', 'alerta'] }), q('responsable_id', { type: 'string', format: 'uuid' })], freelance: true }],
 ];
 
 // ---------------------------------------------------------------------------

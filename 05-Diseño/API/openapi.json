@@ -5831,7 +5831,7 @@
         ],
         "operationId": "verDashboard",
         "summary": "Ver indicadores y embudo de ventas",
-        "description": "admin y dueño ven toda la agencia; empleado y freelance ven lo suyo (CU-21 A1, DEC-0008).\n\n**Roles:** admin, dueno, empleado, freelance.\n\n**Casos de uso:** CU-21.",
+        "description": "admin y dueño ven toda la agencia; empleado y freelance ven lo suyo (CU-21 A1, DEC-0008, DEC-0024).\n\n**Roles:** admin, dueno, empleado, freelance.\n\n**Casos de uso:** CU-21.",
         "x-casos-de-uso": [
           "CU-21"
         ],
@@ -5847,6 +5847,15 @@
           },
           {
             "$ref": "#/components/parameters/hasta"
+          },
+          {
+            "name": "responsable_id",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Solo admin y dueño (CU-21 paso 4); para empleado y freelance se ignora (DEC-0024)."
           }
         ],
         "responses": {
@@ -6009,7 +6018,7 @@
           "calendario"
         ],
         "operationId": "verCalendario",
-        "summary": "Ver viajes y vencimientos en el calendario",
+        "summary": "Ver viajes, vencimientos y alertas en el calendario",
         "description": "**Roles:** admin, dueno, empleado, freelance.\n\n**Visibilidad:** freelance, solo lo propio (DEC-0008).\n\n**Casos de uso:** CU-23.",
         "x-casos-de-uso": [
           "CU-23"
@@ -6037,7 +6046,8 @@
               "type": "string",
               "enum": [
                 "viaje",
-                "vencimiento"
+                "vencimiento",
+                "alerta"
               ]
             }
           },
@@ -6052,7 +6062,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Eventos del período: salidas, regresos y vencimientos de pagos.",
+            "description": "Eventos del período: salidas, regresos, vencimientos de pagos y alertas programadas (DEC-0024).",
             "content": {
               "application/json": {
                 "schema": {
