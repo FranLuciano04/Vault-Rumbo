@@ -20,7 +20,7 @@ tags:: #tipo/referencia
 | M3 — Alertas | 14 | 14 | 0 | 0 | 0 | 0 | ✅ cerrado |
 | M4 — Oportunidades y cotizaciones | 16 | 16 | 0 | 0 | 0 | 0 | ✅ cerrado |
 | M5 — Hoteles y reseñas | 11 | 11 | 0 | 0 | 0 | 0 | ✅ cerrado |
-| M6 — Viajes y economía | 24 | 20 | 2 | 0 | 2 | 0 | 🛠️ en curso |
+| M6 — Viajes y economía | 24 | 21 | 1 | 1 | 1 | 0 | 🛠️ en curso |
 | M7 — Proceso diario y CRM proactivo | 9 | 0 | 0 | 3 | 6 | 0 | 🛠️ en curso |
 | M8 — Calendario, dashboard y reportes | 10 | 2 | 1 | 4 | 3 | 0 | 🛠️ en curso |
 | M9 — Redes e IA | 6 | 0 | 0 | 1 | 5 | 0 | 🛠️ en curso |
@@ -173,14 +173,14 @@ flowchart LR
     T098["T-098 · Registrar el pago al proveedor de cada tramo<br/><small>backend · ⚠️ riesgo alto</small>"]:::hecho
     T099["T-099 · Cancelar un viaje con su reversión<br/><small>backend · ⚠️ riesgo alto</small><br/>👤 palomap2003"]:::tomado
     T100["T-100 · Listar los viajes en la web<br/><small>web</small>"]:::hecho
-    T101["T-101 · Confirmar la reserva desde la oportunidad en la web<br/><small>web</small><br/>👤 Nahuel Viniegra"]:::tomado
+    T101["T-101 · Confirmar la reserva desde la oportunidad en la web<br/><small>web</small>"]:::hecho
     T102["T-102 · Registrar la economía desde la ficha del viaje en la web<br/><small>web</small>"]:::hecho
     T103["T-103 · Definir el plan de cuotas en la web<br/><small>web</small>"]:::hecho
     T104["T-104 · Registrar el cobro de un pago en la web<br/><small>web</small>"]:::hecho
     T105["T-105 · Cambiar el estado del viaje en la web<br/><small>web</small>"]:::hecho
     T106["T-106 · Armar el itinerario de hoteles en la web<br/><small>web</small>"]:::hecho
     T107["T-107 · Cancelar un viaje desde la web<br/><small>web</small>"]:::hecho
-    T108["T-108 · Probar de punta a punta el circuito de CU-01<br/><small>e2e</small>"]:::esperando
+    T108["T-108 · Probar de punta a punta el circuito de CU-01<br/><small>e2e</small>"]:::disponible
     T109["T-109 · Probar de punta a punta las excepciones del viaje<br/><small>e2e</small>"]:::esperando
   end
   subgraph M7["M7 — Proceso diario y CRM proactivo"]
