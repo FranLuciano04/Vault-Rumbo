@@ -3,7 +3,7 @@ id: T-107
 titulo: Cancelar un viaje desde la web
 modulo: M6 — Viajes y economía
 capa: web
-estado: libre
+estado: tomado
 depende_de: [T-102]
 tamaño: S
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [CU-27, RF-048, RF-052, RF-053]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: FranLucianoo
+tomado_el: 30/10/26 13:53
+rama: feature/T-107-cancelar-un-viaje-desde-la-web
 pr:
 ---
 # T-107 Cancelar un viaje desde la web
