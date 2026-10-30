@@ -2,6 +2,7 @@
 (CU-21, RF-123, RF-124, RF-127, RF-129)."""
 
 import uuid
+from collections import defaultdict
 from dataclasses import dataclass
 from datetime import date
 from decimal import ROUND_HALF_UP, Decimal
@@ -62,14 +63,15 @@ async def calcular_indicadores(
         sesion, desde=inicio, hasta=fin, responsable_id=responsable_id, visibilidad=vista
     )
 
-    ventas: Totales = {}
-    ganancia: Totales = {}
-    comisiones: Totales = {}
+    ventas: Totales = defaultdict(Decimal)
+    ganancia: Totales = defaultdict(Decimal)
+    comisiones: Totales = defaultdict(Decimal)
     for v in viajes:
-        ventas[v.moneda] = ventas.get(v.moneda, Decimal(0)) + v.precio_venta
-        ganancia[v.moneda] = ganancia.get(v.moneda, Decimal(0)) + v.ganancia
-        comision = comision_del_vendedor(v.comision_tipo, v.comision_vendedor, v.ganancia)
-        comisiones[v.moneda] = comisiones.get(v.moneda, Decimal(0)) + comision
+        ventas[v.moneda] += v.precio_venta
+        ganancia[v.moneda] += v.ganancia
+        comisiones[v.moneda] += comision_del_vendedor(
+            v.comision_tipo, v.comision_vendedor, v.ganancia
+        )
     margen = {
         moneda: (ganancia[moneda] / total).quantize(_FRACCION, rounding=ROUND_HALF_UP)
         for moneda, total in ventas.items()
