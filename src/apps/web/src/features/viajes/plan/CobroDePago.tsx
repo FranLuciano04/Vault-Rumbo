@@ -18,11 +18,11 @@ import { ETIQUETA_FORMA_PAGO, ETIQUETA_TIPO_PAGO } from "./etiquetas";
 const MONEDAS: Moneda[] = ["ARS", "USD"];
 const TIPO_DE_CAMBIO = /^\d+(\.\d+)?$/;
 
-/** Monto cobrado en la moneda del cobro: el tipo de cambio son pesos por dólar (CU-12 A0). */
-function montoCobrado(monto: string, monedaViaje: Moneda, moneda: Moneda, tipoDeCambio: number) {
+/** Monto cobrado en otra moneda que la del viaje: el tipo de cambio son pesos por dólar (CU-12 A0). */
+function montoCobrado(monto: string, moneda: Moneda, tipoDeCambio: number) {
   const planificado = Number(monto);
   const cobrado = moneda === "ARS" ? planificado * tipoDeCambio : planificado / tipoDeCambio;
-  return monedaViaje === moneda ? monto : cobrado.toFixed(2);
+  return cobrado.toFixed(2);
 }
 
 function Opciones<T extends string>({
@@ -185,10 +185,7 @@ export function CobroDePago({
             <p className="text-sm">
               Monto cobrado:{" "}
               <span className="font-medium tabular-nums">
-                {formatearImporte(
-                  montoCobrado(pago.monto, viaje.moneda, moneda, Number(cambio)),
-                  moneda,
-                )}
+                {formatearImporte(montoCobrado(pago.monto, moneda, Number(cambio)), moneda)}
               </span>
             </p>
           )}
