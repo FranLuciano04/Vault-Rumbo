@@ -2319,6 +2319,16 @@ export interface components {
             readonly ventas_mensuales: components["schemas"]["VentaMensual"][];
             /** Ganancia Estimada */
             readonly ganancia_estimada: components["schemas"]["MontoPorMoneda"][];
+            /**
+             * Margen
+             * @description Fracción de la venta que es ganancia (0.2500 = 25 %), ponderada por moneda.
+             */
+            readonly margen: components["schemas"]["MontoPorMoneda"][];
+            /**
+             * Comisiones
+             * @description Comisión de los vendedores sobre las ventas.
+             */
+            readonly comisiones: components["schemas"]["MontoPorMoneda"][];
             /** Ticket Promedio */
             readonly ticket_promedio: components["schemas"]["MontoPorMoneda"][];
             /** Cobrado */

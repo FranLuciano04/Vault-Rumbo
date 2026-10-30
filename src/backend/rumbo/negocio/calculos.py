@@ -4,7 +4,7 @@ CU-12). Ganancia y margen no están acá: son columnas generadas de la base."""
 from collections.abc import Iterable
 from decimal import ROUND_DOWN, ROUND_HALF_UP, Decimal
 
-from rumbo.datos.modelos import EstadoPago, Pago
+from rumbo.datos.modelos import EstadoPago, Pago, TipoComision
 
 _FRACCION = Decimal("0.0001")
 _CENTAVO = Decimal("0.01")
@@ -38,3 +38,11 @@ def monto_cobrado(monto: Decimal, tipo_cambio: Decimal | None) -> Decimal:
     if tipo_cambio is None:
         return monto
     return (monto * tipo_cambio).quantize(_CENTAVO, rounding=ROUND_HALF_UP)
+
+
+def comision_del_vendedor(tipo: TipoComision, valor: Decimal, ganancia: Decimal) -> Decimal:
+    """Importe de la comisión de un viaje: `valor` si es un importe, o ese porcentaje de la
+    ganancia redondeado al centavo (DEC-0007, DEC-0013)."""
+    if tipo is TipoComision.importe:
+        return valor
+    return (ganancia * valor / 100).quantize(_CENTAVO, rounding=ROUND_HALF_UP)
