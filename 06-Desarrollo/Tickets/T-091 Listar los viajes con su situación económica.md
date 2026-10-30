@@ -3,7 +3,7 @@ id: T-091
 titulo: Listar los viajes con su situación económica
 modulo: M6 — Viajes y economía
 capa: backend
-estado: tomado
+estado: hecho
 depende_de: [T-086, T-012, T-090]
 tamaño: S
 riesgo: normal
@@ -52,3 +52,17 @@ Cada rol lista viajes según su visibilidad y abre la ficha con la economía, el
 ## Notas de implementación
 - **De T-078 (28/10/26):** `src/backend/rumbo/datos/repositorios/viajes.py` ya existe con un `RepositorioViajes` mínimo (`RepositorioBase[Viaje]`), que crearon las reseñas para validar el viaje asociado. Extendelo en lugar de crear otro.
 - **De T-100 (29/10/26):** la web resuelve hoy el nombre del cliente y del destino con la primera página de `/api/clientes` y `/api/destinos` (`por_pagina: 100`, el máximo). Con más de 100 clientes, algunas filas quedan sin nombre. Lo resuelve el criterio de `cliente_nombre` y `destino_nombre` de arriba.
+- **Implementación (30/10/26, Francisco):**
+  - `GET /viajes` y `GET /viajes/{id}` se implementaron en el servicio y el repositorio. La visibilidad se aplica siempre en el repositorio, y los pagos de la página se traen en una sola consulta.
+  - Supuestos fijados por los tests:
+    - `mios` filtra por `responsable_id == actor`.
+    - `desde` y `hasta` filtran por fecha de salida, con los dos extremos incluidos.
+    - El listado sale ordenado por fecha de salida y después por id, y trae los mismos campos que la ficha.
+  - `Viaje` (el modelo) suma las relaciones `cliente` y `destino` con `lazy="joined", innerjoin=True`, como `Oportunidad.cliente`. Por eso todas las respuestas de `Viaje`, `EconomiaRegistrada` incluida, traen `cliente_nombre` y `destino_nombre`. El bloqueo de fila sigue siendo `with_for_update(of=Viaje)`.
+  - Review (Opus): hallazgos arreglados.
+    - **Importante:** la web forzaba `mios` al freelance, que entonces no veía los viajes de sus clientes llevados por otro. Ahora el freelance no manda `mios` y la API recorta por visibilidad. Se corrigió el test de `PaginaViajes` que fijaba el comportamiento viejo (autorizado).
+    - **Menor:** los mocks ya no completan nombres vacíos con `?? ""`.
+  - **Pendiente:** la verificación contra la API real de una reseña vinculada a un viaje no se pudo hacer. No hay forma de crear un viaje hasta T-089 (`confirmar-reserva` responde 501), ni hay semilla de viajes. Queda para el e2e de CU-01 de M6. El plan es un test `RF-101 reseña con viaje (CU-17 A1)` en `hoteles.spec.ts`. Lo cubren por API `test_rf037_listado_filtra_por_cliente` y `test_rf151_filtro_por_cliente_respeta_la_visibilidad_del_freelance`.
+  - Checks: la suite completa del backend corrió en la PC, porque el ticket toca los modelos. Las únicas fallas fueron `test_contrato_m6` (ver abajo) y los 2 tests del PDF, que fallan en Windows por WeasyPrint (conocido).
+  - `test_contrato_m6.py` suma `GET /viajes` y `GET /viajes/{id}` a `_IMPLEMENTADAS`, como en T-090/T-096/T-097 (`--tocar-tests`).
+  - Modelos: tests con Sonnet, implementación y fix con Sonnet, refactor con Sonnet (sin cambios) y review con Opus.
