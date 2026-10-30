@@ -73,19 +73,26 @@ class RepositorioDashboard:
         desde: datetime,
         hasta: datetime,
         responsable_id: uuid.UUID | None,
+        vendedor_id: uuid.UUID | None = None,
         visibilidad: Visibilidad,
     ) -> list[VentaDelPeriodo]:
-        """Los viajes no cancelados creados en `[desde, hasta)`."""
+        """Los viajes no cancelados creados en `[desde, hasta)`. `vendedor_id` deja los que
+        vendió esa persona o, si no tienen vendedor, los que lleva como responsable."""
         consulta = _de_viajes_vendidos(
             visibilidad.aplicar(select(Viaje), Viaje), desde, hasta, responsable_id
-        ).with_only_columns(
+        )
+        if vendedor_id is not None:
+            consulta = consulta.where(
+                func.coalesce(Viaje.vendedor_id, Viaje.responsable_id) == vendedor_id
+            )
+        columnas = consulta.with_only_columns(
             Viaje.moneda,
             Viaje.precio_venta,
             Viaje.precio_venta - Viaje.costo,
             Viaje.comision_tipo,
             Viaje.comision_vendedor,
         )
-        return [VentaDelPeriodo(*fila) for fila in await sesion.execute(consulta)]
+        return [VentaDelPeriodo(*fila) for fila in await sesion.execute(columnas)]
 
     async def cobrado(
         self,

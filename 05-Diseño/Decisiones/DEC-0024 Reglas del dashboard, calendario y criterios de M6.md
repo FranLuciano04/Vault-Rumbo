@@ -36,6 +36,7 @@ También quedaban dos preguntas de días anteriores. Las notas del momento está
 6. **Las comisiones se atribuyen al vendedor (`vendedor_id`), no al responsable.**
    - El filtro por persona y la vista propia de empleado y freelance cuentan la comisión de los viajes donde esa persona es la vendedora.
    - Si el viaje no tiene vendedor, la comisión se cuenta para el responsable.
+   - La vista propia sigue acotada por la visibilidad de la persona (punto 5). Si el freelance figura como vendedor de un viaje que no ve, porque es de un cliente ajeno y lo lleva otro, esa comisión no aparece en su dashboard. Así no se expone un monto derivado de la ganancia de un viaje que no puede ver (DEC-0008). Admin y dueño la ven al filtrar por esa persona.
 7. **Pasajeros por destino:** suma de `Oportunidad.pasajeros` de las ventas del período. Los viajes sin oportunidad de origen no suman pasajeros, pero sí cuentan como viaje.
 
 ### Calendario (CU-23)
