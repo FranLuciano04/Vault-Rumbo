@@ -3,7 +3,7 @@ id: T-121
 titulo: Calcular el embudo con los indicadores económicos
 modulo: M8 — Calendario, dashboard y reportes
 capa: backend
-estado: libre
+estado: tomado
 depende_de: [T-119, T-012, T-090]
 tamaño: M
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [CU-21, RF-123, RF-124, RF-127, RF-129, RF-130]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: FranLucianoo
+tomado_el: 30/10/26 15:43
+rama: feature/T-121-calcular-el-embudo-con-los-indicadores-e
 pr:
 ---
 # T-121 Calcular el embudo con los indicadores económicos
