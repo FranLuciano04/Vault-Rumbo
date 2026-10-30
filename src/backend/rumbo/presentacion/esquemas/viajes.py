@@ -33,10 +33,18 @@ class Viaje(Auditoria):
 
     id: uuid.UUID = Field(json_schema_extra=_SOLO_LECTURA)
     cliente_id: uuid.UUID = Field(json_schema_extra=_SOLO_LECTURA)
+    cliente_nombre: str = Field(
+        json_schema_extra=_SOLO_LECTURA,
+        description="Nombre del cliente, para mostrarlo sin otra consulta.",
+    )
     oportunidad_id: uuid.UUID | None = Field(
         json_schema_extra=_SOLO_LECTURA, description="Oportunidad de origen."
     )
     destino_id: uuid.UUID
+    destino_nombre: str = Field(
+        json_schema_extra=_SOLO_LECTURA,
+        description="Nombre del destino, para mostrarlo sin otra consulta.",
+    )
     operador_id: uuid.UUID | None
     responsable_id: uuid.UUID
     vendedor_id: uuid.UUID | None

@@ -2,17 +2,49 @@
 de su itinerario (CU-09)."""
 
 import uuid
+from datetime import date
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from rumbo.core.errores import NoEncontrado
-from rumbo.datos.modelos import Pago, Viaje, ViajeHotel
+from rumbo.datos.modelos import EstadoViaje, Pago, Viaje, ViajeHotel
 from rumbo.datos.repositorios.base import RepositorioBase, Visibilidad
 
 
 class RepositorioViajes(RepositorioBase[Viaje]):
     modelo = Viaje
+
+    async def paginar(
+        self,
+        sesion: AsyncSession,
+        *,
+        estado: EstadoViaje | None,
+        desde: date | None,
+        hasta: date | None,
+        cliente_id: uuid.UUID | None,
+        responsable_id: uuid.UUID | None,
+        desplazamiento: int,
+        limite: int,
+        visibilidad: Visibilidad,
+    ) -> tuple[list[Viaje], int]:
+        """Página ordenada por fecha de salida y el total que cumple los filtros; `desde` y
+        `hasta` acotan la fecha de salida, inclusive; `responsable_id` deja los de ese `Usuario`."""
+        consulta = visibilidad.aplicar(select(Viaje), Viaje)
+        if estado is not None:
+            consulta = consulta.where(Viaje.estado == estado)
+        if desde is not None:
+            consulta = consulta.where(Viaje.fecha_salida >= desde)
+        if hasta is not None:
+            consulta = consulta.where(Viaje.fecha_salida <= hasta)
+        if cliente_id is not None:
+            consulta = consulta.where(Viaje.cliente_id == cliente_id)
+        if responsable_id is not None:
+            consulta = consulta.where(Viaje.responsable_id == responsable_id)
+        total = await sesion.scalar(select(func.count()).select_from(consulta.subquery()))
+        pagina = consulta.order_by(Viaje.fecha_salida, Viaje.id)
+        filas = await sesion.scalars(pagina.offset(desplazamiento).limit(limite))
+        return list(filas), total or 0
 
     async def obtener_para_modificar(
         self, sesion: AsyncSession, id: uuid.UUID, *, visibilidad: Visibilidad
@@ -35,6 +67,13 @@ class RepositorioPagos(RepositorioBase[Pago]):
     ) -> list[Pago]:
         """Los pagos del viaje, anulados incluidos, por vencimiento."""
         consulta = visibilidad.aplicar(select(Pago).where(Pago.viaje_id == viaje_id), Pago)
+        return list(await sesion.scalars(consulta.order_by(Pago.vencimiento, Pago.id)))
+
+    async def listar_de_viajes(
+        self, sesion: AsyncSession, viaje_ids: list[uuid.UUID], *, visibilidad: Visibilidad
+    ) -> list[Pago]:
+        """Los pagos de varios viajes, anulados incluidos, por vencimiento."""
+        consulta = visibilidad.aplicar(select(Pago).where(Pago.viaje_id.in_(viaje_ids)), Pago)
         return list(await sesion.scalars(consulta.order_by(Pago.vencimiento, Pago.id)))
 
 

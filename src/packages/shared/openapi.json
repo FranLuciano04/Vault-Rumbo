@@ -9876,6 +9876,12 @@
                 "title": "Cliente Id",
                 "readOnly": true
               },
+              "cliente_nombre": {
+                "type": "string",
+                "title": "Cliente Nombre",
+                "description": "Nombre del cliente, para mostrarlo sin otra consulta.",
+                "readOnly": true
+              },
               "oportunidad_id": {
                 "anyOf": [
                   {
@@ -9894,6 +9900,12 @@
                 "type": "string",
                 "format": "uuid",
                 "title": "Destino Id"
+              },
+              "destino_nombre": {
+                "type": "string",
+                "title": "Destino Nombre",
+                "description": "Nombre del destino, para mostrarlo sin otra consulta.",
+                "readOnly": true
               },
               "operador_id": {
                 "anyOf": [
@@ -10090,8 +10102,10 @@
             "required": [
               "id",
               "cliente_id",
+              "cliente_nombre",
               "oportunidad_id",
               "destino_id",
+              "destino_nombre",
               "operador_id",
               "responsable_id",
               "vendedor_id",
@@ -12630,6 +12644,12 @@
                 "title": "Cliente Id",
                 "readOnly": true
               },
+              "cliente_nombre": {
+                "type": "string",
+                "title": "Cliente Nombre",
+                "description": "Nombre del cliente, para mostrarlo sin otra consulta.",
+                "readOnly": true
+              },
               "oportunidad_id": {
                 "anyOf": [
                   {
@@ -12648,6 +12668,12 @@
                 "type": "string",
                 "format": "uuid",
                 "title": "Destino Id"
+              },
+              "destino_nombre": {
+                "type": "string",
+                "title": "Destino Nombre",
+                "description": "Nombre del destino, para mostrarlo sin otra consulta.",
+                "readOnly": true
               },
               "operador_id": {
                 "anyOf": [
@@ -12830,8 +12856,10 @@
             "required": [
               "id",
               "cliente_id",
+              "cliente_nombre",
               "oportunidad_id",
               "destino_id",
+              "destino_nombre",
               "operador_id",
               "responsable_id",
               "vendedor_id",
