@@ -20,7 +20,7 @@ tags:: #tipo/referencia
 | M3 — Alertas | 14 | 14 | 0 | 0 | 0 | 0 | ✅ cerrado |
 | M4 — Oportunidades y cotizaciones | 16 | 16 | 0 | 0 | 0 | 0 | ✅ cerrado |
 | M5 — Hoteles y reseñas | 11 | 11 | 0 | 0 | 0 | 0 | ✅ cerrado |
-| M6 — Viajes y economía | 24 | 18 | 1 | 3 | 2 | 0 | 🛠️ en curso |
+| M6 — Viajes y economía | 24 | 18 | 2 | 2 | 2 | 0 | 🛠️ en curso |
 | M7 — Proceso diario y CRM proactivo | 9 | 0 | 0 | 3 | 6 | 0 | 🛠️ en curso |
 | M8 — Calendario, dashboard y reportes | 10 | 0 | 1 | 0 | 9 | 0 | 🛠️ en curso |
 | M9 — Redes e IA | 6 | 0 | 0 | 1 | 5 | 0 | 🛠️ en curso |
@@ -165,7 +165,7 @@ flowchart LR
     T090["T-090 · Registrar la economía del viaje con su comisión<br/><small>backend · ⚠️ riesgo alto</small>"]:::hecho
     T091["T-091 · Listar los viajes con su situación económica<br/><small>backend</small>"]:::hecho
     T092["T-092 · Definir el plan de pagos del viaje<br/><small>backend · ⚠️ riesgo alto</small>"]:::hecho
-    T093["T-093 · Ajustar los pagos de un plan ya definido<br/><small>backend · ⚠️ riesgo alto</small>"]:::disponible
+    T093["T-093 · Ajustar los pagos de un plan ya definido<br/><small>backend · ⚠️ riesgo alto</small><br/>👤 palomap2003"]:::tomado
     T094["T-094 · Registrar el cobro de un pago del viaje<br/><small>backend · ⚠️ riesgo alto</small>"]:::hecho
     T095["T-095 · Revertir un cobro registrado por error<br/><small>backend · ⚠️ riesgo alto</small>"]:::hecho
     T096["T-096 · Avanzar el estado del viaje a en curso o finalizado<br/><small>backend · ⚠️ riesgo alto</small>"]:::hecho

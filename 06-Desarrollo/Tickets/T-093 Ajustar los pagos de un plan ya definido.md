@@ -3,7 +3,7 @@ id: T-093
 titulo: Ajustar los pagos de un plan ya definido
 modulo: M6 — Viajes y economía
 capa: backend
-estado: libre
+estado: tomado
 depende_de: [T-092]
 tamaño: M
 riesgo: alto
@@ -12,9 +12,9 @@ modelo_impl: opus
 modelo_review: sonnet
 trazabilidad: [CU-11, RF-065, RF-066, RF-153]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: palomap2003
+tomado_el: 30/10/26 14:48
+rama: feature/T-093-ajustar-los-pagos-de-un-plan-ya-definido
 pr:
 ---
 # T-093 Ajustar los pagos de un plan ya definido
