@@ -33,6 +33,17 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
+## 30/10/26 — Nahuel (Claude Opus 5.5) — T-109: e2e de las excepciones del viaje (último ticket de M6)
+- **Hecho:** T-109 (PR [#169](https://github.com/FranLuciano04/Vault-Rumbo/pull/169), mergeado con el CI en verde). `e2e/viajes-excepciones.spec.ts` cubre:
+  - reprogramar, dividir y anular pagos con rebalanceo hasta cuadrar (CU-11);
+  - revertir cobros (CU-12);
+  - cancelar con cobros informados, revertir la cancelación y el 409 al cancelar un finalizado (CU-27).
+  - No destapó bugs del sistema. La review de Opus marcó 2 importantes y 2 menores del spec, todos arreglados.
+- **Commits:** bf55917, 7574250, e3ff02a.
+- **Pendiente:**
+  - Con T-109, M6 no tiene más tickets: queda `/cerrar-modulo` M6 (review de Codex).
+  - Texto engañoso: el aviso «El precio de venta cambió y los pagos ya no lo suman» (`PlanDePagos.tsx:17`, `SeccionEconomia.tsx:27`) aparece también al anular un pago sin cambio de precio. Se puede arreglar en el cierre del módulo.
+
 ## 30/10/26 — Nahuel (Claude Opus 5.5) — T-108: e2e del circuito completo de CU-01
 - **Hecho:** T-108 (PR [#166](https://github.com/FranLuciano04/Vault-Rumbo/pull/166), mergeado con el CI en verde, e2e incluido). Es la meta mínima del PC2.
   - `e2e/cu01.spec.ts`: del cliente al viaje `confirmado` (con A3 y A2), un `test.step` por RF, y el `freelance` que no ve el viaje ajeno (RF-151). No destapó bugs del sistema.
