@@ -33,7 +33,7 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
-## 30/10/26 — Francisco (Claude Opus 5.5) — T-091, T-104, T-105 y T-095 (M6)
+## 30/10/26 — Francisco (Claude Opus 5.5) — T-091, T-104, T-105, T-095 y T-107 (M6)
 - **Hecho:** T-091 (PR [#152](https://github.com/FranLuciano04/Vault-Rumbo/pull/152), mergeado con el CI en verde).
   - `GET /viajes` (filtros por estado, fechas, «lo mío» y `cliente_id`, con paginación y visibilidad) y `GET /viajes/{id}` con la economía, el saldo y el porcentaje pagado.
   - `Viaje` trae `cliente_nombre` y `destino_nombre`, y `TablaViajes` los usa. Así se cierra el hallazgo H-04 de M5.
@@ -54,6 +54,11 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
   - `POST /pagos/{id}/revertir-cobro`: el pago vuelve a `pendiente` o `vencido`, la alerta se reabre y el viaje retrocede (`confirmado` → `vendido`, o a `reservado` si no queda ningún cobro).
   - Review de seguridad (Sonnet): 0 bloqueantes y 2 menores, anotados en el ticket.
   - Commits: a23774d, 34bf481, 67ed070, 2e56bfd.
+- **Hecho (5):** T-107 (PR [#157](https://github.com/FranLuciano04/Vault-Rumbo/pull/157), mergeado con el CI en verde).
+  - «Cancelar viaje» en la ficha, con el bloque «Al cancelar» de la pantalla 19 y el aviso de cobros (A2); «Revertir cancelación» en un viaje cancelado.
+  - Review de Opus: 1 importante (faltaba el bloque «Al cancelar») y 3 menores, todos arreglados.
+  - Commits: 847b2f3, 4a3cc70, 367a593, d7a56df, 28fc5b4.
+  - El backend de cancelar es T-099 y sigue en 501.
 - **Pendiente:**
   - El e2e de la reseña con viaje (CU-17 A1) espera a T-089, porque hoy no hay forma de crear un viaje. Va en el e2e de CU-01 de M6.
   - Decidir con el equipo si «lo mío» del freelance en viajes significa «los que llevo» o «lo que veo». Hoy es `responsable_id`.

@@ -14,6 +14,8 @@ actualizado: 30/10/26
 >
 > 🏁 **29/10 — M5 Hoteles y reseñas cerrado.** Se arreglaron 5 de los 6 hallazgos de Codex (PR #140 a #143) y H-04 pasó a T-091 (`GET /viajes` con filtro por cliente). El equipo lo aprobó y se puso el tag `mod-5`. El backend ahora tiene logging configurado (`rumbo.core.logs`). El resumen está en [[Bitácora técnica]].
 >
+> 👉 **30/10 (Francisco):** **T-107** (cancelar un viaje y revertir la cancelación en la web) está hecho y mergeado (PR [#157](https://github.com/FranLuciano04/Vault-Rumbo/pull/157)). El backend de cancelar es T-099, todavía en 501.
+
 > 👉 **30/10 (Francisco):** **T-095** (revertir un cobro en el backend) está hecho y mergeado con la aprobación de Nahuel (PR [#155](https://github.com/FranLuciano04/Vault-Rumbo/pull/155)). El pago vuelve a pendiente o vencido, la alerta se reabre y el viaje retrocede según EST-Viaje.
 
 > 👉 **30/10 (Francisco):** **T-105** (cambiar el estado del viaje en la web) está hecho y mergeado (PR [#154](https://github.com/FranLuciano04/Vault-Rumbo/pull/154)).
