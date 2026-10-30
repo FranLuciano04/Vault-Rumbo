@@ -2254,6 +2254,11 @@ export interface components {
              */
             readonly cliente_id: string;
             /**
+             * Cliente Nombre
+             * @description Nombre del cliente, para mostrarlo sin otra consulta.
+             */
+            readonly cliente_nombre: string;
+            /**
              * Oportunidad Id
              * @description Oportunidad de origen.
              */
@@ -2263,6 +2268,11 @@ export interface components {
              * Format: uuid
              */
             destino_id: string;
+            /**
+             * Destino Nombre
+             * @description Nombre del destino, para mostrarlo sin otra consulta.
+             */
+            readonly destino_nombre: string;
             /** Operador Id */
             operador_id: string | null;
             /**
@@ -3430,6 +3440,11 @@ export interface components {
              */
             readonly cliente_id: string;
             /**
+             * Cliente Nombre
+             * @description Nombre del cliente, para mostrarlo sin otra consulta.
+             */
+            readonly cliente_nombre: string;
+            /**
              * Oportunidad Id
              * @description Oportunidad de origen.
              */
@@ -3439,6 +3454,11 @@ export interface components {
              * Format: uuid
              */
             destino_id: string;
+            /**
+             * Destino Nombre
+             * @description Nombre del destino, para mostrarlo sin otra consulta.
+             */
+            readonly destino_nombre: string;
             /** Operador Id */
             operador_id: string | null;
             /**

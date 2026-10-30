@@ -22,7 +22,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship, validates
 
 from rumbo.core.contacto import clave_contacto
 from rumbo.datos.modelos.base import AuditoriaMixin, Base, IdMixin
-from rumbo.datos.modelos.catalogos import Usuario
+from rumbo.datos.modelos.catalogos import Destino, Usuario
 from rumbo.datos.modelos.enums import (
     CanalOportunidad,
     CategoriaViaje,
@@ -158,6 +158,17 @@ class Viaje(IdMixin, AuditoriaMixin, Base):
     )  # fracción sobre la venta (0,25 = 25 %)
     comision_tipo: Mapped[TipoComision]  # cómo se lee comision_vendedor (DEC-0013)
     comision_vendedor: Mapped[Decimal]  # importe, o % sobre la ganancia (DEC-0007)
+    # Cargados con el viaje en la misma consulta (join): el listado muestra los nombres sin N+1.
+    cliente: Mapped[Cliente] = relationship(lazy="joined", innerjoin=True)
+    destino: Mapped[Destino] = relationship(lazy="joined", innerjoin=True)
+
+    @property
+    def cliente_nombre(self) -> str:
+        return self.cliente.nombre
+
+    @property
+    def destino_nombre(self) -> str:
+        return self.destino.nombre
 
 
 class Pago(IdMixin, AuditoriaMixin, Base):

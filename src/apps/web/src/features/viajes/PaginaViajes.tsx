@@ -4,7 +4,7 @@ import {
   type FiltrosViajes,
   type UsuarioActual,
 } from "@rumbo/shared";
-import { useClientes, useDestinos, useViajes } from "@rumbo/shared/hooks";
+import { useViajes } from "@rumbo/shared/hooks";
 import type { AxiosInstance } from "axios";
 import { Eye } from "lucide-react";
 import { useState } from "react";
@@ -42,8 +42,6 @@ export function PaginaViajes({
     ...filtros,
     ...(pestana === "mios" || esFreelance ? { mios: true } : {}),
   });
-  const { data: clientes } = useClientes(cliente, { por_pagina: 100 });
-  const { data: destinos } = useDestinos(cliente, { por_pagina: 100 });
 
   // Todo cambio de filtro vuelve a la primera página.
   const filtrar = (cambios: FiltrosViajes) => {
@@ -143,11 +141,7 @@ export function PaginaViajes({
             <p>No se encontraron viajes.</p>
           ) : (
             <div className="rounded-2xl border bg-card p-2">
-              <TablaViajes
-                viajes={data.items}
-                nombreDestino={(id) => destinos?.items.find((d) => d.id === id)?.nombre}
-                nombreCliente={(id) => clientes?.items.find((c) => c.id === id)?.nombre}
-              />
+              <TablaViajes viajes={data.items} />
               <div className="flex items-center justify-between px-3 py-4 text-sm text-muted-foreground">
                 <span>
                   Mostrando {data.items.length} de {data.total} viajes

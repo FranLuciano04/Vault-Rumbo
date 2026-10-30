@@ -60,6 +60,8 @@ async def confirmar_reserva(oportunidad_id: uuid.UUID, datos: ConfirmarReserva) 
 )
 async def listar_viajes(
     paginacion: PaginaDep,
+    actor: ActorDep,
+    sesion: SesionDep,
     mios: Annotated[bool, Query(description="Solo los viajes que tengo asignados.")] = False,
     desde: Annotated[
         date | None, Query(description="Fecha de salida desde esta fecha, inclusive.")
@@ -70,7 +72,23 @@ async def listar_viajes(
     estado: Annotated[EstadoViaje | None, Query()] = None,
     cliente_id: Annotated[uuid.UUID | None, Query()] = None,
 ) -> Pagina[Viaje]:
-    raise no_implementado()
+    fichas, total = await viajes.listar(
+        sesion,
+        actor,
+        estado=estado,
+        desde=desde,
+        hasta=hasta,
+        cliente_id=cliente_id,
+        mios=mios,
+        desplazamiento=paginacion.desplazamiento,
+        limite=paginacion.por_pagina,
+    )
+    return Pagina(
+        items=[Viaje.desde_ficha(f.viaje, f.saldo_pendiente, f.porcentaje_pagado) for f in fichas],
+        total=total,
+        pagina=paginacion.pagina,
+        por_pagina=paginacion.por_pagina,
+    )
 
 
 @router.get(
@@ -79,8 +97,9 @@ async def listar_viajes(
     summary="Ver la ficha del viaje, con economía y saldo",
     **operacion_de_registro(404, casos_de_uso="CU-08, CU-10, CU-12", escritura=False),
 )
-async def obtener_viaje(viaje_id: uuid.UUID) -> Viaje:
-    raise no_implementado()
+async def obtener_viaje(viaje_id: uuid.UUID, actor: ActorDep, sesion: SesionDep) -> Viaje:
+    ficha = await viajes.obtener(sesion, actor, viaje_id)
+    return Viaje.desde_ficha(ficha.viaje, ficha.saldo_pendiente, ficha.porcentaje_pagado)
 
 
 @router.post(
