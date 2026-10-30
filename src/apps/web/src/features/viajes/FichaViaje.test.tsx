@@ -506,3 +506,42 @@ describe("RF-037 vista del freelance (pantalla 43)", () => {
     expect(within(economia).queryByRole("button", { name: /guardar economía/i })).toBeNull();
   });
 });
+
+describe("RF-060 plan de pagos en la ficha (T-103)", () => {
+  const regionPlan = () => screen.findByRole("region", { name: /plan de pagos/i });
+
+  it("RF-060 la región «Plan de pagos» monta el plan con los pagos del viaje", async () => {
+    renderFicha("reservado");
+    const plan = await regionPlan();
+
+    expect(await within(plan).findByText(formatearFecha("2026-11-01"))).toBeInTheDocument();
+    expect(within(plan).getByText(formatearImporte("400000.00", "ARS"))).toBeInTheDocument();
+    expect(within(plan).queryByText(/se gestionan acá/i)).toBeNull();
+  });
+
+  it("RF-060 el empleado puede editar el plan de un viaje vendido", async () => {
+    renderFicha("vendido");
+    const plan = await regionPlan();
+
+    expect(await within(plan).findByRole("button", { name: /editar plan/i })).toBeInTheDocument();
+  });
+
+  it.each(["finalizado", "cancelado"] as const)(
+    "RF-060 en un viaje %s el plan no se edita",
+    async (estado) => {
+      renderFicha(estado);
+      const plan = await regionPlan();
+      await within(plan).findAllByRole("listitem");
+
+      expect(within(plan).queryByRole("button", { name: /editar plan/i })).toBeNull();
+    },
+  );
+
+  it("RF-060 el freelance ve el plan pero no lo edita", async () => {
+    renderFicha("vendido", "freelance");
+    const plan = await regionPlan();
+    await within(plan).findAllByRole("listitem");
+
+    expect(within(plan).queryByRole("button", { name: /editar plan/i })).toBeNull();
+  });
+});
