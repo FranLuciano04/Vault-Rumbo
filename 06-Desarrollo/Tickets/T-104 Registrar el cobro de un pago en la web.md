@@ -3,7 +3,7 @@ id: T-104
 titulo: Registrar el cobro de un pago en la web
 modulo: M6 — Viajes y economía
 capa: web
-estado: libre
+estado: tomado
 depende_de: [T-103]
 tamaño: S
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [CU-12, RF-067, RF-068, RF-070, RF-071]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: FranLucianoo
+tomado_el: 30/10/26 11:04
+rama: feature/T-104-registrar-el-cobro-de-un-pago-en-la-web
 pr:
 ---
 # T-104 Registrar el cobro de un pago en la web
