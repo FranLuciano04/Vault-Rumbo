@@ -411,3 +411,157 @@ async def test_rf127_el_periodo_se_corta_en_hora_de_argentina(
 
     assert septiembre.json()["ventas"] == []
     assert _montos(agosto.json()["ventas"]) == {"ARS": Decimal("1000000.00")}
+
+
+# --- DEC-0024 puntos 5 y 6: visibilidad del freelance y comisiones por vendedor ---
+
+
+async def _viaje_de_cliente(
+    sesion: AsyncSession,
+    cliente_id: uuid.UUID,
+    responsable_id: uuid.UUID,
+    precio: str,
+    costo: str = "0.00",
+    **campos: Any,
+) -> m.Viaje:
+    destino = await f.crear(sesion, f.DestinoFactory)
+    return await f.crear(
+        sesion,
+        f.ViajeFactory,
+        cliente_id=cliente_id,
+        destino_id=destino.id,
+        responsable_id=responsable_id,
+        precio_venta=Decimal(precio),
+        costo=Decimal(costo),
+        moneda=m.Moneda.ARS,
+        estado=m.EstadoViaje.vendido,
+        created_at=EN_PERIODO,
+        **campos,
+    )
+
+
+async def test_rf129_freelance_ve_viajes_de_sus_clientes_y_los_que_lleva(
+    cliente_como: Fabrica, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("freelance")
+    otro = await f.crear(sesion, f.UsuarioFactory, rol=m.RolUsuario("empleado"))
+    mio = await f.crear(sesion, f.ClienteFactory, asesor_asignado_id=_yo(c))
+    ajeno = await f.crear(sesion, f.ClienteFactory)
+    await _viaje_de_cliente(sesion, mio.id, otro.id, "100000.00")  # cliente suyo, lo lleva otro
+    await _viaje_de_cliente(sesion, ajeno.id, _yo(c), "20000.00")  # cliente ajeno, lo lleva él
+    await _viaje_de_cliente(sesion, ajeno.id, otro.id, "9000000.00")  # no es suyo en nada
+
+    r = await c.get(URL, params=PERIODO)
+
+    assert r.status_code == 200
+    assert _montos(r.json()["ventas"]) == {"ARS": Decimal("120000.00")}
+
+
+async def test_rf129_freelance_ve_oportunidades_de_sus_clientes_y_las_que_lleva(
+    cliente_como: Fabrica, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("freelance")
+    otro = await f.crear(sesion, f.UsuarioFactory, rol=m.RolUsuario("empleado"))
+    mio = await f.crear(sesion, f.ClienteFactory, asesor_asignado_id=_yo(c))
+    ajeno = await f.crear(sesion, f.ClienteFactory)
+    for cliente_id, responsable_id in [(mio.id, otro.id), (ajeno.id, _yo(c)), (ajeno.id, otro.id)]:
+        await f.crear(
+            sesion,
+            f.OportunidadFactory,
+            cliente_id=cliente_id,
+            responsable_id=responsable_id,
+            estado=m.EstadoOportunidad.nueva,
+            created_at=EN_PERIODO,
+        )
+
+    r = await c.get(URL, params=PERIODO)
+
+    assert r.status_code == 200
+    assert _etapas(r.json())["nueva"] == 2
+
+
+async def test_rf129_freelance_ignora_el_filtro_por_responsable_y_ve_su_visibilidad(
+    cliente_como: Fabrica, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("freelance")
+    otro = await f.crear(sesion, f.UsuarioFactory, rol=m.RolUsuario("empleado"))
+    mio = await f.crear(sesion, f.ClienteFactory, asesor_asignado_id=_yo(c))
+    await _viaje_de_cliente(sesion, mio.id, otro.id, "100000.00")
+
+    r = await c.get(URL, params={**PERIODO, "responsable_id": str(otro.id)})
+
+    assert r.status_code == 200
+    assert _montos(r.json()["ventas"]) == {"ARS": Decimal("100000.00")}
+
+
+async def test_rf129_empleado_sigue_acotado_a_los_viajes_donde_es_responsable(
+    cliente_como: Fabrica, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("empleado")
+    otro = await f.crear(sesion, f.UsuarioFactory, rol=m.RolUsuario("empleado"))
+    mio = await f.crear(sesion, f.ClienteFactory, asesor_asignado_id=_yo(c))
+    await _viaje_de_cliente(sesion, mio.id, otro.id, "100000.00")  # cliente suyo, responsable otro
+    await _viaje_de_cliente(sesion, mio.id, _yo(c), "20000.00")
+
+    r = await c.get(URL, params=PERIODO)
+
+    assert r.status_code == 200
+    assert _montos(r.json()["ventas"]) == {"ARS": Decimal("20000.00")}
+
+
+def _con_comision(importe: str) -> dict[str, Any]:
+    return {"comision_tipo": m.TipoComision.importe, "comision_vendedor": Decimal(importe)}
+
+
+@pytest.mark.parametrize("rol", ["admin", "dueno"])
+async def test_rf124_comision_se_atribuye_al_vendedor_y_no_al_responsable(
+    cliente_como: Fabrica, sesion: AsyncSession, rol: str
+) -> None:
+    c = await cliente_como(rol)
+    resp = await f.crear(sesion, f.UsuarioFactory, rol=m.RolUsuario("empleado"))
+    vend = await f.crear(sesion, f.UsuarioFactory, rol=m.RolUsuario("empleado"))
+    await _viaje(sesion, resp.id, vendedor_id=vend.id, **_con_comision("4000.00"))
+    await _viaje(sesion, resp.id, **_con_comision("1000.00"))  # sin vendedor: va al responsable
+
+    del_vendedor = await c.get(URL, params={**PERIODO, "responsable_id": str(vend.id)})
+    del_responsable = await c.get(URL, params={**PERIODO, "responsable_id": str(resp.id)})
+    todo = await c.get(URL, params=PERIODO)
+
+    assert _montos(del_vendedor.json()["comisiones"]) == {"ARS": Decimal("4000.00")}
+    assert _montos(del_responsable.json()["comisiones"]) == {"ARS": Decimal("1000.00")}
+    assert _montos(todo.json()["comisiones"]) == {"ARS": Decimal("5000.00")}
+
+
+async def test_rf124_empleado_suma_comision_de_los_viajes_donde_es_vendedor(
+    cliente_como: Fabrica, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("empleado")
+    otro = await f.crear(sesion, f.UsuarioFactory, rol=m.RolUsuario("empleado"))
+    await _viaje(sesion, _yo(c), vendedor_id=otro.id, **_con_comision("7000.00"))  # vende otro
+    await _viaje(sesion, _yo(c), vendedor_id=_yo(c), **_con_comision("3000.00"))
+    await _viaje(sesion, _yo(c), **_con_comision("500.00"))  # sin vendedor: responsable
+
+    r = await c.get(URL, params=PERIODO)
+
+    assert r.status_code == 200
+    assert _montos(r.json()["comisiones"]) == {"ARS": Decimal("3500.00")}
+
+
+async def test_rf124_freelance_suma_comision_de_los_viajes_donde_es_vendedor(
+    cliente_como: Fabrica, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("freelance")
+    otro = await f.crear(sesion, f.UsuarioFactory, rol=m.RolUsuario("empleado"))
+    mio = await f.crear(sesion, f.ClienteFactory, asesor_asignado_id=_yo(c))
+    await _viaje_de_cliente(sesion, mio.id, otro.id, "100000.00", **_con_comision("100.00"))
+    await _viaje_de_cliente(
+        sesion, mio.id, otro.id, "100000.00", vendedor_id=_yo(c), **_con_comision("2500.00")
+    )
+    await _viaje_de_cliente(
+        sesion, mio.id, _yo(c), "100000.00", vendedor_id=otro.id, **_con_comision("9000.00")
+    )
+
+    r = await c.get(URL, params=PERIODO)
+
+    assert r.status_code == 200
+    assert _montos(r.json()["comisiones"]) == {"ARS": Decimal("2500.00")}
