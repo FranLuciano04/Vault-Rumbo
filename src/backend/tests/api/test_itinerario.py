@@ -607,3 +607,255 @@ async def test_check_out_fuera_del_viaje_marca_check_out(
 
     assert r.status_code == 422
     assert r.json()["errores"][0]["campo"] == "check_out"
+
+
+# --- T-098: pago al proveedor de cada tramo (RF-045, RF-047, CU-09 A3 y A4, DEC-0013) ---
+
+
+async def test_rf045_alerta_de_proveedor(cliente_como: Fabrica, sesion: AsyncSession) -> None:
+    """La alerta nace atada al tramo, tipo `pago`, en la agenda del responsable del viaje."""
+    c = await cliente_como("dueno")
+    responsable = await f.crear(sesion, f.UsuarioFactory, rol=m.RolUsuario("empleado"))
+    responsable_id = responsable.id
+    viaje = await _viaje(sesion, responsable_id)
+    hotel = await _hotel(sesion)
+
+    r = await c.post(
+        _url(viaje.id), json=_cuerpo(hotel.id, vencimiento_pago_proveedor="2027-01-05")
+    )
+
+    assert r.status_code == 201
+    alertas = await _alertas_de_tramo(sesion, uuid.UUID(r.json()["id"]))
+    assert len(alertas) == 1
+    assert alertas[0].tipo == m.TipoAlerta.pago
+    assert alertas[0].propietario_id == responsable_id  # no el dueño que armó el itinerario
+    assert alertas[0].fecha == date(2026, 12, 5)
+    assert "05/01/27" in alertas[0].descripcion
+
+
+async def test_rf045_cada_tramo_tiene_su_propia_alerta(
+    cliente_como: Fabrica, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("empleado")
+    viaje = await _viaje(sesion, _yo(c))
+    h1, h2 = await _hotel(sesion), await _hotel(sesion)
+    h1_id, h2_id, viaje_id = h1.id, h2.id, viaje.id
+    r1 = await c.post(_url(viaje_id), json=_cuerpo(h1_id, vencimiento_pago_proveedor="2027-01-05"))
+    r2 = await c.post(
+        _url(viaje_id),
+        json=_cuerpo(
+            h2_id,
+            check_in="2027-01-15",
+            check_out="2027-01-18",
+            orden=2,
+            vencimiento_pago_proveedor="2027-01-08",
+        ),
+    )
+
+    fechas1 = [a.fecha for a in await _alertas_de_tramo(sesion, uuid.UUID(r1.json()["id"]))]
+    fechas2 = [a.fecha for a in await _alertas_de_tramo(sesion, uuid.UUID(r2.json()["id"]))]
+
+    assert fechas1 == [date(2026, 12, 5)]
+    assert fechas2 == [date(2026, 12, 8)]
+
+
+async def test_rf045_cargar_vencimiento_a_un_tramo_sin_el_crea_la_alerta(
+    cliente_como: Fabrica, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("empleado")
+    viaje = await _viaje(sesion, _yo(c))
+    hotel = await _hotel(sesion)
+    tramo = await _tramo(sesion, viaje.id, hotel.id)
+    tramo_id = tramo.id
+
+    r = await c.patch(_url_tramo(tramo_id), json={"vencimiento_pago_proveedor": "2027-01-05"})
+
+    assert r.status_code == 200
+    alertas = await _alertas_de_tramo(sesion, tramo_id)
+    assert [(a.tipo, a.fecha, a.estado) for a in alertas] == [
+        (m.TipoAlerta.pago, date(2026, 12, 5), m.EstadoAlerta.pendiente)
+    ]
+
+
+async def test_rf045_mover_el_vencimiento_mueve_la_alerta_vista(
+    cliente_como: Fabrica, sesion: AsyncSession
+) -> None:
+    """Una alerta ya vista sigue abierta: se mueve, no se deja una segunda."""
+    c = await cliente_como("empleado")
+    viaje = await _viaje(sesion, _yo(c))
+    hotel = await _hotel(sesion)
+    creado = await c.post(
+        _url(viaje.id), json=_cuerpo(hotel.id, vencimiento_pago_proveedor="2027-01-05")
+    )
+    tramo_id = uuid.UUID(creado.json()["id"])
+    alerta = (await _alertas_de_tramo(sesion, tramo_id))[0]
+    alerta.estado = m.EstadoAlerta.vista
+    await sesion.commit()
+
+    r = await c.patch(_url_tramo(tramo_id), json={"vencimiento_pago_proveedor": "2027-01-09"})
+
+    assert r.status_code == 200
+    alertas = await _alertas_de_tramo(sesion, tramo_id)
+    assert len(alertas) == 1
+    assert alertas[0].fecha == date(2026, 12, 9)
+
+
+async def test_rf045_quitar_el_vencimiento_cierra_la_alerta(
+    cliente_como: Fabrica, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("empleado")
+    viaje = await _viaje(sesion, _yo(c))
+    hotel = await _hotel(sesion)
+    creado = await c.post(
+        _url(viaje.id), json=_cuerpo(hotel.id, vencimiento_pago_proveedor="2027-01-05")
+    )
+    tramo_id = uuid.UUID(creado.json()["id"])
+
+    r = await c.patch(_url_tramo(tramo_id), json={"vencimiento_pago_proveedor": None})
+
+    assert r.status_code == 200
+    assert r.json()["vencimiento_pago_proveedor"] is None
+    alertas = await _alertas_de_tramo(sesion, tramo_id)
+    assert [a.estado for a in alertas] == [m.EstadoAlerta.resuelta]
+
+
+async def test_rf047_pagado_resuelve_alerta(cliente_como: Fabrica, sesion: AsyncSession) -> None:
+    """A4: la alerta queda resuelta, con su fecha de resolución, y no vuelve a la agenda."""
+    c = await cliente_como("empleado")
+    viaje = await _viaje(sesion, _yo(c))
+    hotel = await _hotel(sesion)
+    creado = await c.post(
+        _url(viaje.id), json=_cuerpo(hotel.id, vencimiento_pago_proveedor="2027-01-05")
+    )
+    tramo_id = uuid.UUID(creado.json()["id"])
+
+    r = await c.patch(_url_tramo(tramo_id), json={"pago_proveedor_realizado": True})
+
+    assert r.status_code == 200
+    alertas = await _alertas_de_tramo(sesion, tramo_id)
+    assert len(alertas) == 1
+    assert alertas[0].estado == m.EstadoAlerta.resuelta
+    assert alertas[0].resuelta_en is not None
+    assert alertas[0].cerrada_por_cancelacion is False
+
+
+async def test_rf047_pagado_resuelve_tambien_la_alerta_vista(
+    cliente_como: Fabrica, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("empleado")
+    viaje = await _viaje(sesion, _yo(c))
+    hotel = await _hotel(sesion)
+    creado = await c.post(
+        _url(viaje.id), json=_cuerpo(hotel.id, vencimiento_pago_proveedor="2027-01-05")
+    )
+    tramo_id = uuid.UUID(creado.json()["id"])
+    alerta = (await _alertas_de_tramo(sesion, tramo_id))[0]
+    alerta.estado = m.EstadoAlerta.vista
+    await sesion.commit()
+
+    await c.patch(_url_tramo(tramo_id), json={"pago_proveedor_realizado": True})
+
+    assert [a.estado for a in await _alertas_de_tramo(sesion, tramo_id)] == [
+        m.EstadoAlerta.resuelta
+    ]
+
+
+async def test_rf047_pagado_y_cambiar_vencimiento_no_reabre_la_alerta(
+    cliente_como: Fabrica, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("empleado")
+    viaje = await _viaje(sesion, _yo(c))
+    hotel = await _hotel(sesion)
+    creado = await c.post(
+        _url(viaje.id), json=_cuerpo(hotel.id, vencimiento_pago_proveedor="2027-01-05")
+    )
+    tramo_id = uuid.UUID(creado.json()["id"])
+    await c.patch(_url_tramo(tramo_id), json={"pago_proveedor_realizado": True})
+
+    r = await c.patch(_url_tramo(tramo_id), json={"vencimiento_pago_proveedor": "2027-01-09"})
+
+    assert r.status_code == 200
+    assert [a.estado for a in await _alertas_de_tramo(sesion, tramo_id)] == [
+        m.EstadoAlerta.resuelta
+    ]
+
+
+async def test_rf047_crear_tramo_ya_pagado_no_genera_alerta(
+    cliente_como: Fabrica, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("empleado")
+    viaje = await _viaje(sesion, _yo(c))
+    hotel = await _hotel(sesion)
+
+    r = await c.post(
+        _url(viaje.id),
+        json=_cuerpo(
+            hotel.id, vencimiento_pago_proveedor="2027-01-05", pago_proveedor_realizado=True
+        ),
+    )
+
+    assert r.status_code == 201
+    assert await _alertas_de_tramo(sesion, uuid.UUID(r.json()["id"])) == []
+
+
+async def test_quitar_tramo_cierra_alerta(cliente_como: Fabrica, sesion: AsyncSession) -> None:
+    """Con el tramo creado por la API: la alerta queda resuelta, no borrada ni abierta."""
+    c = await cliente_como("empleado")
+    viaje = await _viaje(sesion, _yo(c))
+    hotel = await _hotel(sesion)
+    creado = await c.post(
+        _url(viaje.id), json=_cuerpo(hotel.id, vencimiento_pago_proveedor="2027-01-05")
+    )
+    tramo_id = uuid.UUID(creado.json()["id"])
+    alerta_id = (await _alertas_de_tramo(sesion, tramo_id))[0].id
+
+    r = await c.delete(_url_tramo(tramo_id))
+
+    assert r.status_code == 204
+    sesion.expire_all()
+    alerta = await sesion.get(m.Alerta, alerta_id)
+    assert alerta is not None
+    assert alerta.estado == m.EstadoAlerta.resuelta
+    assert alerta.viaje_hotel_id is None  # FK SET NULL: ya no apunta al tramo borrado
+
+
+async def test_quitar_tramo_no_toca_la_alerta_de_otro_tramo(
+    cliente_como: Fabrica, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("empleado")
+    viaje = await _viaje(sesion, _yo(c))
+    h1, h2 = await _hotel(sesion), await _hotel(sesion)
+    h1_id, h2_id, viaje_id = h1.id, h2.id, viaje.id
+    r1 = await c.post(_url(viaje_id), json=_cuerpo(h1_id, vencimiento_pago_proveedor="2027-01-05"))
+    r2 = await c.post(
+        _url(viaje_id),
+        json=_cuerpo(
+            h2_id,
+            check_in="2027-01-15",
+            check_out="2027-01-18",
+            orden=2,
+            vencimiento_pago_proveedor="2027-01-08",
+        ),
+    )
+    otro_id = uuid.UUID(r2.json()["id"])
+
+    await c.delete(_url_tramo(uuid.UUID(r1.json()["id"])))
+
+    assert [a.estado for a in await _alertas_de_tramo(sesion, otro_id)] == [
+        m.EstadoAlerta.pendiente
+    ]
+
+
+async def test_quitar_tramo_sin_alerta_ni_vencimiento_204(
+    cliente_como: Fabrica, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("empleado")
+    viaje = await _viaje(sesion, _yo(c))
+    hotel = await _hotel(sesion)
+    tramo = await _tramo(sesion, viaje.id, hotel.id)
+    tramo_id, viaje_id = tramo.id, viaje.id
+
+    r = await c.delete(_url_tramo(tramo_id))
+
+    assert r.status_code == 204
+    assert await _tramos_de(sesion, viaje_id) == []
