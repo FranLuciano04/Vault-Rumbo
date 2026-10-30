@@ -33,6 +33,17 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
+## 29/10/26 — Nahuel (Claude Opus 5.5) — T-097: itinerario de hoteles del viaje
+- **Hecho:** T-097 (PR [#148](https://github.com/FranLuciano04/Vault-Rumbo/pull/148), mergeado con el CI en verde).
+  - `GET/POST /viajes/{id}/itinerario` y `PATCH/DELETE /tramos/{id}`, con fechas dentro del viaje y sin solaparse, hotel repetido en tramos no consecutivos y alerta de pago al proveedor un mes antes.
+  - La review de Opus marcó 5 importantes y 3 menores. Se arreglaron los importantes y uno de los menores. Entre los arreglos, el hotel inexistente o cerrado ahora da 422 sobre `hotel_id`, y los hooks y mocks de `shared` usan `TramoCrear`/`TramoEditar`.
+  - Se corrigieron tests con autorización (`--tocar-tests`). Los detalles están en el ticket.
+- **Commits:** 8476059, cfaa9d5, f00ccf0, 8f5ede5.
+- **Pendiente (decidir con el equipo):**
+  - Los cambios del itinerario no tocan `updated_by` del viaje (auditoría).
+  - Se aceptan tramos de 0 noches.
+  - El objetivo del ticket nombraba «operador, costo», que no están en CU-09 ni en DEC-0003.
+
 ## 29/10/26 — Nahuel (Claude Opus 5.5) — cierre de M5: review de Codex, arreglos y tag `mod-5`
 - **Hecho:**
   - `/cerrar-modulo M5`: pedido de review (5fe3ca4) y triage de los 6 hallazgos de Codex, todos confirmados (0cea1ff, 1c9695f, 01db374).
