@@ -33,7 +33,7 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
-## 30/10/26 — Francisco (Claude Opus 5.5) — T-091, T-104, T-105, T-095 y T-107 (M6) y T-119 y T-121 (M8)
+## 30/10/26 — Francisco (Claude Opus 5.5) — T-091, T-104, T-105, T-095 y T-107 (M6) y T-119, T-121 y T-126 (M8)
 - **Hecho:** T-091 (PR [#152](https://github.com/FranLuciano04/Vault-Rumbo/pull/152), mergeado con el CI en verde).
   - `GET /viajes` (filtros por estado, fechas, «lo mío» y `cliente_id`, con paginación y visibilidad) y `GET /viajes/{id}` con la economía, el saldo y el porcentaje pagado.
   - `Viaje` trae `cliente_nombre` y `destino_nombre`, y `TablaViajes` los usa. Así se cierra el hallazgo H-04 de M5.
@@ -71,6 +71,10 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
   - El freelance ve su visibilidad de DEC-0008 y las comisiones se atribuyen al vendedor.
   - Review de Opus sin bloqueantes. Se aclaró en DEC-0024 que la comisión de un viaje fuera de la visibilidad del freelance no aparece en su vista propia.
 - **Hecho (9):** contrato de PC1 alineado con DEC-0024 punto 11: `responsable_id` en `/dashboard` y `tipo = alerta` en `/calendario`. `05-Diseño/API/openapi.json` está regenerado.
+- **Hecho (10):** T-126, dashboard en la web (PR [#165](https://github.com/FranLuciano04/Vault-Rumbo/pull/165), mergeado con el CI en verde).
+  - Embudo, ventas por mes, tarjetas por rol (pantallas 28, 46 y 47) y filtros de período y de empleado.
+  - Review de Opus: 4 importantes y 6 menores, todos arreglados.
+  - «Tus viajes activos» queda como «Viajes próximos» hasta que T-122 sume el contador.
 - **Decisiones:** el equipo aprobó las 15 recomendaciones en [[DEC-0024 Reglas del dashboard, calendario y criterios de M6|DEC-0024]]. Cierran los pendientes de T-091, T-095, T-119 y T-121, y la reseña post-viaje de T-096.
 - **Pendiente:**
   - El e2e de la reseña con viaje (CU-17 A1) va en T-108.
