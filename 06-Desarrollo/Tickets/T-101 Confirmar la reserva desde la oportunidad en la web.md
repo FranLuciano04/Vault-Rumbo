@@ -3,7 +3,7 @@ id: T-101
 titulo: Confirmar la reserva desde la oportunidad en la web
 modulo: M6 — Viajes y economía
 capa: web
-estado: libre
+estado: tomado
 depende_de: [T-086, T-071]
 tamaño: S
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [CU-07, RF-032, RF-033, RF-036]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: Nahuel Viniegra
+tomado_el: 30/10/26 13:30
+rama: feature/T-101-confirmar-la-reserva-desde-la-oportunida
 pr:
 ---
 # T-101 Confirmar la reserva desde la oportunidad en la web
