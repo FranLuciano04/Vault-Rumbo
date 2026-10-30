@@ -3,7 +3,7 @@ id: T-108
 titulo: Probar de punta a punta el circuito de CU-01
 modulo: M6 — Viajes y economía
 capa: e2e
-estado: libre
+estado: tomado
 depende_de: [T-089, T-090, T-094, T-091, T-096, T-097, T-101, T-104, T-106, T-105, T-074, T-085]
 tamaño: M
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [CU-01, RF-001, RF-010, RF-021, RF-032, RF-034, RF-035, RF-054, RF-060, RF-067, RF-101]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: Nahuel Viniegra
+tomado_el: 30/10/26 16:46
+rama: feature/T-108-probar-de-punta-a-punta-el-circuito-de-c
 pr:
 ---
 # T-108 Probar de punta a punta el circuito de CU-01
