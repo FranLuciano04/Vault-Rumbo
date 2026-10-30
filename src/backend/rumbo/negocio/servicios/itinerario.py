@@ -9,7 +9,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from rumbo.core.fechas import sumar_meses
 from rumbo.datos.modelos import (
-    EstadoAlerta,
     EstadoHotel,
     EstadoViaje,
     TipoAlerta,
@@ -17,12 +16,10 @@ from rumbo.datos.modelos import (
     Viaje,
     ViajeHotel,
 )
-from rumbo.datos.repositorios.alertas import RepositorioAlertas
 from rumbo.datos.repositorios.hoteles import RepositorioHoteles
 from rumbo.datos.repositorios.seguridad import RepositorioUsuarios
 from rumbo.datos.repositorios.viajes import RepositorioTramos, RepositorioViajes
 from rumbo.negocio.errores import Conflicto, DatosInvalidos, NoEncontrado
-from rumbo.negocio.estados import alerta as estado_alerta
 from rumbo.negocio.politicas import exigir_escritura, visibilidad
 from rumbo.negocio.servicios import alertas
 
@@ -30,7 +27,6 @@ _viajes = RepositorioViajes()
 _tramos = RepositorioTramos()
 _hoteles = RepositorioHoteles()
 _usuarios = RepositorioUsuarios()
-_alertas = RepositorioAlertas()
 
 
 async def listar_itinerario(
@@ -48,8 +44,8 @@ async def agregar_tramo(
 ) -> ViajeHotel:
     """Agrega un hotel del catálogo al itinerario (CU-09, RF-043); el mismo hotel puede repetirse
     en otro tramo (A5, RF-044). Con vencimiento del pago al proveedor, deja una alerta `pago` en
-    la agenda del responsable un mes antes. Un hotel fuera del catálogo es `NoEncontrado` (A2).
-    Escribe el responsable, admin o dueño (DEC-0005)."""
+    la agenda del responsable un mes antes, salvo que el tramo nazca ya pagado (RF-047). Un hotel
+    fuera del catálogo es `NoEncontrado` (A2). Escribe el responsable, admin o dueño (DEC-0005)."""
     vista = visibilidad(actor)
     viaje = await _viajes.obtener_para_modificar(sesion, viaje_id, visibilidad=vista)
     exigir_escritura(actor, viaje)
@@ -62,7 +58,7 @@ async def agregar_tramo(
     sesion.add(tramo)
     await sesion.flush()
     await sesion.refresh(tramo)  # trae `pago_proveedor_realizado`, que pone la base
-    if tramo.vencimiento_pago_proveedor is not None:
+    if tramo.vencimiento_pago_proveedor is not None and not tramo.pago_proveedor_realizado:
         await _agendar_pago_al_proveedor(
             sesion, actor, viaje, tramo, tramo.vencimiento_pago_proveedor
         )
@@ -153,17 +149,12 @@ def _exigir_tramo_valido(
 async def _agendar_pago_al_proveedor(
     sesion: AsyncSession, actor: Usuario, viaje: Viaje, tramo: ViajeHotel, vencimiento: date
 ) -> None:
-    """Deja una sola alerta `pago` abierta, un mes antes del vencimiento: reagenda la que hay o
-    crea la primera (CU-09 pasos 5 y A3)."""
+    """Deja una sola alerta `pago` abierta, un mes antes del vencimiento: reagenda la que hay,
+    pendiente o vista, o crea la primera (CU-09 pasos 5 y A3, RF-045)."""
     fecha = sumar_meses(vencimiento, -1)
-    abiertas = await _alertas.listar_de_origen(
-        sesion, tramo, (EstadoAlerta.pendiente,), (TipoAlerta.pago,)
-    )
-    if abiertas:
-        estado_alerta.editar(
-            abiertas[0], {"fecha": fecha, "descripcion": _descripcion(vencimiento)}
-        )
-        await sesion.flush()
+    if await alertas.reagendar_de_origen(
+        sesion, tramo, (TipoAlerta.pago,), fecha, _descripcion(vencimiento)
+    ):
         return
     responsable = (
         actor

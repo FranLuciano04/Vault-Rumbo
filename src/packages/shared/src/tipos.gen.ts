@@ -3595,6 +3595,12 @@ export interface components {
              * @description Si se envía, avisa un mes antes con una alerta `pago`.
              */
             vencimiento_pago_proveedor?: string | null;
+            /**
+             * Pago Proveedor Realizado
+             * @description Si el tramo nace pagado al proveedor, no deja alerta.
+             * @default false
+             */
+            pago_proveedor_realizado: boolean;
         };
         /** TramoEditar */
         TramoEditar: {
