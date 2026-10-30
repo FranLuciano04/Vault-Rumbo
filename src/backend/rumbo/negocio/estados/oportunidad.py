@@ -60,3 +60,17 @@ def ganar(oportunidad: Oportunidad) -> None:
     """T4: cierra una abierta como ganada, con o sin cotización formal (RF-016, CU-05 A4)."""
     _exigir(oportunidad, *_ABIERTAS, accion="ganar")
     oportunidad.estado = EstadoOportunidad.ganada
+
+
+def confirmar_reserva(oportunidad: Oportunidad, *, con_cotizacion_aceptada: bool) -> None:
+    """T4 al confirmar la reserva (CU-07 paso 3): una `cotizada` con su cotización aceptada pasa a
+    `ganada`; una ya `ganada` por venta directa queda igual (A1). Cualquier otra no admite la
+    reserva: `TransicionInvalida`."""
+    if oportunidad.estado is EstadoOportunidad.ganada:
+        return
+    if oportunidad.estado is not EstadoOportunidad.cotizada or not con_cotizacion_aceptada:
+        raise TransicionInvalida(
+            "Para confirmar la reserva, la oportunidad tiene que estar cotizada con una "
+            f"cotización aceptada, o ganada por venta directa; está {oportunidad.estado.value}."
+        )
+    ganar(oportunidad)

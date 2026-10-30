@@ -4,7 +4,7 @@ de su itinerario (CU-09)."""
 import uuid
 from datetime import date
 
-from sqlalchemy import func, select
+from sqlalchemy import exists, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from rumbo.core.errores import NoEncontrado
@@ -57,6 +57,14 @@ class RepositorioViajes(RepositorioBase[Viaje]):
         if viaje is None:
             raise NoEncontrado(f"Viaje {id} no encontrado")
         return viaje
+
+    async def existe_de_oportunidad(self, sesion: AsyncSession, oportunidad_id: uuid.UUID) -> bool:
+        """Si la `Oportunidad` ya derivó en un viaje (a lo sumo uno, por la unicidad de
+        `oportunidad_id`). Sin filtro de visibilidad: no expone la fila, y el viaje puede quedar
+        fuera de la vista de quien ve la oportunidad (un freelance que no es su responsable)."""
+        return bool(
+            await sesion.scalar(select(exists().where(Viaje.oportunidad_id == oportunidad_id)))
+        )
 
 
 class RepositorioPagos(RepositorioBase[Pago]):

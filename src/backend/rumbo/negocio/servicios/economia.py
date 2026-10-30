@@ -78,6 +78,26 @@ async def registrar_economia(
     exigir_escritura(actor, viaje)
     if viaje.estado in _CERRADOS:
         raise Conflicto(f"No se edita la economía de un viaje {viaje.estado.value}.")
+    await aplicar_economia(sesion, actor, viaje, datos)
+    await sesion.flush()
+    await sesion.refresh(viaje)  # ganancia y margen son columnas generadas
+
+    pagos = await _pagos.listar_de_viaje(sesion, viaje.id, visibilidad=visibilidad(actor))
+    return ResultadoEconomia(
+        viaje=viaje,
+        saldo_pendiente=calculos.saldo_pendiente(pagos),
+        porcentaje_pagado=calculos.porcentaje_pagado(viaje.precio_venta, pagos),
+        advertencias=_advertencias(viaje, pagos),
+    )
+
+
+async def aplicar_economia(
+    sesion: AsyncSession, actor: Usuario, viaje: Viaje, datos: dict[str, Any]
+) -> None:
+    """Valida y asigna al viaje precio de venta, costo, operador, vendedor y comisión, sin
+    guardar: lo comparten `registrar_economia` y la confirmación de la reserva (CU-07, CU-10).
+    El operador tiene que estar activo; sin comisión enviada, toma la del vendedor (RN-01); sin
+    vendedor, la comisión es cero (A2)."""
     operador_id = datos.get("operador_id")
     if operador_id is not None and operador_id != viaje.operador_id:
         await _exigir_operador(sesion, actor, operador_id)
@@ -95,16 +115,6 @@ async def registrar_economia(
     )
     viaje.comision_tipo, viaje.comision_vendedor = _comision(
         vendedor, tipo, valor, viaje.comision_tipo
-    )
-    await sesion.flush()
-    await sesion.refresh(viaje)  # ganancia y margen son columnas generadas
-
-    pagos = await _pagos.listar_de_viaje(sesion, viaje.id, visibilidad=visibilidad(actor))
-    return ResultadoEconomia(
-        viaje=viaje,
-        saldo_pendiente=calculos.saldo_pendiente(pagos),
-        porcentaje_pagado=calculos.porcentaje_pagado(viaje.precio_venta, pagos),
-        advertencias=_advertencias(viaje, pagos),
     )
 
 
@@ -130,8 +140,7 @@ async def definir_plan_de_pagos(
     actuales = await _plan(sesion, actor, viaje)
     cobrados = [p for p in actuales if p.estado is EstadoPago.pagado]
     reemplazados = [p for p in actuales if p.estado is not EstadoPago.pagado]
-    _exigir_montos_positivos(items)
-    _exigir_que_sume_el_precio(viaje, cobrados, items)
+    exigir_plan_valido(viaje, cobrados, items)
 
     for reemplazado in reemplazados:
         estado_pago.anular(reemplazado)
@@ -141,6 +150,23 @@ async def definir_plan_de_pagos(
         if actor.id == viaje.responsable_id
         else await _usuarios.obtener(sesion, viaje.responsable_id, visibilidad=visibilidad(actor))
     )
+    await agendar_pagos(sesion, viaje, responsable, items)
+    return await _plan(sesion, actor, viaje)
+
+
+def exigir_plan_valido(viaje: Viaje, cobrados: list[Pago], items: list[dict[str, Any]]) -> None:
+    """Cada pago nuevo es por un monto mayor a cero y, con los cobrados, suman el precio de
+    venta del viaje (CU-11 A1); si no, `DatosInvalidos`."""
+    _exigir_montos_positivos(items)
+    _exigir_que_sume_el_precio(viaje, cobrados, items)
+
+
+async def agendar_pagos(
+    sesion: AsyncSession, viaje: Viaje, responsable: Usuario, items: list[dict[str, Any]]
+) -> None:
+    """Agrega los pagos nuevos `pendiente` del viaje ya guardado, cada uno con su alerta `pago`
+    en la agenda de `responsable`, un mes antes del vencimiento (CU-11, RF-063). Los valida
+    quien llama, con `exigir_plan_valido`."""
     for item in items:
         pago = Pago(viaje_id=viaje.id, estado=EstadoPago.pendiente, **item)
         sesion.add(pago)
@@ -152,7 +178,6 @@ async def definir_plan_de_pagos(
             responsable,
             pago,
         )
-    return await _plan(sesion, actor, viaje)
 
 
 async def registrar_cobro(
