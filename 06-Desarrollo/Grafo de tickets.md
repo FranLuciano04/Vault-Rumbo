@@ -20,7 +20,7 @@ tags:: #tipo/referencia
 | M3 — Alertas | 14 | 14 | 0 | 0 | 0 | 0 | ✅ cerrado |
 | M4 — Oportunidades y cotizaciones | 16 | 16 | 0 | 0 | 0 | 0 | ✅ cerrado |
 | M5 — Hoteles y reseñas | 11 | 11 | 0 | 0 | 0 | 0 | ✅ cerrado |
-| M6 — Viajes y economía | 24 | 15 | 1 | 6 | 2 | 0 | 🛠️ en curso |
+| M6 — Viajes y economía | 24 | 15 | 2 | 5 | 2 | 0 | 🛠️ en curso |
 | M7 — Proceso diario y CRM proactivo | 9 | 0 | 0 | 3 | 6 | 0 | 🛠️ en curso |
 | M8 — Calendario, dashboard y reportes | 10 | 0 | 0 | 1 | 9 | 0 | 🛠️ en curso |
 | M9 — Redes e IA | 6 | 0 | 0 | 1 | 5 | 0 | 🛠️ en curso |
@@ -167,7 +167,7 @@ flowchart LR
     T092["T-092 · Definir el plan de pagos del viaje<br/><small>backend · ⚠️ riesgo alto</small>"]:::hecho
     T093["T-093 · Ajustar los pagos de un plan ya definido<br/><small>backend · ⚠️ riesgo alto</small>"]:::disponible
     T094["T-094 · Registrar el cobro de un pago del viaje<br/><small>backend · ⚠️ riesgo alto</small>"]:::hecho
-    T095["T-095 · Revertir un cobro registrado por error<br/><small>backend · ⚠️ riesgo alto</small>"]:::disponible
+    T095["T-095 · Revertir un cobro registrado por error<br/><small>backend · ⚠️ riesgo alto</small><br/>👤 FranLucianoo"]:::tomado
     T096["T-096 · Avanzar el estado del viaje a en curso o finalizado<br/><small>backend · ⚠️ riesgo alto</small>"]:::hecho
     T097["T-097 · Armar el itinerario de hoteles del viaje<br/><small>backend</small>"]:::hecho
     T098["T-098 · Registrar el pago al proveedor de cada tramo<br/><small>backend · ⚠️ riesgo alto</small>"]:::disponible

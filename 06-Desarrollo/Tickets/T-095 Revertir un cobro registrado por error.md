@@ -3,7 +3,7 @@ id: T-095
 titulo: Revertir un cobro registrado por error
 modulo: M6 — Viajes y economía
 capa: backend
-estado: libre
+estado: tomado
 depende_de: [T-094]
 tamaño: S
 riesgo: alto
@@ -12,9 +12,9 @@ modelo_impl: opus
 modelo_review: sonnet
 trazabilidad: [CU-12, RF-070]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: FranLucianoo
+tomado_el: 30/10/26 11:46
+rama: feature/T-095-revertir-un-cobro-registrado-por-error
 pr:
 ---
 # T-095 Revertir un cobro registrado por error
