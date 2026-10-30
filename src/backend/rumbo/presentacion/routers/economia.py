@@ -1,4 +1,4 @@
-"""Rutas del módulo economía (CU-10, CU-11, CU-12). Las que todavía son stubs responden 501."""
+"""Rutas del módulo economía (CU-10, CU-11, CU-12)."""
 
 import uuid
 from typing import Annotated
@@ -9,7 +9,7 @@ from pydantic import Field
 from rumbo.core.db import SesionDep
 from rumbo.datos import modelos
 from rumbo.negocio.servicios import economia
-from rumbo.presentacion.contrato import no_implementado, operacion_de_registro
+from rumbo.presentacion.contrato import operacion_de_registro
 from rumbo.presentacion.dependencias import usuario_actual
 from rumbo.presentacion.esquemas.economia import (
     CobroRegistrar,
@@ -75,8 +75,11 @@ async def definir_plan_de_pagos(
     summary="Reprogramar el vencimiento de un pago",
     **operacion_de_registro(403, 404, 409, 422, casos_de_uso="CU-11"),
 )
-async def reprogramar_pago(pago_id: uuid.UUID, cambios: PagoReprogramar) -> Pago:
-    raise no_implementado()
+async def reprogramar_pago(
+    pago_id: uuid.UUID, cambios: PagoReprogramar, actor: ActorDep, sesion: SesionDep
+) -> Pago:
+    pago = await economia.reprogramar_pago(sesion, actor, pago_id, cambios.vencimiento)
+    return Pago.model_validate(pago)
 
 
 @router.post(
@@ -85,8 +88,9 @@ async def reprogramar_pago(pago_id: uuid.UUID, cambios: PagoReprogramar) -> Pago
     summary="Anular un pago (baja lógica)",
     **operacion_de_registro(403, 404, 409, casos_de_uso="CU-11"),
 )
-async def anular_pago(pago_id: uuid.UUID) -> Pago:
-    raise no_implementado()
+async def anular_pago(pago_id: uuid.UUID, actor: ActorDep, sesion: SesionDep) -> Pago:
+    pago = await economia.anular_pago(sesion, actor, pago_id)
+    return Pago.model_validate(pago)
 
 
 @router.post(
@@ -97,10 +101,13 @@ async def anular_pago(pago_id: uuid.UUID) -> Pago:
     **operacion_de_registro(403, 404, 409, 422, casos_de_uso="CU-11"),
 )
 async def dividir_pago(
-    pago_id: uuid.UUID, datos: PagoDividir
+    pago_id: uuid.UUID, datos: PagoDividir, actor: ActorDep, sesion: SesionDep
 ) -> Annotated[list[Pago], Field(min_length=2, max_length=2)]:
     """Devuelve el pago original, con el monto de ahora, y el nuevo con el resto."""
-    raise no_implementado()
+    pagos = await economia.dividir_pago(
+        sesion, actor, pago_id, datos.monto_ahora, datos.vencimiento_resto
+    )
+    return [Pago.model_validate(p) for p in pagos]
 
 
 @router.post(

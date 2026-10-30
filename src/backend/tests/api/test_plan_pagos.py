@@ -602,6 +602,7 @@ async def test_dividir_cuota(cliente_como: Fabrica, sesion: AsyncSession) -> Non
     assert resto["viaje_id"] == str(viaje_id)
     assert resto["estado"] == "pendiente"
     resto_id = uuid.UUID(resto["id"])
+    yo = _yo(c)
     sesion.expire_all()
     guardados = await _pagos_de(sesion, viaje_id)
     assert len(guardados) == 2
@@ -613,7 +614,7 @@ async def test_dividir_cuota(cliente_como: Fabrica, sesion: AsyncSession) -> Non
     por_pago = {a.pago_id: a for a in pendientes}
     assert por_pago[pago_id].fecha == date(2026, 12, 5)
     assert por_pago[resto_id].fecha == date(2027, 1, 20)
-    assert por_pago[resto_id].propietario_id == _yo(c)
+    assert por_pago[resto_id].propietario_id == yo
     assert por_pago[resto_id].tipo == m.TipoAlerta.pago
 
 

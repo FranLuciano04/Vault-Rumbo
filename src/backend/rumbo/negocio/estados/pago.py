@@ -3,9 +3,10 @@ Es lo único que cambia el estado de un pago. Las transiciones inválidas lanzan
 `TransicionInvalida` y dejan el pago intacto."""
 
 from datetime import date
+from decimal import Decimal
 
 from rumbo.datos.modelos import EstadoPago, Pago
-from rumbo.negocio.errores import TransicionInvalida
+from rumbo.negocio.errores import DatosInvalidos, TransicionInvalida
 
 _ABIERTOS = (EstadoPago.pendiente, EstadoPago.vencido)
 
@@ -41,6 +42,28 @@ def anular(pago: Pago) -> None:
     """T5, T7 y T8: `pendiente` o `vencido` → `anulado`. Un pago cobrado no se anula."""
     _exigir(pago, *_ABIERTOS, accion="anular")
     pago.estado = EstadoPago.anulado
+
+
+def reprogramar(pago: Pago, vencimiento: date, *, hoy: date) -> None:
+    """CU-11 A3: cambia el vencimiento de un pago `pendiente` o `vencido`, que queda `pendiente`
+    si la fecha nueva es hoy o posterior y `vencido` si ya pasó."""
+    _exigir(pago, *_ABIERTOS, accion="reprogramar")
+    pago.vencimiento = vencimiento
+    _reabrir(pago, hoy=hoy)
+
+
+def dividir(pago: Pago, monto_ahora: Decimal) -> Decimal:
+    """CU-11 A6: deja en un pago `pendiente` o `vencido` solo `monto_ahora` y devuelve el resto,
+    que va a un pago nuevo. `monto_ahora` es mayor a cero y menor al monto del pago."""
+    _exigir(pago, *_ABIERTOS, accion="dividir")
+    if not 0 < monto_ahora < pago.monto:
+        raise DatosInvalidos(
+            "monto_ahora",
+            f"La parte a cobrar ahora tiene que ser mayor a cero y menor a {pago.monto}.",
+        )
+    resto = pago.monto - monto_ahora
+    pago.monto = monto_ahora
+    return resto
 
 
 def revertir_anulacion(pago: Pago, *, hoy: date) -> None:

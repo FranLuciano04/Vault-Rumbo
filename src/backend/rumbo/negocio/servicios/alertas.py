@@ -208,6 +208,25 @@ async def resolver_de_origen(
     return abiertas
 
 
+async def reagendar_de_origen(
+    sesion: AsyncSession,
+    origen: OrigenAlerta,
+    tipos: tuple[TipoAlerta, ...],
+    fecha: date,
+    descripcion: str,
+) -> list[Alerta]:
+    """Mueve a `fecha`, con `descripcion`, las alertas pendientes o vistas de `origen` de esos
+    `tipos` y devuelve las que cambiaron: el origen cambió de fecha (CU-11 A3)."""
+    await _con_id(sesion, origen)
+    abiertas = await _alertas.listar_de_origen(
+        sesion, origen, (EstadoAlerta.pendiente, EstadoAlerta.vista), tipos
+    )
+    for alerta in abiertas:
+        estado.reagendar(alerta, fecha, descripcion)
+    await sesion.flush()
+    return abiertas
+
+
 async def reabrir_de_origen(
     sesion: AsyncSession, origen: OrigenAlerta, *, solo_por_cancelacion: bool = False
 ) -> list[Alerta]:
