@@ -3,7 +3,7 @@ id: T-105
 titulo: Cambiar el estado del viaje en la web
 modulo: M6 — Viajes y economía
 capa: web
-estado: libre
+estado: tomado
 depende_de: [T-102]
 tamaño: S
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [CU-08, RF-039, RF-042]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: FranLucianoo
+tomado_el: 30/10/26 11:26
+rama: feature/T-105-cambiar-el-estado-del-viaje-en-la-web
 pr:
 ---
 # T-105 Cambiar el estado del viaje en la web
