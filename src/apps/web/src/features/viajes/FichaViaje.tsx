@@ -10,6 +10,7 @@ import { useCliente, useDestino, useViaje } from "@rumbo/shared/hooks";
 import type { AxiosInstance } from "axios";
 import type { ReactNode } from "react";
 import { ItinerarioViaje } from "./itinerario/ItinerarioViaje";
+import { PlanDePagos } from "./plan/PlanDePagos";
 import { SeccionEconomia } from "./SeccionEconomia";
 
 const ESTADOS_SIN_EDICION = ["finalizado", "cancelado"];
@@ -91,7 +92,9 @@ export function FichaViaje({
 
       <div className="grid gap-4 lg:grid-cols-[2fr_1fr]">
         <div className="flex flex-col gap-4">
-          <Seccion titulo="Plan de pagos">El plan de pagos y los cobros se gestionan acá.</Seccion>
+          <Seccion titulo="Plan de pagos">
+            <PlanDePagos cliente={cliente} viaje={viaje} editable={editable} />
+          </Seccion>
           <Seccion titulo="Itinerario">
             <ItinerarioViaje cliente={cliente} viaje={viaje} editable={editable} />
           </Seccion>
