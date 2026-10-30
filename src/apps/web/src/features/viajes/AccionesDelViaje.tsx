@@ -100,11 +100,11 @@ function ConfirmarEstado({
 }
 
 /**
- * Acciones de estado de la ficha (CU-08, CU-27, RF-039, RF-042, RF-048, RF-053, pantallas 16 y 19): avanzar de confirmado a en
- * curso y de en curso a finalizado, corregir al estado anterior, cancelar y revertir la
- * cancelación. Cada una pide confirmación; las
- * guardas de EST-Viaje las valida la API y su motivo se muestra tal cual. Solo las ve quien puede
- * cambiar el estado: admin, dueño o el responsable del viaje.
+ * Acciones de estado de la ficha (CU-08, CU-27, RF-039, RF-042, RF-048, RF-053, pantallas 16 y
+ * 19): avanzar de confirmado a en curso y de en curso a finalizado, corregir al estado anterior,
+ * cancelar y revertir la cancelación. Cada una pide confirmación; las guardas de EST-Viaje las
+ * valida la API y su motivo se muestra tal cual. Solo las ve quien puede cambiar el estado:
+ * admin, dueño o el responsable del viaje.
  */
 export function AccionesDelViaje({
   cliente,
