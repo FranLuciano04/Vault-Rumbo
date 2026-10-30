@@ -1,10 +1,11 @@
 """Servicio del módulo viajes: la confirmación de la reserva que crea el viaje (CU-07, RF-032 a
-RF-036, EST-Viaje T1), el avance manual de su estado y su corrección (CU-08, RF-039 a RF-042,
-EST-Viaje T4, T5 y T7)."""
+RF-036, EST-Viaje T1), el listado y la ficha con su economía (CU-08, RF-037), el avance manual
+del estado del viaje y su corrección (RF-039 a RF-042, EST-Viaje T4, T5 y T7)."""
 
 import uuid
+from collections import defaultdict
 from dataclasses import dataclass
-from datetime import timedelta
+from datetime import date, timedelta
 from decimal import Decimal
 from typing import Any
 
@@ -19,6 +20,7 @@ from rumbo.datos.modelos import (
     EstadoViaje,
     Moneda,
     Oportunidad,
+    Pago,
     TipoAlerta,
     TipoComision,
     Usuario,
@@ -186,6 +188,48 @@ async def _agendar_alertas_de_la_reserva(
     )
 
 
+async def listar(
+    sesion: AsyncSession,
+    actor: Usuario,
+    *,
+    estado: EstadoViaje | None,
+    desde: date | None,
+    hasta: date | None,
+    cliente_id: uuid.UUID | None,
+    mios: bool,
+    desplazamiento: int,
+    limite: int,
+) -> tuple[list[FichaViaje], int]:
+    """Página de viajes por fecha de salida, cada uno con su saldo y su porcentaje pagado, y el
+    total (CU-08, RF-037). `mios` deja los que el actor tiene a cargo; lo que ve cada rol lo
+    decide `visibilidad`: el `freelance` solo lo suyo (RF-151)."""
+    filtro = visibilidad(actor)
+    pagina, total = await _viajes.paginar(
+        sesion,
+        estado=estado,
+        desde=desde,
+        hasta=hasta,
+        cliente_id=cliente_id,
+        responsable_id=actor.id if mios else None,
+        desplazamiento=desplazamiento,
+        limite=limite,
+        visibilidad=filtro,
+    )
+    pagos = await _pagos.listar_de_viajes(sesion, [v.id for v in pagina], visibilidad=filtro)
+    por_viaje = defaultdict(list)
+    for pago in pagos:
+        por_viaje[pago.viaje_id].append(pago)
+    return [_ficha(v, por_viaje[v.id]) for v in pagina], total
+
+
+async def obtener(sesion: AsyncSession, actor: Usuario, viaje_id: uuid.UUID) -> FichaViaje:
+    """La ficha del viaje con su economía y su saldo (CU-08, RF-037). Uno que el actor no ve es
+    `NoEncontrado` (RF-151)."""
+    filtro = visibilidad(actor)
+    viaje = await _viajes.obtener(sesion, viaje_id, visibilidad=filtro)
+    return _ficha(viaje, await _pagos.listar_de_viaje(sesion, viaje.id, visibilidad=filtro))
+
+
 async def iniciar(sesion: AsyncSession, actor: Usuario, viaje_id: uuid.UUID) -> FichaViaje:
     """El empleado confirma que el viaje empezó: `confirmado` → `en_curso` (T4, RF-039). Desde
     otro estado es `TransicionInvalida`. Escribe el responsable, admin o dueño (DEC-0005)."""
@@ -234,6 +278,10 @@ async def _guardar(sesion: AsyncSession, actor: Usuario, viaje: Viaje) -> FichaV
     await sesion.flush()
     await sesion.refresh(viaje)  # trae la auditoría que actualiza la base
     pagos = await _pagos.listar_de_viaje(sesion, viaje.id, visibilidad=visibilidad(actor))
+    return _ficha(viaje, pagos)
+
+
+def _ficha(viaje: Viaje, pagos: list[Pago]) -> FichaViaje:
     return FichaViaje(
         viaje=viaje,
         saldo_pendiente=calculos.saldo_pendiente(pagos),

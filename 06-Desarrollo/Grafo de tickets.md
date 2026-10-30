@@ -20,7 +20,7 @@ tags:: #tipo/referencia
 | M3 — Alertas | 14 | 14 | 0 | 0 | 0 | 0 | ✅ cerrado |
 | M4 — Oportunidades y cotizaciones | 16 | 16 | 0 | 0 | 0 | 0 | ✅ cerrado |
 | M5 — Hoteles y reseñas | 11 | 11 | 0 | 0 | 0 | 0 | ✅ cerrado |
-| M6 — Viajes y economía | 24 | 12 | 1 | 9 | 2 | 0 | 🛠️ en curso |
+| M6 — Viajes y economía | 24 | 15 | 2 | 5 | 2 | 0 | 🛠️ en curso |
 | M7 — Proceso diario y CRM proactivo | 9 | 0 | 0 | 3 | 6 | 0 | 🛠️ en curso |
 | M8 — Calendario, dashboard y reportes | 10 | 0 | 0 | 1 | 9 | 0 | 🛠️ en curso |
 | M9 — Redes e IA | 6 | 0 | 0 | 1 | 5 | 0 | 🛠️ en curso |
@@ -163,11 +163,11 @@ flowchart LR
     T088["T-088 · Implementar los estados del pago<br/><small>backend · ⚠️ riesgo alto</small>"]:::hecho
     T089["T-089 · Confirmar la reserva creando el viaje<br/><small>backend · ⚠️ riesgo alto</small><br/>👤 palomap2003"]:::tomado
     T090["T-090 · Registrar la economía del viaje con su comisión<br/><small>backend · ⚠️ riesgo alto</small>"]:::hecho
-    T091["T-091 · Listar los viajes con su situación económica<br/><small>backend</small>"]:::disponible
+    T091["T-091 · Listar los viajes con su situación económica<br/><small>backend</small>"]:::hecho
     T092["T-092 · Definir el plan de pagos del viaje<br/><small>backend · ⚠️ riesgo alto</small>"]:::hecho
     T093["T-093 · Ajustar los pagos de un plan ya definido<br/><small>backend · ⚠️ riesgo alto</small>"]:::disponible
     T094["T-094 · Registrar el cobro de un pago del viaje<br/><small>backend · ⚠️ riesgo alto</small>"]:::hecho
-    T095["T-095 · Revertir un cobro registrado por error<br/><small>backend · ⚠️ riesgo alto</small>"]:::disponible
+    T095["T-095 · Revertir un cobro registrado por error<br/><small>backend · ⚠️ riesgo alto</small><br/>👤 FranLucianoo"]:::tomado
     T096["T-096 · Avanzar el estado del viaje a en curso o finalizado<br/><small>backend · ⚠️ riesgo alto</small>"]:::hecho
     T097["T-097 · Armar el itinerario de hoteles del viaje<br/><small>backend</small>"]:::hecho
     T098["T-098 · Registrar el pago al proveedor de cada tramo<br/><small>backend · ⚠️ riesgo alto</small>"]:::disponible
@@ -176,8 +176,8 @@ flowchart LR
     T101["T-101 · Confirmar la reserva desde la oportunidad en la web<br/><small>web</small>"]:::disponible
     T102["T-102 · Registrar la economía desde la ficha del viaje en la web<br/><small>web</small>"]:::hecho
     T103["T-103 · Definir el plan de cuotas en la web<br/><small>web</small>"]:::hecho
-    T104["T-104 · Registrar el cobro de un pago en la web<br/><small>web</small>"]:::disponible
-    T105["T-105 · Cambiar el estado del viaje en la web<br/><small>web</small>"]:::disponible
+    T104["T-104 · Registrar el cobro de un pago en la web<br/><small>web</small>"]:::hecho
+    T105["T-105 · Cambiar el estado del viaje en la web<br/><small>web</small>"]:::hecho
     T106["T-106 · Armar el itinerario de hoteles en la web<br/><small>web</small>"]:::hecho
     T107["T-107 · Cancelar un viaje desde la web<br/><small>web</small>"]:::disponible
     T108["T-108 · Probar de punta a punta el circuito de CU-01<br/><small>e2e</small>"]:::esperando

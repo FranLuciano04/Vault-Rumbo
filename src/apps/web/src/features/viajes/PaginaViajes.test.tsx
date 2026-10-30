@@ -211,7 +211,7 @@ describe("RF-037 listado de viajes", () => {
     expect(screen.queryByText("Europa")).not.toBeInTheDocument();
     expect(screen.getByText(/estás viendo solo tus viajes/i)).toBeInTheDocument();
     expect(screen.queryByRole("tab", { name: "Toda la agencia" })).not.toBeInTheDocument();
-    expect(pedidos.every((p) => p.get("mios") === "true")).toBe(true);
+    expect(pedidos.every((p) => !p.has("mios"))).toBe(true);
     expect(pedidos.length).toBeGreaterThan(0);
   });
 

@@ -1,4 +1,4 @@
-import type { EstadoPago, TipoPago } from "@rumbo/shared";
+import type { EstadoPago, FormaPago, TipoPago } from "@rumbo/shared";
 
 export const ETIQUETA_TIPO_PAGO: Record<TipoPago, string> = {
   sena: "Seña",
@@ -11,6 +11,15 @@ export const ETIQUETA_ESTADO_PAGO: Record<EstadoPago, string> = {
   pagado: "Cobrado",
   vencido: "Vencido",
   anulado: "Anulado",
+};
+
+export const ETIQUETA_FORMA_PAGO: Record<FormaPago, string> = {
+  efectivo: "Efectivo",
+  transferencia: "Transferencia",
+  tarjeta_credito: "Tarjeta de crédito",
+  tarjeta_debito: "Tarjeta de débito",
+  cheque: "Cheque",
+  deposito: "Depósito",
 };
 
 /** Un pago sin cobrar ni anular: el único que se edita, reprograma, anula o divide. */
