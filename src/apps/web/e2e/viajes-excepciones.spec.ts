@@ -231,14 +231,14 @@ test.describe("Excepciones del viaje (CU-11, CU-12, CU-27)", () => {
       expect(suma(pagos)).toBe(900_000);
     });
 
-    await test.step("RF-066 anular un pago: queda «anulado» (baja lógica) y el plan vuelve a exigir la igualdad", async () => {
+    await test.step("RF-066 anular un pago: sale del plan vigente, el plan exige la igualdad y se rebalancea hasta cuadrar", async () => {
       await fila(page, "Cuota").getByRole("button", { name: "Anular" }).click();
       const panel = page.getByRole("form", { name: /^¿Anular la cuota/ });
       await panel.getByRole("button", { name: "Confirmar" }).click();
       await expect(panel).toHaveCount(0);
 
       const pagos = await pagosDe(duena, viajeId);
-      // El plan que lista la API no incluye los anulados (baja lógica: el registro se conserva).
+      // El plan vigente que lista la API ya no incluye al pago anulado.
       expect(pagos.find((p) => p.id === cuota.id)).toBeUndefined();
       expect(pagos).toHaveLength(3);
       expect(suma(pagos)).toBe(600_000);
@@ -246,6 +246,26 @@ test.describe("Excepciones del viaje (CU-11, CU-12, CU-27)", () => {
       await expect(
         page.getByText("El precio de venta cambió y los pagos ya no lo suman: rebalanceá el plan de pagos."),
       ).toBeVisible();
+
+      // Se rebalancea desde «Editar plan»: los tres pagos no cobrados pasan a 300.000 cada uno.
+      await page.getByRole("button", { name: "Editar plan" }).click();
+      const editor = page.getByRole("form", { name: "Editor del plan de pagos" });
+      const montos = editor.getByLabel(/^Monto /);
+      await expect(montos).toHaveCount(3);
+      for (let i = 0; i < 3; i++) await montos.nth(i).fill("300000");
+      await expect(
+        editor.getByText("La suma de los pagos coincide con el precio de venta."),
+      ).toBeVisible();
+      await editor.getByRole("button", { name: "Guardar plan" }).click();
+      await expect(editor).toHaveCount(0);
+
+      const rebalanceado = await pagosDe(duena, viajeId);
+      expect(rebalanceado).toHaveLength(3);
+      expect(rebalanceado.every((p) => Number(p.monto) === 300_000)).toBe(true);
+      expect(suma(rebalanceado)).toBe(900_000);
+      await expect(
+        page.getByText("El precio de venta cambió y los pagos ya no lo suman: rebalanceá el plan de pagos."),
+      ).toHaveCount(0);
     });
   });
 
@@ -314,10 +334,10 @@ test.describe("Excepciones del viaje (CU-11, CU-12, CU-27)", () => {
     await page.goto(`/viajes/${cancelable.viajeId}`);
     const motivo = `Cambio de planes ${SUFIJO}`;
 
-    await test.step("RF-048 y RF-052 cancelar con cobros: se informa lo cobrado, el viaje queda «cancelado» y el pago sin cobrar «anulado»", async () => {
+    await test.step("RF-048 y RF-052 cancelar con cobros: se informa lo cobrado, el viaje queda «cancelado» y el pago sin cobrar sale del plan vigente", async () => {
       await page.getByRole("button", { name: "Cancelar viaje" }).click();
       const dialogo = page.getByRole("dialog", { name: "Cancelar viaje" });
-      await expect(dialogo.getByText(/Ya se cobraron/)).toBeVisible();
+      await expect(dialogo.getByText(/Ya se cobraron\s+\$\s200\.000,00\./)).toBeVisible();
       await expect(dialogo.getByText(/Cualquier reembolso o penalidad se gestiona por fuera/)).toBeVisible();
       await dialogo.getByLabel("Motivo de la cancelación").fill(motivo);
       await dialogo.getByRole("button", { name: "Cancelar viaje" }).click();
@@ -327,8 +347,9 @@ test.describe("Excepciones del viaje (CU-11, CU-12, CU-27)", () => {
       expect(viaje.estado).toBe("cancelado");
       expect(viaje.estado_previo).toBe("vendido");
       expect(viaje.motivo_cancelacion).toBe(motivo);
+      expect(Number(viaje.saldo_pendiente)).toBe(0);
       const pagos = await pagosDe(duena, cancelable.viajeId);
-      // El plan que lista la API no incluye los anulados.
+      // El plan vigente que lista la API ya no incluye al pago anulado.
       expect(pagos.find((p) => p.id === saldo.id)).toBeUndefined();
       // El cobro ya registrado se conserva tal cual.
       expect(pagos.find((p) => p.id === sena.id)?.estado).toBe("pagado");
@@ -369,8 +390,7 @@ test.describe("Excepciones del viaje (CU-11, CU-12, CU-27)", () => {
         motivo_cancelacion: "No debería poder",
         fecha_cancelacion: hoy(),
       });
-      expect(intento.status).toBeGreaterThanOrEqual(400);
-      expect(intento.status).toBeLessThan(500);
+      expect(intento.status).toBe(409);
       expect((await viajeDe(duena, finalizado.viajeId)).estado).toBe("finalizado");
     });
   });
