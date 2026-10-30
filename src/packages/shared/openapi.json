@@ -6195,7 +6195,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/Tramo"
+                "$ref": "#/components/schemas/TramoCrear"
               }
             }
           }
@@ -6303,7 +6303,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/Tramo"
+                "$ref": "#/components/schemas/TramoEditar"
               }
             }
           }
@@ -6430,6 +6430,16 @@
           },
           "404": {
             "description": "No existe.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflicto con el estado actual.",
             "content": {
               "application/problem+json": {
                 "schema": {
@@ -12202,11 +12212,161 @@
         "title": "TipoPago"
       },
       "Tramo": {
-        "properties": {},
-        "additionalProperties": true,
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id",
+            "readOnly": true
+          },
+          "viaje_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Viaje Id",
+            "readOnly": true
+          },
+          "hotel_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Hotel Id"
+          },
+          "check_in": {
+            "type": "string",
+            "format": "date",
+            "title": "Check In"
+          },
+          "check_out": {
+            "type": "string",
+            "format": "date",
+            "title": "Check Out"
+          },
+          "orden": {
+            "type": "integer",
+            "title": "Orden"
+          },
+          "vencimiento_pago_proveedor": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vencimiento Pago Proveedor"
+          },
+          "pago_proveedor_realizado": {
+            "type": "boolean",
+            "title": "Pago Proveedor Realizado"
+          }
+        },
         "type": "object",
+        "required": [
+          "id",
+          "viaje_id",
+          "hotel_id",
+          "check_in",
+          "check_out",
+          "orden",
+          "vencimiento_pago_proveedor",
+          "pago_proveedor_realizado"
+        ],
         "title": "Tramo",
-        "description": "Hotel del itinerario. Esquema preliminar: acepta cualquier objeto hasta que el ticket de\nbackend de CU-09 fije sus campos."
+        "description": "Hotel del itinerario del viaje (DEC-0003)."
+      },
+      "TramoCrear": {
+        "properties": {
+          "hotel_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Hotel Id",
+            "description": "Del catálogo de hoteles."
+          },
+          "check_in": {
+            "type": "string",
+            "format": "date",
+            "title": "Check In",
+            "description": "Dentro de las fechas del viaje."
+          },
+          "check_out": {
+            "type": "string",
+            "format": "date",
+            "title": "Check Out",
+            "description": "Dentro de las fechas del viaje; no anterior al check-in."
+          },
+          "orden": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Orden",
+            "description": "Posición del tramo en el itinerario; única por viaje."
+          },
+          "vencimiento_pago_proveedor": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vencimiento Pago Proveedor",
+            "description": "Si se envía, avisa un mes antes con una alerta `pago`."
+          }
+        },
+        "type": "object",
+        "required": [
+          "hotel_id",
+          "check_in",
+          "check_out",
+          "orden"
+        ],
+        "title": "TramoCrear",
+        "description": "Hotel del catálogo en un tramo del itinerario (CU-09). Un hotel puede repetirse en tramos\nno consecutivos (A5)."
+      },
+      "TramoEditar": {
+        "properties": {
+          "hotel_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Hotel Id"
+          },
+          "check_in": {
+            "type": "string",
+            "format": "date",
+            "title": "Check In"
+          },
+          "check_out": {
+            "type": "string",
+            "format": "date",
+            "title": "Check Out"
+          },
+          "orden": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Orden"
+          },
+          "vencimiento_pago_proveedor": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vencimiento Pago Proveedor"
+          },
+          "pago_proveedor_realizado": {
+            "type": "boolean",
+            "title": "Pago Proveedor Realizado",
+            "description": "Al marcarlo se resuelve la alerta del pago al proveedor."
+          }
+        },
+        "type": "object",
+        "title": "TramoEditar"
       },
       "UltimoViajeDelCliente": {
         "properties": {

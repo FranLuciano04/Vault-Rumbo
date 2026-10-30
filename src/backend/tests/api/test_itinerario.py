@@ -69,7 +69,9 @@ async def _hotel(sesion: AsyncSession) -> m.Hotel:
 async def _tramo(
     sesion: AsyncSession, viaje_id: uuid.UUID, hotel_id: uuid.UUID, **campos: Any
 ) -> m.ViajeHotel:
-    return await f.crear(sesion, f.ViajeHotelFactory, viaje_id=viaje_id, hotel_id=hotel_id, **campos)
+    return await f.crear(
+        sesion, f.ViajeHotelFactory, viaje_id=viaje_id, hotel_id=hotel_id, **campos
+    )
 
 
 def _cuerpo(hotel_id: uuid.UUID, **campos: Any) -> dict[str, Any]:
@@ -110,9 +112,10 @@ async def test_rf043_agregar_tramo(cliente_como: Fabrica, sesion: AsyncSession) 
     assert cuerpo["orden"] == 1
     assert cuerpo["vencimiento_pago_proveedor"] is None
     assert cuerpo["pago_proveedor_realizado"] is False
+    hotel_id = hotel.id
     tramos = await _tramos_de(sesion, viaje.id)
     assert [str(t.id) for t in tramos] == [cuerpo["id"]]
-    assert tramos[0].hotel_id == hotel.id
+    assert tramos[0].hotel_id == hotel_id
     assert tramos[0].check_in == date(2027, 1, 10)
 
 
@@ -122,8 +125,12 @@ async def test_rf043_listar_itinerario_ordenado(
     c = await cliente_como("empleado")
     viaje = await _viaje(sesion, _yo(c))
     h1, h2 = await _hotel(sesion), await _hotel(sesion)
-    await _tramo(sesion, viaje.id, h2.id, orden=2, check_in=date(2027, 1, 15), check_out=date(2027, 1, 20))
-    await _tramo(sesion, viaje.id, h1.id, orden=1, check_in=date(2027, 1, 10), check_out=date(2027, 1, 15))
+    await _tramo(
+        sesion, viaje.id, h2.id, orden=2, check_in=date(2027, 1, 15), check_out=date(2027, 1, 20)
+    )
+    await _tramo(
+        sesion, viaje.id, h1.id, orden=1, check_in=date(2027, 1, 10), check_out=date(2027, 1, 15)
+    )
 
     r = await c.get(_url(viaje.id))
 
@@ -139,7 +146,9 @@ async def test_rf043_tramo_con_vencimiento_genera_alerta_un_mes_antes(
     viaje = await _viaje(sesion, _yo(c))
     hotel = await _hotel(sesion)
 
-    r = await c.post(_url(viaje.id), json=_cuerpo(hotel.id, vencimiento_pago_proveedor="2027-01-05"))
+    r = await c.post(
+        _url(viaje.id), json=_cuerpo(hotel.id, vencimiento_pago_proveedor="2027-01-05")
+    )
 
     assert r.status_code == 201
     assert r.json()["vencimiento_pago_proveedor"] == "2027-01-05"
@@ -181,8 +190,9 @@ async def test_rf044_repetir_hotel(cliente_como: Fabrica, sesion: AsyncSession) 
     )
 
     assert r3.status_code == 201
+    ids_hoteles = [porteno.id, bariloche.id, porteno.id]
     tramos = await _tramos_de(sesion, viaje.id)
-    assert [t.hotel_id for t in tramos] == [porteno.id, bariloche.id, porteno.id]
+    assert [t.hotel_id for t in tramos] == ids_hoteles
     assert len({t.id for t in tramos}) == 3  # cada tramo es una fila propia
 
 
@@ -205,7 +215,9 @@ async def test_rf046_editar_y_quitar(cliente_como: Fabrica, sesion: AsyncSession
     hotel = await _hotel(sesion)
     tramo = await _tramo(sesion, viaje.id, hotel.id)
 
-    r = await c.patch(_url_tramo(tramo.id), json={"check_in": "2027-01-11", "check_out": "2027-01-14"})
+    r = await c.patch(
+        _url_tramo(tramo.id), json={"check_in": "2027-01-11", "check_out": "2027-01-14"}
+    )
 
     assert r.status_code == 200
     assert r.json()["id"] == str(tramo.id)
@@ -216,11 +228,12 @@ async def test_rf046_editar_y_quitar(cliente_como: Fabrica, sesion: AsyncSession
     assert tramo.check_in == date(2027, 1, 11)
     assert tramo.check_out == date(2027, 1, 14)
 
+    url_itinerario = _url(viaje.id)
     borrado = await c.delete(_url_tramo(tramo.id))
 
     assert borrado.status_code == 204
     assert await _tramos_de(sesion, viaje.id) == []
-    assert (await c.get(_url(viaje.id))).json() == []
+    assert (await c.get(url_itinerario)).json() == []
 
 
 async def test_rf046_editar_vencimiento_reagenda_la_alerta(
@@ -230,7 +243,9 @@ async def test_rf046_editar_vencimiento_reagenda_la_alerta(
     c = await cliente_como("empleado")
     viaje = await _viaje(sesion, _yo(c))
     hotel = await _hotel(sesion)
-    creado = await c.post(_url(viaje.id), json=_cuerpo(hotel.id, vencimiento_pago_proveedor="2027-01-05"))
+    creado = await c.post(
+        _url(viaje.id), json=_cuerpo(hotel.id, vencimiento_pago_proveedor="2027-01-05")
+    )
     tramo_id = uuid.UUID(creado.json()["id"])
 
     r = await c.patch(_url_tramo(tramo_id), json={"vencimiento_pago_proveedor": "2027-01-09"})
@@ -249,7 +264,9 @@ async def test_rf046_pago_proveedor_realizado_resuelve_la_alerta(
     c = await cliente_como("empleado")
     viaje = await _viaje(sesion, _yo(c))
     hotel = await _hotel(sesion)
-    creado = await c.post(_url(viaje.id), json=_cuerpo(hotel.id, vencimiento_pago_proveedor="2027-01-05"))
+    creado = await c.post(
+        _url(viaje.id), json=_cuerpo(hotel.id, vencimiento_pago_proveedor="2027-01-05")
+    )
     tramo_id = uuid.UUID(creado.json()["id"])
 
     r = await c.patch(_url_tramo(tramo_id), json={"pago_proveedor_realizado": True})
@@ -305,7 +322,9 @@ async def test_fechas_extremos_del_viaje_son_validos(
     viaje = await _viaje(sesion, _yo(c))
     hotel = await _hotel(sesion)
 
-    r = await c.post(_url(viaje.id), json=_cuerpo(hotel.id, check_in="2027-01-10", check_out="2027-01-20"))
+    r = await c.post(
+        _url(viaje.id), json=_cuerpo(hotel.id, check_in="2027-01-10", check_out="2027-01-20")
+    )
 
     assert r.status_code == 201
 
@@ -317,7 +336,9 @@ async def test_checkout_anterior_al_checkin_422(
     viaje = await _viaje(sesion, _yo(c))
     hotel = await _hotel(sesion)
 
-    r = await c.post(_url(viaje.id), json=_cuerpo(hotel.id, check_in="2027-01-15", check_out="2027-01-12"))
+    r = await c.post(
+        _url(viaje.id), json=_cuerpo(hotel.id, check_in="2027-01-15", check_out="2027-01-12")
+    )
 
     assert r.status_code == 422
     assert r.headers["content-type"].startswith(PROBLEM_JSON)
@@ -327,7 +348,9 @@ async def test_tramos_solapados_422(cliente_como: Fabrica, sesion: AsyncSession)
     c = await cliente_como("empleado")
     viaje = await _viaje(sesion, _yo(c))
     h1, h2 = await _hotel(sesion), await _hotel(sesion)
-    await _tramo(sesion, viaje.id, h1.id, orden=1, check_in=date(2027, 1, 10), check_out=date(2027, 1, 15))
+    await _tramo(
+        sesion, viaje.id, h1.id, orden=1, check_in=date(2027, 1, 10), check_out=date(2027, 1, 15)
+    )
 
     r = await c.post(
         _url(viaje.id),
@@ -345,7 +368,9 @@ async def test_checkout_igual_al_checkin_siguiente_no_es_solapamiento(
     c = await cliente_como("empleado")
     viaje = await _viaje(sesion, _yo(c))
     h1, h2 = await _hotel(sesion), await _hotel(sesion)
-    await _tramo(sesion, viaje.id, h1.id, orden=1, check_in=date(2027, 1, 10), check_out=date(2027, 1, 15))
+    await _tramo(
+        sesion, viaje.id, h1.id, orden=1, check_in=date(2027, 1, 10), check_out=date(2027, 1, 15)
+    )
 
     r = await c.post(
         _url(viaje.id),
@@ -355,14 +380,16 @@ async def test_checkout_igual_al_checkin_siguiente_no_es_solapamiento(
     assert r.status_code == 201
 
 
-async def test_editar_a_fechas_que_solapan_422(
-    cliente_como: Fabrica, sesion: AsyncSession
-) -> None:
+async def test_editar_a_fechas_que_solapan_422(cliente_como: Fabrica, sesion: AsyncSession) -> None:
     c = await cliente_como("empleado")
     viaje = await _viaje(sesion, _yo(c))
     h1, h2 = await _hotel(sesion), await _hotel(sesion)
-    await _tramo(sesion, viaje.id, h1.id, orden=1, check_in=date(2027, 1, 10), check_out=date(2027, 1, 15))
-    segundo = await _tramo(sesion, viaje.id, h2.id, orden=2, check_in=date(2027, 1, 15), check_out=date(2027, 1, 18))
+    await _tramo(
+        sesion, viaje.id, h1.id, orden=1, check_in=date(2027, 1, 10), check_out=date(2027, 1, 15)
+    )
+    segundo = await _tramo(
+        sesion, viaje.id, h2.id, orden=2, check_in=date(2027, 1, 15), check_out=date(2027, 1, 18)
+    )
 
     solapa = await c.patch(_url_tramo(segundo.id), json={"check_in": "2027-01-12"})
     fuera = await c.patch(_url_tramo(segundo.id), json={"check_out": "2027-01-25"})
@@ -381,7 +408,9 @@ async def test_editar_un_tramo_no_se_solapa_consigo_mismo(
     c = await cliente_como("empleado")
     viaje = await _viaje(sesion, _yo(c))
     hotel = await _hotel(sesion)
-    tramo = await _tramo(sesion, viaje.id, hotel.id, check_in=date(2027, 1, 10), check_out=date(2027, 1, 15))
+    tramo = await _tramo(
+        sesion, viaje.id, hotel.id, check_in=date(2027, 1, 10), check_out=date(2027, 1, 15)
+    )
 
     r = await c.patch(_url_tramo(tramo.id), json={"check_out": "2027-01-16"})
 

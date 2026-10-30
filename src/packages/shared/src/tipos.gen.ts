@@ -3198,11 +3198,102 @@ export interface components {
         TipoPago: "sena" | "cuota" | "saldo";
         /**
          * Tramo
-         * @description Hotel del itinerario. Esquema preliminar: acepta cualquier objeto hasta que el ticket de
-         *     backend de CU-09 fije sus campos.
+         * @description Hotel del itinerario del viaje (DEC-0003).
          */
         Tramo: {
-            [key: string]: unknown;
+            /**
+             * Id
+             * Format: uuid
+             */
+            readonly id: string;
+            /**
+             * Viaje Id
+             * Format: uuid
+             */
+            readonly viaje_id: string;
+            /**
+             * Hotel Id
+             * Format: uuid
+             */
+            hotel_id: string;
+            /**
+             * Check In
+             * Format: date
+             */
+            check_in: string;
+            /**
+             * Check Out
+             * Format: date
+             */
+            check_out: string;
+            /** Orden */
+            orden: number;
+            /** Vencimiento Pago Proveedor */
+            vencimiento_pago_proveedor: string | null;
+            /** Pago Proveedor Realizado */
+            pago_proveedor_realizado: boolean;
+        };
+        /**
+         * TramoCrear
+         * @description Hotel del catálogo en un tramo del itinerario (CU-09). Un hotel puede repetirse en tramos
+         *     no consecutivos (A5).
+         */
+        TramoCrear: {
+            /**
+             * Hotel Id
+             * Format: uuid
+             * @description Del catálogo de hoteles.
+             */
+            hotel_id: string;
+            /**
+             * Check In
+             * Format: date
+             * @description Dentro de las fechas del viaje.
+             */
+            check_in: string;
+            /**
+             * Check Out
+             * Format: date
+             * @description Dentro de las fechas del viaje; no anterior al check-in.
+             */
+            check_out: string;
+            /**
+             * Orden
+             * @description Posición del tramo en el itinerario; única por viaje.
+             */
+            orden: number;
+            /**
+             * Vencimiento Pago Proveedor
+             * @description Si se envía, avisa un mes antes con una alerta `pago`.
+             */
+            vencimiento_pago_proveedor?: string | null;
+        };
+        /** TramoEditar */
+        TramoEditar: {
+            /**
+             * Hotel Id
+             * Format: uuid
+             */
+            hotel_id?: string;
+            /**
+             * Check In
+             * Format: date
+             */
+            check_in?: string;
+            /**
+             * Check Out
+             * Format: date
+             */
+            check_out?: string;
+            /** Orden */
+            orden?: number;
+            /** Vencimiento Pago Proveedor */
+            vencimiento_pago_proveedor?: string | null;
+            /**
+             * Pago Proveedor Realizado
+             * @description Al marcarlo se resuelve la alerta del pago al proveedor.
+             */
+            pago_proveedor_realizado?: boolean;
         };
         /**
          * UltimoViajeDelCliente
@@ -7303,7 +7394,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["Tramo"];
+                "application/json": components["schemas"]["TramoCrear"];
             };
         };
         responses: {
@@ -7408,6 +7499,15 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problema"];
                 };
             };
+            /** @description Conflicto con el estado actual. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
             /** @description Validation Error */
             422: {
                 headers: {
@@ -7430,7 +7530,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["Tramo"];
+                "application/json": components["schemas"]["TramoEditar"];
             };
         };
         responses: {
