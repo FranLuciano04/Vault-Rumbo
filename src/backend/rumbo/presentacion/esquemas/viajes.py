@@ -85,6 +85,17 @@ class Viaje(Auditoria):
         """El modelo guarda el enum de la base; el contrato publica su valor en texto."""
         return valor.value if isinstance(valor, enum.Enum) else valor
 
+    @classmethod
+    def desde_ficha(
+        cls, viaje: modelos.Viaje, saldo_pendiente: Decimal, porcentaje_pagado: Decimal
+    ) -> "Viaje":
+        """El viaje con su saldo y su porcentaje pagado, que no son columnas."""
+        calculados = {"saldo_pendiente", "porcentaje_pagado"}
+        return cls.model_validate(
+            {n: getattr(viaje, n) for n in cls.model_fields if n not in calculados}
+            | {"saldo_pendiente": saldo_pendiente, "porcentaje_pagado": porcentaje_pagado}
+        )
+
 
 AdvertenciaEconomia = Literal["ganancia_negativa", "margen_negativo", "plan_desbalanceado"]
 

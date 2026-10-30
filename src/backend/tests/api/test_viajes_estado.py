@@ -16,6 +16,7 @@ dice de forma explícita y que fijan estos tests:
 
 import uuid
 from collections.abc import Awaitable, Callable
+from datetime import date
 
 import pytest
 from httpx import AsyncClient
@@ -37,11 +38,19 @@ def _yo(c: AsyncClient) -> uuid.UUID:
     return c.usuario.id  # type: ignore[attr-defined,no-any-return]
 
 
-async def _viaje(
-    sesion: AsyncSession, responsable_id: uuid.UUID, estado: m.EstadoViaje
-) -> m.Viaje:
+async def _viaje(sesion: AsyncSession, responsable_id: uuid.UUID, estado: m.EstadoViaje) -> m.Viaje:
     cliente = await f.crear(sesion, f.ClienteFactory)
     destino = await f.crear(sesion, f.DestinoFactory)
+    # un viaje cancelado lleva estado previo, motivo y fecha (viaje_estado_previo_ck)
+    cancelacion = (
+        {
+            "estado_previo": m.EstadoViaje.confirmado,
+            "motivo_cancelacion": "El cliente desistió",
+            "fecha_cancelacion": date(2026, 11, 5),
+        }
+        if estado is m.EstadoViaje.cancelado
+        else {}
+    )
     return await f.crear(
         sesion,
         f.ViajeFactory,
@@ -49,6 +58,7 @@ async def _viaje(
         destino_id=destino.id,
         responsable_id=responsable_id,
         estado=estado,
+        **cancelacion,
     )
 
 
@@ -120,9 +130,7 @@ async def test_rf041_agenda_resena(cliente_como: Fabrica, sesion: AsyncSession) 
     assert alertas[0].estado == m.EstadoAlerta.pendiente
 
 
-async def test_rf041_iniciar_no_agenda_resena(
-    cliente_como: Fabrica, sesion: AsyncSession
-) -> None:
+async def test_rf041_iniciar_no_agenda_resena(cliente_como: Fabrica, sesion: AsyncSession) -> None:
     c = await cliente_como("empleado")
     viaje = await _viaje(sesion, _yo(c), m.EstadoViaje.confirmado)
     viaje_id = viaje.id
