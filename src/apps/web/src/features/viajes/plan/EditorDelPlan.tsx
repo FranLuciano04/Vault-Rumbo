@@ -41,10 +41,7 @@ export function EditorDelPlan({
   const definir = useDefinirPlanDePagos(cliente);
   const cobrados = pagos.filter((p) => p.estado === "pagado");
   const [filas, setFilas] = useState<Fila[]>(
-    pagos
-      .filter((p) => estaSinCobrar(p.estado))
-      .sort((a, b) => a.vencimiento.localeCompare(b.vencimiento))
-      .map(filaDe),
+    pagos.filter((p) => estaSinCobrar(p.estado)).map(filaDe),
   );
   const [error, setError] = useState<string | null>(null);
 

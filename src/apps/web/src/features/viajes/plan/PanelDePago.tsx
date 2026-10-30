@@ -47,17 +47,21 @@ export function PanelDePago({
       if (tipo === "anular") {
         await anular.mutateAsync(pago.id);
       } else if (tipo === "reprogramar") {
-        if (fecha === "") { setError("Elegí el nuevo vencimiento."); return; }
+        if (fecha === "") {
+          setError("Elegí el nuevo vencimiento.");
+          return;
+        }
         await reprogramar.mutateAsync({ pagoId: pago.id, datos: { vencimiento: fecha } });
       } else {
         const importe = montoAhora.trim();
         if (!DECIMAL.test(importe) || fecha === "") {
-          setError("Completá el monto de ahora y el vencimiento del resto."); return;
+          setError("Completá el monto de ahora y el vencimiento del resto.");
+          return;
         }
-        if (aCentesimas(importe) <= 0n || aCentesimas(importe) >= aCentesimas(pago.monto)) {
-          setError(
-            "El monto de ahora tiene que ser mayor que cero y menor que el del pago.",
-          ); return;
+        const centesimas = aCentesimas(importe);
+        if (centesimas <= 0n || centesimas >= aCentesimas(pago.monto)) {
+          setError("El monto de ahora tiene que ser mayor que cero y menor que el del pago.");
+          return;
         }
         await dividir.mutateAsync({
           pagoId: pago.id,
