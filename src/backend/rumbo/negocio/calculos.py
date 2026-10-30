@@ -2,11 +2,12 @@
 CU-12). Ganancia y margen no están acá: son columnas generadas de la base."""
 
 from collections.abc import Iterable
-from decimal import ROUND_DOWN, Decimal
+from decimal import ROUND_DOWN, ROUND_HALF_UP, Decimal
 
 from rumbo.datos.modelos import EstadoPago, Pago
 
 _FRACCION = Decimal("0.0001")
+_CENTAVO = Decimal("0.01")
 _NO_COBRADOS = (EstadoPago.pendiente, EstadoPago.vencido)
 
 
@@ -29,3 +30,11 @@ def porcentaje_pagado(precio_venta: Decimal, pagos: Iterable[Pago]) -> Decimal:
         return Decimal(0)
     cobrado = sum((p.monto for p in pagos if p.estado is EstadoPago.pagado), Decimal(0))
     return min(cobrado / precio_venta, Decimal(1)).quantize(_FRACCION, rounding=ROUND_DOWN)
+
+
+def monto_cobrado(monto: Decimal, tipo_cambio: Decimal | None) -> Decimal:
+    """Importe real recibido por un pago cobrado entero (RF-072): el `monto` planificado o, en
+    otra moneda, su equivalencia por el tipo de cambio, redondeada al centavo (RF-068)."""
+    if tipo_cambio is None:
+        return monto
+    return (monto * tipo_cambio).quantize(_CENTAVO, rounding=ROUND_HALF_UP)

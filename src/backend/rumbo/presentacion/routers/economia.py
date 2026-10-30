@@ -109,8 +109,11 @@ async def dividir_pago(
     summary="Registrar el cobro de un pago",
     **operacion_de_registro(403, 404, 409, 422, casos_de_uso="CU-12"),
 )
-async def registrar_cobro(pago_id: uuid.UUID, datos: CobroRegistrar) -> Pago:
-    raise no_implementado()
+async def registrar_cobro(
+    pago_id: uuid.UUID, datos: CobroRegistrar, actor: ActorDep, sesion: SesionDep
+) -> Pago:
+    pago = await economia.registrar_cobro(sesion, actor, pago_id, datos.model_dump())
+    return Pago.model_validate(pago)
 
 
 @router.post(

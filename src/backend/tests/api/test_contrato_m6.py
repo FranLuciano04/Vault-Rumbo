@@ -623,6 +623,7 @@ _IMPLEMENTADAS = {
     ("put", f"/api/viajes/{ID}/economia"),
     ("get", f"/api/viajes/{ID}/pagos"),
     ("put", f"/api/viajes/{ID}/pagos"),
+    ("post", f"/api/pagos/{ID}/cobrar"),  # T-094, test_cobros.py
 }
 OPERACIONES_STUB = [op for op in OPERACIONES_HTTP if (op[0], op[1]) not in _IMPLEMENTADAS]
 

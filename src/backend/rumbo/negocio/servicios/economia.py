@@ -1,5 +1,5 @@
-"""Servicio del módulo economía: registro de la economía del viaje y su plan de pagos (CU-10,
-CU-11, RN-01, DEC-0007)."""
+"""Servicio del módulo economía: registro de la economía del viaje, su plan de pagos y el cobro
+de cada pago (CU-10, CU-11, CU-12, RN-01, DEC-0007)."""
 
 import uuid
 from dataclasses import dataclass, field
@@ -13,6 +13,7 @@ from rumbo.core.fechas import sumar_meses
 from rumbo.datos.modelos import (
     EstadoPago,
     EstadoViaje,
+    Moneda,
     Pago,
     RolUsuario,
     TipoAlerta,
@@ -27,12 +28,16 @@ from rumbo.datos.repositorios.viajes import RepositorioPagos, RepositorioViajes
 from rumbo.negocio import calculos
 from rumbo.negocio.errores import Conflicto, DatosInvalidos, NoEncontrado
 from rumbo.negocio.estados import pago as estado_pago
+from rumbo.negocio.estados import viaje as estado_viaje
 from rumbo.negocio.politicas import exigir_escritura, visibilidad
 from rumbo.negocio.servicios import alertas
 
 GANANCIA_NEGATIVA = "ganancia_negativa"
 MARGEN_NEGATIVO = "margen_negativo"
 PLAN_DESBALANCEADO = "plan_desbalanceado"
+
+# Tope de un importe guardado: la columna es numeric(14,2) (monto_cobrado, DEC-0013).
+_IMPORTE_MAXIMO = Decimal("999999999999.99")
 
 # Un viaje cancelado o finalizado ya no admite cambios en su economía; en curso, sí.
 _CERRADOS = (EstadoViaje.cancelado, EstadoViaje.finalizado)
@@ -148,6 +153,68 @@ async def definir_plan_de_pagos(
             pago,
         )
     return await _plan(sesion, actor, viaje)
+
+
+async def registrar_cobro(
+    sesion: AsyncSession, actor: Usuario, pago_id: uuid.UUID, datos: dict[str, Any]
+) -> Pago:
+    """Cobra un pago `pendiente` o `vencido` entero (CU-12, RF-067, RF-072, A1), con su forma
+    de pago (RF-071) y, si la moneda difiere de la del viaje, el tipo de cambio y la
+    equivalencia (RF-068). Resuelve la alerta del pago y avanza el viaje: el primer cobro lo
+    pasa a `vendido` (A0) y el que deja el saldo en cero, a `confirmado` (A2), salvo que el
+    plan no sume el precio: el viaje queda `vendido` hasta rebalancearlo (CU-10 A4). Todo en la
+    transacción del pedido, con el viaje bloqueado. Escribe el responsable, admin o dueño."""
+    pago = await _pagos.obtener(sesion, pago_id, visibilidad=visibilidad(actor))
+    viaje = await _viajes.obtener_para_modificar(
+        sesion, pago.viaje_id, visibilidad=visibilidad(actor)
+    )
+    exigir_escritura(actor, viaje)
+    await sesion.refresh(pago)  # releído con el viaje ya bloqueado: dos cobros no se pisan
+    tipo_cambio = _tipo_cambio(viaje.moneda, datos["moneda_pago"], datos.get("tipo_cambio"))
+    monto_cobrado = _monto_cobrado(pago.monto, tipo_cambio)
+
+    estado_pago.cobrar(pago)
+    pago.forma_pago = datos["forma_pago"]
+    pago.moneda_pago = datos["moneda_pago"]
+    pago.tipo_cambio = tipo_cambio
+    pago.monto_cobrado = monto_cobrado
+    pago.fecha_cobro = datos["fecha_cobro"]
+    pagos = await _pagos.listar_de_viaje(sesion, viaje.id, visibilidad=visibilidad(actor))
+    estado_viaje.al_registrar_cobro(
+        viaje,
+        saldo=calculos.saldo_pendiente(pagos),
+        plan_balanceado=not calculos.plan_desbalanceado(viaje.precio_venta, pagos),
+    )
+    await alertas.resolver_de_origen(sesion, pago, (TipoAlerta.pago,))
+    await sesion.flush()
+    await sesion.refresh(pago)
+    return pago
+
+
+def _tipo_cambio(
+    moneda_viaje: Moneda, moneda_pago: Moneda | str, tipo_cambio: Decimal | None
+) -> Decimal | None:
+    """En la moneda del viaje no hay tipo de cambio (se ignora el enviado); en otra, es
+    obligatorio (RF-068)."""
+    if Moneda(moneda_pago) is moneda_viaje:
+        return None
+    if tipo_cambio is None:
+        raise DatosInvalidos(
+            "tipo_cambio", "Indicá el tipo de cambio: la moneda del cobro no es la del viaje."
+        )
+    return tipo_cambio
+
+
+def _monto_cobrado(monto: Decimal, tipo_cambio: Decimal | None) -> Decimal:
+    """La equivalencia del cobro tiene que ser mayor a cero y caber en la columna; si no, el
+    tipo de cambio enviado no sirve (RF-068)."""
+    monto_cobrado = calculos.monto_cobrado(monto, tipo_cambio)
+    if not 0 < monto_cobrado <= _IMPORTE_MAXIMO:
+        raise DatosInvalidos(
+            "tipo_cambio",
+            f"Con ese tipo de cambio el cobro equivale a {monto_cobrado}, fuera de rango.",
+        )
+    return monto_cobrado
 
 
 async def _plan(sesion: AsyncSession, actor: Usuario, viaje: Viaje) -> list[Pago]:

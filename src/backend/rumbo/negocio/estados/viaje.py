@@ -22,14 +22,16 @@ def _exigir(viaje: Viaje, *validos: EstadoViaje, accion: str) -> None:
         raise TransicionInvalida(f"No se puede {accion} un viaje {viaje.estado.value}.")
 
 
-def al_registrar_cobro(viaje: Viaje, *, saldo: Decimal) -> None:
+def al_registrar_cobro(viaje: Viaje, *, saldo: Decimal, plan_balanceado: bool = True) -> None:
     """T2 y T3: el primer cobro pasa `reservado` a `vendido`; si `saldo` (ya con este cobro)
-    es cero, sigue a `confirmado` en la misma operación. Un saldo negativo es un error de
-    cálculo de quien llama: `TransicionInvalida`."""
+    es cero, sigue a `confirmado` en la misma operación. Con el plan descalzado del precio no
+    confirma aunque el saldo sea cero: primero hay que rebalancearlo (CU-10 A4). Un saldo
+    negativo es un error de cálculo de quien llama: `TransicionInvalida`."""
     _exigir(viaje, EstadoViaje.reservado, EstadoViaje.vendido, accion="registrar un cobro en")
     if saldo < 0:
         raise TransicionInvalida("Un cobro no puede dejar el saldo del viaje negativo.")
-    viaje.estado = EstadoViaje.confirmado if saldo == 0 else EstadoViaje.vendido
+    saldado = saldo == 0 and plan_balanceado
+    viaje.estado = EstadoViaje.confirmado if saldado else EstadoViaje.vendido
 
 
 def al_revertir_cobro(viaje: Viaje, *, saldo: Decimal, quedan_cobros: bool) -> None:
