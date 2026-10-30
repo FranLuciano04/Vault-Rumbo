@@ -1,4 +1,5 @@
-"""Rutas del dashboard y los reportes (CU-21, CU-22). Todas son stubs que responden 501."""
+"""Rutas del dashboard y los reportes (CU-21, CU-22). El dashboard calcula el embudo y los
+indicadores económicos; los reportes siguen siendo stubs que responden 501."""
 
 import uuid
 from datetime import date, timedelta
@@ -86,7 +87,8 @@ async def ver_dashboard(
         comisiones=_montos(indicadores.comisiones),
         cobrado=_montos(indicadores.cobrado),
         pendiente_de_cobrar=_montos(indicadores.pendiente_de_cobrar),
-        # Indicadores operativos: ticket propio (T-122); hasta entonces, vacíos o en cero.
+        # Sin implementar: `ventas_mensuales`, `pendiente_de_pagar` y `proximos_vencimientos`
+        # (RF-124) quedan pendientes y se anotan en T-122; el resto es de T-122. Vacíos o en cero.
         ventas_mensuales=[],
         ticket_promedio=[],
         pendiente_de_pagar=[],

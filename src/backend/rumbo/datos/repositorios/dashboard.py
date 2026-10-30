@@ -120,19 +120,18 @@ class RepositorioDashboard:
         self,
         sesion: AsyncSession,
         *,
-        desde: datetime,
-        hasta: datetime,
         responsable_id: uuid.UUID | None,
         visibilidad: Visibilidad,
     ) -> dict[Moneda, Decimal]:
-        """Suma de los pagos pendientes o vencidos de las ventas del período, por moneda del
-        viaje."""
+        """Foto de hoy: suma de los pagos pendientes o vencidos, sea cual sea el viaje y su
+        fecha de venta, por moneda del viaje. Los de viajes cancelados ya están anulados."""
         consulta = (
             visibilidad.aplicar(select(Pago), Pago)
             .join(Viaje, Viaje.id == Pago.viaje_id)
             .where(Pago.estado.in_((EstadoPago.pendiente, EstadoPago.vencido)))
         )
-        consulta = _de_viajes_vendidos(consulta, desde, hasta, responsable_id)
+        if responsable_id is not None:
+            consulta = consulta.where(Viaje.responsable_id == responsable_id)
         agregado = consulta.with_only_columns(Viaje.moneda, func.sum(Pago.monto)).group_by(
             Viaje.moneda
         )

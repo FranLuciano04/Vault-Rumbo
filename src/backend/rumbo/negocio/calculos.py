@@ -42,7 +42,9 @@ def monto_cobrado(monto: Decimal, tipo_cambio: Decimal | None) -> Decimal:
 
 def comision_del_vendedor(tipo: TipoComision, valor: Decimal, ganancia: Decimal) -> Decimal:
     """Importe de la comisión de un viaje: `valor` si es un importe, o ese porcentaje de la
-    ganancia redondeado al centavo (DEC-0007, DEC-0013)."""
+    ganancia redondeado al centavo, o cero si no hubo ganancia (DEC-0007, DEC-0013)."""
     if tipo is TipoComision.importe:
         return valor
+    if ganancia <= 0:
+        return Decimal(0)
     return (ganancia * valor / 100).quantize(_CENTAVO, rounding=ROUND_HALF_UP)

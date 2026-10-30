@@ -9,15 +9,15 @@ son de otro ticket y no se aseveran. Supuestos que fijan estos tests y que el ti
 - «Venta»: viaje del período que no está `cancelado`. `ventas` suma `precio_venta` y
   `ganancia_estimada` suma `ganancia` (venta - costo), por moneda del viaje (DEC-0007).
 - `cobrado`: suma de `monto_cobrado` de los pagos `pagado` con `fecha_cobro` en el período.
-- `pendiente_de_cobrar`: suma de `monto` de los pagos `pendiente` o `vencido` de los viajes del
-  período (los `anulado` no cuentan).
+- `pendiente_de_cobrar`: foto de hoy (CU-21): suma de `monto` de todos los pagos `pendiente` o
+  `vencido`, sin importar cuándo se creó el viaje (los `anulado` no cuentan).
 - Embudo: `etapas` trae las cinco etapas (también con cantidad 0); `tasa_conversion` =
   ganadas / (ganadas + perdidas), 0 si no hay cerradas.
 - `margen` (lista por moneda, fracción con 4 decimales) = ganancia total / ventas totales de la
   moneda (ponderado, DEC-0007: sobre el precio de venta), redondeado half-up a 4 decimales. Si las
   ventas de la moneda son 0 no se informa. `comisiones` (`list[MontoPorMoneda]`) suma la comisión
   del vendedor de cada venta: el importe si `comision_tipo` es `importe`, o ganancia x % / 100
-  redondeado half-up al centavo si es `porcentaje`. Ambos campos aún no existen en `Dashboard`.
+  redondeado half-up al centavo si es `porcentaje` (0 si la ganancia no es positiva).
 - Sin actividad: listas de importes vacías y conversión 0; las etapas del embudo en cero.
 """
 
@@ -361,3 +361,53 @@ async def test_periodo_sin_datos_devuelve_ceros(
         "pendiente_de_cobrar",
     ]:
         assert cuerpo[indicador] == [] or set(_montos(cuerpo[indicador]).values()) == {Decimal("0")}
+
+
+async def test_rf124_pendiente_de_cobrar_incluye_viajes_anteriores_al_periodo(
+    cliente_como: Fabrica, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("admin")
+    viejo = await _viaje(sesion, _yo(c), creado=FUERA_DE_PERIODO)
+    await _pago(sesion, viejo, "250000.00", "pendiente")
+
+    r = await c.get(URL, params=PERIODO)
+
+    assert r.status_code == 200
+    assert _montos(r.json()["pendiente_de_cobrar"]) == {"ARS": Decimal("250000.00")}
+    assert r.json()["ventas"] == []
+
+
+async def test_rf124_comision_porcentual_con_ganancia_negativa_es_cero(
+    cliente_como: Fabrica, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("admin")
+    await _viaje(sesion, _yo(c), "100000.00", "150000.00", comision_vendedor=Decimal("10.00"))
+
+    r = await c.get(URL, params=PERIODO)
+
+    assert r.status_code == 200
+    assert _montos(r.json()["comisiones"]) == {"ARS": Decimal("0.00")}
+    assert _montos(r.json()["ganancia_estimada"]) == {"ARS": Decimal("-50000.00")}
+
+
+async def test_rf127_desde_posterior_a_hasta_responde_422(cliente_como: Fabrica) -> None:
+    c = await cliente_como("admin")
+
+    r = await c.get(URL, params={"desde": "2026-09-30", "hasta": "2026-09-01"})
+
+    assert r.status_code == 422
+    assert r.headers["content-type"].startswith("application/problem+json")
+
+
+async def test_rf127_el_periodo_se_corta_en_hora_de_argentina(
+    cliente_como: Fabrica, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("admin")
+    # 01/09 02:00 UTC = 31/08 23:00 en Argentina: es de agosto.
+    await _viaje(sesion, _yo(c), creado=datetime(2026, 9, 1, 2, 0, tzinfo=UTC))
+
+    septiembre = await c.get(URL, params=PERIODO)
+    agosto = await c.get(URL, params={"desde": "2026-08-01", "hasta": "2026-08-31"})
+
+    assert septiembre.json()["ventas"] == []
+    assert _montos(agosto.json()["ventas"]) == {"ARS": Decimal("1000000.00")}

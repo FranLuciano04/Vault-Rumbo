@@ -9,6 +9,7 @@ from decimal import ROUND_HALF_UP, Decimal
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from rumbo.core.errores import DatosInvalidos
 from rumbo.core.fechas import limites_del_dia
 from rumbo.datos.modelos import EstadoOportunidad, Moneda, Usuario
 from rumbo.datos.repositorios.dashboard import RepositorioDashboard
@@ -44,8 +45,11 @@ async def calcular_indicadores(
     hasta: date,
     responsable_id: uuid.UUID | None,
 ) -> IndicadoresEconomicos:
-    """Indicadores del período `[desde, hasta]`, inclusive. Admin y dueño ven toda la agencia y
-    filtran por `responsable_id`; el resto ve solo lo suyo e ignora ese filtro (RF-129)."""
+    """Indicadores del período `[desde, hasta]`, inclusive; `desde > hasta` es un dato inválido.
+    Admin y dueño ven toda la agencia y filtran por `responsable_id`; el resto ve solo lo suyo e
+    ignora ese filtro (RF-129). `pendiente_de_cobrar` es la foto de hoy, sin acotar al período."""
+    if desde > hasta:
+        raise DatosInvalidos("hasta", "La fecha final no puede ser anterior a la inicial.")
     if not es_direccion(actor):
         responsable_id = actor.id
     vista = visibilidad(actor)
@@ -60,7 +64,7 @@ async def calcular_indicadores(
         sesion, desde=desde, hasta=hasta, responsable_id=responsable_id, visibilidad=vista
     )
     pendiente = await _dashboard.pendiente_de_cobrar(
-        sesion, desde=inicio, hasta=fin, responsable_id=responsable_id, visibilidad=vista
+        sesion, responsable_id=responsable_id, visibilidad=vista
     )
 
     ventas: Totales = defaultdict(Decimal)
