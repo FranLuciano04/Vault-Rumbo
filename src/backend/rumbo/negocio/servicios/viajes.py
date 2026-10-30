@@ -8,7 +8,7 @@ from decimal import Decimal
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from rumbo.core.fechas import hoy
-from rumbo.datos.modelos import EstadoAlerta, TipoAlerta, Usuario, Viaje
+from rumbo.datos.modelos import EstadoAlerta, EstadoViaje, TipoAlerta, Usuario, Viaje
 from rumbo.datos.repositorios.alertas import RepositorioAlertas
 from rumbo.datos.repositorios.seguridad import RepositorioUsuarios
 from rumbo.datos.repositorios.viajes import RepositorioPagos, RepositorioViajes
@@ -58,8 +58,12 @@ async def corregir_estado(sesion: AsyncSession, actor: Usuario, viaje_id: uuid.U
     atender; las reseñas ya cargadas se conservan (DEC-0021). Los estados que produjo un cobro o
     la cancelación se deshacen por su propio flujo: `TransicionInvalida`."""
     viaje = await _viaje_a_cambiar(sesion, actor, viaje_id)
-    sin_atender = await _alertas.listar_de_origen(
-        sesion, viaje, (EstadoAlerta.pendiente, EstadoAlerta.vista), (TipoAlerta.resena,)
+    sin_atender = (
+        await _alertas.listar_de_origen(
+            sesion, viaje, (EstadoAlerta.pendiente, EstadoAlerta.vista), (TipoAlerta.resena,)
+        )
+        if viaje.estado is EstadoViaje.finalizado
+        else []
     )
     estado_viaje.corregir(viaje, alertas=sin_atender)
     return await _guardar(sesion, actor, viaje)
