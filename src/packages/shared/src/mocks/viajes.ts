@@ -52,12 +52,18 @@ const nombreDeDestino: Record<string, string> = {
   "9c1d2e3f-4a5b-4c6d-8e7f-0a1b2c3d4e06": "Lisboa",
 };
 
+function nombrePorId(nombres: Record<string, string>, id: string): string {
+  const nombre = nombres[id];
+  if (nombre === undefined) throw new Error(`Falta el nombre de ${id} en los mocks de viajes`);
+  return nombre;
+}
+
 /** Un viaje ficticio: ARS, ganancia 20 %, comisión del 10 % sobre la ganancia, sin cobros. */
 function viaje(parcial: Partial<Viaje> & Pick<Viaje, "id" | "cliente_id" | "destino_id">): Viaje {
   return {
     ...auditoriaMock,
-    cliente_nombre: nombreDeCliente[parcial.cliente_id] ?? "",
-    destino_nombre: nombreDeDestino[parcial.destino_id] ?? "",
+    cliente_nombre: nombrePorId(nombreDeCliente, parcial.cliente_id),
+    destino_nombre: nombrePorId(nombreDeDestino, parcial.destino_id),
     oportunidad_id: null,
     operador_id,
     responsable_id,

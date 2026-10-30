@@ -40,7 +40,9 @@ export function PaginaViajes({
 
   const { data, isPending, isError, isPlaceholderData } = useViajes(cliente, {
     ...filtros,
-    ...(pestana === "mios" || esFreelance ? { mios: true } : {}),
+    // `mios` es «los que llevo yo»; el freelance no lo manda: la API ya recorta por visibilidad
+    // (sus clientes o los que lleva), que es más ancho que «los que llevo».
+    ...(pestana === "mios" && !esFreelance ? { mios: true } : {}),
   });
 
   // Todo cambio de filtro vuelve a la primera página.
