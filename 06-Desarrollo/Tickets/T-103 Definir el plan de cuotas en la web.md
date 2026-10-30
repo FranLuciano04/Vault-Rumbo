@@ -3,7 +3,7 @@ id: T-103
 titulo: Definir el plan de cuotas en la web
 modulo: M6 — Viajes y economía
 capa: web
-estado: libre
+estado: tomado
 depende_de: [T-102]
 tamaño: M
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [CU-11, RF-059, RF-060, RF-061, RF-064, RF-065, RF-066]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: palomap2003
+tomado_el: 30/10/26 08:53
+rama: feature/T-103-definir-el-plan-de-cuotas-en-la-web
 pr:
 ---
 # T-103 Definir el plan de cuotas en la web
