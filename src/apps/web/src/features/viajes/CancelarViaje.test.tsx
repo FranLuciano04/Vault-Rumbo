@@ -8,7 +8,9 @@ import {
   manejadoresHoteles,
   manejadoresM1,
   manejadoresViajes,
+  pagosPorViajeMock,
   usuariosPorRol,
+  viajesMock,
   type RolMock,
 } from "@rumbo/shared/mocks";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -342,5 +344,71 @@ describe("RF-053 revertir", () => {
     await userEvent.click(within(dialogo).getByRole("button", { name: REVERTIR }));
 
     expect(await screen.findByRole("alert")).toHaveTextContent(/no se puede revertir/i);
+  });
+});
+
+describe("RF-048 bloque «Al cancelar» y cobros (CU-27 paso 5, A2, A4)", () => {
+  it("RF-048 un viaje en curso mantiene la comisión del vendedor (A4)", async () => {
+    const dialogo = await abrirCancelar("en_curso");
+
+    expect(within(dialogo).getByRole("region", { name: /al cancelar/i })).toHaveTextContent(
+      /comisión del vendedor se mantiene/i,
+    );
+  });
+
+  it("RF-048 un viaje que no está en curso no realiza la comisión", async () => {
+    const dialogo = await abrirCancelar("vendido");
+
+    const bloque = within(dialogo).getByRole("region", { name: /al cancelar/i });
+    expect(bloque).toHaveTextContent(/pasa a «cancelado»/i);
+    expect(bloque).toHaveTextContent(/comisión proyectada del vendedor no se realiza/i);
+    expect(bloque).toHaveTextContent(/se cierran las alertas vigentes/i);
+  });
+
+  it("RF-048 informa la cantidad y el total de pagos no cobrados que pasan a anulado", async () => {
+    // El viaje vendido tiene la seña cobrada y dos cuotas de ARS 600.000 sin cobrar.
+    const dialogo = await abrirCancelar("vendido");
+
+    const bloque = within(dialogo).getByRole("region", { name: /al cancelar/i });
+    expect(await within(bloque).findByText(/2 pagos no cobrados/i)).toHaveTextContent(
+      /1\.200\.000,00.*«anulado»/,
+    );
+  });
+
+  it("RF-048 los cobros en pesos y en dólares se informan por moneda (A2)", async () => {
+    servidor.use(
+      http.get("*/api/viajes/:id/pagos", () =>
+        HttpResponse.json(pagosPorViajeMock[idViajeMock.confirmado]),
+      ),
+    );
+    const dialogo = await abrirCancelar("confirmado");
+
+    expect(await within(dialogo).findByText(/ya se cobraron/i)).toHaveTextContent(
+      /\$ 1\.200\.000,00 y US\$ 2\.200,00/,
+    );
+  });
+
+  it("RF-048 si no se pueden cargar los cobros, lo avisa en lugar de ocultar el aviso", async () => {
+    servidor.use(http.get("*/api/viajes/:id/pagos", () => problema(500, "Falla")));
+    const dialogo = await abrirCancelar("vendido");
+
+    expect(await within(dialogo).findByText(/no pudimos cargar los cobros/i)).toBeInTheDocument();
+    expect(within(dialogo).queryByText(/ya se cobraron/i)).toBeNull();
+  });
+});
+
+describe("RF-053 revertir sin estado previo", () => {
+  it("RF-053 si no se conoce el estado previo, usa un texto genérico", async () => {
+    const cancelado = viajesMock.find((v) => v.id === idViajeMock.cancelado);
+    servidor.use(
+      http.get("*/api/viajes/:id", () => HttpResponse.json({ ...cancelado, estado_previo: null })),
+    );
+    renderFicha("cancelado");
+    const region = await acciones();
+
+    await userEvent.click(await within(region).findByRole("button", { name: REVERTIR }));
+    const dialogo = await screen.findByRole("dialog", { name: /revertir/i });
+
+    expect(dialogo).toHaveTextContent(/vuelve al estado que tenía antes de cancelarse/i);
   });
 });

@@ -240,7 +240,7 @@ export function AccionesDelViaje({
       {cancelado && abierta === "revertir" && (
         <ConfirmarEstado
           titulo="Revertir la cancelación del viaje"
-          detalle={`El viaje vuelve a «${ETIQUETA_ESTADO_VIAJE[viaje.estado_previo ?? "reservado"]}». Usalo solo si la cancelación fue un error.`}
+          detalle={`El viaje ${viaje.estado_previo ? `vuelve a «${ETIQUETA_ESTADO_VIAJE[viaje.estado_previo]}»` : "vuelve al estado que tenía antes de cancelarse"}. Usalo solo si la cancelación fue un error.`}
           confirmar="Revertir cancelación"
           ejecutar={() => revertir.mutateAsync(viaje.id)}
           cerrar={cerrar}
