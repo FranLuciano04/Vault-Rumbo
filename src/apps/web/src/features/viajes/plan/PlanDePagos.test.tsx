@@ -42,6 +42,9 @@ function renderPlan(viaje: Viaje, editable = true) {
   );
 }
 
+const importe = (entero: string): unknown =>
+  expect.stringMatching(new RegExp(`^${entero}(\\.00)?$`));
+
 const problema = (status: number, detail: string) =>
   HttpResponse.json(
     { title: "Error", status, detail },
@@ -124,9 +127,7 @@ describe("RF-061 suma del plan", () => {
     await cambiarMonto(user, 0, "500000");
 
     expect(screen.getByRole("button", { name: /guardar plan/i })).toBeDisabled();
-    expect(screen.getByText(/diferencia/i)).toHaveTextContent(
-      formatearImporte("100000.00", "ARS"),
-    );
+    expect(screen.getByText(/diferencia/i)).toHaveTextContent(formatearImporte("100000.00", "ARS"));
 
     // Al volver a cuadrar desaparece la diferencia y se habilita guardar.
     await cambiarMonto(user, 1, "200000");
@@ -151,17 +152,17 @@ describe("RF-061 suma del plan", () => {
       pagos: [
         {
           tipo: "sena",
-          monto: expect.stringMatching(/^500000(\.00)?$/),
+          monto: importe("500000"),
           vencimiento: "2026-11-01",
         },
         {
           tipo: "cuota",
-          monto: expect.stringMatching(/^200000(\.00)?$/),
+          monto: importe("200000"),
           vencimiento: "2026-12-15",
         },
         {
           tipo: "saldo",
-          monto: expect.stringMatching(/^300000(\.00)?$/),
+          monto: importe("300000"),
           vencimiento: "2027-01-15",
         },
       ],
@@ -226,7 +227,7 @@ describe("RF-064 pago único", () => {
       pagos: [
         {
           tipo: "saldo",
-          monto: expect.stringMatching(/^1000000(\.00)?$/),
+          monto: importe("1000000"),
           vencimiento: "2026-12-30",
         },
       ],
@@ -253,9 +254,7 @@ describe("RF-059 plan desbalanceado tras cambiar el precio (A5)", () => {
     await abrirEditor();
 
     expect(screen.getByRole("button", { name: /guardar plan/i })).toBeDisabled();
-    expect(screen.getByText(/diferencia/i)).toHaveTextContent(
-      formatearImporte("200000.00", "ARS"),
-    );
+    expect(screen.getByText(/diferencia/i)).toHaveTextContent(formatearImporte("200000.00", "ARS"));
   });
 });
 
@@ -363,7 +362,7 @@ describe("CU-11 A6 dividir un pago", () => {
     await waitFor(() => {
       expect(cuerpos).toEqual([
         {
-          monto_ahora: expect.stringMatching(/^100000(\.00)?$/),
+          monto_ahora: importe("100000"),
           vencimiento_resto: "2027-01-10",
         },
       ]);
@@ -384,7 +383,67 @@ describe("CU-11 A6 dividir un pago", () => {
     });
     await user.click(screen.getByRole("button", { name: /confirmar/i }));
 
-    expect(await screen.findByRole("alert")).toBeInTheDocument();
+    expect(await screen.findByRole("alert")).toHaveTextContent(/menor que el del pago/i);
     expect(cuerpos).toHaveLength(0);
+  });
+});
+
+describe("T-103 fix de la review", () => {
+  it("sin pagos vigentes no avisa que hay que rebalancear y ofrece definir el plan", async () => {
+    servidor.use(http.get("*/api/viajes/:id/pagos", () => HttpResponse.json([])));
+    renderPlan(viajeDe("reservado"));
+
+    expect(await screen.findByText(/todavía no hay un plan/i)).toBeInTheDocument();
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+  });
+
+  it("un plan vacío se arma con seña, cuota y saldo y se guarda con los tres tipos", async () => {
+    const cuerpos: Record<string, unknown>[] = [];
+    servidor.use(
+      http.get("*/api/viajes/:id/pagos", () => HttpResponse.json([])),
+      registrar("put", "*/api/viajes/:id/pagos", cuerpos),
+    );
+    renderPlan(viajeDe("reservado"));
+    const user = await abrirEditor();
+
+    await user.click(screen.getByRole("button", { name: /agregar saldo/i }));
+    await user.click(screen.getByRole("button", { name: /agregar cuota/i }));
+    await user.click(screen.getByRole("button", { name: /agregar seña/i }));
+    expect(screen.queryByRole("button", { name: /agregar seña/i })).not.toBeInTheDocument();
+    await cambiarMonto(user, 0, "400000");
+    await cambiarMonto(user, 1, "300000");
+    await cambiarMonto(user, 2, "300000");
+    for (const campo of screen.getAllByLabelText(/^vencimiento/i)) {
+      fireEvent.change(campo, { target: { value: "2026-12-30" } });
+    }
+    await user.click(screen.getByRole("button", { name: /guardar plan/i }));
+
+    await waitFor(() => {
+      expect(cuerpos).toHaveLength(1);
+    });
+    expect((cuerpos[0] as { pagos: { tipo: string }[] }).pagos.map((p) => p.tipo)).toEqual([
+      "sena",
+      "cuota",
+      "saldo",
+    ]);
+  });
+
+  it("no deja guardar con un monto en cero aunque la suma cuadre", async () => {
+    renderPlan(viajeDe("reservado"));
+    const user = await abrirEditor();
+
+    await cambiarMonto(user, 0, "0");
+    await cambiarMonto(user, 1, "700000");
+
+    expect(screen.getByText(/coincide con el precio/i)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /guardar plan/i })).toBeDisabled();
+  });
+
+  it("sin saldo por planificar no ofrece el pago único", async () => {
+    renderPlan(viajeDe("vendido", { precio_venta: "600000.00" }));
+    await abrirEditor();
+
+    expect(screen.queryByRole("button", { name: /pago único/i })).not.toBeInTheDocument();
+    expect(screen.getByText(/no queda saldo por planificar/i)).toBeInTheDocument();
   });
 });

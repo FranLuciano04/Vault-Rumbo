@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { mensajeDeError } from "@/lib/errores";
 import { aCentesimas, deCentesimas } from "../calculos";
 import { DECIMAL } from "../esquemas";
-import { ETIQUETA_TIPO_PAGO, estaSinCobrar } from "./etiquetas";
+import { estaSinCobrar, nombreDePago } from "./etiquetas";
 
 type Fila = { clave: string; tipo: TipoPago; monto: string; vencimiento: string };
 
@@ -35,6 +35,7 @@ export function EditorDelPlan({
 }: {
   cliente: AxiosInstance;
   viaje: Viaje;
+  /** Los pagos del viaje, ordenados por vencimiento. */
   pagos: Pago[];
   cerrar: () => void;
 }) {
@@ -57,11 +58,14 @@ export function EditorDelPlan({
   );
   const diferencia = suma === null ? null : aCentesimas(viaje.precio_venta) - suma;
   const completo = filas.every((f) => f.vencimiento !== "");
-  const puedeGuardar = diferencia === 0n && completo && !definir.isPending;
+  const montosPositivos = importes.every((importe) => importe !== null && importe > 0n);
+  const puedeGuardar =
+    filas.length > 0 && montosPositivos && diferencia === 0n && completo && !definir.isPending;
+  const pendiente =
+    aCentesimas(viaje.precio_venta) - cobrados.reduce((t, p) => t + aCentesimas(p.monto), 0n);
+  const hay = (tipo: TipoPago) => [...cobrados, ...filas].some((f) => f.tipo === tipo);
 
   function pagoUnico() {
-    const pendiente =
-      aCentesimas(viaje.precio_venta) - cobrados.reduce((t, p) => t + aCentesimas(p.monto), 0n);
     setFilas([
       {
         clave: "unico",
@@ -72,17 +76,19 @@ export function EditorDelPlan({
     ]);
   }
 
-  function agregarCuota() {
-    const saldo = filas.findIndex((f) => f.tipo === "saldo");
+  /** La seña va al principio, el saldo al final y las cuotas antes del saldo. */
+  function agregar(tipo: TipoPago) {
     const nueva: Fila = {
       clave: crypto.randomUUID(),
-      tipo: "cuota",
+      tipo,
       monto: "0.00",
       vencimiento: ultimoVencimiento,
     };
-    setFilas(
-      saldo < 0 ? [...filas, nueva] : [...filas.slice(0, saldo), nueva, ...filas.slice(saldo)],
-    );
+    const saldo = filas.findIndex((f) => f.tipo === "saldo");
+    if (tipo === "sena") setFilas([nueva, ...filas]);
+    else if (tipo === "cuota" && saldo >= 0) {
+      setFilas([...filas.slice(0, saldo), nueva, ...filas.slice(saldo)]);
+    } else setFilas([...filas, nueva]);
   }
 
   async function guardar() {
@@ -120,23 +126,24 @@ export function EditorDelPlan({
       )}
       <ul className="flex flex-col gap-3">
         {filas.map((fila, i) => {
-          const nombre = `${ETIQUETA_TIPO_PAGO[fila.tipo].toLowerCase()}${fila.tipo === "cuota" ? ` ${String(i)}` : ""}`;
+          const numeroDeCuota = filas.slice(0, i + 1).filter((f) => f.tipo === "cuota").length;
+          const nombre = nombreDePago(fila.tipo, numeroDeCuota);
           return (
             <li key={fila.clave} className="grid grid-cols-[1fr_1fr_auto] items-end gap-3">
               <div className="flex flex-col gap-1">
-                <Label htmlFor={`monto-${fila.clave}`}>{`Monto de la ${nombre}`}</Label>
+                <Label htmlFor={`monto-${fila.clave}`}>{`Monto de ${nombre}`}</Label>
                 <Input
                   id={`monto-${fila.clave}`}
                   inputMode="decimal"
                   value={fila.monto}
-                  aria-invalid={centesimasDe(fila.monto) === null}
+                  aria-invalid={!((centesimasDe(fila.monto) ?? 0n) > 0n)}
                   onChange={(evento) => {
                     cambiar(fila.clave, { monto: evento.target.value });
                   }}
                 />
               </div>
               <div className="flex flex-col gap-1">
-                <Label htmlFor={`vencimiento-${fila.clave}`}>{`Vencimiento de la ${nombre}`}</Label>
+                <Label htmlFor={`vencimiento-${fila.clave}`}>{`Vencimiento de ${nombre}`}</Label>
                 <Input
                   id={`vencimiento-${fila.clave}`}
                   type="date"
@@ -146,19 +153,19 @@ export function EditorDelPlan({
                   }}
                 />
               </div>
-              {fila.tipo === "cuota" && (
+              {
                 <Button
                   type="button"
                   variant="outline"
                   size="sm"
-                  aria-label={`Quitar la ${nombre}`}
+                  aria-label={`Quitar ${nombre}`}
                   onClick={() => {
                     setFilas(filas.filter((f) => f.clave !== fila.clave));
                   }}
                 >
                   Quitar
                 </Button>
-              )}
+              }
             </li>
           );
         })}
@@ -166,21 +173,59 @@ export function EditorDelPlan({
 
       {diferencia === null ? (
         <p className="text-sm text-destructive">Revisá los importes: hay alguno inválido.</p>
+      ) : diferencia !== 0n ? (
+        <p className="text-sm text-destructive">
+          {`Diferencia con el precio de venta: ${formatearImporte(deCentesimas(diferencia < 0n ? -diferencia : diferencia), viaje.moneda)} (${diferencia > 0n ? "faltan" : "sobran"})`}
+        </p>
       ) : (
-        diferencia !== 0n && (
-          <p className="text-sm text-destructive">
-            {`Diferencia con el precio de venta: ${formatearImporte(deCentesimas(diferencia < 0n ? -diferencia : diferencia), viaje.moneda)} (${diferencia > 0n ? "faltan" : "sobran"})`}
-          </p>
-        )
+        <p role="status" className="text-sm text-emerald-700">
+          La suma de los pagos coincide con el precio de venta.
+        </p>
+      )}
+      {pendiente <= 0n && (
+        <p className="text-sm text-muted-foreground">No queda saldo por planificar.</p>
       )}
 
       <div className="flex flex-wrap gap-2">
-        <Button type="button" variant="outline" size="sm" onClick={agregarCuota}>
+        {!hay("sena") && (
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              agregar("sena");
+            }}
+          >
+            Agregar seña
+          </Button>
+        )}
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={() => {
+            agregar("cuota");
+          }}
+        >
           Agregar cuota
         </Button>
-        <Button type="button" variant="outline" size="sm" onClick={pagoUnico}>
-          Pago único
-        </Button>
+        {!hay("saldo") && (
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              agregar("saldo");
+            }}
+          >
+            Agregar saldo
+          </Button>
+        )}
+        {pendiente > 0n && (
+          <Button type="button" variant="outline" size="sm" onClick={pagoUnico}>
+            Pago único
+          </Button>
+        )}
         <Button type="submit" size="sm" disabled={!puedeGuardar}>
           Guardar plan
         </Button>

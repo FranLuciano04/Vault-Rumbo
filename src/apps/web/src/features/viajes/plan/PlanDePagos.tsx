@@ -17,11 +17,14 @@ const ACCIONES: { tipo: AccionDePago["tipo"]; texto: string }[] = [
   { tipo: "anular", texto: "Anular" },
 ];
 
-/** Los pagos vigentes (sin anular) tienen que sumar el precio de venta (CU-11 A5). */
-const sumaElPrecio = (pagos: Pago[], precioVenta: string) =>
-  pagos
-    .filter((p) => p.estado !== "anulado")
-    .reduce((total, p) => total + aCentesimas(p.monto), 0n) === aCentesimas(precioVenta);
+/** Sin pagos vigentes todavía no hay plan que rebalancear; si los hay, suman el precio (CU-11 A5). */
+const sumaElPrecio = (pagos: Pago[], precioVenta: string) => {
+  const vigentes = pagos.filter((p) => p.estado !== "anulado");
+  return (
+    vigentes.length === 0 ||
+    vigentes.reduce((total, p) => total + aCentesimas(p.monto), 0n) === aCentesimas(precioVenta)
+  );
+};
 
 function FilaPago({
   pago,

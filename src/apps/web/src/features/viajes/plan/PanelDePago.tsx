@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { mensajeDeError } from "@/lib/errores";
 import { aCentesimas } from "../calculos";
 import { DECIMAL } from "../esquemas";
-import { ETIQUETA_TIPO_PAGO } from "./etiquetas";
+import { nombreDePago } from "./etiquetas";
 
 export type AccionDePago = { tipo: "reprogramar" | "anular" | "dividir"; pago: Pago };
 
@@ -34,11 +34,11 @@ export function PanelDePago({
   const [montoAhora, setMontoAhora] = useState("");
   const [error, setError] = useState<string | null>(null);
   const enCurso = reprogramar.isPending || anular.isPending || dividir.isPending;
-  const descripcion = `${ETIQUETA_TIPO_PAGO[pago.tipo].toLowerCase()} de ${formatearImporte(pago.monto, viaje.moneda)} del ${formatearFecha(pago.vencimiento)}`;
+  const descripcion = `${nombreDePago(pago.tipo)} de ${formatearImporte(pago.monto, viaje.moneda)} del ${formatearFecha(pago.vencimiento)}`;
   const titulo = {
-    anular: `¿Anular la ${descripcion}?`,
-    reprogramar: `Reprogramar la ${descripcion}`,
-    dividir: `Dividir la ${descripcion}`,
+    anular: `¿Anular ${descripcion}?`,
+    reprogramar: `Reprogramar ${descripcion}`,
+    dividir: `Dividir ${descripcion}`,
   }[tipo];
 
   async function confirmar() {
