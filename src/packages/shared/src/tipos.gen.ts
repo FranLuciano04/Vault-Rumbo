@@ -1621,12 +1621,14 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Ver viajes y vencimientos en el calendario
+         * Ver viajes, vencimientos y alertas en el calendario
          * @description **Roles:** admin, dueno, empleado, freelance.
          *
          *     **Visibilidad:** freelance, solo lo propio (DEC-0008).
          *
          *     **Casos de uso:** CU-23.
+         *
+         *     Incluye las alertas programadas, de cualquier estado (el cliente filtra por estado; DEC-0024). Admin, dueño y empleado ven toda la agencia, salvo las alertas ajenas, que solo ven admin y dueño; el freelance ve lo suyo e ignora `responsable_id`.
          */
         get: operations["ver_calendario"];
         put?: never;
@@ -2687,15 +2689,15 @@ export interface components {
         };
         /**
          * EventoCalendario
-         * @description Un viaje (de su salida a su regreso) o el vencimiento de un pago (un solo día). Solo
-         *     lectura: el detalle se gestiona desde su viaje o su pago.
+         * @description Un viaje (de su salida a su regreso), el vencimiento de un pago o una alerta (un solo
+         *     día). Solo lectura: el detalle se gestiona desde su viaje, su pago o su alerta.
          */
         EventoCalendario: {
             /**
              * Tipo
              * @enum {string}
              */
-            readonly tipo: "viaje" | "vencimiento";
+            readonly tipo: "viaje" | "vencimiento" | "alerta";
             /**
              * Titulo
              * @description Qué mostrar en la grilla.
@@ -2709,27 +2711,33 @@ export interface components {
             /**
              * Hasta
              * Format: date
-             * @description Igual a `desde` en un vencimiento.
+             * @description Igual a `desde` en un vencimiento o una alerta.
              */
             readonly hasta: string;
             /**
              * Estado
-             * @description Del viaje o del pago, según el `tipo`.
+             * @description Del viaje, del pago o de la alerta, según el `tipo`.
              */
-            readonly estado: components["schemas"]["EstadoViaje"] | components["schemas"]["EstadoPago"];
+            readonly estado: components["schemas"]["EstadoViaje"] | components["schemas"]["EstadoPago"] | components["schemas"]["EstadoAlerta"];
             /**
              * Viaje Id
-             * Format: uuid
+             * @description Siempre en un viaje o un vencimiento; en una alerta, si nace de un viaje.
              */
-            readonly viaje_id: string;
+            readonly viaje_id: string | null;
             /**
              * Pago Id
              * @description Solo en un vencimiento.
              */
             readonly pago_id: string | null;
             /**
+             * Alerta Id
+             * @description Solo en una alerta.
+             */
+            readonly alerta_id: string | null;
+            /**
              * Responsable Id
              * Format: uuid
+             * @description El del viaje o, en una alerta, su propietario.
              */
             readonly responsable_id: string;
         };
@@ -8752,10 +8760,10 @@ export interface operations {
                 desde?: string | null;
                 /** @description Fin del rango visible. Sin él, el mes en curso. */
                 hasta?: string | null;
-                /** @description Solo los viajes y vencimientos que tengo asignados. */
+                /** @description Solo los eventos que tengo asignados. */
                 mios?: boolean;
-                /** @description Solo viajes o solo vencimientos. */
-                tipo?: ("viaje" | "vencimiento") | null;
+                /** @description Solo viajes, vencimientos o alertas. */
+                tipo?: ("viaje" | "vencimiento" | "alerta") | null;
                 /** @description Solo los eventos de un responsable. */
                 responsable_id?: string | null;
             };

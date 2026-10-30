@@ -6,6 +6,7 @@ import type {
   Reporte,
   ReporteCatalogo,
 } from "../modelos";
+import { alertasMock } from "./alertas";
 import { pagosPorViajeMock } from "./economia";
 import { usuariosMock } from "./m1";
 import { respuestaProblema } from "./problema";
@@ -163,7 +164,8 @@ export function reporteMock(id: string, comparar: boolean): Reporte | null {
   };
 }
 
-/** Eventos ficticios del calendario (CU-23): cada viaje de M6 y cada vencimiento de sus pagos. */
+/** Eventos ficticios del calendario (CU-23): cada viaje de M6, cada vencimiento de sus pagos y
+ * cada alerta de la agenda (de cualquier estado). */
 export const eventosCalendarioMock: EventoCalendario[] = [
   ...viajesMock.map((v): EventoCalendario => ({
     tipo: "viaje",
@@ -173,6 +175,7 @@ export const eventosCalendarioMock: EventoCalendario[] = [
     estado: v.estado,
     viaje_id: v.id,
     pago_id: null,
+    alerta_id: null,
     responsable_id: v.responsable_id,
   })),
   ...Object.values(pagosPorViajeMock)
@@ -188,9 +191,21 @@ export const eventosCalendarioMock: EventoCalendario[] = [
         estado: p.estado,
         viaje_id: p.viaje_id,
         pago_id: p.id,
+        alerta_id: null,
         responsable_id: viaje?.responsable_id ?? usuariosPorRol.empleado.id,
       };
     }),
+  ...alertasMock.map((a): EventoCalendario => ({
+    tipo: "alerta",
+    titulo: a.descripcion,
+    desde: a.fecha,
+    hasta: a.fecha,
+    estado: a.estado,
+    viaje_id: a.viaje_id,
+    pago_id: null,
+    alerta_id: a.id,
+    responsable_id: a.propietario_id,
+  })),
 ];
 
 const sinPermiso = () =>
@@ -260,9 +275,13 @@ export function manejadoresDashboardPara(rol: RolMock): RequestHandler[] {
       // El freelance ve solo lo suyo aunque no pida `mios` (DEC-0008).
       const propio =
         filtro("mios") === "true" || rol === "freelance" ? usuariosPorRol[rol].id : null;
+      // Las alertas ajenas solo las ve la dirección (la agenda es personal, DEC-0005).
+      const visible = (e: EventoCalendario) =>
+        e.tipo !== "alerta" || gestiona || e.responsable_id === usuariosPorRol[rol].id;
       return HttpResponse.json(
         eventosCalendarioMock.filter(
           (e) =>
+            visible(e) &&
             (!filtro("tipo") || e.tipo === filtro("tipo")) &&
             (!filtro("responsable_id") || e.responsable_id === filtro("responsable_id")) &&
             (!propio || e.responsable_id === propio) &&

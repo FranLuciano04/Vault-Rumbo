@@ -7657,8 +7657,8 @@
         "tags": [
           "calendario"
         ],
-        "summary": "Ver viajes y vencimientos en el calendario",
-        "description": "**Roles:** admin, dueno, empleado, freelance.\n\n**Visibilidad:** freelance, solo lo propio (DEC-0008).\n\n**Casos de uso:** CU-23.",
+        "summary": "Ver viajes, vencimientos y alertas en el calendario",
+        "description": "**Roles:** admin, dueno, empleado, freelance.\n\n**Visibilidad:** freelance, solo lo propio (DEC-0008).\n\n**Casos de uso:** CU-23.\n\nIncluye las alertas programadas, de cualquier estado (el cliente filtra por estado; DEC-0024). Admin, dueño y empleado ven toda la agencia, salvo las alertas ajenas, que solo ven admin y dueño; el freelance ve lo suyo e ignora `responsable_id`.",
         "operationId": "ver_calendario",
         "security": [
           {
@@ -7710,11 +7710,11 @@
             "required": false,
             "schema": {
               "type": "boolean",
-              "description": "Solo los viajes y vencimientos que tengo asignados.",
+              "description": "Solo los eventos que tengo asignados.",
               "default": false,
               "title": "Mios"
             },
-            "description": "Solo los viajes y vencimientos que tengo asignados."
+            "description": "Solo los eventos que tengo asignados."
           },
           {
             "name": "tipo",
@@ -7725,7 +7725,8 @@
                 {
                   "enum": [
                     "viaje",
-                    "vencimiento"
+                    "vencimiento",
+                    "alerta"
                   ],
                   "type": "string"
                 },
@@ -7733,10 +7734,10 @@
                   "type": "null"
                 }
               ],
-              "description": "Solo viajes o solo vencimientos.",
+              "description": "Solo viajes, vencimientos o alertas.",
               "title": "Tipo"
             },
-            "description": "Solo viajes o solo vencimientos."
+            "description": "Solo viajes, vencimientos o alertas."
           },
           {
             "name": "responsable_id",
@@ -11200,7 +11201,8 @@
             "type": "string",
             "enum": [
               "viaje",
-              "vencimiento"
+              "vencimiento",
+              "alerta"
             ],
             "title": "Tipo",
             "readOnly": true
@@ -11221,7 +11223,7 @@
             "type": "string",
             "format": "date",
             "title": "Hasta",
-            "description": "Igual a `desde` en un vencimiento.",
+            "description": "Igual a `desde` en un vencimiento o una alerta.",
             "readOnly": true
           },
           "estado": {
@@ -11231,16 +11233,27 @@
               },
               {
                 "$ref": "#/components/schemas/EstadoPago"
+              },
+              {
+                "$ref": "#/components/schemas/EstadoAlerta"
               }
             ],
             "title": "Estado",
-            "description": "Del viaje o del pago, según el `tipo`.",
+            "description": "Del viaje, del pago o de la alerta, según el `tipo`.",
             "readOnly": true
           },
           "viaje_id": {
-            "type": "string",
-            "format": "uuid",
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Viaje Id",
+            "description": "Siempre en un viaje o un vencimiento; en una alerta, si nace de un viaje.",
             "readOnly": true
           },
           "pago_id": {
@@ -11257,10 +11270,25 @@
             "description": "Solo en un vencimiento.",
             "readOnly": true
           },
+          "alerta_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Alerta Id",
+            "description": "Solo en una alerta.",
+            "readOnly": true
+          },
           "responsable_id": {
             "type": "string",
             "format": "uuid",
             "title": "Responsable Id",
+            "description": "El del viaje o, en una alerta, su propietario.",
             "readOnly": true
           }
         },
@@ -11273,10 +11301,11 @@
           "estado",
           "viaje_id",
           "pago_id",
+          "alerta_id",
           "responsable_id"
         ],
         "title": "EventoCalendario",
-        "description": "Un viaje (de su salida a su regreso) o el vencimiento de un pago (un solo día). Solo\nlectura: el detalle se gestiona desde su viaje o su pago."
+        "description": "Un viaje (de su salida a su regreso), el vencimiento de un pago o una alerta (un solo\ndía). Solo lectura: el detalle se gestiona desde su viaje, su pago o su alerta."
       },
       "FormaPago": {
         "type": "string",
