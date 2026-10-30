@@ -11,7 +11,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from rumbo.core.errores import DatosInvalidos
 from rumbo.core.fechas import limites_del_dia
-from rumbo.datos.modelos import EstadoOportunidad, Moneda, Usuario
+from rumbo.datos.modelos import EstadoOportunidad, Moneda, RolUsuario, Usuario
 from rumbo.datos.repositorios.dashboard import RepositorioDashboard
 from rumbo.negocio.calculos import comision_del_vendedor
 from rumbo.negocio.politicas import es_direccion, visibilidad
@@ -47,11 +47,18 @@ async def calcular_indicadores(
 ) -> IndicadoresEconomicos:
     """Indicadores del período `[desde, hasta]`, inclusive; `desde > hasta` es un dato inválido.
     Admin y dueño ven toda la agencia y filtran por `responsable_id`; el resto ve solo lo suyo e
-    ignora ese filtro (RF-129). `pendiente_de_cobrar` es la foto de hoy, sin acotar al período."""
+    ignora ese filtro (RF-129): el empleado queda acotado a lo que lleva y el freelance ve su
+    visibilidad de DEC-0008. Las `comisiones` van al vendedor del viaje (o a su responsable si no
+    tiene vendedor) y, con filtro o en la vista propia, suman las de esa persona (DEC-0024).
+    `pendiente_de_cobrar` es la foto de hoy, sin acotar al período."""
     if desde > hasta:
         raise DatosInvalidos("hasta", "La fecha final no puede ser anterior a la inicial.")
-    if not es_direccion(actor):
+    # Quién cobra comisión: la persona filtrada (dirección) o el propio actor (DEC-0024 §6).
+    vendedor_id = responsable_id if es_direccion(actor) else actor.id
+    if actor.rol is RolUsuario.empleado:
         responsable_id = actor.id
+    elif actor.rol is RolUsuario.freelance:
+        responsable_id = None  # ve lo de sus clientes y lo que lleva, por visibilidad (DEC-0008)
     vista = visibilidad(actor)
     inicio, fin = limites_del_dia(desde)[0], limites_del_dia(hasta)[1]
     oportunidades = await _dashboard.oportunidades_por_estado(
@@ -59,6 +66,18 @@ async def calcular_indicadores(
     )
     viajes = await _dashboard.ventas(
         sesion, desde=inicio, hasta=fin, responsable_id=responsable_id, visibilidad=vista
+    )
+    vendidos = (
+        viajes
+        if vendedor_id is None
+        else await _dashboard.ventas(
+            sesion,
+            desde=inicio,
+            hasta=fin,
+            responsable_id=None,
+            vendedor_id=vendedor_id,
+            visibilidad=vista,
+        )
     )
     cobrado = await _dashboard.cobrado(
         sesion, desde=desde, hasta=hasta, responsable_id=responsable_id, visibilidad=vista
@@ -73,6 +92,7 @@ async def calcular_indicadores(
     for v in viajes:
         ventas[v.moneda] += v.precio_venta
         ganancia[v.moneda] += v.ganancia
+    for v in vendidos:
         comisiones[v.moneda] += comision_del_vendedor(
             v.comision_tipo, v.comision_vendedor, v.ganancia
         )

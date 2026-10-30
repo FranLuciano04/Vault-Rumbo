@@ -33,7 +33,8 @@ _ARCHIVO = {"schema": {"type": "string", "format": "binary"}}
 
 _DASHBOARD = operacion(TODOS, "CU-21", 422, visibilidad=True)
 _DASHBOARD["description"] += (
-    "\n\nAdmin y dueño ven toda la agencia; empleado y freelance, solo lo suyo (CU-21 A1)."
+    "\n\nAdmin y dueño ven toda la agencia; empleado y freelance, solo lo suyo (CU-21 A1, "
+    "DEC-0024). Las comisiones van al vendedor del viaje."
 )
 _REPORTE = operacion(GESTION, "CU-22", 404, 422)
 _REPORTE["responses"][200] = {
@@ -64,7 +65,8 @@ async def ver_dashboard(
         uuid.UUID | None,
         Query(
             description="Indicadores de un responsable: solo admin y dueño (CU-21 A1); para "
-            "empleado y freelance se ignora y se usa el propio."
+            "empleado y freelance se ignora (el empleado ve lo que lleva y el freelance, lo de "
+            "sus clientes y lo que lleva)."
         ),
     ] = None,
 ) -> Dashboard:

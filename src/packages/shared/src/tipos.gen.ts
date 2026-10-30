@@ -1558,7 +1558,7 @@ export interface paths {
          *
          *     **Casos de uso:** CU-21.
          *
-         *     Admin y dueño ven toda la agencia; empleado y freelance, solo lo suyo (CU-21 A1).
+         *     Admin y dueño ven toda la agencia; empleado y freelance, solo lo suyo (CU-21 A1, DEC-0024). Las comisiones van al vendedor del viaje.
          */
         get: operations["ver_dashboard"];
         put?: never;
@@ -8552,7 +8552,7 @@ export interface operations {
                 desde?: string | null;
                 /** @description Fin del período. Sin él, el mes en curso. */
                 hasta?: string | null;
-                /** @description Indicadores de un responsable: solo admin y dueño (CU-21 A1); para empleado y freelance se ignora y se usa el propio. */
+                /** @description Indicadores de un responsable: solo admin y dueño (CU-21 A1); para empleado y freelance se ignora (el empleado ve lo que lleva y el freelance, lo de sus clientes y lo que lleva). */
                 responsable_id?: string | null;
             };
             header?: never;

@@ -7293,7 +7293,7 @@
           "dashboard"
         ],
         "summary": "Ver indicadores y embudo de ventas",
-        "description": "**Roles:** admin, dueno, empleado, freelance.\n\n**Visibilidad:** freelance, solo lo propio (DEC-0008).\n\n**Casos de uso:** CU-21.\n\nAdmin y dueño ven toda la agencia; empleado y freelance, solo lo suyo (CU-21 A1).",
+        "description": "**Roles:** admin, dueno, empleado, freelance.\n\n**Visibilidad:** freelance, solo lo propio (DEC-0008).\n\n**Casos de uso:** CU-21.\n\nAdmin y dueño ven toda la agencia; empleado y freelance, solo lo suyo (CU-21 A1, DEC-0024). Las comisiones van al vendedor del viaje.",
         "operationId": "ver_dashboard",
         "security": [
           {
@@ -7353,10 +7353,10 @@
                   "type": "null"
                 }
               ],
-              "description": "Indicadores de un responsable: solo admin y dueño (CU-21 A1); para empleado y freelance se ignora y se usa el propio.",
+              "description": "Indicadores de un responsable: solo admin y dueño (CU-21 A1); para empleado y freelance se ignora (el empleado ve lo que lleva y el freelance, lo de sus clientes y lo que lleva).",
               "title": "Responsable Id"
             },
-            "description": "Indicadores de un responsable: solo admin y dueño (CU-21 A1); para empleado y freelance se ignora y se usa el propio."
+            "description": "Indicadores de un responsable: solo admin y dueño (CU-21 A1); para empleado y freelance se ignora (el empleado ve lo que lleva y el freelance, lo de sus clientes y lo que lleva)."
           }
         ],
         "responses": {
