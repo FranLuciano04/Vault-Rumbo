@@ -3,14 +3,14 @@ id: T-108
 titulo: Probar de punta a punta el circuito de CU-01
 modulo: M6 — Viajes y economía
 capa: e2e
-estado: tomado
+estado: hecho
 depende_de: [T-089, T-090, T-094, T-091, T-096, T-097, T-101, T-104, T-106, T-105, T-074, T-085]
 tamaño: M
 riesgo: normal
 modelo_tests: sonnet
 modelo_impl: sonnet
 modelo_review: opus
-trazabilidad: [CU-01, RF-001, RF-010, RF-021, RF-032, RF-034, RF-035, RF-054, RF-060, RF-067, RF-101]
+trazabilidad: [CU-01, RF-001, RF-010, RF-021, RF-032, RF-034, RF-035, RF-054, RF-060, RF-067, RF-151]
 origen: plan
 asignado: Nahuel Viniegra
 tomado_el: 30/10/26 16:46
@@ -47,3 +47,8 @@ tags:: #tipo/ticket
 
 ## Notas de implementación
 - **Del plan:** el test arma sus propios datos por API o con las semillas que ya existan (por ejemplo, un destino con requisitos), así no depende de los e2e de M1 ni de M3. Es la prioridad del PC2: si falta tiempo, se trabajan primero los 79 tickets de los que depende este (ver [[Plan de implementación]]).
+- **Implementación (30/10/26):** un único test `CU-01 de la consulta a la venta` con un `test.step` por RF; usa la web como la dueña y la API solo para armar y leer datos (destino con 2 requisitos y operador propios). La visibilidad se prueba con un `freelance` recién creado en otro contexto (RF-151, sumado a la trazabilidad). RF-101 (reseña) sale de la trazabilidad: el criterio termina en el viaje `confirmado`.
+- **Semilla:** `semillas/viajes.py` carga 6 viajes, uno por estado, con economía y pagos; identifica el existente por cliente y destino (`RepositorioViajes.existe_de_cliente`). No genera las alertas que generaría el uso real (queda en el docstring). Test propio: `tests/negocio/test_semilla_viajes.py`.
+- **Review (Opus):** sin bloqueantes. Se arreglaron la idempotencia de la semilla entre días y la falta de su test (importantes), y se ataron las alertas del e2e a su viaje y su pago (menor). Queda como fragilidad menor el tope de 100 de la agenda en «Próximas» (en el CI la base es nueva).
+- **Hallazgos para otro ticket:** las alertas de pago no traen `viaje_id` y `GET /alertas` no filtra por viaje; el e2e filtra del lado del cliente.
+- **Modelos:** tests Sonnet, fix Sonnet, review Opus; sin escalados. Los e2e locales chocan con la demo `rumbo-local` por el puerto 9099 del emulador.
