@@ -25,6 +25,7 @@ function FilaTramo({
   tramo,
   editable,
   abierto,
+  pagando,
   alPagar,
   alEditar,
   alQuitar,
@@ -34,6 +35,8 @@ function FilaTramo({
   tramo: Tramo;
   editable: boolean;
   abierto: boolean;
+  /** Hay un cambio de la marca de pago en curso. */
+  pagando: boolean;
   alPagar: (pagado: boolean) => void;
   alEditar: () => void;
   alQuitar: () => void;
@@ -41,6 +44,9 @@ function FilaTramo({
 }) {
   const { data: hotel } = useHotel(cliente, tramo.hotel_id);
   const nombre = hotel?.nombre ?? "Hotel";
+  const estadoAlerta = tramo.pago_proveedor_realizado
+    ? "Pagado al proveedor · alerta resuelta"
+    : tramo.vencimiento_pago_proveedor && "Alerta de pago un mes antes del vencimiento";
 
   return (
     <li className="rounded-xl border bg-card p-4">
@@ -56,6 +62,7 @@ function FilaTramo({
               Pago al proveedor: vence el {formatearFecha(tramo.vencimiento_pago_proveedor)}
             </p>
           )}
+          {estadoAlerta && <p className="text-xs text-muted-foreground">{estadoAlerta}</p>}
         </div>
         <div className="flex items-center gap-3">
           <label className="flex items-center gap-2 text-sm">
@@ -63,7 +70,7 @@ function FilaTramo({
               type="checkbox"
               aria-label="Pagado al proveedor"
               checked={tramo.pago_proveedor_realizado}
-              disabled={!editable}
+              disabled={!editable || pagando}
               onChange={(evento) => {
                 alPagar(evento.target.checked);
               }}
@@ -153,6 +160,7 @@ export function ItinerarioViaje({
     await editar.mutateAsync({
       tramoId,
       cambios: {
+        ...(cambiados.includes("orden") && { orden: Number(datos.orden) }),
         ...(cambiados.includes("check_in") && { check_in: datos.check_in }),
         ...(cambiados.includes("check_out") && { check_out: datos.check_out }),
         ...(cambiados.includes("vencimiento_pago_proveedor") && {
@@ -172,7 +180,9 @@ export function ItinerarioViaje({
           check_in: tramo.check_in,
           check_out: tramo.check_out,
           vencimiento_pago_proveedor: tramo.vencimiento_pago_proveedor ?? "",
+          orden: String(tramo.orden),
         }}
+        conOrden
         textoEnviar="Guardar tramo"
         enviar={(datos, cambiados) => editarTramo(tramo.id, datos, cambiados)}
         cancelar={cerrar}
@@ -214,6 +224,7 @@ export function ItinerarioViaje({
               tramo={tramo}
               editable={editable}
               abierto={panel?.tipo === "editar" && panel.tramoId === tramo.id}
+              pagando={editar.isPending && editar.variables.tramoId === tramo.id}
               alPagar={(pagado) =>
                 void accion(() =>
                   editar.mutateAsync({
@@ -237,6 +248,7 @@ export function ItinerarioViaje({
       {editable && panel?.tipo === "buscar" && (
         <BuscadorHoteles
           cliente={cliente}
+          destinoId={viaje.destino_id}
           cancelar={cerrar}
           elegir={(hotel) => {
             setPanel({ tipo: "nuevo", hotel });
@@ -249,14 +261,14 @@ export function ItinerarioViaje({
           <FormularioTramo
             viaje={viaje}
             titulo="Agregar tramo"
-            inicial={{ check_in: "", check_out: "", vencimiento_pago_proveedor: "" }}
+            inicial={{ check_in: "", check_out: "", vencimiento_pago_proveedor: "", orden: "" }}
             textoEnviar="Agregar al itinerario"
             enviar={(datos) => agregarTramo(panel.hotel, datos)}
             cancelar={cerrar}
           />
         </div>
       )}
-      {editable && panel === null && (
+      {editable && itinerario.isSuccess && panel === null && (
         <Button
           type="button"
           className="mt-3"

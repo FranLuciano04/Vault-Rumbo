@@ -13,6 +13,7 @@ export function FormularioTramo({
   viaje,
   titulo,
   inicial,
+  conOrden = false,
   textoEnviar,
   enviar,
   cancelar,
@@ -20,11 +21,13 @@ export function FormularioTramo({
   viaje: Viaje;
   titulo: string;
   inicial: DatosTramo;
+  /** Muestra el campo «Orden» (al editar). */
+  conOrden?: boolean;
   textoEnviar: string;
   enviar: (datos: DatosTramo, cambiados: (keyof DatosTramo)[]) => Promise<void>;
   cancelar: () => void;
 }) {
-  const esquema = useMemo(() => esquemaTramo(viaje), [viaje]);
+  const esquema = useMemo(() => esquemaTramo(viaje, conOrden), [viaje, conOrden]);
   const [aviso, setAviso] = useState<string | null>(null);
   const { register, handleSubmit, setError, formState } = useForm<DatosTramo>({
     resolver: zodResolver(esquema),
@@ -40,7 +43,7 @@ export function FormularioTramo({
     try {
       await enviar(datos, cambiados);
     } catch (falla) {
-      setAviso(aplicarErroresDelServidor(falla, ["check_in", "check_out"], setError));
+      setAviso(aplicarErroresDelServidor(falla, ["check_in", "check_out", "orden"], setError));
     }
   }
 
@@ -51,7 +54,7 @@ export function FormularioTramo({
       className="mt-3 flex flex-col gap-3 rounded-xl bg-muted/40 p-4"
       onSubmit={(evento) => void handleSubmit(guardar)(evento)}
     >
-      <div className="grid gap-3 sm:grid-cols-3">
+      <div className="grid gap-3 sm:grid-cols-2">
         <CampoFormulario id="tramo-check-in" etiqueta="Check-in" error={errors.check_in}>
           {(props) => <Input type="date" {...props} {...register("check_in")} />}
         </CampoFormulario>
@@ -64,6 +67,11 @@ export function FormularioTramo({
         >
           {(props) => <Input type="date" {...props} {...register("vencimiento_pago_proveedor")} />}
         </CampoFormulario>
+        {conOrden && (
+          <CampoFormulario id="tramo-orden" etiqueta="Orden" error={errors.orden}>
+            {(props) => <Input type="number" min={1} {...props} {...register("orden")} />}
+          </CampoFormulario>
+        )}
       </div>
       {aviso && (
         <p role="alert" className="text-sm text-destructive">

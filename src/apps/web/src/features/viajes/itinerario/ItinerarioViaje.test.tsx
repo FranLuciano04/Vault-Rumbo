@@ -13,6 +13,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { http, HttpResponse } from "msw";
+import { MemoryRouter } from "react-router";
 import { afterAll, afterEach, beforeAll } from "vitest";
 import { ItinerarioViaje } from "./ItinerarioViaje";
 
@@ -49,7 +50,9 @@ function renderItinerario(estado: keyof typeof idViajeMock = "confirmado", edita
     <QueryClientProvider
       client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}
     >
-      <ItinerarioViaje cliente={cliente} viaje={viajeDe(estado)} editable={editable} />
+      <MemoryRouter>
+        <ItinerarioViaje cliente={cliente} viaje={viajeDe(estado)} editable={editable} />
+      </MemoryRouter>
     </QueryClientProvider>,
   );
 }
@@ -98,13 +101,13 @@ describe("RF-043 itinerario", () => {
     renderItinerario();
 
     const lista = await screen.findByRole("list", { name: /tramos del itinerario/i });
-    const filas = await within(lista).findAllByRole("listitem");
-    expect(filas).toHaveLength(2);
-    expect(await within(filas[0]!).findByText("Copacabana Palace")).toBeInTheDocument();
-    expect(filas[0]!.textContent).toContain(formatearFecha(tramo1.check_in));
-    expect(filas[0]!.textContent).toContain(formatearFecha(tramo1.check_out));
-    expect(await within(filas[1]!).findByText("Pousada do Sol")).toBeInTheDocument();
-    expect(filas[1]!.textContent).toContain(formatearFecha(tramo2.check_in));
+    const [primera, segunda, ...resto] = await within(lista).findAllByRole("listitem");
+    if (!primera || !segunda || resto.length > 0) throw new Error("Se esperaban dos tramos");
+    expect(await within(primera).findByText("Copacabana Palace")).toBeInTheDocument();
+    expect(primera.textContent).toContain(formatearFecha(tramo1.check_in));
+    expect(primera.textContent).toContain(formatearFecha(tramo1.check_out));
+    expect(await within(segunda).findByText("Pousada do Sol")).toBeInTheDocument();
+    expect(segunda.textContent).toContain(formatearFecha(tramo2.check_in));
   });
 
   it("RF-043 un viaje sin tramos invita a agregar el primer hotel", async () => {
@@ -131,14 +134,15 @@ describe("RF-043 itinerario", () => {
     expect(
       await screen.findByRole("button", { name: "Elegir Copacabana Palace" }),
     ).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Elegir Hotel Llao Llao" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Elegir Pousada do Sol" })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Elegir Hotel Llao Llao" })).toBeNull();
   });
 
   it("RF-043 agrega un tramo con el hotel elegido, las fechas y el orden siguiente", async () => {
     const cuerpos: Record<string, unknown>[] = [];
     servidor.use(registrar("post", "*/api/viajes/:id/itinerario", cuerpos));
     renderItinerario();
-    await elegirHotel("Riu Palace Punta Cana");
+    await elegirHotel("Pousada do Sol");
 
     await agregarConFechas("2026-11-10", "2026-11-12");
 
@@ -146,7 +150,7 @@ describe("RF-043 itinerario", () => {
       expect(cuerpos).toHaveLength(1);
     });
     expect(cuerpos[0]).toMatchObject({
-      hotel_id: idHotelMock.riu,
+      hotel_id: idHotelMock.pousada,
       check_in: "2026-11-10",
       check_out: "2026-11-12",
       orden: 3,
@@ -157,7 +161,7 @@ describe("RF-043 itinerario", () => {
     const cuerpos: Record<string, unknown>[] = [];
     servidor.use(registrar("post", "*/api/viajes/:id/itinerario", cuerpos));
     renderItinerario();
-    await elegirHotel("Riu Palace Punta Cana");
+    await elegirHotel("Pousada do Sol");
 
     ponerFecha(await screen.findByLabelText(/check-in/i), "2026-11-10");
     ponerFecha(screen.getByLabelText(/check-out/i), "2026-11-12");
@@ -174,7 +178,7 @@ describe("RF-043 itinerario", () => {
     const nuevo = {
       id: "b3c4d5e6-f7a8-4b9c-8d0e-1f2a3b4c5d09",
       viaje_id: idViajeMock.confirmado,
-      hotel_id: idHotelMock.riu,
+      hotel_id: idHotelMock.pousada,
       check_in: "2026-11-10",
       check_out: "2026-11-12",
       orden: 3,
@@ -192,14 +196,14 @@ describe("RF-043 itinerario", () => {
       }),
     );
     renderItinerario();
-    await elegirHotel("Riu Palace Punta Cana");
+    await elegirHotel("Pousada do Sol");
     await agregarConFechas("2026-11-10", "2026-11-12");
 
     const lista = await screen.findByRole("list", { name: /tramos del itinerario/i });
     await waitFor(() => {
       expect(within(lista).getAllByRole("listitem")).toHaveLength(3);
     });
-    expect(within(lista).getByText("Riu Palace Punta Cana")).toBeInTheDocument();
+    expect(within(lista).getAllByText("Pousada do Sol")).toHaveLength(2);
   });
 
   it("RF-043 sin permiso de edición el itinerario es de solo lectura", async () => {
@@ -236,11 +240,13 @@ describe("RF-043 validación de fechas del tramo", () => {
     const cuerpos: Record<string, unknown>[] = [];
     servidor.use(registrar("post", "*/api/viajes/:id/itinerario", cuerpos));
     renderItinerario();
-    await elegirHotel("Riu Palace Punta Cana");
+    await elegirHotel("Pousada do Sol");
 
     await agregarConFechas("2026-11-12", "2026-11-10");
 
-    expect(await screen.findByText(/el check-out no puede ser anterior al check-in/i)).toBeVisible();
+    expect(
+      await screen.findByText(/el check-out no puede ser anterior al check-in/i),
+    ).toBeVisible();
     expect(cuerpos).toHaveLength(0);
   });
 
@@ -248,7 +254,7 @@ describe("RF-043 validación de fechas del tramo", () => {
     const cuerpos: Record<string, unknown>[] = [];
     servidor.use(registrar("post", "*/api/viajes/:id/itinerario", cuerpos));
     renderItinerario();
-    await elegirHotel("Riu Palace Punta Cana");
+    await elegirHotel("Pousada do Sol");
 
     await agregarConFechas("2026-10-28", "2026-11-20");
 
@@ -260,7 +266,7 @@ describe("RF-043 validación de fechas del tramo", () => {
     const cuerpos: Record<string, unknown>[] = [];
     servidor.use(registrar("post", "*/api/viajes/:id/itinerario", cuerpos));
     renderItinerario();
-    await elegirHotel("Riu Palace Punta Cana");
+    await elegirHotel("Pousada do Sol");
 
     await userEvent.click(await screen.findByRole("button", { name: /agregar al itinerario/i }));
 
@@ -277,7 +283,7 @@ describe("RF-043 validación de fechas del tramo", () => {
       ),
     );
     renderItinerario();
-    await elegirHotel("Riu Palace Punta Cana");
+    await elegirHotel("Pousada do Sol");
     await agregarConFechas("2026-11-05", "2026-11-10");
 
     expect(await screen.findByText("Las fechas se solapan con otro tramo.")).toBeVisible();
@@ -295,7 +301,7 @@ describe("RF-043 validación de fechas del tramo", () => {
       ),
     );
     renderItinerario();
-    await elegirHotel("Riu Palace Punta Cana");
+    await elegirHotel("Pousada do Sol");
     await agregarConFechas("2026-11-10", "2026-11-12");
 
     expect(await screen.findByText("El hotel está cerrado.")).toBeVisible();
@@ -308,7 +314,7 @@ describe("RF-043 validación de fechas del tramo", () => {
       ),
     );
     renderItinerario();
-    await elegirHotel("Riu Palace Punta Cana");
+    await elegirHotel("Pousada do Sol");
     await agregarConFechas("2026-11-10", "2026-11-12");
 
     expect(await screen.findByRole("alert")).toHaveTextContent(/viaje cancelado/i);
@@ -352,7 +358,9 @@ describe("RF-046 edición y baja de tramos", () => {
     ponerFecha(await screen.findByLabelText(/check-out/i), "2026-11-05");
     await userEvent.click(screen.getByRole("button", { name: /guardar tramo/i }));
 
-    expect(await screen.findByText(/el check-out no puede ser anterior al check-in/i)).toBeVisible();
+    expect(
+      await screen.findByText(/el check-out no puede ser anterior al check-in/i),
+    ).toBeVisible();
     expect(cuerpos).toHaveLength(0);
   });
 
@@ -462,5 +470,143 @@ describe("RF-047 pago a proveedor", () => {
     expect(
       within(pendiente).getByRole("checkbox", { name: /pagado al proveedor/i }),
     ).toBeDisabled();
+  });
+});
+
+describe("RF-043 buscador y alta de hotel (CU-09 A2)", () => {
+  it("RF-043 ofrece dar de alta un hotel que no está en el catálogo", async () => {
+    renderItinerario();
+    await userEvent.click(await screen.findByRole("button", { name: /agregar hotel/i }));
+
+    expect(await screen.findByRole("link", { name: /no está\? darlo de alta/i })).toHaveAttribute(
+      "href",
+      "/hoteles/nuevo",
+    );
+  });
+
+  it("RF-043 sin permiso de edición no hay enlace de alta", async () => {
+    renderItinerario("confirmado", false);
+
+    await fila("Copacabana Palace");
+    expect(screen.queryByRole("link", { name: /darlo de alta/i })).toBeNull();
+  });
+
+  it("RF-043 el buscador pide los hoteles activos del destino del viaje", async () => {
+    const pedidos: URLSearchParams[] = [];
+    servidor.events.on("request:start", ({ request }) => {
+      const url = new URL(request.url);
+      if (url.pathname === "/api/hoteles") pedidos.push(url.searchParams);
+    });
+    renderItinerario();
+    await userEvent.click(await screen.findByRole("button", { name: /agregar hotel/i }));
+    await screen.findByRole("button", { name: "Elegir Pousada do Sol" });
+
+    servidor.events.removeAllListeners();
+    expect(pedidos[0]?.get("destino_id")).toBe(viajeDe("confirmado").destino_id);
+    expect(pedidos[0]?.get("estado") ?? "activo").toBe("activo");
+  });
+
+  it("RF-043 avisa cuando hay más hoteles de los que se muestran", async () => {
+    servidor.use(
+      http.get("*/api/hoteles", () =>
+        HttpResponse.json({
+          items: [],
+          total: 150,
+          pagina: 1,
+          por_pagina: 100,
+          alternativas: null,
+        }),
+      ),
+    );
+    renderItinerario();
+    await userEvent.click(await screen.findByRole("button", { name: /agregar hotel/i }));
+
+    expect(await screen.findByText(/hay más hoteles de los que se muestran/i)).toBeVisible();
+  });
+
+  it("RF-044 explica que se puede repetir un hotel en tramos no consecutivos", async () => {
+    renderItinerario();
+    await userEvent.click(await screen.findByRole("button", { name: /agregar hotel/i }));
+
+    expect(
+      await screen.findByText(/podés repetir un hotel en tramos no consecutivos/i),
+    ).toBeVisible();
+  });
+
+  it("RF-043 no ofrece agregar hotel si falló la carga del itinerario", async () => {
+    servidor.use(
+      http.get("*/api/viajes/:id/itinerario", () => HttpResponse.json({}, { status: 500 })),
+    );
+    renderItinerario();
+
+    await screen.findByRole("alert");
+    expect(screen.queryByRole("button", { name: /agregar hotel/i })).toBeNull();
+  });
+});
+
+describe("RF-046 orden del tramo", () => {
+  it("RF-046 cambia el orden de un tramo con PATCH y manda solo el orden", async () => {
+    const cuerpos: Record<string, unknown>[] = [];
+    servidor.use(registrar("patch", "*/api/tramos/:id", cuerpos));
+    renderItinerario();
+    await fila("Pousada do Sol");
+
+    await userEvent.click(screen.getByRole("button", { name: "Editar Pousada do Sol" }));
+    expect(await screen.findByLabelText("Orden")).toHaveValue(2);
+    fireEvent.change(screen.getByLabelText("Orden"), { target: { value: "5" } });
+    await userEvent.click(screen.getByRole("button", { name: /guardar tramo/i }));
+
+    await waitFor(() => {
+      expect(cuerpos).toHaveLength(1);
+    });
+    expect(cuerpos[0]).toEqual({ orden: 5 });
+  });
+
+  it("RF-046 un 422 por orden repetido queda en el campo Orden", async () => {
+    servidor.use(
+      http.patch("*/api/tramos/:id", () =>
+        problema(422, {
+          errores: [{ campo: "orden", mensaje: "Ya hay otro tramo con ese orden." }],
+        }),
+      ),
+    );
+    renderItinerario();
+    await fila("Pousada do Sol");
+
+    await userEvent.click(screen.getByRole("button", { name: "Editar Pousada do Sol" }));
+    fireEvent.change(await screen.findByLabelText("Orden"), { target: { value: "1" } });
+    await userEvent.click(screen.getByRole("button", { name: /guardar tramo/i }));
+
+    expect(await screen.findByText("Ya hay otro tramo con ese orden.")).toBeVisible();
+    expect(screen.getByLabelText("Orden")).toHaveAccessibleDescription(
+      "Ya hay otro tramo con ese orden.",
+    );
+  });
+
+  it("RF-046 vaciar el vencimiento del pago al editar manda null", async () => {
+    const cuerpos: Record<string, unknown>[] = [];
+    servidor.use(registrar("patch", "*/api/tramos/:id", cuerpos));
+    renderItinerario();
+    await fila("Pousada do Sol");
+
+    await userEvent.click(screen.getByRole("button", { name: "Editar Pousada do Sol" }));
+    ponerFecha(await screen.findByLabelText(/vencimiento del pago/i), "");
+    await userEvent.click(screen.getByRole("button", { name: /guardar tramo/i }));
+
+    await waitFor(() => {
+      expect(cuerpos).toHaveLength(1);
+    });
+    expect(cuerpos[0]).toEqual({ vencimiento_pago_proveedor: null });
+  });
+});
+
+describe("RF-047 estado de la alerta de pago", () => {
+  it("RF-047 el tramo pagado tiene la alerta resuelta y el pendiente avisa un mes antes", async () => {
+    renderItinerario();
+
+    const pagado = await fila("Copacabana Palace");
+    const pendiente = await fila("Pousada do Sol");
+    expect(pagado.textContent).toContain("Pagado al proveedor · alerta resuelta");
+    expect(pendiente.textContent).toContain("Alerta de pago un mes antes del vencimiento");
   });
 });

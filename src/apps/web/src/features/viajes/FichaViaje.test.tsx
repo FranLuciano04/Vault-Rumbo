@@ -5,6 +5,7 @@ import {
   manejadoresAlertas,
   manejadoresClientes,
   manejadoresEconomia,
+  manejadoresHoteles,
   manejadoresM1,
   manejadoresViajes,
   usuariosPorRol,
@@ -22,6 +23,7 @@ import { FichaViaje } from "./FichaViaje";
 const servidor = crearServidor(
   ...manejadoresViajes,
   ...manejadoresEconomia,
+  ...manejadoresHoteles,
   ...manejadoresClientes,
   ...manejadoresAlertas,
   ...manejadoresM1,

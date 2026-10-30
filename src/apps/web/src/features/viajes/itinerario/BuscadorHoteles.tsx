@@ -2,7 +2,8 @@ import { formatearImporte, type Hotel } from "@rumbo/shared";
 import { useHoteles } from "@rumbo/shared/hooks";
 import type { AxiosInstance } from "axios";
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
+import { Link } from "react-router";
+import { Button, variantesBoton } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
 /**
@@ -11,15 +12,22 @@ import { Input } from "@/components/ui/input";
  */
 export function BuscadorHoteles({
   cliente,
+  destinoId,
   elegir,
   cancelar,
 }: {
   cliente: AxiosInstance;
+  /** Destino del viaje: el catálogo se acota a sus hoteles. */
+  destinoId: string;
   elegir: (hotel: Hotel) => void;
   cancelar: () => void;
 }) {
   const [texto, setTexto] = useState("");
-  const { data, isPending, isError } = useHoteles(cliente, { por_pagina: 100, orden: "nombre" });
+  const { data, isPending, isError } = useHoteles(cliente, {
+    destino_id: destinoId,
+    por_pagina: 100,
+    orden: "nombre",
+  });
   const hoteles = (data?.items ?? []).filter((h) =>
     h.nombre.toLowerCase().includes(texto.trim().toLowerCase()),
   );
@@ -35,6 +43,9 @@ export function BuscadorHoteles({
           setTexto(evento.target.value);
         }}
       />
+      <p className="text-xs text-muted-foreground">
+        Podés repetir un hotel en tramos no consecutivos.
+      </p>
       {isPending && <p role="status">Cargando hoteles…</p>}
       {isError && <p role="alert">No pudimos cargar el catálogo de hoteles.</p>}
       {data && hoteles.length === 0 && (
@@ -65,10 +76,18 @@ export function BuscadorHoteles({
           </li>
         ))}
       </ul>
-      <div>
+      {data && data.total > data.items.length && (
+        <p className="text-sm">
+          Hay más hoteles de los que se muestran: buscá por nombre para encontrar el que necesitás.
+        </p>
+      )}
+      <div className="flex flex-wrap items-center gap-3">
         <Button type="button" variant="outline" onClick={cancelar}>
           Cancelar
         </Button>
+        <Link to="/hoteles/nuevo" className={variantesBoton({ variant: "link" })}>
+          ¿No está? Darlo de alta en el catálogo
+        </Link>
       </div>
     </div>
   );
