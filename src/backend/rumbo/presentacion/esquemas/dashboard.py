@@ -60,6 +60,9 @@ class DestinoVendido(BaseModel):
     destino_id: uuid.UUID
     destino_nombre: str
     viajes: int = Field(ge=0, description="Viajes vendidos al destino en el período.")
+    pasajeros: int = Field(
+        ge=0, description="Pasajeros de las oportunidades de origen de esos viajes."
+    )
 
 
 class VentaPorVendedor(BaseModel):
@@ -67,6 +70,17 @@ class VentaPorVendedor(BaseModel):
     vendedor_nombre: str
     viajes: int = Field(ge=0)
     ventas: list[MontoPorMoneda]
+    comisiones: list[MontoPorMoneda]
+
+
+Seccion = Literal["oportunidades", "viajes", "alertas"]
+
+
+class DetalleIndicador(BaseModel):
+    """Listado al que lleva un contador (RF-128): sección de la web y sus filtros."""
+
+    seccion: Seccion
+    filtros: dict[str, str]
 
 
 class Dashboard(BaseModel):
@@ -102,6 +116,11 @@ class Dashboard(BaseModel):
     consultas_pendientes: int = Field(ge=0, json_schema_extra=_SOLO_LECTURA)
     presupuestos_abiertos: int = Field(ge=0, json_schema_extra=_SOLO_LECTURA)
     reservas_confirmadas: int = Field(ge=0, json_schema_extra=_SOLO_LECTURA)
+    viajes_activos: int = Field(
+        ge=0,
+        json_schema_extra=_SOLO_LECTURA,
+        description="Viajes que no están finalizados ni cancelados.",
+    )
     alertas_pendientes: int = Field(
         ge=0,
         json_schema_extra=_SOLO_LECTURA,
@@ -109,6 +128,11 @@ class Dashboard(BaseModel):
     )
     destinos_mas_vendidos: list[DestinoVendido] = Field(json_schema_extra=_SOLO_LECTURA)
     ventas_por_vendedor: list[VentaPorVendedor] = Field(json_schema_extra=_SOLO_LECTURA)
+    detalles: dict[str, DetalleIndicador] = Field(
+        json_schema_extra=_SOLO_LECTURA,
+        description="Por contador (`consultas_pendientes`, `presupuestos_abiertos`, "
+        "`reservas_confirmadas`, `viajes_activos`, `alertas_pendientes`), el listado al que lleva.",
+    )
 
 
 class ReporteCatalogo(BaseModel):

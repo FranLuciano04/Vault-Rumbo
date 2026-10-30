@@ -1,5 +1,6 @@
-"""Rutas del dashboard y los reportes (CU-21, CU-22). El dashboard calcula el embudo y los
-indicadores económicos; los reportes siguen siendo stubs que responden 501."""
+"""Rutas del dashboard y los reportes (CU-21, CU-22). El dashboard calcula el embudo, los
+indicadores económicos y operativos y la analítica comercial; los reportes siguen siendo stubs
+que responden 501."""
 
 import uuid
 from datetime import date, timedelta
@@ -17,11 +18,18 @@ from rumbo.presentacion.contrato import GESTION, TODOS, no_implementado, operaci
 from rumbo.presentacion.dependencias import usuario_actual
 from rumbo.presentacion.esquemas.dashboard import (
     Dashboard,
+    DestinoVendido,
+    DetalleIndicador,
     Embudo,
     EtapaEmbudo,
     MontoPorMoneda,
     Reporte,
     ReporteCatalogo,
+    Seccion,
+    VencimientoProximo,
+    VentaMensual,
+    VentaPorVendedor,
+    ViajeProximo,
 )
 
 router = APIRouter(tags=["dashboard"])
@@ -84,25 +92,58 @@ async def ver_dashboard(
             tasa_conversion=indicadores.tasa_conversion,
         ),
         ventas=_montos(indicadores.ventas),
+        ventas_mensuales=[
+            VentaMensual(mes=mes, ventas=_montos(ventas))
+            for mes, ventas in indicadores.ventas_mensuales
+        ],
         ganancia_estimada=_montos(indicadores.ganancia_estimada),
         margen=_montos(indicadores.margen),
         comisiones=_montos(indicadores.comisiones),
+        ticket_promedio=_montos(indicadores.ticket_promedio),
         cobrado=_montos(indicadores.cobrado),
         pendiente_de_cobrar=_montos(indicadores.pendiente_de_cobrar),
-        # Sin implementar: `ventas_mensuales`, `pendiente_de_pagar` y `proximos_vencimientos`
-        # (RF-124) quedan pendientes y se anotan en T-122; el resto es de T-122. Vacíos o en cero.
-        ventas_mensuales=[],
-        ticket_promedio=[],
-        pendiente_de_pagar=[],
-        proximos_vencimientos=[],
-        viajes_proximos=[],
-        consultas_pendientes=0,
-        presupuestos_abiertos=0,
-        reservas_confirmadas=0,
-        alertas_pendientes=0,
-        destinos_mas_vendidos=[],
-        ventas_por_vendedor=[],
+        pendiente_de_pagar=_montos(indicadores.pendiente_de_pagar),
+        proximos_vencimientos=[
+            VencimientoProximo(**v._asdict()) for v in indicadores.proximos_vencimientos
+        ],
+        viajes_proximos=[ViajeProximo(**v._asdict()) for v in indicadores.viajes_proximos],
+        consultas_pendientes=indicadores.consultas_pendientes,
+        presupuestos_abiertos=indicadores.presupuestos_abiertos,
+        reservas_confirmadas=indicadores.reservas_confirmadas,
+        viajes_activos=indicadores.viajes_activos,
+        alertas_pendientes=indicadores.alertas_pendientes,
+        destinos_mas_vendidos=[
+            DestinoVendido(**d._asdict()) for d in indicadores.destinos_mas_vendidos
+        ],
+        ventas_por_vendedor=[
+            VentaPorVendedor(
+                vendedor_id=v.vendedor_id,
+                vendedor_nombre=v.vendedor_nombre,
+                viajes=v.viajes,
+                ventas=_montos(v.ventas),
+                comisiones=_montos(v.comisiones),
+            )
+            for v in indicadores.ventas_por_vendedor
+        ],
+        detalles=_detalles(indicadores.filtro_responsable),
     )
+
+
+def _detalles(responsable_id: uuid.UUID | None) -> dict[str, DetalleIndicador]:
+    """A qué listado lleva cada contador (RF-128); la dirección que filtró por responsable
+    llega con ese filtro."""
+    propio = {} if responsable_id is None else {"responsable_id": str(responsable_id)}
+    contadores: list[tuple[str, Seccion, dict[str, str]]] = [
+        ("consultas_pendientes", "oportunidades", {"estado": "nueva,en_gestion"}),
+        ("presupuestos_abiertos", "oportunidades", {"estado": "cotizada"}),
+        ("reservas_confirmadas", "viajes", {"estado": "confirmado"}),
+        ("viajes_activos", "viajes", {"activo": "true"}),
+        ("alertas_pendientes", "alertas", {"estado": "pendiente"}),
+    ]
+    return {
+        indicador: DetalleIndicador(seccion=seccion, filtros={**filtros, **propio})
+        for indicador, seccion, filtros in contadores
+    }
 
 
 def _montos(totales: dict[Moneda, Decimal]) -> list[MontoPorMoneda]:

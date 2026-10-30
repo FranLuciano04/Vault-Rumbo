@@ -2354,6 +2354,11 @@ export interface components {
             /** Reservas Confirmadas */
             readonly reservas_confirmadas: number;
             /**
+             * Viajes Activos
+             * @description Viajes que no están finalizados ni cancelados.
+             */
+            readonly viajes_activos: number;
+            /**
              * Alertas Pendientes
              * @description Alertas de pasajeros próximos a viajar (documentación, pagos, requisitos).
              */
@@ -2362,6 +2367,13 @@ export interface components {
             readonly destinos_mas_vendidos: components["schemas"]["DestinoVendido"][];
             /** Ventas Por Vendedor */
             readonly ventas_por_vendedor: components["schemas"]["VentaPorVendedor"][];
+            /**
+             * Detalles
+             * @description Por contador (`consultas_pendientes`, `presupuestos_abiertos`, `reservas_confirmadas`, `viajes_activos`, `alertas_pendientes`), el listado al que lleva.
+             */
+            readonly detalles: {
+                [key: string]: components["schemas"]["DetalleIndicador"];
+            };
         };
         /** Destino */
         Destino: {
@@ -2437,6 +2449,26 @@ export interface components {
              * @description Viajes vendidos al destino en el período.
              */
             viajes: number;
+            /**
+             * Pasajeros
+             * @description Pasajeros de las oportunidades de origen de esos viajes.
+             */
+            pasajeros: number;
+        };
+        /**
+         * DetalleIndicador
+         * @description Listado al que lleva un contador (RF-128): sección de la web y sus filtros.
+         */
+        DetalleIndicador: {
+            /**
+             * Seccion
+             * @enum {string}
+             */
+            seccion: "oportunidades" | "viajes" | "alertas";
+            /** Filtros */
+            filtros: {
+                [key: string]: string;
+            };
         };
         EconomiaRegistrada: {
             /**
@@ -3815,6 +3847,8 @@ export interface components {
             viajes: number;
             /** Ventas */
             ventas: components["schemas"]["MontoPorMoneda"][];
+            /** Comisiones */
+            comisiones: components["schemas"]["MontoPorMoneda"][];
         };
         Viaje: {
             /**

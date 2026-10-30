@@ -10366,6 +10366,13 @@
             "title": "Reservas Confirmadas",
             "readOnly": true
           },
+          "viajes_activos": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Viajes Activos",
+            "description": "Viajes que no están finalizados ni cancelados.",
+            "readOnly": true
+          },
           "alertas_pendientes": {
             "type": "integer",
             "minimum": 0.0,
@@ -10388,6 +10395,15 @@
             "type": "array",
             "title": "Ventas Por Vendedor",
             "readOnly": true
+          },
+          "detalles": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/DetalleIndicador"
+            },
+            "type": "object",
+            "title": "Detalles",
+            "description": "Por contador (`consultas_pendientes`, `presupuestos_abiertos`, `reservas_confirmadas`, `viajes_activos`, `alertas_pendientes`), el listado al que lleva.",
+            "readOnly": true
           }
         },
         "type": "object",
@@ -10409,9 +10425,11 @@
           "consultas_pendientes",
           "presupuestos_abiertos",
           "reservas_confirmadas",
+          "viajes_activos",
           "alertas_pendientes",
           "destinos_mas_vendidos",
-          "ventas_por_vendedor"
+          "ventas_por_vendedor",
+          "detalles"
         ],
         "title": "Dashboard",
         "description": "Foto del negocio en el período (CU-21), de solo lectura. Admin y dueño ven toda la agencia;\nel resto, lo propio (DEC-0005, DEC-0008). Sin actividad, las listas vienen vacías y los\ncontadores en cero."
@@ -10615,15 +10633,49 @@
             "minimum": 0.0,
             "title": "Viajes",
             "description": "Viajes vendidos al destino en el período."
+          },
+          "pasajeros": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Pasajeros",
+            "description": "Pasajeros de las oportunidades de origen de esos viajes."
           }
         },
         "type": "object",
         "required": [
           "destino_id",
           "destino_nombre",
-          "viajes"
+          "viajes",
+          "pasajeros"
         ],
         "title": "DestinoVendido"
+      },
+      "DetalleIndicador": {
+        "properties": {
+          "seccion": {
+            "type": "string",
+            "enum": [
+              "oportunidades",
+              "viajes",
+              "alertas"
+            ],
+            "title": "Seccion"
+          },
+          "filtros": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object",
+            "title": "Filtros"
+          }
+        },
+        "type": "object",
+        "required": [
+          "seccion",
+          "filtros"
+        ],
+        "title": "DetalleIndicador",
+        "description": "Listado al que lleva un contador (RF-128): sección de la web y sus filtros."
       },
       "EconomiaRegistrada": {
         "allOf": [
@@ -13788,6 +13840,13 @@
             },
             "type": "array",
             "title": "Ventas"
+          },
+          "comisiones": {
+            "items": {
+              "$ref": "#/components/schemas/MontoPorMoneda"
+            },
+            "type": "array",
+            "title": "Comisiones"
           }
         },
         "type": "object",
@@ -13795,7 +13854,8 @@
           "vendedor_id",
           "vendedor_nombre",
           "viajes",
-          "ventas"
+          "ventas",
+          "comisiones"
         ],
         "title": "VentaPorVendedor"
       },

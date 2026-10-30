@@ -72,10 +72,21 @@ export const dashboardMock: Dashboard = {
   consultas_pendientes: 10,
   presupuestos_abiertos: 5,
   reservas_confirmadas: 3,
+  viajes_activos: 8,
   alertas_pendientes: 7,
   destinos_mas_vendidos: [
-    { destino_id: "9c1d2e3f-4a5b-4c6d-8e7f-0a1b2c3d4e03", destino_nombre: "Brasil", viajes: 4 },
-    { destino_id: "9c1d2e3f-4a5b-4c6d-8e7f-0a1b2c3d4e01", destino_nombre: "Europa", viajes: 2 },
+    {
+      destino_id: "9c1d2e3f-4a5b-4c6d-8e7f-0a1b2c3d4e03",
+      destino_nombre: "Brasil",
+      viajes: 4,
+      pasajeros: 9,
+    },
+    {
+      destino_id: "9c1d2e3f-4a5b-4c6d-8e7f-0a1b2c3d4e01",
+      destino_nombre: "Europa",
+      viajes: 2,
+      pasajeros: 4,
+    },
   ],
   ventas_por_vendedor: [
     {
@@ -83,14 +94,23 @@ export const dashboardMock: Dashboard = {
       vendedor_nombre: usuariosPorRol.empleado.nombre,
       viajes: 4,
       ventas: ars("3600000.00"),
+      comisiones: ars("72000.00"),
     },
     {
       vendedor_id: usuariosPorRol.freelance.id,
       vendedor_nombre: usuariosPorRol.freelance.nombre,
       viajes: 2,
       ventas: ars("1800000.00"),
+      comisiones: ars("36000.00"),
     },
   ],
+  detalles: {
+    consultas_pendientes: { seccion: "oportunidades", filtros: { estado: "nueva,en_gestion" } },
+    presupuestos_abiertos: { seccion: "oportunidades", filtros: { estado: "cotizada" } },
+    reservas_confirmadas: { seccion: "viajes", filtros: { estado: "confirmado" } },
+    viajes_activos: { seccion: "viajes", filtros: { activo: "true" } },
+    alertas_pendientes: { seccion: "alertas", filtros: { estado: "pendiente" } },
+  },
 };
 
 /** Catálogo ficticio de reportes (CU-22). */
