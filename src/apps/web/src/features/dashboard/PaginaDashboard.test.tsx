@@ -224,6 +224,48 @@ describe("RF-125 y RF-128 indicadores operativos vacíos", () => {
 
     expect(await screen.findByRole("region", { name: "Embudo de ventas" })).toBeInTheDocument();
     expect(await tarjeta(/Ventas del mes/)).toBeInTheDocument();
+    expect(screen.getByRole("region", { name: "Ventas por mes" })).toBeInTheDocument();
+  });
+
+  it("RF-128 muestra el gráfico con una barra por mes del mock", async () => {
+    renderDashboard("dueno");
+
+    const grafico = await screen.findByRole("region", { name: "Ventas por mes" });
+    const barras = within(grafico).getAllByRole("listitem");
+    expect(barras).toHaveLength(dashboardMock.ventas_mensuales.length);
+    [/ago/i, /sep/i, /oct/i].forEach((mes, i) => {
+      expect(barras[i]).toHaveTextContent(mes);
+    });
+    dashboardMock.ventas_mensuales.forEach(({ ventas }, i) => {
+      expect(plano(barras[i]?.textContent ?? null)).toContain(
+        importe(ventas[0]?.monto ?? "0", "ARS"),
+      );
+    });
+  });
+
+  it("RF-128 separa las ventas mensuales en USD de las de ARS, sin sumarlas", async () => {
+    renderDashboard(
+      "dueno",
+      http.get("*/api/dashboard", () =>
+        HttpResponse.json({
+          ...dashboardMock,
+          ventas_mensuales: [
+            {
+              mes: "2026-10-01",
+              ventas: [
+                { moneda: "ARS", monto: "5400000.00" },
+                { moneda: "USD", monto: "12400.00" },
+              ],
+            },
+          ],
+        }),
+      ),
+    );
+
+    const grafico = await screen.findByRole("region", { name: "Ventas por mes" });
+    expect(within(grafico).getAllByRole("listitem")).toHaveLength(2);
+    expect(plano(grafico.textContent)).toContain(importe("12400.00", "USD"));
+    expect(plano(grafico.textContent)).not.toContain(importe("5412400.00", "ARS"));
   });
 });
 
@@ -253,34 +295,77 @@ describe("RF-127 filtros", () => {
     });
   });
 
-  it("RF-127 el admin filtra por responsable", async () => {
+  it("RF-127 el admin filtra por responsable, con opciones que salen de la lista de usuarios", async () => {
     const pedidos: URLSearchParams[] = [];
-    renderDashboard("admin", registrarPedidos(pedidos));
+    // El ranking vacío no vacía el selector: las opciones no dependen de las ventas.
+    renderDashboard(
+      "admin",
+      registrarPedidos(pedidos),
+      http.get("*/api/dashboard", () =>
+        HttpResponse.json({ ...dashboardMock, ventas_por_vendedor: [] }),
+      ),
+    );
     await screen.findByRole("region", { name: "Embudo de ventas" });
 
-    await userEvent.selectOptions(
-      screen.getByLabelText("Responsable"),
-      usuariosPorRol.empleado.nombre,
+    const selector = screen.getByLabelText("Empleado");
+    await waitFor(() => {
+      expect(
+        within(selector).getByRole("option", { name: usuariosPorRol.freelance.nombre }),
+      ).toBeInTheDocument();
+    });
+    await userEvent.selectOptions(selector, usuariosPorRol.empleado.nombre);
+
+    await waitFor(() => {
+      expect(pedidos.at(-1)?.get("responsable_id")).toBe(usuariosPorRol.empleado.id);
+    });
+  });
+
+  it("RF-127 un 422 del filtro muestra el detalle del error y oculta los datos anteriores", async () => {
+    renderDashboard("empleado");
+    await screen.findByRole("region", { name: "Embudo de ventas" });
+    servidor.use(
+      http.get("*/api/dashboard", () =>
+        HttpResponse.json(
+          {
+            type: "about:blank",
+            title: "Datos inválidos",
+            status: 422,
+            detail: "Desde no puede ser posterior a Hasta.",
+          },
+          { status: 422, headers: { "content-type": "application/problem+json" } },
+        ),
+      ),
     );
 
-    await waitFor(() =>
-      expect(pedidos.at(-1)?.get("responsable_id")).toBe(usuariosPorRol.empleado.id),
+    fireEvent.change(screen.getByLabelText("Desde"), { target: { value: "2026-10-30" } });
+    fireEvent.change(screen.getByLabelText("Hasta"), { target: { value: "2026-10-01" } });
+
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      "Desde no puede ser posterior a Hasta.",
     );
+    expect(screen.queryByRole("region", { name: "Embudo de ventas" })).not.toBeInTheDocument();
   });
 
   it("RF-127 el dueño filtra por responsable y puede volver a toda la agencia", async () => {
     const pedidos: URLSearchParams[] = [];
     renderDashboard("dueno", registrarPedidos(pedidos));
     await screen.findByRole("region", { name: "Embudo de ventas" });
-    const selector = screen.getByLabelText("Responsable");
+    const selector = screen.getByLabelText("Empleado");
 
+    await waitFor(() => {
+      expect(
+        within(selector).getByRole("option", { name: usuariosPorRol.freelance.nombre }),
+      ).toBeInTheDocument();
+    });
     await userEvent.selectOptions(selector, usuariosPorRol.freelance.nombre);
-    await waitFor(() =>
-      expect(pedidos.at(-1)?.get("responsable_id")).toBe(usuariosPorRol.freelance.id),
-    );
+    await waitFor(() => {
+      expect(pedidos.at(-1)?.get("responsable_id")).toBe(usuariosPorRol.freelance.id);
+    });
 
     await userEvent.selectOptions(selector, "Toda la agencia");
-    await waitFor(() => expect(pedidos.at(-1)?.get("responsable_id")).toBeNull());
+    await waitFor(() => {
+      expect(pedidos.at(-1)?.get("responsable_id")).toBeNull();
+    });
   });
 
   it.each<RolMock>(["empleado", "freelance"])(
@@ -290,7 +375,7 @@ describe("RF-127 filtros", () => {
       renderDashboard(rol, registrarPedidos(pedidos));
       await screen.findByRole("region", { name: "Embudo de ventas" });
 
-      expect(screen.queryByLabelText("Responsable")).not.toBeInTheDocument();
+      expect(screen.queryByLabelText("Empleado")).not.toBeInTheDocument();
       expect(screen.getByLabelText("Desde")).toBeInTheDocument();
       expect(pedidos.every((p) => p.get("responsable_id") === null)).toBe(true);
     },
@@ -320,7 +405,8 @@ describe("RF-129 vista por rol", () => {
       const comision = await tarjeta(/Tu comisión del mes/);
       expect(plano(comision.textContent)).toContain(importe("108000.00", "ARS"));
       expect(screen.getByRole("link", { name: /Cobrado a tus pasajeros/ })).toBeInTheDocument();
-      expect(screen.getByRole("link", { name: /Tus viajes activos/ })).toBeInTheDocument();
+      const viajes = screen.getByRole("link", { name: /Viajes próximos/ });
+      expect(viajes).toHaveTextContent(String(dashboardMock.viajes_proximos.length));
       expect(screen.queryByRole("link", { name: /Ganancia estimada/ })).not.toBeInTheDocument();
       expect(screen.queryByRole("link", { name: /A pagar a operadores/ })).not.toBeInTheDocument();
     },
@@ -329,12 +415,30 @@ describe("RF-129 vista por rol", () => {
   it.each<RolMock>(["empleado", "freelance"])(
     "RF-129 el %s no ve las ventas de otros vendedores",
     async (rol) => {
-      renderDashboard(rol);
+      // Aunque la API mandara el ranking completo, la vista propia no lo muestra.
+      renderDashboard(
+        rol,
+        http.get("*/api/dashboard", () => HttpResponse.json(dashboardMock)),
+      );
 
       await tarjeta(/Tu comisión del mes/);
+      expect(screen.queryByRole("region", { name: "Ventas por vendedor" })).not.toBeInTheDocument();
       const otro = rol === "empleado" ? usuariosPorRol.freelance : usuariosPorRol.empleado;
       expect(screen.queryByText(otro.nombre)).not.toBeInTheDocument();
       expect(screen.queryByText("Toda la agencia")).not.toBeInTheDocument();
+    },
+  );
+
+  it.each<RolMock>(["empleado", "freelance"])(
+    "RF-129 el %s ve sus ventas del mes y el ticket promedio",
+    async (rol) => {
+      renderDashboard(rol);
+
+      const ventas = await tarjeta(/Ventas del mes/);
+      expect(plano(ventas.textContent)).toContain(importe("5400000.00", "ARS"));
+      expect(ventas).toHaveAttribute("href", "/viajes");
+      expect(plano(document.body.textContent)).toContain("Ticket promedio");
+      expect(plano(document.body.textContent)).toContain(importe("1800000.00", "ARS"));
     },
   );
 

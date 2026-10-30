@@ -7,6 +7,7 @@ import type {
   ReporteCatalogo,
 } from "../modelos";
 import { pagosPorViajeMock } from "./economia";
+import { usuariosMock } from "./m1";
 import { respuestaProblema } from "./problema";
 import { usuariosPorRol, type RolMock } from "./usuarios";
 import { viajesMock } from "./viajes";
@@ -175,7 +176,8 @@ const sinPermiso = () =>
   respuestaProblema(403, "Sin permiso", { detail: "Tu rol no permite esta acción." });
 
 /** Handlers MSW del dashboard, los reportes y el calendario (CU-21, CU-22, CU-23), con la matriz de
- * roles del contrato: los reportes son de admin y dueño. */
+ * roles del contrato: los reportes y la lista de usuarios (para filtrar por responsable) son de
+ * admin y dueño. */
 export function manejadoresDashboardPara(rol: RolMock): RequestHandler[] {
   const gestiona = rol === "admin" || rol === "dueno";
 
@@ -192,6 +194,18 @@ export function manejadoresDashboardPara(rol: RolMock): RequestHandler[] {
               ),
             },
       ),
+    ),
+
+    // Para elegir responsable en el filtro (solo admin y dueño).
+    http.get("*/api/usuarios", () =>
+      gestiona
+        ? HttpResponse.json({
+            items: usuariosMock,
+            total: usuariosMock.length,
+            pagina: 1,
+            por_pagina: 100,
+          })
+        : sinPermiso(),
     ),
 
     http.get("*/api/reportes", () =>

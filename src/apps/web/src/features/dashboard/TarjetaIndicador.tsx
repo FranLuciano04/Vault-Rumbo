@@ -2,13 +2,23 @@ import { formatearImporte, type MontoPorMoneda } from "@rumbo/shared";
 import type { ReactNode } from "react";
 import { Link } from "react-router";
 
-/** Importes por moneda, uno por línea y sin convertir; sin importes muestra cero en ARS. */
-export function Importes({ montos }: { montos: readonly MontoPorMoneda[] }) {
+/**
+ * Importes por moneda sin convertir, uno por línea (o seguidos, con `enLinea`); sin importes
+ * muestra cero en ARS.
+ */
+export function Importes({
+  montos,
+  enLinea = false,
+}: {
+  montos: readonly MontoPorMoneda[];
+  enLinea?: boolean;
+}) {
   const lineas = montos.length > 0 ? montos : [{ moneda: "ARS" as const, monto: "0.00" }];
   return (
     <>
-      {lineas.map(({ moneda, monto }) => (
-        <span key={moneda} className="block">
+      {lineas.map(({ moneda, monto }, i) => (
+        <span key={moneda} className={enLinea ? undefined : "block"}>
+          {enLinea && i > 0 && " · "}
           {formatearImporte(monto, moneda)}
         </span>
       ))}
