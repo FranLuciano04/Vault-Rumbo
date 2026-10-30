@@ -3,7 +3,7 @@ id: T-109
 titulo: Probar de punta a punta las excepciones del viaje
 modulo: M6 — Viajes y economía
 capa: e2e
-estado: libre
+estado: tomado
 depende_de: [T-093, T-095, T-098, T-099, T-103, T-107, T-108]
 tamaño: S
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [CU-11, CU-12, CU-27, CU-09]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: Nahuel Viniegra
+tomado_el: 30/10/26 18:19
+rama: feature/T-109-probar-de-punta-a-punta-las-excepciones
 pr:
 ---
 # T-109 Probar de punta a punta las excepciones del viaje
