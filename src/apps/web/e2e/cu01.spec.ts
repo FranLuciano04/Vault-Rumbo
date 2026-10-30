@@ -29,6 +29,7 @@ interface ViajeApi {
 }
 
 interface PagoApi {
+  id: string;
   tipo: string;
   monto: string;
   vencimiento: string;
@@ -37,6 +38,8 @@ interface PagoApi {
 }
 
 interface AlertaApi {
+  viaje_id: string | null;
+  pago_id: string | null;
   descripcion: string;
   tipo: string;
   fecha: string;
@@ -58,6 +61,15 @@ function sumarDias(fecha: string, dias: number): string {
   const d = new Date(`${fecha}T12:00:00Z`);
   d.setUTCDate(d.getUTCDate() + dias);
   return d.toISOString().slice(0, 10);
+}
+
+/** Un mes calendario antes; si ese día no existe queda el último del mes (como `sumar_meses`). */
+function mesAntes(fecha: string): string {
+  const [anio, mes, dia] = fecha.split("-").map(Number) as [number, number, number];
+  const destino = new Date(Date.UTC(anio, mes - 2, 1));
+  const ultimo = new Date(Date.UTC(destino.getUTCFullYear(), destino.getUTCMonth() + 1, 0));
+  destino.setUTCDate(Math.min(dia, ultimo.getUTCDate()));
+  return destino.toISOString().slice(0, 10);
 }
 
 /** dd/mm/aa, el formato de fechas de negocio. */
@@ -228,18 +240,37 @@ test.describe("CU-01 De la consulta a la venta", () => {
         page.getByRole("listitem").filter({ hasText: `${seguro}: tramitarlo antes de la salida` }),
       ).toBeVisible();
 
-      // Y por la API: tipo y fecha de cada una (la anticipación sale del requisito).
-      const alertas = await api<{ items: AlertaApi[] }>(
+      // Y por la API, de este viaje y de la fecha exacta (la anticipación sale del requisito).
+      const delViaje = async (fecha: string): Promise<AlertaApi[]> => {
+        const { items } = await api<{ items: AlertaApi[] }>(
+          duena,
+          "GET",
+          `/alertas?proximas=true&desde=${fecha}&hasta=${fecha}&por_pagina=100`,
+        );
+        return items.filter((a) => a.viaje_id === viajeId);
+      };
+      const dePasaporte = (await delViaje(sumarDias(SALIDA, -30))).filter((a) =>
+        a.descripcion.includes(pasaporte),
+      );
+      expect(dePasaporte).toHaveLength(1);
+      expect(dePasaporte[0]?.tipo).toBe("formulario");
+      expect(dePasaporte[0]?.fecha).toBe(sumarDias(SALIDA, -30));
+      const deSeguro = (await delViaje(sumarDias(SALIDA, -7))).filter((a) =>
+        a.descripcion.includes(seguro),
+      );
+      expect(deSeguro).toHaveLength(1);
+      expect(deSeguro[0]?.fecha).toBe(sumarDias(SALIDA, -7));
+
+      const todas = await api<{ items: AlertaApi[] }>(
         duena,
         "GET",
         "/alertas?proximas=true&por_pagina=100",
       );
-      const del = (texto: string) => alertas.items.find((a) => a.descripcion.includes(texto));
-      expect(del(pasaporte)?.tipo).toBe("formulario");
-      expect(del(pasaporte)?.fecha).toBe(sumarDias(SALIDA, -30));
-      expect(del(seguro)?.fecha).toBe(sumarDias(SALIDA, -7));
-      const deSalida = del(`El viaje sale el ${salida}.`);
-      expect(deSalida?.tipo).toBe("salida");
+      const deSalida = todas.items.filter(
+        (a) => a.viaje_id === viajeId && a.descripcion.includes(`El viaje sale el ${salida}.`),
+      );
+      expect(deSalida).toHaveLength(1);
+      expect(deSalida[0]?.tipo).toBe("salida");
     });
 
     await test.step("RF-054 economía: ganancia y margen se calculan y la comisión del vendedor va aparte", async () => {
@@ -287,21 +318,23 @@ test.describe("CU-01 De la consulta a la venta", () => {
       expect(plan.every((p) => p.estado === "pendiente")).toBe(true);
       expect(plan.reduce((total, p) => total + Number(p.monto), 0)).toBe(1_200_000);
 
-      // Cada pago nuevo trae su alerta de vencimiento (un mes antes).
-      // Unas ya vencieron o son de hoy (agenda) y otras son futuras (próximas): se juntan ambas.
-      const deAgenda = await api<{ items: AlertaApi[] }>(duena, "GET", "/alertas?tipo=pago&por_pagina=100");
-      const proximas = await api<{ items: AlertaApi[] }>(
-        duena,
-        "GET",
-        "/alertas?tipo=pago&proximas=true&por_pagina=100",
-      );
-      const alertas = { items: [...deAgenda.items, ...proximas.items] };
-      const vencimientos = [10, 40, 70].map((dias) => ddmmaa(sumarDias(HOY, dias)));
-      for (const vence of vencimientos) {
-        expect(
-          alertas.items.some((a) => a.descripcion.includes(`vence el ${vence}`)),
-          `debería existir la alerta del pago que vence el ${vence}`,
-        ).toBe(true);
+      // Cada pago nuevo trae su alerta de vencimiento (un mes antes), atada a ese pago (que es de
+      // este viaje; la alerta de pago trae `pago_id` y no `viaje_id`). Según la fecha ya venció o es futura (agenda o próximas): se consultan ambas.
+      for (const pago of plan) {
+        const fecha = mesAntes(pago.vencimiento);
+        const consulta = `desde=${fecha}&hasta=${fecha}&tipo=pago&por_pagina=100`;
+        const deAgenda = await api<{ items: AlertaApi[] }>(duena, "GET", `/alertas?${consulta}`);
+        const proximas = await api<{ items: AlertaApi[] }>(
+          duena,
+          "GET",
+          `/alertas?${consulta}&proximas=true`,
+        );
+        const suyas = [...deAgenda.items, ...proximas.items].filter(
+          (a) => a.pago_id === pago.id,
+        );
+        expect(suyas, `debería haber una alerta del pago ${pago.tipo} (${pago.vencimiento})`).toHaveLength(1);
+        expect(suyas[0]?.fecha).toBe(fecha);
+        expect(suyas[0]?.descripcion).toContain(`vence el ${ddmmaa(pago.vencimiento)}`);
       }
     });
 
