@@ -9,7 +9,7 @@ from fastapi import APIRouter, Depends, Query
 from rumbo.core.db import SesionDep
 from rumbo.datos import modelos
 from rumbo.datos.modelos import EstadoViaje
-from rumbo.negocio.servicios import itinerario
+from rumbo.negocio.servicios import itinerario, viajes
 from rumbo.presentacion.contrato import (
     TODOS,
     no_implementado,
@@ -89,8 +89,9 @@ async def obtener_viaje(viaje_id: uuid.UUID) -> Viaje:
     summary="Pasar el viaje a en curso",
     **operacion_de_registro(403, 404, 409, casos_de_uso="CU-08"),
 )
-async def iniciar_viaje(viaje_id: uuid.UUID) -> Viaje:
-    raise no_implementado()
+async def iniciar_viaje(viaje_id: uuid.UUID, actor: ActorDep, sesion: SesionDep) -> Viaje:
+    ficha = await viajes.iniciar(sesion, actor, viaje_id)
+    return Viaje.desde_ficha(ficha.viaje, ficha.saldo_pendiente, ficha.porcentaje_pagado)
 
 
 @router.post(
@@ -99,8 +100,9 @@ async def iniciar_viaje(viaje_id: uuid.UUID) -> Viaje:
     summary="Pasar el viaje a finalizado",
     **operacion_de_registro(403, 404, 409, casos_de_uso="CU-08"),
 )
-async def finalizar_viaje(viaje_id: uuid.UUID) -> Viaje:
-    raise no_implementado()
+async def finalizar_viaje(viaje_id: uuid.UUID, actor: ActorDep, sesion: SesionDep) -> Viaje:
+    ficha = await viajes.finalizar(sesion, actor, viaje_id)
+    return Viaje.desde_ficha(ficha.viaje, ficha.saldo_pendiente, ficha.porcentaje_pagado)
 
 
 @router.post(
@@ -109,8 +111,9 @@ async def finalizar_viaje(viaje_id: uuid.UUID) -> Viaje:
     summary="Volver al estado anterior por un error de carga",
     **operacion_de_registro(403, 404, 409, casos_de_uso="CU-08"),
 )
-async def corregir_estado_viaje(viaje_id: uuid.UUID) -> Viaje:
-    raise no_implementado()
+async def corregir_estado_viaje(viaje_id: uuid.UUID, actor: ActorDep, sesion: SesionDep) -> Viaje:
+    ficha = await viajes.corregir_estado(sesion, actor, viaje_id)
+    return Viaje.desde_ficha(ficha.viaje, ficha.saldo_pendiente, ficha.porcentaje_pagado)
 
 
 @router.post(
