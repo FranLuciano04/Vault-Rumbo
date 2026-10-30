@@ -7287,6 +7287,524 @@
         ]
       }
     },
+    "/api/dashboard": {
+      "get": {
+        "tags": [
+          "dashboard"
+        ],
+        "summary": "Ver indicadores y embudo de ventas",
+        "description": "**Roles:** admin, dueno, empleado, freelance.\n\n**Visibilidad:** freelance, solo lo propio (DEC-0008).\n\n**Casos de uso:** CU-21.\n\nAdmin y dueño ven toda la agencia; empleado y freelance, solo lo suyo (CU-21 A1).",
+        "operationId": "ver_dashboard",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "desde",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Inicio del período. Sin él, el mes en curso.",
+              "title": "Desde"
+            },
+            "description": "Inicio del período. Sin él, el mes en curso."
+          },
+          {
+            "name": "hasta",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Fin del período. Sin él, el mes en curso.",
+              "title": "Hasta"
+            },
+            "description": "Fin del período. Sin él, el mes en curso."
+          },
+          {
+            "name": "responsable_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Indicadores de un responsable: solo admin y dueño (CU-21 A1); para empleado y freelance se ignora y se usa el propio.",
+              "title": "Responsable Id"
+            },
+            "description": "Indicadores de un responsable: solo admin y dueño (CU-21 A1); para empleado y freelance se ignora y se usa el propio."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Dashboard"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Falta el token, no es válido o el usuario no tiene acceso.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Datos inválidos.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        },
+        "x-roles": [
+          "admin",
+          "dueno",
+          "empleado",
+          "freelance"
+        ],
+        "x-casos-de-uso": [
+          "CU-21"
+        ]
+      }
+    },
+    "/api/reportes": {
+      "get": {
+        "tags": [
+          "dashboard"
+        ],
+        "summary": "Ver el catálogo de reportes",
+        "description": "**Roles:** admin, dueno.\n\n**Casos de uso:** CU-22.",
+        "operationId": "listar_reportes",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ReporteCatalogo"
+                  },
+                  "type": "array",
+                  "title": "Response Listar Reportes"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Falta el token, no es válido o el usuario no tiene acceso.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "El rol no alcanza.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "x-roles": [
+          "admin",
+          "dueno"
+        ],
+        "x-casos-de-uso": [
+          "CU-22"
+        ]
+      }
+    },
+    "/api/reportes/{reporte_id}": {
+      "get": {
+        "tags": [
+          "dashboard"
+        ],
+        "summary": "Generar un reporte del período",
+        "description": "**Roles:** admin, dueno.\n\n**Casos de uso:** CU-22.",
+        "operationId": "generar_reporte",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "reporte_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Identificador del catálogo (`/reportes`).",
+              "title": "Reporte Id"
+            },
+            "description": "Identificador del catálogo (`/reportes`)."
+          },
+          {
+            "name": "desde",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Inicio del período. Sin él, el mes en curso.",
+              "title": "Desde"
+            },
+            "description": "Inicio del período. Sin él, el mes en curso."
+          },
+          {
+            "name": "hasta",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Fin del período. Sin él, el mes en curso.",
+              "title": "Hasta"
+            },
+            "description": "Fin del período. Sin él, el mes en curso."
+          },
+          {
+            "name": "comparar_desde",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Inicio del período contra el que comparar (CU-22 A2).",
+              "title": "Comparar Desde"
+            },
+            "description": "Inicio del período contra el que comparar (CU-22 A2)."
+          },
+          {
+            "name": "comparar_hasta",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Fin del período contra el que comparar (CU-22 A2).",
+              "title": "Comparar Hasta"
+            },
+            "description": "Fin del período contra el que comparar (CU-22 A2)."
+          },
+          {
+            "name": "formato",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "json",
+                "xlsx",
+                "pdf"
+              ],
+              "type": "string",
+              "description": "Formato de salida.",
+              "default": "json",
+              "title": "Formato"
+            },
+            "description": "Formato de salida."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "El reporte del período: JSON por defecto, o Excel (`xlsx`) o PDF resumido (`pdf`) con el mismo contenido, según `formato`.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Reporte"
+                }
+              },
+              "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              },
+              "application/pdf": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Falta el token, no es válido o el usuario no tiene acceso.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "El rol no alcanza.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No existe.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Datos inválidos.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        },
+        "x-roles": [
+          "admin",
+          "dueno"
+        ],
+        "x-casos-de-uso": [
+          "CU-22"
+        ]
+      }
+    },
+    "/api/calendario": {
+      "get": {
+        "tags": [
+          "calendario"
+        ],
+        "summary": "Ver viajes y vencimientos en el calendario",
+        "description": "**Roles:** admin, dueno, empleado, freelance.\n\n**Visibilidad:** freelance, solo lo propio (DEC-0008).\n\n**Casos de uso:** CU-23.",
+        "operationId": "ver_calendario",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "desde",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Inicio del rango visible. Sin él, el mes en curso.",
+              "title": "Desde"
+            },
+            "description": "Inicio del rango visible. Sin él, el mes en curso."
+          },
+          {
+            "name": "hasta",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Fin del rango visible. Sin él, el mes en curso.",
+              "title": "Hasta"
+            },
+            "description": "Fin del rango visible. Sin él, el mes en curso."
+          },
+          {
+            "name": "mios",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "Solo los viajes y vencimientos que tengo asignados.",
+              "default": false,
+              "title": "Mios"
+            },
+            "description": "Solo los viajes y vencimientos que tengo asignados."
+          },
+          {
+            "name": "tipo",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "viaje",
+                    "vencimiento"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Solo viajes o solo vencimientos.",
+              "title": "Tipo"
+            },
+            "description": "Solo viajes o solo vencimientos."
+          },
+          {
+            "name": "responsable_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Solo los eventos de un responsable.",
+              "title": "Responsable Id"
+            },
+            "description": "Solo los eventos de un responsable."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/EventoCalendario"
+                  },
+                  "title": "Response Ver Calendario"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Falta el token, no es válido o el usuario no tiene acceso.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Datos inválidos.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        },
+        "x-roles": [
+          "admin",
+          "dueno",
+          "empleado",
+          "freelance"
+        ],
+        "x-casos-de-uso": [
+          "CU-23"
+        ]
+      }
+    },
     "/api/hoteles": {
       "get": {
         "tags": [
@@ -9325,6 +9843,46 @@
         "title": "CobroRegistrar",
         "description": "El servidor calcula monto_cobrado y actualiza el estado del viaje (CU-12 A0 y A2)."
       },
+      "ColumnaReporte": {
+        "properties": {
+          "clave": {
+            "type": "string",
+            "title": "Clave"
+          },
+          "titulo": {
+            "type": "string",
+            "title": "Titulo"
+          },
+          "tipo": {
+            "type": "string",
+            "enum": [
+              "texto",
+              "entero",
+              "importe"
+            ],
+            "title": "Tipo"
+          },
+          "moneda": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Moneda"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Moneda de una columna de importe (DEC-0007); vacía en las demás."
+          }
+        },
+        "type": "object",
+        "required": [
+          "clave",
+          "titulo",
+          "tipo",
+          "moneda"
+        ],
+        "title": "ColumnaReporte"
+      },
       "ComisionPorDefecto": {
         "properties": {
           "comision_default_tipo": {
@@ -9677,6 +10235,167 @@
         "title": "CotizacionCrear",
         "description": "Cada envío crea una versión nueva; las anteriores quedan en el historial (CU-06 A1)."
       },
+      "Dashboard": {
+        "properties": {
+          "desde": {
+            "type": "string",
+            "format": "date",
+            "title": "Desde",
+            "description": "Inicio del período.",
+            "readOnly": true
+          },
+          "hasta": {
+            "type": "string",
+            "format": "date",
+            "title": "Hasta",
+            "description": "Fin del período.",
+            "readOnly": true
+          },
+          "embudo": {
+            "$ref": "#/components/schemas/Embudo",
+            "readOnly": true
+          },
+          "ventas": {
+            "items": {
+              "$ref": "#/components/schemas/MontoPorMoneda"
+            },
+            "type": "array",
+            "title": "Ventas",
+            "readOnly": true
+          },
+          "ventas_mensuales": {
+            "items": {
+              "$ref": "#/components/schemas/VentaMensual"
+            },
+            "type": "array",
+            "title": "Ventas Mensuales",
+            "description": "Comparación con los meses anteriores.",
+            "readOnly": true
+          },
+          "ganancia_estimada": {
+            "items": {
+              "$ref": "#/components/schemas/MontoPorMoneda"
+            },
+            "type": "array",
+            "title": "Ganancia Estimada",
+            "readOnly": true
+          },
+          "ticket_promedio": {
+            "items": {
+              "$ref": "#/components/schemas/MontoPorMoneda"
+            },
+            "type": "array",
+            "title": "Ticket Promedio",
+            "readOnly": true
+          },
+          "cobrado": {
+            "items": {
+              "$ref": "#/components/schemas/MontoPorMoneda"
+            },
+            "type": "array",
+            "title": "Cobrado",
+            "readOnly": true
+          },
+          "pendiente_de_cobrar": {
+            "items": {
+              "$ref": "#/components/schemas/MontoPorMoneda"
+            },
+            "type": "array",
+            "title": "Pendiente De Cobrar",
+            "description": "A pasajeros.",
+            "readOnly": true
+          },
+          "pendiente_de_pagar": {
+            "items": {
+              "$ref": "#/components/schemas/MontoPorMoneda"
+            },
+            "type": "array",
+            "title": "Pendiente De Pagar",
+            "description": "A operadores.",
+            "readOnly": true
+          },
+          "proximos_vencimientos": {
+            "items": {
+              "$ref": "#/components/schemas/VencimientoProximo"
+            },
+            "type": "array",
+            "title": "Proximos Vencimientos",
+            "readOnly": true
+          },
+          "viajes_proximos": {
+            "items": {
+              "$ref": "#/components/schemas/ViajeProximo"
+            },
+            "type": "array",
+            "title": "Viajes Proximos",
+            "readOnly": true
+          },
+          "consultas_pendientes": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Consultas Pendientes",
+            "readOnly": true
+          },
+          "presupuestos_abiertos": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Presupuestos Abiertos",
+            "readOnly": true
+          },
+          "reservas_confirmadas": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Reservas Confirmadas",
+            "readOnly": true
+          },
+          "alertas_pendientes": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Alertas Pendientes",
+            "description": "Alertas de pasajeros próximos a viajar (documentación, pagos, requisitos).",
+            "readOnly": true
+          },
+          "destinos_mas_vendidos": {
+            "items": {
+              "$ref": "#/components/schemas/DestinoVendido"
+            },
+            "type": "array",
+            "title": "Destinos Mas Vendidos",
+            "readOnly": true
+          },
+          "ventas_por_vendedor": {
+            "items": {
+              "$ref": "#/components/schemas/VentaPorVendedor"
+            },
+            "type": "array",
+            "title": "Ventas Por Vendedor",
+            "readOnly": true
+          }
+        },
+        "type": "object",
+        "required": [
+          "desde",
+          "hasta",
+          "embudo",
+          "ventas",
+          "ventas_mensuales",
+          "ganancia_estimada",
+          "ticket_promedio",
+          "cobrado",
+          "pendiente_de_cobrar",
+          "pendiente_de_pagar",
+          "proximos_vencimientos",
+          "viajes_proximos",
+          "consultas_pendientes",
+          "presupuestos_abiertos",
+          "reservas_confirmadas",
+          "alertas_pendientes",
+          "destinos_mas_vendidos",
+          "ventas_por_vendedor"
+        ],
+        "title": "Dashboard",
+        "description": "Foto del negocio en el período (CU-21), de solo lectura. Admin y dueño ven toda la agencia;\nel resto, lo propio (DEC-0005, DEC-0008). Sin actividad, las listas vienen vacías y los\ncontadores en cero."
+      },
       "Destino": {
         "properties": {
           "created_by": {
@@ -9859,6 +10578,32 @@
         },
         "type": "object",
         "title": "DestinoEditar"
+      },
+      "DestinoVendido": {
+        "properties": {
+          "destino_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Destino Id"
+          },
+          "destino_nombre": {
+            "type": "string",
+            "title": "Destino Nombre"
+          },
+          "viajes": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Viajes",
+            "description": "Viajes vendidos al destino en el período."
+          }
+        },
+        "type": "object",
+        "required": [
+          "destino_id",
+          "destino_nombre",
+          "viajes"
+        ],
+        "title": "DestinoVendido"
       },
       "EconomiaRegistrada": {
         "allOf": [
@@ -10220,6 +10965,33 @@
         "title": "EconomiaViaje",
         "description": "Control económico del viaje (CU-10). Los importes van en la moneda del viaje."
       },
+      "Embudo": {
+        "properties": {
+          "etapas": {
+            "items": {
+              "$ref": "#/components/schemas/EtapaEmbudo"
+            },
+            "type": "array",
+            "title": "Etapas"
+          },
+          "tasa_conversion": {
+            "type": "string",
+            "pattern": "^(0(\\.\\d{1,4})?|1(\\.0{1,4})?)$",
+            "format": "decimal",
+            "title": "Tasa Conversion",
+            "examples": [
+              "0.3333"
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "etapas",
+          "tasa_conversion"
+        ],
+        "title": "Embudo",
+        "description": "Oportunidades por estado y tasa de conversión (ganadas sobre las cerradas)."
+      },
       "ErrorCampo": {
         "properties": {
           "campo": {
@@ -10306,6 +11078,108 @@
           "cancelado"
         ],
         "title": "EstadoViaje"
+      },
+      "EtapaEmbudo": {
+        "properties": {
+          "estado": {
+            "$ref": "#/components/schemas/EstadoOportunidad"
+          },
+          "cantidad": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Cantidad"
+          }
+        },
+        "type": "object",
+        "required": [
+          "estado",
+          "cantidad"
+        ],
+        "title": "EtapaEmbudo"
+      },
+      "EventoCalendario": {
+        "properties": {
+          "tipo": {
+            "type": "string",
+            "enum": [
+              "viaje",
+              "vencimiento"
+            ],
+            "title": "Tipo",
+            "readOnly": true
+          },
+          "titulo": {
+            "type": "string",
+            "title": "Titulo",
+            "description": "Qué mostrar en la grilla.",
+            "readOnly": true
+          },
+          "desde": {
+            "type": "string",
+            "format": "date",
+            "title": "Desde",
+            "readOnly": true
+          },
+          "hasta": {
+            "type": "string",
+            "format": "date",
+            "title": "Hasta",
+            "description": "Igual a `desde` en un vencimiento.",
+            "readOnly": true
+          },
+          "estado": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/EstadoViaje"
+              },
+              {
+                "$ref": "#/components/schemas/EstadoPago"
+              }
+            ],
+            "title": "Estado",
+            "description": "Del viaje o del pago, según el `tipo`.",
+            "readOnly": true
+          },
+          "viaje_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Viaje Id",
+            "readOnly": true
+          },
+          "pago_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pago Id",
+            "description": "Solo en un vencimiento.",
+            "readOnly": true
+          },
+          "responsable_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Responsable Id",
+            "readOnly": true
+          }
+        },
+        "type": "object",
+        "required": [
+          "tipo",
+          "titulo",
+          "desde",
+          "hasta",
+          "estado",
+          "viaje_id",
+          "pago_id",
+          "responsable_id"
+        ],
+        "title": "EventoCalendario",
+        "description": "Un viaje (de su salida a su regreso) o el vencimiento de un pago (un solo día). Solo\nlectura: el detalle se gestiona desde su viaje o su pago."
       },
       "FormaPago": {
         "type": "string",
@@ -10639,6 +11513,29 @@
           "USD"
         ],
         "title": "Moneda"
+      },
+      "MontoPorMoneda": {
+        "properties": {
+          "moneda": {
+            "$ref": "#/components/schemas/Moneda"
+          },
+          "monto": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d{1,4})?$",
+            "format": "decimal",
+            "title": "Monto",
+            "examples": [
+              "1000000.00"
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "moneda",
+          "monto"
+        ],
+        "title": "MontoPorMoneda",
+        "description": "Un total en una moneda: ARS y USD no se suman entre sí (DEC-0007)."
       },
       "MotivoPerdida": {
         "type": "string",
@@ -11756,6 +12653,145 @@
         "title": "ProgresoDelDia",
         "description": "Avance de la agenda de hoy del usuario actual, o de toda la agencia para admin y dueño\n(CU-14)."
       },
+      "Reporte": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "nombre": {
+            "type": "string",
+            "title": "Nombre"
+          },
+          "desde": {
+            "type": "string",
+            "format": "date",
+            "title": "Desde"
+          },
+          "hasta": {
+            "type": "string",
+            "format": "date",
+            "title": "Hasta"
+          },
+          "comparar_desde": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Comparar Desde"
+          },
+          "comparar_hasta": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Comparar Hasta"
+          },
+          "columnas": {
+            "items": {
+              "$ref": "#/components/schemas/ColumnaReporte"
+            },
+            "type": "array",
+            "title": "Columnas"
+          },
+          "filas": {
+            "items": {
+              "additionalProperties": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "integer"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Filas"
+          },
+          "filas_comparadas": {
+            "anyOf": [
+              {
+                "items": {
+                  "additionalProperties": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "integer"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Filas Comparadas"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "nombre",
+          "desde",
+          "hasta",
+          "comparar_desde",
+          "comparar_hasta",
+          "columnas",
+          "filas",
+          "filas_comparadas"
+        ],
+        "title": "Reporte",
+        "description": "Reporte del período en formato JSON (el Excel y el PDF llevan el mismo contenido). Los\nimportes de las filas viajan como texto decimal. `filas_comparadas` viene solo si se pidió un\nperíodo de comparación (CU-22 A2)."
+      },
+      "ReporteCatalogo": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id",
+            "description": "Identificador de la ruta `/reportes/{reporte_id}`."
+          },
+          "nombre": {
+            "type": "string",
+            "title": "Nombre"
+          },
+          "descripcion": {
+            "type": "string",
+            "title": "Descripcion"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "nombre",
+          "descripcion"
+        ],
+        "title": "ReporteCatalogo",
+        "description": "Un reporte del catálogo de CU-22."
+      },
       "RequisitoDestino": {
         "properties": {
           "created_by": {
@@ -12628,6 +13664,115 @@
         "title": "UsuarioEditar",
         "description": "Corrección del nombre y cambio de rol o de acceso a redes (CU-25 A2). Asignar o quitar\nel rol `dueno` es solo de la dueña."
       },
+      "VencimientoProximo": {
+        "properties": {
+          "pago_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Pago Id"
+          },
+          "viaje_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Viaje Id"
+          },
+          "cliente_nombre": {
+            "type": "string",
+            "title": "Cliente Nombre"
+          },
+          "tipo": {
+            "$ref": "#/components/schemas/TipoPago"
+          },
+          "monto": {
+            "type": "string",
+            "pattern": "^\\d+(\\.\\d{1,4})?$",
+            "format": "decimal",
+            "title": "Monto",
+            "examples": [
+              "1000000.00"
+            ]
+          },
+          "moneda": {
+            "$ref": "#/components/schemas/Moneda"
+          },
+          "vencimiento": {
+            "type": "string",
+            "format": "date",
+            "title": "Vencimiento"
+          },
+          "estado": {
+            "$ref": "#/components/schemas/EstadoPago"
+          }
+        },
+        "type": "object",
+        "required": [
+          "pago_id",
+          "viaje_id",
+          "cliente_nombre",
+          "tipo",
+          "monto",
+          "moneda",
+          "vencimiento",
+          "estado"
+        ],
+        "title": "VencimientoProximo"
+      },
+      "VentaMensual": {
+        "properties": {
+          "mes": {
+            "type": "string",
+            "format": "date",
+            "title": "Mes",
+            "description": "Primer día del mes."
+          },
+          "ventas": {
+            "items": {
+              "$ref": "#/components/schemas/MontoPorMoneda"
+            },
+            "type": "array",
+            "title": "Ventas"
+          }
+        },
+        "type": "object",
+        "required": [
+          "mes",
+          "ventas"
+        ],
+        "title": "VentaMensual"
+      },
+      "VentaPorVendedor": {
+        "properties": {
+          "vendedor_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Vendedor Id"
+          },
+          "vendedor_nombre": {
+            "type": "string",
+            "title": "Vendedor Nombre"
+          },
+          "viajes": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Viajes"
+          },
+          "ventas": {
+            "items": {
+              "$ref": "#/components/schemas/MontoPorMoneda"
+            },
+            "type": "array",
+            "title": "Ventas"
+          }
+        },
+        "type": "object",
+        "required": [
+          "vendedor_id",
+          "vendedor_nombre",
+          "viajes",
+          "ventas"
+        ],
+        "title": "VentaPorVendedor"
+      },
       "Viaje": {
         "allOf": [
           {
@@ -12965,6 +14110,40 @@
         ],
         "title": "ViajeDelCliente",
         "description": "Viaje del cliente, tal como aparece en su historial."
+      },
+      "ViajeProximo": {
+        "properties": {
+          "viaje_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Viaje Id"
+          },
+          "cliente_nombre": {
+            "type": "string",
+            "title": "Cliente Nombre"
+          },
+          "destino_nombre": {
+            "type": "string",
+            "title": "Destino Nombre"
+          },
+          "fecha_salida": {
+            "type": "string",
+            "format": "date",
+            "title": "Fecha Salida"
+          },
+          "estado": {
+            "$ref": "#/components/schemas/EstadoViaje"
+          }
+        },
+        "type": "object",
+        "required": [
+          "viaje_id",
+          "cliente_nombre",
+          "destino_nombre",
+          "fecha_salida",
+          "estado"
+        ],
+        "title": "ViajeProximo"
       },
       "Auditoria": {
         "description": "Columnas de auditoría (DEC-0008): las completa el servidor, el cliente no las envía.",

@@ -1543,6 +1543,100 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/dashboard": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Ver indicadores y embudo de ventas
+         * @description **Roles:** admin, dueno, empleado, freelance.
+         *
+         *     **Visibilidad:** freelance, solo lo propio (DEC-0008).
+         *
+         *     **Casos de uso:** CU-21.
+         *
+         *     Admin y dueño ven toda la agencia; empleado y freelance, solo lo suyo (CU-21 A1).
+         */
+        get: operations["ver_dashboard"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/reportes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Ver el catálogo de reportes
+         * @description **Roles:** admin, dueno.
+         *
+         *     **Casos de uso:** CU-22.
+         */
+        get: operations["listar_reportes"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/reportes/{reporte_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Generar un reporte del período
+         * @description **Roles:** admin, dueno.
+         *
+         *     **Casos de uso:** CU-22.
+         */
+        get: operations["generar_reporte"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/calendario": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Ver viajes y vencimientos en el calendario
+         * @description **Roles:** admin, dueno, empleado, freelance.
+         *
+         *     **Visibilidad:** freelance, solo lo propio (DEC-0008).
+         *
+         *     **Casos de uso:** CU-23.
+         */
+        get: operations["ver_calendario"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/hoteles": {
         parameters: {
             query?: never;
@@ -2041,6 +2135,20 @@ export interface components {
              */
             tipo_cambio?: string | null;
         };
+        /** ColumnaReporte */
+        ColumnaReporte: {
+            /** Clave */
+            clave: string;
+            /** Titulo */
+            titulo: string;
+            /**
+             * Tipo
+             * @enum {string}
+             */
+            tipo: "texto" | "entero" | "importe";
+            /** @description Moneda de una columna de importe (DEC-0007); vacía en las demás. */
+            moneda: components["schemas"]["Moneda"] | null;
+        };
         /**
          * ComisionPorDefecto
          * @description Comisión por defecto de un vendedor; ambos en `null` la quita. No recalcula los viajes
@@ -2182,6 +2290,69 @@ export interface components {
             /** Items */
             items: components["schemas"]["ItemCotizacion"][];
         };
+        /**
+         * Dashboard
+         * @description Foto del negocio en el período (CU-21), de solo lectura. Admin y dueño ven toda la agencia;
+         *     el resto, lo propio (DEC-0005, DEC-0008). Sin actividad, las listas vienen vacías y los
+         *     contadores en cero.
+         */
+        Dashboard: {
+            /**
+             * Desde
+             * Format: date
+             * @description Inicio del período.
+             */
+            readonly desde: string;
+            /**
+             * Hasta
+             * Format: date
+             * @description Fin del período.
+             */
+            readonly hasta: string;
+            readonly embudo: components["schemas"]["Embudo"];
+            /** Ventas */
+            readonly ventas: components["schemas"]["MontoPorMoneda"][];
+            /**
+             * Ventas Mensuales
+             * @description Comparación con los meses anteriores.
+             */
+            readonly ventas_mensuales: components["schemas"]["VentaMensual"][];
+            /** Ganancia Estimada */
+            readonly ganancia_estimada: components["schemas"]["MontoPorMoneda"][];
+            /** Ticket Promedio */
+            readonly ticket_promedio: components["schemas"]["MontoPorMoneda"][];
+            /** Cobrado */
+            readonly cobrado: components["schemas"]["MontoPorMoneda"][];
+            /**
+             * Pendiente De Cobrar
+             * @description A pasajeros.
+             */
+            readonly pendiente_de_cobrar: components["schemas"]["MontoPorMoneda"][];
+            /**
+             * Pendiente De Pagar
+             * @description A operadores.
+             */
+            readonly pendiente_de_pagar: components["schemas"]["MontoPorMoneda"][];
+            /** Proximos Vencimientos */
+            readonly proximos_vencimientos: components["schemas"]["VencimientoProximo"][];
+            /** Viajes Proximos */
+            readonly viajes_proximos: components["schemas"]["ViajeProximo"][];
+            /** Consultas Pendientes */
+            readonly consultas_pendientes: number;
+            /** Presupuestos Abiertos */
+            readonly presupuestos_abiertos: number;
+            /** Reservas Confirmadas */
+            readonly reservas_confirmadas: number;
+            /**
+             * Alertas Pendientes
+             * @description Alertas de pasajeros próximos a viajar (documentación, pagos, requisitos).
+             */
+            readonly alertas_pendientes: number;
+            /** Destinos Mas Vendidos */
+            readonly destinos_mas_vendidos: components["schemas"]["DestinoVendido"][];
+            /** Ventas Por Vendedor */
+            readonly ventas_por_vendedor: components["schemas"]["VentaPorVendedor"][];
+        };
         /** Destino */
         Destino: {
             /**
@@ -2241,6 +2412,21 @@ export interface components {
             region?: string | null;
             /** Notas */
             notas?: string | null;
+        };
+        /** DestinoVendido */
+        DestinoVendido: {
+            /**
+             * Destino Id
+             * Format: uuid
+             */
+            destino_id: string;
+            /** Destino Nombre */
+            destino_nombre: string;
+            /**
+             * Viajes
+             * @description Viajes vendidos al destino en el período.
+             */
+            viajes: number;
         };
         EconomiaRegistrada: {
             /**
@@ -2389,6 +2575,20 @@ export interface components {
              */
             comision_vendedor?: string | null;
         };
+        /**
+         * Embudo
+         * @description Oportunidades por estado y tasa de conversión (ganadas sobre las cerradas).
+         */
+        Embudo: {
+            /** Etapas */
+            etapas: components["schemas"]["EtapaEmbudo"][];
+            /**
+             * Tasa Conversion
+             * Format: decimal
+             * @example 0.3333
+             */
+            tasa_conversion: string;
+        };
         /** ErrorCampo */
         ErrorCampo: {
             /** Campo */
@@ -2431,6 +2631,60 @@ export interface components {
          * @enum {string}
          */
         EstadoViaje: "reservado" | "vendido" | "confirmado" | "en_curso" | "finalizado" | "cancelado";
+        /** EtapaEmbudo */
+        EtapaEmbudo: {
+            estado: components["schemas"]["EstadoOportunidad"];
+            /** Cantidad */
+            cantidad: number;
+        };
+        /**
+         * EventoCalendario
+         * @description Un viaje (de su salida a su regreso) o el vencimiento de un pago (un solo día). Solo
+         *     lectura: el detalle se gestiona desde su viaje o su pago.
+         */
+        EventoCalendario: {
+            /**
+             * Tipo
+             * @enum {string}
+             */
+            readonly tipo: "viaje" | "vencimiento";
+            /**
+             * Titulo
+             * @description Qué mostrar en la grilla.
+             */
+            readonly titulo: string;
+            /**
+             * Desde
+             * Format: date
+             */
+            readonly desde: string;
+            /**
+             * Hasta
+             * Format: date
+             * @description Igual a `desde` en un vencimiento.
+             */
+            readonly hasta: string;
+            /**
+             * Estado
+             * @description Del viaje o del pago, según el `tipo`.
+             */
+            readonly estado: components["schemas"]["EstadoViaje"] | components["schemas"]["EstadoPago"];
+            /**
+             * Viaje Id
+             * Format: uuid
+             */
+            readonly viaje_id: string;
+            /**
+             * Pago Id
+             * @description Solo en un vencimiento.
+             */
+            readonly pago_id: string | null;
+            /**
+             * Responsable Id
+             * Format: uuid
+             */
+            readonly responsable_id: string;
+        };
         /**
          * FormaPago
          * @enum {string}
@@ -2566,6 +2820,19 @@ export interface components {
          * @enum {string}
          */
         Moneda: "ARS" | "USD";
+        /**
+         * MontoPorMoneda
+         * @description Un total en una moneda: ARS y USD no se suman entre sí (DEC-0007).
+         */
+        MontoPorMoneda: {
+            moneda: components["schemas"]["Moneda"];
+            /**
+             * Monto
+             * Format: decimal
+             * @example 1000000.00
+             */
+            monto: string;
+        };
         /**
          * MotivoPerdida
          * @enum {string}
@@ -2977,6 +3244,57 @@ export interface components {
              * @description Las resueltas hoy más las que quedan para hoy.
              */
             total_del_dia: number;
+        };
+        /**
+         * Reporte
+         * @description Reporte del período en formato JSON (el Excel y el PDF llevan el mismo contenido). Los
+         *     importes de las filas viajan como texto decimal. `filas_comparadas` viene solo si se pidió un
+         *     período de comparación (CU-22 A2).
+         */
+        Reporte: {
+            /** Id */
+            id: string;
+            /** Nombre */
+            nombre: string;
+            /**
+             * Desde
+             * Format: date
+             */
+            desde: string;
+            /**
+             * Hasta
+             * Format: date
+             */
+            hasta: string;
+            /** Comparar Desde */
+            comparar_desde: string | null;
+            /** Comparar Hasta */
+            comparar_hasta: string | null;
+            /** Columnas */
+            columnas: components["schemas"]["ColumnaReporte"][];
+            /** Filas */
+            filas: {
+                [key: string]: string | number | null;
+            }[];
+            /** Filas Comparadas */
+            filas_comparadas: {
+                [key: string]: string | number | null;
+            }[] | null;
+        };
+        /**
+         * ReporteCatalogo
+         * @description Un reporte del catálogo de CU-22.
+         */
+        ReporteCatalogo: {
+            /**
+             * Id
+             * @description Identificador de la ruta `/reportes/{reporte_id}`.
+             */
+            id: string;
+            /** Nombre */
+            nombre: string;
+            /** Descripcion */
+            descripcion: string;
         };
         /** RequisitoDestino */
         RequisitoDestino: {
@@ -3428,6 +3746,60 @@ export interface components {
             /** Acceso Redes */
             acceso_redes?: boolean;
         };
+        /** VencimientoProximo */
+        VencimientoProximo: {
+            /**
+             * Pago Id
+             * Format: uuid
+             */
+            pago_id: string;
+            /**
+             * Viaje Id
+             * Format: uuid
+             */
+            viaje_id: string;
+            /** Cliente Nombre */
+            cliente_nombre: string;
+            tipo: components["schemas"]["TipoPago"];
+            /**
+             * Monto
+             * Format: decimal
+             * @example 1000000.00
+             */
+            monto: string;
+            moneda: components["schemas"]["Moneda"];
+            /**
+             * Vencimiento
+             * Format: date
+             */
+            vencimiento: string;
+            estado: components["schemas"]["EstadoPago"];
+        };
+        /** VentaMensual */
+        VentaMensual: {
+            /**
+             * Mes
+             * Format: date
+             * @description Primer día del mes.
+             */
+            mes: string;
+            /** Ventas */
+            ventas: components["schemas"]["MontoPorMoneda"][];
+        };
+        /** VentaPorVendedor */
+        VentaPorVendedor: {
+            /**
+             * Vendedor Id
+             * Format: uuid
+             */
+            vendedor_id: string;
+            /** Vendedor Nombre */
+            vendedor_nombre: string;
+            /** Viajes */
+            viajes: number;
+            /** Ventas */
+            ventas: components["schemas"]["MontoPorMoneda"][];
+        };
         Viaje: {
             /**
              * Id
@@ -3595,6 +3967,24 @@ export interface components {
              * Format: date
              */
             fecha_regreso: string;
+        };
+        /** ViajeProximo */
+        ViajeProximo: {
+            /**
+             * Viaje Id
+             * Format: uuid
+             */
+            viaje_id: string;
+            /** Cliente Nombre */
+            cliente_nombre: string;
+            /** Destino Nombre */
+            destino_nombre: string;
+            /**
+             * Fecha Salida
+             * Format: date
+             */
+            fecha_salida: string;
+            estado: components["schemas"]["EstadoViaje"];
         };
         /** @description Columnas de auditoría (DEC-0008): las completa el servidor, el cliente no las envía. */
         Auditoria: {
@@ -8129,6 +8519,210 @@ export interface operations {
                 };
             };
             /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+        };
+    };
+    ver_dashboard: {
+        parameters: {
+            query?: {
+                /** @description Inicio del período. Sin él, el mes en curso. */
+                desde?: string | null;
+                /** @description Fin del período. Sin él, el mes en curso. */
+                hasta?: string | null;
+                /** @description Indicadores de un responsable: solo admin y dueño (CU-21 A1); para empleado y freelance se ignora y se usa el propio. */
+                responsable_id?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Dashboard"];
+                };
+            };
+            /** @description Falta el token, no es válido o el usuario no tiene acceso. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Datos inválidos. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+        };
+    };
+    listar_reportes: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReporteCatalogo"][];
+                };
+            };
+            /** @description Falta el token, no es válido o el usuario no tiene acceso. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description El rol no alcanza. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+        };
+    };
+    generar_reporte: {
+        parameters: {
+            query?: {
+                /** @description Inicio del período. Sin él, el mes en curso. */
+                desde?: string | null;
+                /** @description Fin del período. Sin él, el mes en curso. */
+                hasta?: string | null;
+                /** @description Inicio del período contra el que comparar (CU-22 A2). */
+                comparar_desde?: string | null;
+                /** @description Fin del período contra el que comparar (CU-22 A2). */
+                comparar_hasta?: string | null;
+                /** @description Formato de salida. */
+                formato?: "json" | "xlsx" | "pdf";
+            };
+            header?: never;
+            path: {
+                /** @description Identificador del catálogo (`/reportes`). */
+                reporte_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description El reporte del período: JSON por defecto, o Excel (`xlsx`) o PDF resumido (`pdf`) con el mismo contenido, según `formato`. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Reporte"];
+                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": string;
+                    "application/pdf": string;
+                };
+            };
+            /** @description Falta el token, no es válido o el usuario no tiene acceso. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description El rol no alcanza. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description No existe. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Datos inválidos. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+        };
+    };
+    ver_calendario: {
+        parameters: {
+            query?: {
+                /** @description Inicio del rango visible. Sin él, el mes en curso. */
+                desde?: string | null;
+                /** @description Fin del rango visible. Sin él, el mes en curso. */
+                hasta?: string | null;
+                /** @description Solo los viajes y vencimientos que tengo asignados. */
+                mios?: boolean;
+                /** @description Solo viajes o solo vencimientos. */
+                tipo?: ("viaje" | "vencimiento") | null;
+                /** @description Solo los eventos de un responsable. */
+                responsable_id?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EventoCalendario"][];
+                };
+            };
+            /** @description Falta el token, no es válido o el usuario no tiene acceso. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Datos inválidos. */
             422: {
                 headers: {
                     [name: string]: unknown;

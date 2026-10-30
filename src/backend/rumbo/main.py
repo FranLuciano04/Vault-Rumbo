@@ -7,8 +7,10 @@ from rumbo.presentacion.errores import registrar_manejadores
 from rumbo.presentacion.openapi import registrar_openapi
 from rumbo.presentacion.routers import (
     alertas,
+    calendario,
     clientes,
     configuracion,
+    dashboard,
     economia,
     hoteles,
     oportunidades,
@@ -42,6 +44,8 @@ def crear_app() -> FastAPI:
         oportunidades.router,
         viajes.router,
         economia.router,
+        dashboard.router,
+        calendario.router,
         hoteles.router,
     ):
         app.include_router(router, prefix="/api")
