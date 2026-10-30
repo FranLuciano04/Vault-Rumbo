@@ -88,14 +88,14 @@ class RepositorioCalendario:
         responsable_id: uuid.UUID | None,
         visibilidad: Visibilidad,
     ) -> list[VencimientoDelCalendario]:
-        """Pagos pendientes o vencidos que vencen en `[desde, hasta]`; el responsable es el del
-        viaje."""
+        """Pagos no anulados (pendientes, vencidos y pagados) que vencen en `[desde, hasta]`; el
+        responsable es el del viaje."""
         consulta = (
             visibilidad.aplicar(select(Pago), Pago)
             .join(Viaje, Viaje.id == Pago.viaje_id)
             .join(Cliente, Cliente.id == Viaje.cliente_id)
             .where(
-                Pago.estado.in_((EstadoPago.pendiente, EstadoPago.vencido)),
+                Pago.estado != EstadoPago.anulado,
                 Pago.vencimiento >= desde,
                 Pago.vencimiento <= hasta,
             )

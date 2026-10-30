@@ -6,15 +6,17 @@ estos tests y que el ticket no dice:
 - Un viaje es UN evento `tipo = viaje` con `desde = fecha_salida` y `hasta = fecha_regreso` (la
   salida y el regreso son los extremos del evento). Entra si su tramo se superpone con el rango.
 - Un vencimiento es un evento `tipo = vencimiento` de un solo día (`desde == hasta ==
-  Pago.vencimiento`), con `pago_id` y `viaje_id`; solo de pagos `pendiente` o `vencido`
-  (los `pagado` y `anulado` no vencen). Su responsable es el del viaje.
+  Pago.vencimiento`), con `pago_id` y `viaje_id`; de los pagos `pendiente`, `vencido` y `pagado`
+  (los `anulado` no; el cliente filtra por estado, DEC-0024 punto 9). Su responsable es el del
+  viaje.
 - Una alerta es un evento `tipo = alerta` de un solo día (`Alerta.fecha`), con `alerta_id`. Entran
   las alertas de cualquier estado (el filtro por estado lo hace el cliente, DEC-0024 punto 9) y de
   cualquier tipo; `estado` es el de la alerta. Su responsable es el `propietario_id`.
 - `viaje_id` de una alerta es el de su origen, o null si no lo tiene (el esquema deberá admitirlo);
   los tests de alertas no lo aseveran.
 - Rango inclusivo en `desde` y `hasta`, en fechas de Argentina. Sin `desde`/`hasta`, el mes en
-  curso (hoy en Argentina). `desde` posterior a `hasta` responde 422.
+  curso (hoy en Argentina); con un solo extremo, el otro es el del mes de ese extremo. `desde`
+  posterior a `hasta`, o un rango de más de 62 días, responde 422.
 - `mios`: solo eventos cuyo responsable soy yo. `responsable_id`: solo los de ese responsable
   (admin, dueño y empleado; el freelance lo ignora).
 - Visibilidad (CU-23, DEC-0008, `politicas.py`): admin, dueño y empleado ven toda la agencia, salvo
@@ -24,14 +26,13 @@ estos tests y que el ticket no dice:
 
 import uuid
 from collections.abc import Awaitable, Callable
-from datetime import UTC, date, datetime, timedelta
+from datetime import UTC, date, datetime
 from typing import Any
 
 import pytest
 from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from rumbo.core.fechas import hoy
 from rumbo.datos import modelos as m
 from tests import fabricas as f
 
@@ -125,7 +126,7 @@ async def test_rf136_consolidado_trae_viajes_vencimientos_y_alertas_tipados_con_
     otro_viaje = await _viaje(sesion, _yo(c), date(2026, 10, 25), date(2026, 11, 5))
     pendiente = await _pago(sesion, viaje, date(2026, 10, 5), "pendiente")
     vencido = await _pago(sesion, viaje, date(2026, 10, 2), "vencido")
-    await _pago(sesion, viaje, date(2026, 10, 6), "pagado")  # no vence
+    pagado = await _pago(sesion, viaje, date(2026, 10, 6), "pagado")
     await _pago(sesion, viaje, date(2026, 10, 7), "anulado")  # no vence
     alerta = await _alerta(sesion, ana.id, date(2026, 10, 12), "pendiente")
     vista = await _alerta(sesion, ana.id, date(2026, 10, 13), "vista")
@@ -146,25 +147,28 @@ async def test_rf136_consolidado_trae_viajes_vencimientos_y_alertas_tipados_con_
     assert mio["responsable_id"] == str(ana.id)
     assert mio["pago_id"] is None
     venc = _de_tipo(cuerpo, "vencimiento")
-    assert {e["pago_id"] for e in venc} == {str(pendiente.id), str(vencido.id)}
+    assert {e["pago_id"] for e in venc} == {str(pendiente.id), str(vencido.id), str(pagado.id)}
     por_pago = {e["pago_id"]: e for e in venc}
-    assert por_pago[str(pendiente.id)]["desde"] == por_pago[str(pendiente.id)]["hasta"] == (
-        "2026-10-05"
+    assert (
+        por_pago[str(pendiente.id)]["desde"]
+        == por_pago[str(pendiente.id)]["hasta"]
+        == ("2026-10-05")
     )
     assert por_pago[str(pendiente.id)]["estado"] == "pendiente"
     assert por_pago[str(vencido.id)]["estado"] == "vencido"
+    assert por_pago[str(pagado.id)]["estado"] == "pagado"
     assert all(e["viaje_id"] == str(viaje.id) for e in venc)
     assert all(e["responsable_id"] == str(ana.id) for e in venc)
     alertas = _de_tipo(cuerpo, "alerta")
     assert {e["alerta_id"] for e in alertas} == {str(alerta.id), str(vista.id)}
     por_alerta = {e["alerta_id"]: e for e in alertas}
-    assert por_alerta[str(alerta.id)]["desde"] == por_alerta[str(alerta.id)]["hasta"] == (
-        "2026-10-12"
+    assert (
+        por_alerta[str(alerta.id)]["desde"] == por_alerta[str(alerta.id)]["hasta"] == ("2026-10-12")
     )
     assert por_alerta[str(alerta.id)]["estado"] == "pendiente"
     assert por_alerta[str(vista.id)]["estado"] == "vista"
     assert all(e["responsable_id"] == str(ana.id) for e in alertas)
-    assert len(cuerpo) == 6
+    assert len(cuerpo) == 7
     assert all(e["titulo"] for e in cuerpo)
 
 
@@ -317,8 +321,8 @@ async def test_rf151_freelance_solo_lo_suyo(cliente_como: Fabrica, sesion: Async
 
     assert r.status_code == 200
     cuerpo = r.json()
-    assert _ids(cuerpo, "viaje_id") >= {str(v_cliente_mio.id), str(v_que_llevo.id)}
-    assert str(v_ajeno.id) not in _ids(cuerpo, "viaje_id")
+    ids_viajes = _ids(_de_tipo(cuerpo, "viaje"), "viaje_id")
+    assert ids_viajes == {str(v_cliente_mio.id), str(v_que_llevo.id)}
     assert _ids(cuerpo, "pago_id") == {str(p_cliente_mio.id), str(p_que_llevo.id)}
     assert _ids(cuerpo, "alerta_id") == {str(mi_alerta.id)}
 
@@ -353,7 +357,7 @@ async def test_rf151_empleado_ve_toda_la_agencia_salvo_las_alertas_ajenas(
     r = await c.get(URL, params=OCTUBRE)
 
     assert r.status_code == 200
-    assert _ids(r.json(), "viaje_id") >= {str(mio.id), str(ajeno.id)}
+    assert _ids(_de_tipo(r.json(), "viaje"), "viaje_id") == {str(mio.id), str(ajeno.id)}
     assert _ids(r.json(), "pago_id") == {str(p_ajeno.id)}
     assert _ids(r.json(), "alerta_id") == {str(mi_alerta.id)}
 
@@ -393,8 +397,8 @@ async def test_rf137_los_extremos_del_rango_son_inclusivos(
     c = await cliente_como("admin")
     primero = await _viaje(sesion, _yo(c), date(2026, 10, 1), date(2026, 10, 1))
     ultimo = await _viaje(sesion, _yo(c), date(2026, 10, 31), date(2026, 10, 31))
-    antes = await _viaje(sesion, _yo(c), date(2026, 9, 20), date(2026, 9, 30))
-    despues = await _viaje(sesion, _yo(c), date(2026, 11, 1), date(2026, 11, 10))
+    await _viaje(sesion, _yo(c), date(2026, 9, 20), date(2026, 9, 30))
+    await _viaje(sesion, _yo(c), date(2026, 11, 1), date(2026, 11, 10))
     pagos = {
         d: await _pago(sesion, primero, d)
         for d in (date(2026, 9, 30), date(2026, 10, 1), date(2026, 10, 31), date(2026, 11, 1))
@@ -408,9 +412,7 @@ async def test_rf137_los_extremos_del_rango_son_inclusivos(
 
     assert r.status_code == 200
     cuerpo = r.json()
-    assert _ids(cuerpo, "viaje_id") >= {str(primero.id), str(ultimo.id)}
-    assert str(antes.id) not in {e["viaje_id"] for e in _de_tipo(cuerpo, "viaje")}
-    assert str(despues.id) not in {e["viaje_id"] for e in _de_tipo(cuerpo, "viaje")}
+    assert _ids(_de_tipo(cuerpo, "viaje"), "viaje_id") == {str(primero.id), str(ultimo.id)}
     assert _ids(cuerpo, "pago_id") == {
         str(pagos[date(2026, 10, 1)].id),
         str(pagos[date(2026, 10, 31)].id),
@@ -434,21 +436,74 @@ async def test_rf137_un_dia_solo_es_un_rango_valido(
     assert [e["viaje_id"] for e in r.json()] == [str(viaje.id)]
 
 
+class _RelojDe31DeOctubre22hArgentina(datetime):
+    """01/11 01:00 UTC: en Argentina todavía es 31/10, en el servidor ya es noviembre."""
+
+    @classmethod
+    def now(cls, tz: Any = None) -> Any:
+        return datetime(2026, 11, 1, 1, 0, tzinfo=UTC).astimezone(tz)
+
+
 async def test_rf137_sin_rango_devuelve_el_mes_en_curso_en_hora_de_argentina(
-    cliente_como: Fabrica, sesion: AsyncSession
+    cliente_como: Fabrica, sesion: AsyncSession, monkeypatch: pytest.MonkeyPatch
 ) -> None:
+    monkeypatch.setattr("rumbo.core.fechas.datetime", _RelojDe31DeOctubre22hArgentina)
     c = await cliente_como("admin")
-    primero_de_mes = hoy().replace(day=1)
-    ultimo_de_mes = (primero_de_mes + timedelta(days=32)).replace(day=1) - timedelta(days=1)
-    en_mes = await _alerta(sesion, _yo(c), primero_de_mes)
-    en_mes_2 = await _alerta(sesion, _yo(c), ultimo_de_mes)
-    await _alerta(sesion, _yo(c), primero_de_mes - timedelta(days=1))
-    await _alerta(sesion, _yo(c), ultimo_de_mes + timedelta(days=1))
+    en_mes = await _alerta(sesion, _yo(c), date(2026, 10, 1))
+    en_mes_2 = await _alerta(sesion, _yo(c), date(2026, 10, 31))
+    await _alerta(sesion, _yo(c), date(2026, 9, 30))
+    await _alerta(sesion, _yo(c), date(2026, 11, 1))
 
     r = await c.get(URL)
 
     assert r.status_code == 200
     assert _ids(r.json(), "alerta_id") == {str(en_mes.id), str(en_mes_2.id)}
+
+
+async def test_rf137_con_solo_desde_el_fin_es_el_del_mes_de_ese_dia(
+    cliente_como: Fabrica, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("admin")
+    antes = await _alerta(sesion, _yo(c), date(2026, 10, 14))
+    primero = await _alerta(sesion, _yo(c), date(2026, 10, 15))
+    ultimo = await _alerta(sesion, _yo(c), date(2026, 10, 31))
+    await _alerta(sesion, _yo(c), date(2026, 11, 1))
+
+    r = await c.get(URL, params={"desde": "2026-10-15"})
+
+    assert r.status_code == 200
+    assert _ids(r.json(), "alerta_id") == {str(primero.id), str(ultimo.id)}
+    assert str(antes.id) not in _ids(r.json(), "alerta_id")
+
+
+async def test_rf137_con_solo_hasta_el_inicio_es_el_del_mes_de_ese_dia(
+    cliente_como: Fabrica, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("admin")
+    await _alerta(sesion, _yo(c), date(2026, 9, 30))
+    primero = await _alerta(sesion, _yo(c), date(2026, 10, 1))
+    ultimo = await _alerta(sesion, _yo(c), date(2026, 10, 15))
+    await _alerta(sesion, _yo(c), date(2026, 10, 16))
+
+    r = await c.get(URL, params={"hasta": "2026-10-15"})
+
+    assert r.status_code == 200
+    assert _ids(r.json(), "alerta_id") == {str(primero.id), str(ultimo.id)}
+
+
+async def test_rf137_el_rango_admite_62_dias_y_no_mas(
+    cliente_como: Fabrica, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("admin")
+    ultimo = await _alerta(sesion, _yo(c), date(2026, 12, 1))
+
+    justo = await c.get(URL, params={"desde": "2026-10-01", "hasta": "2026-12-01"})  # 62 días
+    de_mas = await c.get(URL, params={"desde": "2026-10-01", "hasta": "2026-12-02"})  # 63 días
+
+    assert justo.status_code == 200
+    assert _ids(justo.json(), "alerta_id") == {str(ultimo.id)}
+    assert de_mas.status_code == 422
+    assert de_mas.headers["content-type"].startswith("application/problem+json")
 
 
 async def test_rf137_desde_posterior_a_hasta_responde_422(cliente_como: Fabrica) -> None:

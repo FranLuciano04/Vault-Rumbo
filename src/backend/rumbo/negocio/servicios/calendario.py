@@ -18,6 +18,8 @@ _calendario = RepositorioCalendario()
 
 TipoEvento = Literal["viaje", "vencimiento", "alerta"]
 
+MAX_DIAS_DEL_RANGO = 62  # dos meses: la grilla del calendario no pide más
+
 
 @dataclass(frozen=True)
 class Evento:
@@ -34,6 +36,18 @@ class Evento:
     responsable_id: uuid.UUID
 
 
+def _rango(desde: date | None, hasta: date | None) -> tuple[date, date]:
+    if desde is None:
+        desde = (hasta or hoy()).replace(day=1)
+    if hasta is None:
+        hasta = sumar_meses(desde.replace(day=1), 1) - timedelta(days=1)
+    if desde > hasta:
+        raise DatosInvalidos("hasta", "La fecha final no puede ser anterior a la inicial.")
+    if (hasta - desde).days + 1 > MAX_DIAS_DEL_RANGO:
+        raise DatosInvalidos("hasta", f"El rango no puede pasar de {MAX_DIAS_DEL_RANGO} días.")
+    return desde, hasta
+
+
 async def consultar_calendario(
     sesion: AsyncSession,
     actor: Usuario,
@@ -44,15 +58,12 @@ async def consultar_calendario(
     tipo: TipoEvento | None,
     responsable_id: uuid.UUID | None,
 ) -> list[Evento]:
-    """Eventos del rango `[desde, hasta]`, inclusivo y en fechas de Argentina; sin rango, el mes
-    en curso. `desde > hasta` es un dato inválido. La visibilidad sale de la política (el
+    """Eventos del rango `[desde, hasta]`, inclusivo y en fechas de Argentina. Sin rango, el mes
+    en curso; con un solo extremo, el otro es el del mes de ese extremo. `desde > hasta` o más de
+    `MAX_DIAS_DEL_RANGO` días es un dato inválido. La visibilidad sale de la política (el
     freelance ve la suya de DEC-0008 e ignora `responsable_id`; las alertas ajenas solo las ve
     la dirección). `mios` deja lo que lleva el actor, y `responsable_id`, lo de esa persona."""
-    primero_del_mes = hoy().replace(day=1)
-    desde = desde or primero_del_mes
-    hasta = hasta or sumar_meses(primero_del_mes, 1) - timedelta(days=1)
-    if desde > hasta:
-        raise DatosInvalidos("hasta", "La fecha final no puede ser anterior a la inicial.")
+    desde, hasta = _rango(desde, hasta)
     if actor.rol is RolUsuario.freelance:
         responsable_id = None
     if mios:

@@ -20,8 +20,10 @@ ActorDep = Annotated[modelos.Usuario, Depends(usuario_actual)]
 
 _CALENDARIO = operacion(TODOS, "CU-23", 422, visibilidad=True)
 _CALENDARIO["description"] += (
-    "\n\nIncluye las alertas programadas, de cualquier estado (el cliente filtra por estado; "
-    "DEC-0024). Admin, dueño y empleado ven toda la agencia, salvo las alertas ajenas, que solo "
+    "\n\nIncluye los vencimientos de pagos no anulados y las alertas programadas, de "
+    "cualquier estado (el cliente filtra por estado; DEC-0024). Con un solo extremo del rango, "
+    "el otro es el del mes de ese extremo; el rango admite hasta 62 días. "
+    "Admin, dueño y empleado ven toda la agencia, salvo las alertas ajenas, que solo "
     "ven admin y dueño; el freelance ve lo suyo e ignora `responsable_id`."
 )
 

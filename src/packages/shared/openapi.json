@@ -7658,7 +7658,7 @@
           "calendario"
         ],
         "summary": "Ver viajes, vencimientos y alertas en el calendario",
-        "description": "**Roles:** admin, dueno, empleado, freelance.\n\n**Visibilidad:** freelance, solo lo propio (DEC-0008).\n\n**Casos de uso:** CU-23.\n\nIncluye las alertas programadas, de cualquier estado (el cliente filtra por estado; DEC-0024). Admin, dueño y empleado ven toda la agencia, salvo las alertas ajenas, que solo ven admin y dueño; el freelance ve lo suyo e ignora `responsable_id`.",
+        "description": "**Roles:** admin, dueno, empleado, freelance.\n\n**Visibilidad:** freelance, solo lo propio (DEC-0008).\n\n**Casos de uso:** CU-23.\n\nIncluye los vencimientos de pagos no anulados y las alertas programadas, de cualquier estado (el cliente filtra por estado; DEC-0024). Con un solo extremo del rango, el otro es el del mes de ese extremo; el rango admite hasta 62 días. Admin, dueño y empleado ven toda la agencia, salvo las alertas ajenas, que solo ven admin y dueño; el freelance ve lo suyo e ignora `responsable_id`.",
         "operationId": "ver_calendario",
         "security": [
           {
