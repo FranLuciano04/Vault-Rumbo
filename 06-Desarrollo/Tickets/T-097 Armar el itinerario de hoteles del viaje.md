@@ -3,7 +3,7 @@ id: T-097
 titulo: Armar el itinerario de hoteles del viaje
 modulo: M6 — Viajes y economía
 capa: backend
-estado: libre
+estado: tomado
 depende_de: [T-086, T-076, T-012]
 tamaño: M
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [CU-09, RF-043, RF-044, RF-046, RF-106, DEC-0003]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: Nahuel Viniegra
+tomado_el: 29/10/26 21:10
+rama: feature/T-097-armar-el-itinerario-de-hoteles-del-viaje
 pr:
 ---
 # T-097 Armar el itinerario de hoteles del viaje
