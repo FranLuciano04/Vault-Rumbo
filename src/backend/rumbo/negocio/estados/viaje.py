@@ -22,6 +22,11 @@ def _exigir(viaje: Viaje, *validos: EstadoViaje, accion: str) -> None:
         raise TransicionInvalida(f"No se puede {accion} un viaje {viaje.estado.value}.")
 
 
+def reservar(viaje: Viaje) -> None:
+    """T1: el viaje nace `reservado` al confirmar la reserva (CU-07)."""
+    viaje.estado = EstadoViaje.reservado
+
+
 def al_registrar_cobro(viaje: Viaje, *, saldo: Decimal, plan_balanceado: bool = True) -> None:
     """T2 y T3: el primer cobro pasa `reservado` a `vendido`; si `saldo` (ya con este cobro)
     es cero, sigue a `confirmado` en la misma operación. Con el plan descalzado del precio no

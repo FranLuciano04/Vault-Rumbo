@@ -31,3 +31,14 @@ class RepositorioRequisitos(RepositorioBase[RequisitoDestino]):
         pagina = consulta.order_by(nombre_normalizado(RequisitoDestino.nombre), RequisitoDestino.id)
         filas = await sesion.scalars(pagina.offset(desplazamiento).limit(limite))
         return list(filas), total or 0
+
+    async def listar_activos(
+        self, sesion: AsyncSession, destino_id: uuid.UUID, *, visibilidad: Visibilidad
+    ) -> list[RequisitoDestino]:
+        """Los requisitos activos de un destino, por nombre."""
+        consulta = visibilidad.aplicar(select(RequisitoDestino), RequisitoDestino)
+        consulta = consulta.where(
+            RequisitoDestino.destino_id == destino_id, RequisitoDestino.activo.is_(True)
+        )
+        orden = (nombre_normalizado(RequisitoDestino.nombre), RequisitoDestino.id)
+        return list(await sesion.scalars(consulta.order_by(*orden)))

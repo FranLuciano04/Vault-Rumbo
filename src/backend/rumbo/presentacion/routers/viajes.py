@@ -47,8 +47,11 @@ _LISTADO["responses"][200] = respuesta_pagina(
     status_code=201,
     **operacion_de_registro(403, 404, 409, 422, casos_de_uso="CU-07, CU-10, CU-11"),
 )
-async def confirmar_reserva(oportunidad_id: uuid.UUID, datos: ConfirmarReserva) -> Viaje:
-    raise no_implementado()
+async def confirmar_reserva(
+    oportunidad_id: uuid.UUID, datos: ConfirmarReserva, actor: ActorDep, sesion: SesionDep
+) -> Viaje:
+    ficha = await viajes.confirmar_reserva(sesion, actor, oportunidad_id, datos.model_dump())
+    return Viaje.desde_ficha(ficha.viaje, ficha.saldo_pendiente, ficha.porcentaje_pagado)
 
 
 @router.get(

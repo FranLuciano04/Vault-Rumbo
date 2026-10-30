@@ -316,7 +316,9 @@ async def test_rf032_confirmar_dos_veces_409(cliente_como: Fabrica, sesion: Asyn
     assert len(await _viajes_de(sesion, oportunidad_id)) == 1
 
 
-async def test_rf032_oportunidad_inexistente_404(cliente_como: Fabrica, sesion: AsyncSession) -> None:
+async def test_rf032_oportunidad_inexistente_404(
+    cliente_como: Fabrica, sesion: AsyncSession
+) -> None:
     c = await cliente_como("empleado")
     destino = await _destino(sesion)
 
@@ -333,9 +335,7 @@ async def test_venta_directa(cliente_como: Fabrica, sesion: AsyncSession) -> Non
     """Oportunidad ya `ganada` y sin cotización: igual se confirma; la moneda viene del cuerpo."""
     c = await cliente_como("empleado")
     destino = await _destino(sesion)
-    oportunidad = await _oportunidad(
-        sesion, _yo(c), m.EstadoOportunidad.ganada, cotizacion=None
-    )
+    oportunidad = await _oportunidad(sesion, _yo(c), m.EstadoOportunidad.ganada, cotizacion=None)
     oportunidad_id = oportunidad.id
 
     r = await c.post(_url(oportunidad_id), json=_cuerpo(destino.id, moneda="USD"))
@@ -371,7 +371,8 @@ async def test_rf034_alertas_de_requisitos(cliente_como: Fabrica, sesion: AsyncS
         tipo=m.TipoRequisito.seguro,
         anticipacion_dias=10,
     )
-    oportunidad = await _oportunidad(sesion, _yo(c))
+    yo = _yo(c)  # antes de las consultas que hacen expire_all()
+    oportunidad = await _oportunidad(sesion, yo)
     oportunidad_id = oportunidad.id
 
     r = await c.post(_url(oportunidad_id), json=_cuerpo(destino_id))
@@ -384,7 +385,7 @@ async def test_rf034_alertas_de_requisitos(cliente_como: Fabrica, sesion: AsyncS
         SALIDA - timedelta(days=10),
     ]
     assert {a.estado for a in alertas} == {m.EstadoAlerta.pendiente}
-    assert {a.propietario_id for a in alertas} == {_yo(c)}
+    assert {a.propietario_id for a in alertas} == {yo}
 
 
 async def test_rf034_las_alertas_van_al_responsable_del_viaje(
@@ -401,9 +402,12 @@ async def test_rf034_las_alertas_van_al_responsable_del_viaje(
 
     assert r.status_code == 201
     viaje_id = uuid.UUID(r.json()["id"])
-    formularios = await _alertas_de(sesion, viaje_id, m.TipoAlerta.formulario)
-    salidas = await _alertas_de(sesion, viaje_id, m.TipoAlerta.salida)
-    assert [a.propietario_id for a in formularios + salidas] == [otro_id, otro_id]
+    # los propietario_id se leen antes de la consulta siguiente, que hace expire_all()
+    formularios = [
+        a.propietario_id for a in await _alertas_de(sesion, viaje_id, m.TipoAlerta.formulario)
+    ]
+    salidas = [a.propietario_id for a in await _alertas_de(sesion, viaje_id, m.TipoAlerta.salida)]
+    assert formularios + salidas == [otro_id, otro_id]
 
 
 async def test_rf034_solo_requisitos_activos_del_destino(
@@ -413,7 +417,11 @@ async def test_rf034_solo_requisitos_activos_del_destino(
     destino = await _destino(sesion)
     otro_destino = await _destino(sesion)
     await f.crear(
-        sesion, f.RequisitoDestinoFactory, destino_id=destino.id, nombre="Vigente", anticipacion_dias=20
+        sesion,
+        f.RequisitoDestinoFactory,
+        destino_id=destino.id,
+        nombre="Vigente",
+        anticipacion_dias=20,
     )
     await f.crear(
         sesion,
@@ -460,12 +468,13 @@ async def test_rf034_destino_sin_requisitos_no_genera_formularios(
 async def test_rf035_alerta_de_salida(cliente_como: Fabrica, sesion: AsyncSession) -> None:
     """Con la configuración por defecto (7 días)."""
     c = await cliente_como("empleado")
+    yo = _yo(c)  # antes de las consultas que hacen expire_all()
 
     viaje = await _confirmar_ok(c, sesion)
 
     alertas = await _alertas_de(sesion, viaje.id, m.TipoAlerta.salida)
     assert [(a.fecha, a.estado, a.propietario_id) for a in alertas] == [
-        (SALIDA - timedelta(days=7), m.EstadoAlerta.pendiente, _yo(c))
+        (SALIDA - timedelta(days=7), m.EstadoAlerta.pendiente, yo)
     ]
 
 
@@ -519,6 +528,7 @@ async def test_rf036_alertas_de_vencimiento_de_los_pagos(
     """Como T-092 (RF-063): una alerta `pago` por cuota, un mes antes del vencimiento, en la
     agenda del responsable."""
     c = await cliente_como("empleado")
+    yo = _yo(c)  # antes de las consultas que hacen expire_all()
 
     viaje = await _confirmar_ok(c, sesion)
 
@@ -531,7 +541,7 @@ async def test_rf036_alertas_de_vencimiento_de_los_pagos(
         alerta = alertas[p.id]
         assert alerta.tipo == m.TipoAlerta.pago
         assert alerta.estado == m.EstadoAlerta.pendiente
-        assert alerta.propietario_id == _yo(c)
+        assert alerta.propietario_id == yo
         assert alerta.fecha == sumar_meses(p.vencimiento, -1)
 
 
