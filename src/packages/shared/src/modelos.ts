@@ -182,22 +182,28 @@ export type Reporte = Esquemas["Reporte"];
 /** Calendario (M8): viajes y vencimientos de pagos, de solo lectura. */
 export type EventoCalendario = Esquemas["EventoCalendario"];
 
-/** Período del dashboard (`GET /api/dashboard`, CU-21): sin fechas, el mes en curso. */
-export interface FiltrosDashboard {
+/** Período de una consulta: sin fechas, el mes en curso. */
+export interface FiltrosPeriodo {
   /** Fecha ISO (`aaaa-mm-dd`). */
   desde?: string;
   hasta?: string;
 }
 
+/** Filtros del dashboard (`GET /api/dashboard`, CU-21). */
+export interface FiltrosDashboard extends FiltrosPeriodo {
+  /** Indicadores de un responsable: solo admin y dueño; para el resto se ignora (CU-21 A1). */
+  responsable_id?: string;
+}
+
 /** Período, comparación y formato de un reporte (`GET /api/reportes/{reporte_id}`, CU-22). */
-export interface FiltrosReporte extends FiltrosDashboard {
+export interface FiltrosReporte extends FiltrosPeriodo {
   comparar_desde?: string;
   comparar_hasta?: string;
   formato?: "json" | "xlsx" | "pdf";
 }
 
 /** Filtros del calendario (`GET /api/calendario`, CU-23). */
-export interface FiltrosCalendario extends FiltrosDashboard {
+export interface FiltrosCalendario extends FiltrosPeriodo {
   /** Solo lo que tengo asignado. */
   mios?: boolean;
   tipo?: EventoCalendario["tipo"];

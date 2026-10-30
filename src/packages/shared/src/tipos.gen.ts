@@ -1557,6 +1557,8 @@ export interface paths {
          *     **Visibilidad:** freelance, solo lo propio (DEC-0008).
          *
          *     **Casos de uso:** CU-21.
+         *
+         *     Admin y dueño ven toda la agencia; empleado y freelance, solo lo suyo (CU-21 A1).
          */
         get: operations["ver_dashboard"];
         put?: never;
@@ -1621,6 +1623,8 @@ export interface paths {
         /**
          * Ver viajes y vencimientos en el calendario
          * @description **Roles:** admin, dueno, empleado, freelance.
+         *
+         *     **Visibilidad:** freelance, solo lo propio (DEC-0008).
          *
          *     **Casos de uso:** CU-23.
          */
@@ -2142,6 +2146,8 @@ export interface components {
              * @enum {string}
              */
             tipo: "texto" | "entero" | "importe";
+            /** @description Moneda de una columna de importe (DEC-0007); vacía en las demás. */
+            moneda: components["schemas"]["Moneda"] | null;
         };
         /**
          * ComisionPorDefecto
@@ -8530,6 +8536,8 @@ export interface operations {
                 desde?: string | null;
                 /** @description Fin del período. Sin él, el mes en curso. */
                 hasta?: string | null;
+                /** @description Indicadores de un responsable: solo admin y dueño (CU-21 A1); para empleado y freelance se ignora y se usa el propio. */
+                responsable_id?: string | null;
             };
             header?: never;
             path?: never;

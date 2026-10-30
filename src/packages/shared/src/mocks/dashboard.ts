@@ -122,9 +122,9 @@ export function reporteMock(id: string, comparar: boolean): Reporte | null {
     comparar_desde: comparar ? "2026-09-01" : null,
     comparar_hasta: comparar ? "2026-09-30" : null,
     columnas: [
-      { clave: "destino", titulo: "Destino", tipo: "texto" },
-      { clave: "viajes", titulo: "Viajes", tipo: "entero" },
-      { clave: "ventas", titulo: "Ventas (ARS)", tipo: "importe" },
+      { clave: "destino", titulo: "Destino", tipo: "texto", moneda: null },
+      { clave: "viajes", titulo: "Viajes", tipo: "entero", moneda: null },
+      { clave: "ventas", titulo: "Ventas (ARS)", tipo: "importe", moneda: "ARS" },
     ],
     filas: [
       { destino: "Brasil", viajes: 4, ventas: "3600000.00" },
@@ -178,7 +178,19 @@ export function manejadoresDashboardPara(rol: RolMock): RequestHandler[] {
   const gestiona = rol === "admin" || rol === "dueno";
 
   return [
-    http.get("*/api/dashboard", () => HttpResponse.json(dashboardMock)),
+    // Empleado y freelance ven lo suyo: del ranking de vendedores, solo su fila (CU-21 A1).
+    http.get("*/api/dashboard", () =>
+      HttpResponse.json(
+        gestiona
+          ? dashboardMock
+          : {
+              ...dashboardMock,
+              ventas_por_vendedor: dashboardMock.ventas_por_vendedor.filter(
+                (v) => v.vendedor_id === usuariosPorRol[rol].id,
+              ),
+            },
+      ),
+    ),
 
     http.get("*/api/reportes", () =>
       gestiona ? HttpResponse.json(reportesCatalogoMock) : sinPermiso(),
@@ -208,7 +220,9 @@ export function manejadoresDashboardPara(rol: RolMock): RequestHandler[] {
       const filtro = (nombre: keyof FiltrosCalendario) => url.searchParams.get(nombre);
       const desde = filtro("desde");
       const hasta = filtro("hasta");
-      const propio = filtro("mios") === "true" ? usuariosPorRol[rol].id : null;
+      // El freelance ve solo lo suyo aunque no pida `mios` (DEC-0008).
+      const propio =
+        filtro("mios") === "true" || rol === "freelance" ? usuariosPorRol[rol].id : null;
       return HttpResponse.json(
         eventosCalendarioMock.filter(
           (e) =>

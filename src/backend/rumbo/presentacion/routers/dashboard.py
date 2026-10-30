@@ -1,5 +1,6 @@
 """Rutas del dashboard y los reportes (CU-21, CU-22). Todas son stubs que responden 501."""
 
+import uuid
 from datetime import date
 from typing import Annotated, Literal
 
@@ -13,6 +14,10 @@ router = APIRouter(tags=["dashboard"])
 XLSX = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
 _ARCHIVO = {"schema": {"type": "string", "format": "binary"}}
 
+_DASHBOARD = operacion(TODOS, "CU-21", 422, visibilidad=True)
+_DASHBOARD["description"] += (
+    "\n\nAdmin y dueño ven toda la agencia; empleado y freelance, solo lo suyo (CU-21 A1)."
+)
 _REPORTE = operacion(GESTION, "CU-22", 404, 422)
 _REPORTE["responses"][200] = {
     "description": (
@@ -27,7 +32,7 @@ _REPORTE["responses"][200] = {
     "/dashboard",
     operation_id="ver_dashboard",
     summary="Ver indicadores y embudo de ventas",
-    **operacion(TODOS, "CU-21", 422, visibilidad=True),
+    **_DASHBOARD,
 )
 async def ver_dashboard(
     desde: Annotated[
@@ -35,6 +40,13 @@ async def ver_dashboard(
     ] = None,
     hasta: Annotated[
         date | None, Query(description="Fin del período. Sin él, el mes en curso.")
+    ] = None,
+    responsable_id: Annotated[
+        uuid.UUID | None,
+        Query(
+            description="Indicadores de un responsable: solo admin y dueño (CU-21 A1); para "
+            "empleado y freelance se ignora y se usa el propio."
+        ),
     ] = None,
 ) -> Dashboard:
     raise no_implementado()

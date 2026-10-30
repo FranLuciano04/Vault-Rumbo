@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import type { AxiosInstance } from "axios";
 import type {
   Dashboard,
@@ -15,6 +15,7 @@ export const claveReportes = ["reportes"] as const;
 export function useDashboard(cliente: AxiosInstance, filtros: FiltrosDashboard = {}) {
   return useQuery({
     queryKey: [...claveDashboard, filtros],
+    placeholderData: keepPreviousData,
     queryFn: async () => (await cliente.get<Dashboard>("/api/dashboard", { params: filtros })).data,
   });
 }
@@ -41,17 +42,21 @@ export function useReporte(
   });
 }
 
-/** Exporta un reporte a Excel o PDF (`GET /api/reportes/{reporte_id}?formato=`, CU-22): devuelve el archivo. */
+/**
+ * Exporta un reporte a Excel o PDF (`GET /api/reportes/{reporte_id}?formato=`, CU-22): devuelve los
+ * bytes del archivo. Se pide como `arraybuffer` y no como `blob` (ver `descargarDocumentoCotizacion`),
+ * así un error problem+json llega con su `detail`. Quien guarda el archivo arma el `Blob`.
+ */
 export async function descargarReporte(
   cliente: AxiosInstance,
   reporteId: string,
   formato: "xlsx" | "pdf",
   filtros: Omit<FiltrosReporte, "formato"> = {},
-): Promise<Blob> {
+): Promise<ArrayBuffer> {
   return (
-    await cliente.get<Blob>(`/api/reportes/${reporteId}`, {
+    await cliente.get<ArrayBuffer>(`/api/reportes/${reporteId}`, {
       params: { ...filtros, formato },
-      responseType: "blob",
+      responseType: "arraybuffer",
     })
   ).data;
 }

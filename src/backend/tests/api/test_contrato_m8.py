@@ -113,8 +113,19 @@ async def test_cu21_filtros_de_periodo_son_fechas_opcionales(
         assert _tipo(parametros[nombre])["format"] == "date"
 
 
-async def test_cu21_dashboard_solo_filtra_por_periodo(contrato: dict[str, Any]) -> None:
-    assert set(_parametros(contrato, "/api/dashboard")) == {"desde", "hasta"}
+async def test_cu21_dashboard_filtra_por_periodo_y_responsable(contrato: dict[str, Any]) -> None:
+    parametros = _parametros(contrato, "/api/dashboard")
+
+    assert set(parametros) == {"desde", "hasta", "responsable_id"}
+    assert _tipo(parametros["responsable_id"])["format"] == "uuid"
+    assert not parametros["responsable_id"].get("required")
+
+
+@pytest.mark.parametrize("ruta", ["/api/dashboard", "/api/calendario"])
+async def test_cu21_dashboard_y_calendario_declaran_la_visibilidad_del_freelance(
+    contrato: dict[str, Any], ruta: str
+) -> None:
+    assert "DEC-0008" in contrato["paths"][ruta]["get"]["description"]
 
 
 async def test_cu23_calendario_publica_filtros_de_responsable_tipo_y_vista_personal(
@@ -196,6 +207,17 @@ async def test_cu22_reportes_con_admin_o_dueno_responden_501_problem_json(
     assert r.status_code == 501
     assert r.headers["content-type"].startswith(PROBLEM_JSON)
     assert r.json()["status"] == 501
+
+
+async def test_cu22_reporte_con_formato_invalido_para_empleado_responde_403_no_422(
+    cliente_como: FabricaCliente,
+) -> None:
+    c = await cliente_como("empleado")
+
+    r = await c.get(f"/api/reportes/{REPORTE}", params={"formato": "csv"})
+
+    assert r.status_code == 403
+    assert r.headers["content-type"].startswith(PROBLEM_JSON)
 
 
 @pytest.mark.parametrize("formato", ["json", "xlsx", "pdf"])

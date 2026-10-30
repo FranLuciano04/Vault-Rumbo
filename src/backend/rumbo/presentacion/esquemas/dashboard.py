@@ -116,6 +116,9 @@ class ColumnaReporte(BaseModel):
     clave: str
     titulo: str
     tipo: Literal["texto", "entero", "importe"]
+    moneda: Moneda | None = Field(
+        description="Moneda de una columna de importe (DEC-0007); vacía en las demás."
+    )
 
 
 Fila = dict[str, str | int | None]

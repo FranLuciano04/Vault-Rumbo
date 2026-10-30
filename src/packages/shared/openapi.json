@@ -7293,7 +7293,7 @@
           "dashboard"
         ],
         "summary": "Ver indicadores y embudo de ventas",
-        "description": "**Roles:** admin, dueno, empleado, freelance.\n\n**Visibilidad:** freelance, solo lo propio (DEC-0008).\n\n**Casos de uso:** CU-21.",
+        "description": "**Roles:** admin, dueno, empleado, freelance.\n\n**Visibilidad:** freelance, solo lo propio (DEC-0008).\n\n**Casos de uso:** CU-21.\n\nAdmin y dueño ven toda la agencia; empleado y freelance, solo lo suyo (CU-21 A1).",
         "operationId": "ver_dashboard",
         "security": [
           {
@@ -7338,6 +7338,25 @@
               "title": "Hasta"
             },
             "description": "Fin del período. Sin él, el mes en curso."
+          },
+          {
+            "name": "responsable_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Indicadores de un responsable: solo admin y dueño (CU-21 A1); para empleado y freelance se ignora y se usa el propio.",
+              "title": "Responsable Id"
+            },
+            "description": "Indicadores de un responsable: solo admin y dueño (CU-21 A1); para empleado y freelance se ignora y se usa el propio."
           }
         ],
         "responses": {
@@ -7639,7 +7658,7 @@
           "calendario"
         ],
         "summary": "Ver viajes y vencimientos en el calendario",
-        "description": "**Roles:** admin, dueno, empleado, freelance.\n\n**Casos de uso:** CU-23.",
+        "description": "**Roles:** admin, dueno, empleado, freelance.\n\n**Visibilidad:** freelance, solo lo propio (DEC-0008).\n\n**Casos de uso:** CU-23.",
         "operationId": "ver_calendario",
         "security": [
           {
@@ -9842,13 +9861,25 @@
               "importe"
             ],
             "title": "Tipo"
+          },
+          "moneda": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Moneda"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Moneda de una columna de importe (DEC-0007); vacía en las demás."
           }
         },
         "type": "object",
         "required": [
           "clave",
           "titulo",
-          "tipo"
+          "tipo",
+          "moneda"
         ],
         "title": "ColumnaReporte"
       },

@@ -16,7 +16,7 @@ router = APIRouter(tags=["calendario"])
     "/calendario",
     operation_id="ver_calendario",
     summary="Ver viajes y vencimientos en el calendario",
-    **operacion(TODOS, "CU-23", 422),
+    **operacion(TODOS, "CU-23", 422, visibilidad=True),
 )
 async def ver_calendario(
     desde: Annotated[
