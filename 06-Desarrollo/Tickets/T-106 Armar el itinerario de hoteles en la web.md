@@ -3,7 +3,7 @@ id: T-106
 titulo: Armar el itinerario de hoteles en la web
 modulo: M6 — Viajes y economía
 capa: web
-estado: tomado
+estado: hecho
 depende_de: [T-102, T-075]
 tamaño: M
 riesgo: normal
@@ -45,3 +45,16 @@ En la ficha del viaje se arma el itinerario eligiendo hoteles del catálogo por 
 - —
 
 ## Notas de implementación
+- `features/viajes/itinerario/`: `ItinerarioViaje` (lista, alta, edición, baja y checkbox de pago al proveedor), `BuscadorHoteles`, `FormularioTramo` y `esquemas.ts`. Va embebido en la sección «Itinerario» de `FichaViaje`, con el mismo `editable` que la economía.
+- El buscador filtra por nombre en el cliente sobre los hoteles activos **del destino del viaje** (la API no busca por texto). Si hay más de 100, avisa. Tiene un enlace para dar de alta un hotel fuera del catálogo (A2). El orden se edita con un campo (A3). En cada tramo se ve el estado de la alerta de pago, sin calcular la fecha en el front.
+- Tests corregidos con autorización (`--tocar-tests`):
+  - Se sacaron los `filas[0]!`, que fallaban el lint.
+  - `MemoryRouter` en `renderItinerario`.
+  - Los hoteles de los tests se cambiaron a los del destino del viaje.
+  - `manejadoresHoteles` en `FichaViaje.test.tsx`.
+  - Se sumaron los tests que pidió la review.
+- Menores que quedan:
+  - «Quitar» borra sin confirmar, porque la web todavía no tiene un patrón de diálogo.
+  - `editable` de la UI no coincide con el backend: un freelance responsable y un viaje finalizado pueden escribir según el backend. Es decisión de producto.
+  - Diferencias cosméticas con la pantalla 17: toggle en lugar de checkbox, círculo de orden, menú «…», noches y destino o puntaje en la tarjeta.
+- Modelos: tests sonnet, implementación y fix sonnet, review opus. Sin escalados.
