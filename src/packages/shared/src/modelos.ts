@@ -33,7 +33,9 @@ export type Viaje = Esquemas["Viaje"];
 export type ConfirmarReserva = Esquemas["ConfirmarReserva"];
 export type Cancelacion = Esquemas["Cancelacion"];
 export type Tramo = Esquemas["Tramo"];
-export type TramoCrear = Esquemas["TramoCrear"];
+/** El generador marca como obligatorio `pago_proveedor_realizado` por tener valor por defecto; en el alta es opcional. */
+export type TramoCrear = Omit<Esquemas["TramoCrear"], "pago_proveedor_realizado"> &
+  Partial<Pick<Esquemas["TramoCrear"], "pago_proveedor_realizado">>;
 export type TramoEditar = Esquemas["TramoEditar"];
 export type EstadoViaje = Esquemas["EstadoViaje"];
 export type CategoriaViaje = Esquemas["CategoriaViaje"];

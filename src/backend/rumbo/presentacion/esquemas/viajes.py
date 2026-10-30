@@ -175,6 +175,9 @@ class TramoCrear(Entrada):
     vencimiento_pago_proveedor: date | None = Field(
         default=None, description="Si se envía, avisa un mes antes con una alerta `pago`."
     )
+    pago_proveedor_realizado: bool = Field(
+        default=False, description="Si el tramo nace pagado al proveedor, no deja alerta."
+    )
 
 
 class TramoEditar(Edicion):
