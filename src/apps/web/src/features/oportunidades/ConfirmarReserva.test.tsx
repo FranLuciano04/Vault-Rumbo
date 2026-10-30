@@ -59,7 +59,7 @@ function renderDetalle(id: string, usuarioActual: UsuarioActual = usuariosPorRol
   );
 }
 
-const roma = destinosMock[2];
+const destinoActivo = destinosMock[1];
 const aceptadas = cotizacionesMock.filter((c) => c.estado === "aceptada");
 
 /** La cotizada de Europa con una cotización aceptada: la reserva se confirma desde una oportunidad abierta (CU-07 flujo principal). */
@@ -101,7 +101,7 @@ async function completarDatos(
 ) {
   const d = within(dialogo);
   if (destino) {
-    await usuario.selectOptions(await d.findByLabelText(/destino/i), roma.id);
+    await usuario.selectOptions(await d.findByLabelText(/destino/i), destinoActivo.id);
   }
   if (fechas) {
     fireEvent.change(d.getByLabelText(/salida/i), { target: { value: "2026-12-01" } });
@@ -163,7 +163,7 @@ describe("RF-032 confirmar reserva", () => {
       expect(cuerpos).toHaveLength(1);
     });
     expect(cuerpos[0]).toMatchObject({
-      destino_id: roma.id,
+      destino_id: destinoActivo.id,
       fecha_salida: "2026-12-01",
       fecha_regreso: "2026-12-15",
       categoria: "individual",
@@ -235,7 +235,7 @@ describe("RF-032 venta directa sin cotización (A1)", () => {
     await waitFor(() => {
       expect(cuerpos).toHaveLength(1);
     });
-    expect(cuerpos[0]).toMatchObject({ destino_id: roma.id });
+    expect(cuerpos[0]).toMatchObject({ destino_id: destinoActivo.id });
   });
 });
 
