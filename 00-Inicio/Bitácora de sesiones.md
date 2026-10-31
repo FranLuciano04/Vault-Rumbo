@@ -52,7 +52,7 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Commits:** 599c35e, 697230d, 959662b, 87131ad.
 - **Pendiente:** las alertas de pago no traen `viaje_id` y `GET /alertas` no filtra por viaje; el e2e filtra del lado del cliente. Los e2e locales chocan con la demo `rumbo-local` por el puerto 9099.
 
-## 30/10/26 — Francisco (Claude Opus 5.5) — T-091, T-104, T-105, T-095 y T-107 (M6) y T-119, T-121, T-126 y T-122 (M8)
+## 30/10/26 — Francisco (Claude Opus 5.5) — T-091, T-104, T-105, T-095 y T-107 (M6) y T-119, T-121, T-126, T-122 y T-120 (M8)
 - **Hecho:** T-091 (PR [#152](https://github.com/FranLuciano04/Vault-Rumbo/pull/152), mergeado con el CI en verde).
   - `GET /viajes` (filtros por estado, fechas, «lo mío» y `cliente_id`, con paginación y visibilidad) y `GET /viajes/{id}` con la economía, el saldo y el porcentaje pagado.
   - `Viaje` trae `cliente_nombre` y `destino_nombre`, y `TablaViajes` los usa. Así se cierra el hallazgo H-04 de M5.
@@ -97,6 +97,16 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Hecho (11):** T-122, indicadores operativos del dashboard (PR [#167](https://github.com/FranLuciano04/Vault-Rumbo/pull/167), mergeado con el CI en verde).
   - El dashboard trae contadores, agenda de 7 días, top de destinos con pasajeros, ranking por vendedor, ticket promedio, ventas de 6 meses, pendiente a operadores y enlaces al detalle.
   - Review de Opus en dos rondas. El bloqueante (filtros de enlaces inválidos) quedó arreglado.
+- **En PR (12):** T-120, el calendario consolidado del backend con viajes, vencimientos (todos menos los anulados) y alertas (PR [#168](https://github.com/FranLuciano04/Vault-Rumbo/pull/168)).
+  - La review de Opus no tuvo bloqueantes; el importante y los menores ya están arreglados.
+  - Falta revisar el CI y mergear.
+- **Demo a los profesores:** les gustó. Ahora hay que tener **todo listo para el 13/11/26**.
+  - El guion del flujo de demo (CU-01 completo, la cancelación, la agenda y el dashboard) quedó en el chat de la sesión.
+  - La web se levantó con el Compose de e2e (`-p rumbo-e2e`, puerto 8081) usando el Auth Emulator local del puerto 9099. Usuario: `duena@rumbo.test`.
+- **App mobile:** no se pudo compilar en la PC de Francisco.
+  - Gradle pide Java 17 o más y `JAVA_HOME` apunta a Java 8. Se resolvió con el JBR de Android Studio, solo para ese comando.
+  - Después Windows cortó el daemon de Gradle por falta de memoria (7 GB con el emulador abierto).
+  - Para la próxima vez: compilar el APK con el emulador cerrado. Ya está creado `src/apps/mobile/.env` (ignorado por Git): apunta a `10.0.2.2:8081` y al emulador `10.0.2.2:9099`.
 - **Decisiones:** el equipo aprobó las 15 recomendaciones en [[DEC-0024 Reglas del dashboard, calendario y criterios de M6|DEC-0024]]. Cierran los pendientes de T-091, T-095, T-119 y T-121, y la reseña post-viaje de T-096.
 - **Pendiente:**
   - El e2e de la reseña con viaje (CU-17 A1) va en T-108.
@@ -104,7 +114,13 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
   - Sumar `estado` multivalor y `responsable_id` a los listados de oportunidades y viajes, para que los enlaces del dashboard lleguen filtrados (anotado en T-122).
   - La web (T-126) todavía no usa `viajes_activos` ni `detalles`.
   - Faltan los índices en `pago.viaje_id` y `viaje.created_at`.
-  - T-109 (último de M6) lo toma Nahuel.
+  - M6 quedó completo (Nahuel cerró T-108, T-109 y T-101, y Paloma T-099). Falta su review de cierre (`/cerrar-modulo`).
+  - Decidir con el equipo el **listado de cotizaciones**. El menú tiene la sección «Cotizaciones» desde T-020, copiada del prototipo, pero ningún ticket la planificó y el backend no tiene `GET /api/cotizaciones`. Hoy se cae en la página pendiente. Las opciones son crear el ticket o sacar el ítem con una DEC. Francisco opina que sirve.
+  - Quedan 26 tickets para el 13/11: M7 9, M8 6, M9 6 y M10 5.
+  - Reparto propuesto, a acordar con el equipo:
+    - Francisco: M8.
+    - Paloma: M7, empezando por T-110.
+    - Nahuel: M10 ya (el servidor) y M9.
 
 ## 29/10/26 — Paloma (Claude Opus 5.5) — T-090, T-088, T-100, T-102 y T-096 (M6)
 - **Hecho:**
