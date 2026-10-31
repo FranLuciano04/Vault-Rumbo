@@ -181,7 +181,7 @@ export type ReporteCatalogo = Esquemas["ReporteCatalogo"];
 export type ColumnaReporte = Esquemas["ColumnaReporte"];
 export type Reporte = Esquemas["Reporte"];
 
-/** Calendario (M8): viajes y vencimientos de pagos, de solo lectura. */
+/** Calendario (M8): viajes, vencimientos de pagos y alertas, de solo lectura. */
 export type EventoCalendario = Esquemas["EventoCalendario"];
 
 /** Período de una consulta: sin fechas, el mes en curso. */

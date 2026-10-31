@@ -38,7 +38,6 @@ RUTAS_SOLO_ADMIN_Y_DUENO = [
     ("get", "/api/reportes"),
     ("get", f"/api/reportes/{REPORTE}"),
 ]
-RUTAS_STUB_PARA_TODOS = [("get", "/api/calendario")]  # el dashboard ya se calcula (T-121)
 
 
 @pytest.fixture
@@ -134,7 +133,7 @@ async def test_cu23_calendario_publica_filtros_de_responsable_tipo_y_vista_perso
     parametros = _parametros(contrato, "/api/calendario")
 
     assert {"desde", "hasta", "mios", "tipo", "responsable_id"} <= set(parametros)
-    assert _tipo(parametros["tipo"])["enum"] == ["viaje", "vencimiento"]
+    assert _tipo(parametros["tipo"])["enum"] == ["viaje", "vencimiento", "alerta"]
     assert _tipo(parametros["responsable_id"])["format"] == "uuid"
     assert _tipo(parametros["mios"])["type"] == "boolean"
 
@@ -244,39 +243,6 @@ async def test_cu22_reporte_con_periodo_y_comparacion_valida_responde_501(
             "hasta": "2026-06-30",
             "comparar_desde": "2025-01-01",
             "comparar_hasta": "2025-06-30",
-        },
-    )
-
-    assert r.status_code == 501
-
-
-@pytest.mark.parametrize("rol", ROLES)
-@pytest.mark.parametrize(("metodo", "ruta"), RUTAS_STUB_PARA_TODOS)
-async def test_cu23_calendario_con_cualquier_rol_responde_501_problem_json(
-    cliente_como: FabricaCliente, rol: str, metodo: str, ruta: str
-) -> None:
-    c = await cliente_como(rol)
-
-    r = await c.request(metodo, ruta)
-
-    assert r.status_code == 501
-    assert r.headers["content-type"].startswith(PROBLEM_JSON)
-    assert r.json()["status"] == 501
-
-
-async def test_cu23_calendario_con_todos_los_filtros_validos_responde_501(
-    cliente_como: FabricaCliente,
-) -> None:
-    c = await cliente_como("empleado")
-
-    r = await c.get(
-        "/api/calendario",
-        params={
-            "desde": "2026-11-01",
-            "hasta": "2026-11-30",
-            "mios": "true",
-            "tipo": "vencimiento",
-            "responsable_id": "0b8f7a52-4c1e-4f0a-9a57-1d2f6c3b7a01",
         },
     )
 

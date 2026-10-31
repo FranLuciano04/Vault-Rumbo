@@ -6,6 +6,8 @@ import type {
   Reporte,
   ReporteCatalogo,
 } from "../modelos";
+import { alertasMock } from "./alertas";
+import { clientesMock } from "./clientes";
 import { pagosPorViajeMock } from "./economia";
 import { usuariosMock } from "./m1";
 import { respuestaProblema } from "./problema";
@@ -163,16 +165,18 @@ export function reporteMock(id: string, comparar: boolean): Reporte | null {
   };
 }
 
-/** Eventos ficticios del calendario (CU-23): cada viaje de M6 y cada vencimiento de sus pagos. */
+/** Eventos ficticios del calendario (CU-23): cada viaje de M6, cada vencimiento de sus pagos y
+ * cada alerta de la agenda (de cualquier estado). */
 export const eventosCalendarioMock: EventoCalendario[] = [
   ...viajesMock.map((v): EventoCalendario => ({
     tipo: "viaje",
-    titulo: `${v.destino_nombre} · ${v.cliente_nombre}`,
+    titulo: `${v.cliente_nombre} — ${v.destino_nombre}`,
     desde: v.fecha_salida,
     hasta: v.fecha_regreso,
     estado: v.estado,
     viaje_id: v.id,
     pago_id: null,
+    alerta_id: null,
     responsable_id: v.responsable_id,
   })),
   ...Object.values(pagosPorViajeMock)
@@ -182,15 +186,27 @@ export const eventosCalendarioMock: EventoCalendario[] = [
       const viaje = viajePorId.get(p.viaje_id);
       return {
         tipo: "vencimiento",
-        titulo: `Vence ${p.tipo} · ${viaje?.cliente_nombre ?? ""}`,
+        titulo: `Vence un pago de ${viaje?.cliente_nombre ?? ""}`,
         desde: p.vencimiento,
         hasta: p.vencimiento,
         estado: p.estado,
         viaje_id: p.viaje_id,
         pago_id: p.id,
+        alerta_id: null,
         responsable_id: viaje?.responsable_id ?? usuariosPorRol.empleado.id,
       };
     }),
+  ...alertasMock.map((a): EventoCalendario => ({
+    tipo: "alerta",
+    titulo: a.descripcion,
+    desde: a.fecha,
+    hasta: a.fecha,
+    estado: a.estado,
+    viaje_id: a.viaje_id,
+    pago_id: null,
+    alerta_id: a.id,
+    responsable_id: a.propietario_id,
+  })),
 ];
 
 const sinPermiso = () =>
@@ -257,14 +273,29 @@ export function manejadoresDashboardPara(rol: RolMock): RequestHandler[] {
       const filtro = (nombre: keyof FiltrosCalendario) => url.searchParams.get(nombre);
       const desde = filtro("desde");
       const hasta = filtro("hasta");
-      // El freelance ve solo lo suyo aunque no pida `mios` (DEC-0008).
-      const propio =
-        filtro("mios") === "true" || rol === "freelance" ? usuariosPorRol[rol].id : null;
+      const yo = usuariosPorRol[rol].id;
+      const propio = filtro("mios") === "true" ? yo : null;
+      // El freelance ve los viajes que lleva y los de sus clientes (y sus vencimientos), y sus
+      // alertas (DEC-0008); ignora `responsable_id`.
+      const delFreelance = (e: EventoCalendario) => {
+        if (e.tipo === "alerta") return e.responsable_id === yo;
+        const viaje = viajePorId.get(e.viaje_id ?? "");
+        return (
+          viaje?.responsable_id === yo ||
+          clientesMock.some((c) => c.id === viaje?.cliente_id && c.asesor_asignado_id === yo)
+        );
+      };
+      // Las alertas ajenas solo las ve la dirección (la agenda es personal, DEC-0005).
+      const visible = (e: EventoCalendario) =>
+        e.tipo !== "alerta" || gestiona || e.responsable_id === yo;
       return HttpResponse.json(
         eventosCalendarioMock.filter(
           (e) =>
+            visible(e) &&
             (!filtro("tipo") || e.tipo === filtro("tipo")) &&
-            (!filtro("responsable_id") || e.responsable_id === filtro("responsable_id")) &&
+            (rol === "freelance"
+              ? delFreelance(e)
+              : !filtro("responsable_id") || e.responsable_id === filtro("responsable_id")) &&
             (!propio || e.responsable_id === propio) &&
             (!desde || e.hasta >= desde) &&
             (!hasta || e.desde <= hasta),
