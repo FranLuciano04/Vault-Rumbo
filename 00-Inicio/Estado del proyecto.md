@@ -14,9 +14,9 @@ actualizado: 30/10/26
 >
 > 🏁 **29/10 — M5 Hoteles y reseñas cerrado.** Se arreglaron 5 de los 6 hallazgos de Codex (PR #140 a #143) y H-04 pasó a T-091 (`GET /viajes` con filtro por cliente). El equipo lo aprobó y se puso el tag `mod-5`. El backend ahora tiene logging configurado (`rumbo.core.logs`). El resumen está en [[Bitácora técnica]].
 >
-> 🎯 **30/10 — Entrega final el 13/11/26.** La demo gustó a los profesores. Quedan 26 tickets: M7 9, M8 6, M9 6 y M10 5. M6 está completo y falta su cierre. El reparto propuesto está en la [[Bitácora de sesiones]] del 30/10. Lo que más puede demorar es M10, porque depende del servidor de la agencia, y los 5 tickets de riesgo alto, que esperan aprobación.
+> 🎯 **30/10 — Entrega final el 13/11/26.** La demo gustó a los profesores. Quedan 25 tickets: M7 9, M8 5, M9 6 y M10 5. M6 está completo y falta su cierre. El reparto propuesto está en la [[Bitácora de sesiones]] del 30/10. Lo que más puede demorar es M10, porque depende del servidor de la agencia, y los 5 tickets de riesgo alto, que esperan aprobación.
 
-> 👉 **30/10 (Francisco):** **T-120** (calendario consolidado del backend) tiene el PR [#168](https://github.com/FranLuciano04/Vault-Rumbo/pull/168) abierto, con el CI pendiente. Destraba T-125. Hay que decidir el listado de cotizaciones del menú: no está planificado.
+> 👉 **30/10 (Francisco):** **T-120** (calendario consolidado del backend) está hecho y mergeado (PR [#168](https://github.com/FranLuciano04/Vault-Rumbo/pull/168)). Destraba T-125. Hay que decidir el listado de cotizaciones del menú: no está planificado.
 
 > 👉 **30/10 (Francisco):** **T-122** (indicadores operativos del dashboard) está hecho y mergeado (PR [#167](https://github.com/FranLuciano04/Vault-Rumbo/pull/167)). M8 lleva 4 de 10. A M6 solo le falta T-109, que lo toma Nahuel.
 

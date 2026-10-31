@@ -97,9 +97,9 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Hecho (11):** T-122, indicadores operativos del dashboard (PR [#167](https://github.com/FranLuciano04/Vault-Rumbo/pull/167), mergeado con el CI en verde).
   - El dashboard trae contadores, agenda de 7 días, top de destinos con pasajeros, ranking por vendedor, ticket promedio, ventas de 6 meses, pendiente a operadores y enlaces al detalle.
   - Review de Opus en dos rondas. El bloqueante (filtros de enlaces inválidos) quedó arreglado.
-- **En PR (12):** T-120, el calendario consolidado del backend con viajes, vencimientos (todos menos los anulados) y alertas (PR [#168](https://github.com/FranLuciano04/Vault-Rumbo/pull/168)).
+- **Hecho (12):** T-120, el calendario consolidado del backend con viajes, vencimientos (todos menos los anulados) y alertas (PR [#168](https://github.com/FranLuciano04/Vault-Rumbo/pull/168)).
   - La review de Opus no tuvo bloqueantes; el importante y los menores ya están arreglados.
-  - Falta revisar el CI y mergear.
+  - Mergeado con el CI en verde.
 - **Demo a los profesores:** les gustó. Ahora hay que tener **todo listo para el 13/11/26**.
   - El guion del flujo de demo (CU-01 completo, la cancelación, la agenda y el dashboard) quedó en el chat de la sesión.
   - La web se levantó con el Compose de e2e (`-p rumbo-e2e`, puerto 8081) usando el Auth Emulator local del puerto 9099. Usuario: `duena@rumbo.test`.
@@ -116,7 +116,7 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
   - Faltan los índices en `pago.viaje_id` y `viaje.created_at`.
   - M6 quedó completo (Nahuel cerró T-108, T-109 y T-101, y Paloma T-099). Falta su review de cierre (`/cerrar-modulo`).
   - Decidir con el equipo el **listado de cotizaciones**. El menú tiene la sección «Cotizaciones» desde T-020, copiada del prototipo, pero ningún ticket la planificó y el backend no tiene `GET /api/cotizaciones`. Hoy se cae en la página pendiente. Las opciones son crear el ticket o sacar el ítem con una DEC. Francisco opina que sirve.
-  - Quedan 26 tickets para el 13/11: M7 9, M8 6, M9 6 y M10 5.
+  - Quedan 25 tickets para el 13/11: M7 9, M8 5, M9 6 y M10 5.
   - Reparto propuesto, a acordar con el equipo:
     - Francisco: M8.
     - Paloma: M7, empezando por T-110.
