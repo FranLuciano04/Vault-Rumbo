@@ -22,7 +22,7 @@ tags:: #tipo/referencia
 | M5 — Hoteles y reseñas | 11 | 11 | 0 | 0 | 0 | 0 | ✅ cerrado |
 | M6 — Viajes y economía | 24 | 24 | 0 | 0 | 0 | 0 | 🔍 listo para la review |
 | M7 — Proceso diario y CRM proactivo | 9 | 0 | 0 | 3 | 6 | 0 | 🛠️ en curso |
-| M8 — Calendario, dashboard y reportes | 10 | 4 | 1 | 3 | 2 | 0 | 🛠️ en curso |
+| M8 — Calendario, dashboard y reportes | 10 | 5 | 0 | 3 | 2 | 0 | 🛠️ en curso |
 | M9 — Redes e IA | 6 | 0 | 0 | 1 | 5 | 0 | 🛠️ en curso |
 | M10 — Despliegue on-premise | 5 | 0 | 0 | 1 | 4 | 0 | 🛠️ en curso |
 
@@ -196,7 +196,7 @@ flowchart LR
   end
   subgraph M8["M8 — Calendario, dashboard y reportes"]
     T119["T-119 · Publicar el contrato de calendario, dashboard y reportes<br/><small>contrato</small>"]:::hecho
-    T120["T-120 · Consultar el calendario consolidado<br/><small>backend</small><br/>👤 FranLucianoo"]:::tomado
+    T120["T-120 · Consultar el calendario consolidado<br/><small>backend</small>"]:::hecho
     T121["T-121 · Calcular el embudo con los indicadores económicos<br/><small>backend</small>"]:::hecho
     T122["T-122 · Calcular los indicadores operativos del dashboard<br/><small>backend</small>"]:::hecho
     T123["T-123 · Generar los reportes del período<br/><small>backend</small>"]:::disponible
