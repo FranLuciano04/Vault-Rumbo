@@ -5,8 +5,9 @@ comportamiento. Supuestos que fijan estos tests y que el ticket no dice de forma
 
 - Respuesta: el `Pago` ya cobrado (200), con forma de pago, moneda, tipo de cambio,
   `monto_cobrado` y `fecha_cobro`.
-- `monto_cobrado` = `monto` si `moneda_pago` es la del viaje; si difiere, `monto x tipo_cambio`
-  (modelo de `Pago`, DEC-0013). Con la misma moneda `tipo_cambio` queda en null aunque se envíe.
+- `monto_cobrado` = `monto` si `moneda_pago` es la del viaje; si difiere, `tipo_cambio` son
+  pesos por dólar (DEC-0026): viaje USD cobrado en ARS = `monto x tipo_cambio`; viaje ARS cobrado
+  en USD = `monto / tipo_cambio` (modelo de `Pago`, DEC-0013). Con la misma moneda `tipo_cambio` queda en null aunque se envíe.
 - "Importe completo" (RF-072): el cobro no admite un monto; el servidor cobra el `monto`
   planificado entero. Un cuerpo con `monto_cobrado` no puede dejar un cobro parcial.
 - La API todavía no expone el saldo (`GET /viajes/{id}` es un stub): el saldo y el porcentaje se
@@ -140,6 +141,97 @@ async def test_rf068_otra_moneda(cliente_como: Fabrica, sesion: AsyncSession) ->
     assert pago.tipo_cambio == Decimal("1200.5")
     assert pago.monto_cobrado == Decimal("1200500.00")
     assert pago.monto == Decimal("1000.00")  # el plan sigue en la moneda del viaje
+
+
+async def test_rf068_viaje_ars_cobrado_en_usd_divide(
+    cliente_como: Fabrica, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("empleado")
+    viaje = await _viaje(sesion, _yo(c), moneda=m.Moneda.ARS)
+    pago = await _pago(sesion, viaje.id, "100000.00")
+
+    r = await c.post(
+        _url(pago.id), json={**COBRO, "moneda_pago": "USD", "tipo_cambio": "1000.0000"}
+    )
+
+    assert r.status_code == 200
+    assert r.json()["moneda_pago"] == "USD"
+    assert Decimal(r.json()["monto_cobrado"]) == Decimal("100.00")  # H-01: no 100.000.000
+    await sesion.refresh(pago)
+    assert pago.monto_cobrado == Decimal("100.00")
+    assert pago.tipo_cambio == Decimal("1000.0000")
+    assert pago.monto == Decimal("100000.00")
+
+
+async def test_rf068_viaje_usd_cobrado_en_ars_multiplica(
+    cliente_como: Fabrica, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("empleado")
+    viaje = await _viaje(sesion, _yo(c), moneda=m.Moneda.USD)
+    pago = await _pago(sesion, viaje.id, "100.00")
+
+    r = await c.post(
+        _url(pago.id), json={**COBRO, "moneda_pago": "ARS", "tipo_cambio": "1000.0000"}
+    )
+
+    assert r.status_code == 200
+    assert Decimal(r.json()["monto_cobrado"]) == Decimal("100000.00")
+    await sesion.refresh(pago)
+    assert pago.monto_cobrado == Decimal("100000.00")
+
+
+async def test_rf068_viaje_ars_cobrado_en_usd_redondea_half_up(
+    cliente_como: Fabrica, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("empleado")
+    viaje = await _viaje(sesion, _yo(c), moneda=m.Moneda.ARS)
+    pago = await _pago(sesion, viaje.id, "100000.00")
+
+    r = await c.post(_url(pago.id), json={**COBRO, "moneda_pago": "USD", "tipo_cambio": "3.0000"})
+
+    assert r.status_code == 200
+    assert Decimal(r.json()["monto_cobrado"]) == Decimal("33333.33")
+    await sesion.refresh(pago)
+    assert pago.monto_cobrado == Decimal("33333.33")
+
+
+async def test_rf068_viaje_ars_equivalencia_en_cero_422(
+    cliente_como: Fabrica, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("empleado")
+    viaje = await _viaje(sesion, _yo(c), moneda=m.Moneda.ARS)
+    pago = await _pago(sesion, viaje.id, "0.01", tipo=m.TipoPago.saldo)
+
+    # 0,01 ARS / 1000 USD-peso redondea a 0,00: no hay cobro posible
+    r = await c.post(
+        _url(pago.id), json={**COBRO, "moneda_pago": "USD", "tipo_cambio": "1000.0000"}
+    )
+
+    assert r.status_code == 422
+    assert r.headers["content-type"].startswith(PROBLEM_JSON)
+    assert "tipo_cambio" in r.text
+    await sesion.refresh(pago)
+    assert pago.estado == m.EstadoPago.pendiente
+    assert pago.monto_cobrado is None
+
+
+async def test_rf068_viaje_ars_cobrado_en_usd_fuera_de_rango_422(
+    cliente_como: Fabrica, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("empleado")
+    viaje = await _viaje(sesion, _yo(c), moneda=m.Moneda.ARS)
+    pago = await _pago(sesion, viaje.id, "99999999999.99", tipo=m.TipoPago.saldo)
+
+    # 99.999.999.999,99 ARS / 0,0001 = ~1e15 USD: no entra en numeric(14,2)
+    r = await c.post(
+        _url(pago.id), json={**COBRO, "moneda_pago": "USD", "tipo_cambio": "0.0001"}
+    )
+
+    assert r.status_code == 422
+    assert "tipo_cambio" in r.text
+    await sesion.refresh(pago)
+    assert pago.estado == m.EstadoPago.pendiente
+    assert pago.monto_cobrado is None
 
 
 async def test_rf068_otra_moneda_sin_tipo_de_cambio_422(
