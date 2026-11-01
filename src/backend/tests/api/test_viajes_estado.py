@@ -17,6 +17,7 @@ dice de forma explícita y que fijan estos tests:
 import uuid
 from collections.abc import Awaitable, Callable
 from datetime import UTC, date, datetime
+from decimal import Decimal
 
 import pytest
 from httpx import AsyncClient
@@ -375,3 +376,67 @@ async def test_rf042_corregir_no_toca_la_resena_ya_resuelta(
     assert r.status_code == 200
     alertas = await _alertas_resena(sesion, viaje_id)
     assert [(a.estado, a.resuelta_en) for a in alertas] == [(m.EstadoAlerta.resuelta, resuelta_en)]
+
+
+# --- DEC-0026 punto 4: iniciar exige saldo cero y plan balanceado (review Codex M6, H-02) -------
+
+
+async def _cobrado(sesion: AsyncSession, viaje_id: uuid.UUID, monto: str) -> m.Pago:
+    return await f.crear(
+        sesion,
+        f.PagoFactory,
+        viaje_id=viaje_id,
+        monto=Decimal(monto),
+        estado=m.EstadoPago.pagado,
+        forma_pago=m.FormaPago.efectivo,
+        moneda_pago=m.Moneda.ARS,
+        monto_cobrado=Decimal(monto),
+        fecha_cobro=date(2026, 11, 20),
+    )
+
+
+async def test_rf039_iniciar_con_saldo_pendiente_409(
+    cliente_como: Fabrica, sesion: AsyncSession
+) -> None:
+    """H-02 alcance 3: un `confirmado` con saldo distinto de cero no inicia."""
+    c = await cliente_como("empleado")
+    viaje = await _viaje(sesion, _yo(c), m.EstadoViaje.confirmado)  # precio de venta 1.000.000
+    await _cobrado(sesion, viaje.id, "600000.00")
+    await f.crear(
+        sesion, f.PagoFactory, viaje_id=viaje.id, monto=Decimal("400000.00"), tipo=m.TipoPago.saldo
+    )
+
+    r = await c.post(_url(viaje.id, "iniciar"))
+
+    assert r.status_code == 409
+    assert r.headers["content-type"].startswith(PROBLEM_JSON)
+    assert await _estado_en_base(sesion, viaje.id) == m.EstadoViaje.confirmado
+
+
+async def test_rf039_iniciar_con_plan_descalzado_409(
+    cliente_como: Fabrica, sesion: AsyncSession
+) -> None:
+    """H-02 alcance 3: saldo cero pero el plan no suma el precio (se subió sin rebalancear)."""
+    c = await cliente_como("empleado")
+    viaje = await _viaje(sesion, _yo(c), m.EstadoViaje.confirmado)  # precio de venta 1.000.000
+    await _cobrado(sesion, viaje.id, "800000.00")
+
+    r = await c.post(_url(viaje.id, "iniciar"))
+
+    assert r.status_code == 409
+    assert r.headers["content-type"].startswith(PROBLEM_JSON)
+    assert await _estado_en_base(sesion, viaje.id) == m.EstadoViaje.confirmado
+
+
+async def test_rf039_iniciar_con_todo_cobrado_y_plan_balanceado(
+    cliente_como: Fabrica, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("empleado")
+    viaje = await _viaje(sesion, _yo(c), m.EstadoViaje.confirmado)  # precio de venta 1.000.000
+    await _cobrado(sesion, viaje.id, "400000.00")
+    await _cobrado(sesion, viaje.id, "600000.00")
+
+    r = await c.post(_url(viaje.id, "iniciar"))
+
+    assert r.status_code == 200
+    assert r.json()["estado"] == "en_curso"

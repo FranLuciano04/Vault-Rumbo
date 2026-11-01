@@ -455,3 +455,38 @@ describe("T-103 fix de la review", () => {
     expect(screen.getByText(/no queda saldo por planificar/i)).toBeInTheDocument();
   });
 });
+
+describe("RF-059 rebalanceo sin pagos nuevos (DEC-0026 punto 5)", () => {
+  it("con lo cobrado cubriendo el precio deja guardar sin pagos nuevos y manda pagos vacíos", async () => {
+    const cuerpos: Record<string, unknown>[] = [];
+    servidor.use(registrar("put", "*/api/viajes/:id/pagos", cuerpos));
+    // El "vendido" tiene la seña de 600.000 cobrada y dos pagos pendientes: con el precio
+    // bajado a 600.000 lo cobrado ya cubre todo y los dos pendientes sobran.
+    renderPlan(viajeDe("vendido", { precio_venta: "600000.00" }));
+    const user = await abrirEditor();
+
+    for (const quitar of screen.getAllByRole("button", { name: /^quitar/i })) {
+      await user.click(quitar);
+    }
+
+    expect(screen.queryAllByLabelText(/^monto/i)).toHaveLength(0);
+    expect(screen.getByRole("button", { name: /guardar plan/i })).toBeEnabled();
+    await user.click(screen.getByRole("button", { name: /guardar plan/i }));
+
+    await waitFor(() => {
+      expect(cuerpos).toHaveLength(1);
+    });
+    expect(cuerpos[0]).toEqual({ pagos: [] });
+  });
+
+  it("sin cobrados que cubran el precio no deja guardar un plan vacío", async () => {
+    renderPlan(viajeDe("reservado"));
+    const user = await abrirEditor();
+
+    for (const quitar of screen.getAllByRole("button", { name: /^quitar/i })) {
+      await user.click(quitar);
+    }
+
+    expect(screen.getByRole("button", { name: /guardar plan/i })).toBeDisabled();
+  });
+});

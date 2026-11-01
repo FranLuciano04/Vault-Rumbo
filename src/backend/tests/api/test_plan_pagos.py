@@ -799,3 +799,240 @@ async def test_rf061_vencimiento_fuera_de_rango_422(
     assert r.status_code == 422
     assert r.headers["content-type"].startswith(PROBLEM_JSON)
     assert await _pagos_de(sesion, viaje.id) == []
+
+
+# --- DEC-0026 puntos 2 a 5: el plan y el estado del viaje (review Codex M6, H-02 y H-04) -------
+#
+# Supuestos que fijan estos tests y que el hallazgo no dice de forma explícita:
+# - `{"pagos": []}` se rechaza con 422 cuando lo cobrado no suma el precio, sea una definición
+#   inicial (sin cobros) o un rebalanceo; no hace falta una regla aparte para la definición
+#   inicial: «cobrados + nuevos suman el precio» ya la cubre (precio de venta mayor a cero).
+# - Un rebalanceo sobre `en_curso` no cambia el estado (no se retrocede).
+
+MEDIO = Decimal("500000.00")
+COBRO = {"fecha_cobro": "2026-11-20", "forma_pago": "transferencia", "moneda_pago": "ARS"}
+
+
+async def _viaje_en(
+    sesion: AsyncSession, responsable_id: uuid.UUID, estado: m.EstadoViaje, precio: Decimal
+) -> m.Viaje:
+    cliente = await f.crear(sesion, f.ClienteFactory)
+    destino = await f.crear(sesion, f.DestinoFactory)
+    return await f.crear(
+        sesion,
+        f.ViajeFactory,
+        cliente_id=cliente.id,
+        destino_id=destino.id,
+        responsable_id=responsable_id,
+        precio_venta=precio,
+        estado=estado,
+    )
+
+
+async def _cobrado(sesion: AsyncSession, viaje_id: uuid.UUID, monto: Decimal) -> m.Pago:
+    return await f.crear(
+        sesion,
+        f.PagoFactory,
+        viaje_id=viaje_id,
+        monto=monto,
+        tipo=m.TipoPago.sena,
+        estado=m.EstadoPago.pagado,
+        forma_pago=m.FormaPago.efectivo,
+        moneda_pago=m.Moneda.ARS,
+        monto_cobrado=monto,
+        fecha_cobro=date(2026, 11, 20),
+    )
+
+
+async def _pendiente(
+    sesion: AsyncSession, viaje_id: uuid.UUID, monto: Decimal, dueno_id: uuid.UUID
+) -> tuple[m.Pago, m.Alerta]:
+    pago = await f.crear(
+        sesion,
+        f.PagoFactory,
+        viaje_id=viaje_id,
+        monto=monto,
+        tipo=m.TipoPago.saldo,
+        vencimiento=date(2027, 1, 5),
+    )
+    alerta = await f.crear(
+        sesion,
+        f.AlertaFactory,
+        propietario_id=dueno_id,
+        pago_id=pago.id,
+        tipo=m.TipoAlerta.pago,
+        fecha=date(2026, 12, 5),
+    )
+    return pago, alerta
+
+
+async def _estado_en_base(sesion: AsyncSession, viaje_id: uuid.UUID) -> m.EstadoViaje:
+    sesion.expire_all()
+    viaje = await sesion.get(m.Viaje, viaje_id)
+    assert viaje is not None
+    return viaje.estado
+
+
+async def test_rf059_rebalanceo_sin_pagos_nuevos_anula_el_pendiente(
+    cliente_como: Fabrica, sesion: AsyncSession
+) -> None:
+    """H-04 alcance 1: viaje de 100 con 50 cobrado y 50 pendiente, precio 50 y `pagos: []`."""
+    c = await cliente_como("empleado")
+    viaje = await _viaje_en(sesion, _yo(c), m.EstadoViaje.vendido, MEDIO)
+    cobrado = await _cobrado(sesion, viaje.id, MEDIO)
+    pendiente, alerta = await _pendiente(sesion, viaje.id, MEDIO, _yo(c))
+    cobrado_id, pendiente_id, alerta_id = cobrado.id, pendiente.id, alerta.id
+
+    r = await c.put(_url(viaje.id), json={"pagos": []})
+
+    assert r.status_code == 200
+    assert [p["id"] for p in r.json()] == [str(cobrado_id)]  # el plan es solo lo cobrado
+    sesion.expire_all()
+    anulado = await sesion.get(m.Pago, pendiente_id)
+    resuelta = await sesion.get(m.Alerta, alerta_id)
+    conservado = await sesion.get(m.Pago, cobrado_id)
+    assert anulado is not None and anulado.estado == m.EstadoPago.anulado
+    assert resuelta is not None and resuelta.estado == m.EstadoAlerta.resuelta
+    assert conservado is not None and conservado.estado == m.EstadoPago.pagado
+
+
+async def test_rf059_rebalanceo_sin_pagos_nuevos_pasa_vendido_a_confirmado(
+    cliente_como: Fabrica, sesion: AsyncSession
+) -> None:
+    """H-04 alcance 2 + DEC-0026 punto 3: plan balanceado y saldo cero → T3 por el rebalanceo."""
+    c = await cliente_como("empleado")
+    viaje = await _viaje_en(sesion, _yo(c), m.EstadoViaje.vendido, MEDIO)
+    await _cobrado(sesion, viaje.id, MEDIO)
+    await _pendiente(sesion, viaje.id, MEDIO, _yo(c))
+
+    r = await c.put(_url(viaje.id), json={"pagos": []})
+
+    assert r.status_code == 200
+    assert await _estado_en_base(sesion, viaje.id) == m.EstadoViaje.confirmado
+
+
+async def test_rf059_pagos_vacios_sin_cobros_422(
+    cliente_como: Fabrica, sesion: AsyncSession
+) -> None:
+    """H-04 alcance 3 y definición inicial: sin cobros que sumen el precio, `pagos: []` es 422."""
+    c = await cliente_como("empleado")
+    viaje = await _viaje_en(sesion, _yo(c), m.EstadoViaje.reservado, PRECIO)
+
+    r = await c.put(_url(viaje.id), json={"pagos": []})
+
+    assert r.status_code == 422
+    assert r.headers["content-type"].startswith(PROBLEM_JSON)
+    assert await _pagos_de(sesion, viaje.id) == []
+
+
+async def test_rf059_pagos_vacios_con_cobrado_que_no_alcanza_422(
+    cliente_como: Fabrica, sesion: AsyncSession
+) -> None:
+    """H-04 alcance 3: lo cobrado (50) no suma el precio (100); el plan anterior queda intacto."""
+    c = await cliente_como("empleado")
+    viaje = await _viaje_en(sesion, _yo(c), m.EstadoViaje.vendido, PRECIO)
+    await _cobrado(sesion, viaje.id, MEDIO)
+    pendiente, _ = await _pendiente(sesion, viaje.id, MEDIO, _yo(c))
+
+    r = await c.put(_url(viaje.id), json={"pagos": []})
+
+    assert r.status_code == 422
+    assert r.headers["content-type"].startswith(PROBLEM_JSON)
+    await sesion.refresh(pendiente)
+    assert pendiente.estado == m.EstadoPago.pendiente
+    assert await _estado_en_base(sesion, viaje.id) == m.EstadoViaje.vendido
+
+
+async def test_rf059_rebalanceo_con_saldo_deja_vendido_el_confirmado(
+    cliente_como: Fabrica, sesion: AsyncSession
+) -> None:
+    """H-02 alcance 1 / T11: confirmado (100 cobrado) → precio 150 → pago nuevo de 50 → vendido."""
+    c = await cliente_como("empleado")
+    viaje = await _viaje_en(sesion, _yo(c), m.EstadoViaje.confirmado, PRECIO)
+    await _cobrado(sesion, viaje.id, PRECIO)
+    r = await c.put(
+        f"/api/viajes/{viaje.id}/economia",
+        json={"precio_venta": "1500000.00", "costo": "800000.00"},
+    )
+    assert r.status_code == 200
+
+    r = await c.put(_url(viaje.id), json=_plan(("500000.00", "saldo", "2027-01-05")))
+
+    assert r.status_code == 200
+    assert await _estado_en_base(sesion, viaje.id) == m.EstadoViaje.vendido
+
+
+async def test_rf059_rebalanceo_que_deja_saldo_no_confirma_al_vendido(
+    cliente_como: Fabrica, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("empleado")
+    viaje = await _viaje_en(sesion, _yo(c), m.EstadoViaje.vendido, PRECIO)
+    await _cobrado(sesion, viaje.id, MEDIO)
+    await _pendiente(sesion, viaje.id, MEDIO, _yo(c))
+    dos_cuotas = _plan(("250000.00", "cuota", "2027-01-05"), ("250000.00", "saldo", "2027-02-05"))
+
+    r = await c.put(_url(viaje.id), json=dos_cuotas)
+
+    assert r.status_code == 200
+    assert await _estado_en_base(sesion, viaje.id) == m.EstadoViaje.vendido
+
+
+async def test_rf059_rebalanceo_en_reservado_no_cambia_el_estado(
+    cliente_como: Fabrica, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("empleado")
+    viaje = await _viaje_en(sesion, _yo(c), m.EstadoViaje.reservado, PRECIO)
+
+    r = await c.put(_url(viaje.id), json=PLAN_TRES)
+
+    assert r.status_code == 200
+    assert await _estado_en_base(sesion, viaje.id) == m.EstadoViaje.reservado
+
+
+async def test_rf059_rebalanceo_en_curso_con_saldo_no_retrocede(
+    cliente_como: Fabrica, sesion: AsyncSession
+) -> None:
+    """DEC-0026 punto 4: desde `en_curso` no se retrocede."""
+    c = await cliente_como("empleado")
+    viaje = await _viaje_en(sesion, _yo(c), m.EstadoViaje.en_curso, PRECIO)
+    await _cobrado(sesion, viaje.id, MEDIO)
+
+    r = await c.put(_url(viaje.id), json=_plan(("500000.00", "saldo", "2027-01-05")))
+
+    assert r.status_code == 200
+    assert await _estado_en_base(sesion, viaje.id) == m.EstadoViaje.en_curso
+
+
+async def test_rf038_circuito_de_aumento_de_precio_en_un_confirmado(
+    cliente_como: Fabrica, sesion: AsyncSession
+) -> None:
+    """H-02: confirmado (100 cobrado) → precio 150 → rebalanceo con un pago de 50 → `vendido` →
+    iniciar da 409 → cobrar el de 50 → `confirmado` → iniciar da 200."""
+    c = await cliente_como("empleado")
+    viaje = await _viaje_en(sesion, _yo(c), m.EstadoViaje.confirmado, PRECIO)
+    await _cobrado(sesion, viaje.id, PRECIO)
+
+    r = await c.put(
+        f"/api/viajes/{viaje.id}/economia",
+        json={"precio_venta": "1500000.00", "costo": "800000.00"},
+    )
+    assert r.status_code == 200
+    assert "plan_desbalanceado" in r.json()["advertencias"]
+    assert await _estado_en_base(sesion, viaje.id) == m.EstadoViaje.confirmado  # sin saldo aún
+
+    r = await c.put(_url(viaje.id), json=_plan(("500000.00", "saldo", "2027-01-05")))
+    assert r.status_code == 200
+    assert await _estado_en_base(sesion, viaje.id) == m.EstadoViaje.vendido
+    nuevo = next(p for p in r.json() if p["estado"] == "pendiente")
+
+    r = await c.post(f"/api/viajes/{viaje.id}/iniciar")
+    assert r.status_code == 409
+    assert await _estado_en_base(sesion, viaje.id) == m.EstadoViaje.vendido
+
+    r = await c.post(f"/api/pagos/{nuevo['id']}/cobrar", json=COBRO)
+    assert r.status_code == 200
+    assert await _estado_en_base(sesion, viaje.id) == m.EstadoViaje.confirmado
+
+    r = await c.post(f"/api/viajes/{viaje.id}/iniciar")
+    assert r.status_code == 200
+    assert r.json()["estado"] == "en_curso"
