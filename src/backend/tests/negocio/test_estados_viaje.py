@@ -116,13 +116,13 @@ def test_rf038_revertir_cobro_invalido_desde_otros_estados(origen: str) -> None:
 # T4: confirmado -> en_curso (nunca desde vendido: secuencia estricta)
 def test_rf040_iniciar_pasa_de_confirmado_a_en_curso() -> None:
     viaje = _viaje("confirmado")
-    est.iniciar(viaje)
+    est.iniciar(viaje, saldo=CERO, plan_balanceado=True)
     assert viaje.estado is V.en_curso
 
 
 @pytest.mark.parametrize("origen", [e for e in TODOS if e != "confirmado"])
 def test_rf040_iniciar_invalido_desde_otros_estados(origen: str) -> None:
-    _no_cambia(origen, est.iniciar)
+    _no_cambia(origen, lambda v: est.iniciar(v, saldo=CERO, plan_balanceado=True))
 
 
 # T5: en_curso -> finalizado
@@ -140,31 +140,31 @@ def test_rf040_finalizar_invalido_desde_otros_estados(origen: str) -> None:
 # T7: corrección, solo desde en_curso y finalizado
 def test_rf042_corregir_estado_en_curso_vuelve_a_confirmado() -> None:
     viaje = _viaje("en_curso")
-    est.corregir(viaje)
+    est.corregir(viaje, saldo=CERO, plan_balanceado=True)
     assert viaje.estado is V.confirmado
 
 
 def test_rf042_corregir_estado_finalizado_vuelve_a_en_curso() -> None:
     viaje = _viaje("finalizado")
-    est.corregir(viaje, ahora=_AHORA)
+    est.corregir(viaje, saldo=CERO, plan_balanceado=True, ahora=_AHORA)
     assert viaje.estado is V.en_curso
 
 
 @pytest.mark.parametrize("origen", ["reservado", "vendido", "confirmado", "cancelado"])
 def test_rf042_corregir_estado_invalido_desde_otros_estados(origen: str) -> None:
-    _no_cambia(origen, est.corregir)
+    _no_cambia(origen, lambda v: est.corregir(v, saldo=CERO, plan_balanceado=True))
 
 
 def test_rf042_corregir_no_usa_ni_toca_estado_previo() -> None:
     viaje = _viaje("finalizado")
-    est.corregir(viaje, ahora=_AHORA)
+    est.corregir(viaje, saldo=CERO, plan_balanceado=True, ahora=_AHORA)
     assert viaje.estado_previo is None
 
 
 @pytest.mark.parametrize("estado", ["pendiente", "vista"])
 def test_rf042_corregir_finalizado_resuelve_la_alerta_de_resena_sin_atender(estado: str) -> None:
     viaje, alerta = _viaje("finalizado"), _resena(estado)
-    est.corregir(viaje, alertas=[alerta], ahora=_AHORA)
+    est.corregir(viaje, saldo=CERO, plan_balanceado=True, alertas=[alerta], ahora=_AHORA)
     assert alerta.estado is m.EstadoAlerta.resuelta
     assert alerta.resuelta_en == _AHORA
 
@@ -172,20 +172,26 @@ def test_rf042_corregir_finalizado_resuelve_la_alerta_de_resena_sin_atender(esta
 def test_rf042_corregir_finalizado_no_toca_alertas_que_no_son_de_resena() -> None:
     viaje = _viaje("finalizado")
     otra = f.AlertaFactory.build(tipo=m.TipoAlerta.viaje, estado=m.EstadoAlerta.pendiente)
-    est.corregir(viaje, alertas=[otra], ahora=_AHORA)
+    est.corregir(viaje, saldo=CERO, plan_balanceado=True, alertas=[otra], ahora=_AHORA)
     assert otra.estado is m.EstadoAlerta.pendiente
 
 
 def test_rf042_corregir_finalizado_deja_la_alerta_de_resena_ya_resuelta() -> None:
     viaje, alerta = _viaje("finalizado"), _resena("resuelta")
-    est.corregir(viaje, alertas=[alerta], ahora=datetime(2026, 11, 1, tzinfo=UTC))
+    est.corregir(
+        viaje,
+        saldo=CERO,
+        plan_balanceado=True,
+        alertas=[alerta],
+        ahora=datetime(2026, 11, 1, tzinfo=UTC),
+    )
     assert alerta.estado is m.EstadoAlerta.resuelta
     assert alerta.resuelta_en == _AHORA
 
 
 def test_rf042_corregir_en_curso_no_toca_alertas() -> None:
     viaje, alerta = _viaje("en_curso"), _resena("pendiente")
-    est.corregir(viaje, alertas=[alerta], ahora=_AHORA)
+    est.corregir(viaje, saldo=CERO, plan_balanceado=True, alertas=[alerta], ahora=_AHORA)
     assert alerta.estado is m.EstadoAlerta.pendiente
 
 
@@ -267,7 +273,32 @@ def test_rf042_corregir_finalizado_no_toca_la_resena_de_otro_viaje() -> None:
     ajena = f.AlertaFactory.build(
         tipo=m.TipoAlerta.resena, estado=m.EstadoAlerta.pendiente, viaje_id=uuid.uuid4()
     )
-    est.corregir(viaje, alertas=[propia, ajena], ahora=_AHORA)
+    est.corregir(viaje, saldo=CERO, plan_balanceado=True, alertas=[propia, ajena], ahora=_AHORA)
     assert propia.estado is m.EstadoAlerta.resuelta
     assert ajena.estado is m.EstadoAlerta.pendiente
     assert ajena.resuelta_en is None
+
+
+# DEC-0026 punto 4: `saldo` y `plan_balanceado` son obligatorios al iniciar (sin defaults que
+# dejen iniciar sin comprobar el total pagado)
+def test_rf040_iniciar_exige_saldo_y_plan_balanceado() -> None:
+    viaje = _viaje("confirmado")
+    with pytest.raises(TypeError):
+        est.iniciar(viaje)  # type: ignore[call-arg]
+    with pytest.raises(TypeError):
+        est.iniciar(viaje, saldo=CERO)  # type: ignore[call-arg]
+    with pytest.raises(TypeError):
+        est.iniciar(viaje, plan_balanceado=True)  # type: ignore[call-arg]
+    assert viaje.estado is V.confirmado
+
+
+# DEC-0026 (consecuencia de T11): corregir un `en_curso` con deuda nueva lo deja `vendido`
+@pytest.mark.parametrize(
+    ("saldo", "plan_balanceado"), [(Decimal("500000.00"), True), (CERO, False)]
+)
+def test_rf042_corregir_en_curso_con_deuda_vuelve_a_vendido(
+    saldo: Decimal, plan_balanceado: bool
+) -> None:
+    viaje = _viaje("en_curso")
+    est.corregir(viaje, saldo=saldo, plan_balanceado=plan_balanceado)
+    assert viaje.estado is V.vendido

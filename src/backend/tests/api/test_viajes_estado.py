@@ -440,3 +440,53 @@ async def test_rf039_iniciar_con_todo_cobrado_y_plan_balanceado(
 
     assert r.status_code == 200
     assert r.json()["estado"] == "en_curso"
+
+
+# --- DEC-0026: corregir un `en_curso` con deuda nueva (T7) ---------------------------------------
+
+
+async def test_rf042_corregir_en_curso_con_deuda_nueva_vuelve_a_vendido(
+    cliente_como: Fabrica, sesion: AsyncSession
+) -> None:
+    """Confirmado y pagado → iniciar → precio 150 y pago nuevo de 50 (sigue `en_curso`) →
+    corregir deja `vendido`, no `confirmado`; cobrar el de 50 lo pasa a `confirmado`."""
+    c = await cliente_como("empleado")
+    viaje = await _viaje(sesion, _yo(c), m.EstadoViaje.confirmado)  # precio de venta 1.000.000
+    await _cobrado(sesion, viaje.id, "1000000.00")
+    viaje_id = viaje.id
+    assert (await c.post(_url(viaje_id, "iniciar"))).status_code == 200
+    r = await c.put(
+        _url(viaje_id, "economia"), json={"precio_venta": "1500000.00", "costo": "800000.00"}
+    )
+    assert r.status_code == 200
+    r = await c.put(
+        _url(viaje_id, "pagos"),
+        json={"pagos": [{"monto": "500000.00", "tipo": "saldo", "vencimiento": "2027-01-05"}]},
+    )
+    assert r.status_code == 200
+    nuevo = next(p for p in r.json() if p["estado"] == "pendiente")
+    assert await _estado_en_base(sesion, viaje_id) == m.EstadoViaje.en_curso
+
+    r = await c.post(_url(viaje_id, "corregir-estado"))
+
+    assert r.status_code == 200
+    assert r.json()["estado"] == "vendido"
+    assert await _estado_en_base(sesion, viaje_id) == m.EstadoViaje.vendido
+
+    cobro = {"fecha_cobro": "2026-11-20", "forma_pago": "transferencia", "moneda_pago": "ARS"}
+    r = await c.post(f"/api/pagos/{nuevo['id']}/cobrar", json=cobro)
+    assert r.status_code == 200
+    assert await _estado_en_base(sesion, viaje_id) == m.EstadoViaje.confirmado
+
+
+async def test_rf042_corregir_en_curso_sin_deuda_vuelve_a_confirmado(
+    cliente_como: Fabrica, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("empleado")
+    viaje = await _viaje(sesion, _yo(c), m.EstadoViaje.en_curso)  # precio de venta 1.000.000
+    await _cobrado(sesion, viaje.id, "1000000.00")
+
+    r = await c.post(_url(viaje.id, "corregir-estado"))
+
+    assert r.status_code == 200
+    assert r.json()["estado"] == "confirmado"

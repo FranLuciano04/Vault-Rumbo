@@ -883,3 +883,32 @@ async def test_rf055_operador_de_baja_422(cliente_como: Fabrica, sesion: AsyncSe
     assert _campos_con_error(r) == ["operador_id"]
     assert await _viajes_de(sesion, oportunidad_id) == []
     assert await _estado_de(sesion, oportunidad_id) == m.EstadoOportunidad.cotizada
+
+
+async def test_rf061_plan_vacio_422_aun_con_precio_cero(
+    cliente_como: Fabrica, sesion: AsyncSession
+) -> None:
+    """DEC-0026 punto 5: la definición inicial sigue pidiendo al menos un pago, aunque `[]` sume
+    el precio de venta (0)."""
+    c = await cliente_como("empleado")
+    destino = await _destino(sesion)
+    await f.crear(sesion, f.RequisitoDestinoFactory, destino_id=destino.id)
+    oportunidad = await _oportunidad(sesion, _yo(c))
+    oportunidad_id = oportunidad.id
+    viajes, pagos = await _total_de_viajes(sesion), await _total_de_pagos(sesion)
+
+    r = await c.post(
+        _url(oportunidad_id),
+        json=_cuerpo(
+            destino.id,
+            economia={"precio_venta": "0.00", "costo": "0.00"},
+            plan_de_pagos={"pagos": []},
+        ),
+    )
+
+    assert r.status_code == 422
+    assert r.headers["content-type"].startswith(PROBLEM_JSON)
+    assert await _viajes_de(sesion, oportunidad_id) == []
+    assert await _total_de_viajes(sesion) == viajes
+    assert await _total_de_pagos(sesion) == pagos
+    assert await _estado_de(sesion, oportunidad_id) == m.EstadoOportunidad.cotizada

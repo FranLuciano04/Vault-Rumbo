@@ -66,7 +66,7 @@ def al_cambiar_el_plan(viaje: Viaje, *, saldo: Decimal, plan_balanceado: bool) -
         viaje.estado = EstadoViaje.confirmado
 
 
-def iniciar(viaje: Viaje, *, saldo: Decimal = Decimal(0), plan_balanceado: bool = True) -> None:
+def iniciar(viaje: Viaje, *, saldo: Decimal, plan_balanceado: bool) -> None:
     """T4: `confirmado` → `en_curso`. La secuencia es estricta: sin el total pagado no inicia;
     con `saldo` pendiente o el plan descalzado del precio, tampoco (DEC-0026 punto 4)."""
     _exigir(viaje, EstadoViaje.confirmado, accion="iniciar")
@@ -84,13 +84,22 @@ def finalizar(viaje: Viaje) -> None:
 
 
 def corregir(
-    viaje: Viaje, *, alertas: Iterable[Alerta] = (), ahora: datetime | None = None
+    viaje: Viaje,
+    *,
+    saldo: Decimal,
+    plan_balanceado: bool,
+    alertas: Iterable[Alerta] = (),
+    ahora: datetime | None = None,
 ) -> None:
-    """T7: `en_curso` → `confirmado`, `finalizado` → `en_curso`. Al deshacer `finalizado`
-    resuelve las alertas de reseña sin atender de este viaje entre `alertas` (DEC-0021)."""
+    """T7: `en_curso` → `confirmado`, `finalizado` → `en_curso`. Un `en_curso` con deuda nueva
+    (`saldo` pendiente o el plan descalzado del precio) vuelve a `vendido`, no a `confirmado`:
+    es la consecuencia de T11 (DEC-0026), así queda cobrable o rebalanceable en vez de trabado.
+    Al deshacer `finalizado` resuelve las alertas de reseña sin atender de este viaje entre
+    `alertas` (DEC-0021)."""
     _exigir(viaje, EstadoViaje.en_curso, EstadoViaje.finalizado, accion="corregir")
     if viaje.estado is EstadoViaje.en_curso:
-        viaje.estado = EstadoViaje.confirmado
+        saldado = saldo == 0 and plan_balanceado
+        viaje.estado = EstadoViaje.confirmado if saldado else EstadoViaje.vendido
         return
     viaje.estado = EstadoViaje.en_curso
     resuelta_en = ahora or datetime.now(UTC)

@@ -156,9 +156,9 @@ def _llevar_al_estado(
     saldo = _PRECIO - cobrado
     estado_viaje.al_registrar_cobro(viaje, saldo=saldo)
     if estado == "en_curso":
-        estado_viaje.iniciar(viaje)
+        estado_viaje.iniciar(viaje, saldo=saldo, plan_balanceado=True)
     elif estado == "finalizado":
-        estado_viaje.iniciar(viaje)
+        estado_viaje.iniciar(viaje, saldo=saldo, plan_balanceado=True)
         estado_viaje.finalizar(viaje)
     elif estado == "cancelado":
         estado_viaje.cancelar(viaje, motivo="Cancelado por el cliente (demo)", fecha=hoy())
