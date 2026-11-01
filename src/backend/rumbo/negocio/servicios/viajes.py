@@ -236,9 +236,15 @@ async def obtener(sesion: AsyncSession, actor: Usuario, viaje_id: uuid.UUID) -> 
 
 async def iniciar(sesion: AsyncSession, actor: Usuario, viaje_id: uuid.UUID) -> FichaViaje:
     """El empleado confirma que el viaje empezó: `confirmado` → `en_curso` (T4, RF-039). Desde
-    otro estado es `TransicionInvalida`. Escribe el responsable, admin o dueño (DEC-0005)."""
+    otro estado, con saldo pendiente o con el plan descalzado del precio es
+    `TransicionInvalida` (DEC-0026 punto 4). Escribe el responsable, admin o dueño (DEC-0005)."""
     viaje = await _viaje_a_cambiar(sesion, actor, viaje_id)
-    estado_viaje.iniciar(viaje)
+    pagos = await _pagos.listar_de_viaje(sesion, viaje.id, visibilidad=visibilidad(actor))
+    estado_viaje.iniciar(
+        viaje,
+        saldo=calculos.saldo_pendiente(pagos),
+        plan_balanceado=not calculos.plan_desbalanceado(viaje.precio_venta, pagos),
+    )
     return await _guardar(sesion, actor, viaje)
 
 

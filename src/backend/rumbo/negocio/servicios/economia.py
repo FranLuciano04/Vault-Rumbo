@@ -73,16 +73,19 @@ async def registrar_economia(
     RF-059). Ganancia y margen los calcula la base. Sin comisión enviada, toma la del vendedor
     (RN-01); sin vendedor, la comisión es cero (A2). Ganancia o margen negativos (A3) y un plan
     de pagos que ya no suma el precio (A4) se guardan igual y vuelven como advertencias: los
-    pagos se rebalancean aparte (CU-11). Escribe el responsable, admin o dueño (DEC-0005)."""
+    pagos se rebalancean aparte (CU-11). El estado del viaje se reconcilia con su deuda
+    (DEC-0026, T11 y T3). Todo en la transacción del pedido, con el viaje bloqueado. Escribe el
+    responsable, admin o dueño (DEC-0005)."""
     viaje = await _viajes.obtener_para_modificar(sesion, viaje_id, visibilidad=visibilidad(actor))
     exigir_escritura(actor, viaje)
     if viaje.estado in _CERRADOS:
         raise Conflicto(f"No se edita la economía de un viaje {viaje.estado.value}.")
     await aplicar_economia(sesion, actor, viaje, datos)
+    pagos = await _pagos.listar_de_viaje(sesion, viaje.id, visibilidad=visibilidad(actor))
+    _reconciliar_estado(viaje, pagos)
     await sesion.flush()
     await sesion.refresh(viaje)  # ganancia y margen son columnas generadas
 
-    pagos = await _pagos.listar_de_viaje(sesion, viaje.id, visibilidad=visibilidad(actor))
     return ResultadoEconomia(
         viaje=viaje,
         saldo_pendiente=calculos.saldo_pendiente(pagos),
@@ -132,7 +135,9 @@ async def definir_plan_de_pagos(
     cobrados se anulan y cierran su alerta; los cobrados quedan como están (A5). Los nuevos
     nacen `pendiente`, cada uno con su alerta `pago` en la agenda del responsable, un mes antes
     del vencimiento. Cobrados más nuevos tienen que sumar el precio de venta (A1); un solo pago
-    es válido (A2). Escribe el responsable, admin o dueño (DEC-0005)."""
+    es válido (A2) y, si lo cobrado ya suma el precio, ninguno (DEC-0026 punto 5). El estado
+    del viaje se reconcilia con su deuda (DEC-0026, T11 y T3). Todo en la transacción del
+    pedido, con el viaje bloqueado. Escribe el responsable, admin o dueño (DEC-0005)."""
     viaje = await _viajes.obtener_para_modificar(sesion, viaje_id, visibilidad=visibilidad(actor))
     exigir_escritura(actor, viaje)
     if viaje.estado in _CERRADOS:
@@ -146,7 +151,10 @@ async def definir_plan_de_pagos(
         estado_pago.anular(reemplazado)
         await alertas.resolver_de_origen(sesion, reemplazado, (TipoAlerta.pago,))
     await agendar_pagos(sesion, viaje, await _responsable(sesion, actor, viaje), items)
-    return await _plan(sesion, actor, viaje)
+    plan = await _plan(sesion, actor, viaje)
+    _reconciliar_estado(viaje, plan)
+    await sesion.flush()
+    return plan
 
 
 def exigir_plan_valido(viaje: Viaje, cobrados: list[Pago], items: list[dict[str, Any]]) -> None:
@@ -310,6 +318,16 @@ async def revertir_cobro(sesion: AsyncSession, actor: Usuario, pago_id: uuid.UUI
     await sesion.flush()
     await sesion.refresh(pago)
     return pago
+
+
+def _reconciliar_estado(viaje: Viaje, pagos: list[Pago]) -> None:
+    """Lleva el viaje al estado que corresponde a su deuda tras cambiar precio o plan (DEC-0026
+    puntos 2 y 3)."""
+    estado_viaje.al_cambiar_el_plan(
+        viaje,
+        saldo=calculos.saldo_pendiente(pagos),
+        plan_balanceado=not calculos.plan_desbalanceado(viaje.precio_venta, pagos),
+    )
 
 
 def _tipo_cambio(

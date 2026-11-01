@@ -53,9 +53,27 @@ def al_revertir_cobro(viaje: Viaje, *, saldo: Decimal, quedan_cobros: bool) -> N
         viaje.estado = EstadoViaje.reservado
 
 
-def iniciar(viaje: Viaje) -> None:
-    """T4: `confirmado` → `en_curso`. La secuencia es estricta: sin el total pagado no inicia."""
+def al_cambiar_el_plan(viaje: Viaje, *, saldo: Decimal, plan_balanceado: bool) -> None:
+    """Reconcilia el estado con la deuda después de editar la economía o rebalancear el plan,
+    en la misma transacción (DEC-0026 puntos 2 y 3). T11: un `confirmado` que queda con `saldo`
+    pendiente vuelve a `vendido`; cobrar esa deuda lo devuelve a `confirmado` por T3. T3: un
+    `vendido` con `saldo` cero y el plan balanceado pasa a `confirmado`, como si lo hubiera
+    saldado un cobro. Los demás estados no cambian: `reservado` todavía no cobró y desde
+    `en_curso` no se retrocede (DEC-0026 punto 4)."""
+    if viaje.estado is EstadoViaje.confirmado and saldo > 0:
+        viaje.estado = EstadoViaje.vendido
+    elif viaje.estado is EstadoViaje.vendido and saldo == 0 and plan_balanceado:
+        viaje.estado = EstadoViaje.confirmado
+
+
+def iniciar(viaje: Viaje, *, saldo: Decimal = Decimal(0), plan_balanceado: bool = True) -> None:
+    """T4: `confirmado` → `en_curso`. La secuencia es estricta: sin el total pagado no inicia;
+    con `saldo` pendiente o el plan descalzado del precio, tampoco (DEC-0026 punto 4)."""
     _exigir(viaje, EstadoViaje.confirmado, accion="iniciar")
+    if saldo != 0 or not plan_balanceado:
+        raise TransicionInvalida(
+            "No se puede iniciar un viaje sin el total pagado y el plan balanceado."
+        )
     viaje.estado = EstadoViaje.en_curso
 
 
