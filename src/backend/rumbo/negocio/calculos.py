@@ -4,7 +4,7 @@ CU-12). Ganancia y margen no están acá: son columnas generadas de la base."""
 from collections.abc import Iterable
 from decimal import ROUND_DOWN, ROUND_HALF_UP, Decimal
 
-from rumbo.datos.modelos import EstadoPago, Pago, TipoComision
+from rumbo.datos.modelos import EstadoPago, Moneda, Pago, TipoComision
 
 _FRACCION = Decimal("0.0001")
 _CENTAVO = Decimal("0.01")
@@ -32,12 +32,19 @@ def porcentaje_pagado(precio_venta: Decimal, pagos: Iterable[Pago]) -> Decimal:
     return min(cobrado / precio_venta, Decimal(1)).quantize(_FRACCION, rounding=ROUND_DOWN)
 
 
-def monto_cobrado(monto: Decimal, tipo_cambio: Decimal | None) -> Decimal:
+def monto_cobrado(
+    monto: Decimal, tipo_cambio: Decimal | None, *, moneda_viaje: Moneda, moneda_pago: Moneda
+) -> Decimal:
     """Importe real recibido por un pago cobrado entero (RF-072): el `monto` planificado o, en
-    otra moneda, su equivalencia por el tipo de cambio, redondeada al centavo (RF-068)."""
-    if tipo_cambio is None:
+    otra moneda, su equivalencia redondeada al centavo (RF-068). `tipo_cambio` son siempre
+    pesos por dólar (DEC-0026): de ARS a USD se divide y de USD a ARS se multiplica."""
+    if moneda_pago is moneda_viaje or tipo_cambio is None:
         return monto
-    return (monto * tipo_cambio).quantize(_CENTAVO, rounding=ROUND_HALF_UP)
+    if moneda_pago is Moneda.USD:
+        equivalencia = monto / tipo_cambio
+    else:
+        equivalencia = monto * tipo_cambio
+    return equivalencia.quantize(_CENTAVO, rounding=ROUND_HALF_UP)
 
 
 def comision_del_vendedor(tipo: TipoComision, valor: Decimal, ganancia: Decimal) -> Decimal:
