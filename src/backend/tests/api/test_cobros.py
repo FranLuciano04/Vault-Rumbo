@@ -224,9 +224,7 @@ async def test_rf068_viaje_ars_cobrado_en_usd_fuera_de_rango_422(
     pago = await _pago(sesion, viaje.id, "99999999999.99", tipo=m.TipoPago.saldo)
 
     # 99.999.999.999,99 ARS / 0,0001 = ~1e15 USD: no entra en numeric(14,2)
-    r = await c.post(
-        _url(pago.id), json={**COBRO, "moneda_pago": "USD", "tipo_cambio": "0.0001"}
-    )
+    r = await c.post(_url(pago.id), json={**COBRO, "moneda_pago": "USD", "tipo_cambio": "0.0001"})
 
     assert r.status_code == 422
     assert "tipo_cambio" in r.text
