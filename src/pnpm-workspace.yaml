@@ -32,6 +32,10 @@ overrides:
   "@grpc/grpc-js": "^1.13.6"
   # GHSA-xjj6-f33q-929c (alta, con parche): undici >=8.0.0 <8.12.2 llega por jsdom (apps__web y vitest), que solo corre en los tests.
   undici: "^8.12.2"
+  # GHSA-5x38-2vff-x55p, GHSA-hqq3-7jhf-c5jx y otras (alta, con parche): node-forge <= 1.4.0 llega por el CLI de Expo (apps__mobile).
+  node-forge: "^1.4.1"
+  # GHSA-mrwp-f3q8-3g9p (alta, con parche): follow-redirects >=1.16.0 <=1.16.1 llega por axios.
+  follow-redirects: "^1.16.2"
 audit:
   ignore:
     # GHSA-86w9-cpqp-85rv (alta, sin parche en ninguna versión): node-forge entra por el CLI de Expo,
