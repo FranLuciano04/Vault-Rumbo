@@ -61,11 +61,11 @@ No se reporta cancelar desde `en_curso`: CU-27 A4 lo permite expresamente. Las a
 
 ## Triage de Claude
 
-Verificado por Claude el 01/11/26 contra `main` (posterior a `faae626`). Los cinco hallazgos se confirman en el código vigente. H-01 y H-02 piden una definición de negocio antes de arreglarse: las propuestas de abajo quedan **pendientes de aprobación** (`#accion/decidir`).
+Verificado por Claude el 01/11/26 contra `main` (posterior a `faae626`). Los cinco hallazgos se confirman en el código vigente. H-01 y H-02 pedían una definición de negocio: Nahuel eligió las dos propuestas el 01/11/26 y quedaron en [[DEC-0026 Tipo de cambio y deuda nueva en un viaje confirmado|DEC-0026]] (en revisión hasta que la ratifique el equipo).
 
 ### H-01 · Confirmado (bloqueante)
 `calculos.monto_cobrado` (`src/backend/rumbo/negocio/calculos.py:35`) siempre hace `monto × tipo_cambio`; `CobroDePago.tsx:23` divide cuando el cobro es en USD y el viaje en ARS. El contrato (`CobroRegistrar.tipo_cambio`) no dice en qué sentido se cotiza. Con viaje ARS 100000, cobro USD y tipo 1000, la API guarda USD 100000000.
-- **Propuesta (pendiente):** `tipo_cambio` son siempre **pesos por dólar** (ARS por USD), como la cotización del día que usa la agencia y como ya asume la web. Va a una `DEC-` y a la descripción del campo en el contrato.
+- **Definición (DEC-0026):** `tipo_cambio` son siempre **pesos por dólar** (ARS por USD), como la cotización del día que usa la agencia y como ya asume la web. Va a una `DEC-` y a la descripción del campo en el contrato.
 - **Alcance:**
   1. Viaje ARS, pago `100000.00`, cobro en USD con `tipo_cambio = 1000` → `monto_cobrado = 100.00`.
   2. Viaje USD, pago `100.00`, cobro en ARS con `tipo_cambio = 1000` → `monto_cobrado = 100000.00`.
@@ -75,7 +75,7 @@ Verificado por Claude el 01/11/26 contra `main` (posterior a `faae626`). Los cin
 
 ### H-02 · Confirmado (bloqueante)
 `registrar_economia` y `definir_plan_de_pagos` (`src/backend/rumbo/negocio/servicios/economia.py`) admiten un viaje `confirmado` y no tocan su estado; `al_registrar_cobro` (`estados/viaje.py:30`) exige `reservado` o `vendido`, e `iniciar` solo mira el estado. Aumentar el precio de un `confirmado` y rebalancear deja una deuda que da 409 al cobrarla, y el viaje puede iniciarse sin el total pagado.
-- **Propuesta (pendiente):** EST-Viaje no tiene una transición para esto. Se propone una nueva **T11 `confirmado → vendido` (automática)**: cuando el plan de pagos o la economía de un `confirmado` dejan saldo, el viaje vuelve a `vendido` en la misma transacción; y su contracara: al rebalancear un `vendido` con saldo cero y plan balanceado, pasa a `confirmado` (T3). Además, `iniciar` exige saldo cero y plan balanceado. Desde `en_curso` no se retrocede: ahí la deuda nueva se cobra con el viaje `en_curso` (también a decidir). Requiere `DEC-` y actualizar EST-Viaje.
+- **Definición (DEC-0026):** EST-Viaje no tiene una transición para esto. Se propone una nueva **T11 `confirmado → vendido` (automática)**: cuando el plan de pagos o la economía de un `confirmado` dejan saldo, el viaje vuelve a `vendido` en la misma transacción; y su contracara: al rebalancear un `vendido` con saldo cero y plan balanceado, pasa a `confirmado` (T3). Además, `iniciar` exige saldo cero y plan balanceado. Desde `en_curso` no se retrocede: ahí la deuda nueva se cobra con el viaje `en_curso` (también a decidir). Requiere `DEC-` y actualizar EST-Viaje.
 - **Alcance:**
   1. Viaje `confirmado` (precio 100, cobrado 100) → precio 150 y rebalanceo con un pago de 50 → el viaje queda `vendido`.
   2. Sobre ese viaje, cobrar el pago de 50 → 200 y el viaje pasa a `confirmado`.

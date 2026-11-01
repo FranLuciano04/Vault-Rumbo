@@ -56,6 +56,8 @@ El diagrama de abajo se dibujó el 21/09/26 siguiendo estas convenciones, comune
 | T9 | `cancelado` | *el estado que tenía justo antes de cancelarse* | **Reversión de la cancelación** (fue un error) | empleado | [[CU-27 Cancelar viaje]] A3 | El viaje **no** está `finalizado` | Se reponen sus [[Pago|Pagos]] (a `pendiente` o `vencido` según su fecha), se reabren **solo las [[Alerta|Alertas]] que cerró la cancelación** y la comisión **vuelve a quedar proyectada** (sync 29/09). Se marca con `↺` en el diagrama (corrección) |
 | T10 | `vendido` | `reservado` | **Reversión del primer cobro** (el único cobro del viaje se había registrado por error) | empleado | [[CU-12 Registrar cobro de un pago]] A3 | No queda ningún otro [[Pago]] cobrado en el viaje | El [[Pago]] vuelve a `pendiente`/`vencido` y su [[Alerta]] se reabre. Caso simétrico de T8, agregado en la sync del 29/09. Se marca con `↺` en el diagrama (corrección) |
 
+> [!warning] En revisión: [[DEC-0026 Tipo de cambio y deuda nueva en un viaje confirmado|DEC-0026]] (01/11/26) propone una **T11 `confirmado → vendido`** automática cuando la economía o el plan dejan saldo, que T3 también la dispare el rebalanceo y que T4 exija el total pagado.
+
 ## Invariantes y reglas
 
 - **`confirmado` es económico, no operativo.** Significa "total pagado" y **no** debe confundirse con el acto de confirmar la reserva, que es [[CU-07 Confirmar reserva]] y produce `reservado` ([[CU-07 Confirmar reserva]], nota de la descripción).

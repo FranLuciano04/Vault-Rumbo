@@ -26,6 +26,7 @@ Marcar un [[Pago]] como cobrado y actualizar el estado económico del [[Viaje]].
 ## Flujo principal
 1. El empleado abre el [[Viaje]] y ubica el [[Pago]] a cobrar.
 2. Registra el cobro: **fecha efectiva** (`dd/mm/aa`), **forma de pago** (`forma_pago`: efectivo · transferencia —incluye billeteras virtuales— · tarjeta de crédito · tarjeta de débito · cheque · depósito) y la **moneda real** del cobro (`moneda_pago`: ARS / USD). Si `moneda_pago` **difiere** de la moneda de referencia del [[Viaje]], carga el **tipo de cambio** (`tipo_cambio`) del día; el sistema calcula el `monto_cobrado` real.
+   > [!note] En revisión ([[DEC-0026 Tipo de cambio y deuda nueva en un viaje confirmado|DEC-0026]], 01/11/26): el `tipo_cambio` se carga siempre en **pesos por dólar**.
 3. El sistema cambia el estado del [[Pago]] a `pagado`.
 4. El sistema resuelve la [[Alerta]] de vencimiento asociada a ese [[Pago]].
 5. El sistema actualiza el saldo pendiente del [[Viaje]] (suma de los `monto` planificados de los [[Pago|Pagos]] no cobrados, en la moneda de referencia) y el **porcentaje pagado** del total, y refleja el **checklist de pagos** (pagas / por pagar). Ver [[Alcance y fuera de alcance]] (Economía: checklist y % pagado).

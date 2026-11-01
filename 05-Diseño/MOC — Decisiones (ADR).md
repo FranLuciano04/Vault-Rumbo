@@ -36,6 +36,7 @@ tags:: #tipo/modulo #estado/formalizado
 - [[DEC-0023 Datos mínimos de la consulta]] (formalizada el 28/10/26): destino y pasajeros son opcionales al registrar una consulta, para que el contrato coincida con CU-04 A3 y RF-013 (mínimo: cliente y canal).
 - [[DEC-0024 Reglas del dashboard, calendario y criterios de M6]] (formalizada el 30/10/26): pendiente de cobrar como foto del momento, comisión porcentual en 0 sin ganancia, comisiones por vendedor, freelance con su visibilidad en el dashboard, alertas en el calendario, catálogo de reportes de CU-22 y criterios de revertir cobros.
 - [[DEC-0025 Pagos anulados por la cancelación]] (formalizada el 30/10/26): `Pago.anulado_por_cancelacion` marca los pagos que anuló la cancelación, y revertirla restaura solo esos (CU-27 A3).
+- [[DEC-0026 Tipo de cambio y deuda nueva en un viaje confirmado]] (en revisión, 01/11/26): el tipo de cambio son pesos por dólar; un `confirmado` que vuelve a deber pasa a `vendido` (T11), el rebalanceo también confirma y para iniciar hace falta el total pagado.
 
 ## Todas (Dataview)
 ```dataview
