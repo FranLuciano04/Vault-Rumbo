@@ -7,7 +7,8 @@ comportamiento. Supuestos que fijan estos tests y que el ticket no dice de forma
   `monto_cobrado` y `fecha_cobro`.
 - `monto_cobrado` = `monto` si `moneda_pago` es la del viaje; si difiere, `tipo_cambio` son
   pesos por dólar (DEC-0026): viaje USD cobrado en ARS = `monto x tipo_cambio`; viaje ARS cobrado
-  en USD = `monto / tipo_cambio` (modelo de `Pago`, DEC-0013). Con la misma moneda `tipo_cambio` queda en null aunque se envíe.
+  en USD = `monto / tipo_cambio` (modelo de `Pago`, DEC-0013). Con la misma moneda
+  `tipo_cambio` queda en null aunque se envíe.
 - "Importe completo" (RF-072): el cobro no admite un monto; el servidor cobra el `monto`
   planificado entero. Un cuerpo con `monto_cobrado` no puede dejar un cobro parcial.
 - La API todavía no expone el saldo (`GET /viajes/{id}` es un stub): el saldo y el porcentaje se
