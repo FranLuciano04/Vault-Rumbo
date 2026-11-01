@@ -113,6 +113,6 @@ Verificado por Claude el 01/11/26 contra `main` (posterior a `faae626`). Los cin
 | Rama | Hallazgos | Review |
 |---|---|---|
 | `fix/M6-tipo-de-cambio` | H-01 | `reviewer-seguridad` (dinero) + aprobación de otro integrante · PR [#170](https://github.com/FranLuciano04/Vault-Rumbo/pull/170), abierto el 01/11/26 |
-| `fix/M6-estado-con-deuda-nueva` | H-02, H-04 | `reviewer-seguridad` (dinero y estados) + aprobación de otro integrante |
+| `fix/M6-estado-con-deuda-nueva` | H-02, H-04 | `reviewer-seguridad` (dinero y estados) + aprobación de otro integrante · PR [#172](https://github.com/FranLuciano04/Vault-Rumbo/pull/172), abierto el 01/11/26. La review sumó: T7 con deuda vuelve a `vendido`; la deuda de un `en_curso` sigue sin camino de cobro (a decidir al ratificar DEC-0026) |
 | `fix/M6-cobro-del-freelance` | H-03 | `reviewer-seguridad` (permisos) + aprobación de otro integrante |
 | `fix/M6-buscar-hotel-por-nombre` | H-05 | `reviewer-ticket` |
