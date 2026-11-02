@@ -33,6 +33,11 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
+## 02/11/26 — Nahuel (Claude Opus 5.5) — M6: PR de los hallazgos de Codex mergeados
+- **Hecho:** Paloma aprobó y mergeó #170, #172 y #173. Se verificó `main` con los tres juntos: el contrato está sincronizado con la API; pasan 486 tests de backend (cobros, plan, economía, estados, reserva, contrato M6 y hoteles) y 208 de viajes en la web; ruff, mypy y tsc limpios. Se borraron las ramas `fix/M6-*`. Los cinco hallazgos de Codex quedaron arreglados.
+- **Commits:** ver este commit.
+- **Pendiente:** aprobación humana del módulo para el tag `mod-6`; ratificar DEC-0026 con sus dos puntos abiertos (deuda de un `en_curso`; corregir con saldo cero y plan descalzado) y redibujar EST-Viaje.
+
 ## 01/11/26 — Nahuel (Claude Opus 5.5) — `/cerrar-modulo M6`: triage de Codex y arreglos
 - **Hecho:**
   - Triage de la review de Codex de M6: se confirmaron los 5 hallazgos ([[M6 — review Codex]]). Nahuel definió el tipo de cambio en pesos por dólar y la T11 `confirmado → vendido`; quedaron en [[DEC-0026 Tipo de cambio y deuda nueva en un viaje confirmado|DEC-0026]], en revisión.
