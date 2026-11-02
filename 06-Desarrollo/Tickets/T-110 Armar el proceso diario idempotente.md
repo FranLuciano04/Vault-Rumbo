@@ -3,7 +3,7 @@ id: T-110
 titulo: Armar el proceso diario idempotente
 modulo: M7 — Proceso diario y CRM proactivo
 capa: backend
-estado: tomado
+estado: hecho
 depende_de: [T-006, T-011, T-051]
 tamaño: S
 riesgo: alto
@@ -46,4 +46,8 @@ tags:: #tipo/ticket
 - Los pasos concretos (tickets siguientes) y el cron (ticket de infra).
 
 ## Notas de implementación
+- **Contrato** (lo fijó el rojo; el ticket no daba firmas): `proceso_diario.Paso(nombre, ejecutar)` con `ejecutar(sesion, fecha) -> str | None`, registro `PASOS` (vacío: los pasos llegan en los tickets siguientes) y `correr(fabrica_sesiones, fecha, pasos=None) -> list[ResultadoPaso]`. `jobs/diario.py` valida `--fecha dd/mm/aa` (o usa `fechas.hoy()`), corre y sale con 0 o 1.
+- **Review de seguridad (Sonnet):** 0 bloqueantes, 3 importantes y 2 menores. Arreglados: auditoría sin autor fijada en `correr()` aunque el caller tenga un usuario; falla aislada también al abrir la sesión o si falla el rollback; `detalle` guarda solo el tipo de error (el texto de SQLAlchemy puede traer datos de clientes); `--fecha` se valida antes de leer la configuración. Con autorización se agregaron 5 tests y se ajustó uno que leía el texto del error en el mensaje del log (`--tocar-tests`).
+- **Pendiente para el primer paso real de M7:** registrar los pasos de forma explícita en `PASOS` (no por efecto de importación) y evaluar un `pg_advisory_lock` en `correr()` contra corridas solapadas del cron.
+- **Modelos:** tests Sonnet, implementación y refactor Opus (el refactor no cambió nada), review Sonnet. Sin escalados.
 - **De la review de T-052 (25/10/26):** la `descripcion` de una alerta no pasa por el filtro de visibilidad. Si se reasigna un cliente o un viaje, el contexto deja de mostrarle esos datos al freelance, pero el texto le sigue llegando. Por eso las alertas que se generan solas no ponen en la `descripcion` datos del origen, como el nombre del cliente o un monto: esos datos ya van en `contexto`. También se puede hacer que, al reasignar, se muevan las alertas abiertas.
