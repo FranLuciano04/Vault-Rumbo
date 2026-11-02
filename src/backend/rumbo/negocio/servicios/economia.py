@@ -274,7 +274,9 @@ async def registrar_cobro(
     exigir_escritura(actor, viaje)
     await sesion.refresh(pago)  # releído con el viaje ya bloqueado: dos cobros no se pisan
     tipo_cambio = _tipo_cambio(viaje.moneda, datos["moneda_pago"], datos.get("tipo_cambio"))
-    monto_cobrado = _monto_cobrado(pago.monto, tipo_cambio)
+    monto_cobrado = _monto_cobrado(
+        pago.monto, tipo_cambio, moneda_viaje=viaje.moneda, moneda_pago=Moneda(datos["moneda_pago"])
+    )
 
     estado_pago.cobrar(pago)
     pago.forma_pago = datos["forma_pago"]
@@ -344,10 +346,14 @@ def _tipo_cambio(
     return tipo_cambio
 
 
-def _monto_cobrado(monto: Decimal, tipo_cambio: Decimal | None) -> Decimal:
+def _monto_cobrado(
+    monto: Decimal, tipo_cambio: Decimal | None, *, moneda_viaje: Moneda, moneda_pago: Moneda
+) -> Decimal:
     """La equivalencia del cobro tiene que ser mayor a cero y caber en la columna; si no, el
     tipo de cambio enviado no sirve (RF-068)."""
-    monto_cobrado = calculos.monto_cobrado(monto, tipo_cambio)
+    monto_cobrado = calculos.monto_cobrado(
+        monto, tipo_cambio, moneda_viaje=moneda_viaje, moneda_pago=moneda_pago
+    )
     if not 0 < monto_cobrado <= _IMPORTE_MAXIMO:
         raise DatosInvalidos(
             "tipo_cambio",

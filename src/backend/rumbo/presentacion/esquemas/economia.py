@@ -72,7 +72,9 @@ class Pago(Auditoria):
     moneda_pago: Moneda | None = Field(json_schema_extra=_SOLO_LECTURA)
     tipo_cambio: TipoCambio | None = Field(
         json_schema_extra=_SOLO_LECTURA,
-        description="Si la moneda del cobro difiere de la del viaje.",
+        description=(
+            "Pesos por dólar (ARS por USD), si la moneda del cobro difiere de la del viaje."
+        ),
     )
     monto_cobrado: Importe | None = Field(
         json_schema_extra=_SOLO_LECTURA, description="Importe real recibido, en moneda_pago."
@@ -102,5 +104,9 @@ class CobroRegistrar(Entrada):
     forma_pago: FormaPago
     moneda_pago: Moneda
     tipo_cambio: TipoCambio | None = Field(
-        default=None, description="Obligatorio si moneda_pago difiere de la moneda del viaje."
+        default=None,
+        description=(
+            "Pesos por dólar (ARS por USD). Obligatorio si moneda_pago difiere de la moneda "
+            "del viaje."
+        ),
     )

@@ -2133,7 +2133,7 @@ export interface components {
             moneda_pago: components["schemas"]["Moneda"];
             /**
              * Tipo Cambio
-             * @description Obligatorio si moneda_pago difiere de la moneda del viaje.
+             * @description Pesos por dólar (ARS por USD). Obligatorio si moneda_pago difiere de la moneda del viaje.
              */
             tipo_cambio?: string | null;
         };
@@ -3159,7 +3159,7 @@ export interface components {
             readonly moneda_pago: components["schemas"]["Moneda"] | null;
             /**
              * Tipo Cambio
-             * @description Si la moneda del cobro difiere de la del viaje.
+             * @description Pesos por dólar (ARS por USD), si la moneda del cobro difiere de la del viaje.
              */
             readonly tipo_cambio: string | null;
             /**

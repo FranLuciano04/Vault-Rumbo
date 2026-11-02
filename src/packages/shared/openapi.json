@@ -9850,7 +9850,7 @@
               }
             ],
             "title": "Tipo Cambio",
-            "description": "Obligatorio si moneda_pago difiere de la moneda del viaje."
+            "description": "Pesos por dólar (ARS por USD). Obligatorio si moneda_pago difiere de la moneda del viaje."
           }
         },
         "type": "object",
@@ -12449,7 +12449,7 @@
                   }
                 ],
                 "title": "Tipo Cambio",
-                "description": "Si la moneda del cobro difiere de la del viaje.",
+                "description": "Pesos por dólar (ARS por USD), si la moneda del cobro difiere de la del viaje.",
                 "readOnly": true
               },
               "monto_cobrado": {
