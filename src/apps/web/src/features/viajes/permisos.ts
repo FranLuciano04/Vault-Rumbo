@@ -4,7 +4,10 @@ import type { UsuarioActual, Viaje } from "@rumbo/shared";
 export const puedeEscribirViaje = (usuario: UsuarioActual, viaje: Viaje) =>
   usuario.rol === "admin" || usuario.rol === "dueno" || usuario.id === viaje.responsable_id;
 
-/** Un viaje finalizado o cancelado ya no se edita. */
+/**
+ * Un viaje finalizado o cancelado ya no se edita. Es más estricta que la API a propósito (H-03): la API
+ * admite tocar el itinerario de un finalizado y registrar o revertir cobros en viajes cerrados.
+ */
 export const viajeEditable = (viaje: Viaje) =>
   viaje.estado !== "finalizado" && viaje.estado !== "cancelado";
 
