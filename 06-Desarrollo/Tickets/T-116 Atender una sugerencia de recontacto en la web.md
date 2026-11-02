@@ -3,7 +3,7 @@ id: T-116
 titulo: Atender una sugerencia de recontacto en la web
 modulo: M7 — Proceso diario y CRM proactivo
 capa: web
-estado: libre
+estado: tomado
 depende_de: [T-055, T-069]
 tamaño: S
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [CU-30, RF-028, RF-029, RF-030]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: Nahuel Viniegra
+tomado_el: 02/11/26 17:24
+rama: feature/T-116-atender-una-sugerencia-de-recontacto-en
 pr:
 ---
 # T-116 Atender una sugerencia de recontacto en la web
