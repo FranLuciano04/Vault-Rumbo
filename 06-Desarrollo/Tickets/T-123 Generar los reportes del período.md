@@ -3,7 +3,7 @@ id: T-123
 titulo: Generar los reportes del período
 modulo: M8 — Calendario, dashboard y reportes
 capa: backend
-estado: libre
+estado: tomado
 depende_de: [T-119, T-121]
 tamaño: M
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [CU-22, RF-131, RF-132, RF-134, RF-135]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: Nahuel Viniegra
+tomado_el: 02/11/26 19:34
+rama: feature/T-123-generar-los-reportes-del-periodo
 pr:
 ---
 # T-123 Generar los reportes del período
