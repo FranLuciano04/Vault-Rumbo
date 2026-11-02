@@ -1,8 +1,9 @@
-"""T-123: catálogo y generación de reportes del período en JSON (CU-22; RF-131, RF-132, RF-134, RF-135).
+"""T-123: catálogo y generación de reportes del período en JSON.
 
-El contrato (rutas, parámetros, roles) lo cubre `test_contrato_m8.py`; acá se fija el comportamiento.
-El contrato fija la forma genérica (`columnas` + `filas` de dicts por `clave`), no las claves de cada
-reporte ni cómo se informan las monedas. Supuestos que fijan estos tests y que el ticket no dice:
+CU-22; RF-131, RF-132, RF-134, RF-135. El contrato (rutas, parámetros, roles) lo cubre
+`test_contrato_m8.py`; acá se fija el comportamiento. El contrato fija la forma genérica
+(`columnas` + `filas` de dicts por `clave`), no las claves de cada reporte ni cómo se informan
+las monedas. Supuestos que fijan estos tests y que el ticket no dice:
 
 - Catálogo: los diez ids de DEC-0024 punto 10, en ese orden, cada uno con nombre y descripción.
 - Las monedas van en columnas separadas con sufijo (`ventas_ars`, `ventas_usd`): una columna
@@ -13,9 +14,9 @@ reporte ni cómo se informan las monedas. Supuestos que fijan estos tests y que 
 - Reportes con una fila por grupo: `ventas-por-destino` (`destino`, `viajes`, `pasajeros`,
   `ventas_*`), `ventas-por-vendedor` (`vendedor`, `ventas_*`, `comisiones_*`; el `vendedor` es el
   nombre del Usuario) y `formas-de-pago` (`forma_pago`, `pagos`, `monto_*`).
-- Mismas reglas del dashboard (DEC-0024): el período es inclusivo y por `created_at` del viaje; una
-  venta es un viaje no cancelado; lo cobrado se mide por `fecha_cobro`; `pendiente` es la foto de hoy
-  (pagos `pendiente` o `vencido`); la comisión va al vendedor, o al responsable si no hay vendedor;
+- Mismas reglas del dashboard (DEC-0024): el período es inclusivo y por `created_at` del viaje;
+  una venta es un viaje no cancelado; lo cobrado se mide por `fecha_cobro`; `pendiente` es la
+  foto de hoy (pagos `pendiente` o `vencido`); la comisión va al vendedor, o al responsable si no hay vendedor;
   los pasajeros salen de `Oportunidad.pasajeros` de las ventas del período.
 - Sin período, el mes en curso (de hoy en hora de Argentina).
 - Período sin datos (A3): 200 con `columnas` completas y `filas == []` (no 404 ni error).
