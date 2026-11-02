@@ -85,6 +85,7 @@ function Contenido({
 }) {
   const { viaje, cliente: clienteDeAlerta } = alerta.contexto;
   const esPago = alerta.tipo === "pago";
+  const esRecontacto = alerta.tipo === "recontacto";
   // El viaje se arma aparte: el panel lo muestra con fechas y estado.
   const datos = datosDeContexto(alerta).filter(({ etiqueta }) => etiqueta !== "Viaje");
   return (
@@ -121,12 +122,13 @@ function Contenido({
           <dd>{valor}</dd>
         </dl>
       ))}
-      {alerta.tipo === "recontacto" && clienteDeAlerta && (
+      {esRecontacto && clienteDeAlerta && (
         <TarjetaRecontacto
           cliente={cliente}
           alerta={alerta}
           clienteDeAlerta={clienteDeAlerta}
           hoy={hoy}
+          alResolver={alResolver}
         />
       )}
       {viaje && <RequisitosDelDestino cliente={cliente} destinoId={viaje.destino_id} />}
@@ -137,14 +139,17 @@ function Contenido({
         {!esPago && <Button onClick={alResolver}>Resolver</Button>}
         {alerta.estado === "pendiente" && (
           <>
-            <Button
-              variant="outline"
-              onClick={() => {
-                setPosponiendo(true);
-              }}
-            >
-              Posponer
-            </Button>
+            {/* En un recontacto, posponer es una decisión de la tarjeta. */}
+            {!esRecontacto && (
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setPosponiendo(true);
+                }}
+              >
+                Posponer
+              </Button>
+            )}
             <Button variant="ghost" disabled={marcandoVista} onClick={alMarcarVista}>
               Marcar como vista
             </Button>

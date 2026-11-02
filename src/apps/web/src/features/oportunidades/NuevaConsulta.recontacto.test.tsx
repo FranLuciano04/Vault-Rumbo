@@ -88,6 +88,35 @@ describe("RF-029 decisión de recontacto: formulario precargado", () => {
     expect(cuerpos[0]).toMatchObject({ cliente_id: joaquin.id, destino_consultado: "Lisboa" });
   });
 
+  it("RF-029 con alerta_id, al registrar la consulta resuelve la sugerencia", async () => {
+    const resueltas: string[] = [];
+    servidor.use(
+      sinOportunidades,
+      http.post("*/api/oportunidades", async ({ request }) => {
+        const cuerpo = (await request.json()) as Record<string, unknown>;
+        return HttpResponse.json({ ...oportunidadesMock[0], ...cuerpo, id: "n1" }, { status: 201 });
+      }),
+      http.post("*/api/alertas/:id/resolver", ({ params }) => {
+        resueltas.push(String(params["id"]));
+        return HttpResponse.json({});
+      }),
+    );
+    const usuario = userEvent.setup();
+    renderConsulta(`/oportunidades/nueva?cliente_id=${joaquin.id}&alerta_id=alerta-1`);
+    await screen.findByText(joaquin.nombre);
+    await usuario.selectOptions(screen.getByRole("combobox", { name: /canal/i }), "whatsapp");
+    await usuario.type(screen.getByRole("textbox", { name: /destino/i }), "Lisboa");
+    await usuario.clear(screen.getByRole("spinbutton", { name: /pasajeros/i }));
+    await usuario.type(screen.getByRole("spinbutton", { name: /pasajeros/i }), "1");
+
+    await usuario.click(screen.getByRole("button", { name: /registrar consulta/i }));
+
+    await waitFor(() => {
+      expect(resueltas).toEqual(["alerta-1"]);
+    });
+    expect(await screen.findByText("Detalle de la oportunidad")).toBeInTheDocument();
+  });
+
   it("RF-029 sin ?cliente_id el formulario sigue pidiendo buscar al cliente", async () => {
     renderConsulta("/oportunidades/nueva");
 

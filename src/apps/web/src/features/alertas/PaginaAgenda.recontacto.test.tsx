@@ -84,7 +84,7 @@ interface Pedidos {
 }
 
 /** Sirve la agenda con la sugerencia de hoy, la ficha y el historial de Joaquín, y registra los POST. */
-function servirRecontacto(historial: unknown = HISTORIAL): Pedidos {
+function servirRecontacto(historial: Record<string, unknown> = HISTORIAL): Pedidos {
   const pedidos: Pedidos = { resolver: [], posponer: [], patchCliente: [] };
   servidor.use(
     http.get("*/api/alertas", ({ request }) => {
@@ -241,6 +241,21 @@ describe("RF-029 decisión de recontacto", () => {
     });
   });
 
+  describe("alerta ya vista", () => {
+    it("RF-029 con la alerta vista no se ofrece posponer", async () => {
+      servirRecontacto();
+      servidor.use(
+        http.get("*/api/alertas/:id", () => HttpResponse.json({ ...recontacto, estado: "vista" })),
+      );
+      renderAgenda();
+
+      const { tarjeta } = await abrirTarjeta();
+
+      expect(within(tarjeta).getByText(/crear consulta/i)).toBeInTheDocument();
+      expect(within(tarjeta).queryByRole("button", { name: /posponer/i })).not.toBeInTheDocument();
+    });
+  });
+
   describe("crear consulta (A2)", () => {
     it("RF-029 «Crear consulta» abre /oportunidades/nueva con el cliente de la sugerencia", async () => {
       servirRecontacto();
@@ -250,7 +265,7 @@ describe("RF-029 decisión de recontacto", () => {
       await usuario.click(within(tarjeta).getByText(/crear consulta/i));
 
       expect(await screen.findByTestId("ubicacion")).toHaveTextContent(
-        `/oportunidades/nueva?cliente_id=${ID_CLIENTE}`,
+        `/oportunidades/nueva?cliente_id=${ID_CLIENTE}&alerta_id=${ID_ALERTA}`,
       );
     });
   });
@@ -281,6 +296,21 @@ describe("RF-029 decisión de recontacto", () => {
       });
       await waitFor(() => {
         expect(pedidos.resolver).toEqual([ID_ALERTA]);
+      });
+    });
+
+    it("RF-029 tras confirmar «No recontactar» el panel se cierra", async () => {
+      servirRecontacto();
+      renderAgenda();
+      const { usuario, tarjeta } = await abrirTarjeta();
+
+      await usuario.click(within(tarjeta).getByRole("button", { name: /no recontactar/i }));
+      await usuario.click(await within(tarjeta).findByRole("button", { name: /confirmar/i }));
+
+      await waitFor(() => {
+        expect(
+          screen.queryByRole("dialog", { name: /detalle de la alerta/i }),
+        ).not.toBeInTheDocument();
       });
     });
 

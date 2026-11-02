@@ -4,12 +4,7 @@ import {
   formatearFecha,
   type Alerta,
 } from "@rumbo/shared";
-import {
-  useCliente,
-  useEditarCliente,
-  useHistorialCliente,
-  useResolverAlerta,
-} from "@rumbo/shared/hooks";
+import { useCliente, useEditarCliente, useHistorialCliente } from "@rumbo/shared/hooks";
 import type { AxiosInstance } from "axios";
 import { useState } from "react";
 import { Link } from "react-router";
@@ -63,34 +58,41 @@ export function TarjetaRecontacto({
   alerta,
   clienteDeAlerta,
   hoy,
+  alResolver,
 }: {
   cliente: AxiosInstance;
   alerta: Alerta;
   clienteDeAlerta: ClienteDeAlerta;
   hoy: string;
+  alResolver: () => void;
 }) {
   const [decision, setDecision] = useState<Decision>(null);
   const ficha = useCliente(cliente, clienteDeAlerta.id);
   const editar = useEditarCliente(cliente);
-  const resolver = useResolverAlerta(cliente);
-  const error = editar.error ?? resolver.error;
 
   // El opt-out va primero: si el servidor lo rechaza, la alerta queda sin resolver.
   const noRecontactar = () => {
     editar.mutate(
       { id: clienteDeAlerta.id, cambios: { no_recontactar: true } },
-      {
-        onSuccess: () => {
-          resolver.mutate(alerta.id);
-        },
-      },
+      { onSuccess: alResolver },
     );
+  };
+  const elegir = (nueva: Decision) => {
+    editar.reset();
+    setDecision(nueva);
   };
 
   return (
     <section
       aria-labelledby="sugerencia-recontacto"
       className="flex flex-col gap-3 rounded-2xl border bg-card p-4"
+      onKeyDown={(e) => {
+        // Escape cierra primero la decisión abierta; el panel se cierra con el siguiente.
+        if (e.key === "Escape" && decision) {
+          e.stopPropagation();
+          elegir(null);
+        }
+      }}
     >
       <h3 id="sugerencia-recontacto" className="text-sm font-semibold">
         Sugerencia de recontacto
@@ -102,7 +104,7 @@ export function TarjetaRecontacto({
       <HistorialResumido cliente={cliente} clienteId={clienteDeAlerta.id} />
       <div className="flex flex-wrap gap-2">
         <Link
-          to={`/oportunidades/nueva?cliente_id=${clienteDeAlerta.id}`}
+          to={`/oportunidades/nueva?cliente_id=${clienteDeAlerta.id}&alerta_id=${alerta.id}`}
           className={variantesBoton({ size: "sm" })}
         >
           Crear consulta
@@ -111,45 +113,43 @@ export function TarjetaRecontacto({
           size="sm"
           variant="outline"
           onClick={() => {
-            setDecision("no_recontactar");
+            elegir("no_recontactar");
           }}
         >
           No recontactar
         </Button>
-        <Button
-          size="sm"
-          variant="outline"
-          onClick={() => {
-            setDecision("posponer");
-          }}
-        >
-          Posponer
-        </Button>
+        {alerta.estado === "pendiente" && (
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => {
+              elegir("posponer");
+            }}
+          >
+            Posponer
+          </Button>
+        )}
       </div>
       {decision === "no_recontactar" && (
         <div className="flex flex-wrap items-center gap-2">
           <p className="w-full text-sm">
             El cliente no volverá a recibir sugerencias de recontacto. ¿Confirmás?
           </p>
-          <Button
-            size="sm"
-            disabled={editar.isPending || resolver.isPending}
-            onClick={noRecontactar}
-          >
+          <Button size="sm" disabled={editar.isPending} onClick={noRecontactar}>
             Confirmar
           </Button>
           <Button
             size="sm"
             variant="ghost"
             onClick={() => {
-              setDecision(null);
+              elegir(null);
             }}
           >
             Cancelar
           </Button>
-          {error && (
+          {editar.error && (
             <p role="alert" className="w-full text-sm text-destructive">
-              {mensajeDeError(error)}
+              {mensajeDeError(editar.error)}
             </p>
           )}
         </div>
@@ -160,7 +160,7 @@ export function TarjetaRecontacto({
           alerta={alerta}
           hoy={hoy}
           alCerrar={() => {
-            setDecision(null);
+            elegir(null);
           }}
         />
       )}
