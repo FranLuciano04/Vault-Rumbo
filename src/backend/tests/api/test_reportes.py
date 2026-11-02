@@ -16,8 +16,8 @@ las monedas. Supuestos que fijan estos tests y que el ticket no dice:
   nombre del Usuario) y `formas-de-pago` (`forma_pago`, `pagos`, `monto_*`).
 - Mismas reglas del dashboard (DEC-0024): el período es inclusivo y por `created_at` del viaje;
   una venta es un viaje no cancelado; lo cobrado se mide por `fecha_cobro`; `pendiente` es la
-  foto de hoy (pagos `pendiente` o `vencido`); la comisión va al vendedor, o al responsable si no hay vendedor;
-  los pasajeros salen de `Oportunidad.pasajeros` de las ventas del período.
+  foto de hoy (pagos `pendiente` o `vencido`); la comisión va al vendedor, o al responsable si no
+  hay vendedor; los pasajeros salen de `Oportunidad.pasajeros` de las ventas del período.
 - Sin período, el mes en curso (de hoy en hora de Argentina).
 - Período sin datos (A3): 200 con `columnas` completas y `filas == []` (no 404 ni error).
 - Comparación (A2): `comparar_desde` y `comparar_hasta` van juntos; con ambos, `filas_comparadas`
