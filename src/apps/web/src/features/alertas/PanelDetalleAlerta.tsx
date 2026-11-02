@@ -13,6 +13,7 @@ import { useEffect, useRef, useState, type KeyboardEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { mensajeDeError } from "@/lib/errores";
 import { FormularioPosponer } from "./FormularioPosponer";
+import { TarjetaRecontacto } from "./TarjetaRecontacto";
 
 const POR_PAGINA_REQUISITOS = 100;
 
@@ -82,7 +83,7 @@ function Contenido({
   posponiendo: boolean;
   setPosponiendo: (posponiendo: boolean) => void;
 }) {
-  const { viaje } = alerta.contexto;
+  const { viaje, cliente: clienteDeAlerta } = alerta.contexto;
   const esPago = alerta.tipo === "pago";
   // El viaje se arma aparte: el panel lo muestra con fechas y estado.
   const datos = datosDeContexto(alerta).filter(({ etiqueta }) => etiqueta !== "Viaje");
@@ -120,6 +121,14 @@ function Contenido({
           <dd>{valor}</dd>
         </dl>
       ))}
+      {alerta.tipo === "recontacto" && clienteDeAlerta && (
+        <TarjetaRecontacto
+          cliente={cliente}
+          alerta={alerta}
+          clienteDeAlerta={clienteDeAlerta}
+          hoy={hoy}
+        />
+      )}
       {viaje && <RequisitosDelDestino cliente={cliente} destinoId={viaje.destino_id} />}
       {esPago && (
         <p className="text-sm text-muted-foreground">Se resuelve al registrar el cobro.</p>
