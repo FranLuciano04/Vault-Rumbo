@@ -917,7 +917,9 @@ async def test_rf043_nombre_coincide_en_el_medio_y_sin_distinguir_mayusculas(
     assert _ids(r) == [str(palace.id)]
 
 
-async def test_rf043_nombre_no_distingue_tildes(cliente_como: Fabrica, sesion: AsyncSession) -> None:
+async def test_rf043_nombre_no_distingue_tildes(
+    cliente_como: Fabrica, sesion: AsyncSession
+) -> None:
     """Como la unicidad de nombres de los catálogos (RF-099), la búsqueda ignora las tildes."""
     c = await cliente_como("empleado")
     d = await _destino(sesion)
@@ -941,13 +943,16 @@ async def test_rf043_nombre_se_combina_con_destino_y_demas_filtros(
     await _hotel(sesion, otro, "Sol Montaña", categoria="4 estrellas", servicios=["wifi"])
     await _hotel(sesion, d, "Sol Ciudad", categoria="3 estrellas", servicios=["wifi"])
     await _hotel(sesion, d, "Luna Playa", categoria="4 estrellas", servicios=["wifi"])
-    await _hotel(
-        sesion, d, "Sol Cerrado", categoria="4 estrellas", estado=EstadoHotel.cerrado
-    )
+    await _hotel(sesion, d, "Sol Cerrado", categoria="4 estrellas", estado=EstadoHotel.cerrado)
 
     r = await c.get(
         HOTELES,
-        params={"nombre": "sol", "destino_id": str(d), "categoria": "4 estrellas", "servicio": "wifi"},
+        params={
+            "nombre": "sol",
+            "destino_id": str(d),
+            "categoria": "4 estrellas",
+            "servicio": "wifi",
+        },
     )
 
     assert _ids(r) == [str(ok.id)]
@@ -1019,3 +1024,19 @@ async def test_rf043_un_hotel_fuera_de_los_primeros_100_se_encuentra_por_nombre(
     assert buscado.status_code == 200
     assert _ids(buscado) == [str(ultimo.id)]
     assert buscado.json()["total"] == 1
+
+
+async def test_rf043_nombre_trata_comodines_como_texto(
+    cliente_como: Fabrica, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("empleado")
+    d = await _destino(sesion)
+    porcentaje = await _hotel(sesion, d, "50% Off")
+    guion_bajo = await _hotel(sesion, d, "Sol_Mar")
+    await _hotel(sesion, d, "Hotel Común")
+
+    con_porcentaje = await c.get(HOTELES, params={"nombre": "%"})
+    con_guion_bajo = await c.get(HOTELES, params={"nombre": "_"})
+
+    assert _ids(con_porcentaje) == [str(porcentaje.id)]
+    assert _ids(con_guion_bajo) == [str(guion_bajo.id)]

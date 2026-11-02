@@ -76,7 +76,7 @@ export function BuscadorHoteles({
           </li>
         ))}
       </ul>
-      {data && data.total > data.items.length && (
+      {data && !isPlaceholderData && data.total > data.items.length && (
         <p className="text-sm">
           Hay más hoteles de los que se muestran: afiná la búsqueda por nombre para encontrar el que
           necesitás.

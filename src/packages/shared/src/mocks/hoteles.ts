@@ -245,11 +245,25 @@ function hotelDuplicado(existente: Hotel) {
 const puntajeValido = (puntaje: number) =>
   Number.isInteger(puntaje) && puntaje >= 1 && puntaje <= 5;
 
-/** Minúsculas, sin tildes y con los espacios colapsados, como `normalizar` del backend. */
+const TILDES: Record<string, string> = {
+  á: "a",
+  é: "e",
+  í: "i",
+  ó: "o",
+  ú: "u",
+  ü: "u",
+  Á: "A",
+  É: "E",
+  Í: "I",
+  Ó: "O",
+  Ú: "U",
+  Ü: "U",
+};
+
+/** Minúsculas, sin tildes y con los espacios colapsados, como `normalizar` del backend: solo áéíóúü. */
 const normalizar = (texto: string) =>
   texto
-    .normalize("NFD")
-    .replace(/\p{Diacritic}/gu, "")
+    .replace(/[áéíóúüÁÉÍÓÚÜ]/g, (letra) => TILDES[letra] ?? letra)
     .toLowerCase()
     .split(/\s+/)
     .filter(Boolean)
