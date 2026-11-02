@@ -1,10 +1,15 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { Oportunidad, UsuarioActual } from "@rumbo/shared";
-import { useOportunidades, useRegistrarConsulta } from "@rumbo/shared/hooks";
+import {
+  useCliente,
+  useOportunidades,
+  useRegistrarConsulta,
+  useResolverAlerta,
+} from "@rumbo/shared/hooks";
 import type { AxiosInstance } from "axios";
 import { useState, type ReactNode } from "react";
 import { useForm } from "react-hook-form";
-import { Link, useNavigate } from "react-router";
+import { Link, useNavigate, useSearchParams } from "react-router";
 import { CampoFormulario, CLASE_SELECT } from "@/components/CampoFormulario";
 import { Button, variantesBoton } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -62,15 +67,24 @@ function ConOportunidadesAbiertas({
  * Registro de una consulta (CU-04, pantalla 11): cliente buscado o dado de alta en el momento
  * (A1), aviso si ya tiene una oportunidad abierta (A2) y datos mínimos validados (A3).
  */
-export function NuevaConsulta({ cliente }: { cliente: AxiosInstance; usuario: UsuarioActual }) {
+function FormularioConsulta({
+  cliente,
+  inicial,
+  alertaId,
+}: {
+  cliente: AxiosInstance;
+  inicial: ClienteElegido | null;
+  alertaId: string | null;
+}) {
   const registrar = useRegistrarConsulta(cliente);
+  const resolverAlerta = useResolverAlerta(cliente);
   const navegar = useNavigate();
-  const [elegido, setElegido] = useState<ClienteElegido | null>(null);
+  const [elegido, setElegido] = useState<ClienteElegido | null>(inicial);
   const [error, setError] = useState<string | null>(null);
   const formulario = useForm<EntradaConsulta, unknown, DatosConsulta>({
     resolver: zodResolver(esquemaConsulta),
     defaultValues: {
-      cliente_id: "",
+      cliente_id: inicial?.id ?? "",
       destino_consultado: "",
       fecha_desde_tentativa: "",
       fecha_hasta_tentativa: "",
@@ -99,6 +113,9 @@ export function NuevaConsulta({ cliente }: { cliente: AxiosInstance; usuario: Us
         fecha_hasta_tentativa: datos.fecha_hasta_tentativa || null,
         notas: datos.notas.trim() || null,
       });
+      // Si vino de una sugerencia de recontacto (CU-30 paso 5), la sugerencia queda resuelta.
+      // Si no se puede resolver, la consulta ya está registrada: no se reintenta el alta.
+      if (alertaId) await resolverAlerta.mutateAsync(alertaId).catch(() => undefined);
       void navegar(`/oportunidades/${nueva.id}`);
     } catch (falla) {
       setError(aplicarErroresDelServidor(falla, CAMPOS, formulario.setError));
@@ -218,5 +235,25 @@ export function NuevaConsulta({ cliente }: { cliente: AxiosInstance; usuario: Us
         )}
       </form>
     </div>
+  );
+}
+
+/**
+ * Con `?cliente_id` (CU-30 A2, desde una sugerencia de recontacto) el formulario arranca con ese
+ * cliente ya elegido; si no se puede cargar, vuelve a pedir que se lo busque.
+ */
+export function NuevaConsulta({ cliente }: { cliente: AxiosInstance; usuario: UsuarioActual }) {
+  const [parametros] = useSearchParams();
+  const precargado = useCliente(cliente, parametros.get("cliente_id") ?? "");
+  if (precargado.isPending && precargado.fetchStatus !== "idle") {
+    return <p role="status">Cargando cliente…</p>;
+  }
+  const { data } = precargado;
+  return (
+    <FormularioConsulta
+      cliente={cliente}
+      inicial={data ? { id: data.id, nombre: data.nombre } : null}
+      alertaId={parametros.get("alerta_id")}
+    />
   );
 }

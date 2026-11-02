@@ -13,6 +13,7 @@ import { useEffect, useRef, useState, type KeyboardEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { mensajeDeError } from "@/lib/errores";
 import { FormularioPosponer } from "./FormularioPosponer";
+import { TarjetaRecontacto } from "./TarjetaRecontacto";
 
 const POR_PAGINA_REQUISITOS = 100;
 
@@ -82,8 +83,9 @@ function Contenido({
   posponiendo: boolean;
   setPosponiendo: (posponiendo: boolean) => void;
 }) {
-  const { viaje } = alerta.contexto;
+  const { viaje, cliente: clienteDeAlerta } = alerta.contexto;
   const esPago = alerta.tipo === "pago";
+  const esRecontacto = alerta.tipo === "recontacto";
   // El viaje se arma aparte: el panel lo muestra con fechas y estado.
   const datos = datosDeContexto(alerta).filter(({ etiqueta }) => etiqueta !== "Viaje");
   return (
@@ -120,6 +122,15 @@ function Contenido({
           <dd>{valor}</dd>
         </dl>
       ))}
+      {esRecontacto && clienteDeAlerta && (
+        <TarjetaRecontacto
+          cliente={cliente}
+          alerta={alerta}
+          clienteDeAlerta={clienteDeAlerta}
+          hoy={hoy}
+          alResolver={alResolver}
+        />
+      )}
       {viaje && <RequisitosDelDestino cliente={cliente} destinoId={viaje.destino_id} />}
       {esPago && (
         <p className="text-sm text-muted-foreground">Se resuelve al registrar el cobro.</p>
@@ -128,14 +139,17 @@ function Contenido({
         {!esPago && <Button onClick={alResolver}>Resolver</Button>}
         {alerta.estado === "pendiente" && (
           <>
-            <Button
-              variant="outline"
-              onClick={() => {
-                setPosponiendo(true);
-              }}
-            >
-              Posponer
-            </Button>
+            {/* En un recontacto, posponer es una decisión de la tarjeta. */}
+            {!esRecontacto && (
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setPosponiendo(true);
+                }}
+              >
+                Posponer
+              </Button>
+            )}
             <Button variant="ghost" disabled={marcandoVista} onClick={alMarcarVista}>
               Marcar como vista
             </Button>
