@@ -386,7 +386,11 @@ describe("RF-054 economía", () => {
     await userEvent.type(precio, "2000000");
     await userEvent.click(within(economia).getByRole("button", { name: /guardar economía/i }));
 
-    expect(await screen.findByRole("alert")).toHaveTextContent(/rebalance/i);
+    const aviso = await screen.findByRole("alert");
+    expect(aviso).toHaveTextContent(
+      "Los pagos del plan no suman el precio de venta: rebalanceá el plan de pagos.",
+    );
+    expect(aviso).not.toHaveTextContent(/el precio de venta cambió/i);
   });
 });
 

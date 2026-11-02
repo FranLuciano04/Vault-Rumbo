@@ -22,6 +22,10 @@ export const ETIQUETA_FORMA_PAGO: Record<FormaPago, string> = {
   deposito: "Depósito",
 };
 
+/** Aviso neutro: el plan se descalza por varias causas (cambio de precio, pago anulado), no solo por el precio. */
+export const AVISO_REBALANCEO =
+  "Los pagos del plan no suman el precio de venta: rebalanceá el plan de pagos.";
+
 /** Un pago sin cobrar ni anular: el único que se edita, reprograma, anula o divide. */
 export const estaSinCobrar = (estado: EstadoPago) => estado === "pendiente" || estado === "vencido";
 
