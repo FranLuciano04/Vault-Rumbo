@@ -3,7 +3,7 @@ id: T-116
 titulo: Atender una sugerencia de recontacto en la web
 modulo: M7 — Proceso diario y CRM proactivo
 capa: web
-estado: tomado
+estado: hecho
 depende_de: [T-055, T-069]
 tamaño: S
 riesgo: normal
@@ -45,3 +45,8 @@ La sugerencia de recontacto aparece en la agenda con el contexto del cliente y l
 - —
 
 ## Notas de implementación
+- La tarjeta `TarjetaRecontacto` vive en el panel de detalle de la agenda (T-166), solo para alertas `recontacto`. Historial de `GET /clientes/{id}/historial` y preferencias de `GET /clientes/{id}`. El historial no trae destino de los viajes: se muestran fechas y estado.
+- «Crear consulta» abre `/oportunidades/nueva?cliente_id=…&alerta_id=…`. `NuevaConsulta` precarga el cliente y, al registrar, resuelve la alerta (CU-30 paso 5; decidido por Nahuel en la review). Si ese resolver falla, se navega igual para no duplicar la consulta.
+- «No recontactar» confirma, hace el PATCH `no_recontactar` y resuelve con el mismo `alResolver` del panel (cierra y ofrece deshacer). «Posponer» solo con la alerta `pendiente`; en recontacto se oculta el «Posponer» general.
+- Review (Opus): 3 importantes y 2 menores, todos arreglados en el fix. Se autorizó tocar los tests del rojo para corregir un tipo (`tsc`) y agregar 4 casos (`--tocar-tests`).
+- Modelos: tests sonnet, impl/refactor/fix sonnet, review opus. Sin escalados. El refactor no encontró cambios.
