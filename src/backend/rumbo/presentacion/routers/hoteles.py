@@ -99,6 +99,13 @@ async def listar_hoteles(
     sesion: SesionDep,
     paginacion: PaginaDep,
     destino_id: Annotated[uuid.UUID | None, Query()] = None,
+    nombre: Annotated[
+        str | None,
+        Query(
+            description="Texto contenido en el nombre del hotel, sin distinguir mayúsculas ni "
+            "tildes; vacío o solo espacios no filtra (RF-043)."
+        ),
+    ] = None,
     categoria: Annotated[str | None, Query()] = None,
     precio_max: Annotated[
         Importe | None, Query(description="Precio de referencia máximo, inclusive.")
@@ -119,6 +126,7 @@ async def listar_hoteles(
         sesion,
         actor,
         destino_id=destino_id,
+        nombre=nombre,
         categoria=categoria,
         precio_max=precio_max,
         servicio=servicio,

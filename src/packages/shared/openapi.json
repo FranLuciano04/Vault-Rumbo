@@ -7838,6 +7838,24 @@
             }
           },
           {
+            "name": "nombre",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Texto contenido en el nombre del hotel, sin distinguir mayúsculas ni tildes; vacío o solo espacios no filtra (RF-043).",
+              "title": "Nombre"
+            },
+            "description": "Texto contenido en el nombre del hotel, sin distinguir mayúsculas ni tildes; vacío o solo espacios no filtra (RF-043)."
+          },
+          {
             "name": "categoria",
             "in": "query",
             "required": false,

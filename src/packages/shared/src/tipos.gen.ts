@@ -8806,6 +8806,8 @@ export interface operations {
         parameters: {
             query?: {
                 destino_id?: string | null;
+                /** @description Texto contenido en el nombre del hotel, sin distinguir mayúsculas ni tildes; vacío o solo espacios no filtra (RF-043). */
+                nombre?: string | null;
                 categoria?: string | null;
                 /** @description Precio de referencia máximo, inclusive. */
                 precio_max?: string | null;

@@ -149,6 +149,8 @@ export interface PaginaHoteles extends Pagina<Hotel> {
 /** Filtros del catálogo (`GET /api/hoteles`, CU-18): sin `estado`, solo los activos. */
 export interface FiltrosHoteles {
   destino_id?: string;
+  /** Texto contenido en el nombre, sin distinguir mayúsculas ni tildes (RF-043). */
+  nombre?: string;
   categoria?: string;
   /** Precio de referencia máximo, texto decimal. */
   precio_max?: string;

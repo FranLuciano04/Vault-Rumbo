@@ -10,7 +10,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from rumbo.core.errores import NoEncontrado
 from rumbo.datos.modelos import EstadoHotel, EstadoResena, Hotel, Resena
 from rumbo.datos.modelos.base import nombre_normalizado
-from rumbo.datos.repositorios.base import RepositorioBase, Visibilidad, normalizar
+from rumbo.datos.repositorios.base import (
+    RepositorioBase,
+    Visibilidad,
+    escapar_like,
+    normalizar,
+)
 
 
 class RepositorioHoteles(RepositorioBase[Hotel]):
@@ -56,6 +61,7 @@ class RepositorioHoteles(RepositorioBase[Hotel]):
         sesion: AsyncSession,
         *,
         destino_id: uuid.UUID | None,
+        nombre: str | None,
         categoria: str | None,
         precio_max: Decimal | None,
         servicio: str | None,
@@ -81,6 +87,9 @@ class RepositorioHoteles(RepositorioBase[Hotel]):
         filtros = [Hotel.estado == estado]
         if destino_id is not None:
             filtros.append(Hotel.destino_id == destino_id)
+        if nombre:
+            patron = f"%{escapar_like(normalizar(nombre))}%"
+            filtros.append(nombre_normalizado(Hotel.nombre).like(patron, escape="\\"))
         if categoria:
             filtros.append(func.lower(Hotel.categoria) == categoria.lower())
         if precio_max is not None:

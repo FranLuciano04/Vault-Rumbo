@@ -506,6 +506,73 @@ describe("RF-043 buscador y alta de hotel (CU-09 A2)", () => {
     expect(pedidos[0]?.get("estado") ?? "activo").toBe("activo");
   });
 
+  it("RF-043 el buscador manda el texto a la API como nombre, acotado al destino del viaje", async () => {
+    const pedidos: URLSearchParams[] = [];
+    servidor.events.on("request:start", ({ request }) => {
+      const url = new URL(request.url);
+      if (url.pathname === "/api/hoteles") pedidos.push(url.searchParams);
+    });
+    renderItinerario();
+    await userEvent.click(await screen.findByRole("button", { name: /agregar hotel/i }));
+    await screen.findByRole("button", { name: "Elegir Pousada do Sol" });
+
+    await userEvent.type(screen.getByLabelText("Buscar hotel"), "pousada");
+
+    await waitFor(() => {
+      expect(pedidos.some((p) => p.get("nombre") === "pousada")).toBe(true);
+    });
+    servidor.events.removeAllListeners();
+    const conNombre = pedidos.filter((p) => p.get("nombre"));
+    expect(conNombre.length).toBeGreaterThan(0);
+    expect(conNombre.every((p) => p.get("destino_id") === viajeDe("confirmado").destino_id)).toBe(
+      true,
+    );
+    // Espera entre teclas: no se pide una vez por letra.
+    expect(conNombre.length).toBeLessThan("pousada".length);
+  });
+
+  it("RF-043 un hotel que no está en la carga inicial aparece al buscarlo y se puede elegir", async () => {
+    const pedidos: URLSearchParams[] = [];
+    servidor.use(
+      http.get("*/api/hoteles", ({ request }) => {
+        const params = new URL(request.url).searchParams;
+        pedidos.push(params);
+        const nombre = params.get("nombre");
+        const items = nombre
+          ? [
+              {
+                id: idHotelMock.pousada,
+                nombre: "Zafiro Austral",
+                destino_id: viajeDe("confirmado").destino_id,
+                categoria: "4 estrellas",
+                precio_referencia: "90000.00",
+                servicios: [],
+                estado: "activo",
+                puntaje_promedio: null,
+                cantidad_resenas: 0,
+              },
+            ]
+          : [];
+        return HttpResponse.json({
+          items,
+          total: nombre ? 1 : 101,
+          pagina: 1,
+          por_pagina: 100,
+          alternativas: null,
+        });
+      }),
+    );
+    renderItinerario();
+    await userEvent.click(await screen.findByRole("button", { name: /agregar hotel/i }));
+    expect(await screen.findByText(/hay más hoteles de los que se muestran/i)).toBeVisible();
+
+    await userEvent.type(screen.getByLabelText("Buscar hotel"), "zafiro");
+
+    await userEvent.click(await screen.findByRole("button", { name: "Elegir Zafiro Austral" }));
+    expect(await screen.findByLabelText(/check-in/i)).toBeVisible();
+    expect(pedidos.some((p) => p.get("nombre") === "zafiro")).toBe(true);
+  });
+
   it("RF-043 avisa cuando hay más hoteles de los que se muestran", async () => {
     servidor.use(
       http.get("*/api/hoteles", () =>

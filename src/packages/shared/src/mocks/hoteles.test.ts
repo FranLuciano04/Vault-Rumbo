@@ -48,3 +48,34 @@ describe("RF-112 DELETE /resenas/{id} del mock (CU-29 A2)", () => {
     expect((await eliminar(deEstado("oculta"))).status).toBe(403);
   });
 });
+
+describe("RF-043 GET /hoteles?nombre= del mock (H-05)", () => {
+  const buscar = async (params: string) => {
+    conRol("empleado");
+    const respuesta = await fetch(`http://localhost/api/hoteles?${params}`);
+    return (await respuesta.json()) as { items: { nombre: string }[]; total: number };
+  };
+
+  it("RF-043 filtra por nombre conteniendo el texto, sin distinguir mayúsculas", async () => {
+    const cuerpo = await buscar("nombre=LLAO");
+    expect(cuerpo.items.map((h) => h.nombre)).toEqual(["Hotel Llao Llao"]);
+    expect(cuerpo.total).toBe(1);
+  });
+
+  it("RF-043 coincide por una parte del nombre y se combina con destino_id", async () => {
+    const todos = await buscar("nombre=hotel");
+    expect(todos.items.length).toBeGreaterThan(0);
+    expect(todos.items.every((h) => h.nombre.toLowerCase().includes("hotel"))).toBe(true);
+    const sinCoincidencia = await buscar(
+      "nombre=llao&destino_id=9c2d4e61-1a7f-4b38-8d05-6e3f1a2b4c22",
+    );
+    expect(sinCoincidencia.total).toBe(0);
+  });
+
+  it("RF-043 sin nombre o con nombre vacío devuelve el catálogo activo completo", async () => {
+    const sin = await buscar("por_pagina=100");
+    const vacio = await buscar("por_pagina=100&nombre=");
+    expect(vacio.total).toBe(sin.total);
+    expect(sin.total).toBeGreaterThan(1);
+  });
+});
