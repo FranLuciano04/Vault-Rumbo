@@ -33,6 +33,11 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
+## 02/11/26 — Nahuel (Claude Opus 5.5) — T-123: generar los reportes del período
+- **Hecho:** `/reportes` y `/reportes/{id}` en JSON con los 10 reportes de DEC-0024 punto 10: comparación (A2), período sin datos con `filas == []` (A3) y mes en curso por defecto (A1). xlsx y pdf siguen en 501. Review opus: 4 importantes y 3 menores, todos arreglados. Se actualizaron con autorización 6 tests de `test_contrato_m8.py`. 151 tests de reportes, dashboard y contrato M8 en verde, igual que ruff, mypy y el CI.
+- **Commits:** `792d386` rojo, `b893bcb` verde, `7761ccb` refactor, `7faa3d1`/`3d3f081`/`0cf12c3` fix, `ccec9d9` hecho; PR #179 mergeado (`744d7c7`).
+- **Pendiente:** validar con el equipo las decisiones en borrador anotadas en el ticket: `pagos-operadores` y el pendiente de `cobranzas` como foto de hoy, no comparables (`ViajeHotel` no tiene fecha de pago al proveedor), y `comparacion-mensual` por defecto de 12 meses.
+
 ## 02/11/26 — Nahuel (Claude Opus 5.5) — T-117: atender una sugerencia de recontacto en la app mobile
 - **Hecho:** detalle de recontacto mobile con preferencias, contacto (`AccionesContacto` extraído de la ficha), aviso de que la consulta se crea en la web y «No recontactar» coherente con T-116. Review opus: 1 importante y 3 menores; quedan anotados el último viaje (no está en el contrato de la ficha) y el «Deshacer» del opt-out en mobile. 59 tests, eslint, tsc y CI en verde. Tests sin MSW (no carga bajo jest-expo).
 - **Commits:** `00820e4` rojo, `a7b4355` verde, `e5bf8fa` fix, `5e730ab` hecho; PR #178 mergeado (`d898b25`).
