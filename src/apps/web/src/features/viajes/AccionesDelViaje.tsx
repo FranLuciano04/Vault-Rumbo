@@ -15,6 +15,7 @@ import type { AxiosInstance } from "axios";
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { CancelarViaje } from "./CancelarViaje";
+import { puedeEscribirViaje } from "./permisos";
 
 type Accion = "iniciar" | "finalizar" | "corregir" | "cancelar" | "revertir";
 
@@ -147,9 +148,7 @@ export function AccionesDelViaje({
       ? ESTADO_ANTERIOR[viaje.estado as keyof typeof ESTADO_ANTERIOR]
       : null;
 
-  const puedeCambiarEstado =
-    usuario.rol === "admin" || usuario.rol === "dueno" || viaje.responsable_id === usuario.id;
-  if (!puedeCambiarEstado) {
+  if (!puedeEscribirViaje(usuario, viaje)) {
     return <p>Solo el responsable del viaje, admin o dueño pueden cambiar su estado.</p>;
   }
   const cancelable = CANCELABLES.includes(viaje.estado);
