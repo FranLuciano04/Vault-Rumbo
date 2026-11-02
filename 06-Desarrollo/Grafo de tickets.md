@@ -21,7 +21,7 @@ tags:: #tipo/referencia
 | M4 — Oportunidades y cotizaciones | 16 | 16 | 0 | 0 | 0 | 0 | ✅ cerrado |
 | M5 — Hoteles y reseñas | 11 | 11 | 0 | 0 | 0 | 0 | ✅ cerrado |
 | M6 — Viajes y economía | 24 | 24 | 0 | 0 | 0 | 0 | 🔍 listo para la review |
-| M7 — Proceso diario y CRM proactivo | 9 | 0 | 0 | 3 | 6 | 0 | 🛠️ en curso |
+| M7 — Proceso diario y CRM proactivo | 9 | 0 | 1 | 2 | 6 | 0 | 🛠️ en curso |
 | M8 — Calendario, dashboard y reportes | 10 | 5 | 0 | 3 | 2 | 0 | 🛠️ en curso |
 | M9 — Redes e IA | 6 | 0 | 0 | 1 | 5 | 0 | 🛠️ en curso |
 | M10 — Despliegue on-premise | 5 | 0 | 0 | 1 | 4 | 0 | 🛠️ en curso |
@@ -184,7 +184,7 @@ flowchart LR
     T109["T-109 · Probar de punta a punta las excepciones del viaje<br/><small>e2e</small>"]:::hecho
   end
   subgraph M7["M7 — Proceso diario y CRM proactivo"]
-    T110["T-110 · Armar el proceso diario idempotente<br/><small>backend · ⚠️ riesgo alto</small>"]:::disponible
+    T110["T-110 · Armar el proceso diario idempotente<br/><small>backend · ⚠️ riesgo alto</small><br/>👤 palomap2003"]:::tomado
     T111["T-111 · Vencer pagos y cotizaciones en el proceso diario<br/><small>backend · ⚠️ riesgo alto</small>"]:::esperando
     T112["T-112 · Sugerir el avance de los viajes en el proceso diario<br/><small>backend · ⚠️ riesgo alto</small>"]:::esperando
     T113["T-113 · Detectar clientes inactivos para sugerir el recontacto<br/><small>backend · ⚠️ riesgo alto</small>"]:::esperando

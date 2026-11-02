@@ -3,7 +3,7 @@ id: T-110
 titulo: Armar el proceso diario idempotente
 modulo: M7 — Proceso diario y CRM proactivo
 capa: backend
-estado: libre
+estado: tomado
 depende_de: [T-006, T-011, T-051]
 tamaño: S
 riesgo: alto
@@ -12,9 +12,9 @@ modelo_impl: opus
 modelo_review: sonnet
 trazabilidad: [RNF-05, RNF-13]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: palomap2003
+tomado_el: 02/11/26 14:22
+rama: feature/T-110-armar-el-proceso-diario-idempotente
 pr:
 ---
 # T-110 Armar el proceso diario idempotente
