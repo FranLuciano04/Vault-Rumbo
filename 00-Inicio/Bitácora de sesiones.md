@@ -33,6 +33,11 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
+## 02/11/26 — Nahuel (Claude Opus 5.5) — T-116: atender una sugerencia de recontacto en la web
+- **Hecho:** tarjeta de recontacto en el detalle de la alerta (historial, preferencias y tres decisiones). «Crear consulta» precarga el cliente y resuelve la alerta al registrar (CU-30 paso 5, decidido por Nahuel en la review). Review opus: 3 importantes y 2 menores, todos arreglados. 334 tests de alertas y oportunidades en verde; lint, tsc y CI en verde.
+- **Commits:** `b7534a9` rojo, `8f1c145` verde, `7f78ade` fix, `560d775` hecho; PR #177 mergeado (`8c1c1f0`).
+- **Pendiente:** —
+
 ## 02/11/26 — Nahuel (Claude Opus 5.5) — M6: PR de los hallazgos de Codex mergeados
 - **Hecho:** Paloma aprobó y mergeó #170, #172 y #173. Se verificó `main` con los tres juntos: el contrato está sincronizado con la API; pasan 486 tests de backend (cobros, plan, economía, estados, reserva, contrato M6 y hoteles) y 208 de viajes en la web; ruff, mypy y tsc limpios. Se borraron las ramas `fix/M6-*`. Los cinco hallazgos de Codex quedaron arreglados.
 - **Commits:** ver este commit.
