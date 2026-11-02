@@ -18,6 +18,7 @@ Contrato supuesto (a confirmar en la review):
 """
 
 import logging
+import uuid
 from datetime import date
 
 import pytest
@@ -207,7 +208,7 @@ async def test_rnf13_registra_en_el_log_que_hizo_cada_paso(
     assert "vencer-pagos" in texto
     assert "creó el destino" in texto
     assert "recontactar" in texto
-    assert "explotó el paso" in texto
+    assert "explotó el paso" in caplog.text  # en el traceback, no en el mensaje
     assert any(
         r.levelno >= logging.ERROR and "recontactar" in r.getMessage() for r in caplog.records
     )
@@ -287,3 +288,91 @@ async def test_rnf05_codigo_de_salida_de_error_si_un_paso_falla_y_los_demas_corr
         select(m.Destino).where(m.Destino.nombre == "Destino tras el error")
     )
     assert existe is not None
+
+
+async def test_rf152_la_auditoria_queda_sin_autor_aunque_haya_un_usuario_seteado(
+    sesion: AsyncSession,
+) -> None:
+    marca = usuario_auditoria.set(uuid.uuid4())
+    try:
+        await proceso_diario.correr(
+            _fabrica(sesion), HOY, [_paso_que_crea_destino("destinos", "Destino con autor previo")]
+        )
+        assert usuario_auditoria.get() is not None
+    finally:
+        usuario_auditoria.reset(marca)
+
+    destino = await sesion.scalar(
+        select(m.Destino).where(m.Destino.nombre == "Destino con autor previo")
+    )
+    assert destino is not None
+    assert destino.created_by is None
+    assert destino.updated_by is None
+
+
+async def test_rnf05_si_no_se_puede_abrir_la_sesion_el_paso_falla_y_los_demas_corren(
+    sesion: AsyncSession,
+) -> None:
+    pedidas = 0
+
+    def fabrica() -> _Contexto:
+        nonlocal pedidas
+        pedidas += 1
+        if pedidas == 1:
+            raise RuntimeError("sin conexión")
+        return _Contexto(sesion)
+
+    resultados = await proceso_diario.correr(
+        fabrica,
+        HOY,
+        [_paso_que_crea_destino("a", "Destino a"), _paso_que_crea_destino("b", "Destino b")],
+    )
+
+    assert [(r.nombre, r.ok) for r in resultados] == [("a", False), ("b", True)]
+
+
+async def test_rnf05_si_el_rollback_falla_el_paso_falla_y_los_demas_corren(
+    sesion: AsyncSession, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    async def roto(sesion: AsyncSession, fecha: date) -> None:
+        raise RuntimeError("paso roto")
+
+    async def rollback_roto() -> None:
+        raise RuntimeError("rollback roto")
+
+    # El paso que anda no llama a rollback; solo lo usa el que falla.
+    monkeypatch.setattr(sesion, "rollback", rollback_roto)
+
+    resultados = await proceso_diario.correr(
+        _fabrica(sesion),
+        HOY,
+        [Paso("roto", roto), _paso_que_crea_destino("despues", "Destino tras rollback")],
+    )
+
+    assert [(r.nombre, r.ok) for r in resultados] == [("roto", False), ("despues", True)]
+
+
+async def test_rnf13_el_detalle_del_fallo_no_guarda_el_texto_del_error(
+    sesion: AsyncSession,
+) -> None:
+    async def roto(sesion: AsyncSession, fecha: date) -> None:
+        raise RuntimeError("Cliente Juan Pérez, DNI 12345678")
+
+    [resultado] = await proceso_diario.correr(_fabrica(sesion), HOY, [Paso("roto", roto)])
+
+    assert resultado.ok is False
+    assert resultado.detalle == "RuntimeError"
+
+
+def test_rnf05_fecha_invalida_se_valida_antes_de_leer_la_configuracion(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    def sin_configuracion() -> None:
+        raise AssertionError("no debería leer la configuración")
+
+    monkeypatch.setattr(diario, "get_settings", sin_configuracion)
+
+    with pytest.raises(SystemExit) as salida:
+        diario.main(["--fecha", "31/02/26"])
+
+    assert salida.value.code == 2

@@ -24,31 +24,39 @@ def _fecha(texto: str) -> date:
         raise argparse.ArgumentTypeError(f"fecha inválida {texto!r}: se espera dd/mm/aa") from error
 
 
-async def ejecutar(argumentos: list[str], *, fabrica_sesiones: FabricaSesiones) -> int:
-    """Corre el proceso diario y devuelve el código de salida (0 si todos los pasos anduvieron)."""
+def _fecha_del_proceso(argumentos: list[str]) -> date:
+    """`--fecha` (dd/mm/aa) o, sin ella, hoy en Argentina; una fecha inválida sale con error."""
     analizador = argparse.ArgumentParser(prog="rumbo.presentacion.jobs.diario")
     analizador.add_argument(
         "--fecha", type=_fecha, help="Fecha de negocio dd/mm/aa (por defecto, hoy en Argentina)"
     )
-    args = analizador.parse_args(argumentos)
-    fecha = args.fecha or fechas.hoy()
+    fecha: date | None = analizador.parse_args(argumentos).fecha
+    return fecha or fechas.hoy()
+
+
+async def _correr(fecha: date, fabrica_sesiones: FabricaSesiones) -> int:
     resultados = await proceso_diario.correr(fabrica_sesiones, fecha)
     return 0 if all(r.ok for r in resultados) else 1
 
 
-async def _ejecutar_con_la_base(argumentos: list[str]) -> int:
+async def ejecutar(argumentos: list[str], *, fabrica_sesiones: FabricaSesiones) -> int:
+    """Corre el proceso diario y devuelve el código de salida (0 si todos los pasos anduvieron)."""
+    return await _correr(_fecha_del_proceso(argumentos), fabrica_sesiones)
+
+
+async def _correr_con_la_base(fecha: date) -> int:
     motor = crear_motor(get_settings().database_url)
     try:
-        return await ejecutar(argumentos, fabrica_sesiones=crear_fabrica_sesiones(motor))
+        return await _correr(fecha, crear_fabrica_sesiones(motor))
     finally:
         await motor.dispose()
 
 
 def main(argumentos: list[str] | None = None) -> None:
+    """Valida la fecha antes de leer la configuración, así su error aparece primero."""
+    fecha = _fecha_del_proceso(sys.argv[1:] if argumentos is None else argumentos)
     configurar_logs()
-    raise SystemExit(
-        asyncio.run(_ejecutar_con_la_base(sys.argv[1:] if argumentos is None else argumentos))
-    )
+    raise SystemExit(asyncio.run(_correr_con_la_base(fecha)))
 
 
 if __name__ == "__main__":

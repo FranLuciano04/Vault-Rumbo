@@ -14,6 +14,8 @@ from datetime import date
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from rumbo.core.seguridad import usuario_auditoria
+
 logger = logging.getLogger(__name__)
 
 FabricaSesiones = Callable[[], AbstractAsyncContextManager[AsyncSession]]
@@ -41,19 +43,39 @@ PASOS: list[Paso] = []
 async def correr(
     fabrica_sesiones: FabricaSesiones, fecha: date, pasos: Sequence[Paso] | None = None
 ) -> list[ResultadoPaso]:
-    """Corre `pasos` (o `PASOS`) con `fecha`, cada uno con su sesión: commit si anduvo,
-    rollback y registro del error si falló."""
+    """Corre `pasos` (o `PASOS`) con `fecha`, cada uno con su sesión y sin autor de auditoría.
+
+    Un paso que falla (incluso al abrir o revertir su sesión) queda `ok=False` y se registra en
+    el log; los siguientes corren igual. `detalle` guarda solo el tipo del error: el texto puede
+    traer datos de clientes (parámetros de SQL)."""
     resultados: list[ResultadoPaso] = []
-    for paso in PASOS if pasos is None else pasos:
-        async with fabrica_sesiones() as sesion:
+    marca = usuario_auditoria.set(None)
+    try:
+        for paso in PASOS if pasos is None else pasos:
             try:
-                detalle = await paso.ejecutar(sesion, fecha)
-                await sesion.commit()
+                detalle = await _correr_paso(fabrica_sesiones, paso, fecha)
             except Exception as error:  # noqa: BLE001 (un paso roto no frena a los demás)
-                await sesion.rollback()
-                logger.exception("Proceso diario: el paso %s falló: %s", paso.nombre, error)
-                resultados.append(ResultadoPaso(paso.nombre, ok=False, detalle=str(error)))
+                logger.exception("Proceso diario: el paso %s falló", paso.nombre)
+                resultados.append(
+                    ResultadoPaso(paso.nombre, ok=False, detalle=type(error).__name__)
+                )
                 continue
-        logger.info("Proceso diario: el paso %s terminó: %s", paso.nombre, detalle or "sin cambios")
-        resultados.append(ResultadoPaso(paso.nombre, ok=True, detalle=detalle))
+            logger.info(
+                "Proceso diario: el paso %s terminó: %s", paso.nombre, detalle or "sin cambios"
+            )
+            resultados.append(ResultadoPaso(paso.nombre, ok=True, detalle=detalle))
+    finally:
+        usuario_auditoria.reset(marca)
     return resultados
+
+
+async def _correr_paso(fabrica_sesiones: FabricaSesiones, paso: Paso, fecha: date) -> str | None:
+    """Una transacción por paso: commit si anduvo, rollback si falló."""
+    async with fabrica_sesiones() as sesion:
+        try:
+            detalle = await paso.ejecutar(sesion, fecha)
+            await sesion.commit()
+        except Exception:
+            await sesion.rollback()
+            raise
+    return detalle
