@@ -7,15 +7,13 @@ import { aCentesimas } from "../calculos";
 import { EditorDelPlan } from "./EditorDelPlan";
 import { CobroDePago } from "./CobroDePago";
 import {
+  AVISO_REBALANCEO,
   ETIQUETA_ESTADO_PAGO,
   ETIQUETA_FORMA_PAGO,
   ETIQUETA_TIPO_PAGO,
   estaSinCobrar,
 } from "./etiquetas";
 import { PanelDePago, type AccionDePago } from "./PanelDePago";
-
-const AVISO_REBALANCEO =
-  "El precio de venta cambió y los pagos ya no lo suman: rebalanceá el plan de pagos.";
 
 const ACCIONES: { tipo: AccionDePago["tipo"]; texto: string }[] = [
   { tipo: "cobrar", texto: "Registrar cobro" },

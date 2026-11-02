@@ -21,10 +21,9 @@ import { Input } from "@/components/ui/input";
 import { mensajeDeError } from "@/lib/errores";
 import { calcularResultado, porcentajeDeGanancia } from "./calculos";
 import { esquemaEconomia, type DatosEconomia } from "./esquemas";
+import { AVISO_REBALANCEO } from "./plan/etiquetas";
 
 const AVISO_NEGATIVO = "La ganancia o el margen quedan negativos. Igual podés guardar la economía.";
-const AVISO_REBALANCEO =
-  "El precio de venta cambió y los pagos ya no lo suman: rebalanceá el plan de pagos.";
 
 /** «25 %», «16,7 %» o «—» cuando no hay margen que mostrar. */
 function formatearMargen(margen: number | null) {
