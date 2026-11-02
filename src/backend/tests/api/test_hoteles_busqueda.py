@@ -884,3 +884,138 @@ async def test_cu29_a1_ocultas_de_hotel_inexistente_son_403_no_404(
     r = await c.get(_url_resenas(INEXISTENTE), params={"estado": "oculta"})
 
     assert r.status_code == 403
+
+
+# --- Búsqueda por nombre (H-05 de la review de M6; CU-09 paso de elegir hotel, RF-043) ----------
+
+
+async def test_rf043_nombre_filtra_por_texto_contenido(
+    cliente_como: Fabrica, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("empleado")
+    d = await _destino(sesion)
+    llao = await _hotel(sesion, d, "Hotel Llao Llao")
+    await _hotel(sesion, d, "Cabañas del Nahuel")
+
+    r = await c.get(HOTELES, params={"nombre": "llao"})
+
+    assert r.status_code == 200
+    assert _ids(r) == [str(llao.id)]
+    assert r.json()["total"] == 1
+
+
+async def test_rf043_nombre_coincide_en_el_medio_y_sin_distinguir_mayusculas(
+    cliente_como: Fabrica, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("empleado")
+    d = await _destino(sesion)
+    palace = await _hotel(sesion, d, "Copacabana Palace")
+    await _hotel(sesion, d, "Pousada do Sol")
+
+    r = await c.get(HOTELES, params={"nombre": "CABANA PAL"})
+
+    assert _ids(r) == [str(palace.id)]
+
+
+async def test_rf043_nombre_no_distingue_tildes(cliente_como: Fabrica, sesion: AsyncSession) -> None:
+    """Como la unicidad de nombres de los catálogos (RF-099), la búsqueda ignora las tildes."""
+    c = await cliente_como("empleado")
+    d = await _destino(sesion)
+    riu = await _hotel(sesion, d, "Riu Cancún")
+    await _hotel(sesion, d, "Otro")
+
+    sin_tilde = await c.get(HOTELES, params={"nombre": "cancun"})
+    con_tilde = await c.get(HOTELES, params={"nombre": "CANCÚN"})
+
+    assert _ids(sin_tilde) == [str(riu.id)]
+    assert _ids(con_tilde) == [str(riu.id)]
+
+
+async def test_rf043_nombre_se_combina_con_destino_y_demas_filtros(
+    cliente_como: Fabrica, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("empleado")
+    d = await _destino(sesion)
+    otro = await _destino(sesion)
+    ok = await _hotel(sesion, d, "Sol Playa", categoria="4 estrellas", servicios=["wifi"])
+    await _hotel(sesion, otro, "Sol Montaña", categoria="4 estrellas", servicios=["wifi"])
+    await _hotel(sesion, d, "Sol Ciudad", categoria="3 estrellas", servicios=["wifi"])
+    await _hotel(sesion, d, "Luna Playa", categoria="4 estrellas", servicios=["wifi"])
+    await _hotel(
+        sesion, d, "Sol Cerrado", categoria="4 estrellas", estado=EstadoHotel.cerrado
+    )
+
+    r = await c.get(
+        HOTELES,
+        params={"nombre": "sol", "destino_id": str(d), "categoria": "4 estrellas", "servicio": "wifi"},
+    )
+
+    assert _ids(r) == [str(ok.id)]
+    assert r.json()["total"] == 1
+
+
+async def test_rf043_sin_nombre_o_con_nombre_vacio_lista_como_antes(
+    cliente_como: Fabrica, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("empleado")
+    d = await _destino(sesion)
+    await _hotel(sesion, d, "Hotel A")
+    await _hotel(sesion, d, "Hotel B")
+
+    sin = await c.get(HOTELES)
+    vacio = await c.get(HOTELES, params={"nombre": ""})
+    espacios = await c.get(HOTELES, params={"nombre": "   "})
+
+    assert sin.json()["total"] == 2
+    assert vacio.status_code == 200
+    assert vacio.json()["total"] == 2
+    assert espacios.status_code == 200
+    assert espacios.json()["total"] == 2
+
+
+async def test_rf043_nombre_sin_coincidencias_devuelve_alternativas_con_el_filtro(
+    cliente_como: Fabrica, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("empleado")
+    d = await _destino(sesion)
+    await _hotel(sesion, d, "Hotel Sol")
+
+    r = await c.get(HOTELES, params={"nombre": "inexistente", "destino_id": str(d)})
+
+    assert r.status_code == 200
+    assert r.json()["items"] == []
+    assert r.json()["total"] == 0
+    assert r.json()["alternativas"]["puede_dar_de_alta"] is True
+    assert "destino_id" in r.json()["alternativas"]["ampliar_filtros"]
+
+
+async def test_rf043_el_contrato_publica_el_filtro_nombre(
+    cliente_sin_sesion: AsyncClient,
+) -> None:
+    r = await cliente_sin_sesion.get("/api/openapi.json")
+    parametros = r.json()["paths"][HOTELES]["get"]["parameters"]
+
+    assert "nombre" in {p["name"] for p in parametros}
+
+
+async def test_rf043_un_hotel_fuera_de_los_primeros_100_se_encuentra_por_nombre(
+    cliente_como: Fabrica, sesion: AsyncSession
+) -> None:
+    """H-05: con 101 hoteles activos en el destino, el 101.º por nombre no entra en la primera
+    página de 100, pero aparece al buscarlo."""
+    c = await cliente_como("empleado")
+    d = await _destino(sesion)
+    for n in range(100):
+        await _hotel(sesion, d, f"Hotel {n:03d}")
+    ultimo = await _hotel(sesion, d, "Zafiro Austral")
+
+    primera = await c.get(HOTELES, params={"destino_id": str(d), "por_pagina": 100})
+    buscado = await c.get(
+        HOTELES, params={"destino_id": str(d), "por_pagina": 100, "nombre": "zafiro"}
+    )
+
+    assert primera.json()["total"] == 101
+    assert str(ultimo.id) not in _ids(primera)
+    assert buscado.status_code == 200
+    assert _ids(buscado) == [str(ultimo.id)]
+    assert buscado.json()["total"] == 1
