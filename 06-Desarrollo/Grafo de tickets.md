@@ -21,7 +21,7 @@ tags:: #tipo/referencia
 | M4 — Oportunidades y cotizaciones | 16 | 16 | 0 | 0 | 0 | 0 | ✅ cerrado |
 | M5 — Hoteles y reseñas | 11 | 11 | 0 | 0 | 0 | 0 | ✅ cerrado |
 | M6 — Viajes y economía | 24 | 24 | 0 | 0 | 0 | 0 | ✅ cerrado |
-| M7 — Proceso diario y CRM proactivo | 9 | 1 | 2 | 0 | 6 | 0 | 🛠️ en curso |
+| M7 — Proceso diario y CRM proactivo | 9 | 2 | 1 | 0 | 6 | 0 | 🛠️ en curso |
 | M8 — Calendario, dashboard y reportes | 10 | 5 | 0 | 3 | 2 | 0 | 🛠️ en curso |
 | M9 — Redes e IA | 6 | 0 | 0 | 1 | 5 | 0 | 🛠️ en curso |
 | M10 — Despliegue on-premise | 5 | 0 | 0 | 1 | 4 | 0 | 🛠️ en curso |
@@ -191,7 +191,7 @@ flowchart LR
     T114["T-114 · Registrar la decisión sobre una sugerencia de recontacto<br/><small>backend</small>"]:::esperando
     T115["T-115 · Programar el proceso diario en el Compose<br/><small>infra</small>"]:::esperando
     T116["T-116 · Atender una sugerencia de recontacto en la web<br/><small>web</small>"]:::hecho
-    T117["T-117 · Atender una sugerencia de recontacto en la app mobile<br/><small>mobile</small><br/>👤 Nahuel Viniegra"]:::tomado
+    T117["T-117 · Atender una sugerencia de recontacto en la app mobile<br/><small>mobile</small>"]:::hecho
     T118["T-118 · Probar de punta a punta el proceso diario<br/><small>e2e</small>"]:::esperando
   end
   subgraph M8["M8 — Calendario, dashboard y reportes"]
