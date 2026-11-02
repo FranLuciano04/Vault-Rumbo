@@ -33,6 +33,11 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
+## 02/11/26 — Nahuel (Claude Opus 5.5) — T-117: atender una sugerencia de recontacto en la app mobile
+- **Hecho:** detalle de recontacto mobile con preferencias, contacto (`AccionesContacto` extraído de la ficha), aviso de que la consulta se crea en la web y «No recontactar» coherente con T-116. Review opus: 1 importante y 3 menores; quedan anotados el último viaje (no está en el contrato de la ficha) y el «Deshacer» del opt-out en mobile. 59 tests, eslint, tsc y CI en verde. Tests sin MSW (no carga bajo jest-expo).
+- **Commits:** `00820e4` rojo, `a7b4355` verde, `e5bf8fa` fix, `5e730ab` hecho; PR #178 mergeado (`d898b25`).
+- **Pendiente:** decidir si mobile ofrece «Deshacer» en el opt-out y si la ficha del contrato suma `ultimo_viaje`.
+
 ## 02/11/26 — Nahuel (Claude Opus 5.5) — T-116: atender una sugerencia de recontacto en la web
 - **Hecho:** tarjeta de recontacto en el detalle de la alerta (historial, preferencias y tres decisiones). «Crear consulta» precarga el cliente y resuelve la alerta al registrar (CU-30 paso 5, decidido por Nahuel en la review). Review opus: 3 importantes y 2 menores, todos arreglados. 334 tests de alertas y oportunidades en verde; lint, tsc y CI en verde.
 - **Commits:** `b7534a9` rojo, `8f1c145` verde, `7f78ade` fix, `560d775` hecho; PR #177 mergeado (`8c1c1f0`).
