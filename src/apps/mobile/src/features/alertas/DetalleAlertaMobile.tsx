@@ -134,6 +134,7 @@ export function DetalleAlertaMobile() {
         <RecontactoMobile
           alertaId={alerta.id}
           clienteId={clienteDeLaAlerta.id}
+          estado={alerta.estado}
           alResolver={volverALaAgenda}
         />
       )}

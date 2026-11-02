@@ -13,28 +13,46 @@ import { AccionesContacto } from "../clientes/AccionesContacto";
 export function RecontactoMobile({
   alertaId,
   clienteId,
+  estado,
   alResolver,
 }: {
   alertaId: string;
   clienteId: string;
+  estado: string;
   alResolver: () => void;
 }) {
-  const { data: ficha } = useCliente(cliente, clienteId);
+  const { data: ficha, isError: fichaConError } = useCliente(cliente, clienteId);
   const editar = useEditarCliente(cliente);
   const resolver = useResolverAlerta(cliente);
   const [confirmando, setConfirmando] = useState(false);
   const enCurso = editar.isPending || resolver.isPending;
-  const error = editar.error ?? resolver.error;
+  // Si el PATCH ya salió bien, reintentar solo resuelve la alerta.
+  const yaMarcado = editar.isSuccess;
+  const aviso = editar.isError
+    ? mensajeDeError(editar.error)
+    : resolver.isError
+      ? `El cliente quedó marcado para no recontactar, pero no pudimos resolver la alerta. ${mensajeDeError(resolver.error)}`
+      : null;
 
+  const resolverAlerta = () => {
+    resolver.mutate(alertaId, { onSuccess: alResolver });
+  };
   const confirmar = () => {
-    editar.mutate(
-      { id: clienteId, cambios: { no_recontactar: true } },
-      { onSuccess: () => { resolver.mutate(alertaId, { onSuccess: alResolver }); } },
-    );
+    if (yaMarcado) resolverAlerta();
+    else
+      editar.mutate(
+        { id: clienteId, cambios: { no_recontactar: true } },
+        { onSuccess: resolverAlerta },
+      );
   };
 
   return (
     <View className="gap-4">
+      {fichaConError && (
+        <Text role="alert" className="text-red-700">
+          No pudimos cargar el contacto del cliente.
+        </Text>
+      )}
       {ficha?.preferencias ? <Text className="text-sm">{ficha.preferencias}</Text> : null}
       {ficha && (
         <View className="flex-row gap-3">
@@ -44,7 +62,7 @@ export function RecontactoMobile({
       <Text className="text-sm text-gray-500">
         Crear la consulta se hace desde la web, en Oportunidades.
       </Text>
-      {!confirmando ? (
+      {estado === "resuelta" ? null : !confirmando ? (
         <Pressable
           role="button"
           accessibilityLabel="No recontactar"
@@ -63,9 +81,9 @@ export function RecontactoMobile({
           <Text className="text-sm">
             No volverá a aparecer en las sugerencias de recontacto. Podés revertirlo desde su ficha.
           </Text>
-          {error && (
+          {aviso && (
             <Text role="alert" accessibilityLiveRegion="assertive" className="text-red-700">
-              {mensajeDeError(error)}
+              {aviso}
             </Text>
           )}
           <Pressable

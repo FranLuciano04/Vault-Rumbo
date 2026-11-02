@@ -31,6 +31,7 @@ const sinContexto = { cliente: null, oportunidad: null, viaje: null, pago: null 
 const DESCRIPCION = "Hace un año que Joaquín Ramos no viaja: ofrecele una escapada.";
 const ID_RECONTACTO = "al-30";
 const ID_VISTA = "al-31";
+const ID_RESUELTA = "al-32";
 
 function alerta(id: string, estado: string) {
   return {
@@ -93,9 +94,18 @@ const problema = (status: number, detail: string) => ({
 
 /** Backend falso: registra el PATCH del cliente y el resolver; el PATCH puede rechazarse. */
 function backend(
-  opciones: { contacto?: string; rechazarPatch?: { status: number; detalle: string } } = {},
+  opciones: {
+    contacto?: string;
+    fallaFicha?: boolean;
+    resolverFalla?: boolean;
+    rechazarPatch?: { status: number; detalle: string };
+  } = {},
 ) {
-  const alertas = [alerta(ID_RECONTACTO, "pendiente"), alerta(ID_VISTA, "vista")];
+  const alertas = [
+    alerta(ID_RECONTACTO, "pendiente"),
+    alerta(ID_VISTA, "vista"),
+    alerta(ID_RESUELTA, "resuelta"),
+  ];
   mockHttp.mockImplementation((config) => {
     const url = config.url ?? "";
     const metodo = config.method;
@@ -124,9 +134,13 @@ function backend(
           config,
         );
       }
+      if (opciones.fallaFicha) return respuesta(500, problema(500, "Error"), config);
       return respuesta(200, ficha(opciones.contacto ?? "+54 9 351 555-9876"), config);
     }
     const resolver = /^\/api\/alertas\/([^/]+)\/resolver$/.exec(url);
+    if (resolver && metodo === "post" && opciones.resolverFalla) {
+      return respuesta(500, problema(500, "Servicio caído."), config);
+    }
     if (resolver && metodo === "post") {
       return respuesta(200, { ...alerta(resolver[1] as string, "resuelta") }, config);
     }
@@ -357,6 +371,36 @@ describe("RF-030 opt-out mobile", () => {
       expect(vista.queryByRole("button", { name: /^posponer$/i })).toBeNull();
       expect(vista.getByRole("button", { name: /no recontactar/i })).toBeTruthy();
     });
+  });
+
+  it("con la alerta resuelta no se ofrece «No recontactar»", async () => {
+    backend();
+    const vista = await abrirSugerencia(ID_RESUELTA);
+
+    expect(vista.queryByRole("button", { name: /no recontactar/i })).toBeNull();
+  });
+
+  it("si el resolver falla tras un PATCH ok avisa que el cliente quedó marcado y el reintento solo resuelve", async () => {
+    backend({ resolverFalla: true });
+    const vista = await abrirSugerencia();
+    await fireEvent.press(vista.getByRole("button", { name: /no recontactar/i }));
+    await fireEvent.press(await vista.findByRole("button", { name: /confirmar/i }));
+
+    await vista.findByText(/el cliente quedó marcado para no recontactar/i);
+    expect(vista.getByRole("alert")).toBeTruthy();
+    await fireEvent.press(vista.getByRole("button", { name: /confirmar/i }));
+
+    await waitFor(() => {
+      expect(resolver()).toHaveLength(2);
+    });
+    expect(patchCliente()).toHaveLength(1);
+  });
+
+  it("si falla la ficha avisa que no se pudo cargar el contacto", async () => {
+    backend({ fallaFicha: true });
+    const vista = await abrirSugerencia();
+
+    expect(await vista.findByText(/no pudimos cargar el contacto del cliente/i)).toBeTruthy();
   });
 
   it("una alerta de otro tipo no muestra las acciones de recontacto", async () => {
