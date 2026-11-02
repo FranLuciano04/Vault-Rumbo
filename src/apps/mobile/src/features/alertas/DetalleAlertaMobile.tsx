@@ -12,6 +12,7 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { useState } from "react";
 import { ActivityIndicator, Pressable, ScrollView, Text, View } from "react-native";
 import { cliente } from "../../cliente";
+import { RecontactoMobile } from "./RecontactoMobile";
 
 const MILISEGUNDOS_POR_DIA = 86_400_000;
 
@@ -128,6 +129,14 @@ export function DetalleAlertaMobile() {
         >
           <Text className="font-semibold text-primary-foreground">Ver cliente</Text>
         </Pressable>
+      )}
+      {alerta.tipo === "recontacto" && clienteDeLaAlerta && (
+        <RecontactoMobile
+          alertaId={alerta.id}
+          clienteId={clienteDeLaAlerta.id}
+          estado={alerta.estado}
+          alResolver={volverALaAgenda}
+        />
       )}
       {alerta.estado !== "pendiente" ? null : !eligiendo ? (
         <Pressable
