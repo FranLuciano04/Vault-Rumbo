@@ -152,3 +152,26 @@ tags:: #tipo/referencia
   - Sigue abierto el `#accion/decidir` de CU-29 sobre una tabla de auditoría.
 - **Decisiones tocadas:** [[DEC-0003 Relación Viaje–Hotel y Reseña]], [[DEC-0005 Autenticación y modelo de roles]], [[DEC-0019 Las fallas se arreglan al encontrarlas]], [[DEC-0022 Suite completa solo en el CI]].
 - Aprobación del equipo: 29/10/26 (Nahuel, en nombre del equipo). Tag `mod-5` sobre `fbedf55`.
+
+### 02/11/26 — Nahuel (con el equipo) — M6 Viajes y economía cerrado (`mod-6`)
+- **Qué quedó:**
+  - Confirmar la reserva desde una `Oportunidad` con su `Cotización` aceptada: crea el `Viaje`, sus alertas por requisito del destino y la de salida, y deja la oportunidad ganada (CU-07).
+  - Máquinas de estados del `Viaje` (`reservado → vendido → confirmado → en_curso → finalizado`, `cancelado` con su reversión, correcciones T7) y del `Pago`.
+  - Economía del viaje: costo, operador, vendedor, ganancia y margen generados en la base, comisión (RN-01, [[DEC-0007 Modelo económico — ganancia, margen y comisión de vendedor|DEC-0007]]). Migración `0008`.
+  - Plan de pagos: definir, rebalancear, reprogramar, dividir y anular; cobro con forma de pago y otra moneda, y su reversión. Itinerario de hoteles con el pago al proveedor por tramo. Cancelación con cobros y su reversión, que solo restaura los pagos que anuló la cancelación (migración `0009`, [[DEC-0025 Pagos anulados por la cancelación|DEC-0025]]).
+  - Contrato en `@rumbo/shared`, pantallas web (listado, ficha, economía, plan, cobro, estado, itinerario, cancelación, confirmar reserva), dos e2e (circuito de CU-01 y excepciones del viaje) y semilla de viajes de demo.
+- **Tickets:** 24, de T-086 a T-109. Detalle y merges en [[M6 — pedido de review]].
+- **Review de Codex** ([[M6 — review Codex]]): 5 hallazgos, todos confirmados y arreglados.
+  - H-01, bloqueante → PR #170: la API multiplicaba siempre por el tipo de cambio; ahora es pesos por dólar en las dos direcciones ([[DEC-0026 Tipo de cambio y deuda nueva en un viaje confirmado|DEC-0026]] punto 1).
+  - H-02, bloqueante, y H-04, importante → PR #172: un `confirmado` que vuelve a deber pasa a `vendido` (T11), el rebalanceo y la economía también confirman, iniciar exige el total pagado, corregir un `en_curso` con deuda vuelve a `vendido`, y se puede rebalancear sin pagos nuevos (DEC-0026 puntos 2 a 5).
+  - H-03, bloqueante → PR #173: la ficha separa operar (responsable, admin o dueño) de editar la economía (sin el freelance), con la misma regla que la API.
+  - H-05, importante → PR #174: `GET /hoteles?nombre=` y el buscador del itinerario consultan a la API.
+  - Los cuatro PR de riesgo alto los aprobó y mergeó Paloma. Se verificó `main` con los tres últimos juntos (contrato sincronizado, 486 tests de backend y 208 de viajes en la web).
+  - Aparte, PR #171: `pyasn1`, `node-forge` y `follow-redirects` actualizados por vulnerabilidades altas que frenaban el CI.
+- **Pendientes que no bloquean:**
+  - Ratificar DEC-0026 (en revisión) y redibujar EST-Viaje. Quedan dos puntos abiertos: cómo se cobra la deuda nueva de un `en_curso`, y si corregir un `en_curso` con saldo cero y plan descalzado da `vendido` (hoy) o `confirmado`.
+  - La vista previa del cobro y el mock redondean con `toFixed`, no con half-up: en un empate de medio centavo pueden diferir un centavo de la API (#170).
+  - Que la búsqueda de hoteles ignore ã, ñ y ç pediría cambiar `CON_TILDE`, la clave de unicidad (RF-099) y su índice (#174).
+  - El aviso «El precio de venta cambió…» aparece también al anular un pago sin cambio de precio (sesión de T-109).
+- **Decisiones tocadas:** [[DEC-0007 Modelo económico — ganancia, margen y comisión de vendedor]], [[DEC-0013 Datos que faltaban en el ER]], [[DEC-0025 Pagos anulados por la cancelación]], [[DEC-0026 Tipo de cambio y deuda nueva en un viaje confirmado]], [[DEC-0005 Autenticación y modelo de roles]], [[DEC-0008 Autenticación propia y rol de vendedor freelance]], [[DEC-0019 Las fallas se arreglan al encontrarlas]].
+- Aprobación del equipo: 02/11/26 (Nahuel, en nombre del equipo). Tag `mod-6` sobre `0979018`.
