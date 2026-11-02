@@ -1,37 +1,11 @@
-import { ETIQUETA_SEGMENTO, ErrorApi, enlaceLlamada, normalizarTelefonoAR } from "@rumbo/shared";
+import { ETIQUETA_SEGMENTO, ErrorApi } from "@rumbo/shared";
 import { useCliente } from "@rumbo/shared/hooks";
 import { useLocalSearchParams } from "expo-router";
-import { Linking, Pressable, ScrollView, Text, View } from "react-native";
+import { ScrollView, Text, View } from "react-native";
 import { cliente } from "../../cliente";
+import { AccionesContacto } from "./AccionesContacto";
 import { HistorialClienteMobile } from "./HistorialClienteMobile";
 import { VolverAClientes } from "./VolverAClientes";
-
-function BotonContacto({ titulo, destino }: { titulo: string; destino: string }) {
-  return (
-    <Pressable
-      role="button"
-      accessibilityLabel={titulo}
-      onPress={() => void Linking.openURL(destino)}
-      className="flex-1 items-center rounded-xl bg-primary py-3"
-    >
-      <Text className="font-semibold text-primary-foreground">{titulo}</Text>
-    </Pressable>
-  );
-}
-
-/** Acciones según el contacto: con email solo se escribe; con un teléfono válido se llama o se abre WhatsApp. */
-function AccionesContacto({ contacto }: { contacto: string }) {
-  if (contacto.includes("@"))
-    return <BotonContacto titulo="Enviar email" destino={`mailto:${contacto}`} />;
-  const llamada = enlaceLlamada(contacto);
-  const whatsapp = normalizarTelefonoAR(contacto);
-  return (
-    <>
-      {llamada && <BotonContacto titulo="Llamar" destino={llamada} />}
-      {whatsapp && <BotonContacto titulo="WhatsApp" destino={`https://wa.me/${whatsapp}`} />}
-    </>
-  );
-}
 
 /** Ficha del cliente para el teléfono (RF-006, CU-03): datos, acciones de contacto e historial. */
 export function FichaClienteMobile() {
