@@ -330,3 +330,84 @@ async def test_rf056_tipo_sin_valor_422(cliente_como: Fabrica, sesion: AsyncSess
 
     assert r.status_code == 422
     assert r.headers["content-type"].startswith(PROBLEM_JSON)
+
+
+# --- DEC-0026 puntos 2 y 4 (review Codex M6, H-02) ----------------------------------------------
+
+
+async def _pago_cobrado(sesion: AsyncSession, viaje_id: uuid.UUID, monto: str) -> m.Pago:
+    return await f.crear(
+        sesion,
+        f.PagoFactory,
+        viaje_id=viaje_id,
+        monto=Decimal(monto),
+        estado=m.EstadoPago.pagado,
+        forma_pago=m.FormaPago.efectivo,
+        moneda_pago=m.Moneda.ARS,
+        monto_cobrado=Decimal(monto),
+        fecha_cobro=date(2026, 11, 20),
+    )
+
+
+async def _estado_en_base(sesion: AsyncSession, viaje_id: uuid.UUID) -> m.EstadoViaje:
+    sesion.expire_all()
+    viaje = await sesion.get(m.Viaje, viaje_id)
+    assert viaje is not None
+    return viaje.estado
+
+
+async def test_rf059_confirmado_con_precio_cambiado_sin_plan_sigue_confirmado(
+    cliente_como: Fabrica, sesion: AsyncSession
+) -> None:
+    """H-02 alcance 4: sin saldo pendiente no hay deuda que reconciliar; se avisa y no inicia."""
+    c = await cliente_como("empleado")
+    viaje = await _viaje(
+        sesion, _yo(c), estado=m.EstadoViaje.confirmado, precio_venta=Decimal("1000000.00")
+    )
+    await _pago_cobrado(sesion, viaje.id, "1000000.00")
+
+    r = await c.put(_url(viaje.id), json={"precio_venta": "1500000.00", "costo": "800000.00"})
+
+    assert r.status_code == 200
+    assert "plan_desbalanceado" in _advertencias(r)
+    assert await _estado_en_base(sesion, viaje.id) == m.EstadoViaje.confirmado
+    assert (await c.post(f"/api/viajes/{viaje.id}/iniciar")).status_code == 409
+
+
+async def test_rf059_confirmado_que_queda_con_saldo_vuelve_a_vendido(
+    cliente_como: Fabrica, sesion: AsyncSession
+) -> None:
+    """DEC-0026 punto 2 (T11) al editar la economía. El `confirmado` con un pago pendiente es un
+    dato que la API normal no produce; se siembra directo para fijar la regla de la transición."""
+    c = await cliente_como("empleado")
+    viaje = await _viaje(
+        sesion, _yo(c), estado=m.EstadoViaje.confirmado, precio_venta=Decimal("1000000.00")
+    )
+    await _pago_cobrado(sesion, viaje.id, "600000.00")
+    await f.crear(
+        sesion, f.PagoFactory, viaje_id=viaje.id, monto=Decimal("400000.00"), tipo=m.TipoPago.saldo
+    )
+
+    r = await c.put(_url(viaje.id), json=CUERPO)
+
+    assert r.status_code == 200
+    assert await _estado_en_base(sesion, viaje.id) == m.EstadoViaje.vendido
+
+
+async def test_rf059_en_curso_con_saldo_no_retrocede_al_editar_la_economia(
+    cliente_como: Fabrica, sesion: AsyncSession
+) -> None:
+    """DEC-0026 punto 4: desde `en_curso` no se retrocede."""
+    c = await cliente_como("empleado")
+    viaje = await _viaje(
+        sesion, _yo(c), estado=m.EstadoViaje.en_curso, precio_venta=Decimal("1000000.00")
+    )
+    await _pago_cobrado(sesion, viaje.id, "600000.00")
+    await f.crear(
+        sesion, f.PagoFactory, viaje_id=viaje.id, monto=Decimal("400000.00"), tipo=m.TipoPago.saldo
+    )
+
+    r = await c.put(_url(viaje.id), json=CUERPO)
+
+    assert r.status_code == 200
+    assert await _estado_en_base(sesion, viaje.id) == m.EstadoViaje.en_curso

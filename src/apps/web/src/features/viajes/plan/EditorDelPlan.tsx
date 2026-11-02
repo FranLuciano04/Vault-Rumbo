@@ -59,8 +59,8 @@ export function EditorDelPlan({
   const diferencia = suma === null ? null : aCentesimas(viaje.precio_venta) - suma;
   const completo = filas.every((f) => f.vencimiento !== "");
   const montosPositivos = importes.every((importe) => importe !== null && importe > 0n);
-  const puedeGuardar =
-    filas.length > 0 && montosPositivos && diferencia === 0n && completo && !definir.isPending;
+  // Sin filas la diferencia solo es 0 si lo cobrado ya cubre el precio: se guarda un plan vacío (DEC-0026).
+  const puedeGuardar = montosPositivos && diferencia === 0n && completo && !definir.isPending;
   const pendiente =
     aCentesimas(viaje.precio_venta) - cobrados.reduce((t, p) => t + aCentesimas(p.monto), 0n);
   const hay = (tipo: TipoPago) => [...cobrados, ...filas].some((f) => f.tipo === tipo);
@@ -181,11 +181,9 @@ export function EditorDelPlan({
       ) : !montosPositivos ? (
         <p className="text-sm text-destructive">Cada pago tiene que ser mayor que cero.</p>
       ) : (
-        filas.length > 0 && (
-          <p role="status" className="text-sm text-emerald-700">
-            La suma de los pagos coincide con el precio de venta.
-          </p>
-        )
+        <p role="status" className="text-sm text-emerald-700">
+          La suma de los pagos coincide con el precio de venta.
+        </p>
       )}
       {pendiente <= 0n && (
         <p className="text-sm text-muted-foreground">No queda saldo por planificar.</p>

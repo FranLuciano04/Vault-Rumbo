@@ -487,7 +487,7 @@ async def test_cu09_transiciones_de_estado_devuelven_el_viaje(
     assert _ref(_respuesta(contrato, "post", ruta, "200")) == "Viaje"
 
 
-async def test_cu11_plan_de_pagos_exige_al_menos_un_pago_con_monto_texto(
+async def test_cu11_plan_de_pagos_admite_lista_vacia_con_monto_texto(
     contrato: dict[str, Any],
 ) -> None:
     ruta = "/api/viajes/{viaje_id}/pagos"
@@ -496,7 +496,7 @@ async def test_cu11_plan_de_pagos_exige_al_menos_un_pago_con_monto_texto(
     item = _resolver(contrato, pagos["items"])
 
     assert "pagos" in plan["required"]
-    assert pagos["minItems"] == 1
+    assert "minItems" not in pagos  # DEC-0026 punto 5: rebalanceo sin pagos nuevos
     assert {"monto", "tipo", "vencimiento"} <= set(item["required"])
     assert _es_texto_decimal(contrato, item["properties"]["monto"])
     assert _enum(contrato, item["properties"]["tipo"]) == {"sena", "cuota", "saldo"}
@@ -665,7 +665,6 @@ async def test_cu07_con_token_de_cualquier_rol_responde_501_problem_json(
         ("post", f"/api/viajes/{ID}/cancelar", {**CANCELACION, "fecha_cancelacion": "ayer"}),
         ("put", f"/api/viajes/{ID}/economia", {"precio_venta": "1000"}),
         ("put", f"/api/viajes/{ID}/economia", {**ECONOMIA, "precio_venta": "mil pesos"}),
-        ("put", f"/api/viajes/{ID}/pagos", {"pagos": []}),
         ("patch", f"/api/pagos/{ID}", {}),
         ("post", f"/api/pagos/{ID}/dividir", {"monto_ahora": "100"}),
         ("post", f"/api/pagos/{ID}/cobrar", {**COBRO, "moneda_pago": "EUR"}),

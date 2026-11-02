@@ -109,6 +109,8 @@ async def confirmar_reserva(
     estado_viaje.reservar(viaje)
     await economia.aplicar_economia(sesion, actor, viaje, datos["economia"])
     pagos = datos["plan_de_pagos"]["pagos"]
+    if not pagos:  # la definición inicial pide al menos un pago, aun con precio 0 (DEC-0026)
+        raise DatosInvalidos("pagos", "El plan de pagos tiene que tener al menos un pago.")
     economia.exigir_plan_valido(viaje, [], pagos)
 
     sesion.add(viaje)
@@ -236,9 +238,11 @@ async def obtener(sesion: AsyncSession, actor: Usuario, viaje_id: uuid.UUID) -> 
 
 async def iniciar(sesion: AsyncSession, actor: Usuario, viaje_id: uuid.UUID) -> FichaViaje:
     """El empleado confirma que el viaje empezó: `confirmado` → `en_curso` (T4, RF-039). Desde
-    otro estado es `TransicionInvalida`. Escribe el responsable, admin o dueño (DEC-0005)."""
+    otro estado, con saldo pendiente o con el plan descalzado del precio es
+    `TransicionInvalida` (DEC-0026 punto 4). Escribe el responsable, admin o dueño (DEC-0005)."""
     viaje = await _viaje_a_cambiar(sesion, actor, viaje_id)
-    estado_viaje.iniciar(viaje)
+    saldo, plan_balanceado = await _deuda(sesion, actor, viaje)
+    estado_viaje.iniciar(viaje, saldo=saldo, plan_balanceado=plan_balanceado)
     return await _guardar(sesion, actor, viaje)
 
 
@@ -254,9 +258,10 @@ async def finalizar(sesion: AsyncSession, actor: Usuario, viaje_id: uuid.UUID) -
 
 async def corregir_estado(sesion: AsyncSession, actor: Usuario, viaje_id: uuid.UUID) -> FichaViaje:
     """Deshace un paso manual cargado por error: `en_curso` → `confirmado` o `finalizado` →
-    `en_curso` (T7, CU-08 A2, RF-042). Al deshacer `finalizado` cierra la alerta `resena` sin
-    atender; las reseñas ya cargadas se conservan (DEC-0021). Los estados que produjo un cobro o
-    la cancelación se deshacen por su propio flujo: `TransicionInvalida`."""
+    `en_curso` (T7, CU-08 A2, RF-042); un `en_curso` con deuda nueva vuelve a `vendido`
+    (DEC-0026). Al deshacer `finalizado` cierra la alerta `resena` sin atender; las reseñas ya
+    cargadas se conservan (DEC-0021). Los estados que produjo un cobro o la cancelación se
+    deshacen por su propio flujo: `TransicionInvalida`."""
     viaje = await _viaje_a_cambiar(sesion, actor, viaje_id)
     sin_atender = (
         await _alertas.listar_de_origen(
@@ -265,7 +270,8 @@ async def corregir_estado(sesion: AsyncSession, actor: Usuario, viaje_id: uuid.U
         if viaje.estado is EstadoViaje.finalizado
         else []
     )
-    estado_viaje.corregir(viaje, alertas=sin_atender)
+    saldo, plan_balanceado = await _deuda(sesion, actor, viaje)
+    estado_viaje.corregir(viaje, saldo=saldo, plan_balanceado=plan_balanceado, alertas=sin_atender)
     return await _guardar(sesion, actor, viaje)
 
 
@@ -311,6 +317,16 @@ async def revertir_cancelacion(
             estado_pago.revertir_anulacion(pago, hoy=dia)
             await alertas.reabrir_de_origen(sesion, pago, solo_por_cancelacion=True)
     return await _guardar(sesion, actor, viaje)
+
+
+async def _deuda(sesion: AsyncSession, actor: Usuario, viaje: Viaje) -> tuple[Decimal, bool]:
+    """Saldo pendiente del viaje y si su plan suma el precio de venta: lo que miran iniciar y
+    corregir (DEC-0026). Quien llama ya tiene el viaje bloqueado."""
+    pagos = await _pagos.listar_de_viaje(sesion, viaje.id, visibilidad=visibilidad(actor))
+    return (
+        calculos.saldo_pendiente(pagos),
+        not calculos.plan_desbalanceado(viaje.precio_venta, pagos),
+    )
 
 
 async def _viaje_a_cambiar(sesion: AsyncSession, actor: Usuario, viaje_id: uuid.UUID) -> Viaje:

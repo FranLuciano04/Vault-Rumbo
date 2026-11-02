@@ -53,9 +53,10 @@ class PagoPlanItem(Entrada):
 
 
 class PlanDePagos(Entrada):
-    """La suma de los montos tiene que ser igual al precio de venta del viaje (CU-11)."""
+    """Los pagos nuevos, con los ya cobrados, tienen que sumar el precio de venta del viaje
+    (CU-11). Vacío solo si lo cobrado ya lo suma (DEC-0026 punto 5)."""
 
-    pagos: list[PagoPlanItem] = Field(min_length=1)
+    pagos: list[PagoPlanItem]
 
 
 class Pago(Auditoria):

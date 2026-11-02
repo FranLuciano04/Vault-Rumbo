@@ -3234,7 +3234,8 @@ export interface components {
         };
         /**
          * PlanDePagos
-         * @description La suma de los montos tiene que ser igual al precio de venta del viaje (CU-11).
+         * @description Los pagos nuevos, con los ya cobrados, tienen que sumar el precio de venta del viaje
+         *     (CU-11). Vacío solo si lo cobrado ya lo suma (DEC-0026 punto 5).
          */
         PlanDePagos: {
             /** Pagos */
