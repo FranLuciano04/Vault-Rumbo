@@ -196,16 +196,15 @@ async def test_cu22_reportes_vedados_a_empleado_y_freelance_responden_403(
 
 @pytest.mark.parametrize("rol", ROLES_REPORTES)
 @pytest.mark.parametrize(("metodo", "ruta"), RUTAS_SOLO_ADMIN_Y_DUENO)
-async def test_cu22_reportes_con_admin_o_dueno_responden_501_problem_json(
+async def test_cu22_reportes_con_admin_o_dueno_responden_200_json(
     cliente_como: FabricaCliente, rol: str, metodo: str, ruta: str
 ) -> None:
     c = await cliente_como(rol)
 
     r = await c.request(metodo, ruta)
 
-    assert r.status_code == 501
-    assert r.headers["content-type"].startswith(PROBLEM_JSON)
-    assert r.json()["status"] == 501
+    assert r.status_code == 200
+    assert r.headers["content-type"].startswith("application/json")
 
 
 async def test_cu22_reporte_con_formato_invalido_para_empleado_responde_403_no_422(
@@ -219,8 +218,17 @@ async def test_cu22_reporte_con_formato_invalido_para_empleado_responde_403_no_4
     assert r.headers["content-type"].startswith(PROBLEM_JSON)
 
 
-@pytest.mark.parametrize("formato", ["json", "xlsx", "pdf"])
-async def test_cu22_reporte_en_cualquier_formato_responde_501_mientras_no_se_implemente(
+async def test_cu22_reporte_en_json_responde_200(cliente_como: FabricaCliente) -> None:
+    c = await cliente_como("dueno")
+
+    r = await c.get(f"/api/reportes/{REPORTE}", params={"formato": "json"})
+
+    assert r.status_code == 200
+    assert r.headers["content-type"].startswith("application/json")
+
+
+@pytest.mark.parametrize("formato", ["xlsx", "pdf"])
+async def test_cu22_reporte_en_excel_o_pdf_responde_501_mientras_no_se_implemente(
     cliente_como: FabricaCliente, formato: str
 ) -> None:
     c = await cliente_como("dueno")
@@ -231,7 +239,7 @@ async def test_cu22_reporte_en_cualquier_formato_responde_501_mientras_no_se_imp
     assert r.headers["content-type"].startswith(PROBLEM_JSON)
 
 
-async def test_cu22_reporte_con_periodo_y_comparacion_valida_responde_501(
+async def test_cu22_reporte_con_periodo_y_comparacion_valida_responde_200(
     cliente_como: FabricaCliente,
 ) -> None:
     c = await cliente_como("admin")
@@ -246,7 +254,7 @@ async def test_cu22_reporte_con_periodo_y_comparacion_valida_responde_501(
         },
     )
 
-    assert r.status_code == 501
+    assert r.status_code == 200
 
 
 @pytest.mark.parametrize(

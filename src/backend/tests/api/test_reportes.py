@@ -35,7 +35,7 @@ import pytest
 from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from rumbo.core.fechas import hoy
+from rumbo.core.fechas import hoy, sumar_meses
 from rumbo.datos import modelos as m
 from tests import fabricas as f
 
@@ -441,7 +441,7 @@ async def test_rf131_formas_de_pago_agrupa_los_cobros_del_periodo(
 async def test_rf131_ventas_por_operador_agrupa_por_operador_del_viaje(
     cliente_como: Fabrica, sesion: AsyncSession
 ) -> None:
-    """Fila por operador (`operador`, `viajes`, `ventas_*`). Los viajes sin operador no se listan."""
+    """Fila por operador (`operador`, `viajes`, `ventas_*`); los viajes sin operador van juntos."""
     c = await cliente_como("admin")
     despegar = await f.crear(sesion, f.OperadorFactory, nombre="Despegar")
     julia = await f.crear(sesion, f.OperadorFactory, nombre="Julia")
@@ -579,6 +579,12 @@ async def test_rf134_comparacion_mensual_trae_el_mes_y_el_anterior(
     cuerpo = r.json()
     assert cuerpo["filas"]
     assert cuerpo["filas_comparadas"]
+    assert [(fila["mes"], Decimal(fila["ventas_ars"])) for fila in cuerpo["filas"]] == [
+        ("2026-09", Decimal("1000000.00"))
+    ]
+    assert [(fila["mes"], Decimal(fila["ventas_ars"])) for fila in cuerpo["filas_comparadas"]] == [
+        ("2026-08", Decimal("250000.00"))
+    ]
 
 
 # --- Período sin datos (RF-135, A3) ----------------------------------------------------------
@@ -636,3 +642,156 @@ async def test_rf131_reporte_del_mes_es_el_mismo_con_o_sin_fechas_explicitas(
     assert por_defecto.status_code == explicito.status_code == 200
     assert por_defecto.json() == explicito.json()
     assert Decimal(_una_fila(por_defecto.json())["ventas_ars"]) == Decimal("1000000.00")
+
+
+# --- Foto de hoy, margen y rango por defecto (decisiones de la review) -----------------------
+
+
+async def _tramo(sesion: AsyncSession, viaje: m.Viaje, orden: int, pagado: bool) -> None:
+    hotel = await f.crear(sesion, f.HotelFactory, destino_id=viaje.destino_id)
+    await f.crear(
+        sesion,
+        f.ViajeHotelFactory,
+        viaje_id=viaje.id,
+        hotel_id=hotel.id,
+        orden=orden,
+        pago_proveedor_realizado=pagado,
+    )
+
+
+async def test_rf131_pagos_operadores_es_la_foto_de_hoy_con_pagado_y_pendiente(
+    cliente_como: Fabrica, sesion: AsyncSession
+) -> None:
+    """Pagado: costo de los viajes con todos los tramos pagados; pendiente: con alguno sin pagar.
+    No depende del período, no cuenta viajes sin tramos y no se compara."""
+    c = await cliente_como("admin")
+    pagado = await _viaje(sesion, _yo(c), "1000000.00", "600000.00", creado=FUERA_DE_AMBOS)
+    await _tramo(sesion, pagado, 1, True)
+    mixto = await _viaje(sesion, _yo(c), "900000.00", "500000.00", creado=FUERA_DE_AMBOS)
+    await _tramo(sesion, mixto, 1, True)
+    await _tramo(sesion, mixto, 2, False)
+    debido_usd = await _viaje(sesion, _yo(c), "3000.00", "2000.00", moneda="USD")
+    await _tramo(sesion, debido_usd, 1, False)
+    await _viaje(sesion, _yo(c), "700000.00", "400000.00")  # sin tramos
+
+    r = await c.get(f"{URL}/pagos-operadores", params={**PERIODO, **PERIODO_ANTERIOR})
+
+    cuerpo = r.json()
+    fila = _una_fila(cuerpo)
+    assert Decimal(fila["pagado_ars"]) == Decimal("600000.00")
+    assert Decimal(fila["pendiente_ars"]) == Decimal("500000.00")
+    assert Decimal(fila["pagado_usd"]) == Decimal("0.00")
+    assert Decimal(fila["pendiente_usd"]) == Decimal("2000.00")
+    assert cuerpo["filas_comparadas"] is None
+
+
+async def test_rf131_cobranzas_pendiente_es_de_hoy_y_la_comparacion_solo_trae_lo_cobrado(
+    cliente_como: Fabrica, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("admin")
+    viaje = await _viaje(sesion, _yo(c))
+    await _pago(sesion, viaje, "400000.00", "pagado")
+    await _pago(  # cuota pendiente con vencimiento en otro período: igual es deuda de hoy
+        sesion, viaje, "250000.00", "pendiente", vencimiento=date(2026, 8, 5)
+    )
+    await _pago(sesion, viaje, "100000.00", "pagado", fecha_cobro=date(2026, 8, 20))
+
+    r = await c.get(f"{URL}/cobranzas", params={**PERIODO, **PERIODO_ANTERIOR})
+
+    cuerpo = r.json()
+    principal = _una_fila(cuerpo)
+    assert Decimal(principal["cobrado_ars"]) == Decimal("400000.00")
+    assert Decimal(principal["pendiente_ars"]) == Decimal("250000.00")
+    comparada = cuerpo["filas_comparadas"]
+    assert len(comparada) == 1
+    assert Decimal(comparada[0]["cobrado_ars"]) == Decimal("100000.00")
+    assert Decimal(comparada[0]["pendiente_ars"]) == Decimal("0.00")
+
+
+async def test_rf131_ganancia_incluye_el_margen_en_porcentaje_por_moneda(
+    cliente_como: Fabrica, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("dueno")
+    await _viaje(sesion, _yo(c), "1000000.00", "800000.00")  # 20,00 %
+    await _viaje(sesion, _yo(c), "3000.00", "2000.00", moneda="USD")  # 33,33 %
+
+    r = await c.get(f"{URL}/ganancia", params=PERIODO)
+
+    fila = _una_fila(r.json())
+    assert fila["margen_ars"] == "20.00"
+    assert fila["margen_usd"] == "33.33"
+
+
+async def test_rf131_ganancia_con_ventas_en_una_sola_moneda_deja_el_margen_de_la_otra_en_cero(
+    cliente_como: Fabrica, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("dueno")
+    await _viaje(sesion, _yo(c), "1000000.00", "800000.00")
+
+    r = await c.get(f"{URL}/ganancia", params=PERIODO)
+
+    assert _una_fila(r.json())["margen_usd"] == "0.00"
+
+
+async def test_rf134_comparacion_mensual_sin_fechas_son_los_ultimos_12_meses_con_ceros(
+    cliente_como: Fabrica, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("admin")
+    este_mes = hoy().replace(day=1)
+    hace_3 = sumar_meses(este_mes, -3)
+    hace_12 = sumar_meses(este_mes, -12)
+    await _viaje(sesion, _yo(c), "1000000.00", creado=datetime.now(UTC))
+    await _viaje(
+        sesion,
+        _yo(c),
+        "250000.00",
+        creado=datetime(hace_3.year, hace_3.month, 15, 12, tzinfo=UTC),
+    )
+    await _viaje(  # fuera del rango por defecto
+        sesion,
+        _yo(c),
+        "9999999.00",
+        creado=datetime(hace_12.year, hace_12.month, 15, 12, tzinfo=UTC),
+    )
+
+    r = await c.get(f"{URL}/comparacion-mensual")
+
+    cuerpo = r.json()
+    meses = [sumar_meses(este_mes, -i) for i in range(11, -1, -1)]
+    assert cuerpo["desde"] == meses[0].isoformat()
+    assert [fila["mes"] for fila in cuerpo["filas"]] == [f"{mes:%Y-%m}" for mes in meses]
+    ventas = {fila["mes"]: Decimal(fila["ventas_ars"]) for fila in cuerpo["filas"]}
+    assert ventas[f"{este_mes:%Y-%m}"] == Decimal("1000000.00")
+    assert ventas[f"{hace_3:%Y-%m}"] == Decimal("250000.00")
+    assert sum(ventas.values()) == Decimal("1250000.00")
+    assert Decimal(cuerpo["filas"][5]["ventas_usd"]) == Decimal("0.00")
+
+
+async def test_rf135_comparacion_mensual_sin_ventas_en_el_rango_no_tiene_filas(
+    cliente_como: Fabrica,
+) -> None:
+    c = await cliente_como("admin")
+
+    r = await c.get(f"{URL}/comparacion-mensual")
+
+    assert r.status_code == 200
+    assert r.json()["filas"] == []
+
+
+async def test_rf131_formas_de_pago_y_operadores_agrupan_lo_que_no_tiene_dato(
+    cliente_como: Fabrica, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("admin")
+    viaje = await _viaje(sesion, _yo(c), "100000.00")
+    await _viaje(sesion, _yo(c), "50000.00")
+    await _pago(sesion, viaje, "70000.00", "pagado", forma_pago=None)
+
+    formas = await c.get(f"{URL}/formas-de-pago", params=PERIODO)
+    operadores = await c.get(f"{URL}/ventas-por-operador", params=PERIODO)
+
+    sin_forma = _por(formas.json(), "forma_pago")["Sin especificar"]
+    assert sin_forma["pagos"] == 1
+    assert Decimal(sin_forma["monto_ars"]) == Decimal("70000.00")
+    sin_operador = _por(operadores.json(), "operador")["Sin operador"]
+    assert sin_operador["viajes"] == 2
+    assert Decimal(sin_operador["ventas_ars"]) == Decimal("150000.00")
