@@ -15,7 +15,11 @@ from rumbo.core.errores import DatosInvalidos, NoEncontrado
 from rumbo.core.fechas import hoy, limites_del_dia, sumar_meses
 from rumbo.datos.modelos import Moneda, Usuario
 from rumbo.datos.repositorios.base import Visibilidad
-from rumbo.datos.repositorios.dashboard import RepositorioDashboard, VentaAgrupada
+from rumbo.datos.repositorios.dashboard import (
+    RepositorioDashboard,
+    VentaAgrupada,
+    VentaDelPeriodo,
+)
 from rumbo.negocio.politicas import visibilidad
 from rumbo.negocio.servicios.dashboard import por_vendedor
 
@@ -87,10 +91,16 @@ def _sumar(grupos: list[VentaAgrupada]) -> Totales:
 # --- Generadores: una lista vacía es "sin datos" (CU-22 A3) ---------------------------------
 
 
-async def _ventas(sesion: AsyncSession, vista: Visibilidad, p: Periodo) -> list[Fila]:
-    viajes = await _dashboard.ventas(
+async def _viajes_vendidos(
+    sesion: AsyncSession, vista: Visibilidad, p: Periodo
+) -> list[VentaDelPeriodo]:
+    return await _dashboard.ventas(
         sesion, desde=p.inicio, hasta=p.fin, responsable_id=None, visibilidad=vista
     )
+
+
+async def _ventas(sesion: AsyncSession, vista: Visibilidad, p: Periodo) -> list[Fila]:
+    viajes = await _viajes_vendidos(sesion, vista, p)
     if not viajes:
         return []
     ventas: Totales = defaultdict(Decimal)
@@ -100,9 +110,7 @@ async def _ventas(sesion: AsyncSession, vista: Visibilidad, p: Periodo) -> list[
 
 
 async def _ganancia(sesion: AsyncSession, vista: Visibilidad, p: Periodo) -> list[Fila]:
-    viajes = await _dashboard.ventas(
-        sesion, desde=p.inicio, hasta=p.fin, responsable_id=None, visibilidad=vista
-    )
+    viajes = await _viajes_vendidos(sesion, vista, p)
     if not viajes:
         return []
     ganancia: Totales = defaultdict(Decimal)
@@ -153,9 +161,7 @@ async def _ventas_por_operador(sesion: AsyncSession, vista: Visibilidad, p: Peri
 
 
 async def _ventas_por_vendedor(sesion: AsyncSession, vista: Visibilidad, p: Periodo) -> list[Fila]:
-    viajes = await _dashboard.ventas(
-        sesion, desde=p.inicio, hasta=p.fin, responsable_id=None, visibilidad=vista
-    )
+    viajes = await _viajes_vendidos(sesion, vista, p)
     return [
         {
             "vendedor": v.vendedor_nombre,
