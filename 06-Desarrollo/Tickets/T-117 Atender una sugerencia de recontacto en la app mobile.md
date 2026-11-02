@@ -3,7 +3,7 @@ id: T-117
 titulo: Atender una sugerencia de recontacto en la app mobile
 modulo: M7 — Proceso diario y CRM proactivo
 capa: mobile
-estado: libre
+estado: tomado
 depende_de: [T-058]
 tamaño: S
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [CU-30, RF-029, RF-030]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: Nahuel Viniegra
+tomado_el: 02/11/26 18:59
+rama: feature/T-117-atender-una-sugerencia-de-recontacto-en
 pr:
 ---
 # T-117 Atender una sugerencia de recontacto en la app mobile
