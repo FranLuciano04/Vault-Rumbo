@@ -47,6 +47,7 @@ async def buscar_hoteles(
     actor: Usuario,
     *,
     destino_id: uuid.UUID | None,
+    nombre: str | None,
     categoria: str | None,
     precio_max: Decimal | None,
     servicio: str | None,
@@ -57,11 +58,13 @@ async def buscar_hoteles(
 ) -> ResultadoBusqueda:
     """Página de hoteles con su valoración (CU-18, RF-106 a RF-109). Sin resultados, suma las
     alternativas: los filtros que se pueden quitar y si el actor puede dar de alta (RF-110)."""
+    nombre = (nombre or "").strip() or None
     categoria = (categoria or "").strip() or None  # solo espacios = filtro no aplicado
     servicio = (servicio or "").strip() or None
     filas, total = await _hoteles.buscar(
         sesion,
         destino_id=destino_id,
+        nombre=nombre,
         categoria=categoria,
         precio_max=precio_max,
         servicio=servicio,

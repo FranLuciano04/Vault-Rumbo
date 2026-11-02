@@ -245,6 +245,16 @@ function hotelDuplicado(existente: Hotel) {
 const puntajeValido = (puntaje: number) =>
   Number.isInteger(puntaje) && puntaje >= 1 && puntaje <= 5;
 
+/** Minúsculas, sin tildes y con los espacios colapsados, como `normalizar` del backend. */
+const normalizar = (texto: string) =>
+  texto
+    .normalize("NFD")
+    .replace(/\p{Diacritic}/gu, "")
+    .toLowerCase()
+    .split(/\s+/)
+    .filter(Boolean)
+    .join(" ");
+
 /** Handlers MSW del catálogo de hoteles y sus reseñas (CU-16, CU-17, CU-18, CU-29), con la matriz
  * de roles del contrato: el freelance solo consulta; moderar es de admin y dueño. */
 export function manejadoresHotelesPara(rol: RolMock): RequestHandler[] {
@@ -258,9 +268,11 @@ export function manejadoresHotelesPara(rol: RolMock): RequestHandler[] {
       const estado = filtro("estado") ?? "activo";
       const precioMax = filtro("precio_max");
       const servicio = filtro("servicio");
+      const nombre = normalizar(filtro("nombre") ?? "");
       const filtrados = hotelesMock.filter(
         (h) =>
           h.estado === estado &&
+          (!nombre || normalizar(h.nombre).includes(nombre)) &&
           (!filtro("destino_id") || h.destino_id === filtro("destino_id")) &&
           (!filtro("categoria") ||
             h.categoria?.toLowerCase() === filtro("categoria")?.toLowerCase()) &&

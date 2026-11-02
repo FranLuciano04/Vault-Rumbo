@@ -1,5 +1,5 @@
 import { formatearImporte, type Hotel } from "@rumbo/shared";
-import { useHoteles } from "@rumbo/shared/hooks";
+import { useDebouncedValue, useHoteles } from "@rumbo/shared/hooks";
 import type { AxiosInstance } from "axios";
 import { useState } from "react";
 import { Link } from "react-router";
@@ -23,14 +23,14 @@ export function BuscadorHoteles({
   cancelar: () => void;
 }) {
   const [texto, setTexto] = useState("");
-  const { data, isPending, isError } = useHoteles(cliente, {
+  const nombre = useDebouncedValue(texto.trim());
+  const { data, isPending, isError, isPlaceholderData } = useHoteles(cliente, {
     destino_id: destinoId,
+    nombre: nombre || undefined,
     por_pagina: 100,
     orden: "nombre",
   });
-  const hoteles = (data?.items ?? []).filter((h) =>
-    h.nombre.toLowerCase().includes(texto.trim().toLowerCase()),
-  );
+  const hoteles = data?.items ?? [];
 
   return (
     <div className="mt-3 flex flex-col gap-3 rounded-xl bg-muted/40 p-4">
@@ -46,9 +46,9 @@ export function BuscadorHoteles({
       <p className="text-xs text-muted-foreground">
         Podés repetir un hotel en tramos no consecutivos.
       </p>
-      {isPending && <p role="status">Cargando hoteles…</p>}
+      {(isPending || isPlaceholderData) && <p role="status">Cargando hoteles…</p>}
       {isError && <p role="alert">No pudimos cargar el catálogo de hoteles.</p>}
-      {data && hoteles.length === 0 && (
+      {data && !isPlaceholderData && hoteles.length === 0 && (
         <p className="text-sm">No hay hoteles activos que coincidan con la búsqueda.</p>
       )}
       <ul aria-label="Hoteles del catálogo" className="flex max-h-64 flex-col gap-2 overflow-auto">
@@ -78,7 +78,8 @@ export function BuscadorHoteles({
       </ul>
       {data && data.total > data.items.length && (
         <p className="text-sm">
-          Hay más hoteles de los que se muestran: buscá por nombre para encontrar el que necesitás.
+          Hay más hoteles de los que se muestran: afiná la búsqueda por nombre para encontrar el que
+          necesitás.
         </p>
       )}
       <div className="flex flex-wrap items-center gap-3">
