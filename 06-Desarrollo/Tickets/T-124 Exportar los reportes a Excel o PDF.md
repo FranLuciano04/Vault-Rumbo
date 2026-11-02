@@ -3,7 +3,7 @@ id: T-124
 titulo: Exportar los reportes a Excel o PDF
 modulo: M8 — Calendario, dashboard y reportes
 capa: backend
-estado: libre
+estado: tomado
 depende_de: [T-123, T-068]
 tamaño: S
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [CU-22, RF-133]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: Nahuel Viniegra
+tomado_el: 02/11/26 20:59
+rama: feature/T-124-exportar-los-reportes-a-excel-o-pdf
 pr:
 ---
 # T-124 Exportar los reportes a Excel o PDF
