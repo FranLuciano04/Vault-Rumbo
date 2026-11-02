@@ -33,6 +33,19 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
+## 01/11/26 — Nahuel (Claude Opus 5.5) — `/cerrar-modulo M6`: triage de Codex y arreglos
+- **Hecho:**
+  - Triage de la review de Codex de M6: se confirmaron los 5 hallazgos ([[M6 — review Codex]]). Nahuel definió el tipo de cambio en pesos por dólar y la T11 `confirmado → vendido`; quedaron en [[DEC-0026 Tipo de cambio y deuda nueva en un viaje confirmado|DEC-0026]], en revisión.
+  - PR [#170](https://github.com/FranLuciano04/Vault-Rumbo/pull/170) (H-01, tipo de cambio), [#172](https://github.com/FranLuciano04/Vault-Rumbo/pull/172) (H-02 y H-04, estado con deuda nueva) y [#173](https://github.com/FranLuciano04/Vault-Rumbo/pull/173) (H-03, el freelance cobra sus viajes): CI en verde, esperan la aprobación de otro integrante (riesgo alto).
+  - PR [#174](https://github.com/FranLuciano04/Vault-Rumbo/pull/174) (H-05, buscador de hoteles por nombre): mergeado.
+  - PR [#171](https://github.com/FranLuciano04/Vault-Rumbo/pull/171): `pyasn1`, `node-forge` y `follow-redirects` actualizados por vulnerabilidades altas que frenaban el CI de todos los PR. Mergeado.
+- **Commits:** 465aa86, 7b84562, 668c1d0, e58a31d, d7bfbf8, acec308.
+- **Pendiente:**
+  - Aprobar y mergear #170, #172 y #173. #170 y #172 tocan los mismos archivos generados (`openapi.json`, `tipos.gen.ts`) y `esquemas/economia.py`: el segundo que se mergee va a tener que traer `main` y regenerarlos.
+  - Ratificar DEC-0026 en el equipo, con dos puntos abiertos: cómo se cobra la deuda nueva de un viaje `en_curso`, y si corregir un `en_curso` con saldo cero y plan descalzado debe dar `vendido` (hoy) o `confirmado`. Después, redibujar EST-Viaje.
+  - Con los tres PR mergeados y la aprobación del equipo: tag `mod-6`, grafo, Bitácora técnica y Estado del proyecto.
+  - Sigue pendiente el texto engañoso de «El precio de venta cambió…» al anular un pago sin cambio de precio (sesión de T-109).
+
 ## 30/10/26 — Nahuel (Claude Opus 5.5) — T-109: e2e de las excepciones del viaje (último ticket de M6)
 - **Hecho:** T-109 (PR [#169](https://github.com/FranLuciano04/Vault-Rumbo/pull/169), mergeado con el CI en verde). `e2e/viajes-excepciones.spec.ts` cubre:
   - reprogramar, dividir y anular pagos con rebalanceo hasta cuadrar (CU-11);
