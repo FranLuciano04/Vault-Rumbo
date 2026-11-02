@@ -4,6 +4,7 @@ import {
   idViajeMock,
   manejadoresEconomia,
   manejadoresViajes,
+  pagosPorViajeMock,
   viajesMock,
 } from "@rumbo/shared/mocks";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -240,6 +241,20 @@ describe("RF-059 plan desbalanceado tras cambiar el precio (A5)", () => {
     renderPlan(viajeDe("reservado", { precio_venta: "1200000.00" }));
 
     expect(await screen.findByRole("alert")).toHaveTextContent(/rebalance/i);
+  });
+
+  it("RF-059 con un pago anulado y sin cambio de precio avisa con un texto neutro", async () => {
+    const reservado = viajeDe("reservado");
+    const plan = (pagosPorViajeMock[reservado.id] ?? []).map((p, i) =>
+      i === 1 ? { ...p, estado: "anulado" as const } : p,
+    );
+    servidor.use(http.get("*/api/viajes/:id/pagos", () => HttpResponse.json(plan)));
+    renderPlan(reservado);
+
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      "Los pagos del plan no suman el precio de venta: rebalanceá el plan de pagos.",
+    );
+    expect(screen.queryByText(/el precio de venta cambió/i)).not.toBeInTheDocument();
   });
 
   it("no avisa cuando el plan suma el precio de venta", async () => {
