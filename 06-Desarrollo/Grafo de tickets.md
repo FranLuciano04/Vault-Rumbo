@@ -21,8 +21,8 @@ tags:: #tipo/referencia
 | M4 — Oportunidades y cotizaciones | 16 | 16 | 0 | 0 | 0 | 0 | ✅ cerrado |
 | M5 — Hoteles y reseñas | 11 | 11 | 0 | 0 | 0 | 0 | ✅ cerrado |
 | M6 — Viajes y economía | 24 | 24 | 0 | 0 | 0 | 0 | ✅ cerrado |
-| M7 — Proceso diario y CRM proactivo | 9 | 2 | 1 | 0 | 6 | 0 | 🛠️ en curso |
-| M8 — Calendario, dashboard y reportes | 10 | 5 | 1 | 2 | 2 | 0 | 🛠️ en curso |
+| M7 — Proceso diario y CRM proactivo | 9 | 3 | 0 | 4 | 2 | 0 | 🛠️ en curso |
+| M8 — Calendario, dashboard y reportes | 10 | 6 | 0 | 3 | 1 | 0 | 🛠️ en curso |
 | M9 — Redes e IA | 6 | 0 | 0 | 1 | 5 | 0 | 🛠️ en curso |
 | M10 — Despliegue on-premise | 5 | 0 | 0 | 1 | 4 | 0 | 🛠️ en curso |
 
@@ -184,12 +184,12 @@ flowchart LR
     T109["T-109 · Probar de punta a punta las excepciones del viaje<br/><small>e2e</small>"]:::hecho
   end
   subgraph M7["M7 — Proceso diario y CRM proactivo"]
-    T110["T-110 · Armar el proceso diario idempotente<br/><small>backend · ⚠️ riesgo alto</small><br/>👤 palomap2003"]:::tomado
-    T111["T-111 · Vencer pagos y cotizaciones en el proceso diario<br/><small>backend · ⚠️ riesgo alto</small>"]:::esperando
-    T112["T-112 · Sugerir el avance de los viajes en el proceso diario<br/><small>backend · ⚠️ riesgo alto</small>"]:::esperando
-    T113["T-113 · Detectar clientes inactivos para sugerir el recontacto<br/><small>backend · ⚠️ riesgo alto</small>"]:::esperando
+    T110["T-110 · Armar el proceso diario idempotente<br/><small>backend · ⚠️ riesgo alto</small>"]:::hecho
+    T111["T-111 · Vencer pagos y cotizaciones en el proceso diario<br/><small>backend · ⚠️ riesgo alto</small>"]:::disponible
+    T112["T-112 · Sugerir el avance de los viajes en el proceso diario<br/><small>backend · ⚠️ riesgo alto</small>"]:::disponible
+    T113["T-113 · Detectar clientes inactivos para sugerir el recontacto<br/><small>backend · ⚠️ riesgo alto</small>"]:::disponible
     T114["T-114 · Registrar la decisión sobre una sugerencia de recontacto<br/><small>backend</small>"]:::esperando
-    T115["T-115 · Programar el proceso diario en el Compose<br/><small>infra</small>"]:::esperando
+    T115["T-115 · Programar el proceso diario en el Compose<br/><small>infra</small>"]:::disponible
     T116["T-116 · Atender una sugerencia de recontacto en la web<br/><small>web</small>"]:::hecho
     T117["T-117 · Atender una sugerencia de recontacto en la app mobile<br/><small>mobile</small>"]:::hecho
     T118["T-118 · Probar de punta a punta el proceso diario<br/><small>e2e</small>"]:::esperando
@@ -199,8 +199,8 @@ flowchart LR
     T120["T-120 · Consultar el calendario consolidado<br/><small>backend</small>"]:::hecho
     T121["T-121 · Calcular el embudo con los indicadores económicos<br/><small>backend</small>"]:::hecho
     T122["T-122 · Calcular los indicadores operativos del dashboard<br/><small>backend</small>"]:::hecho
-    T123["T-123 · Generar los reportes del período<br/><small>backend</small><br/>👤 Nahuel Viniegra"]:::tomado
-    T124["T-124 · Exportar los reportes a Excel o PDF<br/><small>backend</small>"]:::esperando
+    T123["T-123 · Generar los reportes del período<br/><small>backend</small>"]:::hecho
+    T124["T-124 · Exportar los reportes a Excel o PDF<br/><small>backend</small>"]:::disponible
     T125["T-125 · Mostrar el calendario de viajes en la web<br/><small>web</small>"]:::disponible
     T126["T-126 · Mostrar el dashboard con el embudo en la web<br/><small>web</small>"]:::hecho
     T127["T-127 · Generar los reportes en la web<br/><small>web</small>"]:::disponible
