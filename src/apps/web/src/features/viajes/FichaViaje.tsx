@@ -11,10 +11,9 @@ import type { AxiosInstance } from "axios";
 import type { ReactNode } from "react";
 import { AccionesDelViaje } from "./AccionesDelViaje";
 import { ItinerarioViaje } from "./itinerario/ItinerarioViaje";
+import { puedeEditarEconomia, puedeOperarViaje } from "./permisos";
 import { PlanDePagos } from "./plan/PlanDePagos";
 import { SeccionEconomia } from "./SeccionEconomia";
-
-const ESTADOS_SIN_EDICION = ["finalizado", "cancelado"];
 
 function Dato({ etiqueta, children }: { etiqueta: string; children: ReactNode }) {
   return (
@@ -36,8 +35,8 @@ function Seccion({ titulo, children }: { titulo: string; children: ReactNode }) 
 
 /**
  * Ficha del viaje (CU-08, CU-10, pantallas 15 y 43): encabezado, economía editable y el lugar del
- * plan de pagos, el itinerario y las acciones, que llegan en sus propios tickets. El freelance y los
- * viajes finalizados o cancelados ven la economía en solo lectura.
+ * plan de pagos, el itinerario y las acciones. Opera el viaje su responsable, admin o dueño (como la
+ * API); el freelance ve la economía en solo lectura, y en un viaje finalizado o cancelado no se edita nada.
  */
 export function FichaViaje({
   cliente,
@@ -64,7 +63,8 @@ export function FichaViaje({
     );
   }
 
-  const editable = usuario.rol !== "freelance" && !ESTADOS_SIN_EDICION.includes(viaje.estado);
+  const operable = puedeOperarViaje(usuario, viaje);
+  const economiaEditable = puedeEditarEconomia(usuario, viaje);
 
   return (
     <div className="flex flex-col gap-4">
@@ -94,16 +94,21 @@ export function FichaViaje({
       <div className="grid gap-4 lg:grid-cols-[2fr_1fr]">
         <div className="flex flex-col gap-4">
           <Seccion titulo="Plan de pagos">
-            <PlanDePagos cliente={cliente} viaje={viaje} editable={editable} />
+            <PlanDePagos cliente={cliente} viaje={viaje} editable={operable} />
           </Seccion>
           <Seccion titulo="Itinerario">
-            <ItinerarioViaje cliente={cliente} viaje={viaje} editable={editable} />
+            <ItinerarioViaje cliente={cliente} viaje={viaje} editable={operable} />
           </Seccion>
           <Seccion titulo="Acciones">
             <AccionesDelViaje cliente={cliente} usuario={usuario} viaje={viaje} />
           </Seccion>
         </div>
-        <SeccionEconomia cliente={cliente} usuario={usuario} viaje={viaje} editable={editable} />
+        <SeccionEconomia
+          cliente={cliente}
+          usuario={usuario}
+          viaje={viaje}
+          editable={economiaEditable}
+        />
       </div>
     </div>
   );

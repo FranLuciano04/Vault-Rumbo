@@ -545,3 +545,125 @@ describe("RF-060 plan de pagos en la ficha (T-103)", () => {
     expect(within(plan).queryByRole("button", { name: /editar plan/i })).toBeNull();
   });
 });
+
+/**
+ * H-03 de la review de M6: la ficha habilita la edición con la misma regla que la API
+ * (`_escribe_operacion`): admin, dueño o el responsable del viaje, sea cual sea su rol; la
+ * economía, además, nunca la edita el freelance (pantalla 43, T-102). Finalizado y cancelado,
+ * nada se edita.
+ */
+describe("RF-060 permisos de edición de la ficha según el responsable (H-03)", () => {
+  /** Ficha de `estado` donde `responsable` figura como responsable del viaje. */
+  function renderFichaDe(
+    estado: keyof typeof idViajeMock,
+    rol: RolMock,
+    responsable: RolMock | "otro",
+  ) {
+    servidor.use(
+      http.get("*/api/viajes/:id", () =>
+        HttpResponse.json({
+          ...viaje(estado),
+          responsable_id:
+            responsable === "otro"
+              ? "11111111-2222-4333-8444-555555555555"
+              : usuariosPorRol[responsable].id,
+        }),
+      ),
+    );
+    return renderFicha(estado, rol);
+  }
+
+  /** Espera a que carguen el plan y el itinerario y devuelve sus regiones y la de economía. */
+  async function regiones() {
+    const plan = await screen.findByRole("region", { name: /plan de pagos/i });
+    const itinerario = await screen.findByRole("region", { name: /itinerario/i });
+    const economia = await seccionEconomia();
+    await within(plan).findAllByRole("listitem");
+    await waitFor(() => {
+      expect(within(itinerario).queryByText(/cargando itinerario/i)).toBeNull();
+    });
+    return { plan, itinerario, economia };
+  }
+
+  const cobro = /registrar cobro/i;
+  const editarPlan = /editar plan/i;
+  const agregarHotel = /agregar hotel/i;
+  const guardarEconomia = /guardar economía/i;
+
+  it("RF-060 el freelance responsable de un viaje reservado registra cobros y edita plan e itinerario", async () => {
+    renderFichaDe("reservado", "freelance", "freelance");
+    const { plan, itinerario } = await regiones();
+
+    expect(within(plan).getAllByRole("button", { name: cobro }).length).toBeGreaterThan(0);
+    expect(within(plan).getByRole("button", { name: editarPlan })).toBeInTheDocument();
+    expect(within(itinerario).getByRole("button", { name: agregarHotel })).toBeInTheDocument();
+  });
+
+  it("RF-056 el freelance responsable sigue viendo la economía en solo lectura", async () => {
+    renderFichaDe("reservado", "freelance", "freelance");
+    const { economia } = await regiones();
+
+    expect(within(economia).queryByRole("button", { name: guardarEconomia })).toBeNull();
+    expect(within(economia).queryByRole("textbox")).toBeNull();
+    expect(within(economia).queryByRole("spinbutton")).toBeNull();
+  });
+
+  it.each(["freelance", "empleado"] as const)(
+    "RF-060 un %s que no es el responsable ve plan, cobros e itinerario en solo lectura",
+    async (rol) => {
+      renderFichaDe("reservado", rol, "otro");
+      const { plan, itinerario } = await regiones();
+
+      expect(within(plan).queryByRole("button", { name: cobro })).toBeNull();
+      expect(within(plan).queryByRole("button", { name: editarPlan })).toBeNull();
+      expect(within(itinerario).queryByRole("button", { name: agregarHotel })).toBeNull();
+    },
+  );
+
+  it.each(["freelance", "empleado"] as const)(
+    "RF-056 un %s que no es el responsable ve la economía en solo lectura",
+    async (rol) => {
+      renderFichaDe("reservado", rol, "otro");
+      const { economia } = await regiones();
+
+      expect(within(economia).queryByRole("button", { name: guardarEconomia })).toBeNull();
+      expect(within(economia).queryByRole("spinbutton")).toBeNull();
+    },
+  );
+
+  it.each(["admin", "dueno"] as const)(
+    "RF-060 el %s edita todo aunque no sea el responsable",
+    async (rol) => {
+      renderFichaDe("reservado", rol, "otro");
+      const { plan, itinerario, economia } = await regiones();
+
+      expect(within(plan).getAllByRole("button", { name: cobro }).length).toBeGreaterThan(0);
+      expect(within(plan).getByRole("button", { name: editarPlan })).toBeInTheDocument();
+      expect(within(itinerario).getByRole("button", { name: agregarHotel })).toBeInTheDocument();
+      expect(within(economia).getByRole("button", { name: guardarEconomia })).toBeInTheDocument();
+    },
+  );
+
+  it("RF-060 el empleado responsable edita plan, cobros, itinerario y economía", async () => {
+    renderFichaDe("reservado", "empleado", "empleado");
+    const { plan, itinerario, economia } = await regiones();
+
+    expect(within(plan).getAllByRole("button", { name: cobro }).length).toBeGreaterThan(0);
+    expect(within(plan).getByRole("button", { name: editarPlan })).toBeInTheDocument();
+    expect(within(itinerario).getByRole("button", { name: agregarHotel })).toBeInTheDocument();
+    expect(within(economia).getByRole("button", { name: guardarEconomia })).toBeInTheDocument();
+  });
+
+  it.each(["finalizado", "cancelado"] as const)(
+    "RF-060 en un viaje %s ni el admin ni el responsable editan nada",
+    async (estado) => {
+      renderFichaDe(estado, "admin", "admin");
+      const { plan, itinerario, economia } = await regiones();
+
+      expect(within(plan).queryByRole("button", { name: cobro })).toBeNull();
+      expect(within(plan).queryByRole("button", { name: editarPlan })).toBeNull();
+      expect(within(itinerario).queryByRole("button", { name: agregarHotel })).toBeNull();
+      expect(within(economia).queryByRole("button", { name: guardarEconomia })).toBeNull();
+    },
+  );
+});
