@@ -1,6 +1,6 @@
 """Rutas del dashboard y los reportes (CU-21, CU-22). El dashboard calcula el embudo, los
-indicadores económicos y operativos y la analítica comercial; los reportes siguen siendo stubs
-que responden 501."""
+indicadores económicos y operativos y la analítica comercial; los reportes se generan en JSON
+(el Excel y el PDF siguen respondiendo 501)."""
 
 import uuid
 from datetime import date, timedelta
@@ -13,10 +13,11 @@ from rumbo.core.db import SesionDep
 from rumbo.core.fechas import hoy, sumar_meses
 from rumbo.datos import modelos
 from rumbo.datos.modelos import Moneda
-from rumbo.negocio.servicios import dashboard
+from rumbo.negocio.servicios import dashboard, reportes
 from rumbo.presentacion.contrato import GESTION, TODOS, no_implementado, operacion
 from rumbo.presentacion.dependencias import usuario_actual
 from rumbo.presentacion.esquemas.dashboard import (
+    ColumnaReporte,
     Dashboard,
     DestinoVendido,
     DetalleIndicador,
@@ -168,7 +169,10 @@ def _montos(totales: dict[Moneda, Decimal]) -> list[MontoPorMoneda]:
     **operacion(GESTION, "CU-22"),
 )
 async def listar_reportes() -> list[ReporteCatalogo]:
-    raise no_implementado()
+    return [
+        ReporteCatalogo(id=d.id, nombre=d.nombre, descripcion=d.descripcion)
+        for d in reportes.catalogo()
+    ]
 
 
 @router.get(
@@ -178,6 +182,8 @@ async def listar_reportes() -> list[ReporteCatalogo]:
     **_REPORTE,
 )
 async def generar_reporte(
+    actor: ActorDep,
+    sesion: SesionDep,
     reporte_id: Annotated[str, Path(description="Identificador del catálogo (`/reportes`).")],
     desde: Annotated[
         date | None, Query(description="Inicio del período. Sin él, el mes en curso.")
@@ -195,4 +201,25 @@ async def generar_reporte(
         Literal["json", "xlsx", "pdf"], Query(description="Formato de salida.")
     ] = "json",
 ) -> Reporte:
-    raise no_implementado()
+    if formato != "json":
+        raise no_implementado()
+    generado = await reportes.generar_reporte(
+        sesion,
+        actor,
+        reporte_id,
+        desde=desde,
+        hasta=hasta,
+        comparar_desde=comparar_desde,
+        comparar_hasta=comparar_hasta,
+    )
+    return Reporte(
+        id=generado.definicion.id,
+        nombre=generado.definicion.nombre,
+        desde=generado.periodo.desde,
+        hasta=generado.periodo.hasta,
+        comparar_desde=generado.comparado and generado.comparado.desde,
+        comparar_hasta=generado.comparado and generado.comparado.hasta,
+        columnas=[ColumnaReporte(**c._asdict()) for c in generado.definicion.columnas],
+        filas=generado.filas,
+        filas_comparadas=generado.filas_comparadas,
+    )

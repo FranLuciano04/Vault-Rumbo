@@ -216,7 +216,7 @@ async def calcular_indicadores(
         ),
         alertas_pendientes=alertas,
         destinos_mas_vendidos=destinos,
-        ventas_por_vendedor=_por_vendedor(viajes if es_direccion(actor) else vendidos),
+        ventas_por_vendedor=por_vendedor(viajes if es_direccion(actor) else vendidos),
         filtro_responsable=filtro_responsable,
         solo_lo_propio=actor.rol is RolUsuario.empleado,
     )
@@ -226,7 +226,7 @@ def _comision(venta: VentaDelPeriodo) -> Decimal:
     return comision_del_vendedor(venta.comision_tipo, venta.comision_vendedor, venta.ganancia)
 
 
-def _por_vendedor(viajes: list[VentaDelPeriodo]) -> list[VentasDeVendedor]:
+def por_vendedor(viajes: list[VentaDelPeriodo]) -> list[VentasDeVendedor]:
     """Ventas y comisiones por vendedor; primero quien más viajes vendió. Fuera de la dirección
     se pasan solo los viajes que vendió el actor, así que queda su fila."""
     filas: dict[uuid.UUID, VentasDeVendedor] = {}

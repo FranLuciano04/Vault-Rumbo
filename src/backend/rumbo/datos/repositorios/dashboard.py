@@ -4,7 +4,7 @@
 import uuid
 from datetime import date, datetime
 from decimal import Decimal
-from typing import Any, NamedTuple
+from typing import Any, Literal, NamedTuple
 
 from sqlalchemy import Date, Select, cast, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -17,7 +17,9 @@ from rumbo.datos.modelos import (
     EstadoOportunidad,
     EstadoPago,
     EstadoViaje,
+    FormaPago,
     Moneda,
+    Operador,
     Oportunidad,
     Pago,
     TipoAlerta,
@@ -77,6 +79,23 @@ class DestinoDelPeriodo(NamedTuple):
     destino_nombre: str
     viajes: int
     pasajeros: int
+
+
+class VentaAgrupada(NamedTuple):
+    """Ventas de un grupo (destino u operador) en una moneda."""
+
+    nombre: str
+    moneda: Moneda
+    viajes: int
+    pasajeros: int
+    ventas: Decimal
+
+
+class CobroPorForma(NamedTuple):
+    forma_pago: FormaPago
+    moneda: Moneda
+    pagos: int
+    monto: Decimal
 
 
 def _de_viajes_vendidos(
@@ -374,3 +393,70 @@ class RepositorioDashboard:
             mes, Viaje.moneda, func.sum(Viaje.precio_venta)
         ).group_by(mes, Viaje.moneda)
         return {(dia, moneda): total for dia, moneda, total in await sesion.execute(agregado)}
+
+    async def ventas_agrupadas(
+        self,
+        sesion: AsyncSession,
+        *,
+        por: Literal["destino", "operador"],
+        desde: datetime,
+        hasta: datetime,
+        responsable_id: uuid.UUID | None,
+        visibilidad: Visibilidad,
+    ) -> list[VentaAgrupada]:
+        """Viajes no cancelados creados en `[desde, hasta)` por destino u operador (los viajes sin
+        operador no figuran) y moneda, con los pasajeros de las oportunidades de origen."""
+        grupo = Destino if por == "destino" else Operador
+        clave = Viaje.destino_id if por == "destino" else Viaje.operador_id
+        consulta = _de_viajes_vendidos(
+            visibilidad.aplicar(select(Viaje), Viaje)
+            .join(grupo, grupo.id == clave)
+            .outerjoin(Oportunidad, Oportunidad.id == Viaje.oportunidad_id),
+            desde,
+            hasta,
+            responsable_id,
+        )
+        columnas = (
+            consulta.with_only_columns(
+                grupo.nombre,
+                Viaje.moneda,
+                func.count(Viaje.id),
+                func.coalesce(func.sum(Oportunidad.pasajeros), 0),
+                func.sum(Viaje.precio_venta),
+            )
+            .group_by(grupo.id, grupo.nombre, Viaje.moneda)
+            .order_by(grupo.nombre, Viaje.moneda)
+        )
+        return [VentaAgrupada._make(fila) for fila in await sesion.execute(columnas)]
+
+    async def cobrado_por_forma(
+        self,
+        sesion: AsyncSession,
+        *,
+        desde: date,
+        hasta: date,
+        responsable_id: uuid.UUID | None,
+        visibilidad: Visibilidad,
+    ) -> list[CobroPorForma]:
+        """Pagos cobrados con `fecha_cobro` en `[desde, hasta]`, por forma de pago y moneda del
+        cobro."""
+        consulta = (
+            visibilidad.aplicar(select(Pago), Pago)
+            .join(Viaje, Viaje.id == Pago.viaje_id)
+            .where(
+                Pago.estado == EstadoPago.pagado,
+                Pago.fecha_cobro >= desde,
+                Pago.fecha_cobro <= hasta,
+            )
+        )
+        if responsable_id is not None:
+            consulta = consulta.where(Viaje.responsable_id == responsable_id)
+        agregado = (
+            consulta.with_only_columns(
+                Pago.forma_pago, Pago.moneda_pago, func.count(), func.sum(Pago.monto_cobrado)
+            )
+            .where(Pago.forma_pago.is_not(None), Pago.moneda_pago.is_not(None))
+            .group_by(Pago.forma_pago, Pago.moneda_pago)
+            .order_by(Pago.forma_pago, Pago.moneda_pago)
+        )
+        return [CobroPorForma._make(fila) for fila in await sesion.execute(agregado)]
