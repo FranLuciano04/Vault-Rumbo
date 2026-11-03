@@ -3,7 +3,7 @@ id: T-112
 titulo: Sugerir el avance de los viajes en el proceso diario
 modulo: M7 — Proceso diario y CRM proactivo
 capa: backend
-estado: libre
+estado: tomado
 depende_de: [T-110, T-096]
 tamaño: S
 riesgo: alto
@@ -12,9 +12,9 @@ modelo_impl: opus
 modelo_review: sonnet
 trazabilidad: [CU-08, RF-039]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: palomap2003
+tomado_el: 03/11/26 19:44
+rama: feature/T-112-sugerir-el-avance-de-los-viajes-en-el-pr
 pr:
 ---
 # T-112 Sugerir el avance de los viajes en el proceso diario
