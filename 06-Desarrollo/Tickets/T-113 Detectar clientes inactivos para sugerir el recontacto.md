@@ -3,7 +3,7 @@ id: T-113
 titulo: Detectar clientes inactivos para sugerir el recontacto
 modulo: M7 — Proceso diario y CRM proactivo
 capa: backend
-estado: libre
+estado: tomado
 depende_de: [T-110, T-042, T-029]
 tamaño: M
 riesgo: alto
@@ -12,9 +12,9 @@ modelo_impl: opus
 modelo_review: sonnet
 trazabilidad: [CU-30, RF-027, RF-028, RF-030]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: palomap2003
+tomado_el: 02/11/26 21:44
+rama: feature/T-113-detectar-clientes-inactivos-para-sugerir
 pr:
 ---
 # T-113 Detectar clientes inactivos para sugerir el recontacto
