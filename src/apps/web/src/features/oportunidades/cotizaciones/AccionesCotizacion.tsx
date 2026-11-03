@@ -9,26 +9,18 @@ import type { AxiosInstance } from "axios";
 import { Download } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { guardarArchivo } from "@/lib/descargas";
 import { ERROR_AL_GUARDAR, mensajeDeError } from "@/lib/errores";
 
 const ERROR_AL_DESCARGAR = "No pudimos descargar el PDF. Probá de nuevo en unos minutos.";
 
-/** Descarga el PDF de la versión mediante un enlace temporal. */
+/** Descarga el PDF de la versión. */
 async function guardarPdf(cliente: AxiosInstance, cotizacion: Cotizacion) {
-  const url = URL.createObjectURL(
-    new Blob([await descargarDocumentoCotizacion(cliente, cotizacion.id)], {
-      type: "application/pdf",
-    }),
+  guardarArchivo(
+    await descargarDocumentoCotizacion(cliente, cotizacion.id),
+    `cotizacion-${cotizacion.id}.pdf`,
+    "application/pdf",
   );
-  const enlace = document.createElement("a");
-  enlace.href = url;
-  enlace.download = `cotizacion-${cotizacion.id}.pdf`;
-  document.body.append(enlace);
-  enlace.click();
-  enlace.remove();
-  setTimeout(() => {
-    URL.revokeObjectURL(url);
-  }, 0);
 }
 
 /**

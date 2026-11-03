@@ -30,3 +30,8 @@ export function aplicarErroresDelServidor<T extends FieldValues>(
   }
   return restantes.length > 0 ? restantes.join(" ") : null;
 }
+
+/** El `detail` de un problema de la API o, si no lo hay, el texto de respaldo de la acción que falló. */
+export function mensajeDeErrorCon(falla: unknown, respaldo: string): string {
+  return falla instanceof ErrorApi && falla.detail ? falla.detail : respaldo;
+}

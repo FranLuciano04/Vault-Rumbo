@@ -8,10 +8,14 @@ function textoCelda(columna: ColumnaReporte, valor: Fila[string] | undefined): s
   const texto = String(valor);
   if (columna.tipo === "importe" && columna.moneda) return formatearImporte(texto, columna.moneda);
   if (columna.clave.startsWith("margen_")) return `${texto.replace(".", ",")} %`;
+  if (columna.tipo === "entero") return texto.replace(/\B(?=(\d{3})+$)/g, ".");
   const mes = /^(\d{4})-(\d{2})$/.exec(texto);
   if (columna.clave === "mes" && mes) return `${mes[2] ?? ""}/${(mes[1] ?? "").slice(2)}`;
   return texto;
 }
+
+const alineadoALaDerecha = (c: ColumnaReporte) =>
+  c.tipo !== "texto" || c.clave.startsWith("margen_");
 
 /** Tabla de un período del reporte: las columnas las define la API; los importes van a la derecha. */
 export function TablaReporte({
@@ -32,7 +36,7 @@ export function TablaReporte({
               <th
                 key={c.clave}
                 scope="col"
-                className={`px-3 py-2 font-medium ${c.tipo === "texto" ? "" : "text-right"}`}
+                className={`px-3 py-2 font-medium ${alineadoALaDerecha(c) ? "text-right" : ""}`}
               >
                 {c.titulo}
               </th>
@@ -45,7 +49,7 @@ export function TablaReporte({
               {columnas.map((c) => (
                 <td
                   key={c.clave}
-                  className={`px-3 py-2 ${c.tipo === "texto" ? "" : "text-right tabular-nums"}`}
+                  className={`px-3 py-2 ${alineadoALaDerecha(c) ? "text-right tabular-nums" : ""}`}
                 >
                   {textoCelda(c, fila[c.clave])}
                 </td>

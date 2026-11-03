@@ -1,4 +1,4 @@
-import { formatearFecha, type UsuarioActual } from "@rumbo/shared";
+import { formatearFecha } from "@rumbo/shared";
 import { descargarReporte, useReporte, useReportes } from "@rumbo/shared/hooks";
 import type { AxiosInstance } from "axios";
 import { Download } from "lucide-react";
@@ -6,13 +6,19 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { mensajeDeError } from "@/lib/errores";
+import { guardarArchivo } from "@/lib/descargas";
+import { mensajeDeErrorCon } from "@/lib/errores";
 import { TablaReporte } from "./TablaReporte";
 
 const TIPO_ARCHIVO = {
   xlsx: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
   pdf: "application/pdf",
 } as const;
+
+const ERROR_AL_CARGAR = "No pudimos cargar el reporte. Probá de nuevo en unos minutos.";
+const ERROR_AL_DESCARGAR = "No pudimos descargar el reporte. Probá de nuevo en unos minutos.";
+/** Su período por defecto lo define el backend (últimos 12 meses): hasta que se toquen las fechas no se mandan. */
+const REPORTE_CON_PERIODO_PROPIO = "comparacion-mensual";
 
 const dosDigitos = (n: number) => String(n).padStart(2, "0");
 
@@ -26,28 +32,7 @@ function mesEnCurso() {
   return { desde: `${prefijo}-01`, hasta: `${prefijo}-${dosDigitos(ultimo)}` };
 }
 
-/** Descarga el archivo del reporte mediante un enlace temporal. */
-async function guardarArchivo(
-  cliente: AxiosInstance,
-  reporteId: string,
-  formato: keyof typeof TIPO_ARCHIVO,
-  filtros: { desde: string; hasta: string; comparar_desde?: string; comparar_hasta?: string },
-) {
-  const url = URL.createObjectURL(
-    new Blob([await descargarReporte(cliente, reporteId, formato, filtros)], {
-      type: TIPO_ARCHIVO[formato],
-    }),
-  );
-  const enlace = document.createElement("a");
-  enlace.href = url;
-  enlace.download = `${reporteId}.${formato}`;
-  document.body.append(enlace);
-  enlace.click();
-  enlace.remove();
-  setTimeout(() => {
-    URL.revokeObjectURL(url);
-  }, 0);
-}
+type Periodo = { desde: string; hasta: string };
 
 function CampoFecha({
   id,
@@ -79,30 +64,60 @@ function CampoFecha({
  * Reportes (CU-22, pantalla 29): el admin y el dueño eligen un reporte del catálogo y un período,
  * lo comparan con otro y lo descargan en Excel o PDF. El cálculo es del backend.
  */
-export function PaginaReportes({ cliente }: { cliente: AxiosInstance; usuario: UsuarioActual }) {
+export function PaginaReportes({ cliente }: { cliente: AxiosInstance }) {
   const [elegido, setElegido] = useState("");
-  const [periodo, setPeriodo] = useState(mesEnCurso);
+  // Lo que muestran los inputs (puede estar a medio tipear) y el último período completo que se consulta.
+  const [escritas, setEscritas] = useState<Periodo | null>(null);
+  const [consulta, setConsulta] = useState<Periodo | null>(null);
   const [compara, setCompara] = useState(false);
   const [comparado, setComparado] = useState({ desde: "", hasta: "" });
-  const [errorDescarga, setErrorDescarga] = useState<string | null>(null);
+  const [descargando, setDescargando] = useState(false);
+  const [falloDescarga, setFalloDescarga] = useState<{ clave: string; mensaje: string } | null>(
+    null,
+  );
 
   const catalogo = useReportes(cliente);
   const reporteId = elegido || catalogo.data?.[0]?.id || "";
+  const porDefecto = reporteId === REPORTE_CON_PERIODO_PROPIO ? null : mesEnCurso();
+  const periodo = consulta ?? porDefecto;
   const comparando = compara && comparado.desde !== "" && comparado.hasta !== "";
   const filtros = {
-    desde: periodo.desde,
-    hasta: periodo.hasta,
+    ...periodo,
     ...(comparando && { comparar_desde: comparado.desde, comparar_hasta: comparado.hasta }),
   };
   const reporte = useReporte(cliente, reporteId, filtros);
   const { data } = reporte;
 
+  const mostradas = escritas ??
+    porDefecto ?? { desde: data?.desde ?? "", hasta: data?.hasta ?? "" };
+  const periodoCompleto = mostradas.desde !== "" && mostradas.hasta !== "";
+  const claveFiltros = JSON.stringify([reporteId, filtros]);
+
+  function cambiarFecha(campo: keyof Periodo, valor: string) {
+    const siguiente = { ...mostradas, [campo]: valor };
+    setEscritas(siguiente);
+    // Con una fecha vacía o a medio tipear no se consulta: se sigue mostrando el último período completo.
+    if (siguiente.desde && siguiente.hasta) setConsulta(siguiente);
+  }
+
   async function descargar(formato: keyof typeof TIPO_ARCHIVO) {
-    setErrorDescarga(null);
+    if (!data) return;
+    setFalloDescarga(null);
+    setDescargando(true);
     try {
-      await guardarArchivo(cliente, reporteId, formato, filtros);
+      const sinGuiones = (fecha: string) => fecha.replaceAll("-", "");
+      guardarArchivo(
+        await descargarReporte(cliente, reporteId, formato, filtros),
+        `${reporteId}-${sinGuiones(data.desde)}-${sinGuiones(data.hasta)}.${formato}`,
+        TIPO_ARCHIVO[formato],
+      );
     } catch (falla) {
-      setErrorDescarga(mensajeDeError(falla));
+      setFalloDescarga({
+        clave: claveFiltros,
+        mensaje: mensajeDeErrorCon(falla, ERROR_AL_DESCARGAR),
+      });
+    } finally {
+      setDescargando(false);
     }
   }
 
@@ -136,17 +151,17 @@ export function PaginaReportes({ cliente }: { cliente: AxiosInstance; usuario: U
         <CampoFecha
           id="reporte-desde"
           etiqueta="Desde"
-          valor={periodo.desde}
+          valor={mostradas.desde}
           alCambiar={(desde) => {
-            setPeriodo((p) => ({ ...p, desde }));
+            cambiarFecha("desde", desde);
           }}
         />
         <CampoFecha
           id="reporte-hasta"
           etiqueta="Hasta"
-          valor={periodo.hasta}
+          valor={mostradas.hasta}
           alCambiar={(hasta) => {
-            setPeriodo((p) => ({ ...p, hasta }));
+            cambiarFecha("hasta", hasta);
           }}
         />
       </div>
@@ -189,7 +204,7 @@ export function PaginaReportes({ cliente }: { cliente: AxiosInstance; usuario: U
               key={formato}
               type="button"
               variant="outline"
-              disabled={!data}
+              disabled={!data || reporte.isPlaceholderData || descargando || !periodoCompleto}
               onClick={() => void descargar(formato)}
             >
               <Download aria-hidden="true" />
@@ -199,10 +214,10 @@ export function PaginaReportes({ cliente }: { cliente: AxiosInstance; usuario: U
         </div>
       </div>
 
-      {catalogo.isError && <p role="alert">{mensajeDeError(catalogo.error)}</p>}
-      {errorDescarga && <p role="alert">{errorDescarga}</p>}
+      {catalogo.isError && <p role="alert">{mensajeDeErrorCon(catalogo.error, ERROR_AL_CARGAR)}</p>}
+      {falloDescarga?.clave === claveFiltros && <p role="alert">{falloDescarga.mensaje}</p>}
       {!catalogo.isError && reporte.isPending && <p role="status">Cargando el reporte…</p>}
-      {reporte.isError && <p role="alert">{mensajeDeError(reporte.error)}</p>}
+      {reporte.isError && <p role="alert">{mensajeDeErrorCon(reporte.error, ERROR_AL_CARGAR)}</p>}
 
       {data && !reporte.isError && (
         <section className="flex flex-col gap-3">

@@ -3,7 +3,6 @@ import {
   crearServidor,
   manejadoresDashboardPara,
   reportesCatalogoMock,
-  usuariosPorRol,
   type RolMock,
 } from "@rumbo/shared/mocks";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -18,7 +17,7 @@ const servidor = crearServidor();
 beforeAll(() => {
   servidor.listen({ onUnhandledRequest: "error" });
 });
-const crearObjectURL = vi.fn((_blob: Blob) => "blob:reporte");
+const crearObjectURL = vi.fn<(blob: Blob) => string>(() => "blob:reporte");
 let descargas: string[] = [];
 beforeEach(() => {
   vi.stubGlobal(
@@ -52,7 +51,7 @@ function renderReportes(rol: RolMock, ...extra: Parameters<typeof servidor.use>)
       client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}
     >
       <MemoryRouter initialEntries={["/reportes"]}>
-        <PaginaReportes cliente={cliente} usuario={usuariosPorRol[rol]} />
+        <PaginaReportes cliente={cliente} />
       </MemoryRouter>
     </QueryClientProvider>,
   );
@@ -176,6 +175,53 @@ describe("RF-131 reporte", () => {
       expect(pedidos.at(-1)?.q.get("desde")).toBe("2026-09-01");
       expect(pedidos.at(-1)?.q.get("hasta")).toBe("2026-09-30");
     });
+  });
+
+  it("RF-131 comparacion-mensual sin tocar las fechas no manda desde/hasta y muestra el período de la respuesta", async () => {
+    const pedidos: Pedido[] = [];
+    renderReportes(
+      "dueno",
+      http.get("*/api/reportes", () =>
+        HttpResponse.json([
+          { id: "comparacion-mensual", nombre: "Comparación mensual", descripcion: "Mes a mes." },
+        ]),
+      ),
+      registrarPedidos(pedidos),
+      http.get("*/api/reportes/:id", () =>
+        HttpResponse.json({
+          ...reporteFinanciero,
+          id: "comparacion-mensual",
+          desde: "2025-12-01",
+          hasta: "2026-11-30",
+        }),
+      ),
+    );
+
+    await screen.findByRole("table");
+    expect(pedidos.at(-1)?.q.has("desde")).toBe(false);
+    expect(pedidos.at(-1)?.q.has("hasta")).toBe(false);
+    expect(screen.getByLabelText("Desde")).toHaveValue("2025-12-01");
+    expect(screen.getByLabelText("Hasta")).toHaveValue("2026-11-30");
+
+    fireEvent.change(screen.getByLabelText("Desde"), { target: { value: "2026-01-01" } });
+    await waitFor(() => {
+      expect(pedidos.at(-1)?.q.get("desde")).toBe("2026-01-01");
+    });
+    expect(pedidos.at(-1)?.q.get("hasta")).toBe("2026-11-30");
+  });
+
+  it("RF-131 con una fecha vacía no pide el reporte con desde vacío y sigue mostrando la tabla", async () => {
+    const pedidos: Pedido[] = [];
+    renderReportes("dueno", registrarPedidos(pedidos));
+    await screen.findByRole("table");
+
+    fireEvent.change(screen.getByLabelText("Desde"), { target: { value: "" } });
+    await new Promise((resolver) => setTimeout(resolver, 50));
+
+    expect(screen.getByLabelText("Desde")).toHaveValue("");
+    expect(pedidos.every((p) => p.q.get("desde") !== "")).toBe(true);
+    expect(screen.getByRole("table")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Descargar Excel/ })).toBeDisabled();
   });
 
   it("RF-131 muestra el período del reporte en formato dd/mm/aa", async () => {
