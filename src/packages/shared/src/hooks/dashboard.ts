@@ -37,6 +37,9 @@ export function useReporte(
   return useQuery({
     queryKey: [...claveReportes, reporteId, filtros],
     enabled: Boolean(reporteId),
+    // Al cambiar el período se sigue mostrando el mismo reporte hasta que llega el nuevo, sin parpadeo.
+    placeholderData: (anterior, consultaAnterior) =>
+      consultaAnterior?.queryKey[1] === reporteId ? anterior : undefined,
     queryFn: async () =>
       (await cliente.get<Reporte>(`/api/reportes/${reporteId}`, { params: filtros })).data,
   });
