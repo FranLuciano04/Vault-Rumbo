@@ -3,7 +3,7 @@ id: T-127
 titulo: Generar los reportes en la web
 modulo: M8 — Calendario, dashboard y reportes
 capa: web
-estado: libre
+estado: tomado
 depende_de: [T-126]
 tamaño: M
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [CU-22, RF-131, RF-132, RF-133, RF-134]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: Nahuel Viniegra
+tomado_el: 02/11/26 22:09
+rama: feature/T-127-generar-los-reportes-en-la-web
 pr:
 ---
 # T-127 Generar los reportes en la web
