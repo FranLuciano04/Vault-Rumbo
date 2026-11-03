@@ -8,7 +8,7 @@ from sqlalchemy import exists, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from rumbo.core.errores import NoEncontrado
-from rumbo.datos.modelos import EstadoViaje, Pago, Viaje, ViajeHotel
+from rumbo.datos.modelos import EstadoPago, EstadoViaje, Pago, Viaje, ViajeHotel
 from rumbo.datos.repositorios.base import RepositorioBase, Visibilidad
 
 
@@ -96,6 +96,21 @@ class RepositorioPagos(RepositorioBase[Pago]):
         """Los pagos de varios viajes, anulados incluidos, por vencimiento."""
         consulta = visibilidad.aplicar(select(Pago).where(Pago.viaje_id.in_(viaje_ids)), Pago)
         return list(await sesion.scalars(consulta.order_by(Pago.vencimiento, Pago.id)))
+
+    async def pendientes_vencidos_para_modificar(
+        self, sesion: AsyncSession, *, antes_de: date
+    ) -> list[Pago]:
+        """Pagos `pendiente` con `vencimiento < antes_de`, bloqueados hasta el fin de la
+        transacción y releídos, para no pisar un cobro simultáneo (EST-Pago T3). Sin filtro de
+        visibilidad: solo para el proceso diario, que no tiene actor; no exponer a un endpoint."""
+        consulta = (
+            select(Pago)
+            .where(Pago.estado == EstadoPago.pendiente, Pago.vencimiento < antes_de)
+            .order_by(Pago.id)
+            .with_for_update()
+            .execution_options(populate_existing=True)
+        )
+        return list(await sesion.scalars(consulta))
 
 
 class RepositorioTramos(RepositorioBase[ViajeHotel]):

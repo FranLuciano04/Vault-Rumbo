@@ -1,12 +1,13 @@
 """Repositorio del módulo oportunidades: `Oportunidad` (CU-05) y `Cotizacion` (CU-06)."""
 
 import uuid
+from datetime import date
 
 from sqlalchemy import Select, exists, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from rumbo.core.errores import NoEncontrado
-from rumbo.datos.modelos import Cotizacion, EstadoOportunidad, Oportunidad
+from rumbo.datos.modelos import Cotizacion, EstadoCotizacion, EstadoOportunidad, Oportunidad
 from rumbo.datos.repositorios.base import RepositorioBase, Visibilidad
 
 
@@ -114,3 +115,21 @@ class RepositorioCotizaciones(RepositorioBase[Cotizacion]):
         if cotizacion is None:
             raise NoEncontrado(f"Cotizacion {id} no encontrada")
         return cotizacion
+
+    async def enviadas_vencidas_para_modificar(
+        self, sesion: AsyncSession, *, antes_de: date
+    ) -> list[Cotizacion]:
+        """Cotizaciones `enviada` con `validez_hasta < antes_de`, bloqueadas hasta el fin de la
+        transacción y releídas, para no pisar una respuesta simultánea (EST-Cotización T5). Sin
+        filtro de visibilidad: solo para el proceso diario, que no tiene actor; no exponer a un
+        endpoint."""
+        consulta = (
+            select(Cotizacion)
+            .where(
+                Cotizacion.estado == EstadoCotizacion.enviada, Cotizacion.validez_hasta < antes_de
+            )
+            .order_by(Cotizacion.id)
+            .with_for_update()
+            .execution_options(populate_existing=True)
+        )
+        return list(await sesion.scalars(consulta))

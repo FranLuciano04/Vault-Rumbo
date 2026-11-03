@@ -362,6 +362,17 @@ def _monto_cobrado(
     return monto_cobrado
 
 
+async def vencer_pagos(sesion: AsyncSession, fecha: date) -> str | None:
+    """Paso del proceso diario (EST-Pago T3): los pagos `pendiente` cuyo `vencimiento` es
+    anterior a `fecha` pasan a `vencido`. Su `Alerta` no cambia: sigue pendiente y se ve
+    atrasada. Idempotente: un pago ya vencido no vuelve a tocarse."""
+    pagos = await _pagos.pendientes_vencidos_para_modificar(sesion, antes_de=fecha)
+    for pago in pagos:
+        estado_pago.vencer(pago, hoy=fecha)
+    await sesion.flush()
+    return f"{len(pagos)} pagos vencidos" if pagos else None
+
+
 async def _pago_para_ajustar(
     sesion: AsyncSession, actor: Usuario, pago_id: uuid.UUID
 ) -> tuple[Pago, Viaje]:

@@ -292,6 +292,17 @@ async def rechazar_cotizacion(
     return await _transicionar_cotizacion(sesion, actor, cotizacion_id, estado_cotizacion.rechazar)
 
 
+async def vencer_cotizaciones(sesion: AsyncSession, fecha: date) -> str | None:
+    """Paso del proceso diario (EST-Cotización T5, CU-06 A5, RF-026): las cotizaciones `enviada`
+    cuya `validez_hasta` es anterior a `fecha` pasan a `vencida`. La oportunidad no cambia de
+    estado. Idempotente: una cotización ya vencida no vuelve a tocarse."""
+    cotizaciones = await _cotizaciones.enviadas_vencidas_para_modificar(sesion, antes_de=fecha)
+    for cotizacion in cotizaciones:
+        estado_cotizacion.vencer(cotizacion, hoy=fecha)
+    await sesion.flush()
+    return f"{len(cotizaciones)} cotizaciones vencidas" if cotizaciones else None
+
+
 async def _transicionar(
     sesion: AsyncSession,
     actor: Usuario,
