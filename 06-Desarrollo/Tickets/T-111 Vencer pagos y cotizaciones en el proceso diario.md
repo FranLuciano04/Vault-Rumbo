@@ -3,7 +3,7 @@ id: T-111
 titulo: Vencer pagos y cotizaciones en el proceso diario
 modulo: M7 — Proceso diario y CRM proactivo
 capa: backend
-estado: libre
+estado: tomado
 depende_de: [T-110, T-088, T-067]
 tamaño: S
 riesgo: alto
@@ -12,9 +12,9 @@ modelo_impl: opus
 modelo_review: sonnet
 trazabilidad: [CU-06, CU-12, RF-026]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: palomap2003
+tomado_el: 03/11/26 19:04
+rama: feature/T-111-vencer-pagos-y-cotizaciones-en-el-proces
 pr:
 ---
 # T-111 Vencer pagos y cotizaciones en el proceso diario
