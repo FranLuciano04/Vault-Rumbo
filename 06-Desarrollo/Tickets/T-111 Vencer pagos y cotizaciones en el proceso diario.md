@@ -3,7 +3,7 @@ id: T-111
 titulo: Vencer pagos y cotizaciones en el proceso diario
 modulo: M7 — Proceso diario y CRM proactivo
 capa: backend
-estado: tomado
+estado: hecho
 depende_de: [T-110, T-088, T-067]
 tamaño: S
 riesgo: alto
@@ -47,3 +47,10 @@ Cada noche, los pagos pendientes con fecha pasada pasan a `vencido` y las cotiza
 - —
 
 ## Notas de implementación
+- Dos pasos en `proceso_diario.PASOS`, «vencimiento de pagos» (`economia.vencer_pagos`) y «vencimiento de cotizaciones» (`oportunidades.vencer_cotizaciones`), que corren antes del recontacto. Cada uno devuelve «N … vencidos» o `None`.
+- Las consultas de los repositorios (`pendientes_vencidos_para_modificar` y `enviadas_vencidas_para_modificar`) bloquean con `FOR UPDATE` y usan `populate_existing`, sin filtro de visibilidad porque el proceso no tiene actor. No se exponen a un endpoint. El estado cambia fila por fila por las máquinas de estado: la nueva `estado_cotizacion.vencer` (T5) y la `estado_pago.vencer`, que ya existía. La auditoría queda con `updated_by` en `None`.
+- Borde estricto: el día del vencimiento o el último día de vigencia todavía no vence. No se tocan la `Alerta` del pago (EST-Pago T3) ni la `Oportunidad` (EST-Cotización T5).
+- El refactor no cambió nada. El fix solo aplicó el formato de ruff al test (`--tocar-tests`, un cambio mecánico).
+- Menores de la review que quedan anotados: (1) los pasos cargan todas las filas vencidas sin paginar, aceptable para el volumen de una PyME; si crece, procesarlas en lotes con `LIMIT`. (2) Ningún test cubre la concurrencia ni que `updated_by` quede en `None`.
+- Fuera del ticket: EST-Cotización se contradice sobre si la vigencia por defecto de 1 mes está validada (§63 contra §44 y §98). Hay que corregirla en el vault.
+- Modelos: tests con sonnet, implementación y refactor con opus, review de seguridad con sonnet. No hubo escalados.
