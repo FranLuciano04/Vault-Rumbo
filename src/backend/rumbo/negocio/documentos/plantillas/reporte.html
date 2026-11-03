@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="es-AR">
+<head>
+<meta charset="utf-8">
+<title>{{ nombre }}</title>
+<style>
+  @page { size: A4 landscape; margin: 1.5cm; }
+  body { font-family: "DejaVu Sans", sans-serif; font-size: 9pt; color: #1f2933; }
+  h1 { font-size: 16pt; margin: 0 0 4pt; }
+  h2 { font-size: 11pt; margin: 14pt 0 4pt; }
+  .meta { color: #52606d; margin-bottom: 8pt; }
+  table { width: 100%; border-collapse: collapse; }
+  th, td { padding: 4pt; border-bottom: 1px solid #cbd2d9; }
+  th { text-align: left; }
+  .derecha { text-align: right; white-space: nowrap; }
+  .sin-datos { color: #52606d; font-style: italic; }
+</style>
+</head>
+<body>
+  <h1>{{ nombre }}</h1>
+  <p class="meta">Período: {{ periodo }}</p>
+  {% for tabla in tablas %}
+  {% if tabla.titulo %}<h2>{{ tabla.titulo }}</h2>{% endif %}
+  <table>
+    <thead>
+      <tr>
+        {% for c in columnas %}<th{% if c.tipo != "texto" %} class="derecha"{% endif %}>{{ c.titulo }}</th>{% endfor %}
+      </tr>
+    </thead>
+    <tbody>
+      {% for fila in tabla.filas %}
+      <tr>
+        {% for celda in fila %}<td{% if columnas[loop.index0].tipo != "texto" %} class="derecha"{% endif %}>{{ celda }}</td>{% endfor %}
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% if not tabla.filas %}<p class="sin-datos">Sin datos en el período.</p>{% endif %}
+  {% endfor %}
+</body>
+</html>
