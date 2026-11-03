@@ -58,8 +58,9 @@ services:
       retries: 10
       start_period: 30s
 
-  # Mismo código que la api. El crontab del proceso diario llega en M7 (src/infra/crontab);
-  # hasta entonces el contenedor queda levantado sin tareas.
+  # Mismo código que la api. Corre el proceso diario según src/infra/crontab (00:00 de Argentina);
+  # cada corrida queda en `docker compose logs scheduler`. A mano:
+  #   docker compose -f src/docker-compose.yml exec scheduler python -m rumbo.presentacion.jobs.diario
   scheduler:
     image: rumbo-backend
     restart: unless-stopped
@@ -67,7 +68,9 @@ services:
       api:
         condition: service_healthy
     environment: *api-entorno
-    command: ["sleep", "infinity"]
+    volumes:
+      - ./infra/crontab:/etc/rumbo/crontab:ro
+    command: ["supercronic", "/etc/rumbo/crontab"]
 
   nginx:
     build:

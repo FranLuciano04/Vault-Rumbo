@@ -3,7 +3,7 @@ id: T-115
 titulo: Programar el proceso diario en el Compose
 modulo: M7 — Proceso diario y CRM proactivo
 capa: infra
-estado: tomado
+estado: hecho
 depende_de: [T-110, T-024]
 tamaño: S
 riesgo: normal
@@ -46,3 +46,8 @@ No sigue TDD (`infra`). Se verifica adelantando la hora del cron en una prueba l
 - El respaldo (M10).
 
 ## Notas de implementación
+- Cron con **supercronic** v0.2.51 (sin root, log a stdout, respeta `TZ`), agregado a la imagen `rumbo-backend` desde el release de GitHub con checksum sha256 fijado (amd64/arm64). El build del servidor necesita acceso a GitHub.
+- `TZ=America/Argentina/Buenos_Aires` ya llegaba al scheduler por `*api-entorno`; no hizo falta tocarla.
+- Verificado: `docker compose config`, `build api`, `supercronic -test` del crontab real, y un crontab de prueba `* * * * *` con dos corridas exitosas en `docker compose logs scheduler` (-03:00). Disparo manual con código 0.
+- Review (Opus): aprobada, dos menores arreglados (`ARG TARGETARCH` global; aviso en el crontab de que una corrida perdida por caída a las 00:00 se dispara a mano). Queda como posible mejora para M10: recuperar corridas perdidas automáticamente.
+- Modelos: impl sonnet, review opus. Sin escalados.

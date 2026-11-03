@@ -1,0 +1,8 @@
+# Crontab del scheduler (supercronic). DEC-0011, RNF-13.
+# La hora se interpreta en la zona del contenedor: TZ=America/Argentina/Buenos_Aires (docker-compose.yml).
+# El proceso es idempotente: correrlo dos veces el mismo día no duplica alertas ni vencimientos.
+# Cada corrida escribe en stdout: `docker compose -f src/docker-compose.yml logs scheduler`.
+# Si el servidor estuvo caído a las 00:00, esa corrida se pierde: dispararla a mano con
+#   docker compose -f src/docker-compose.yml exec scheduler python -m rumbo.presentacion.jobs.diario
+# (es seguro: el proceso es idempotente).
+0 0 * * * python -m rumbo.presentacion.jobs.diario
