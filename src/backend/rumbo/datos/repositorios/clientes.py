@@ -217,9 +217,9 @@ class RepositorioClientes(RepositorioBase[Cliente]):
     ) -> list[CandidatoARecontacto]:
         """Candidatos a recontacto (CU-30, RF-027, RF-030), en una consulta: clientes con algún
         `Viaje` no cancelado cuyo último regreso es `<= regreso_hasta`, sin `no_recontactar`,
-        sin `Oportunidad` abierta y sin una `Alerta` de `recontacto` pendiente o vista (aunque
-        esté pospuesta). Sin filtro de visibilidad: solo para el proceso diario, que no tiene
-        actor; no exponer a un endpoint."""
+        sin `Oportunidad` abierta y sin una `Alerta` de `recontacto` pendiente o vista (una
+        pospuesta es una pendiente con fecha futura, y también cuenta). Sin filtro de
+        visibilidad: solo para el proceso diario, que no tiene actor; no exponer a un endpoint."""
         ultimo_regreso = (
             select(Viaje.cliente_id, func.max(Viaje.fecha_regreso).label("fecha"))
             .where(Viaje.estado != EstadoViaje.cancelado)

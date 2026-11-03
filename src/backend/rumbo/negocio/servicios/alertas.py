@@ -193,7 +193,8 @@ async def crear_varias(
 ) -> list[Alerta]:
     """Como `crear`, pero muchas en un solo flush: una alerta pendiente por cada `(origen,
     propietario_id)` de `destinos`. Los orígenes tienen que estar ya guardados (con id); la
-    usan los pasos del proceso diario."""
+    usan los pasos del proceso diario. No valida el origen ni el propietario: los ids los arma
+    el servicio que llama, a partir de filas ya guardadas."""
     nuevas = [
         Alerta(
             tipo=tipo,

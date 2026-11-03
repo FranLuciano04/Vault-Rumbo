@@ -237,12 +237,15 @@ async def sugerir_recontactos(sesion: AsyncSession, fecha: date) -> str | None:
         for c in candidatos
         if (propietario_id := c.asesor_activo_id or admin_id) is not None
     ]
-    if len(destinos) < len(candidatos):
-        logger.warning(
-            "Recontacto: %d clientes sin asesor activo quedaron sin sugerencia (no hay admin)",
-            len(candidatos) - len(destinos),
-        )
     await alertas.crear_varias(
         sesion, TipoAlerta.recontacto, fecha, DESCRIPCION_RECONTACTO, destinos
     )
-    return f"{len(destinos)} sugerencias de recontacto"
+    detalle = f"{len(destinos)} sugerencias de recontacto"
+    sin_propietario = len(candidatos) - len(destinos)
+    if sin_propietario:
+        logger.warning(
+            "Recontacto: %d clientes sin asesor activo quedaron sin sugerencia (no hay admin)",
+            sin_propietario,
+        )
+        detalle += f"; {sin_propietario} sin sugerencia: sin asesor activo ni admin activo"
+    return detalle

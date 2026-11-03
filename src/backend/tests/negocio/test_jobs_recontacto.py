@@ -19,7 +19,7 @@ Supuestos (a confirmar en la review; el CU/RF no los fijan al día):
 from datetime import date
 
 import pytest
-from sqlalchemy import func, select
+from sqlalchemy import func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from rumbo.datos import modelos as m
@@ -97,8 +97,8 @@ async def _alertas(sesion: AsyncSession, cliente: m.Cliente) -> list[m.Alerta]:
 
 
 async def _total_recontacto(sesion: AsyncSession) -> int:
-    consulta = select(func.count()).select_from(m.Alerta).where(
-        m.Alerta.tipo == m.TipoAlerta.recontacto
+    consulta = (
+        select(func.count()).select_from(m.Alerta).where(m.Alerta.tipo == m.TipoAlerta.recontacto)
     )
     return await sesion.scalar(consulta) or 0
 
@@ -403,3 +403,20 @@ async def test_rf027_una_oportunidad_cerrada_no_excluye_al_cliente(
     await _correr(sesion)
 
     assert len(await _alertas(sesion, cliente)) == 1
+
+
+async def test_rf028_sin_asesor_ni_admin_activo_no_crea_y_lo_dice_el_detalle(
+    sesion: AsyncSession,
+) -> None:
+    await sesion.execute(
+        update(m.Usuario).where(m.Usuario.rol == m.RolUsuario.admin).values(activo=False)
+    )
+    de_baja = await _usuario(sesion, activo=False)
+    cliente = await _cliente(sesion, de_baja)
+    await _viaje(sesion, cliente, de_baja, VIEJO)
+
+    detalle = await _correr(sesion)
+
+    assert await _alertas(sesion, cliente) == []
+    assert detalle is not None
+    assert "1 sin sugerencia" in detalle
