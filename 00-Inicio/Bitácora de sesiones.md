@@ -33,6 +33,16 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
+## 02/11/26 — Nahuel (Claude Opus 5.5) — T-127: generar los reportes en la web
+- **Hecho:**
+  - Sección Reportes en la web: catálogo, período (mes en curso; en comparación mensual se usa el default de 12 meses del backend), tabla con formato local, comparación entre períodos y descarga en Excel o PDF.
+  - Guarda por rol como en Configuración.
+  - Review opus: 3 importantes y 6 menores, todos arreglados.
+  - Se tocaron tests con autorización: lint y casos nuevos.
+  - CI en verde.
+- **Commits:** `51fbaa9` rojo, `7077aa5` verde, `bb80798` fix, `f579467` hecho; PR #182 mergeado (`e285efd`).
+- **Pendiente:** el prototipo (pantalla 29) muestra tarjetas de resumen, una columna «vs. período» y una fila de total, que quedaron fuera por decisión de Nahuel porque el contrato no trae ni la variación ni los totales. Si se quieren, hace falta un ticket de backend y web.
+
 ## 02/11/26 — Nahuel (Claude Opus 5.5) — T-124: exportar los reportes a Excel o PDF
 - **Hecho:**
   - Los 10 reportes se exportan a Excel (openpyxl, dependencia nueva autorizada) y a PDF (WeasyPrint), con importes numéricos, fechas `dd/mm/aa`, margen en % y período comparado.
