@@ -490,3 +490,68 @@ async def test_rf042_corregir_en_curso_sin_deuda_vuelve_a_confirmado(
 
     assert r.status_code == 200
     assert r.json()["estado"] == "confirmado"
+
+
+async def _sugerencia_de_avance(
+    sesion: AsyncSession, propietario_id: uuid.UUID, viaje_id: uuid.UUID, estado: m.EstadoAlerta
+) -> uuid.UUID:
+    """Una alerta `viaje` como la que deja el proceso diario (T-112, CU-08 A1)."""
+    alerta = await f.crear(
+        sesion,
+        f.AlertaFactory,
+        tipo=m.TipoAlerta.viaje,
+        estado=estado,
+        propietario_id=propietario_id,
+        viaje_id=viaje_id,
+        descripcion="El viaje ya salió: si empezó, pasalo a en curso (CU-08).",
+    )
+    return alerta.id  # type: ignore[no-any-return]
+
+
+async def _estado_alerta(sesion: AsyncSession, alerta_id: uuid.UUID) -> m.EstadoAlerta:
+    sesion.expire_all()
+    alerta = await sesion.get(m.Alerta, alerta_id)
+    assert alerta is not None
+    return alerta.estado
+
+
+@pytest.mark.parametrize(
+    ("estado", "accion", "estado_alerta"),
+    [
+        (m.EstadoViaje.confirmado, "iniciar", m.EstadoAlerta.pendiente),
+        (m.EstadoViaje.confirmado, "iniciar", m.EstadoAlerta.vista),
+        (m.EstadoViaje.en_curso, "finalizar", m.EstadoAlerta.pendiente),
+        (m.EstadoViaje.en_curso, "corregir-estado", m.EstadoAlerta.pendiente),
+    ],
+)
+async def test_rf039_avanzar_o_corregir_resuelve_la_sugerencia_de_avance(
+    cliente_como: Fabrica,
+    sesion: AsyncSession,
+    estado: m.EstadoViaje,
+    accion: str,
+    estado_alerta: m.EstadoAlerta,
+) -> None:
+    """CU-08 A1: la sugerencia del proceso diario ya se atendió (o dejó de valer al corregir)."""
+    c = await cliente_como("empleado")
+    viaje = await _viaje(sesion, _yo(c), estado)
+    viaje_id = viaje.id
+    alerta_id = await _sugerencia_de_avance(sesion, _yo(c), viaje_id, estado_alerta)
+
+    r = await c.post(_url(viaje_id, accion))
+
+    assert r.status_code == 200
+    assert await _estado_alerta(sesion, alerta_id) is m.EstadoAlerta.resuelta
+
+
+async def test_rf039_transicion_invalida_no_resuelve_la_sugerencia_de_avance(
+    cliente_como: Fabrica, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("empleado")
+    viaje = await _viaje(sesion, _yo(c), m.EstadoViaje.vendido)
+    viaje_id = viaje.id
+    alerta_id = await _sugerencia_de_avance(sesion, _yo(c), viaje_id, m.EstadoAlerta.pendiente)
+
+    r = await c.post(_url(viaje_id, "iniciar"))
+
+    assert r.status_code == 409
+    assert await _estado_alerta(sesion, alerta_id) is m.EstadoAlerta.pendiente

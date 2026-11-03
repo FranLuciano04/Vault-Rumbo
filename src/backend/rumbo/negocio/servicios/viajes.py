@@ -59,7 +59,9 @@ logger = logging.getLogger(__name__)
 _DESCRIPCION_RESENA = "El viaje terminó: pedile al cliente la reseña de los hoteles."
 
 # Cada sugerencia de avance (CU-08 A1): el estado que se sugiere, la marca que la distingue en la
-# descripción de la alerta (para no duplicarla) y esa descripción.
+# descripción de la alerta (para no duplicarla) y esa descripción. La marca tiene que seguir
+# apareciendo en la descripción: la idempotencia del paso depende de eso (ver
+# `RepositorioViajes.para_sugerir_avance`).
 _SUGERENCIAS_DE_AVANCE = (
     (
         EstadoViaje.confirmado,
@@ -258,18 +260,22 @@ async def obtener(sesion: AsyncSession, actor: Usuario, viaje_id: uuid.UUID) -> 
 async def iniciar(sesion: AsyncSession, actor: Usuario, viaje_id: uuid.UUID) -> FichaViaje:
     """El empleado confirma que el viaje empezó: `confirmado` → `en_curso` (T4, RF-039). Desde
     otro estado, con saldo pendiente o con el plan descalzado del precio es
-    `TransicionInvalida` (DEC-0026 punto 4). Escribe el responsable, admin o dueño (DEC-0005)."""
+    `TransicionInvalida` (DEC-0026 punto 4). Escribe el responsable, admin o dueño (DEC-0005).
+    Resuelve la sugerencia de avance del proceso diario, que ya se atendió (CU-08 A1)."""
     viaje = await _viaje_a_cambiar(sesion, actor, viaje_id)
     saldo, plan_balanceado = await _deuda(sesion, actor, viaje)
     estado_viaje.iniciar(viaje, saldo=saldo, plan_balanceado=plan_balanceado)
+    await alertas.resolver_de_origen(sesion, viaje, (TipoAlerta.viaje,))
     return await _guardar(sesion, actor, viaje)
 
 
 async def finalizar(sesion: AsyncSession, actor: Usuario, viaje_id: uuid.UUID) -> FichaViaje:
     """El empleado confirma que el viaje terminó: `en_curso` → `finalizado` (T5, RF-039), y queda
-    agendada para hoy la alerta `resena` post-viaje en la agenda del responsable (RF-041)."""
+    agendada para hoy la alerta `resena` post-viaje en la agenda del responsable (RF-041). Resuelve
+    la sugerencia de avance del proceso diario, que ya se atendió (CU-08 A1)."""
     viaje = await _viaje_a_cambiar(sesion, actor, viaje_id)
     estado_viaje.finalizar(viaje)
+    await alertas.resolver_de_origen(sesion, viaje, (TipoAlerta.viaje,))
     responsable = await _responsable(sesion, actor, viaje)
     await alertas.crear(sesion, TipoAlerta.resena, hoy(), _DESCRIPCION_RESENA, responsable, viaje)
     return await _guardar(sesion, actor, viaje)
@@ -279,8 +285,9 @@ async def corregir_estado(sesion: AsyncSession, actor: Usuario, viaje_id: uuid.U
     """Deshace un paso manual cargado por error: `en_curso` → `confirmado` o `finalizado` →
     `en_curso` (T7, CU-08 A2, RF-042); un `en_curso` con deuda nueva vuelve a `vendido`
     (DEC-0026). Al deshacer `finalizado` cierra la alerta `resena` sin atender; las reseñas ya
-    cargadas se conservan (DEC-0021). Los estados que produjo un cobro o la cancelación se
-    deshacen por su propio flujo: `TransicionInvalida`."""
+    cargadas se conservan (DEC-0021). También resuelve la sugerencia de avance abierta, que deja
+    de valer; si corresponde, el proceso diario sugiere la nueva (CU-08 A1). Los estados que
+    produjo un cobro o la cancelación se deshacen por su propio flujo: `TransicionInvalida`."""
     viaje = await _viaje_a_cambiar(sesion, actor, viaje_id)
     sin_atender = (
         await _alertas.listar_de_origen(
@@ -291,6 +298,7 @@ async def corregir_estado(sesion: AsyncSession, actor: Usuario, viaje_id: uuid.U
     )
     saldo, plan_balanceado = await _deuda(sesion, actor, viaje)
     estado_viaje.corregir(viaje, saldo=saldo, plan_balanceado=plan_balanceado, alertas=sin_atender)
+    await alertas.resolver_de_origen(sesion, viaje, (TipoAlerta.viaje,))
     return await _guardar(sesion, actor, viaje)
 
 

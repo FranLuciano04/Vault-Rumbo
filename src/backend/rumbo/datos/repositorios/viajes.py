@@ -106,7 +106,10 @@ class RepositorioViajes(RepositorioBase[Viaje]):
         regreso si no) es `<= hasta`, sin una `Alerta` `viaje` pendiente o vista (una pospuesta
         es una pendiente con fecha futura, y también cuenta) cuya descripción nombre la
         `sugerencia` (CU-08 A1, RF-039). Sin filtro de visibilidad: solo para el proceso
-        diario, que no tiene actor; no exponer a un endpoint."""
+        diario, que no tiene actor; no exponer a un endpoint.
+
+        En la primera corrida, los viajes viejos que nunca se avanzaron reciben una alerta cada
+        uno: es lo esperable, porque siguen pendientes de confirmar."""
         fecha = Viaje.fecha_salida if estado is EstadoViaje.confirmado else Viaje.fecha_regreso
         sugerencia_abierta = exists().where(
             Alerta.viaje_id == Viaje.id,

@@ -261,3 +261,30 @@ async def test_sin_viajes_para_sugerir(sesion: AsyncSession) -> None:
     await _correr(sesion)
 
     assert await _total_viaje(sesion) == antes
+
+
+async def test_responsable_inactivo_la_sugerencia_va_a_un_admin_activo(
+    sesion: AsyncSession,
+) -> None:
+    inactivo = await crear(sesion, UsuarioFactory, rol=m.RolUsuario.empleado, activo=False)
+    admin = await crear(sesion, UsuarioFactory, rol=m.RolUsuario.admin, activo=True)
+    viaje = await _viaje(sesion, m.EstadoViaje.confirmado, HOY, date(2026, 11, 12), inactivo)
+
+    await _correr(sesion)
+
+    [alerta] = await _alertas(sesion, viaje)
+    assert alerta.propietario_id == admin.id
+
+
+async def test_responsable_inactivo_sin_admin_activo_no_crea_la_sugerencia_y_lo_informa(
+    sesion: AsyncSession,
+) -> None:
+    inactivo = await crear(sesion, UsuarioFactory, rol=m.RolUsuario.empleado, activo=False)
+    await crear(sesion, UsuarioFactory, rol=m.RolUsuario.admin, activo=False)
+    viaje = await _viaje(sesion, m.EstadoViaje.en_curso, date(2026, 10, 25), HOY, inactivo)
+
+    detalle = await _correr(sesion)
+
+    assert await _alertas(sesion, viaje) == []
+    assert detalle is not None
+    assert "1 sin sugerencia" in detalle
