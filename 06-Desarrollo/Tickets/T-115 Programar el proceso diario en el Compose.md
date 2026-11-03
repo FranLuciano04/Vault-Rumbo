@@ -3,7 +3,7 @@ id: T-115
 titulo: Programar el proceso diario en el Compose
 modulo: M7 — Proceso diario y CRM proactivo
 capa: infra
-estado: libre
+estado: tomado
 depende_de: [T-110, T-024]
 tamaño: S
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [DEC-0011, RNF-13]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: Nahuel Viniegra
+tomado_el: 02/11/26 23:15
+rama: feature/T-115-programar-el-proceso-diario-en-el-compos
 pr:
 ---
 # T-115 Programar el proceso diario en el Compose
