@@ -227,16 +227,18 @@ async def test_cu22_reporte_en_json_responde_200(cliente_como: FabricaCliente) -
     assert r.headers["content-type"].startswith("application/json")
 
 
-@pytest.mark.parametrize("formato", ["xlsx", "pdf"])
-async def test_cu22_reporte_en_excel_o_pdf_responde_501_mientras_no_se_implemente(
-    cliente_como: FabricaCliente, formato: str
+@pytest.mark.parametrize(
+    ("formato", "tipo"), [("xlsx", XLSX), ("pdf", "application/pdf")], ids=["xlsx", "pdf"]
+)
+async def test_cu22_reporte_en_excel_o_pdf_responde_200_con_su_tipo_de_contenido(
+    cliente_como: FabricaCliente, formato: str, tipo: str
 ) -> None:
     c = await cliente_como("dueno")
 
     r = await c.get(f"/api/reportes/{REPORTE}", params={"formato": formato})
 
-    assert r.status_code == 501
-    assert r.headers["content-type"].startswith(PROBLEM_JSON)
+    assert r.status_code == 200
+    assert r.headers["content-type"].startswith(tipo)
 
 
 async def test_cu22_reporte_con_periodo_y_comparacion_valida_responde_200(

@@ -10,18 +10,27 @@ from jinja2 import Environment, FileSystemLoader, select_autoescape
 from openpyxl import Workbook
 from openpyxl.worksheet.worksheet import Worksheet
 
-from rumbo.negocio.documentos.formato import fecha, importe, pdf_desde_html
-from rumbo.negocio.servicios.reportes import Columna, Fila, Periodo, ReporteGenerado
+from rumbo.negocio.documentos import formato
+from rumbo.negocio.servicios.reportes import (
+    Columna,
+    Fila,
+    Periodo,
+    ReporteGenerado,
+    es_mes,
+    es_porcentaje,
+)
 
 _entorno = Environment(
     loader=FileSystemLoader(Path(__file__).parent / "plantillas"),
     autoescape=select_autoescape(["html"]),
 )
 _FORMATO_IMPORTE = "#,##0.00"
+_FORMATO_PORCENTAJE = "0.00"
+_INICIOS_DE_FORMULA = ("=", "+", "-", "@", chr(9), chr(13))  # chr(9) es tab y chr(13), CR
 
 
 def _periodo(periodo: Periodo) -> str:
-    return f"{fecha(periodo.desde)} al {fecha(periodo.hasta)}"
+    return f"{formato.fecha(periodo.desde)} al {formato.fecha(periodo.hasta)}"
 
 
 def _tablas(reporte: ReporteGenerado) -> list[tuple[str, list[Fila]]]:
@@ -49,39 +58,62 @@ def xlsx_reporte(reporte: ReporteGenerado) -> bytes:
         for fila in filas:
             hoja.append([_valor(fila.get(c.clave), c) for c in columnas])
             for indice, c in enumerate(columnas, start=1):
+                celda = hoja.cell(hoja.max_row, indice)
                 if c.tipo == "importe":
-                    hoja.cell(hoja.max_row, indice).number_format = _FORMATO_IMPORTE
+                    celda.number_format = _FORMATO_IMPORTE
+                elif es_porcentaje(c):
+                    celda.number_format = _FORMATO_PORCENTAJE
+                elif isinstance(celda.value, str) and celda.value.startswith(_INICIOS_DE_FORMULA):
+                    # Un dato de texto (p. ej. el nombre de un destino) nunca debe ejecutarse como
+                    # fórmula (inyección de fórmulas): se fuerza el tipo texto de la celda.
+                    celda.data_type = "s"
     salida = io.BytesIO()
     libro.save(salida)
     return salida.getvalue()
 
 
 def _valor(valor: str | int | None, columna: Columna) -> str | int | Decimal | None:
-    """Los importes llegan como texto (`"1500.50"`): en el Excel van como número."""
-    if columna.tipo == "importe" and valor is not None:
+    """Los importes y porcentajes llegan como texto (`"1500.50"`): en el Excel van como número."""
+    if valor is None:
+        return None
+    if columna.tipo == "importe" or es_porcentaje(columna):
         return Decimal(valor)
+    if es_mes(columna):
+        return formato.mes(str(valor))
     return valor
 
 
-def pdf_reporte(reporte: ReporteGenerado) -> bytes:
+def html_reporte(reporte: ReporteGenerado) -> str:
     columnas = reporte.definicion.columnas
-    return pdf_desde_html(
-        _entorno.get_template("reporte.html").render(
-            nombre=reporte.definicion.nombre,
-            periodo=_periodo(reporte.periodo),
-            columnas=columnas,
-            tablas=[
-                {
-                    "titulo": titulo,
-                    "filas": [[_celda(f.get(c.clave), c) for c in columnas] for f in filas],
-                }
-                for titulo, filas in _tablas(reporte)
-            ],
-        )
+    return _entorno.get_template("reporte.html").render(
+        nombre=reporte.definicion.nombre,
+        periodo=_periodo(reporte.periodo),
+        columnas=[
+            {"titulo": c.titulo, "derecha": c.tipo != "texto" or es_porcentaje(c)} for c in columnas
+        ],
+        tablas=[
+            {
+                "titulo": titulo,
+                "filas": [[_celda(f.get(c.clave), c) for c in columnas] for f in filas],
+            }
+            for titulo, filas in _tablas(reporte)
+        ],
     )
+
+
+def pdf_reporte(reporte: ReporteGenerado) -> bytes:
+    return formato.pdf_desde_html(html_reporte(reporte))
 
 
 def _celda(valor: str | int | None, columna: Columna) -> str:
     if valor is None:
         return ""
-    return importe(str(valor)) if columna.tipo == "importe" else str(valor)
+    if columna.tipo == "importe":
+        return formato.importe(str(valor))
+    if es_porcentaje(columna):
+        return f"{formato.importe(str(valor))} %"
+    if columna.tipo == "entero":
+        return formato.entero(int(valor))
+    if es_mes(columna):
+        return formato.mes(str(valor))
+    return str(valor)

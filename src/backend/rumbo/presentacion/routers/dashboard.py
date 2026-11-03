@@ -50,7 +50,7 @@ _REPORTE["responses"][200] = {
         "El reporte del período: JSON por defecto, o Excel (`xlsx`) o PDF resumido (`pdf`) "
         "con el mismo contenido, según `formato`."
     ),
-    "content": {exportar_reportes.XLSX: _ARCHIVO, "application/pdf": _ARCHIVO},
+    "content": {exportar_reportes.XLSX: _ARCHIVO, exportar_reportes.PDF: _ARCHIVO},
 }
 
 

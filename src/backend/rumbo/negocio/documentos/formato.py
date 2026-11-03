@@ -14,6 +14,17 @@ def importe(valor: Decimal | str) -> str:
     return f"{Decimal(valor):,.2f}".replace(",", "\0").replace(".", ",").replace("\0", ".")
 
 
+def entero(valor: int) -> str:
+    """`1500` → `1.500`."""
+    return f"{valor:,}".replace(",", ".")
+
+
+def mes(valor: str) -> str:
+    """`2026-05` → `05/26`."""
+    anio, numero = valor.split("-")
+    return f"{numero}/{anio[-2:]}"
+
+
 def _sin_recursos_externos(url: str) -> dict[str, Any]:
     """Las plantillas no usan ningún recurso externo: si aparece uno, se rechaza (defensa en
     profundidad contra SSRF si se perdiera el autoescape)."""

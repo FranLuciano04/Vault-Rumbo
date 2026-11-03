@@ -76,6 +76,16 @@ class ReporteGenerado(NamedTuple):
     filas_comparadas: list[Fila] | None
 
 
+def es_porcentaje(columna: Columna) -> bool:
+    """Las columnas `margen_*` son un % (texto en el JSON); los documentos lo formatean."""
+    return columna.clave.startswith("margen_")
+
+
+def es_mes(columna: Columna) -> bool:
+    """La columna `mes` es `AAAA-MM` en el JSON; los documentos la muestran como `mm/aa`."""
+    return columna.clave == "mes"
+
+
 def _col_importes(base: str, titulo: str) -> list[Columna]:
     return [
         Columna(f"{base}_{m.value.lower()}", f"{titulo} ({m.value})", "importe", m) for m in Moneda

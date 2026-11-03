@@ -24,13 +24,13 @@
   <table>
     <thead>
       <tr>
-        {% for c in columnas %}<th{% if c.tipo != "texto" %} class="derecha"{% endif %}>{{ c.titulo }}</th>{% endfor %}
+        {% for c in columnas %}<th{% if c.derecha %} class="derecha"{% endif %}>{{ c.titulo }}</th>{% endfor %}
       </tr>
     </thead>
     <tbody>
       {% for fila in tabla.filas %}
       <tr>
-        {% for celda in fila %}<td{% if columnas[loop.index0].tipo != "texto" %} class="derecha"{% endif %}>{{ celda }}</td>{% endfor %}
+        {% for celda in fila %}<td{% if columnas[loop.index0].derecha %} class="derecha"{% endif %}>{{ celda }}</td>{% endfor %}
       </tr>
       {% endfor %}
     </tbody>

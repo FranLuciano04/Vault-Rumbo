@@ -146,9 +146,7 @@ async def test_rf133_excel_incluye_las_filas_del_periodo_comparado(
     await _viaje(sesion, _yo(c), "1000000.00", creado=EN_PERIODO)
     await _viaje(sesion, _yo(c), "250000.00", creado=EN_PERIODO_ANTERIOR)
 
-    r = await c.get(
-        f"{URL}/ventas", params={**PERIODO, **PERIODO_ANTERIOR, "formato": "xlsx"}
-    )
+    r = await c.get(f"{URL}/ventas", params={**PERIODO, **PERIODO_ANTERIOR, "formato": "xlsx"})
 
     numeros = {
         Decimal(str(v)) for fila in _celdas(r) for v in fila if isinstance(v, int | float | Decimal)
@@ -265,9 +263,7 @@ async def test_rf133_empleado_y_freelance_no_exportan(
 
 
 @pytest.mark.parametrize("formato", ["xlsx", "pdf"])
-async def test_rf133_reporte_inexistente_responde_404(
-    cliente_como: Fabrica, formato: str
-) -> None:
+async def test_rf133_reporte_inexistente_responde_404(cliente_como: Fabrica, formato: str) -> None:
     c = await cliente_como("admin")
 
     r = await c.get(f"{URL}/no-existe", params={**PERIODO, "formato": formato})
@@ -312,3 +308,58 @@ async def test_rf133_exportar_no_modifica_datos(
     await sesion.refresh(pago)
     assert pago.estado == m.EstadoPago.pendiente
     assert pago.monto == Decimal("400000.00")
+
+
+# --- Revisión: fórmulas, márgenes y meses en el Excel -----------------------------------------
+
+
+async def test_rf133_excel_no_ejecuta_como_formula_un_texto_que_empieza_con_igual(
+    cliente_como: Fabrica, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("dueno")
+    peligroso = await f.crear(sesion, f.DestinoFactory, nombre="=1+1")
+    await _viaje(sesion, _yo(c), destino=peligroso)
+
+    r = await c.get(f"{URL}/ventas-por-destino", params={**PERIODO, "formato": "xlsx"})
+
+    hoja = load_workbook(io.BytesIO(r.content)).active
+    celdas = [celda for fila in hoja.iter_rows() for celda in fila if celda.value == "=1+1"]
+    assert celdas
+    assert all(celda.data_type != "f" for celda in celdas)
+
+
+async def test_rf133_excel_margen_es_numerico_con_dos_decimales(
+    cliente_como: Fabrica, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("admin")
+    await _viaje(sesion, _yo(c), "1000000.00", "750000.00")
+
+    r = await c.get(f"{URL}/ganancia", params={**PERIODO, "formato": "xlsx"})
+
+    hoja = load_workbook(io.BytesIO(r.content)).active
+    celdas = {
+        fila[0].value: fila[1]
+        for fila in hoja.iter_rows(min_row=1)
+        if len(fila) > 1 and fila[0].value is not None
+    }
+    margen = [
+        celda
+        for fila in hoja.iter_rows()
+        for celda in fila
+        if isinstance(celda.value, int | float | Decimal) and celda.number_format == "0.00"
+    ]
+    assert celdas
+    assert any(Decimal(str(celda.value)) == Decimal("25.00") for celda in margen)
+
+
+async def test_rf133_excel_muestra_el_mes_en_formato_local(
+    cliente_como: Fabrica, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("admin")
+    await _viaje(sesion, _yo(c))
+
+    r = await c.get(f"{URL}/comparacion-mensual", params={**PERIODO, "formato": "xlsx"})
+
+    textos = {v for fila in _celdas(r) for v in fila if isinstance(v, str)}
+    assert "09/26" in textos
+    assert "2026-09" not in textos
