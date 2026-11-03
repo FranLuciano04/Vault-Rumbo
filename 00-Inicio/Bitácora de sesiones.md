@@ -33,6 +33,15 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
+## 02/11/26 — Nahuel (Claude Opus 5.5) — T-124: exportar los reportes a Excel o PDF
+- **Hecho:**
+  - Los 10 reportes se exportan a Excel (openpyxl, dependencia nueva autorizada) y a PDF (WeasyPrint), con importes numéricos, fechas `dd/mm/aa`, margen en % y período comparado.
+  - El contenido del PDF se testea sobre `html_reporte`.
+  - Review opus: la primera ronda dio 1 bloqueante (inyección de fórmulas en el Excel), 2 importantes y 2 menores, todos arreglados; la segunda ronda no encontró nada.
+  - El CI quedó en verde: 2893 tests, incluidos los de PDF real.
+- **Commits:** `f194a23` rojo, `da1a3b0` verde, `17686b5` refactor, `0436de7` fix y `75a6d7e` hecho. PR #180 mergeado (`40db989`).
+- **Pendiente:** en Windows, WeasyPrint no carga (`libgobject`), así que los tests de PDF (también los de T-068) solo corren en el CI. Si se quiere correrlos local, hay que instalar GTK o usar WSL.
+
 ## 02/11/26 — Nahuel (Claude Opus 5.5) — T-123: generar los reportes del período
 - **Hecho:** `/reportes` y `/reportes/{id}` en JSON con los 10 reportes de DEC-0024 punto 10: comparación (A2), período sin datos con `filas == []` (A3) y mes en curso por defecto (A1). xlsx y pdf siguen en 501. Review opus: 4 importantes y 3 menores, todos arreglados. Se actualizaron con autorización 6 tests de `test_contrato_m8.py`. 151 tests de reportes, dashboard y contrato M8 en verde, igual que ruff, mypy y el CI.
 - **Commits:** `792d386` rojo, `b893bcb` verde, `7761ccb` refactor, `7faa3d1`/`3d3f081`/`0cf12c3` fix, `ccec9d9` hecho; PR #179 mergeado (`744d7c7`).
