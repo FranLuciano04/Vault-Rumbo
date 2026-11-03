@@ -3,7 +3,7 @@ id: T-114
 titulo: Registrar la decisión sobre una sugerencia de recontacto
 modulo: M7 — Proceso diario y CRM proactivo
 capa: backend
-estado: libre
+estado: tomado
 depende_de: [T-113, T-062, T-053]
 tamaño: S
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [CU-30, RF-029, RF-030]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: Nahuel Viniegra
+tomado_el: 03/11/26 20:41
+rama: feature/T-114-registrar-la-decision-sobre-una-sugerenc
 pr:
 ---
 # T-114 Registrar la decisión sobre una sugerencia de recontacto
