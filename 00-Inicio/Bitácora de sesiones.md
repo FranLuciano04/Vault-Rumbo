@@ -33,6 +33,19 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
+## 02/11/26 — Nahuel (Claude Opus 5.5) — T-115: programar el proceso diario en el Compose
+- **Hecho:**
+  - El `scheduler` corre el proceso diario a las 00:00 de Argentina con supercronic (`src/infra/crontab`). Cada corrida queda en `docker compose logs scheduler`, y el disparo manual es el comando de la spec.
+  - supercronic v0.2.51 en la imagen `rumbo-backend`, con checksum fijado.
+  - Verificado con un crontab de prueba que corría cada minuto.
+  - Review opus: 2 menores, arreglados.
+  - CI en verde.
+- **Commits:** `4ee9d70` impl, `d7d5947` fix, `369d9e1` hecho; PR #183 mergeado (`a481b0a`).
+- **Pendiente:**
+  - En el servidor, confirmar la corrida de las 00:00 después del despliegue. El build necesita acceso a GitHub.
+  - Posible mejora para M10: recuperar automáticamente las corridas perdidas por una caída.
+  - Para usar el scheduler nuevo en local hay que recrear el stack `rumbo`.
+
 ## 02/11/26 — Nahuel (Claude Opus 5.5) — T-127: generar los reportes en la web
 - **Hecho:**
   - Sección Reportes en la web: catálogo, período (mes en curso; en comparación mensual se usa el default de 12 meses del backend), tabla con formato local, comparación entre períodos y descarga en Excel o PDF.
