@@ -1,20 +1,20 @@
 """Rutas del dashboard y los reportes (CU-21, CU-22). El dashboard calcula el embudo, los
-indicadores económicos y operativos y la analítica comercial; los reportes se generan en JSON
-(el Excel y el PDF siguen respondiendo 501)."""
+indicadores económicos y operativos y la analítica comercial; los reportes se generan en JSON,
+Excel o PDF según `formato`."""
 
 import uuid
 from datetime import date, timedelta
 from decimal import Decimal
 from typing import Annotated, Literal
 
-from fastapi import APIRouter, Depends, Path, Query
+from fastapi import APIRouter, Depends, Path, Query, Response
 
 from rumbo.core.db import SesionDep
 from rumbo.core.fechas import hoy, sumar_meses
 from rumbo.datos import modelos
 from rumbo.datos.modelos import Moneda
-from rumbo.negocio.servicios import dashboard, reportes
-from rumbo.presentacion.contrato import GESTION, TODOS, no_implementado, operacion
+from rumbo.negocio.servicios import dashboard, exportar_reportes, reportes
+from rumbo.presentacion.contrato import GESTION, TODOS, operacion
 from rumbo.presentacion.dependencias import usuario_actual
 from rumbo.presentacion.esquemas.dashboard import (
     ColumnaReporte,
@@ -37,7 +37,6 @@ router = APIRouter(tags=["dashboard"])
 
 ActorDep = Annotated[modelos.Usuario, Depends(usuario_actual)]
 
-XLSX = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
 _ARCHIVO = {"schema": {"type": "string", "format": "binary"}}
 
 _DASHBOARD = operacion(TODOS, "CU-21", 422, visibilidad=True)
@@ -51,7 +50,7 @@ _REPORTE["responses"][200] = {
         "El reporte del período: JSON por defecto, o Excel (`xlsx`) o PDF resumido (`pdf`) "
         "con el mismo contenido, según `formato`."
     ),
-    "content": {XLSX: _ARCHIVO, "application/pdf": _ARCHIVO},
+    "content": {exportar_reportes.XLSX: _ARCHIVO, exportar_reportes.PDF: _ARCHIVO},
 }
 
 
@@ -178,6 +177,7 @@ async def listar_reportes() -> list[ReporteCatalogo]:
 @router.get(
     "/reportes/{reporte_id}",
     operation_id="generar_reporte",
+    response_model=Reporte,
     summary="Generar un reporte del período",
     **_REPORTE,
 )
@@ -200,9 +200,7 @@ async def generar_reporte(
     formato: Annotated[
         Literal["json", "xlsx", "pdf"], Query(description="Formato de salida.")
     ] = "json",
-) -> Reporte:
-    if formato != "json":
-        raise no_implementado()
+) -> Reporte | Response:
     generado = await reportes.generar_reporte(
         sesion,
         actor,
@@ -212,6 +210,13 @@ async def generar_reporte(
         comparar_desde=comparar_desde,
         comparar_hasta=comparar_hasta,
     )
+    if formato != "json":
+        archivo = await exportar_reportes.exportar_reporte(generado, formato)
+        return Response(
+            archivo.contenido,
+            media_type=archivo.tipo_contenido,
+            headers={"Content-Disposition": f'attachment; filename="{archivo.nombre}"'},
+        )
     return Reporte(
         id=generado.definicion.id,
         nombre=generado.definicion.nombre,
