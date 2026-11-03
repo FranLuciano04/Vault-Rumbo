@@ -6,6 +6,9 @@ from typing import Literal, NamedTuple
 from rumbo.negocio.documentos.reporte import pdf_reporte, xlsx_reporte
 from rumbo.negocio.servicios.reportes import ReporteGenerado
 
+XLSX = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+PDF = "application/pdf"
+
 
 class Archivo(NamedTuple):
     nombre: str
@@ -19,11 +22,5 @@ async def exportar_reporte(reporte: ReporteGenerado, formato: Literal["xlsx", "p
         f"{reporte.definicion.id}-{reporte.periodo.desde:%Y%m%d}-{reporte.periodo.hasta:%Y%m%d}"
     )
     if formato == "xlsx":
-        contenido = await asyncio.to_thread(xlsx_reporte, reporte)
-        return Archivo(f"{nombre}.xlsx", XLSX, contenido)
-    return Archivo(
-        f"{nombre}.pdf", "application/pdf", await asyncio.to_thread(pdf_reporte, reporte)
-    )
-
-
-XLSX = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        return Archivo(f"{nombre}.xlsx", XLSX, await asyncio.to_thread(xlsx_reporte, reporte))
+    return Archivo(f"{nombre}.pdf", PDF, await asyncio.to_thread(pdf_reporte, reporte))
