@@ -15,8 +15,12 @@ from datetime import date
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from rumbo.core.seguridad import usuario_auditoria
+from rumbo.datos.repositorios.proceso_diario import RepositorioProcesoDiario
+from rumbo.negocio.servicios import clientes
 
 logger = logging.getLogger(__name__)
+
+_proceso = RepositorioProcesoDiario()
 
 FabricaSesiones = Callable[[], AbstractAsyncContextManager[AsyncSession]]
 
@@ -36,7 +40,9 @@ class ResultadoPaso:
     detalle: str | None
 
 
-PASOS: list[Paso] = []
+PASOS: list[Paso] = [
+    Paso("recontacto", clientes.sugerir_recontactos),  # CU-30
+]
 """Registro de pasos que corre el proceso diario, en orden."""
 
 
@@ -70,9 +76,11 @@ async def correr(
 
 
 async def _correr_paso(fabrica_sesiones: FabricaSesiones, paso: Paso, fecha: date) -> str | None:
-    """Una transacción por paso: commit si anduvo, rollback si falló."""
+    """Una transacción por paso, bloqueada por su nombre contra una corrida solapada: commit si
+    anduvo, rollback si falló."""
     async with fabrica_sesiones() as sesion:
         try:
+            await _proceso.bloquear_paso(sesion, paso.nombre)
             detalle = await paso.ejecutar(sesion, fecha)
             await sesion.commit()
         except Exception:

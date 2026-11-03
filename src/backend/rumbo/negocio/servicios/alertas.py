@@ -2,6 +2,7 @@
 (CU-14, RF-073, RF-074, RF-079)."""
 
 import uuid
+from collections.abc import Sequence
 from datetime import UTC, date, datetime
 from typing import Any
 
@@ -181,6 +182,32 @@ async def crear(
     sesion.add(alerta)
     await sesion.flush()
     return alerta
+
+
+async def crear_varias(
+    sesion: AsyncSession,
+    tipo: TipoAlerta,
+    fecha: date,
+    descripcion: str,
+    destinos: Sequence[tuple[OrigenAlerta, uuid.UUID]],
+) -> list[Alerta]:
+    """Como `crear`, pero muchas en un solo flush: una alerta pendiente por cada `(origen,
+    propietario_id)` de `destinos`. Los orígenes tienen que estar ya guardados (con id); la
+    usan los pasos del proceso diario."""
+    nuevas = [
+        Alerta(
+            tipo=tipo,
+            fecha=fecha,
+            descripcion=descripcion,
+            propietario_id=propietario_id,
+            estado=EstadoAlerta.pendiente,
+            **{columna_de_origen(origen): origen.id},
+        )
+        for origen, propietario_id in destinos
+    ]
+    sesion.add_all(nuevas)
+    await sesion.flush()
+    return nuevas
 
 
 async def resolver_de_origen(
