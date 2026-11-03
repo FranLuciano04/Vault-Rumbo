@@ -20,9 +20,9 @@ tags:: #tipo/referencia
 | M3 — Alertas | 14 | 14 | 0 | 0 | 0 | 0 | ✅ cerrado |
 | M4 — Oportunidades y cotizaciones | 16 | 16 | 0 | 0 | 0 | 0 | ✅ cerrado |
 | M5 — Hoteles y reseñas | 11 | 11 | 0 | 0 | 0 | 0 | ✅ cerrado |
-| M6 — Viajes y economía | 24 | 24 | 0 | 0 | 0 | 0 | 🔍 listo para la review |
+| M6 — Viajes y economía | 24 | 24 | 0 | 0 | 0 | 0 | ✅ cerrado |
 | M7 — Proceso diario y CRM proactivo | 9 | 3 | 1 | 3 | 2 | 0 | 🛠️ en curso |
-| M8 — Calendario, dashboard y reportes | 10 | 6 | 1 | 2 | 1 | 0 | 🛠️ en curso |
+| M8 — Calendario, dashboard y reportes | 10 | 7 | 0 | 2 | 1 | 0 | 🛠️ en curso |
 | M9 — Redes e IA | 6 | 0 | 0 | 1 | 5 | 0 | 🛠️ en curso |
 | M10 — Despliegue on-premise | 5 | 0 | 0 | 1 | 4 | 0 | 🛠️ en curso |
 
@@ -200,7 +200,7 @@ flowchart LR
     T121["T-121 · Calcular el embudo con los indicadores económicos<br/><small>backend</small>"]:::hecho
     T122["T-122 · Calcular los indicadores operativos del dashboard<br/><small>backend</small>"]:::hecho
     T123["T-123 · Generar los reportes del período<br/><small>backend</small>"]:::hecho
-    T124["T-124 · Exportar los reportes a Excel o PDF<br/><small>backend</small><br/>👤 Nahuel Viniegra"]:::tomado
+    T124["T-124 · Exportar los reportes a Excel o PDF<br/><small>backend</small>"]:::hecho
     T125["T-125 · Mostrar el calendario de viajes en la web<br/><small>web</small>"]:::disponible
     T126["T-126 · Mostrar el dashboard con el embudo en la web<br/><small>web</small>"]:::hecho
     T127["T-127 · Generar los reportes en la web<br/><small>web</small>"]:::disponible
