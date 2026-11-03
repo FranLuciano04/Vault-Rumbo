@@ -72,9 +72,7 @@ async def _pago(
 async def _oportunidad(sesion: AsyncSession) -> m.Oportunidad:
     asesor = await crear(sesion, UsuarioFactory, rol=m.RolUsuario.empleado)
     cliente = await crear(sesion, ClienteFactory, asesor_asignado_id=asesor.id)
-    return await crear(
-        sesion, OportunidadFactory, cliente_id=cliente.id, responsable_id=asesor.id
-    )
+    return await crear(sesion, OportunidadFactory, cliente_id=cliente.id, responsable_id=asesor.id)
 
 
 async def _cotizacion(
