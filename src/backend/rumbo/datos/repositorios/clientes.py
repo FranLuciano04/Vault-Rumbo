@@ -5,19 +5,23 @@ from dataclasses import dataclass
 from datetime import date
 from typing import Any
 
-from sqlalchemy import ColumnElement, exists, func, or_, select, true
+from sqlalchemy import ColumnElement, and_, exists, func, or_, select, true
 from sqlalchemy.dialects.postgresql import distinct_on
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from rumbo.core.contacto import clave_contacto
 from rumbo.datos.modelos import (
+    Alerta,
     Cliente,
     Destino,
+    EstadoAlerta,
     EstadoOportunidad,
     EstadoViaje,
     Oportunidad,
     Resena,
     SegmentoCliente,
+    TipoAlerta,
+    Usuario,
     Viaje,
 )
 from rumbo.datos.modelos.base import espacios_colapsados, nombre_normalizado
@@ -39,6 +43,14 @@ class ResumenCliente:
 
     ultimo_viaje: UltimoViaje | None = None
     oportunidades_abiertas: int = 0
+
+
+@dataclass(frozen=True)
+class CandidatoARecontacto:
+    """Un `Cliente` fiel inactivo (CU-30) y su asesor asignado, si está activo."""
+
+    cliente: Cliente
+    asesor_activo_id: uuid.UUID | None
 
 
 @dataclass(frozen=True)
@@ -199,6 +211,45 @@ class RepositorioClientes(RepositorioBase[Cliente]):
             )
             for c in clientes
         }
+
+    async def inactivos_para_recontacto(
+        self, sesion: AsyncSession, *, regreso_hasta: date
+    ) -> list[CandidatoARecontacto]:
+        """Candidatos a recontacto (CU-30, RF-027, RF-030), en una consulta: clientes con algún
+        `Viaje` no cancelado cuyo último regreso es `<= regreso_hasta`, sin `no_recontactar`,
+        sin `Oportunidad` abierta y sin una `Alerta` de `recontacto` pendiente o vista (una
+        pospuesta es una pendiente con fecha futura, y también cuenta). Sin filtro de
+        visibilidad: solo para el proceso diario, que no tiene actor; no exponer a un endpoint."""
+        ultimo_regreso = (
+            select(Viaje.cliente_id, func.max(Viaje.fecha_regreso).label("fecha"))
+            .where(Viaje.estado != EstadoViaje.cancelado)
+            .group_by(Viaje.cliente_id)
+            .subquery()
+        )
+        oportunidad_abierta = exists().where(
+            Oportunidad.cliente_id == Cliente.id, Oportunidad.estado.in_(_ABIERTAS)
+        )
+        sugerencia_abierta = exists().where(
+            Alerta.cliente_id == Cliente.id,
+            Alerta.tipo == TipoAlerta.recontacto,
+            Alerta.estado.in_((EstadoAlerta.pendiente, EstadoAlerta.vista)),
+        )
+        consulta = (
+            select(Cliente, Usuario.id)
+            .join(ultimo_regreso, ultimo_regreso.c.cliente_id == Cliente.id)
+            .outerjoin(
+                Usuario, and_(Usuario.id == Cliente.asesor_asignado_id, Usuario.activo.is_(True))
+            )
+            .where(
+                ultimo_regreso.c.fecha <= regreso_hasta,
+                Cliente.no_recontactar.is_(False),
+                ~oportunidad_abierta,
+                ~sugerencia_abierta,
+            )
+            .order_by(Cliente.id)
+        )
+        filas = await sesion.execute(consulta)
+        return [CandidatoARecontacto(cliente, asesor_id) for cliente, asesor_id in filas]
 
     async def historial(
         self, sesion: AsyncSession, cliente_id: uuid.UUID, *, visibilidad: Visibilidad

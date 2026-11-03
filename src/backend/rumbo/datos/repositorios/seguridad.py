@@ -61,6 +61,12 @@ class RepositorioUsuarios(RepositorioBase[Usuario]):
         )
         return list(await sesion.scalars(consulta))
 
+    async def primer_admin_activo(self, sesion: AsyncSession) -> Usuario | None:
+        """El `admin` activo más antiguo, o `None`. Sin filtro de visibilidad: lo usa el proceso
+        diario, sin actor, para asignar lo que no tiene un responsable activo."""
+        consulta = select(Usuario).where(Usuario.rol == RolUsuario.admin, Usuario.activo.is_(True))
+        return await sesion.scalar(consulta.order_by(Usuario.created_at, Usuario.id).limit(1))
+
     async def contar_activos_por_rol(
         self, sesion: AsyncSession, *roles: RolUsuario, visibilidad: Visibilidad
     ) -> Counter[RolUsuario]:

@@ -1,13 +1,15 @@
 """Servicio del módulo clientes (CU-02, CU-03)."""
 
+import logging
 import uuid
+from datetime import date
 from typing import Any
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from rumbo.core.contacto import clave_contacto
-from rumbo.core.fechas import hoy
-from rumbo.datos.modelos import Cliente, RolUsuario, SegmentoCliente, Usuario
+from rumbo.core.fechas import hoy, sumar_meses
+from rumbo.datos.modelos import Cliente, RolUsuario, SegmentoCliente, TipoAlerta, Usuario
 from rumbo.datos.repositorios.base import normalizar
 from rumbo.datos.repositorios.clientes import (
     HistorialDelCliente,
@@ -17,9 +19,15 @@ from rumbo.datos.repositorios.clientes import (
 from rumbo.datos.repositorios.seguridad import RepositorioUsuarios
 from rumbo.negocio.errores import DatosInvalidos, NoEncontrado, PosibleDuplicado
 from rumbo.negocio.politicas import exigir_escritura, visibilidad
+from rumbo.negocio.servicios import alertas, parametros
+
+logger = logging.getLogger(__name__)
 
 _clientes = RepositorioClientes()
 _usuarios = RepositorioUsuarios()
+
+# Sin datos del cliente: la descripción no pasa por la visibilidad; el contexto sí (T-052).
+DESCRIPCION_RECONTACTO = "Cliente sin viajar hace tiempo: sugerencia de recontacto (CU-30)."
 
 
 async def registrar_cliente(
@@ -206,3 +214,38 @@ async def _exigir_asesor_activo(sesion: AsyncSession, actor: Usuario, asesor_id:
         asesor = None
     if asesor is None or not asesor.activo:
         raise DatosInvalidos("asesor_asignado_id", "El asesor asignado no existe o está de baja.")
+
+
+async def sugerir_recontactos(sesion: AsyncSession, fecha: date) -> str | None:
+    """Paso del proceso diario (CU-30 pasos 1 y 2, RF-027, RF-028, RF-030): crea una `Alerta`
+    `recontacto` de fecha `fecha` por cada cliente fiel inactivo, es decir, cuyo último
+    regreso de un `Viaje` no cancelado es de hace `recontacto_meses` o más. Va al asesor
+    asignado si está activo; si no, a un `admin` activo. Idempotente: el cliente con una
+    sugerencia sin resolver no recibe otra. Sin candidatos no crea nada (A4)."""
+    meses = (await parametros.obtener(sesion)).recontacto_meses
+    candidatos = await _clientes.inactivos_para_recontacto(
+        sesion, regreso_hasta=sumar_meses(fecha, -meses)
+    )
+    if not candidatos:
+        return None
+    admin_id = None
+    if any(c.asesor_activo_id is None for c in candidatos):
+        admin = await _usuarios.primer_admin_activo(sesion)
+        admin_id = admin.id if admin else None
+    destinos = [
+        (c.cliente, propietario_id)
+        for c in candidatos
+        if (propietario_id := c.asesor_activo_id or admin_id) is not None
+    ]
+    await alertas.crear_varias(
+        sesion, TipoAlerta.recontacto, fecha, DESCRIPCION_RECONTACTO, destinos
+    )
+    detalle = f"{len(destinos)} sugerencias de recontacto"
+    sin_propietario = len(candidatos) - len(destinos)
+    if sin_propietario:
+        logger.warning(
+            "Recontacto: %d clientes sin asesor activo quedaron sin sugerencia (no hay admin)",
+            sin_propietario,
+        )
+        detalle += f"; {sin_propietario} sin sugerencia: sin asesor activo ni admin activo"
+    return detalle
