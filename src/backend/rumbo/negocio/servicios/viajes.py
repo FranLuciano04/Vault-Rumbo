@@ -1,8 +1,10 @@
 """Servicio del módulo viajes: la confirmación de la reserva que crea el viaje (CU-07, RF-032 a
 RF-036, EST-Viaje T1), el listado y la ficha con su economía (CU-08, RF-037), el avance manual
 del estado del viaje y su corrección (RF-039 a RF-042, EST-Viaje T4, T5 y T7), y la cancelación
-con su reversión (CU-27, RF-048 a RF-053, EST-Viaje T6 y T9)."""
+con su reversión (CU-27, RF-048 a RF-053, EST-Viaje T6 y T9), y la sugerencia diaria de
+avance por fecha (CU-08 A1, RF-039)."""
 
+import logging
 import uuid
 from collections import defaultdict
 from dataclasses import dataclass
@@ -52,7 +54,24 @@ _cotizaciones = RepositorioCotizaciones()
 _destinos = RepositorioDestinos()
 _requisitos = RepositorioRequisitos()
 
+logger = logging.getLogger(__name__)
+
 _DESCRIPCION_RESENA = "El viaje terminó: pedile al cliente la reseña de los hoteles."
+
+# Cada sugerencia de avance (CU-08 A1): el estado que se sugiere, la marca que la distingue en la
+# descripción de la alerta (para no duplicarla) y esa descripción.
+_SUGERENCIAS_DE_AVANCE = (
+    (
+        EstadoViaje.confirmado,
+        "en curso",
+        "El viaje ya salió: si empezó, pasalo a en curso (CU-08).",
+    ),
+    (
+        EstadoViaje.en_curso,
+        "finalizado",
+        "El viaje ya volvió: si terminó, pasalo a finalizado (CU-08).",
+    ),
+)
 
 
 @dataclass
@@ -317,6 +336,48 @@ async def revertir_cancelacion(
             estado_pago.revertir_anulacion(pago, hoy=dia)
             await alertas.reabrir_de_origen(sesion, pago, solo_por_cancelacion=True)
     return await _guardar(sesion, actor, viaje)
+
+
+async def sugerir_avances(sesion: AsyncSession, fecha: date) -> str | None:
+    """Paso del proceso diario (CU-08 paso 3 y A1, RF-039): crea una `Alerta` `viaje` de fecha
+    `fecha` que sugiere pasar a `en_curso` cada viaje `confirmado` que ya salió, y a `finalizado`
+    cada `en_curso` que ya volvió. No cambia el estado: lo confirma el empleado. Va al
+    responsable si está activo; si no, a un `admin` activo. Idempotente: el viaje con esa
+    sugerencia sin resolver no recibe otra."""
+    por_sugerencia = [
+        (
+            descripcion,
+            await _viajes.para_sugerir_avance(
+                sesion, estado=estado, hasta=fecha, sugerencia=sugerencia
+            ),
+        )
+        for estado, sugerencia, descripcion in _SUGERENCIAS_DE_AVANCE
+    ]
+    admin_id = None
+    if any(c.responsable_activo_id is None for _, candidatos in por_sugerencia for c in candidatos):
+        admin = await _usuarios.primer_admin_activo(sesion)
+        admin_id = admin.id if admin else None
+    creadas = sin_propietario = 0
+    for descripcion, candidatos in por_sugerencia:
+        destinos = [
+            (c.viaje, propietario_id)
+            for c in candidatos
+            if (propietario_id := c.responsable_activo_id or admin_id) is not None
+        ]
+        await alertas.crear_varias(sesion, TipoAlerta.viaje, fecha, descripcion, destinos)
+        creadas += len(destinos)
+        sin_propietario += len(candidatos) - len(destinos)
+    if not creadas and not sin_propietario:
+        return None
+    detalle = f"{creadas} sugerencias de avance de viaje"
+    if sin_propietario:
+        logger.warning(
+            "Avance de viajes: %d viajes sin responsable activo quedaron sin sugerencia "
+            "(no hay admin)",
+            sin_propietario,
+        )
+        detalle += f"; {sin_propietario} sin sugerencia: sin responsable activo ni admin activo"
+    return detalle
 
 
 async def _deuda(sesion: AsyncSession, actor: Usuario, viaje: Viaje) -> tuple[Decimal, bool]:

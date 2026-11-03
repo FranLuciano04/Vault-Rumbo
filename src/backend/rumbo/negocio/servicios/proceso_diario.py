@@ -16,7 +16,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from rumbo.core.seguridad import usuario_auditoria
 from rumbo.datos.repositorios.proceso_diario import RepositorioProcesoDiario
-from rumbo.negocio.servicios import clientes, economia, oportunidades
+from rumbo.negocio.servicios import clientes, economia, oportunidades, viajes
 
 logger = logging.getLogger(__name__)
 
@@ -44,6 +44,7 @@ PASOS: list[Paso] = [
     Paso("vencimiento de pagos", economia.vencer_pagos),  # EST-Pago T3
     Paso("vencimiento de cotizaciones", oportunidades.vencer_cotizaciones),  # RF-026, CU-06 A5
     Paso("recontacto", clientes.sugerir_recontactos),  # CU-30
+    Paso("avance de viajes", viajes.sugerir_avances),  # RF-039, CU-08 A1
 ]
 """Registro de pasos que corre el proceso diario, en orden."""
 

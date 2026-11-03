@@ -2,14 +2,34 @@
 de su itinerario (CU-09)."""
 
 import uuid
+from dataclasses import dataclass
 from datetime import date
 
-from sqlalchemy import exists, func, select
+from sqlalchemy import and_, exists, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from rumbo.core.errores import NoEncontrado
-from rumbo.datos.modelos import EstadoPago, EstadoViaje, Pago, Viaje, ViajeHotel
+from rumbo.datos.modelos import (
+    Alerta,
+    EstadoAlerta,
+    EstadoPago,
+    EstadoViaje,
+    Pago,
+    TipoAlerta,
+    Usuario,
+    Viaje,
+    ViajeHotel,
+)
 from rumbo.datos.repositorios.base import RepositorioBase, Visibilidad
+
+
+@dataclass(frozen=True)
+class CandidatoAAvanzar:
+    """Un `Viaje` al que el proceso diario le sugiere el próximo estado (CU-08 A1) y su
+    responsable, si está activo."""
+
+    viaje: Viaje
+    responsable_activo_id: uuid.UUID | None
 
 
 class RepositorioViajes(RepositorioBase[Viaje]):
@@ -78,6 +98,30 @@ class RepositorioViajes(RepositorioBase[Viaje]):
                 )
             )
         )
+
+    async def para_sugerir_avance(
+        self, sesion: AsyncSession, *, estado: EstadoViaje, hasta: date, sugerencia: str
+    ) -> list[CandidatoAAvanzar]:
+        """Viajes en `estado` cuya fecha de referencia (la salida si está `confirmado`, el
+        regreso si no) es `<= hasta`, sin una `Alerta` `viaje` pendiente o vista (una pospuesta
+        es una pendiente con fecha futura, y también cuenta) cuya descripción nombre la
+        `sugerencia` (CU-08 A1, RF-039). Sin filtro de visibilidad: solo para el proceso
+        diario, que no tiene actor; no exponer a un endpoint."""
+        fecha = Viaje.fecha_salida if estado is EstadoViaje.confirmado else Viaje.fecha_regreso
+        sugerencia_abierta = exists().where(
+            Alerta.viaje_id == Viaje.id,
+            Alerta.tipo == TipoAlerta.viaje,
+            Alerta.estado.in_((EstadoAlerta.pendiente, EstadoAlerta.vista)),
+            Alerta.descripcion.icontains(sugerencia, autoescape=True),
+        )
+        consulta = (
+            select(Viaje, Usuario.id)
+            .outerjoin(Usuario, and_(Usuario.id == Viaje.responsable_id, Usuario.activo.is_(True)))
+            .where(Viaje.estado == estado, fecha <= hasta, ~sugerencia_abierta)
+            .order_by(Viaje.id)
+        )
+        filas = await sesion.execute(consulta)
+        return [CandidatoAAvanzar(viaje, responsable_id) for viaje, responsable_id in filas]
 
 
 class RepositorioPagos(RepositorioBase[Pago]):
