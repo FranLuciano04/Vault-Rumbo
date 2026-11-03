@@ -96,3 +96,12 @@ def rechazar(cotizacion: Cotizacion, oportunidad: Oportunidad) -> None:
     o se cierra perdida por CU-05."""
     _exigir(cotizacion, EstadoCotizacion.enviada, accion="rechazar")
     cotizacion.estado = EstadoCotizacion.rechazada
+
+
+def vencer(cotizacion: Cotizacion, *, hoy: date) -> None:
+    """T5: `enviada` → `vencida` cuando su `validez_hasta` ya pasó (CU-06 A5, RF-026); el último
+    día de vigencia todavía no vence. La oportunidad no cambia de estado."""
+    _exigir(cotizacion, EstadoCotizacion.enviada, accion="vencer")
+    if cotizacion.validez_hasta >= hoy:
+        raise TransicionInvalida("No se puede vencer una cotización que sigue vigente.")
+    cotizacion.estado = EstadoCotizacion.vencida
