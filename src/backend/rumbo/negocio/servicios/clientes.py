@@ -161,6 +161,8 @@ async def editar_cliente(
     await _avisar_si_duplica(sesion, actor, cliente, cambios, confirmar_duplicado)
     for campo, valor in cambios.items():
         setattr(cliente, campo, valor)
+    if cambios.get("no_recontactar"):
+        await alertas.resolver_de_origen(sesion, cliente, (TipoAlerta.recontacto,))  # RF-030
     await sesion.flush()
     await sesion.refresh(cliente, ["asesor"])
     return cliente
