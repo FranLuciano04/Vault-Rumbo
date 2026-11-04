@@ -1,31 +1,32 @@
-import { expect, type Page, test } from "@playwright/test";
-import { compose, DUENA, EMULADOR, elegirContrasena, URL_BASE } from "./compose";
+import { expect, test } from "@playwright/test";
+import {
+  api,
+  armarViaje,
+  ddmmaa,
+  hoy,
+  ingresar,
+  type Id,
+  type PagoApi,
+  SUFIJO,
+  sumarDias,
+  tokenDe,
+} from "./apoyo";
+import { compose, DUENA, elegirContrasena } from "./compose";
 
-// T-118: el proceso diario (CU-30, RF-026, RF-027) contra el sistema real. Los datos de partida se
-// arman por la API; el proceso se corre con `--fecha` por el mismo comando que usa el scheduler
-// (`python -m rumbo.presentacion.jobs.diario`) y sus efectos se leen por la API y en la agenda web.
-// No depende de las semillas de demo: la base y el emulador se comparten entre specs, así que todo
-// lleva un sufijo único y las aserciones se atan a los ids de lo creado aquí.
-// Ojo: el proceso es global (no distingue datos de este spec). Corre en este archivo, después de
-// los specs que arman datos de plazo corto, y con una fecha apenas posterior a la vigencia de la
-// cotización, para tocar lo menos posible de los demás.
-const SUFIJO = String(Date.now());
+// T-118: el proceso diario (CU-30, RF-026, RF-027, RF-039) contra el sistema real. Los datos de
+// partida se arman por la API; el proceso se corre con `--fecha` por el mismo comando que usa el
+// scheduler (`python -m rumbo.presentacion.jobs.diario`) y sus efectos se leen por la API y en la
+// agenda web. No depende de las semillas de demo: la base y el emulador se comparten entre specs,
+// así que todo lleva un sufijo único y las aserciones se atan a los ids de lo creado aquí.
+// Ojo: el proceso es global (no distingue datos de este spec) y corre una sola vez, en el
+// `beforeAll`. Solo podría afectar a un spec posterior que dependa de datos creados antes de la
+// corrida (por ejemplo, las semillas de demo); los que arman sus propios datos no lo notan.
 const CLAVE = "Clave-de-prueba-4";
-
-interface Id {
-  id: string;
-}
 
 interface Persona {
   id: string;
   nombre: string;
   email: string;
-}
-
-interface PagoApi {
-  id: string;
-  tipo: string;
-  estado: string;
 }
 
 interface CotizacionApi {
@@ -39,6 +40,7 @@ interface AlertaApi {
   tipo: string;
   estado: string;
   cliente_id: string | null;
+  viaje_id: string | null;
   fecha: string;
   descripcion: string;
 }
@@ -46,67 +48,6 @@ interface AlertaApi {
 interface PaginaAlertas {
   items: AlertaApi[];
   total: number;
-}
-
-/** Fecha de hoy en Buenos Aires, como la calcula la web (`hoyEnBuenosAires`). */
-function hoy(): string {
-  return new Intl.DateTimeFormat("sv-SE", { timeZone: "America/Argentina/Buenos_Aires" }).format(
-    new Date(),
-  );
-}
-
-function sumarDias(fecha: string, dias: number): string {
-  const d = new Date(`${fecha}T12:00:00Z`);
-  d.setUTCDate(d.getUTCDate() + dias);
-  return d.toISOString().slice(0, 10);
-}
-
-/** dd/mm/aa, el formato de fechas de negocio y del `--fecha` del proceso. */
-function ddmmaa(fecha: string): string {
-  return `${fecha.slice(8, 10)}/${fecha.slice(5, 7)}/${fecha.slice(2, 4)}`;
-}
-
-async function ingresar(pagina: Page, email: string, password: string): Promise<void> {
-  await pagina.goto("/login");
-  await pagina.getByLabel("Email").fill(email);
-  await pagina.getByLabel("Contraseña", { exact: true }).fill(password);
-  const respuesta = pagina.waitForResponse((r) => r.url().includes("/api/auth/yo"));
-  await pagina.getByRole("button", { name: "Ingresar" }).click();
-  const yo = await respuesta;
-  if (!yo.ok()) {
-    const aviso = await pagina.getByRole("alert").textContent();
-    throw new Error(`Falló el ingreso de ${email}: ${String(yo.status())} ${aviso ?? ""}`);
-  }
-  await expect(pagina).toHaveURL(/\/agenda$/, { timeout: 15_000 });
-}
-
-/** Token de Firebase del emulador, para llamar a la API como esa persona. */
-async function tokenDe(email: string, password: string): Promise<string> {
-  // HTTP a propósito: el emulador escucha solo en 127.0.0.1 (docker-compose.e2e.yml).
-  // nosemgrep: typescript.react.security.react-insecure-request.react-insecure-request
-  const respuesta = await fetch(
-    `${EMULADOR}/identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=demo-key`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password, returnSecureToken: true }),
-    },
-  );
-  const cuerpo = (await respuesta.json()) as { idToken?: string };
-  expect(cuerpo.idToken, `el emulador debería dar token a ${email}`).toBeDefined();
-  return cuerpo.idToken ?? "";
-}
-
-async function api<T>(token: string, metodo: string, ruta: string, cuerpo?: object): Promise<T> {
-  // El Compose de e2e publica nginx por HTTP en localhost.
-  // nosemgrep: typescript.react.security.react-insecure-request.react-insecure-request
-  const respuesta = await fetch(`${URL_BASE}/api${ruta}`, {
-    method: metodo,
-    headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-    body: cuerpo ? JSON.stringify(cuerpo) : undefined,
-  });
-  expect(respuesta.ok, `${metodo} ${ruta} respondió ${String(respuesta.status)}`).toBe(true);
-  return (await respuesta.json()) as T;
 }
 
 /** Alta de una persona del equipo por la API, con contraseña elegida (DEC-0016). */
@@ -117,70 +58,6 @@ async function crearEmpleado(etiqueta: string): Promise<Persona> {
   const { id } = await api<Id>(duena, "POST", "/usuarios", { nombre, email, rol: "empleado" });
   await elegirContrasena(email, CLAVE);
   return { id, nombre, email };
-}
-
-interface PagoPlan {
-  tipo: "sena" | "cuota" | "saldo";
-  monto: string;
-  dias: number;
-}
-
-/**
- * Viaje «Reservado» armado por la API: cliente (con asesor si se pasa), oportunidad, cotización
- * aceptada y confirmación de la reserva con el plan dado (la suma del plan es el precio).
- */
-async function armarViaje(
-  token: string,
-  etiqueta: string,
-  opciones: {
-    asesorId?: string;
-    salidaEnDias: number;
-    regresoEnDias: number;
-    precio: string;
-    plan: PagoPlan[];
-  },
-): Promise<{ viajeId: string; clienteId: string; nombreCliente: string }> {
-  const HOY = hoy();
-  const nombreDestino = `Destino ${etiqueta} ${SUFIJO}`;
-  const nombreCliente = `Cliente ${etiqueta} E2E ${SUFIJO}`;
-  const destino = await api<Id>(token, "POST", "/destinos", {
-    nombre: nombreDestino,
-    pais: "Argentina",
-  });
-  const cliente = await api<Id>(token, "POST", "/clientes", {
-    nombre: nombreCliente,
-    contacto: `${etiqueta.toLowerCase()}-${SUFIJO}@rumbo.test`,
-    segmento: "pareja",
-    asesor_asignado_id: opciones.asesorId,
-  });
-  const oportunidad = await api<Id>(token, "POST", "/oportunidades", {
-    cliente_id: cliente.id,
-    canal: "whatsapp",
-    destino_consultado: nombreDestino,
-    pasajeros: 2,
-  });
-  await api(token, "POST", `/oportunidades/${oportunidad.id}/en-gestion`);
-  const cotizacion = await api<Id>(token, "POST", `/oportunidades/${oportunidad.id}/cotizaciones`, {
-    moneda: "ARS",
-    items: [{ concepto: "Paquete completo", precio: opciones.precio }],
-  });
-  await api(token, "POST", `/cotizaciones/${cotizacion.id}/enviar`);
-  await api(token, "POST", `/cotizaciones/${cotizacion.id}/aceptar`);
-  const viaje = await api<Id>(token, "POST", `/oportunidades/${oportunidad.id}/confirmar-reserva`, {
-    destino_id: destino.id,
-    fecha_salida: sumarDias(HOY, opciones.salidaEnDias),
-    fecha_regreso: sumarDias(HOY, opciones.regresoEnDias),
-    categoria: "individual",
-    economia: { precio_venta: opciones.precio, costo: "1000.00" },
-    plan_de_pagos: {
-      pagos: opciones.plan.map((p) => ({
-        tipo: p.tipo,
-        monto: p.monto,
-        vencimiento: sumarDias(HOY, p.dias),
-      })),
-    },
-  });
-  return { viajeId: viaje.id, clienteId: cliente.id, nombreCliente };
 }
 
 /** Corre el proceso diario como el scheduler, pero con una fecha fija; falla si algún paso falló. */
@@ -197,6 +74,11 @@ function correrProceso(fecha: string): string {
   ]);
 }
 
+const alertasDeViaje = async (token: string, viajeId: string): Promise<AlertaApi[]> =>
+  (
+    await api<PaginaAlertas>(token, "GET", "/alertas?proximas=true&tipo=viaje&por_pagina=100")
+  ).items.filter((a) => a.viaje_id === viajeId);
+
 const sugerenciasDe = async (token: string): Promise<PaginaAlertas> =>
   api<PaginaAlertas>(token, "GET", "/alertas?proximas=true&tipo=recontacto&por_pagina=100");
 
@@ -209,6 +91,7 @@ test.describe.serial("CU-30 Proceso diario de punta a punta", () => {
   let senaId: string;
   let saldoId: string;
   let cotizacionId: string;
+  let viajeConfirmado: string;
   let clienteInactivo: { clienteId: string; nombreCliente: string };
 
   test.beforeAll(async () => {
@@ -264,6 +147,22 @@ test.describe.serial("CU-30 Proceso diario de punta a punta", () => {
       plan: [{ tipo: "saldo", monto: "400000.00", dias: -215 }],
     });
 
+    // Viaje «Confirmado» que ya salió a la fecha del proceso: su plan está cobrado por completo.
+    const confirmado = await armarViaje(duena, "Confirmado", {
+      salidaEnDias: 10,
+      regresoEnDias: 18,
+      precio: "200000.00",
+      plan: [{ tipo: "saldo", monto: "200000.00", dias: 5 }],
+    });
+    viajeConfirmado = confirmado.viajeId;
+    await api(duena, "POST", `/pagos/${(confirmado.pagos[0] as PagoApi).id}/cobrar`, {
+      fecha_cobro: HOY,
+      forma_pago: "transferencia",
+      moneda_pago: "ARS",
+    });
+    const previo = await api<{ estado: string }>(duena, "GET", `/viajes/${viajeConfirmado}`);
+    expect(previo.estado).toBe("confirmado");
+
     // La fecha del proceso es el día siguiente a la vigencia de la cotización.
     fechaDelProceso = sumarDias(enviada.validez_hasta, 1);
     expect(fechaDelProceso > HOY).toBe(true);
@@ -274,6 +173,16 @@ test.describe.serial("CU-30 Proceso diario de punta a punta", () => {
     expect((await sugerenciasDe(tokenEmpleado)).total).toBe(0);
 
     console.log(correrProceso(fechaDelProceso));
+  });
+
+  test("RF-039 avance: el viaje confirmado que ya salió recibe una sugerencia y no avanza solo", async () => {
+    const sugerencias = await alertasDeViaje(duena, viajeConfirmado);
+    expect(sugerencias, "una sola sugerencia para el viaje").toHaveLength(1);
+    expect(sugerencias[0]?.estado).toBe("pendiente");
+    const viaje = await api<{ estado: string }>(duena, "GET", `/viajes/${viajeConfirmado}`);
+    expect(viaje.estado, "el empleado confirma el avance: el proceso no lo hace").toBe(
+      "confirmado",
+    );
   });
 
   test("RF-026 vencimiento: el pago pendiente y la cotización enviada sin respuesta vencen", async () => {
@@ -305,6 +214,10 @@ test.describe.serial("CU-30 Proceso diario de punta a punta", () => {
     );
 
     correrProceso(fechaDelProceso);
+
+    expect(await alertasDeViaje(duena, viajeConfirmado)).toHaveLength(1);
+    const viaje = await api<{ estado: string }>(duena, "GET", `/viajes/${viajeConfirmado}`);
+    expect(viaje.estado).toBe("confirmado");
 
     const pagosDespues = await api<PagoApi[]>(duena, "GET", `/viajes/${viajeConPagos}/pagos`);
     expect(pagosDespues).toEqual(pagosAntes);
@@ -343,6 +256,7 @@ test.describe.serial("CU-30 Proceso diario de punta a punta", () => {
     await tarjeta.getByRole("button", { name: /no recontactar/i }).click();
     await tarjeta.getByRole("button", { name: /confirmar/i }).click();
     await expect(panel).toBeHidden();
+    await expect(fila).toHaveCount(0);
 
     // Quedó persistido: el cliente tiene el opt-out y la sugerencia salió de la agenda.
     const cliente = await api<{ no_recontactar: boolean }>(

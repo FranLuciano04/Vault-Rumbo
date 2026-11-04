@@ -1,17 +1,22 @@
 import { expect, type Page, test } from "@playwright/test";
-import { DUENA, EMULADOR, URL_BASE } from "./compose";
+import {
+  api,
+  armarViaje as armarViajeBase,
+  hoy,
+  ingresar,
+  type PagoApi,
+  type PagoPlan,
+  SUFIJO,
+  sumarDias,
+  tokenDe,
+} from "./apoyo";
+import { DUENA, URL_BASE } from "./compose";
 
 // T-109: los flujos alternativos del viaje (CU-11, CU-12 y CU-27) contra el backend real. Cada test
 // arma su propio viaje por la API (cliente, oportunidad, cotización aceptada y reserva con su plan
 // de pagos), hace la excepción desde la web y lee el resultado por la API atado a los ids de ese
 // viaje y de esos pagos. No depende de las semillas de demo: la base y el emulador se comparten
 // entre specs, así que todo lleva un sufijo único.
-const SUFIJO = String(Date.now());
-
-interface Id {
-  id: string;
-}
-
 interface ViajeApi {
   id: string;
   estado: string;
@@ -19,59 +24,6 @@ interface ViajeApi {
   motivo_cancelacion: string | null;
   precio_venta: string;
   saldo_pendiente: string;
-}
-
-interface PagoApi {
-  id: string;
-  tipo: string;
-  monto: string;
-  vencimiento: string;
-  estado: string;
-  forma_pago: string | null;
-}
-
-/** Fecha de hoy en Buenos Aires, como la calcula la web (`hoyEnBuenosAires`). */
-function hoy(): string {
-  return new Intl.DateTimeFormat("sv-SE", { timeZone: "America/Argentina/Buenos_Aires" }).format(
-    new Date(),
-  );
-}
-
-function sumarDias(fecha: string, dias: number): string {
-  const d = new Date(`${fecha}T12:00:00Z`);
-  d.setUTCDate(d.getUTCDate() + dias);
-  return d.toISOString().slice(0, 10);
-}
-
-async function ingresar(pagina: Page, email: string, password: string): Promise<void> {
-  await pagina.goto("/login");
-  await pagina.getByLabel("Email").fill(email);
-  await pagina.getByLabel("Contraseña", { exact: true }).fill(password);
-  const respuesta = pagina.waitForResponse((r) => r.url().includes("/api/auth/yo"));
-  await pagina.getByRole("button", { name: "Ingresar" }).click();
-  const yo = await respuesta;
-  if (!yo.ok()) {
-    const aviso = await pagina.getByRole("alert").textContent();
-    throw new Error(`Falló el ingreso de ${email}: ${String(yo.status())} ${aviso ?? ""}`);
-  }
-  await expect(pagina).toHaveURL(/\/agenda$/, { timeout: 15_000 });
-}
-
-/** Token de Firebase del emulador, para llamar a la API como esa persona. */
-async function tokenDe(email: string, password: string): Promise<string> {
-  // HTTP a propósito: el emulador escucha solo en 127.0.0.1 (docker-compose.e2e.yml).
-  // nosemgrep: typescript.react.security.react-insecure-request.react-insecure-request
-  const respuesta = await fetch(
-    `${EMULADOR}/identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=demo-key`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password, returnSecureToken: true }),
-    },
-  );
-  const cuerpo = (await respuesta.json()) as { idToken?: string };
-  expect(cuerpo.idToken, `el emulador debería dar token a ${email}`).toBeDefined();
-  return cuerpo.idToken ?? "";
 }
 
 async function llamar(
@@ -89,71 +41,9 @@ async function llamar(
   });
 }
 
-async function api<T>(token: string, metodo: string, ruta: string, cuerpo?: object): Promise<T> {
-  const respuesta = await llamar(token, metodo, ruta, cuerpo);
-  expect(respuesta.ok, `${metodo} ${ruta} respondió ${String(respuesta.status)}`).toBe(true);
-  return (await respuesta.json()) as T;
-}
-
-interface PagoPlan {
-  tipo: "sena" | "cuota" | "saldo";
-  monto: string;
-  dias: number;
-}
-
-/**
- * Viaje «Reservado» armado por la API: cliente, oportunidad, cotización aceptada por `precio` y
- * confirmación de la reserva con el plan dado (la suma del plan tiene que ser el precio).
- */
-async function armarViaje(
-  token: string,
-  etiqueta: string,
-  precio: string,
-  plan: PagoPlan[],
-): Promise<{ viajeId: string; nombreDestino: string; pagos: PagoApi[] }> {
-  const nombreDestino = `Destino ${etiqueta} ${SUFIJO}`;
-  const destino = await api<Id>(token, "POST", "/destinos", {
-    nombre: nombreDestino,
-    pais: "Argentina",
-  });
-  const cliente = await api<Id>(token, "POST", "/clientes", {
-    nombre: `Cliente ${etiqueta} E2E ${SUFIJO}`,
-    contacto: `${etiqueta.toLowerCase()}-${SUFIJO}@rumbo.test`,
-    segmento: "pareja",
-  });
-  const oportunidad = await api<Id>(token, "POST", "/oportunidades", {
-    cliente_id: cliente.id,
-    canal: "whatsapp",
-    destino_consultado: nombreDestino,
-    pasajeros: 2,
-  });
-  await api(token, "POST", `/oportunidades/${oportunidad.id}/en-gestion`);
-  const cotizacion = await api<Id>(token, "POST", `/oportunidades/${oportunidad.id}/cotizaciones`, {
-    moneda: "ARS",
-    items: [{ concepto: "Paquete completo", precio }],
-  });
-  await api(token, "POST", `/cotizaciones/${cotizacion.id}/enviar`);
-  await api(token, "POST", `/cotizaciones/${cotizacion.id}/aceptar`);
-
-  const HOY = hoy();
-  const viaje = await api<Id>(token, "POST", `/oportunidades/${oportunidad.id}/confirmar-reserva`, {
-    destino_id: destino.id,
-    fecha_salida: sumarDias(HOY, 120),
-    fecha_regreso: sumarDias(HOY, 128),
-    categoria: "individual",
-    economia: { precio_venta: precio, costo: "1000.00" },
-    plan_de_pagos: {
-      pagos: plan.map((p) => ({
-        tipo: p.tipo,
-        monto: p.monto,
-        vencimiento: sumarDias(HOY, p.dias),
-      })),
-    },
-  });
-  const pagos = await pagosDe(token, viaje.id);
-  expect(pagos, "la reserva debería crear el plan pedido").toHaveLength(plan.length);
-  return { viajeId: viaje.id, nombreDestino, pagos };
-}
+/** Viaje «Reservado» del helper común, con la firma corta que usa este spec. */
+const armarViaje = (token: string, etiqueta: string, precio: string, plan: PagoPlan[]) =>
+  armarViajeBase(token, etiqueta, { precio, plan });
 
 async function pagosDe(token: string, viajeId: string): Promise<PagoApi[]> {
   return api<PagoApi[]>(token, "GET", `/viajes/${viajeId}/pagos`);
