@@ -103,7 +103,9 @@ function manejadorCalendario(pedidos: URLSearchParams[] = []) {
     return HttpResponse.json(
       eventos.filter(
         (e) =>
-          (!tipo || e.tipo === tipo) && (!desde || e.hasta >= desde) && (!hasta || e.desde <= hasta),
+          (!tipo || e.tipo === tipo) &&
+          (!desde || e.hasta >= desde) &&
+          (!hasta || e.desde <= hasta),
       ),
     );
   });
@@ -137,8 +139,11 @@ const vista = (nombre: "Mes" | "Semana" | "Día") => {
 };
 const siguiente = () => screen.getByRole("button", { name: /siguiente/i });
 const anterior = () => screen.getByRole("button", { name: /anterior/i });
-const enlaceDe = async (titulo: string) =>
-  (await screen.findAllByRole("link", { name: new RegExp(titulo, "i") }))[0]!;
+const enlaceDe = async (titulo: string) => {
+  const [primero] = await screen.findAllByRole("link", { name: new RegExp(titulo, "i") });
+  if (!primero) throw new Error(`no hay un enlace para ${titulo}`);
+  return primero;
+};
 
 describe("RF-136 vistas del calendario", () => {
   it("abre en el mes en curso con los viajes, vencimientos y alertas del mes", async () => {
@@ -158,9 +163,9 @@ describe("RF-136 vistas del calendario", () => {
     renderCalendario();
     await screen.findAllByText(/Familia Sosa — Brasil/);
 
-    const q = pedidos[0]!;
-    expect(q.get("desde")! <= "2026-11-01").toBe(true);
-    expect(q.get("hasta")! >= "2026-11-30").toBe(true);
+    const q = new URLSearchParams(pedidos[0]);
+    expect((q.get("desde") ?? "9999-12-31") <= "2026-11-01").toBe(true);
+    expect((q.get("hasta") ?? "") >= "2026-11-30").toBe(true);
   });
 
   it("la vista semana muestra solo los eventos de la semana del 9 al 15", async () => {
@@ -287,6 +292,7 @@ describe("RF-138 filtros y estado vacío", () => {
     await userEvent.click(vista("Día"));
     await screen.findAllByText(/Pedir el pasaporte vigente/);
 
+    await userEvent.click(siguiente());
     await userEvent.click(siguiente());
     await userEvent.click(siguiente());
 
