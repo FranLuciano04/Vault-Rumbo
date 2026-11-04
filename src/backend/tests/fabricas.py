@@ -57,14 +57,14 @@ class OperadorFactory(factory.Factory[m.Operador]):
     class Meta:
         model = m.Operador
 
-    nombre = factory.Faker("company")
+    nombre = factory.Sequence(lambda n: f"Operador {n}")
 
 
 class HotelFactory(factory.Factory[m.Hotel]):
     class Meta:
         model = m.Hotel
 
-    nombre = factory.Faker("company")
+    nombre = factory.Sequence(lambda n: f"Hotel {n}")
     categoria = "4 estrellas"
     precio_referencia = factory.LazyFunction(lambda: Decimal("85000.00"))
     servicios = factory.LazyFunction(lambda: ["wifi", "desayuno"])
