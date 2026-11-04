@@ -2,7 +2,7 @@
 tipo: referencia
 estado: formalizado
 responsable: equipo
-actualizado: 03/11/26
+actualizado: 04/11/26
 ---
 
 # 📊 Estado del proyecto
@@ -15,6 +15,8 @@ actualizado: 03/11/26
 > 🏁 **02/11 — M6 Viajes y economía cerrado.** Se arreglaron los 5 hallazgos de Codex (PR #170, #172, #173 y #174, los de riesgo alto aprobados por Paloma) y se puso el tag `mod-6`. Queda en revisión [[DEC-0026 Tipo de cambio y deuda nueva en un viaje confirmado|DEC-0026]] (tipo de cambio en pesos por dólar y T11 `confirmado → vendido`), con dos puntos para ratificar. El resumen está en [[Bitácora técnica]].
 >
 > 🏁 **29/10 — M5 Hoteles y reseñas cerrado.** Se arreglaron 5 de los 6 hallazgos de Codex (PR #140 a #143) y H-04 pasó a T-091 (`GET /viajes` con filtro por cliente). El equipo lo aprobó y se puso el tag `mod-5`. El backend ahora tiene logging configurado (`rumbo.core.logs`). El resumen está en [[Bitácora técnica]].
+>
+> 👉 **04/11 (Nahuel):** **T-125** (calendario de viajes en la web) está hecho y mergeado (PR [#189](https://github.com/FranLuciano04/Vault-Rumbo/pull/189)). Destraba T-128. Falta decidir si el filtro «lo mío» y el aviso de freelance del prototipo van en un ticket nuevo.
 >
 > 👉 **03/11 (Nahuel):** **T-114** (decisión sobre una sugerencia de recontacto) está hecho y mergeado (PR [#186](https://github.com/FranLuciano04/Vault-Rumbo/pull/186)). El backend resuelve la sugerencia al crear la oportunidad o marcar `no_recontactar`, y el front ya no llama a `/resolver` en esos casos. El opt-out en web no ofrece «Deshacer».
 >

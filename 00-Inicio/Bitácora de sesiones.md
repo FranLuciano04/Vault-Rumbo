@@ -33,6 +33,16 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
+## 04/11/26 — Nahuel (Claude Opus 5.5) — T-125: mostrar el calendario de viajes en la web
+- **Hecho:**
+  - La sección Calendario muestra viajes, vencimientos y alertas en vistas de mes, semana y día, con filtros por tipo y estado, sin librería de calendario.
+  - Los viajes y vencimientos llevan a la ficha del viaje, y las alertas a `/agenda`.
+  - Se corrigió con autorización un test del rojo: el viaje de la fixture termina el 14/11 y `hasta` es inclusivo.
+  - Review opus en dos rondas: 1 bloqueante, 3 importantes y 3 menores, todos arreglados.
+  - CI en verde.
+- **Commits:** `1ab7c7f` rojo, `b8929d3` verde, `32da35a` refactor, `65fad2f` y `434b75e` fix, `34de943` hecho; PR #189 mergeado (`025088e`).
+- **Pendiente:** decidir si el filtro «lo mío» y el aviso de freelance de la pantalla 38 van en un ticket nuevo. El prototipo los muestra, pero T-125 no los pedía. La pantalla no se probó en el navegador. Quedan los desvíos del prototipo anotados en el ticket.
+
 ## 03/11/26 — Nahuel (Claude Opus 5.5) — T-114: registrar la decisión sobre una sugerencia de recontacto
 - **Hecho:**
   - Crear una oportunidad o marcar `no_recontactar` resuelve las sugerencias de recontacto del cliente, por `alerta.cliente_id` y sin cambiar el contrato.
