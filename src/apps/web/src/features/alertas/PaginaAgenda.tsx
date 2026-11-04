@@ -148,6 +148,14 @@ export function PaginaAgenda({
     setDetalleId(null);
     focoDetalle.volver();
   };
+  const titulo = useRef<HTMLHeadingElement>(null);
+  // La sugerencia queda resuelta en el servidor y su fila desaparece: el foco pasa al título.
+  const alNoRecontactar = () => {
+    focoDetalle.olvidar();
+    setDetalleId(null);
+    setAviso("Cliente marcado para no recontactar");
+    titulo.current?.focus();
+  };
   const filtros = {
     por_pagina: POR_PAGINA,
     pagina,
@@ -247,7 +255,9 @@ export function PaginaAgenda({
           <p className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
             {esDeAgencia ? "Principal · Toda la agencia" : "Principal"}
           </p>
-          <h1 className="text-3xl font-semibold">Agenda del día</h1>
+          <h1 ref={titulo} tabIndex={-1} className="text-3xl font-semibold outline-none">
+            Agenda del día
+          </h1>
         </div>
         <Button
           onClick={() => {
@@ -535,6 +545,7 @@ export function PaginaAgenda({
           alertaId={detalleId}
           hoy={hoy}
           alCerrar={cerrarDetalle}
+          alNoRecontactar={alNoRecontactar}
           alResolver={(alerta) => {
             // La fila desaparece: el foco pasa al «Deshacer» del aviso.
             enfocarDeshacer.current = alerta.id;

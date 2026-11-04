@@ -1,11 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { Oportunidad, UsuarioActual } from "@rumbo/shared";
-import {
-  useCliente,
-  useOportunidades,
-  useRegistrarConsulta,
-  useResolverAlerta,
-} from "@rumbo/shared/hooks";
+import { useCliente, useOportunidades, useRegistrarConsulta } from "@rumbo/shared/hooks";
 import type { AxiosInstance } from "axios";
 import { useState, type ReactNode } from "react";
 import { useForm } from "react-hook-form";
@@ -70,14 +65,11 @@ function ConOportunidadesAbiertas({
 function FormularioConsulta({
   cliente,
   inicial,
-  alertaId,
 }: {
   cliente: AxiosInstance;
   inicial: ClienteElegido | null;
-  alertaId: string | null;
 }) {
   const registrar = useRegistrarConsulta(cliente);
-  const resolverAlerta = useResolverAlerta(cliente);
   const navegar = useNavigate();
   const [elegido, setElegido] = useState<ClienteElegido | null>(inicial);
   const [error, setError] = useState<string | null>(null);
@@ -113,9 +105,6 @@ function FormularioConsulta({
         fecha_hasta_tentativa: datos.fecha_hasta_tentativa || null,
         notas: datos.notas.trim() || null,
       });
-      // Si vino de una sugerencia de recontacto (CU-30 paso 5), la sugerencia queda resuelta.
-      // Si no se puede resolver, la consulta ya está registrada: no se reintenta el alta.
-      if (alertaId) await resolverAlerta.mutateAsync(alertaId).catch(() => undefined);
       void navegar(`/oportunidades/${nueva.id}`);
     } catch (falla) {
       setError(aplicarErroresDelServidor(falla, CAMPOS, formulario.setError));
@@ -253,7 +242,6 @@ export function NuevaConsulta({ cliente }: { cliente: AxiosInstance; usuario: Us
     <FormularioConsulta
       cliente={cliente}
       inicial={data ? { id: data.id, nombre: data.nombre } : null}
-      alertaId={parametros.get("alerta_id")}
     />
   );
 }

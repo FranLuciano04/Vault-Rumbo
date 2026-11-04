@@ -50,3 +50,4 @@ La sugerencia de recontacto aparece en la agenda con el contexto del cliente y l
 - «No recontactar» confirma, hace el PATCH `no_recontactar` y resuelve con el mismo `alResolver` del panel (cierra y ofrece deshacer). «Posponer» solo con la alerta `pendiente`; en recontacto se oculta el «Posponer» general.
 - Review (Opus): 3 importantes y 2 menores, todos arreglados en el fix. Se autorizó tocar los tests del rojo para corregir un tipo (`tsc`) y agregar 4 casos (`--tocar-tests`).
 - Modelos: tests sonnet, impl/refactor/fix sonnet, review opus. Sin escalados. El refactor no encontró cambios.
+- **Actualizado por T-114:** el backend resuelve la alerta al registrar la consulta y al marcar `no_recontactar`. La URL ya no lleva `alerta_id`, el front no llama a `/resolver` en esos casos y el opt-out no ofrece «Deshacer».

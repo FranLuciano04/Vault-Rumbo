@@ -97,7 +97,6 @@ function backend(
   opciones: {
     contacto?: string;
     fallaFicha?: boolean;
-    resolverFalla?: boolean;
     rechazarPatch?: { status: number; detalle: string };
   } = {},
 ) {
@@ -138,9 +137,6 @@ function backend(
       return respuesta(200, ficha(opciones.contacto ?? "+54 9 351 555-9876"), config);
     }
     const resolver = /^\/api\/alertas\/([^/]+)\/resolver$/.exec(url);
-    if (resolver && metodo === "post" && opciones.resolverFalla) {
-      return respuesta(500, problema(500, "Servicio caído."), config);
-    }
     if (resolver && metodo === "post") {
       return respuesta(200, { ...alerta(resolver[1] as string, "resuelta") }, config);
     }
@@ -304,7 +300,7 @@ describe("RF-030 opt-out mobile", () => {
       expect(resolver()).toHaveLength(0);
     });
 
-    it("al confirmar hace PATCH no_recontactar:true y después resuelve la alerta", async () => {
+    it("al confirmar hace PATCH no_recontactar:true y no llama a /resolver (lo resuelve el servidor)", async () => {
       backend();
       const vista = await abrirSugerencia();
       await fireEvent.press(vista.getByRole("button", { name: /no recontactar/i }));
@@ -312,17 +308,18 @@ describe("RF-030 opt-out mobile", () => {
       await fireEvent.press(await vista.findByRole("button", { name: /confirmar/i }));
 
       await waitFor(() => {
-        expect(resolver()).toHaveLength(1);
+        expect(patchCliente()).toHaveLength(1);
       });
       const [patch] = patchCliente();
       expect(patch?.url).toBe(`/api/clientes/${ID_CLIENTE}`);
       expect(JSON.parse(patch?.data ?? "{}")).toEqual({ no_recontactar: true });
-      expect(resolver()[0]?.url).toBe(`/api/alertas/${ID_RECONTACTO}/resolver`);
-      const orden = mockHttp.mock.calls.map(([c]) => c);
-      expect(orden.indexOf(patch as Config)).toBeLessThan(orden.indexOf(resolver()[0] as Config));
+      await waitFor(() => {
+        expect(vista).toHavePathname("/agenda");
+      });
+      expect(resolver()).toHaveLength(0);
     });
 
-    it("tras resolver vuelve a la agenda", async () => {
+    it("tras el PATCH vuelve a la agenda", async () => {
       backend();
       const vista = await abrirSugerencia();
       await fireEvent.press(vista.getByRole("button", { name: /no recontactar/i }));
@@ -378,22 +375,6 @@ describe("RF-030 opt-out mobile", () => {
     const vista = await abrirSugerencia(ID_RESUELTA);
 
     expect(vista.queryByRole("button", { name: /no recontactar/i })).toBeNull();
-  });
-
-  it("si el resolver falla tras un PATCH ok avisa que el cliente quedó marcado y el reintento solo resuelve", async () => {
-    backend({ resolverFalla: true });
-    const vista = await abrirSugerencia();
-    await fireEvent.press(vista.getByRole("button", { name: /no recontactar/i }));
-    await fireEvent.press(await vista.findByRole("button", { name: /confirmar/i }));
-
-    await vista.findByText(/el cliente quedó marcado para no recontactar/i);
-    expect(vista.getByRole("alert")).toBeTruthy();
-    await fireEvent.press(vista.getByRole("button", { name: /confirmar/i }));
-
-    await waitFor(() => {
-      expect(resolver()).toHaveLength(2);
-    });
-    expect(patchCliente()).toHaveLength(1);
   });
 
   it("si falla la ficha avisa que no se pudo cargar el contacto", async () => {
