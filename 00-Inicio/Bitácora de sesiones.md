@@ -39,7 +39,7 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
   - La review opus encontró que web y mobile llamaban a `/resolver` después y recibían 409. Nahuel decidió ajustar el front: se sacó esa llamada, y el opt-out en web ya no ofrece «Deshacer» (foco al título y aviso).
   - Review opus en dos rondas: 1 bloqueante, 1 importante y 4 menores, todos arreglados.
 - **Commits:** `b84662b` rojo, `fdaa9ab` verde, `e643cd5` y `d77b587` fix, `c8416f0` hecho; PR #186 mergeado (`c835dda`).
-- **Pendiente:** el job Backend del PR falló por una colisión aleatoria en `DestinoFactory`. Quedó arreglado en el PR #187 (`4092659`), con el CI en verde. `OperadorFactory` y `HotelFactory` tienen el mismo riesgo. En Windows, 17 tests de PDF fallan localmente porque WeasyPrint no encuentra `libgobject`.
+- **Pendiente:** el job Backend del PR falló por una colisión aleatoria en `DestinoFactory`. Quedó arreglado en el PR #187 (`4092659`), con el CI en verde. El mismo arreglo para `OperadorFactory` y `HotelFactory` va en un PR aparte. En Windows, 17 tests de PDF fallan localmente porque WeasyPrint no encuentra `libgobject`.
 
 ## 02/11/26 — Nahuel (Claude Opus 5.5) — T-115: programar el proceso diario en el Compose
 - **Hecho:**
