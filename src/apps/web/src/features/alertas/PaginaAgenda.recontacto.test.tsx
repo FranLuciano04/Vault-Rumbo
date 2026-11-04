@@ -330,6 +330,18 @@ describe("RF-029 decisión de recontacto", () => {
       expect(screen.queryByRole("button", { name: /deshacer/i })).not.toBeInTheDocument();
     });
 
+    it("RF-029 tras el opt-out el foco pasa al título de la agenda y se avisa que el cliente quedó marcado", async () => {
+      servirRecontacto();
+      renderAgenda();
+      const { usuario, tarjeta } = await abrirTarjeta();
+
+      await usuario.click(within(tarjeta).getByRole("button", { name: /no recontactar/i }));
+      await usuario.click(await within(tarjeta).findByRole("button", { name: /confirmar/i }));
+
+      expect(await screen.findByText("Cliente marcado para no recontactar")).toBeInTheDocument();
+      expect(screen.getByRole("heading", { name: /agenda del día/i })).toHaveFocus();
+    });
+
     it("RF-029 «Cancelar» en la confirmación no envía nada", async () => {
       const pedidos = servirRecontacto();
       renderAgenda();
