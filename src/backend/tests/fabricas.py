@@ -39,7 +39,7 @@ class DestinoFactory(factory.Factory[m.Destino]):
     class Meta:
         model = m.Destino
 
-    nombre = factory.Faker("city")
+    nombre = factory.Sequence(lambda n: f"Destino {n}")
     pais = factory.Faker("country")
 
 
