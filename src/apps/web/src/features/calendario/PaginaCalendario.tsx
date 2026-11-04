@@ -1,12 +1,13 @@
-import { formatearFecha, type EventoCalendario } from "@rumbo/shared";
+import { formatearFecha, hoyEnBuenosAires, type EventoCalendario } from "@rumbo/shared";
 import { useCalendario } from "@rumbo/shared/hooks";
 import type { AxiosInstance } from "axios";
 import { useState } from "react";
 import { Link } from "react-router";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { mensajeDeError } from "@/lib/errores";
-import { diasDelPeriodo, hoyIso, huecoInicial, moverAncla, type VistaCalendario } from "./periodo";
+import { cn } from "@/lib/utils";
+import { mensajeDeErrorCon } from "@/lib/errores";
+import { diasDelPeriodo, huecoInicial, moverAncla, type VistaCalendario } from "./periodo";
 
 const VISTAS: { id: VistaCalendario; nombre: string }[] = [
   { id: "mes", nombre: "Mes" },
@@ -34,6 +35,9 @@ const ESTADOS: Record<EventoCalendario["estado"], string> = {
   vista: "Vista",
   resuelta: "Resuelta",
 };
+
+/** El contrato excluye los pagos anulados del calendario: no se ofrece filtrarlos. */
+const ESTADOS_FILTRABLES = Object.entries(ESTADOS).filter(([id]) => id !== "anulado");
 
 const DIAS_SEMANA = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"];
 
@@ -70,17 +74,21 @@ function titularPeriodo(vista: VistaCalendario, dias: string[]) {
   if (vista === "semana")
     return `${formatearFecha(primero)} al ${formatearFecha(dias.at(-1) ?? primero)}`;
   const fecha = new Date(`${primero}T12:00:00`);
-  return fecha.toLocaleDateString(
-    "es-AR",
+  const texto =
     vista === "mes"
-      ? { month: "long", year: "numeric" }
-      : { weekday: "long", day: "numeric", month: "long", year: "numeric" },
-  );
+      ? `${fecha.toLocaleDateString("es-AR", { month: "long" })} ${primero.slice(0, 4)}`
+      : fecha.toLocaleDateString("es-AR", {
+          weekday: "long",
+          day: "numeric",
+          month: "long",
+          year: "numeric",
+        });
+  return texto.charAt(0).toUpperCase() + texto.slice(1);
 }
 
 /** Calendario de viajes, vencimientos y alertas (CU-23, pantallas 20 y 38). Solo lectura. */
 export function PaginaCalendario({ cliente }: { cliente: AxiosInstance }) {
-  const hoy = hoyIso();
+  const hoy = hoyEnBuenosAires();
   const [vista, setVista] = useState<VistaCalendario>("mes");
   const [ancla, setAncla] = useState(hoy);
   const [tipo, setTipo] = useState<EventoCalendario["tipo"] | "">("");
@@ -89,16 +97,20 @@ export function PaginaCalendario({ cliente }: { cliente: AxiosInstance }) {
   const dias = diasDelPeriodo(vista, ancla);
   const desde = dias[0] ?? ancla;
   const hasta = dias.at(-1) ?? ancla;
-  const { data, isPending, isError, error } = useCalendario(cliente, {
+  const { data, isPending, isPlaceholderData, isError, error } = useCalendario(cliente, {
     desde,
     hasta,
     tipo: tipo || undefined,
   });
 
-  // El estado se filtra acá (DEC-0024 punto 9); el rango también, porque al cambiar de período
-  // la query conserva un instante los eventos del anterior.
+  // El estado se filtra acá (DEC-0024 punto 9). El rango y el tipo también: mientras llega el
+  // pedido nuevo la query conserva los eventos del anterior (`isPlaceholderData`).
   const visibles = (data ?? []).filter(
-    (e) => (!estado || e.estado === estado) && e.hasta >= desde && e.desde <= hasta,
+    (e) =>
+      (!estado || e.estado === estado) &&
+      (!tipo || e.tipo === tipo) &&
+      e.hasta >= desde &&
+      e.desde <= hasta,
   );
   const delDia = (dia: string) => visibles.filter((e) => e.desde <= dia && dia <= e.hasta);
   const hueco = vista === "mes" ? huecoInicial(desde) : 0;
@@ -115,7 +127,7 @@ export function PaginaCalendario({ cliente }: { cliente: AxiosInstance }) {
           <p className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
             Principal
           </p>
-          <h1 className="text-3xl font-semibold capitalize">{titularPeriodo(vista, dias)}</h1>
+          <h1 className="text-3xl font-semibold">{titularPeriodo(vista, dias)}</h1>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <Button
@@ -189,7 +201,7 @@ export function PaginaCalendario({ cliente }: { cliente: AxiosInstance }) {
             }}
           >
             <option value="">Todos los estados</option>
-            {Object.entries(ESTADOS).map(([id, nombre]) => (
+            {ESTADOS_FILTRABLES.map(([id, nombre]) => (
               <option key={id} value={id}>
                 {nombre}
               </option>
@@ -199,9 +211,22 @@ export function PaginaCalendario({ cliente }: { cliente: AxiosInstance }) {
       </div>
 
       {isPending && <p role="status">Cargando el calendario…</p>}
-      {isError && <p role="alert">{mensajeDeError(error)}</p>}
+      {isError && (
+        <p role="alert">
+          {mensajeDeErrorCon(
+            error,
+            "No pudimos cargar el calendario. Probá de nuevo en unos minutos.",
+          )}
+        </p>
+      )}
       {!isPending && !isError && (
-        <div className="rounded-xl bg-card p-2">
+        <div
+          aria-busy={isPlaceholderData}
+          className={cn(
+            "rounded-xl bg-card p-2 transition-opacity",
+            isPlaceholderData && "opacity-60",
+          )}
+        >
           {enGrilla && (
             <ul className="hidden grid-cols-7 gap-px px-2 py-2 sm:grid">
               {DIAS_SEMANA.map((nombre) => (
@@ -242,7 +267,7 @@ export function PaginaCalendario({ cliente }: { cliente: AxiosInstance }) {
             ))}
             {celdasVacias("despues", relleno)}
           </ol>
-          {visibles.length === 0 && (
+          {visibles.length === 0 && !isPlaceholderData && (
             <p role="status" className="py-8 text-center text-muted-foreground">
               No hay eventos en este período.
             </p>

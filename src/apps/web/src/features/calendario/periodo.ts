@@ -10,12 +10,6 @@ const iso = (ms: number) => new Date(ms).toISOString().slice(0, 10);
 const diasDesdeLunes = (fecha: string) =>
   (new Date(Date.parse(fecha)).getUTCDay() + 6) % DIAS_SEMANA;
 
-/** Hoy según el reloj local, como `aaaa-mm-dd`. */
-export function hoyIso(): string {
-  const d = new Date();
-  return iso(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
-}
-
 function sumarDias(fecha: string, dias: number): string {
   return iso(Date.parse(fecha) + dias * DIA_MS);
 }

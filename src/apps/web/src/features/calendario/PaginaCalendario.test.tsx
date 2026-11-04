@@ -3,7 +3,7 @@ import { crearServidor } from "@rumbo/shared/mocks";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { http, HttpResponse } from "msw";
+import { delay, http, HttpResponse } from "msw";
 import { MemoryRouter, Route, Routes, useLocation } from "react-router";
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { PaginaCalendario } from "./PaginaCalendario";
@@ -153,19 +153,76 @@ describe("RF-136 vistas del calendario", () => {
     expect(await screen.findAllByText(/Familia Sosa — Brasil/)).not.toHaveLength(0);
     expect(screen.getAllByText(/Vence un pago de Camila Benítez/)).not.toHaveLength(0);
     expect(screen.getAllByText(/Pedir el pasaporte vigente/)).not.toHaveLength(0);
-    expect(screen.getByText(/noviembre/i)).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 1, name: "Noviembre 2026" })).toBeInTheDocument();
     expect(screen.queryByText(/Joaquín Ramos — Roma/)).not.toBeInTheDocument();
   });
 
-  it("pide al backend el rango visible", async () => {
+  it.each([
+    ["Mes", "2026-11-01", "2026-11-30"],
+    ["Semana", "2026-11-09", "2026-11-15"],
+    ["Día", "2026-11-12", "2026-11-12"],
+  ] as const)("pide al backend el rango exacto de la vista %s", async (nombre, desde, hasta) => {
     const pedidos: URLSearchParams[] = [];
     servidor.use(manejadorCalendario(pedidos));
     renderCalendario();
     await screen.findAllByText(/Familia Sosa — Brasil/);
+    if (nombre !== "Mes") await userEvent.click(vista(nombre));
 
-    const q = new URLSearchParams(pedidos[0]);
-    expect((q.get("desde") ?? "9999-12-31") <= "2026-11-01").toBe(true);
-    expect((q.get("hasta") ?? "") >= "2026-11-30").toBe(true);
+    await waitFor(() => {
+      const q = pedidos.at(-1);
+      expect([q?.get("desde"), q?.get("hasta")]).toEqual([desde, hasta]);
+    });
+  });
+
+  it("muestra que está cargando hasta que llega la primera respuesta", async () => {
+    servidor.use(
+      http.get("*/api/calendario", async () => {
+        await delay(200);
+        return HttpResponse.json(eventos);
+      }),
+    );
+    renderCalendario();
+
+    expect(screen.getByText(/cargando el calendario/i)).toBeInTheDocument();
+    expect(await screen.findAllByText(/Familia Sosa — Brasil/)).not.toHaveLength(0);
+    expect(screen.queryByText(/cargando el calendario/i)).not.toBeInTheDocument();
+  });
+
+  it("al cambiar de período no muestra el vacío mientras llega la respuesta", async () => {
+    servidor.use(manejadorCalendario());
+    renderCalendario();
+    await screen.findAllByText(/Familia Sosa — Brasil/);
+    servidor.use(
+      http.get("*/api/calendario", async () => {
+        await delay(300);
+        return HttpResponse.json(eventos.filter((e) => e.desde >= "2026-12-01"));
+      }),
+    );
+
+    await userEvent.click(siguiente());
+
+    expect(screen.getByText(/diciembre/i)).toBeInTheDocument();
+    expect(screen.queryByText(/no hay eventos|sin eventos/i)).not.toBeInTheDocument();
+    expect(document.querySelector("[aria-busy='true']")).not.toBeNull();
+    expect(await screen.findAllByText(/Joaquín Ramos — Roma/)).not.toHaveLength(0);
+    expect(document.querySelector("[aria-busy='true']")).toBeNull();
+  });
+
+  it("si falla la lectura avisa que no pudo cargar el calendario", async () => {
+    servidor.use(http.get("*/api/calendario", () => new HttpResponse(null, { status: 500 })));
+    renderCalendario();
+
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      "No pudimos cargar el calendario. Probá de nuevo en unos minutos.",
+    );
+  });
+
+  it("no ofrece filtrar por pagos anulados", async () => {
+    servidor.use(manejadorCalendario());
+    renderCalendario();
+    await screen.findAllByText(/Familia Sosa — Brasil/);
+
+    expect(screen.queryByRole("option", { name: /anulado/i })).not.toBeInTheDocument();
   });
 
   it("la vista semana muestra solo los eventos de la semana del 9 al 15", async () => {
