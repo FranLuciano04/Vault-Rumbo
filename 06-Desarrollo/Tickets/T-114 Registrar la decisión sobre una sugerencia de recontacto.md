@@ -3,7 +3,7 @@ id: T-114
 titulo: Registrar la decisión sobre una sugerencia de recontacto
 modulo: M7 — Proceso diario y CRM proactivo
 capa: backend
-estado: tomado
+estado: hecho
 depende_de: [T-113, T-062, T-053]
 tamaño: S
 riesgo: normal
@@ -47,3 +47,8 @@ Ante una sugerencia de recontacto, la persona la convierte en una consulta, marc
 
 ## Notas de implementación
 - **Del plan:** Usa endpoints existentes (`POST /oportunidades`, `PATCH /clientes/{id}`, `posponer`). Si hace falta vincular la oportunidad con la alerta y el contrato no lo permite, es un cambio de contrato: preguntar.
+- **Decisión:** el contrato no vincula la oportunidad con la alerta, así que crear una oportunidad para el cliente o marcarlo `no_recontactar` resuelve sus alertas `recontacto` sin resolver (`resolver_de_origen`, por `alerta.cliente_id`). No cambia el contrato. Volver a poner `no_recontactar` en `false` no reabre nada.
+- **Desvío del alcance (DEC-0019, decidido por Nahuel):** la review encontró que web y mobile llamaban a `POST /alertas/{id}/resolver` después y ahora recibían 409. Se sacó esa llamada de `TarjetaRecontacto`, `RecontactoMobile` y `NuevaConsulta`, junto con `alerta_id` en la URL. `useEditarCliente` invalida `claveAlertas`. El opt-out en web ya no ofrece «Deshacer»: el foco va al título de la agenda y aparece un aviso. Se autorizó `--tocar-tests` para los tests del front y del rojo.
+- **Review (opus):** ronda 1, 1 bloqueante, 1 importante y 2 menores; ronda 2, 2 menores. Todos arreglados.
+- **Modelos:** tests, impl, refactor y fix sonnet; review opus. Sin escalados. El refactor no encontró cambios.
+- **Checks:** `format:check` marca 13 archivos, ninguno de este ticket.

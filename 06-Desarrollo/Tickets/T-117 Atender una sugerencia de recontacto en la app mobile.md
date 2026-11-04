@@ -50,3 +50,4 @@ En el teléfono, la sugerencia de recontacto muestra el cliente y permite llamar
 - Los tests no usan MSW (no carga bajo jest-expo): siguen el adaptador falso de `detalleAlerta.test.tsx`.
 - Review (opus): 1 importante y 3 menores. Arreglados: el importante y el aviso si falla la ficha. Quedan anotados: (a) el último viaje en el detalle, porque `ultimo_viaje` no está en el `Cliente` de `GET /clientes/{id}` (solo en `ClienteListado`) y «Ver cliente» ya lleva al historial; (b) en mobile el opt-out no ofrece «Deshacer», a diferencia de la web.
 - Se autorizó agregar 3 casos al test del rojo (`--tocar-tests`). Modelos: tests, impl, refactor y fix sonnet; review opus. Sin escalados; el refactor no hizo cambios.
+- **Actualizado por T-114:** el backend resuelve la alerta en el `PATCH no_recontactar`. El front ya no llama a `/resolver` después ni tiene reintento.
