@@ -68,6 +68,7 @@ function Contenido({
   cliente,
   alerta,
   hoy,
+  alCerrar,
   alResolver,
   alMarcarVista,
   marcandoVista,
@@ -77,6 +78,7 @@ function Contenido({
   cliente: AxiosInstance;
   alerta: Alerta;
   hoy: string;
+  alCerrar: () => void;
   alResolver: () => void;
   alMarcarVista: () => void;
   marcandoVista: boolean;
@@ -128,7 +130,7 @@ function Contenido({
           alerta={alerta}
           clienteDeAlerta={clienteDeAlerta}
           hoy={hoy}
-          alResolver={alResolver}
+          alNoRecontactar={alCerrar}
         />
       )}
       {viaje && <RequisitosDelDestino cliente={cliente} destinoId={viaje.destino_id} />}
@@ -245,6 +247,7 @@ export function PanelDetalleAlerta({
           cliente={cliente}
           alerta={detalle.data}
           hoy={hoy}
+          alCerrar={alCerrar}
           alResolver={() => {
             alResolver(detalle.data);
           }}

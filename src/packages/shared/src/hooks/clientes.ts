@@ -8,6 +8,7 @@ import type {
   PaginaClientes,
   SegmentoCliente,
 } from "../cliente";
+import { claveAlertas } from "./alertas";
 
 export interface FiltrosClientes {
   buscar?: string;
@@ -86,6 +87,8 @@ export function useEditarCliente(cliente: AxiosInstance) {
       queryClient.setQueryData([...claveClientes, ficha.id], ficha);
       void queryClient.invalidateQueries({ queryKey: [...claveClientes, "buscar"] });
       void queryClient.invalidateQueries({ queryKey: [...claveClientes, "etiquetas"] });
+      // `no_recontactar` resuelve en el servidor las sugerencias de recontacto del cliente (CU-30).
+      void queryClient.invalidateQueries({ queryKey: claveAlertas });
     },
   });
 }

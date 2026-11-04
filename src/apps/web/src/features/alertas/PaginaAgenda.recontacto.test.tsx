@@ -265,7 +265,7 @@ describe("RF-029 decisión de recontacto", () => {
       await usuario.click(within(tarjeta).getByText(/crear consulta/i));
 
       expect(await screen.findByTestId("ubicacion")).toHaveTextContent(
-        `/oportunidades/nueva?cliente_id=${ID_CLIENTE}&alerta_id=${ID_ALERTA}`,
+        `/oportunidades/nueva?cliente_id=${ID_CLIENTE}`,
       );
     });
   });
@@ -283,7 +283,7 @@ describe("RF-029 decisión de recontacto", () => {
       expect(pedidos.resolver).toHaveLength(0);
     });
 
-    it("RF-029 al confirmar marca no_recontactar en el cliente y resuelve la alerta", async () => {
+    it("RF-029 al confirmar marca no_recontactar en el cliente y no llama a /resolver", async () => {
       const pedidos = servirRecontacto();
       renderAgenda();
       const { usuario, tarjeta } = await abrirTarjeta();
@@ -295,14 +295,26 @@ describe("RF-029 decisión de recontacto", () => {
         expect(pedidos.patchCliente).toEqual([{ no_recontactar: true }]);
       });
       await waitFor(() => {
-        expect(pedidos.resolver).toEqual([ID_ALERTA]);
+        expect(
+          screen.queryByRole("dialog", { name: /detalle de la alerta/i }),
+        ).not.toBeInTheDocument();
       });
+      expect(pedidos.resolver).toHaveLength(0);
     });
 
-    it("RF-029 tras confirmar «No recontactar» el panel se cierra", async () => {
+    it("RF-029 tras confirmar «No recontactar» el panel se cierra, sin «Deshacer», y la agenda se vuelve a pedir", async () => {
+      let pedidosDeAgenda = 0;
       servirRecontacto();
+      servidor.use(
+        http.get("*/api/alertas", ({ request }) => {
+          pedidosDeAgenda += 1;
+          const estado = new URL(request.url).searchParams.get("estado") ?? "pendiente";
+          return HttpResponse.json(pagina(estado === "pendiente" ? [recontacto] : []));
+        }),
+      );
       renderAgenda();
       const { usuario, tarjeta } = await abrirTarjeta();
+      const antes = pedidosDeAgenda;
 
       await usuario.click(within(tarjeta).getByRole("button", { name: /no recontactar/i }));
       await usuario.click(await within(tarjeta).findByRole("button", { name: /confirmar/i }));
@@ -312,6 +324,10 @@ describe("RF-029 decisión de recontacto", () => {
           screen.queryByRole("dialog", { name: /detalle de la alerta/i }),
         ).not.toBeInTheDocument();
       });
+      await waitFor(() => {
+        expect(pedidosDeAgenda).toBeGreaterThan(antes);
+      });
+      expect(screen.queryByRole("button", { name: /deshacer/i })).not.toBeInTheDocument();
     });
 
     it("RF-029 «Cancelar» en la confirmación no envía nada", async () => {

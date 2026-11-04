@@ -50,7 +50,7 @@ async def registrar_consulta(
     responsable es siempre el actor, lo que envíe el cliente. El `Cliente` tiene que existir y
     ser visible para el actor (RF-151); si no, 422 con el mismo mensaje, para no revelar si existe.
     El aviso de una oportunidad abierta del mismo cliente lo arma el front (RF-012). Resuelve las
-    sugerencias de recontacto sin resolver de ese `Cliente` (CU-30 A1, RF-029)."""
+    sugerencias de recontacto sin resolver de ese `Cliente` (CU-30 A2, RF-029)."""
     try:
         cliente = await _clientes.obtener(
             sesion, datos["cliente_id"], visibilidad=visibilidad(actor)
@@ -59,7 +59,7 @@ async def registrar_consulta(
         raise DatosInvalidos("cliente_id", "El cliente no existe.") from None
     oportunidad = Oportunidad(**datos, responsable_id=actor.id)
     sesion.add(oportunidad)
-    await resolver_de_origen(sesion, cliente, (TipoAlerta.recontacto,))  # CU-30 A1, RF-029
+    await resolver_de_origen(sesion, cliente, (TipoAlerta.recontacto,))  # CU-30 A2, RF-029
     await sesion.flush()
     await sesion.refresh(oportunidad)
     return oportunidad

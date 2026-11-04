@@ -88,7 +88,7 @@ describe("RF-029 decisión de recontacto: formulario precargado", () => {
     expect(cuerpos[0]).toMatchObject({ cliente_id: joaquin.id, destino_consultado: "Lisboa" });
   });
 
-  it("RF-029 con alerta_id, al registrar la consulta resuelve la sugerencia", async () => {
+  it("RF-029 al registrar la consulta no llama a /resolver (el servidor resuelve la sugerencia)", async () => {
     const resueltas: string[] = [];
     servidor.use(
       sinOportunidades,
@@ -111,10 +111,8 @@ describe("RF-029 decisión de recontacto: formulario precargado", () => {
 
     await usuario.click(screen.getByRole("button", { name: /registrar consulta/i }));
 
-    await waitFor(() => {
-      expect(resueltas).toEqual(["alerta-1"]);
-    });
     expect(await screen.findByText("Detalle de la oportunidad")).toBeInTheDocument();
+    expect(resueltas).toEqual([]);
   });
 
   it("RF-029 sin ?cliente_id el formulario sigue pidiendo buscar al cliente", async () => {

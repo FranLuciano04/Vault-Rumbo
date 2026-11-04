@@ -58,23 +58,23 @@ export function TarjetaRecontacto({
   alerta,
   clienteDeAlerta,
   hoy,
-  alResolver,
+  alNoRecontactar,
 }: {
   cliente: AxiosInstance;
   alerta: Alerta;
   clienteDeAlerta: ClienteDeAlerta;
   hoy: string;
-  alResolver: () => void;
+  alNoRecontactar: () => void;
 }) {
   const [decision, setDecision] = useState<Decision>(null);
   const ficha = useCliente(cliente, clienteDeAlerta.id);
   const editar = useEditarCliente(cliente);
 
-  // El opt-out va primero: si el servidor lo rechaza, la alerta queda sin resolver.
+  // El servidor resuelve la alerta al marcar al cliente y no hay forma de reabrirla: sin «Deshacer».
   const noRecontactar = () => {
     editar.mutate(
       { id: clienteDeAlerta.id, cambios: { no_recontactar: true } },
-      { onSuccess: alResolver },
+      { onSuccess: alNoRecontactar },
     );
   };
   const elegir = (nueva: Decision) => {
@@ -104,7 +104,7 @@ export function TarjetaRecontacto({
       <HistorialResumido cliente={cliente} clienteId={clienteDeAlerta.id} />
       <div className="flex flex-wrap gap-2">
         <Link
-          to={`/oportunidades/nueva?cliente_id=${clienteDeAlerta.id}&alerta_id=${alerta.id}`}
+          to={`/oportunidades/nueva?cliente_id=${clienteDeAlerta.id}`}
           className={variantesBoton({ size: "sm" })}
         >
           Crear consulta
