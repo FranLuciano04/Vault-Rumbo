@@ -3,7 +3,7 @@ id: T-125
 titulo: Mostrar el calendario de viajes en la web
 modulo: M8 — Calendario, dashboard y reportes
 capa: web
-estado: libre
+estado: tomado
 depende_de: [T-119, T-020]
 tamaño: M
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [CU-23, RF-136, RF-137, RF-138, RF-139]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: Nahuel Viniegra
+tomado_el: 04/11/26 15:13
+rama: feature/T-125-mostrar-el-calendario-de-viajes-en-la-we
 pr:
 ---
 # T-125 Mostrar el calendario de viajes en la web

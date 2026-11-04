@@ -21,8 +21,8 @@ tags:: #tipo/referencia
 | M4 — Oportunidades y cotizaciones | 16 | 16 | 0 | 0 | 0 | 0 | ✅ cerrado |
 | M5 — Hoteles y reseñas | 11 | 11 | 0 | 0 | 0 | 0 | ✅ cerrado |
 | M6 — Viajes y economía | 24 | 24 | 0 | 0 | 0 | 0 | ✅ cerrado |
-| M7 — Proceso diario y CRM proactivo | 9 | 7 | 1 | 0 | 1 | 0 | 🛠️ en curso |
-| M8 — Calendario, dashboard y reportes | 10 | 8 | 0 | 1 | 1 | 0 | 🛠️ en curso |
+| M7 — Proceso diario y CRM proactivo | 9 | 8 | 0 | 1 | 0 | 0 | 🛠️ en curso |
+| M8 — Calendario, dashboard y reportes | 10 | 8 | 1 | 0 | 1 | 0 | 🛠️ en curso |
 | M9 — Redes e IA | 6 | 0 | 0 | 1 | 5 | 0 | 🛠️ en curso |
 | M10 — Despliegue on-premise | 5 | 0 | 0 | 1 | 4 | 0 | 🛠️ en curso |
 
@@ -186,13 +186,13 @@ flowchart LR
   subgraph M7["M7 — Proceso diario y CRM proactivo"]
     T110["T-110 · Armar el proceso diario idempotente<br/><small>backend · ⚠️ riesgo alto</small>"]:::hecho
     T111["T-111 · Vencer pagos y cotizaciones en el proceso diario<br/><small>backend · ⚠️ riesgo alto</small>"]:::hecho
-    T112["T-112 · Sugerir el avance de los viajes en el proceso diario<br/><small>backend · ⚠️ riesgo alto</small><br/>👤 palomap2003"]:::tomado
+    T112["T-112 · Sugerir el avance de los viajes en el proceso diario<br/><small>backend · ⚠️ riesgo alto</small>"]:::hecho
     T113["T-113 · Detectar clientes inactivos para sugerir el recontacto<br/><small>backend · ⚠️ riesgo alto</small>"]:::hecho
     T114["T-114 · Registrar la decisión sobre una sugerencia de recontacto<br/><small>backend</small>"]:::hecho
     T115["T-115 · Programar el proceso diario en el Compose<br/><small>infra</small>"]:::hecho
     T116["T-116 · Atender una sugerencia de recontacto en la web<br/><small>web</small>"]:::hecho
     T117["T-117 · Atender una sugerencia de recontacto en la app mobile<br/><small>mobile</small>"]:::hecho
-    T118["T-118 · Probar de punta a punta el proceso diario<br/><small>e2e</small>"]:::esperando
+    T118["T-118 · Probar de punta a punta el proceso diario<br/><small>e2e</small>"]:::disponible
   end
   subgraph M8["M8 — Calendario, dashboard y reportes"]
     T119["T-119 · Publicar el contrato de calendario, dashboard y reportes<br/><small>contrato</small>"]:::hecho
@@ -201,7 +201,7 @@ flowchart LR
     T122["T-122 · Calcular los indicadores operativos del dashboard<br/><small>backend</small>"]:::hecho
     T123["T-123 · Generar los reportes del período<br/><small>backend</small>"]:::hecho
     T124["T-124 · Exportar los reportes a Excel o PDF<br/><small>backend</small>"]:::hecho
-    T125["T-125 · Mostrar el calendario de viajes en la web<br/><small>web</small>"]:::disponible
+    T125["T-125 · Mostrar el calendario de viajes en la web<br/><small>web</small><br/>👤 Nahuel Viniegra"]:::tomado
     T126["T-126 · Mostrar el dashboard con el embudo en la web<br/><small>web</small>"]:::hecho
     T127["T-127 · Generar los reportes en la web<br/><small>web</small>"]:::hecho
     T128["T-128 · Probar de punta a punta el tablero de gestión<br/><small>e2e</small>"]:::esperando
