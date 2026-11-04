@@ -33,6 +33,14 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
+## 03/11/26 — Nahuel (Claude Opus 5.5) — T-114: registrar la decisión sobre una sugerencia de recontacto
+- **Hecho:**
+  - Crear una oportunidad o marcar `no_recontactar` resuelve las sugerencias de recontacto del cliente, por `alerta.cliente_id` y sin cambiar el contrato.
+  - La review opus encontró que web y mobile llamaban a `/resolver` después y recibían 409. Nahuel decidió ajustar el front: se sacó esa llamada, y el opt-out en web ya no ofrece «Deshacer» (foco al título y aviso).
+  - Review opus en dos rondas: 1 bloqueante, 1 importante y 4 menores, todos arreglados.
+- **Commits:** `b84662b` rojo, `fdaa9ab` verde, `e643cd5` y `d77b587` fix, `c8416f0` hecho; PR #186 mergeado (`c835dda`).
+- **Pendiente:** al mergear, el job Backend del CI seguía corriendo; el resto dio verde. Confirmar su resultado en la corrida 41747917842.
+
 ## 02/11/26 — Nahuel (Claude Opus 5.5) — T-115: programar el proceso diario en el Compose
 - **Hecho:**
   - El `scheduler` corre el proceso diario a las 00:00 de Argentina con supercronic (`src/infra/crontab`). Cada corrida queda en `docker compose logs scheduler`, y el disparo manual es el comando de la spec.
