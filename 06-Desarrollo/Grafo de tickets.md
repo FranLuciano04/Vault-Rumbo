@@ -22,7 +22,7 @@ tags:: #tipo/referencia
 | M5 — Hoteles y reseñas | 11 | 11 | 0 | 0 | 0 | 0 | ✅ cerrado |
 | M6 — Viajes y economía | 24 | 24 | 0 | 0 | 0 | 0 | ✅ cerrado |
 | M7 — Proceso diario y CRM proactivo | 9 | 8 | 0 | 1 | 0 | 0 | 🛠️ en curso |
-| M8 — Calendario, dashboard y reportes | 10 | 8 | 1 | 0 | 1 | 0 | 🛠️ en curso |
+| M8 — Calendario, dashboard y reportes | 10 | 9 | 0 | 1 | 0 | 0 | 🛠️ en curso |
 | M9 — Redes e IA | 6 | 0 | 0 | 1 | 5 | 0 | 🛠️ en curso |
 | M10 — Despliegue on-premise | 5 | 0 | 0 | 1 | 4 | 0 | 🛠️ en curso |
 
@@ -201,10 +201,10 @@ flowchart LR
     T122["T-122 · Calcular los indicadores operativos del dashboard<br/><small>backend</small>"]:::hecho
     T123["T-123 · Generar los reportes del período<br/><small>backend</small>"]:::hecho
     T124["T-124 · Exportar los reportes a Excel o PDF<br/><small>backend</small>"]:::hecho
-    T125["T-125 · Mostrar el calendario de viajes en la web<br/><small>web</small><br/>👤 Nahuel Viniegra"]:::tomado
+    T125["T-125 · Mostrar el calendario de viajes en la web<br/><small>web</small>"]:::hecho
     T126["T-126 · Mostrar el dashboard con el embudo en la web<br/><small>web</small>"]:::hecho
     T127["T-127 · Generar los reportes en la web<br/><small>web</small>"]:::hecho
-    T128["T-128 · Probar de punta a punta el tablero de gestión<br/><small>e2e</small>"]:::esperando
+    T128["T-128 · Probar de punta a punta el tablero de gestión<br/><small>e2e</small>"]:::disponible
   end
   subgraph M9["M9 — Redes e IA"]
     T129["T-129 · Publicar el contrato de redes<br/><small>contrato</small>"]:::disponible
