@@ -21,7 +21,7 @@ tags:: #tipo/referencia
 | M4 — Oportunidades y cotizaciones | 16 | 16 | 0 | 0 | 0 | 0 | ✅ cerrado |
 | M5 — Hoteles y reseñas | 11 | 11 | 0 | 0 | 0 | 0 | ✅ cerrado |
 | M6 — Viajes y economía | 24 | 24 | 0 | 0 | 0 | 0 | ✅ cerrado |
-| M7 — Proceso diario y CRM proactivo | 9 | 8 | 0 | 1 | 0 | 0 | 🛠️ en curso |
+| M7 — Proceso diario y CRM proactivo | 9 | 8 | 1 | 0 | 0 | 0 | 🛠️ en curso |
 | M8 — Calendario, dashboard y reportes | 10 | 9 | 0 | 1 | 0 | 0 | 🛠️ en curso |
 | M9 — Redes e IA | 6 | 0 | 0 | 1 | 5 | 0 | 🛠️ en curso |
 | M10 — Despliegue on-premise | 5 | 0 | 0 | 1 | 4 | 0 | 🛠️ en curso |
@@ -192,7 +192,7 @@ flowchart LR
     T115["T-115 · Programar el proceso diario en el Compose<br/><small>infra</small>"]:::hecho
     T116["T-116 · Atender una sugerencia de recontacto en la web<br/><small>web</small>"]:::hecho
     T117["T-117 · Atender una sugerencia de recontacto en la app mobile<br/><small>mobile</small>"]:::hecho
-    T118["T-118 · Probar de punta a punta el proceso diario<br/><small>e2e</small>"]:::disponible
+    T118["T-118 · Probar de punta a punta el proceso diario<br/><small>e2e</small><br/>👤 Nahuel Viniegra"]:::tomado
   end
   subgraph M8["M8 — Calendario, dashboard y reportes"]
     T119["T-119 · Publicar el contrato de calendario, dashboard y reportes<br/><small>contrato</small>"]:::hecho

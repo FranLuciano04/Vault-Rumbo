@@ -3,7 +3,7 @@ id: T-118
 titulo: Probar de punta a punta el proceso diario
 modulo: M7 — Proceso diario y CRM proactivo
 capa: e2e
-estado: libre
+estado: tomado
 depende_de: [T-111, T-112, T-114, T-115, T-116, T-109]
 tamaño: S
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [CU-30, RF-026, RF-027, RF-039]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: Nahuel Viniegra
+tomado_el: 04/11/26 17:02
+rama: feature/T-118-probar-de-punta-a-punta-el-proceso-diari
 pr:
 ---
 # T-118 Probar de punta a punta el proceso diario
