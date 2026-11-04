@@ -326,6 +326,24 @@ describe("RF-138 filtros y estado vacío", () => {
     expect(screen.getAllByText(/Pedir el pasaporte vigente/)).not.toHaveLength(0);
   });
 
+  it("al filtrar por tipo no deja a la vista lo del tipo anterior mientras llega la respuesta", async () => {
+    servidor.use(manejadorCalendario());
+    renderCalendario();
+    await screen.findAllByText(/Familia Sosa — Brasil/);
+    servidor.use(
+      http.get("*/api/calendario", async () => {
+        await delay(300);
+        return HttpResponse.json(eventos.filter((e) => e.tipo === "alerta"));
+      }),
+    );
+
+    await userEvent.selectOptions(screen.getByLabelText(/tipo/i), "alerta");
+
+    expect(screen.queryByText(/Familia Sosa — Brasil/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Vence un pago de Camila Benítez/)).not.toBeInTheDocument();
+    expect(await screen.findAllByText(/Pedir el pasaporte vigente/)).not.toHaveLength(0);
+  });
+
   it("filtra por estado en el cliente, sin volver a pedir al backend", async () => {
     const pedidos: URLSearchParams[] = [];
     servidor.use(manejadorCalendario(pedidos));
