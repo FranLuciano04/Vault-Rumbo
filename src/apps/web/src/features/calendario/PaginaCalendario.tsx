@@ -51,6 +51,16 @@ function claseChip({ tipo, estado }: EventoCalendario) {
 
 const CLASE_SELECT = "h-9 min-w-44 rounded-md border border-input bg-background px-3 text-sm";
 
+/** Celdas en blanco de la grilla (solo en pantallas anchas), antes del día 1 o después del último. */
+const celdasVacias = (lado: "antes" | "despues", cantidad: number) =>
+  Array.from({ length: cantidad }, (_, i) => (
+    <li
+      key={`${lado}-${String(i)}`}
+      aria-hidden="true"
+      className="hidden min-h-24 bg-muted/40 sm:block"
+    />
+  ));
+
 /** Dónde se gestiona el evento: el viaje (también para un pago) o la agenda para una alerta. */
 const rutaDe = (e: EventoCalendario) =>
   e.tipo === "alerta" ? "/agenda" : `/viajes/${e.viaje_id ?? ""}`;
@@ -207,13 +217,7 @@ export function PaginaCalendario({ cliente }: { cliente: AxiosInstance }) {
           <ol
             className={`grid gap-px bg-border ${enGrilla ? "grid-cols-1 sm:grid-cols-7" : "grid-cols-1"}`}
           >
-            {Array.from({ length: hueco }, (_, i) => (
-              <li
-                key={`antes-${String(i)}`}
-                aria-hidden="true"
-                className="hidden min-h-24 bg-muted/40 sm:block"
-              />
-            ))}
+            {celdasVacias("antes", hueco)}
             {dias.map((dia) => (
               <li key={dia} className="flex min-h-24 flex-col gap-1 bg-card p-2">
                 <span
@@ -236,13 +240,7 @@ export function PaginaCalendario({ cliente }: { cliente: AxiosInstance }) {
                 </ul>
               </li>
             ))}
-            {Array.from({ length: relleno }, (_, i) => (
-              <li
-                key={`despues-${String(i)}`}
-                aria-hidden="true"
-                className="hidden min-h-24 bg-muted/40 sm:block"
-              />
-            ))}
+            {celdasVacias("despues", relleno)}
           </ol>
           {visibles.length === 0 && (
             <p role="status" className="py-8 text-center text-muted-foreground">
