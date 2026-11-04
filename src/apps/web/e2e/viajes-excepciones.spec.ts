@@ -134,7 +134,9 @@ test.describe("Excepciones del viaje (CU-11, CU-12, CU-27)", () => {
       expect(suma(pagos)).toBe(600_000);
       expect(Number((await viajeDe(duena, viajeId)).precio_venta)).toBe(900_000);
       await expect(
-        page.getByText("Los pagos del plan no suman el precio de venta: rebalanceá el plan de pagos."),
+        page.getByText(
+          "Los pagos del plan no suman el precio de venta: rebalanceá el plan de pagos.",
+        ),
       ).toBeVisible();
 
       // Se rebalancea desde «Editar plan»: los tres pagos no cobrados pasan a 300.000 cada uno.
@@ -154,7 +156,9 @@ test.describe("Excepciones del viaje (CU-11, CU-12, CU-27)", () => {
       expect(rebalanceado.every((p) => Number(p.monto) === 300_000)).toBe(true);
       expect(suma(rebalanceado)).toBe(900_000);
       await expect(
-        page.getByText("Los pagos del plan no suman el precio de venta: rebalanceá el plan de pagos."),
+        page.getByText(
+          "Los pagos del plan no suman el precio de venta: rebalanceá el plan de pagos.",
+        ),
       ).toHaveCount(0);
     });
   });
@@ -228,7 +232,9 @@ test.describe("Excepciones del viaje (CU-11, CU-12, CU-27)", () => {
       await page.getByRole("button", { name: "Cancelar viaje" }).click();
       const dialogo = page.getByRole("dialog", { name: "Cancelar viaje" });
       await expect(dialogo.getByText(/Ya se cobraron\s+\$\s200\.000,00\./)).toBeVisible();
-      await expect(dialogo.getByText(/Cualquier reembolso o penalidad se gestiona por fuera/)).toBeVisible();
+      await expect(
+        dialogo.getByText(/Cualquier reembolso o penalidad se gestiona por fuera/),
+      ).toBeVisible();
       await dialogo.getByLabel("Motivo de la cancelación").fill(motivo);
       await dialogo.getByRole("button", { name: "Cancelar viaje" }).click();
       await expect(dialogo).toHaveCount(0);
