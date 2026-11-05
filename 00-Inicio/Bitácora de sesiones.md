@@ -33,6 +33,16 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
+## 05/11/26 — Nahuel (Claude Opus 5.5) — T-118: probar de punta a punta el proceso diario
+- **Hecho:**
+  - `proceso-diario.spec.ts` prueba contra el sistema real el vencimiento de pagos y cotizaciones, el recontacto, el avance de viaje, la idempotencia y la atención de la sugerencia desde la web.
+  - Los e2e no encontraron bugs del sistema, así que no hubo verde ni refactor.
+  - Los helpers pasaron a `e2e/apoyo.ts`, que usan este spec y `viajes-excepciones.spec.ts`.
+  - Review opus: sin bloqueantes, 2 importantes y 3 menores; quedan anotados en el ticket los que no se arreglaron.
+  - CI en verde: e2e completo, 37 de 37.
+- **Commits:** `c21bb23` tests, `6f9761e` y `9f53a99` fix, `3def613` hecho; PR #190 mergeado (`76e5d54`).
+- **Pendiente:** correr `/cerrar-modulo` M7. Las otras copias de `tokenDe` en `e2e/` no se migraron a `apoyo.ts`. La demo local de Nahuel perdió las cuentas del emulador al bajarla para correr los e2e.
+
 ## 04/11/26 — Nahuel (Claude Opus 5.5) — T-125: mostrar el calendario de viajes en la web
 - **Hecho:**
   - La sección Calendario muestra viajes, vencimientos y alertas en vistas de mes, semana y día, con filtros por tipo y estado, sin librería de calendario.
