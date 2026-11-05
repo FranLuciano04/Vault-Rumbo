@@ -408,12 +408,15 @@ describe("RF-029 decisión de recontacto", () => {
   });
 
   describe("cliente recurrente (H-02)", () => {
-    /** Sirve la sugerencia con `contexto.cliente.recurrente`, que el mock del contrato aún no trae. */
+    /** Sirve la sugerencia con el `contexto.cliente.recurrente` pedido, sea cual sea el del mock. */
     function servirConRecurrente(recurrente: boolean) {
       servirRecontacto();
       const conDato = {
         ...recontacto,
-        contexto: { ...recontacto.contexto, cliente: { ...recontacto.contexto.cliente, recurrente } },
+        contexto: {
+          ...recontacto.contexto,
+          cliente: { ...recontacto.contexto.cliente, recurrente },
+        },
       };
       servidor.use(
         http.get("*/api/alertas", ({ request }) => {

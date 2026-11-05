@@ -23,7 +23,7 @@ jest.mock("../src/cliente", () => {
 const HOY = new Date("2026-10-25T12:00:00-03:00");
 
 const ANA = { id: "a1c4e7f0-3d58-4b92-b6a3-8f0e2d1c4b03", nombre: "Ana Pérez" };
-const camila = { id: "cl-1", nombre: "Camila Benítez" };
+const camila = { id: "cl-1", nombre: "Camila Benítez", recurrente: false };
 const viajeCamila = {
   id: "vi-1",
   destino: "Punta Cana",

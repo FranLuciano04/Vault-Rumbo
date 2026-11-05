@@ -95,14 +95,18 @@ async def _por_id[M](
     return {fila.id: fila for fila in filas}  # type: ignore[attr-defined]
 
 
-async def _recurrentes(sesion: AsyncSession, cliente_ids: set[uuid.UUID]) -> set[uuid.UUID]:
-    """Los de `cliente_ids` con 2 o más `Viaje` no cancelados (RF-027), en una consulta. Sin
-    filtro de visibilidad: quien llama solo pasa clientes que el actor ve, y quien ve a un
-    `Cliente` ve todos sus viajes."""
+async def _recurrentes(
+    sesion: AsyncSession, cliente_ids: set[uuid.UUID], visibilidad: Visibilidad
+) -> set[uuid.UUID]:
+    """Los de `cliente_ids` con 2 o más `Viaje` no cancelados (RF-027), en una consulta. Los
+    viajes salen filtrados por `visibilidad` por convención, para que siga valiendo si cambia
+    la regla de `politicas` (hoy, quien ve a un `Cliente` ve todos sus viajes y el resultado
+    es el mismo)."""
     if not cliente_ids:
         return set()
     consulta = (
-        select(Viaje.cliente_id)
+        visibilidad.aplicar(select(Viaje), Viaje)
+        .with_only_columns(Viaje.cliente_id)
         .where(Viaje.cliente_id.in_(cliente_ids), Viaje.estado != EstadoViaje.cancelado)
         .group_by(Viaje.cliente_id)
         .having(func.count() >= _VIAJES_DE_RECURRENTE)
@@ -262,7 +266,7 @@ class RepositorioAlertas(RepositorioBase[Alerta]):
         cliente_ids |= {v.cliente_id for v in viajes.values()}
         cliente_ids |= {o.cliente_id for o in oportunidades.values()}
         clientes = await _por_id(sesion, Cliente, cliente_ids, visibilidad)
-        recurrentes = await _recurrentes(sesion, set(clientes))
+        recurrentes = await _recurrentes(sesion, set(clientes), visibilidad)
 
         def contexto(alerta: Alerta) -> ContextoDeAlerta:
             pago = pagos.get(alerta.pago_id)
