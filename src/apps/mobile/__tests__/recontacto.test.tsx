@@ -33,7 +33,7 @@ const ID_RECONTACTO = "al-30";
 const ID_VISTA = "al-31";
 const ID_RESUELTA = "al-32";
 
-function alerta(id: string, estado: string) {
+function alerta(id: string, estado: string, recurrente = false) {
   return {
     id,
     tipo: "recontacto",
@@ -42,7 +42,7 @@ function alerta(id: string, estado: string) {
     estado,
     propietario_id: ANA.id,
     responsable: ANA,
-    contexto: { ...sinContexto, cliente: joaquinResumen },
+    contexto: { ...sinContexto, cliente: { ...joaquinResumen, recurrente } },
     viaje_id: null,
     pago_id: null,
     oportunidad_id: null,
@@ -96,14 +96,15 @@ const problema = (status: number, detail: string) => ({
 function backend(
   opciones: {
     contacto?: string;
+    recurrente?: boolean;
     fallaFicha?: boolean;
     rechazarPatch?: { status: number; detalle: string };
   } = {},
 ) {
   const alertas = [
-    alerta(ID_RECONTACTO, "pendiente"),
-    alerta(ID_VISTA, "vista"),
-    alerta(ID_RESUELTA, "resuelta"),
+    alerta(ID_RECONTACTO, "pendiente", opciones.recurrente),
+    alerta(ID_VISTA, "vista", opciones.recurrente),
+    alerta(ID_RESUELTA, "resuelta", opciones.recurrente),
   ];
   mockHttp.mockImplementation((config) => {
     const url = config.url ?? "";
@@ -229,6 +230,21 @@ async function abrirSugerencia(id = ID_RECONTACTO) {
 
 describe("RF-030 opt-out mobile", () => {
   describe("detalle de la sugerencia", () => {
+    it("RF-027 muestra «Cliente recurrente» si el cliente es recurrente (H-02)", async () => {
+      backend({ recurrente: true });
+      const vista = await abrirSugerencia();
+
+      expect(await vista.findByText(/cliente recurrente/i)).toBeTruthy();
+    });
+
+    it("RF-027 no lo muestra si el cliente no es recurrente (H-02)", async () => {
+      backend({ recurrente: false });
+      const vista = await abrirSugerencia();
+      await vista.findAllByText("Joaquín Ramos");
+
+      expect(vista.queryByText(/cliente recurrente/i)).toBeNull();
+    });
+
     it("muestra el cliente y sus preferencias", async () => {
       backend();
       const vista = await abrirSugerencia();

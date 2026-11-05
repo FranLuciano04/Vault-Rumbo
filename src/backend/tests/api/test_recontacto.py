@@ -15,9 +15,16 @@ from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from rumbo.core.fechas import hoy
-from rumbo.datos.modelos import Alerta, Cliente, EstadoAlerta, TipoAlerta, Usuario
+from rumbo.datos.modelos import (
+    Alerta,
+    Cliente,
+    EstadoAlerta,
+    EstadoViaje,
+    TipoAlerta,
+    Usuario,
+)
 from rumbo.negocio.servicios import alertas as servicio
-from tests.fabricas import ClienteFactory, crear
+from tests.fabricas import ClienteFactory, DestinoFactory, ViajeFactory, crear
 
 FabricaCliente = Callable[[str], Awaitable[AsyncClient]]
 
@@ -163,3 +170,60 @@ async def test_posponer(cliente_como: FabricaCliente, sesion: AsyncSession) -> N
     assert r.json()["estado"] == "pendiente"
     await sesion.refresh(sugerencia)
     assert sugerencia.fecha == nueva
+
+
+async def _con_viajes(
+    sesion: AsyncSession, yo: Usuario, cliente: Cliente, estados: list[EstadoViaje]
+) -> None:
+    destino = await crear(sesion, DestinoFactory)
+    for estado in estados:
+        extra = (
+            {
+                "estado_previo": EstadoViaje.reservado,
+                "motivo_cancelacion": "Cambio de planes",
+                "fecha_cancelacion": date(2026, 10, 1),
+            }
+            if estado == EstadoViaje.cancelado
+            else {}
+        )
+        await crear(
+            sesion,
+            ViajeFactory,
+            cliente_id=cliente.id,
+            destino_id=destino.id,
+            responsable_id=yo.id,
+            estado=estado,
+            **extra,
+        )
+
+
+@pytest.mark.parametrize(
+    ("estados", "recurrente"),
+    [
+        ([EstadoViaje.finalizado, EstadoViaje.finalizado], True),
+        ([EstadoViaje.finalizado], False),
+        ([EstadoViaje.finalizado, EstadoViaje.cancelado], False),
+        ([], False),
+    ],
+)
+async def test_rf027_la_sugerencia_identifica_al_cliente_recurrente(
+    cliente_como: FabricaCliente,
+    sesion: AsyncSession,
+    estados: list[EstadoViaje],
+    recurrente: bool,
+) -> None:
+    """H-02: `contexto.cliente.recurrente` (2 o más viajes no cancelados), en listado y detalle."""
+    c = await cliente_como("empleado")
+    yo: Usuario = c.usuario  # type: ignore[attr-defined]
+    cliente = await crear(sesion, ClienteFactory, asesor_asignado_id=yo.id)
+    await _con_viajes(sesion, yo, cliente, estados)
+    sugerencia = await _sugerencia(sesion, yo, cliente)
+
+    listado = await c.get("/api/alertas")
+    detalle = await c.get(f"/api/alertas/{sugerencia.id}")
+
+    assert listado.status_code == 200, listado.text
+    assert detalle.status_code == 200, detalle.text
+    assert listado.json()["items"][0]["contexto"]["cliente"]["recurrente"] is recurrente
+    assert detalle.json()["contexto"]["cliente"]["recurrente"] is recurrente
+    assert "recurrente" not in detalle.json()["descripcion"].lower()

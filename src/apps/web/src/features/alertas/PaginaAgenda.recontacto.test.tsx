@@ -406,4 +406,40 @@ describe("RF-029 decisión de recontacto", () => {
       expect(await screen.findByText(/fecha no válida del servidor/i)).toBeInTheDocument();
     });
   });
+
+  describe("cliente recurrente (H-02)", () => {
+    /** Sirve la sugerencia con `contexto.cliente.recurrente`, que el mock del contrato aún no trae. */
+    function servirConRecurrente(recurrente: boolean) {
+      servirRecontacto();
+      const conDato = {
+        ...recontacto,
+        contexto: { ...recontacto.contexto, cliente: { ...recontacto.contexto.cliente, recurrente } },
+      };
+      servidor.use(
+        http.get("*/api/alertas", ({ request }) => {
+          const estado = new URL(request.url).searchParams.get("estado") ?? "pendiente";
+          return HttpResponse.json(pagina(estado === "pendiente" ? [conDato] : []));
+        }),
+        http.get("*/api/alertas/:id", () => HttpResponse.json(conDato)),
+      );
+    }
+
+    it("RF-027 la tarjeta muestra «Cliente recurrente» si el cliente es recurrente", async () => {
+      servirConRecurrente(true);
+      renderAgenda();
+
+      const { tarjeta } = await abrirTarjeta();
+
+      expect(within(tarjeta).getByText(/cliente recurrente/i)).toBeInTheDocument();
+    });
+
+    it("RF-027 la tarjeta no lo muestra si el cliente no es recurrente", async () => {
+      servirConRecurrente(false);
+      renderAgenda();
+
+      const { tarjeta } = await abrirTarjeta();
+
+      expect(within(tarjeta).queryByText(/cliente recurrente/i)).not.toBeInTheDocument();
+    });
+  });
 });
