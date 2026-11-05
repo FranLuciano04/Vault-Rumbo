@@ -52,7 +52,7 @@ async def registrar_consulta(
     El aviso de una oportunidad abierta del mismo cliente lo arma el front (RF-012). Resuelve las
     sugerencias de recontacto sin resolver de ese `Cliente` (CU-30 A2, RF-029)."""
     try:
-        cliente = await _clientes.obtener(
+        cliente = await _clientes.obtener_para_modificar(
             sesion, datos["cliente_id"], visibilidad=visibilidad(actor)
         )
     except NoEncontrado:

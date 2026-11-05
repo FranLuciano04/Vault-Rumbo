@@ -10,6 +10,7 @@ from sqlalchemy.dialects.postgresql import distinct_on
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from rumbo.core.contacto import clave_contacto
+from rumbo.core.errores import NoEncontrado
 from rumbo.datos.modelos import (
     Alerta,
     Cliente,
@@ -70,6 +71,23 @@ def _tiene_etiqueta(clave: str) -> ColumnElement[bool]:
 
 class RepositorioClientes(RepositorioBase[Cliente]):
     modelo = Cliente
+
+    async def obtener_para_modificar(
+        self, sesion: AsyncSession, id: uuid.UUID, *, visibilidad: Visibilidad
+    ) -> Cliente:
+        """Como `obtener`, pero bloqueado hasta el fin de la transacción y releído de la base.
+        Lo toma quien invalida una sugerencia de recontacto, para no cruzarse con el proceso
+        diario (ver `inactivos_para_recontacto`). Va antes que `bloquear_alta`, si se usan los
+        dos, y es el único `Cliente` que bloquea el pedido: así no se traba con el proceso."""
+        consulta = visibilidad.aplicar(select(Cliente).where(Cliente.id == id), Cliente)
+        # key_share = FOR NO KEY UPDATE: no frena a quien referencia al cliente (viaje, alerta).
+        consulta = consulta.with_for_update(of=Cliente, key_share=True).execution_options(
+            populate_existing=True
+        )
+        cliente = await sesion.scalar(consulta)
+        if cliente is None:
+            raise NoEncontrado(f"Cliente {id} no encontrado")
+        return cliente
 
     async def buscar_parecidos(
         self,
@@ -219,7 +237,13 @@ class RepositorioClientes(RepositorioBase[Cliente]):
         `Viaje` no cancelado cuyo último regreso es `<= regreso_hasta`, sin `no_recontactar`,
         sin `Oportunidad` abierta y sin una `Alerta` de `recontacto` pendiente o vista (una
         pospuesta es una pendiente con fecha futura, y también cuenta). Sin filtro de
-        visibilidad: solo para el proceso diario, que no tiene actor; no exponer a un endpoint."""
+        visibilidad: solo para el proceso diario, que no tiene actor; no exponer a un endpoint.
+
+        Los deja bloqueados hasta el fin de la transacción, en orden de id, para que una decisión
+        de la API (`obtener_para_modificar`) no los invalide antes de que se inserte la alerta: o
+        espera y resuelve la alerta ya creada, o confirmó antes y el candidato se descarta. Para
+        eso relee después de bloquear: la consulta que bloquea sigue con su foto de la base y no
+        vería la `Oportunidad` que confirmó el pedido por el que esperó."""
         ultimo_regreso = (
             select(Viaje.cliente_id, func.max(Viaje.fecha_regreso).label("fecha"))
             .where(Viaje.estado != EstadoViaje.cancelado)
@@ -248,7 +272,10 @@ class RepositorioClientes(RepositorioBase[Cliente]):
             )
             .order_by(Cliente.id)
         )
-        filas = await sesion.execute(consulta)
+        bloqueados = await sesion.scalars(
+            consulta.with_only_columns(Cliente.id).with_for_update(of=Cliente, key_share=True)
+        )
+        filas = await sesion.execute(consulta.where(Cliente.id.in_(bloqueados.all())))
         return [CandidatoARecontacto(cliente, asesor_id) for cliente, asesor_id in filas]
 
     async def historial(
