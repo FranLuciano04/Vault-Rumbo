@@ -44,7 +44,9 @@ La integración de las decisiones de recontacto es consistente, pero falta sincr
   3. Si un viaje se cancela entre la selección y la inserción, no queda con una alerta `viaje` pendiente.
   4. Sin operaciones concurrentes, los candidatos y la idempotencia siguen igual.
 - **Riesgo:** toca el proceso diario y estados: review con `reviewer-seguridad` y aprobación de otro integrante.
-- **PR:** pendiente.
+- **PR:** [#191](https://github.com/FranLuciano04/Vault-Rumbo/pull/191).
+- **Menor sin arreglar:** la relectura usa un `IN` limitado a 32.767 candidatos; sacarlo reabriría H-01. Volumen improbable para una PyME.
+- **Fuera del alcance, a consultar:** reabrir una oportunidad perdida no toma este bloqueo ni resuelve las sugerencias abiertas.
 
 ### H-02 · Confirmado (importante)
 - **Verificación:** `inactivos_para_recontacto` solo calcula el último regreso y ordena por `Cliente.id`. CU-30 pide priorizar o identificar a los recurrentes (≥ 2 viajes). `TarjetaRecontacto.tsx` lista el historial, así que los viajes se ven en la web, pero nada distingue al recurrente. La nota de T-113 lo dejó como candidato a ticket sin una decisión que cambie el requisito.
@@ -55,4 +57,5 @@ La integración de las decisiones de recontacto es consistente, pero falta sincr
   4. Un cliente con 1 viaje sigue siendo candidato.
   5. El dato va en `contexto`, con su filtro de visibilidad, y no en la `descripcion`.
 - **Riesgo:** normal. Cambia el contrato (`openapi.json` y tipos de `@rumbo/shared`).
-- **PR:** pendiente.
+- **PR:** [#192](https://github.com/FranLuciano04/Vault-Rumbo/pull/192).
+- **Interpretación:** «recurrente» cuenta viajes no cancelados; RF-027 y CU-30 no lo dicen textual.
