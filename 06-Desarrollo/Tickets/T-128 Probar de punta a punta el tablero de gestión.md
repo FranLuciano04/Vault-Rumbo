@@ -3,7 +3,7 @@ id: T-128
 titulo: Probar de punta a punta el tablero de gestión
 modulo: M8 — Calendario, dashboard y reportes
 capa: e2e
-estado: libre
+estado: tomado
 depende_de: [T-120, T-122, T-124, T-125, T-127, T-109]
 tamaño: S
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [CU-21, CU-22, CU-23]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: Nahuel Viniegra
+tomado_el: 05/11/26 19:21
+rama: feature/T-128-probar-de-punta-a-punta-el-tablero-de-ge
 pr:
 ---
 # T-128 Probar de punta a punta el tablero de gestión
