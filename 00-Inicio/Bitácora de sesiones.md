@@ -33,6 +33,15 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
+## 05/11/26 — Nahuel (Claude Opus 5.5) — Cierre de M7
+- **Hecho:**
+  - Pedido de review para Codex y triage de sus 2 hallazgos importantes, los dos confirmados.
+  - H-01 (PR #191, aprobado y mergeado por Paloma): bloqueo de fila entre el proceso diario y la API.
+  - H-02 (PR #192): `contexto.cliente.recurrente` y la etiqueta «Cliente recurrente» en web y mobile.
+  - CI de `main` en verde con los dos juntos. Tag `mod-7` puesto con la aprobación de Nahuel.
+- **Commits:** `ae96a13` pedido, `108cce1` triage, `05be388` PR de los hallazgos; merges `c82c3d0` y `5980a1b`.
+- **Pendiente:** ratificar que «recurrente» cuenta viajes no cancelados (CU-30). Quedan anotados en [[Bitácora técnica]] el caso de reabrir una oportunidad perdida y el límite de 32.767 candidatos. La etiqueta no se miró en un navegador ni en un teléfono. La demo local de Nahuel sigue sin las cuentas del emulador.
+
 ## 05/11/26 — Nahuel (Claude Opus 5.5) — T-118: probar de punta a punta el proceso diario
 - **Hecho:**
   - `proceso-diario.spec.ts` prueba contra el sistema real el vencimiento de pagos y cotizaciones, el recontacto, el avance de viaje, la idempotencia y la atención de la sugerencia desde la web.

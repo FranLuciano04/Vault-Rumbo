@@ -175,3 +175,20 @@ tags:: #tipo/referencia
   - El aviso «El precio de venta cambió…» aparece también al anular un pago sin cambio de precio (sesión de T-109).
 - **Decisiones tocadas:** [[DEC-0007 Modelo económico — ganancia, margen y comisión de vendedor]], [[DEC-0013 Datos que faltaban en el ER]], [[DEC-0025 Pagos anulados por la cancelación]], [[DEC-0026 Tipo de cambio y deuda nueva en un viaje confirmado]], [[DEC-0005 Autenticación y modelo de roles]], [[DEC-0008 Autenticación propia y rol de vendedor freelance]], [[DEC-0019 Las fallas se arreglan al encontrarlas]].
 - Aprobación del equipo: 02/11/26 (Nahuel, en nombre del equipo). Tag `mod-6` sobre `0979018`.
+
+### 05/11/26 — Nahuel (con el equipo) — M7 Proceso diario y CRM proactivo cerrado (`mod-7`)
+- **Qué quedó:**
+  - Proceso diario idempotente (`presentacion/jobs/diario.py`), programado en el `scheduler` del Compose a las 00:00 de Argentina.
+  - Vencimiento de pagos y cotizaciones (RF-026), sugerencia de avance de viajes (RF-039) y detección de clientes para recontacto (RF-027, RF-028, RF-030).
+  - Decisión sobre la sugerencia en backend, web y mobile: crear consulta, no recontactar o posponer (RF-029).
+  - E2e del proceso contra el sistema real, con `--fecha`.
+- **Tickets:** 9, de T-110 a T-118. Detalle y merges en [[M7 — pedido de review]].
+- **Review de Codex** ([[M7 — review Codex]]): 2 hallazgos importantes, los dos confirmados y arreglados.
+  - H-01 → PR #191, riesgo alto, aprobado y mergeado por Paloma: el proceso y la API se coordinan con un bloqueo de fila de `Cliente` y `Viaje`, y una operación concurrente ya no deja una sugerencia obsoleta.
+  - H-02 → PR #192: `contexto.cliente.recurrente` identifica a los clientes con 2 o más viajes no cancelados, y la sugerencia lo muestra en la web y en la app.
+  - El CI de `main` con los dos juntos (`5980a1b`) terminó en verde: Backend y E2e web pasaron; Web y Mobile se saltearon en esa corrida y pasaron en el PR #192.
+- **Pendientes que no bloquean:**
+  - Ratificar con el equipo que «recurrente» cuenta viajes no cancelados (anotado en [[CU-30 Sugerir recontacto de clientes]]).
+  - Reabrir una oportunidad perdida no toma el bloqueo de H-01 ni resuelve las sugerencias abiertas: anotado como menor, sin arreglar.
+  - La relectura de candidatos usa un `IN` limitado a 32.767; se acepta porque ese volumen es improbable para una PyME.
+  - Las otras copias de `tokenDe` en `e2e/` no se migraron a `apoyo.ts`.

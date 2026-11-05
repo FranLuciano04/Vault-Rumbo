@@ -42,6 +42,7 @@ tags:: #tipo/caso-uso #estado/formalizado #pc/pc1
 
 ## Reglas de negocio aplicadas
 - **Criterio de candidato (definido por la agencia):** cliente sin una nueva compra/viaje hace **≈ 6 meses** (umbral **configurable**, default 6). Aplica a **todos** los clientes, pero **prioriza/identifica a los recurrentes** (**≥ 2 [[Viaje|Viajes]]** con la agencia). Se excluye a los `no_recontactar`.
+- **Recurrente en la implementación (05/11/26, a ratificar por el equipo):** se cuentan los [[Viaje|Viajes]] no cancelados. #accion/decidir
 - **Segmentación comercial:** el sistema permite **generar segmentos** de [[Cliente|Clientes]] para acciones dirigidas — por destino/producto (Brasil, Caribe, Europa, cruceros, nacionales) o por tipo (familias, parejas, etc.). Ver [[Cliente]] (`segmento`/etiquetas).
 - **Sin envío automático:** el sistema sugiere; el contacto lo hace una persona (coherente con "no reemplaza el asesoramiento", [[Alcance y fuera de alcance]]).
 
