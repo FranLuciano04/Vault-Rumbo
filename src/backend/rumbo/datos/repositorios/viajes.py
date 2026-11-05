@@ -108,6 +108,12 @@ class RepositorioViajes(RepositorioBase[Viaje]):
         `sugerencia` (CU-08 A1, RF-039). Sin filtro de visibilidad: solo para el proceso
         diario, que no tiene actor; no exponer a un endpoint.
 
+        Los deja bloqueados hasta el fin de la transacción, en orden de id, para que una
+        transición de la API (`obtener_para_modificar`) no los invalide antes de que se inserte
+        la alerta: o espera y resuelve la alerta ya creada, o confirmó antes y Postgres reevalúa
+        el `estado` de la fila al soltarse el bloqueo y la descarta. Cada pedido bloquea un solo
+        viaje, así que no se traba con el proceso aunque este llame una vez por `estado`.
+
         En la primera corrida, los viajes viejos que nunca se avanzaron reciben una alerta cada
         uno: es lo esperable, porque siguen pendientes de confirmar."""
         fecha = Viaje.fecha_salida if estado is EstadoViaje.confirmado else Viaje.fecha_regreso
@@ -122,6 +128,8 @@ class RepositorioViajes(RepositorioBase[Viaje]):
             .outerjoin(Usuario, and_(Usuario.id == Viaje.responsable_id, Usuario.activo.is_(True)))
             .where(Viaje.estado == estado, fecha <= hasta, ~sugerencia_abierta)
             .order_by(Viaje.id)
+            # key_share = FOR NO KEY UPDATE: no frena a quien referencia el viaje (pago, alerta).
+            .with_for_update(of=Viaje, key_share=True)
         )
         filas = await sesion.execute(consulta)
         return [CandidatoAAvanzar(viaje, responsable_id) for viaje, responsable_id in filas]

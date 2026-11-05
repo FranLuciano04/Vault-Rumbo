@@ -152,7 +152,9 @@ async def editar_cliente(
     `freelance` también se le avisa, sin candidatos, si un cliente ajeno tiene el mismo contacto
     (RF-151).
     """
-    cliente = await _clientes.obtener(sesion, cliente_id, visibilidad=visibilidad(actor))
+    cliente = await _clientes.obtener_para_modificar(
+        sesion, cliente_id, visibilidad=visibilidad(actor)
+    )
     exigir_escritura(actor, cliente)
     if actor.rol is RolUsuario.freelance:
         cambios = {c: v for c, v in cambios.items() if c != "asesor_asignado_id"}
