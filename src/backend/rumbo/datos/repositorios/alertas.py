@@ -14,6 +14,7 @@ from rumbo.datos.modelos import (
     Cliente,
     Destino,
     EstadoAlerta,
+    EstadoViaje,
     Moneda,
     Oportunidad,
     Pago,
@@ -25,6 +26,9 @@ from rumbo.datos.modelos import (
 from rumbo.datos.repositorios.base import RepositorioBase, Visibilidad
 
 type OrigenAlerta = Viaje | Pago | Oportunidad | Cliente | ViajeHotel
+
+# viajes no cancelados desde los que un `Cliente` es recurrente (RF-027)
+_VIAJES_DE_RECURRENTE = 2
 
 # columna de `Alerta` que apunta a cada entidad que puede originarla
 _COLUMNA_DE_ORIGEN = {
@@ -45,6 +49,12 @@ def columna_de_origen(origen: OrigenAlerta) -> str:
 
 
 @dataclass(frozen=True)
+class ClienteConRecurrencia:
+    cliente: Cliente
+    recurrente: bool
+
+
+@dataclass(frozen=True)
 class ViajeConDestino:
     viaje: Viaje
     destino: str
@@ -62,7 +72,7 @@ class ContextoDeAlerta:
     `Viaje` y su `Cliente`; un `Viaje` o una `Oportunidad`, su `Cliente`."""
 
     responsable: Usuario
-    cliente: Cliente | None = None
+    cliente: ClienteConRecurrencia | None = None
     oportunidad: Oportunidad | None = None
     viaje: ViajeConDestino | None = None
     pago: PagoConMoneda | None = None
@@ -83,6 +93,25 @@ async def _por_id[M](
         consulta = visibilidad.aplicar(consulta, modelo)
     filas = await sesion.scalars(consulta)
     return {fila.id: fila for fila in filas}  # type: ignore[attr-defined]
+
+
+async def _recurrentes(
+    sesion: AsyncSession, cliente_ids: set[uuid.UUID], visibilidad: Visibilidad
+) -> set[uuid.UUID]:
+    """Los de `cliente_ids` con 2 o más `Viaje` no cancelados (RF-027), en una consulta. Los
+    viajes salen filtrados por `visibilidad` por convención, para que siga valiendo si cambia
+    la regla de `politicas` (hoy, quien ve a un `Cliente` ve todos sus viajes y el resultado
+    es el mismo)."""
+    if not cliente_ids:
+        return set()
+    consulta = (
+        visibilidad.aplicar(select(Viaje), Viaje)
+        .with_only_columns(Viaje.cliente_id)
+        .where(Viaje.cliente_id.in_(cliente_ids), Viaje.estado != EstadoViaje.cancelado)
+        .group_by(Viaje.cliente_id)
+        .having(func.count() >= _VIAJES_DE_RECURRENTE)
+    )
+    return set(await sesion.scalars(consulta))
 
 
 class RepositorioAlertas(RepositorioBase[Alerta]):
@@ -212,7 +241,7 @@ class RepositorioAlertas(RepositorioBase[Alerta]):
     async def contextos(
         self, sesion: AsyncSession, alertas: list[Alerta], *, visibilidad: Visibilidad
     ) -> dict[uuid.UUID, ContextoDeAlerta]:
-        """Contexto de cada `Alerta` en siete consultas, sin importar cuántas sean. El origen
+        """Contexto de cada `Alerta` en ocho consultas, sin importar cuántas sean. El origen
         sale filtrado por `visibilidad` (RF-151): lo que el actor no ve queda en `None`, aunque
         la alerta sea suya. El responsable y el destino (catálogo) salen siempre."""
         usuarios = await _por_id(sesion, Usuario, {a.propietario_id for a in alertas})
@@ -237,6 +266,7 @@ class RepositorioAlertas(RepositorioBase[Alerta]):
         cliente_ids |= {v.cliente_id for v in viajes.values()}
         cliente_ids |= {o.cliente_id for o in oportunidades.values()}
         clientes = await _por_id(sesion, Cliente, cliente_ids, visibilidad)
+        recurrentes = await _recurrentes(sesion, set(clientes), visibilidad)
 
         def contexto(alerta: Alerta) -> ContextoDeAlerta:
             pago = pagos.get(alerta.pago_id)
@@ -250,9 +280,12 @@ class RepositorioAlertas(RepositorioBase[Alerta]):
                 or (viaje and viaje.cliente_id)
                 or (oportunidad and oportunidad.cliente_id)
             )
+            cliente = clientes.get(cliente_id)
             return ContextoDeAlerta(
                 responsable=usuarios[alerta.propietario_id],
-                cliente=clientes.get(cliente_id),
+                cliente=None
+                if cliente is None
+                else ClienteConRecurrencia(cliente, cliente.id in recurrentes),
                 oportunidad=oportunidad,
                 viaje=None
                 if viaje is None

@@ -28,9 +28,21 @@ const otro_propietario_id = usuariosPorRol.freelance.id;
 const ana = { id: propietario_id, nombre: usuariosPorRol.empleado.nombre };
 const tomas = { id: otro_propietario_id, nombre: usuariosPorRol.freelance.nombre };
 
-const camila = { id: "3c1f6d2e-8a47-4b19-9e53-7d0a2b4c6e11", nombre: "Camila Benítez" };
-const joaquin = { id: "d4a8c6e2-5f19-4073-8b3a-2e1c9d7f0b33", nombre: "Joaquín Ramos" };
-const sosa = { id: "9e5b0a74-1c3d-4f68-a2b9-5c8d7e0f1a22", nombre: "Familia Sosa" };
+const camila = {
+  id: "3c1f6d2e-8a47-4b19-9e53-7d0a2b4c6e11",
+  nombre: "Camila Benítez",
+  recurrente: true,
+};
+const joaquin = {
+  id: "d4a8c6e2-5f19-4073-8b3a-2e1c9d7f0b33",
+  nombre: "Joaquín Ramos",
+  recurrente: false,
+};
+const sosa = {
+  id: "9e5b0a74-1c3d-4f68-a2b9-5c8d7e0f1a22",
+  nombre: "Familia Sosa",
+  recurrente: false,
+};
 const viajeCamila = {
   id: "f0a7c3d9-2b64-4e18-9c5d-8b1e6a4d2f55",
   destino_id: "9c1d2e3f-4a5b-4c6d-8e7f-0a1b2c3d4e05",

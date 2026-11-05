@@ -192,7 +192,7 @@ async def test_rf075_contexto_del_origen(
     de_cliente = await _alerta(sesion, yo, hoy(), "cli", TipoAlerta.recontacto, cliente)
     suelta = await _alerta(sesion, yo, hoy(), "suelta")
     nulo = {"cliente": None, "oportunidad": None, "viaje": None, "pago": None}
-    cli = {"id": str(cliente.id), "nombre": "Centro de Jubilados Quilmes"}
+    cli = {"id": str(cliente.id), "nombre": "Centro de Jubilados Quilmes", "recurrente": False}
     via = {
         "id": str(viaje.id),
         "destino": "Mendoza",
@@ -275,7 +275,11 @@ async def test_rf075_el_listado_trae_contexto_y_responsable(
     assert r.status_code == 200, r.text
     item = r.json()["items"][0]
     assert item["responsable"] == {"id": str(yo.id), "nombre": yo.nombre}
-    assert item["contexto"]["cliente"] == {"id": str(cliente.id), "nombre": "Familia Ferreyra"}
+    assert item["contexto"]["cliente"] == {
+        "id": str(cliente.id),
+        "nombre": "Familia Ferreyra",
+        "recurrente": False,
+    }
     assert item["contexto"]["viaje"] is None
 
 
@@ -656,6 +660,7 @@ async def test_rf076_la_respuesta_trae_responsable_y_contexto_como_el_get(
         assert r.json()["contexto"]["cliente"] == {
             "id": str(cliente.id),
             "nombre": "Familia Ferreyra",
+            "recurrente": False,
         }
         assert r.json() == (await c.get(f"/api/alertas/{a.id}")).json()
 

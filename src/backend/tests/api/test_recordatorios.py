@@ -127,7 +127,7 @@ async def test_rf081_asociar_a_cliente_visible(
     assert r.status_code == 201, r.text
     assert r.json()["contexto"] == {
         **NULO,
-        "cliente": {"id": str(cliente.id), "nombre": "Familia Ferreyra"},
+        "cliente": {"id": str(cliente.id), "nombre": "Familia Ferreyra", "recurrente": False},
     }
 
 

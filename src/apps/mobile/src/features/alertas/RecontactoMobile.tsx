@@ -6,16 +6,18 @@ import { cliente } from "../../cliente";
 import { AccionesContacto } from "../clientes/AccionesContacto";
 
 /**
- * Sugerencia de recontacto en el celular (CU-30, RF-029, RF-030): preferencias y contacto del
- * cliente, aviso de que la consulta se crea desde la web y «No recontactar», que marca al
- * cliente (el servidor resuelve la alerta).
+ * Sugerencia de recontacto en el celular (CU-30, RF-027, RF-029, RF-030): marca de cliente
+ * recurrente, preferencias y contacto del cliente, aviso de que la consulta se crea desde la web
+ * y «No recontactar», que marca al cliente (el servidor resuelve la alerta).
  */
 export function RecontactoMobile({
   clienteId,
+  recurrente,
   estado,
   alResolver,
 }: {
   clienteId: string;
+  recurrente: boolean;
   estado: string;
   alResolver: () => void;
 }) {
@@ -34,6 +36,11 @@ export function RecontactoMobile({
       {fichaConError && (
         <Text role="alert" className="text-red-700">
           No pudimos cargar el contacto del cliente.
+        </Text>
+      )}
+      {recurrente && (
+        <Text className="self-start rounded-full bg-secondary px-3 py-1 text-xs font-medium text-primary">
+          Cliente recurrente
         </Text>
       )}
       {ficha?.preferencias ? <Text className="text-sm">{ficha.preferencias}</Text> : null}

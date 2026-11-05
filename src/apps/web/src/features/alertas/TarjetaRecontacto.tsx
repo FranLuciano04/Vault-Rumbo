@@ -98,6 +98,11 @@ export function TarjetaRecontacto({
         Sugerencia de recontacto
       </h3>
       <p className="text-base font-medium">{clienteDeAlerta.nombre}</p>
+      {clienteDeAlerta.recurrente && (
+        <span className="self-start rounded-full bg-secondary px-2.5 py-0.5 text-xs font-medium text-secondary-foreground">
+          Cliente recurrente
+        </span>
+      )}
       {ficha.data?.preferencias && (
         <p className="text-sm text-muted-foreground">{ficha.data.preferencias}</p>
       )}
