@@ -21,7 +21,7 @@ tags:: #tipo/referencia
 | M4 — Oportunidades y cotizaciones | 16 | 16 | 0 | 0 | 0 | 0 | ✅ cerrado |
 | M5 — Hoteles y reseñas | 11 | 11 | 0 | 0 | 0 | 0 | ✅ cerrado |
 | M6 — Viajes y economía | 24 | 24 | 0 | 0 | 0 | 0 | ✅ cerrado |
-| M7 — Proceso diario y CRM proactivo | 9 | 9 | 0 | 0 | 0 | 0 | 🔍 listo para la review |
+| M7 — Proceso diario y CRM proactivo | 9 | 9 | 0 | 0 | 0 | 0 | ✅ cerrado |
 | M8 — Calendario, dashboard y reportes | 10 | 9 | 0 | 1 | 0 | 0 | 🛠️ en curso |
 | M9 — Redes e IA | 6 | 0 | 0 | 1 | 5 | 0 | 🛠️ en curso |
 | M10 — Despliegue on-premise | 5 | 0 | 0 | 1 | 4 | 0 | 🛠️ en curso |
