@@ -39,6 +39,7 @@ class ResponsableAlerta(BaseModel):
 class ClienteDeAlerta(BaseModel):
     id: uuid.UUID
     nombre: str
+    recurrente: bool = Field(description="Tiene 2 o más viajes no cancelados (RF-027).")
 
 
 class OportunidadDeAlerta(BaseModel):

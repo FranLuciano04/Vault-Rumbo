@@ -9581,12 +9581,18 @@
           "nombre": {
             "type": "string",
             "title": "Nombre"
+          },
+          "recurrente": {
+            "type": "boolean",
+            "title": "Recurrente",
+            "description": "Tiene 2 o más viajes no cancelados (RF-027)."
           }
         },
         "type": "object",
         "required": [
           "id",
-          "nombre"
+          "nombre",
+          "recurrente"
         ],
         "title": "ClienteDeAlerta"
       },

@@ -2035,6 +2035,11 @@ export interface components {
             id: string;
             /** Nombre */
             nombre: string;
+            /**
+             * Recurrente
+             * @description Tiene 2 o más viajes no cancelados (RF-027).
+             */
+            recurrente: boolean;
         };
         /**
          * ClienteEditar

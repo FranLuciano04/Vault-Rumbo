@@ -21,9 +21,15 @@ def _contexto(contexto: ContextoDeAlerta) -> ContextoAlerta:
     def de[E: BaseModel](esquema: type[E], origen: object | None) -> E | None:
         return None if origen is None else esquema.model_validate(origen, from_attributes=True)
 
-    viaje, pago = contexto.viaje, contexto.pago
+    cliente, viaje, pago = contexto.cliente, contexto.viaje, contexto.pago
     return ContextoAlerta(
-        cliente=de(ClienteDeAlerta, contexto.cliente),
+        cliente=None
+        if cliente is None
+        else ClienteDeAlerta(
+            id=cliente.cliente.id,
+            nombre=cliente.cliente.nombre,
+            recurrente=cliente.recurrente,
+        ),
         oportunidad=de(OportunidadDeAlerta, contexto.oportunidad),
         viaje=None
         if viaje is None
