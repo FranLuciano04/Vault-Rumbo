@@ -39,6 +39,9 @@ const asesores = [
   { id: "e7b20d94-6a3f-4c15-9d8e-0b5a3f7c2e04", nombre: "Tomás Roldán" },
 ];
 
+/** Id del segundo asesor, para armar URLs. */
+const idTomas = asesores[1]?.id ?? "";
+
 function renderAgenda(rol: RolMock = "empleado", ruta = "/agenda") {
   if (rol === "admin" || rol === "dueno") {
     servidor.use(http.get("*/api/usuarios/asesores", () => HttpResponse.json(asesores)));
@@ -639,7 +642,7 @@ describe("RF-128 agenda: filtros que llegan en la URL desde el dashboard", () =>
     async (rol) => {
       const pedidos: URLSearchParams[] = [];
       servidor.use(pedidosDeAlertas(pedidos));
-      renderAgenda(rol, `/agenda?estado=pendiente&propietario_id=${asesores[1]?.id}`);
+      renderAgenda(rol, `/agenda?estado=pendiente&propietario_id=${idTomas}`);
 
       await screen.findByRole("option", { name: "Tomás Roldán" });
 
@@ -679,7 +682,12 @@ function IrA({ a }: { a: string }) {
 }
 
 /** Monta la sección que usa la app (con el usuario por contexto) y un botón para navegar. */
-function renderSeccionAgenda(rol: RolMock, ruta: string, Seccion: typeof SeccionAgenda, destino: string) {
+function renderSeccionAgenda(
+  rol: RolMock,
+  ruta: string,
+  Seccion: typeof SeccionAgenda,
+  destino: string,
+) {
   return render(
     <QueryClientProvider
       client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}
@@ -710,7 +718,7 @@ describe("RF-128 agenda: navegar dentro de la pantalla, ids inválidos y roles",
       registrar(pedidos),
     );
     const usuario = userEvent.setup();
-    renderSeccionAgenda("dueno", `/agenda?propietario_id=${asesores[1]?.id}`, SeccionAgenda, "/agenda");
+    renderSeccionAgenda("dueno", `/agenda?propietario_id=${idTomas}`, SeccionAgenda, "/agenda");
     await waitFor(() => {
       expect(screen.getByRole("combobox", { name: /responsable/i })).toHaveValue(asesores[1]?.id);
     });
@@ -746,7 +754,7 @@ describe("RF-128 agenda: navegar dentro de la pantalla, ids inválidos y roles",
     async (rol) => {
       const pedidos: URLSearchParams[] = [];
       servidor.use(registrar(pedidos));
-      renderAgenda(rol, `/agenda?propietario_id=${asesores[1]?.id}`);
+      renderAgenda(rol, `/agenda?propietario_id=${idTomas}`);
 
       await screen.findByText(PAGO);
 
