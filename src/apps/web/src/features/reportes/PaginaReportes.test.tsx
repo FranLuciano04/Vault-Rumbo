@@ -495,14 +495,16 @@ describe("RF-133 exportar", () => {
 
 describe("RF-131 mes de negocio en Buenos Aires (H-03)", () => {
   const tzOriginal = process.env["TZ"];
+  const zonaOriginal = Intl.DateTimeFormat().resolvedOptions().timeZone;
   beforeEach(() => {
     // La zona efectiva del test es UTC aunque la máquina esté en Argentina; si no, el bug no se reproduce.
     process.env["TZ"] = "UTC";
     vi.useFakeTimers({ toFake: ["Date"], now: new Date("2026-12-01T01:00:00Z") });
   });
   afterEach(() => {
+    // Reasignar primero: borrar la variable sola no devuelve la zona efectiva del proceso.
+    process.env["TZ"] = tzOriginal ?? zonaOriginal;
     if (tzOriginal === undefined) delete process.env["TZ"];
-    else process.env["TZ"] = tzOriginal;
   });
 
   it("RF-131 precondición: el proceso corre en UTC y en el navegador ya es diciembre", () => {
