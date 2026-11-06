@@ -7,6 +7,7 @@ import type {
 } from "../modelos";
 import { respuestaProblema } from "./problema";
 import { usuariosPorRol, type RolMock } from "./usuarios";
+import { pagina } from "./utilidades";
 import { auditoriaMock } from "./viajes";
 
 const canales = ["instagram", "tiktok", "whatsapp_ventas"];
@@ -72,18 +73,6 @@ export const contenidosMock: ContenidoRed[] = [
   },
 ];
 
-function pagina<T>(items: T[], url: URL) {
-  const numero = Number(url.searchParams.get("pagina") ?? 1);
-  const porPagina = Number(url.searchParams.get("por_pagina") ?? 20);
-  const salto = (numero - 1) * porPagina;
-  return {
-    items: items.slice(salto, salto + porPagina),
-    total: items.length,
-    pagina: numero,
-    por_pagina: porPagina,
-  };
-}
-
 const sinPermiso = () =>
   respuestaProblema(403, "Sin permiso", { detail: "No tenés acceso al módulo de redes." });
 const noEncontrado = () =>
@@ -135,7 +124,7 @@ export function manejadoresRedesPara(
             (!filtro("hasta") || c.fecha_publicacion <= String(filtro("hasta"))),
         )
         .sort((a, b) => a.fecha_publicacion.localeCompare(b.fecha_publicacion));
-      return HttpResponse.json(pagina(filtradas, url));
+      return pagina(filtradas, url);
     }),
 
     http.post("*/api/contenidos", async ({ request }) => {
