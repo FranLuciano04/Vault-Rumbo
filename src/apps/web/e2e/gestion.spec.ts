@@ -68,6 +68,7 @@ test.describe.serial("Tablero de gestión de punta a punta", () => {
     await api(duena, "POST", `/pagos/${(propio.pagos[0] as PagoApi).id}/cobrar`, cobro);
     const delEmpleado = await armarViaje(duena, "GestionEmp", {
       asesorId: empleadoId,
+      responsableId: empleadoId,
       precio: "250000.00",
       plan: [{ tipo: "sena", monto: "250000.00", dias: 3 }],
     });

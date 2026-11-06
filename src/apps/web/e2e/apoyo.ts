@@ -95,6 +95,8 @@ export interface OpcionesViaje {
   plan: PagoPlan[];
   /** Asesor asignado al cliente; por defecto, ninguno. */
   asesorId?: string;
+  /** Responsable del viaje (el que acota el dashboard del empleado); por defecto, quien reserva. */
+  responsableId?: string;
   /** Días desde hoy; por defecto, salida a 120 y regreso a 128. */
   salidaEnDias?: number;
   regresoEnDias?: number;
@@ -116,7 +118,7 @@ export async function armarViaje(
   nombreDestino: string;
   pagos: PagoApi[];
 }> {
-  const { precio, plan, asesorId, salidaEnDias = 120, regresoEnDias = 128 } = opciones;
+  const { precio, plan, asesorId, responsableId, salidaEnDias = 120, regresoEnDias = 128 } = opciones;
   const HOY = hoy();
   const nombreDestino = `Destino ${etiqueta} ${SUFIJO}`;
   const nombreCliente = `Cliente ${etiqueta} E2E ${SUFIJO}`;
@@ -149,6 +151,7 @@ export async function armarViaje(
     fecha_salida: sumarDias(HOY, salidaEnDias),
     fecha_regreso: sumarDias(HOY, regresoEnDias),
     categoria: "individual",
+    responsable_id: responsableId,
     economia: { precio_venta: precio, costo: "1000.00" },
     plan_de_pagos: {
       pagos: plan.map((p) => ({
