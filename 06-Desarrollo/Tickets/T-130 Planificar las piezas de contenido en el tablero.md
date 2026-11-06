@@ -3,7 +3,7 @@ id: T-130
 titulo: Planificar las piezas de contenido en el tablero
 modulo: M9 — Redes e IA
 capa: backend
-estado: libre
+estado: tomado
 depende_de: [T-129, T-012, T-011]
 tamaño: M
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [CU-19, RF-113, RF-114, RF-115, RF-116, RF-117, RF-118, RF-153, DEC-0013]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: Nahuel Viniegra
+tomado_el: 06/11/26 19:32
+rama: feature/T-130-planificar-las-piezas-de-contenido-en-el
 pr:
 ---
 # T-130 Planificar las piezas de contenido en el tablero
