@@ -3,7 +3,7 @@ id: T-128
 titulo: Probar de punta a punta el tablero de gestión
 modulo: M8 — Calendario, dashboard y reportes
 capa: e2e
-estado: tomado
+estado: hecho
 depende_de: [T-120, T-122, T-124, T-125, T-127, T-109]
 tamaño: S
 riesgo: normal
@@ -46,3 +46,9 @@ Calendario, dashboard y reportes funcionan contra el sistema real con los datos 
 - —
 
 ## Notas de implementación
+- **Corrida:** los e2e se corrieron solo en el CI, por decisión de Nahuel: en la PC el puerto 9099 lo ocupaba el stack de demo, y bajarlo borra las cuentas del emulador. Por eso el PR se abrió como borrador antes de la review.
+- **Sin bugs del sistema:** las fallas fueron del spec. El dashboard acota al empleado por `Viaje.responsable_id`, no por el asesor del cliente, y por eso `armarViaje` ganó el parámetro opcional `responsableId`.
+- **Review (Opus, dos rondas):** un bloqueante, RF-136 fallaba desde el día 8 de cada mes por la alerta de salida del viaje; tres importantes de aserciones débiles; todos arreglados, igual que los menores salvo el siguiente.
+- **Menor sin arreglar:** RF-133 valida el formato del archivo exportado (`PK`, `%PDF`), no su contenido.
+- **Fuera del ticket:** `e2e/cu01.spec.ts` no pasa `prettier --check`, y el CI no corre Prettier sobre la web. No se tocó.
+- **Modelos:** tests con sonnet, review con opus, sin escalados. No hubo implementador: no apareció ningún bug del sistema.
