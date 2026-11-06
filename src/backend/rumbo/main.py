@@ -14,6 +14,7 @@ from rumbo.presentacion.routers import (
     economia,
     hoteles,
     oportunidades,
+    redes,
     seguridad,
     usuarios,
     viajes,
@@ -47,6 +48,7 @@ def crear_app() -> FastAPI:
         dashboard.router,
         calendario.router,
         hoteles.router,
+        redes.router,
     ):
         app.include_router(router, prefix="/api")
     return app

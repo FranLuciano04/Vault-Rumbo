@@ -14,7 +14,8 @@ from rumbo.core.seguridad import (
     usuario_auditoria,
 )
 from rumbo.datos.modelos import RolUsuario, Usuario
-from rumbo.negocio.politicas import exigir_rol
+from rumbo.negocio.errores import SinPermiso
+from rumbo.negocio.politicas import exigir_rol, tiene_acceso_redes
 from rumbo.negocio.servicios import seguridad
 
 _esquema_bearer = HTTPBearer(auto_error=False, description="ID token de Firebase (DEC-0016)")
@@ -77,3 +78,11 @@ def exigir_roles(*roles: RolUsuario) -> Callable[..., Awaitable[Usuario]]:
         return actor
 
     return guardia
+
+
+async def exigir_acceso_redes(actor: Annotated[Usuario, Depends(usuario_actual)]) -> Usuario:
+    """Deja pasar a quien tiene acceso al módulo de redes (DEC-0013); si no, 403. Va junto con
+    `exigir_roles`, que ya deja afuera al freelance aunque tenga la capacidad."""
+    if not tiene_acceso_redes(actor):
+        raise SinPermiso("No tenés acceso al módulo de redes")
+    return actor

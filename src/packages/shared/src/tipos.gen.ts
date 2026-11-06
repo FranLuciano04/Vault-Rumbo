@@ -1819,6 +1819,124 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/contenidos": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Ver el tablero y el calendario de contenido
+         * @description **Roles:** admin, dueno, empleado.
+         *
+         *     **Casos de uso:** CU-19.
+         *
+         *     Requiere acceso al módulo de redes: admin y dueño lo tienen por rol; el empleado, si se lo habilitaron (`acceso_redes`). Sin él, 403.
+         *
+         *     Sin `estado_kanban` no trae las piezas `descartado`; con `estado_kanban=descartado` las muestra.
+         */
+        get: operations["listar_contenidos"];
+        put?: never;
+        /**
+         * Crear una pieza de contenido
+         * @description **Roles:** admin, dueno, empleado.
+         *
+         *     **Casos de uso:** CU-19, CU-20.
+         *
+         *     Requiere acceso al módulo de redes: admin y dueño lo tienen por rol; el empleado, si se lo habilitaron (`acceso_redes`). Sin él, 403.
+         */
+        post: operations["crear_contenido"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/contenidos/propuestas-ia": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Generar borradores de contenido con IA
+         * @description **Roles:** admin, dueno, empleado.
+         *
+         *     **Casos de uso:** CU-20.
+         *
+         *     Requiere acceso al módulo de redes: admin y dueño lo tienen por rol; el empleado, si se lo habilitaron (`acceso_redes`). Sin él, 403.
+         *
+         *     Una sola llamada a Claude Sonnet 5.5 con el tema, el canal y el tono indicados; no envía datos del negocio (clientes, catálogo ni ventas).
+         */
+        post: operations["generar_propuesta_ia"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/contenidos/{contenido_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Ver una pieza de contenido
+         * @description **Roles:** admin, dueno, empleado.
+         *
+         *     **Casos de uso:** CU-19.
+         *
+         *     Requiere acceso al módulo de redes: admin y dueño lo tienen por rol; el empleado, si se lo habilitaron (`acceso_redes`). Sin él, 403.
+         */
+        get: operations["obtener_contenido"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Editar, reprogramar o mover una pieza en el tablero
+         * @description **Roles:** admin, dueno, empleado.
+         *
+         *     **Casos de uso:** CU-19, CU-20.
+         *
+         *     Requiere acceso al módulo de redes: admin y dueño lo tienen por rol; el empleado, si se lo habilitaron (`acceso_redes`). Sin él, 403.
+         *
+         *     Movimientos válidos: idea con en producción, en producción con listo, y listo a publicado; cualquier otro cambio de estado da 409. Una pieza `publicado` o `descartado` no admite ningún cambio, ni de fecha. `descartado` no se alcanza por acá: solo con `/descartar`.
+         */
+        patch: operations["editar_contenido"];
+        trace?: never;
+    };
+    "/api/contenidos/{contenido_id}/descartar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Descartar una pieza (baja lógica)
+         * @description **Roles:** admin, dueno, empleado.
+         *
+         *     **Casos de uso:** CU-19.
+         *
+         *     Requiere acceso al módulo de redes: admin y dueño lo tienen por rol; el empleado, si se lo habilitaron (`acceso_redes`). Sin él, 403.
+         */
+        post: operations["descartar_contenido"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -1931,6 +2049,21 @@ export interface components {
             /** Nombre */
             nombre: string;
         };
+        /**
+         * BorradorContenido
+         * @description Texto propuesto por la IA. No es una pieza guardada: no tiene `id`.
+         */
+        BorradorContenido: {
+            /** Titulo */
+            titulo: string;
+            /** Texto */
+            texto: string;
+        };
+        /**
+         * CanalContenido
+         * @enum {string}
+         */
+        CanalContenido: "instagram" | "tiktok" | "whatsapp_ventas";
         /**
          * CanalOportunidad
          * @enum {string}
@@ -2241,6 +2374,67 @@ export interface components {
             moneda?: components["schemas"]["Moneda"] | null;
             economia: components["schemas"]["EconomiaViaje"];
             plan_de_pagos: components["schemas"]["PlanDePagos"];
+        };
+        ContenidoRed: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            readonly id: string;
+            /**
+             * Usuario Id
+             * Format: uuid
+             * @description Quien creó la pieza.
+             */
+            readonly usuario_id: string;
+            /** Titulo */
+            titulo: string;
+            /**
+             * Texto
+             * @description Cuerpo del posteo; vacío si todavía es solo una idea.
+             */
+            texto: string | null;
+            canal: components["schemas"]["CanalContenido"];
+            estado_kanban: components["schemas"]["EstadoKanban"];
+            /**
+             * Fecha Publicacion
+             * Format: date
+             * @description Fecha programada; la publicación es manual.
+             */
+            fecha_publicacion: string;
+        } & components["schemas"]["Auditoria"];
+        /**
+         * ContenidoRedCrear
+         * @description Alta de una pieza (CU-19, CU-20 paso 4): nace en la columna `idea`.
+         */
+        ContenidoRedCrear: {
+            /** Titulo */
+            titulo: string;
+            /** Texto */
+            texto?: string | null;
+            canal: components["schemas"]["CanalContenido"];
+            /**
+             * Fecha Publicacion
+             * Format: date
+             */
+            fecha_publicacion: string;
+        };
+        /**
+         * ContenidoRedEditar
+         * @description Edita, reprograma (A2) o mueve la pieza entre columnas, en las dos direcciones (A5).
+         */
+        ContenidoRedEditar: {
+            /** Titulo */
+            titulo?: string;
+            /** Texto */
+            texto?: string | null;
+            canal?: components["schemas"]["CanalContenido"];
+            estado_kanban?: components["schemas"]["EstadoKanban"];
+            /**
+             * Fecha Publicacion
+             * Format: date
+             */
+            fecha_publicacion?: string;
         };
         /**
          * ContextoAlerta
@@ -2666,6 +2860,11 @@ export interface components {
          * @enum {string}
          */
         EstadoHotel: "activo" | "cerrado";
+        /**
+         * EstadoKanban
+         * @enum {string}
+         */
+        EstadoKanban: "idea" | "en_produccion" | "listo" | "publicado" | "descartado";
         /**
          * EstadoOportunidad
          * @enum {string}
@@ -3306,6 +3505,31 @@ export interface components {
              * @description Las resueltas hoy más las que quedan para hoy.
              */
             total_del_dia: number;
+        };
+        /**
+         * PropuestaIA
+         * @description Borradores para revisar y editar; guardar el elegido es un `POST /contenidos` (A2).
+         */
+        PropuestaIA: {
+            /** Borradores */
+            borradores: components["schemas"]["BorradorContenido"][];
+        };
+        /**
+         * PropuestaIAPedido
+         * @description Lo único que recibe la IA: tema, canal y tono; no usa datos del negocio (CU-20).
+         */
+        PropuestaIAPedido: {
+            /**
+             * Tema
+             * @description Tema o destino del posteo.
+             */
+            tema: string;
+            canal: components["schemas"]["CanalContenido"];
+            /**
+             * Tono
+             * @description Tono u objetivo, por ejemplo `cercano`.
+             */
+            tono?: string | null;
         };
         /**
          * Reporte
@@ -9472,6 +9696,377 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Resena"];
+                };
+            };
+            /** @description Falta el token, no es válido o el usuario no tiene acceso. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description El rol no alcanza. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description No existe. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Conflicto con el estado actual. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+        };
+    };
+    listar_contenidos: {
+        parameters: {
+            query?: {
+                /** @description Fecha de publicación desde la que se listan, inclusive. */
+                desde?: string | null;
+                /** @description Fecha de publicación hasta la que se listan, inclusive. */
+                hasta?: string | null;
+                /** @description Solo las piezas de esa columna. */
+                estado_kanban?: components["schemas"]["EstadoKanban"] | null;
+                /** @description Solo ese canal. */
+                canal?: components["schemas"]["CanalContenido"] | null;
+                pagina?: number;
+                por_pagina?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Piezas del tablero, de la fecha de publicación más próxima a la más lejana. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        items: components["schemas"]["ContenidoRed"][];
+                        /** @description Cantidad total de resultados. */
+                        total: number;
+                        pagina: number;
+                        por_pagina: number;
+                    };
+                };
+            };
+            /** @description Falta el token, no es válido o el usuario no tiene acceso. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description El rol no alcanza. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Datos inválidos. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+        };
+    };
+    crear_contenido: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ContenidoRedCrear"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ContenidoRed"];
+                };
+            };
+            /** @description Falta el token, no es válido o el usuario no tiene acceso. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description El rol no alcanza. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Datos inválidos. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+        };
+    };
+    generar_propuesta_ia: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PropuestaIAPedido"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PropuestaIA"];
+                };
+            };
+            /** @description Falta el token, no es válido o el usuario no tiene acceso. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description El rol no alcanza. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Datos inválidos. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Falló el servicio de IA o no respondió a tiempo (DEC-0012); no se genera ningún borrador y se puede reintentar (CU-20). */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+        };
+    };
+    obtener_contenido: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                contenido_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ContenidoRed"];
+                };
+            };
+            /** @description Falta el token, no es válido o el usuario no tiene acceso. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description El rol no alcanza. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description No existe. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+        };
+    };
+    editar_contenido: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                contenido_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ContenidoRedEditar"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ContenidoRed"];
+                };
+            };
+            /** @description Falta el token, no es válido o el usuario no tiene acceso. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description El rol no alcanza. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description No existe. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Conflicto con el estado actual. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Datos inválidos. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problema"];
+                };
+            };
+        };
+    };
+    descartar_contenido: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                contenido_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ContenidoRed"];
                 };
             };
             /** @description Falta el token, no es válido o el usuario no tiene acceso. */
