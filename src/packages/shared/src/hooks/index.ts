@@ -15,3 +15,4 @@ export * from "./useTotalesAgenda";
 export * from "./hoteles";
 export * from "./dashboard";
 export * from "./calendario";
+export * from "./redes";

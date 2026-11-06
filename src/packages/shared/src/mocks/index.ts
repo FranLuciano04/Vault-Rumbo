@@ -19,3 +19,4 @@ export * from "./viajes";
 export * from "./oportunidades";
 export * from "./hoteles";
 export * from "./dashboard";
+export * from "./redes";

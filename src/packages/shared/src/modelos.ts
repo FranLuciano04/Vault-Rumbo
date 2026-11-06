@@ -213,3 +213,22 @@ export interface FiltrosCalendario extends FiltrosPeriodo {
   tipo?: EventoCalendario["tipo"];
   responsable_id?: string;
 }
+
+/** Redes e IA (M9): el tablero kanban de contenido y los borradores generados con IA. */
+export type ContenidoRed = Esquemas["ContenidoRed"];
+export type ContenidoRedCrear = Esquemas["ContenidoRedCrear"];
+export type ContenidoRedEditar = Esquemas["ContenidoRedEditar"];
+export type PropuestaIAPedido = Esquemas["PropuestaIAPedido"];
+export type PropuestaIA = Esquemas["PropuestaIA"];
+export type BorradorContenido = Esquemas["BorradorContenido"];
+export type CanalContenido = Esquemas["CanalContenido"];
+export type EstadoKanban = Esquemas["EstadoKanban"];
+
+/** Filtros del tablero y el calendario de contenido (`GET /api/contenidos`, CU-19). */
+export interface FiltrosContenidos extends FiltrosPeriodo {
+  /** Solo las piezas de esa columna. */
+  estado_kanban?: EstadoKanban;
+  canal?: CanalContenido;
+  pagina?: number;
+  por_pagina?: number;
+}
