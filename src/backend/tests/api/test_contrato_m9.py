@@ -27,15 +27,22 @@ EDICION = {"estado_kanban": "en_produccion", "fecha_publicacion": "2026-12-05"}
 PEDIDO_IA = {"tema": "Caribe en temporada baja", "canal": "tiktok", "tono": "cercano"}
 
 # (método, ruta del contrato, ruta concreta, cuerpo, CU, errores obligatorios)
-OPERACIONES: list[tuple[str, str, str, Any, str, set[str]]] = [
-    ("get", "/api/contenidos", "/api/contenidos", None, "CU-19", {"403", "422"}),
-    ("post", "/api/contenidos", "/api/contenidos", CONTENIDO, "CU-19", {"403", "422"}),
+OPERACIONES: list[tuple[str, str, str, Any, list[str], set[str]]] = [
+    ("get", "/api/contenidos", "/api/contenidos", None, ["CU-19"], {"403", "422"}),
+    (
+        "post",
+        "/api/contenidos",
+        "/api/contenidos",
+        CONTENIDO,
+        ["CU-19", "CU-20"],
+        {"403", "422"},
+    ),
     (
         "get",
         "/api/contenidos/{contenido_id}",
         f"/api/contenidos/{ID}",
         None,
-        "CU-19",
+        ["CU-19"],
         {"403", "404"},
     ),
     (
@@ -43,7 +50,7 @@ OPERACIONES: list[tuple[str, str, str, Any, str, set[str]]] = [
         "/api/contenidos/{contenido_id}",
         f"/api/contenidos/{ID}",
         EDICION,
-        "CU-19",
+        ["CU-19", "CU-20"],
         {"403", "404", "409", "422"},
     ),
     (
@@ -51,7 +58,7 @@ OPERACIONES: list[tuple[str, str, str, Any, str, set[str]]] = [
         "/api/contenidos/{contenido_id}/descartar",
         f"/api/contenidos/{ID}/descartar",
         None,
-        "CU-19",
+        ["CU-19"],
         {"403", "404", "409"},
     ),
     (
@@ -59,7 +66,7 @@ OPERACIONES: list[tuple[str, str, str, Any, str, set[str]]] = [
         "/api/contenidos/propuestas-ia",
         "/api/contenidos/propuestas-ia",
         PEDIDO_IA,
-        "CU-20",
+        ["CU-20"],
         {"403", "422", "502"},
     ),
 ]
@@ -122,7 +129,7 @@ def _parametros(contrato: dict[str, Any], ruta: str) -> dict[str, dict[str, Any]
 
 @pytest.mark.parametrize(("metodo", "ruta", "cu", "errores"), RUTAS_CONTRATO)
 async def test_cu19_contrato_publica_las_rutas_del_modulo(
-    contrato: dict[str, Any], metodo: str, ruta: str, cu: str, errores: set[str]
+    contrato: dict[str, Any], metodo: str, ruta: str, cu: list[str], errores: set[str]
 ) -> None:
     assert metodo in contrato["paths"][ruta]
     operacion = contrato["paths"][ruta][metodo]
@@ -147,14 +154,14 @@ async def test_cu19_son_exactamente_seis_operaciones(contrato: dict[str, Any]) -
 
 @pytest.mark.parametrize(("metodo", "ruta", "cu", "errores"), RUTAS_CONTRATO)
 async def test_cu19_contrato_declara_roles_sin_freelance_y_caso_de_uso(
-    contrato: dict[str, Any], metodo: str, ruta: str, cu: str, errores: set[str]
+    contrato: dict[str, Any], metodo: str, ruta: str, cu: list[str], errores: set[str]
 ) -> None:
     operacion = contrato["paths"][ruta][metodo]
 
     assert operacion["x-roles"] == ROLES_CON_ACCESO
     assert "freelance" not in operacion["description"]
-    assert cu in operacion["x-casos-de-uso"]
-    assert cu in operacion["description"]
+    assert operacion["x-casos-de-uso"] == cu
+    assert all(caso in operacion["description"] for caso in cu)
     assert "acceso al módulo de redes" in operacion["description"]
 
 
@@ -266,18 +273,22 @@ async def test_cu19_sin_token_responde_401_problem_json(
     assert r.headers["content-type"].startswith(PROBLEM_JSON)
 
 
-@pytest.mark.parametrize("rol", ROLES_CON_ACCESO)
+@pytest.mark.parametrize(
+    ("rol", "acceso_redes"),
+    [("admin", True), ("admin", False), ("dueno", True), ("dueno", False), ("empleado", True)],
+)
 @pytest.mark.parametrize(("metodo", "ruta", "cuerpo"), RUTAS_HTTP)
 async def test_cu19_con_acceso_a_redes_responde_501_problem_json(
     cliente_como: FabricaCliente,
     sesion: AsyncSession,
     rol: str,
+    acceso_redes: bool,
     metodo: str,
     ruta: str,
     cuerpo: Any,
 ) -> None:
     c = await cliente_como(rol)
-    c.usuario.acceso_redes = True  # type: ignore[attr-defined]
+    c.usuario.acceso_redes = acceso_redes  # type: ignore[attr-defined]
     await sesion.flush()
 
     r = await c.request(metodo, ruta, json=cuerpo)

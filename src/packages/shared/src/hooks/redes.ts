@@ -1,4 +1,4 @@
-import { keepPreviousData, useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useMutation, useQuery } from "@tanstack/react-query";
 import type { AxiosInstance } from "axios";
 import type {
   ContenidoRed,
@@ -61,11 +61,10 @@ export function useDescartarContenido(cliente: AxiosInstance) {
   );
 }
 
-/** Borradores con IA, sin guardar nada (`POST /api/contenidos/propuestas-ia`, CU-20); `502` si falla la IA. */
+/** Borradores con IA, sin guardar nada ni invalidar el tablero (`POST /api/contenidos/propuestas-ia`, CU-20); `502` si falla la IA. */
 export function useGenerarPropuestasIA(cliente: AxiosInstance) {
-  return useAccion(
-    claveContenidos,
-    async (pedido: PropuestaIAPedido) =>
+  return useMutation({
+    mutationFn: async (pedido: PropuestaIAPedido) =>
       (await cliente.post<PropuestaIA>("/api/contenidos/propuestas-ia", pedido)).data,
-  );
+  });
 }

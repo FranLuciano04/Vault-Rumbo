@@ -48,7 +48,16 @@ def _con_falla_de_ia(contrato: dict[str, Any]) -> dict[str, Any]:
     return contrato
 
 
-_LISTADO = _redes("CU-19", 422)
+def _con_descripcion(contrato: dict[str, Any], texto: str) -> dict[str, Any]:
+    contrato["description"] += f"\n\n{texto}"
+    return contrato
+
+
+_LISTADO = _con_descripcion(
+    _redes("CU-19", 422),
+    "Sin `estado_kanban` no trae las piezas `descartado`; "
+    "con `estado_kanban=descartado` las muestra.",
+)
 _LISTADO["responses"][200] = respuesta_pagina(
     "ContenidoRed", "Piezas del tablero, de la fecha de publicación más próxima a la más lejana."
 )
@@ -82,7 +91,7 @@ async def listar_contenidos(
     operation_id="crear_contenido",
     summary="Crear una pieza de contenido",
     status_code=201,
-    **_redes("CU-19", 422),
+    **_redes("CU-19, CU-20", 422),
 )
 async def crear_contenido(datos: ContenidoRedCrear) -> ContenidoRed:
     raise no_implementado()
@@ -90,11 +99,17 @@ async def crear_contenido(datos: ContenidoRedCrear) -> ContenidoRed:
 
 @router.post(
     "/contenidos/propuestas-ia",
-    operation_id="generar_propuestas_ia",
+    operation_id="generar_propuesta_ia",
     summary="Generar borradores de contenido con IA",
-    **_con_falla_de_ia(_redes("CU-20", 422)),
+    **_con_falla_de_ia(
+        _con_descripcion(
+            _redes("CU-20", 422),
+            "Una sola llamada a Claude Sonnet 5.5 con el tema, el canal y el tono indicados; "
+            "no envía datos del negocio (clientes, catálogo ni ventas).",
+        )
+    ),
 )
-async def generar_propuestas_ia(datos: PropuestaIAPedido) -> PropuestaIA:
+async def generar_propuesta_ia(datos: PropuestaIAPedido) -> PropuestaIA:
     """No guarda nada: devuelve borradores para que la persona los revise y guarde el elegido."""
     raise no_implementado()
 
@@ -113,7 +128,13 @@ async def obtener_contenido(contenido_id: uuid.UUID) -> ContenidoRed:
     "/contenidos/{contenido_id}",
     operation_id="editar_contenido",
     summary="Editar, reprogramar o mover una pieza en el tablero",
-    **_redes("CU-19", 404, 409, 422),
+    **_con_descripcion(
+        _redes("CU-19, CU-20", 404, 409, 422),
+        "Movimientos válidos: idea con en producción, en producción con listo, y listo a "
+        "publicado; cualquier otro cambio de estado da 409. Una pieza `publicado` o "
+        "`descartado` no admite ningún cambio, ni de fecha. `descartado` no se alcanza por "
+        "acá: solo con `/descartar`.",
+    ),
 )
 async def editar_contenido(contenido_id: uuid.UUID, cambios: ContenidoRedEditar) -> ContenidoRed:
     raise no_implementado()

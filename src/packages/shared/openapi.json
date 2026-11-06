@@ -9054,7 +9054,7 @@
           "redes"
         ],
         "summary": "Ver el tablero y el calendario de contenido",
-        "description": "**Roles:** admin, dueno, empleado.\n\n**Casos de uso:** CU-19.\n\nRequiere acceso al módulo de redes: admin y dueño lo tienen por rol; el empleado, si se lo habilitaron (`acceso_redes`). Sin él, 403.",
+        "description": "**Roles:** admin, dueno, empleado.\n\n**Casos de uso:** CU-19.\n\nRequiere acceso al módulo de redes: admin y dueño lo tienen por rol; el empleado, si se lo habilitaron (`acceso_redes`). Sin él, 403.\n\nSin `estado_kanban` no trae las piezas `descartado`; con `estado_kanban=descartado` las muestra.",
         "operationId": "listar_contenidos",
         "security": [
           {
@@ -9243,7 +9243,7 @@
           "redes"
         ],
         "summary": "Crear una pieza de contenido",
-        "description": "**Roles:** admin, dueno, empleado.\n\n**Casos de uso:** CU-19.\n\nRequiere acceso al módulo de redes: admin y dueño lo tienen por rol; el empleado, si se lo habilitaron (`acceso_redes`). Sin él, 403.",
+        "description": "**Roles:** admin, dueno, empleado.\n\n**Casos de uso:** CU-19, CU-20.\n\nRequiere acceso al módulo de redes: admin y dueño lo tienen por rol; el empleado, si se lo habilitaron (`acceso_redes`). Sin él, 403.",
         "operationId": "crear_contenido",
         "security": [
           {
@@ -9308,7 +9308,8 @@
           "empleado"
         ],
         "x-casos-de-uso": [
-          "CU-19"
+          "CU-19",
+          "CU-20"
         ]
       }
     },
@@ -9318,8 +9319,8 @@
           "redes"
         ],
         "summary": "Generar borradores de contenido con IA",
-        "description": "**Roles:** admin, dueno, empleado.\n\n**Casos de uso:** CU-20.\n\nRequiere acceso al módulo de redes: admin y dueño lo tienen por rol; el empleado, si se lo habilitaron (`acceso_redes`). Sin él, 403.",
-        "operationId": "generar_propuestas_ia",
+        "description": "**Roles:** admin, dueno, empleado.\n\n**Casos de uso:** CU-20.\n\nRequiere acceso al módulo de redes: admin y dueño lo tienen por rol; el empleado, si se lo habilitaron (`acceso_redes`). Sin él, 403.\n\nUna sola llamada a Claude Sonnet 5.5 con el tema, el canal y el tono indicados; no envía datos del negocio (clientes, catálogo ni ventas).",
+        "operationId": "generar_propuesta_ia",
         "requestBody": {
           "content": {
             "application/json": {
@@ -9488,7 +9489,7 @@
           "redes"
         ],
         "summary": "Editar, reprogramar o mover una pieza en el tablero",
-        "description": "**Roles:** admin, dueno, empleado.\n\n**Casos de uso:** CU-19.\n\nRequiere acceso al módulo de redes: admin y dueño lo tienen por rol; el empleado, si se lo habilitaron (`acceso_redes`). Sin él, 403.",
+        "description": "**Roles:** admin, dueno, empleado.\n\n**Casos de uso:** CU-19, CU-20.\n\nRequiere acceso al módulo de redes: admin y dueño lo tienen por rol; el empleado, si se lo habilitaron (`acceso_redes`). Sin él, 403.\n\nMovimientos válidos: idea con en producción, en producción con listo, y listo a publicado; cualquier otro cambio de estado da 409. Una pieza `publicado` o `descartado` no admite ningún cambio, ni de fecha. `descartado` no se alcanza por acá: solo con `/descartar`.",
         "operationId": "editar_contenido",
         "security": [
           {
@@ -9585,7 +9586,8 @@
           "empleado"
         ],
         "x-casos-de-uso": [
-          "CU-19"
+          "CU-19",
+          "CU-20"
         ]
       }
     },

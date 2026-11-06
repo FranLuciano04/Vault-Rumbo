@@ -13,6 +13,14 @@ import { auditoriaMock } from "./viajes";
 const canales = ["instagram", "tiktok", "whatsapp_ventas"];
 const estados = ["idea", "en_produccion", "listo", "publicado", "descartado"];
 
+/** Movimientos válidos del kanban (EST-ContenidoRed): se arrastra en los dos sentidos hasta
+ * `listo`, y solo se publica desde `listo`. `descartado` se alcanza con `/descartar`. */
+const movimientos: Partial<Record<ContenidoRed["estado_kanban"], string[]>> = {
+  idea: ["en_produccion"],
+  en_produccion: ["idea", "listo"],
+  listo: ["en_produccion", "publicado"],
+};
+
 const base = { ...auditoriaMock, usuario_id: usuariosPorRol.empleado.id };
 
 /** Piezas ficticias del tablero: al menos una en cada columna del kanban (CU-19). */
@@ -102,8 +110,8 @@ export function manejadoresRedesPara(
   rol: RolMock,
   accesoRedes: boolean = usuariosPorRol[rol].acceso_redes,
 ): RequestHandler[] {
-  const entra = rol !== "freelance" && accesoRedes;
-  const piezas = contenidosMock.map((c) => ({ ...c }));
+  // Admin y dueño entran por rol, sin importar `accesoRedes`; el empleado, si lo tiene (DEC-0013).
+  const entra = rol === "admin" || rol === "dueno" || (rol === "empleado" && accesoRedes);
 
   return [
     http.get("*/api/contenidos", ({ request }) => {
@@ -115,10 +123,10 @@ export function manejadoresRedesPara(
       if ((estado && !estados.includes(estado)) || (canal && !canales.includes(canal))) {
         return datosInvalidos("Filtro desconocido.");
       }
-      const filtradas = piezas
+      const filtradas = contenidosMock
         .filter(
           (c) =>
-            (!estado || c.estado_kanban === estado) &&
+            (estado ? c.estado_kanban === estado : c.estado_kanban !== "descartado") &&
             (!canal || c.canal === canal) &&
             (!filtro("desde") || c.fecha_publicacion >= String(filtro("desde"))) &&
             (!filtro("hasta") || c.fecha_publicacion <= String(filtro("hasta"))),
@@ -156,17 +164,14 @@ export function manejadoresRedesPara(
 
     http.get("*/api/contenidos/:id", ({ params }) => {
       if (!entra) return sinPermiso();
-      const c = piezas.find((x) => x.id === params["id"]);
+      const c = contenidosMock.find((x) => x.id === params["id"]);
       return c ? HttpResponse.json(c) : noEncontrado();
     }),
 
     http.patch("*/api/contenidos/:id", async ({ params, request }) => {
       if (!entra) return sinPermiso();
-      const c = piezas.find((x) => x.id === params["id"]);
+      const c = contenidosMock.find((x) => x.id === params["id"]);
       if (!c) return noEncontrado();
-      if (c.estado_kanban === "descartado") {
-        return conflicto("La pieza está descartada: no se edita ni se mueve.");
-      }
       const cambios = (await request.json()) as ContenidoRedEditar;
       if (
         (cambios.estado_kanban && !estados.includes(cambios.estado_kanban)) ||
@@ -174,12 +179,23 @@ export function manejadoresRedesPara(
       ) {
         return datosInvalidos("Estado o canal desconocido.");
       }
+      if (c.estado_kanban === "publicado" || c.estado_kanban === "descartado") {
+        return conflicto(`La pieza está ${c.estado_kanban}: no admite cambios.`);
+      }
+      const destino = cambios.estado_kanban;
+      if (
+        destino &&
+        destino !== c.estado_kanban &&
+        !movimientos[c.estado_kanban]?.includes(destino)
+      ) {
+        return conflicto(`No se pasa de ${c.estado_kanban} a ${destino}.`);
+      }
       return HttpResponse.json({ ...c, ...cambios });
     }),
 
     http.post("*/api/contenidos/:id/descartar", ({ params }) => {
       if (!entra) return sinPermiso();
-      const c = piezas.find((x) => x.id === params["id"]);
+      const c = contenidosMock.find((x) => x.id === params["id"]);
       if (!c) return noEncontrado();
       return c.estado_kanban === "publicado" || c.estado_kanban === "descartado"
         ? conflicto("Solo se descarta una pieza que todavía no se publicó ni se descartó.")

@@ -1833,6 +1833,8 @@ export interface paths {
          *     **Casos de uso:** CU-19.
          *
          *     Requiere acceso al módulo de redes: admin y dueño lo tienen por rol; el empleado, si se lo habilitaron (`acceso_redes`). Sin él, 403.
+         *
+         *     Sin `estado_kanban` no trae las piezas `descartado`; con `estado_kanban=descartado` las muestra.
          */
         get: operations["listar_contenidos"];
         put?: never;
@@ -1840,7 +1842,7 @@ export interface paths {
          * Crear una pieza de contenido
          * @description **Roles:** admin, dueno, empleado.
          *
-         *     **Casos de uso:** CU-19.
+         *     **Casos de uso:** CU-19, CU-20.
          *
          *     Requiere acceso al módulo de redes: admin y dueño lo tienen por rol; el empleado, si se lo habilitaron (`acceso_redes`). Sin él, 403.
          */
@@ -1867,8 +1869,10 @@ export interface paths {
          *     **Casos de uso:** CU-20.
          *
          *     Requiere acceso al módulo de redes: admin y dueño lo tienen por rol; el empleado, si se lo habilitaron (`acceso_redes`). Sin él, 403.
+         *
+         *     Una sola llamada a Claude Sonnet 5.5 con el tema, el canal y el tono indicados; no envía datos del negocio (clientes, catálogo ni ventas).
          */
-        post: operations["generar_propuestas_ia"];
+        post: operations["generar_propuesta_ia"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1900,9 +1904,11 @@ export interface paths {
          * Editar, reprogramar o mover una pieza en el tablero
          * @description **Roles:** admin, dueno, empleado.
          *
-         *     **Casos de uso:** CU-19.
+         *     **Casos de uso:** CU-19, CU-20.
          *
          *     Requiere acceso al módulo de redes: admin y dueño lo tienen por rol; el empleado, si se lo habilitaron (`acceso_redes`). Sin él, 403.
+         *
+         *     Movimientos válidos: idea con en producción, en producción con listo, y listo a publicado; cualquier otro cambio de estado da 409. Una pieza `publicado` o `descartado` no admite ningún cambio, ni de fecha. `descartado` no se alcanza por acá: solo con `/descartar`.
          */
         patch: operations["editar_contenido"];
         trace?: never;
@@ -9854,7 +9860,7 @@ export interface operations {
             };
         };
     };
-    generar_propuestas_ia: {
+    generar_propuesta_ia: {
         parameters: {
             query?: never;
             header?: never;
