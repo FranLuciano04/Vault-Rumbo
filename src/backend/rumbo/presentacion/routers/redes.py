@@ -1,4 +1,4 @@
-"""Rutas del módulo redes (CU-19, CU-20). Son stubs que responden 501."""
+"""Rutas del módulo redes: tablero de contenido (CU-19); la propuesta con IA (CU-20) da 501."""
 
 import uuid
 from datetime import date
@@ -6,9 +6,12 @@ from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends, Query
 
+from rumbo.core.db import SesionDep
+from rumbo.datos import modelos
 from rumbo.datos.modelos import CanalContenido, EstadoKanban, RolUsuario
+from rumbo.negocio.servicios import redes
 from rumbo.presentacion.contrato import no_implementado, operacion, respuesta_pagina
-from rumbo.presentacion.dependencias import exigir_acceso_redes
+from rumbo.presentacion.dependencias import exigir_acceso_redes, usuario_actual
 from rumbo.presentacion.esquemas.comunes import Problema
 from rumbo.presentacion.esquemas.redes import (
     ContenidoRed,
@@ -21,6 +24,7 @@ from rumbo.presentacion.paginacion import Pagina, ParametrosPagina, parametros_p
 
 router = APIRouter(tags=["redes"])
 
+ActorDep = Annotated[modelos.Usuario, Depends(usuario_actual)]
 PaginaDep = Annotated[ParametrosPagina, Depends(parametros_pagina)]
 
 # El freelance no usa el módulo, tenga o no la capacidad; el resto, solo con acceso a redes
@@ -71,6 +75,8 @@ _LISTADO["responses"][200] = respuesta_pagina(
     **_LISTADO,
 )
 async def listar_contenidos(
+    actor: ActorDep,
+    sesion: SesionDep,
     paginacion: PaginaDep,
     desde: Annotated[
         date | None, Query(description="Fecha de publicación desde la que se listan, inclusive.")
@@ -83,7 +89,22 @@ async def listar_contenidos(
     ] = None,
     canal: Annotated[CanalContenido | None, Query(description="Solo ese canal.")] = None,
 ) -> Pagina[ContenidoRed]:
-    raise no_implementado()
+    piezas, total = await redes.listar_contenidos(
+        sesion,
+        actor,
+        desde=desde,
+        hasta=hasta,
+        estado_kanban=estado_kanban,
+        canal=canal,
+        desplazamiento=paginacion.desplazamiento,
+        limite=paginacion.por_pagina,
+    )
+    return Pagina(
+        items=[ContenidoRed.model_validate(p) for p in piezas],
+        total=total,
+        pagina=paginacion.pagina,
+        por_pagina=paginacion.por_pagina,
+    )
 
 
 @router.post(
@@ -93,8 +114,11 @@ async def listar_contenidos(
     status_code=201,
     **_redes("CU-19, CU-20", 422),
 )
-async def crear_contenido(datos: ContenidoRedCrear) -> ContenidoRed:
-    raise no_implementado()
+async def crear_contenido(
+    datos: ContenidoRedCrear, actor: ActorDep, sesion: SesionDep
+) -> ContenidoRed:
+    pieza = await redes.crear_contenido(sesion, actor, **datos.model_dump())
+    return ContenidoRed.model_validate(pieza)
 
 
 @router.post(
@@ -120,8 +144,10 @@ async def generar_propuesta_ia(datos: PropuestaIAPedido) -> PropuestaIA:
     summary="Ver una pieza de contenido",
     **_redes("CU-19", 404),
 )
-async def obtener_contenido(contenido_id: uuid.UUID) -> ContenidoRed:
-    raise no_implementado()
+async def obtener_contenido(
+    contenido_id: uuid.UUID, actor: ActorDep, sesion: SesionDep
+) -> ContenidoRed:
+    return ContenidoRed.model_validate(await redes.obtener_contenido(sesion, actor, contenido_id))
 
 
 @router.patch(
@@ -136,8 +162,13 @@ async def obtener_contenido(contenido_id: uuid.UUID) -> ContenidoRed:
         "acá: solo con `/descartar`.",
     ),
 )
-async def editar_contenido(contenido_id: uuid.UUID, cambios: ContenidoRedEditar) -> ContenidoRed:
-    raise no_implementado()
+async def editar_contenido(
+    contenido_id: uuid.UUID, cambios: ContenidoRedEditar, actor: ActorDep, sesion: SesionDep
+) -> ContenidoRed:
+    pieza = await redes.editar_contenido(
+        sesion, actor, contenido_id, cambios.model_dump(exclude_unset=True)
+    )
+    return ContenidoRed.model_validate(pieza)
 
 
 @router.post(
@@ -146,6 +177,9 @@ async def editar_contenido(contenido_id: uuid.UUID, cambios: ContenidoRedEditar)
     summary="Descartar una pieza (baja lógica)",
     **_redes("CU-19", 404, 409),
 )
-async def descartar_contenido(contenido_id: uuid.UUID) -> ContenidoRed:
+async def descartar_contenido(
+    contenido_id: uuid.UUID, actor: ActorDep, sesion: SesionDep
+) -> ContenidoRed:
     """Pasa a `descartado` desde cualquier columna previa a `publicado` (CU-19 A4)."""
-    raise no_implementado()
+    pieza = await redes.descartar_contenido(sesion, actor, contenido_id)
+    return ContenidoRed.model_validate(pieza)
