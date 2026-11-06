@@ -55,6 +55,7 @@ La revisión fue estática, con reproducción aislada del desfase horario; no se
 
 ### H-02 · Los contadores navegan sin los filtros de su detalle
 - **Resultado:** confirmado. Importante.
+- **PR:** #195, mergeado. Los menores que quedan están en el PR.
 - **Motivo:** `PaginaDashboard` no usa `data.detalles` y sus rutas son fijas. `PaginaViajes` y `PaginaOportunidades` guardan sus filtros en `useState` y no leen la URL. Incumple RF-128.
 - **Alcance:**
   - «Reservas confirmadas» abre `/viajes` con el estado `confirmado` aplicado.
@@ -65,6 +66,7 @@ La revisión fue estática, con reproducción aislada del desfase horario; no se
 
 ### H-03 · Reportes elige el mes según la zona horaria del navegador
 - **Resultado:** confirmado. Importante.
+- **PR:** #194, mergeado.
 - **Motivo:** `mesEnCurso()` usa `getFullYear()` y `getMonth()` locales. `hoyEnBuenosAires()` ya existe en `@rumbo/shared`.
 - **Alcance:**
   - Con el navegador en UTC a las `2026-12-01T01:00:00Z`, Reportes consulta del 2026-11-01 al 2026-11-30.

@@ -33,6 +33,15 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
+## 05/11/26 — Nahuel (Claude Opus 5.5) — Review de M8
+- **Hecho:**
+  - Pedido de review para Codex y triage de sus 3 hallazgos: 2 importantes confirmados y 1 bloqueante no confirmado.
+  - H-03 (PR #194): Reportes abre en el mes de Buenos Aires, no en el del navegador.
+  - H-02 (PR #195): los contadores del dashboard llevan a su detalle con los filtros, y Viajes, Oportunidades y Agenda leen la URL.
+  - H-01 no se confirmó: la prohibición de ganancia y margen salió de una frase del pedido de review, sin respaldo en el vault, y `GET /viajes/{id}` ya los entrega.
+- **Commits:** `81db5eb` pedido, `13034e4` triage; merges `cb2dd8b` y el de #195.
+- **Pendiente:** decidir H-01 (descartarlo o llevarlo a una `DEC-`), consultar los menores anotados y aprobar el cierre para poner `mod-8`.
+
 ## 05/11/26 — Nahuel (Claude Opus 5.5) — T-128: probar de punta a punta el tablero de gestión
 - **Hecho:**
   - `gestion.spec.ts` prueba contra el sistema real el calendario con datos de la semilla, el dashboard de la dueña y de un empleado, y la descarga de un reporte a Excel y PDF.
