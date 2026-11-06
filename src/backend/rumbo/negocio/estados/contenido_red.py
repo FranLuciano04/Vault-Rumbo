@@ -23,8 +23,6 @@ def _exigir_abierta(pieza: ContenidoRed, accion: str) -> None:
 
 def editar(pieza: ContenidoRed, cambios: dict[str, Any]) -> None:
     """Aplica los cambios o ninguno: valida el movimiento antes de tocar la pieza."""
-    if not cambios:
-        return
     _exigir_abierta(pieza, "modificar")
     destino = cambios.get("estado_kanban", pieza.estado_kanban)
     if destino is not pieza.estado_kanban and destino not in _MOVIMIENTOS[pieza.estado_kanban]:

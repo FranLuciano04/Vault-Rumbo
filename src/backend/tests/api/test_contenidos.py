@@ -233,6 +233,7 @@ async def test_rf114_marcar_publicada_a_mano_a3(
         ("idea", "listo"),
         ("idea", "publicado"),
         ("en_produccion", "publicado"),
+        ("listo", "idea"),
     ],
 )
 async def test_rf114_salto_de_columna_invalido_409(
@@ -269,6 +270,7 @@ async def test_rf114_descartado_no_se_alcanza_por_patch_409(
         {"fecha_publicacion": "2027-01-01"},
         {"estado_kanban": "idea"},
         {"estado_kanban": "en_produccion"},
+        {},
     ],
 )
 async def test_rf114_publicado_y_descartado_no_admiten_cambios_409(
@@ -348,9 +350,7 @@ async def test_rf115_reprogramar_y_mover_en_el_mismo_pedido(
     assert r.json()["fecha_publicacion"] == "2026-12-05"
 
 
-async def test_rf115_fecha_invalida_422(
-    cliente_como: FabricaCliente, sesion: AsyncSession
-) -> None:
+async def test_rf115_fecha_invalida_422(cliente_como: FabricaCliente, sesion: AsyncSession) -> None:
     c = await _con_redes(cliente_como)
     pieza = await _pieza(sesion, _yo(c))
 
@@ -615,3 +615,18 @@ async def test_rf118_no_existe_ninguna_ruta_de_publicacion(
     rutas = (await cliente_sin_sesion.get("/api/openapi.json")).json()["paths"]
 
     assert not [r for r in rutas if "publicar" in r]
+
+
+async def test_rf113_editar_registra_quien_modifico_y_conserva_quien_creo(
+    cliente_como: FabricaCliente, sesion: AsyncSession
+) -> None:
+    autor = await _con_redes(cliente_como, "empleado")
+    otro = await _con_redes(cliente_como, "dueno")
+    await sesion.flush()
+    creada = (await autor.post("/api/contenidos", json=NUEVA)).json()
+
+    r = await otro.patch(f"/api/contenidos/{creada['id']}", json={"titulo": "Cambiado"})
+
+    assert r.status_code == 200
+    assert r.json()["created_by"] == str(_yo(autor).id)
+    assert r.json()["updated_by"] == str(_yo(otro).id)

@@ -6,17 +6,19 @@ from typing import Any
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from rumbo.datos.modelos import CanalContenido, ContenidoRed, EstadoKanban, Usuario
+from rumbo.datos.modelos import CanalContenido, ContenidoRed, EstadoKanban, RolUsuario, Usuario
 from rumbo.datos.repositorios.contenidos import RepositorioContenidos
 from rumbo.negocio.errores import SinPermiso
 from rumbo.negocio.estados import contenido_red
-from rumbo.negocio.politicas import tiene_acceso_redes, visibilidad
+from rumbo.negocio.politicas import exigir_rol, tiene_acceso_redes, visibilidad
 
 _contenidos = RepositorioContenidos()
 
 
 def _exigir_acceso(actor: Usuario) -> None:
-    """La lectura por fila es global, así que el acceso a redes se chequea acá (DEC-0013)."""
+    """La lectura por fila es global, así que el rol y el acceso a redes se chequean acá
+    (DEC-0008, DEC-0013): el freelance nunca entra, tenga o no la capacidad."""
+    exigir_rol(actor, RolUsuario.admin, RolUsuario.dueno, RolUsuario.empleado)
     if not tiene_acceso_redes(actor):
         raise SinPermiso("No tenés acceso al módulo de redes")
 
