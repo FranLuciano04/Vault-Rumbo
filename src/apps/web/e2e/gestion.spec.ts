@@ -1,7 +1,7 @@
 import { readFile } from "node:fs/promises";
 import { expect, test } from "@playwright/test";
 import { api, armarViaje, hoy, ingresar, type Id, type PagoApi, SUFIJO, tokenDe } from "./apoyo";
-import { DUENA, elegirContrasena } from "./compose";
+import { DUENA, elegirContrasena, URL_BASE } from "./compose";
 
 // T-128: el tablero de gestión (CU-21 dashboard, CU-22 reportes, CU-23 calendario) contra el
 // sistema real y las semillas de demo (`datos-iniciales --demo`). Los datos propios se arman por
@@ -24,7 +24,6 @@ interface MontoApi {
 
 interface DashboardApi {
   cobrado: MontoApi[];
-  ventas_por_vendedor: { vendedor_id: string }[];
 }
 
 const mesEnCurso = () => {
@@ -37,11 +36,21 @@ const mesEnCurso = () => {
 const totalCobrado = (montos: MontoApi[]) =>
   montos.reduce((suma, m) => suma + Number(m.monto), 0);
 
+/** Como `formatearImporte` del front para ARS: «$ 1.234,50». */
+const enPesos = (monto: number) =>
+  `$ ${monto.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+
+/** El importe como texto completo: sin dígitos ni separadores pegados a la izquierda ni a la derecha. */
+const importeExacto = (importe: string) =>
+  new RegExp(String.raw`(?<![\d.,])${importe.replace(/[$.]/g, String.raw`\$&`)}(?![\d.,])`);
+
+const ARS = (montos: MontoApi[]) => montos.filter((m) => m.moneda === "ARS");
+
 test.describe.serial("Tablero de gestión de punta a punta", () => {
   const emailEmpleado = `empleado-gestion-${SUFIJO}@rumbo.test`;
   let duena: string;
   let empleado: string;
-  let viajeDeHoy: { viajeId: string; nombreDestino: string };
+  let viajeDeHoy: { viajeId: string; nombreDestino: string; nombreCliente: string };
 
   test.beforeAll(async () => {
     test.setTimeout(120_000);
@@ -76,14 +85,26 @@ test.describe.serial("Tablero de gestión de punta a punta", () => {
   });
 
   test("RF-136 calendario: muestra los viajes y vencimientos de la semilla", async ({ page }) => {
-    // Semilla de demo: viajes entre -30 y +100 días con pagos de -90 a +60 días.
+    // Semilla de demo: viajes entre -30 y +100 días con pagos de -90 a +60 días. «Pareja Demo
+    // Fernández — Cancún» está en curso (salida -2, regreso +7): siempre contiene hoy. Los pagos
+    // de la semilla (-90 a +60 días) dejan siempre al menos uno en el mes en curso.
     const { desde, hasta } = mesEnCurso();
     const delMes = await api<EventoApi[]>(duena, "GET", `/calendario?desde=${desde}&hasta=${hasta}`);
     const viajes = delMes.filter((e) => e.tipo === "viaje");
     const vencimientos = delMes.filter((e) => e.tipo === "vencimiento");
-    expect(viajes.length, "debería haber viajes en el mes en curso").toBeGreaterThan(0);
-    expect(vencimientos.length, "debería haber vencimientos en el mes en curso").toBeGreaterThan(0);
-    const delViajeDeHoy = delMes.filter((e) => e.viaje_id === viajeDeHoy.viajeId);
+    const viajeDeLaSemilla = "Pareja Demo Fernández — Cancún";
+    expect(
+      viajes.map((e) => e.titulo),
+      "el viaje en curso de la semilla",
+    ).toContain(viajeDeLaSemilla);
+    expect(
+      vencimientos.filter((e) => !e.titulo.includes("E2E")).length,
+      "algún vencimiento de la semilla (los de los e2e llevan «E2E» en el cliente)",
+    ).toBeGreaterThan(0);
+    // Las alertas del viaje (salida, formularios) también llevan su `viaje_id`: se excluyen.
+    const delViajeDeHoy = delMes.filter(
+      (e) => e.viaje_id === viajeDeHoy.viajeId && e.tipo !== "alerta",
+    );
     expect(delViajeDeHoy.map((e) => e.tipo).sort()).toEqual(["vencimiento", "viaje"]);
 
     await ingresar(page, DUENA.email, DUENA.password);
@@ -96,14 +117,15 @@ test.describe.serial("Tablero de gestión de punta a punta", () => {
         `el calendario debería mostrar «${evento.titulo}»`,
       ).toBeAttached();
     }
+    await expect(page.getByRole("link", { name: viajeDeLaSemilla }).first()).toBeVisible();
     await expect(page.getByRole("link", { name: viajeDeHoy.nombreDestino }).first()).toBeVisible();
 
-    // El filtro por tipo deja solo los vencimientos.
+    // El filtro por tipo deja solo los vencimientos: el título del viaje lleva el destino.
     await page.getByLabel("Tipo").selectOption("vencimiento");
-    await expect(page.getByRole("link", { name: viajeDeHoy.nombreDestino })).toHaveCount(
-      delViajeDeHoy.filter((e) => e.tipo === "vencimiento" && e.titulo.includes(viajeDeHoy.nombreDestino))
-        .length,
-    );
+    await expect(
+      page.getByRole("link", { name: `Vence un pago de ${viajeDeHoy.nombreCliente}` }).first(),
+    ).toBeVisible();
+    await expect(page.getByRole("link", { name: viajeDeHoy.nombreDestino })).toHaveCount(0);
   });
 
   test("RF-129 dashboard por rol: la dueña y un empleado ven cifras distintas", async ({
@@ -114,27 +136,41 @@ test.describe.serial("Tablero de gestión de punta a punta", () => {
     expect(totalCobrado(deLaDuena.cobrado)).toBeGreaterThan(totalCobrado(delEmpleado.cobrado));
     expect(totalCobrado(delEmpleado.cobrado), "el empleado ve su propia venta").toBeGreaterThan(0);
 
-    const paginaDuena = await (await browser.newContext()).newPage();
-    await ingresar(paginaDuena, DUENA.email, DUENA.password);
-    await paginaDuena.getByRole("link", { name: "Dashboard" }).click();
-    await expect(paginaDuena.getByRole("heading", { name: "Dashboard" })).toBeVisible();
-    const cobradoDuena = paginaDuena.getByRole("link", { name: /Cobrado a pasajeros/ });
-    await expect(cobradoDuena).toBeVisible();
-    await expect(paginaDuena.getByText("Ventas por vendedor")).toBeVisible();
-    await expect(paginaDuena.getByLabel("Empleado")).toBeVisible();
-    const textoDuena = (await cobradoDuena.textContent()) ?? "";
+    const esperadoDuena = enPesos(totalCobrado(ARS(deLaDuena.cobrado)));
+    const esperadoEmpleado = enPesos(totalCobrado(ARS(delEmpleado.cobrado)));
+    expect(esperadoEmpleado).toBe("$ 250.000,00");
+    expect(esperadoDuena).not.toBe(esperadoEmpleado);
 
-    const paginaEmpleado = await (await browser.newContext()).newPage();
-    await ingresar(paginaEmpleado, emailEmpleado, CLAVE);
-    await paginaEmpleado.getByRole("link", { name: "Dashboard" }).click();
-    await expect(paginaEmpleado.getByRole("heading", { name: "Dashboard" })).toBeVisible();
-    const cobradoEmpleado = paginaEmpleado.getByRole("link", { name: /Cobrado a tus pasajeros/ });
-    await expect(cobradoEmpleado).toBeVisible();
-    await expect(cobradoEmpleado).toContainText(/250\.000/);
-    await expect(paginaEmpleado.getByText("Ventas por vendedor")).toHaveCount(0);
-    await expect(paginaEmpleado.getByLabel("Empleado")).toHaveCount(0);
-    await expect(paginaEmpleado.getByText(/Ves solo tus ventas/)).toBeVisible();
-    expect((await cobradoEmpleado.textContent()) ?? "").not.toEqual(textoDuena);
+    const contextoDuena = await browser.newContext({ baseURL: URL_BASE, locale: "es-AR" });
+    const contextoEmpleado = await browser.newContext({ baseURL: URL_BASE, locale: "es-AR" });
+    try {
+      const paginaDuena = await contextoDuena.newPage();
+      await ingresar(paginaDuena, DUENA.email, DUENA.password);
+      await paginaDuena.getByRole("link", { name: "Dashboard" }).click();
+      await expect(paginaDuena.getByRole("heading", { name: "Dashboard" })).toBeVisible();
+      const cobradoDuena = paginaDuena.getByRole("link", { name: /Cobrado a pasajeros/ });
+      await expect(cobradoDuena).toBeVisible();
+      await expect(cobradoDuena).toContainText(importeExacto(esperadoDuena));
+      await expect(paginaDuena.getByText("Ventas por vendedor")).toBeVisible();
+      await expect(paginaDuena.getByLabel("Empleado")).toBeVisible();
+
+      const paginaEmpleado = await contextoEmpleado.newPage();
+      await ingresar(paginaEmpleado, emailEmpleado, CLAVE);
+      await paginaEmpleado.getByRole("link", { name: "Dashboard" }).click();
+      await expect(paginaEmpleado.getByRole("heading", { name: "Dashboard" })).toBeVisible();
+      const cobradoEmpleado = paginaEmpleado.getByRole("link", {
+        name: /Cobrado a tus pasajeros/,
+      });
+      await expect(cobradoEmpleado).toBeVisible();
+      await expect(cobradoEmpleado).toContainText(importeExacto(esperadoEmpleado));
+      await expect(cobradoEmpleado).not.toContainText(importeExacto(esperadoDuena));
+      await expect(paginaEmpleado.getByText("Ventas por vendedor")).toHaveCount(0);
+      await expect(paginaEmpleado.getByLabel("Empleado")).toHaveCount(0);
+      await expect(paginaEmpleado.getByText(/Ves solo tus ventas/)).toBeVisible();
+    } finally {
+      await contextoDuena.close();
+      await contextoEmpleado.close();
+    }
   });
 
   test("RF-133 exportar: un reporte se descarga a Excel y a PDF", async ({ page }) => {

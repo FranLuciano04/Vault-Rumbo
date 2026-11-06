@@ -95,7 +95,7 @@ export interface OpcionesViaje {
   plan: PagoPlan[];
   /** Asesor asignado al cliente; por defecto, ninguno. */
   asesorId?: string;
-  /** Responsable del viaje (el que acota el dashboard del empleado); por defecto, quien reserva. */
+  /** Responsable del viaje (el que acota el dashboard del empleado); por defecto, el de la oportunidad. */
   responsableId?: string;
   /** Días desde hoy; por defecto, salida a 120 y regreso a 128. */
   salidaEnDias?: number;
