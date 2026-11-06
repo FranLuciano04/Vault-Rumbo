@@ -38,7 +38,7 @@ const asesores = [
   { id: "e7b20d94-6a3f-4c15-9d8e-0b5a3f7c2e04", nombre: "Tomás Roldán" },
 ];
 
-function renderAgenda(rol: RolMock = "empleado") {
+function renderAgenda(rol: RolMock = "empleado", ruta = "/agenda") {
   if (rol === "admin" || rol === "dueno") {
     servidor.use(http.get("*/api/usuarios/asesores", () => HttpResponse.json(asesores)));
   }
@@ -46,7 +46,7 @@ function renderAgenda(rol: RolMock = "empleado") {
     <QueryClientProvider
       client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}
     >
-      <MemoryRouter initialEntries={["/agenda"]}>
+      <MemoryRouter initialEntries={[ruta]}>
         <PaginaAgenda cliente={cliente} usuario={usuariosPorRol[rol]} />
       </MemoryRouter>
     </QueryClientProvider>,
@@ -623,5 +623,41 @@ describe("RF-078 agenda de la agencia", () => {
     const f = await fila(FORMULARIO);
 
     expect(within(f).queryByText(/Ana Pérez/)).not.toBeInTheDocument();
+  });
+});
+
+describe("RF-128 agenda: filtros que llegan en la URL desde el dashboard", () => {
+  const pedidosDeAlertas = (pedidos: URLSearchParams[]) =>
+    http.get("*/api/alertas", ({ request }) => {
+      pedidos.push(new URL(request.url).searchParams);
+      return undefined;
+    });
+
+  it.each<RolMock>(["admin", "dueno"])(
+    "RF-128 %s con ?propietario_id= pide las alertas de ese responsable y lo deja elegido",
+    async (rol) => {
+      const pedidos: URLSearchParams[] = [];
+      servidor.use(pedidosDeAlertas(pedidos));
+      renderAgenda(rol, `/agenda?estado=pendiente&propietario_id=${asesores[1]?.id}`);
+
+      await screen.findByRole("option", { name: "Tomás Roldán" });
+
+      await waitFor(() => {
+        expect(screen.getByRole("combobox", { name: /responsable/i })).toHaveValue(asesores[1]?.id);
+      });
+      expect(pedidos.length).toBeGreaterThan(0);
+      expect(pedidos.every((p) => p.get("propietario_id") === asesores[1]?.id)).toBe(true);
+    },
+  );
+
+  it("RF-128 sin parámetros en la URL la agenda pide sin propietario_id", async () => {
+    const pedidos: URLSearchParams[] = [];
+    servidor.use(pedidosDeAlertas(pedidos));
+    renderAgenda("dueno");
+
+    await screen.findByText(PAGO);
+
+    expect(pedidos.length).toBeGreaterThan(0);
+    expect(pedidos.every((p) => !p.has("propietario_id"))).toBe(true);
   });
 });

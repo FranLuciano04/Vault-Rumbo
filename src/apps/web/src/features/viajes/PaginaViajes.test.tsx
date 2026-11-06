@@ -30,12 +30,12 @@ afterAll(() => {
 
 const cliente = crearCliente({ baseURL: "http://localhost", obtenerToken: () => "token" });
 
-function renderListado(rol: RolMock = "empleado") {
+function renderListado(rol: RolMock = "empleado", ruta = "/viajes") {
   return render(
     <QueryClientProvider
       client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}
     >
-      <MemoryRouter initialEntries={["/viajes"]}>
+      <MemoryRouter initialEntries={[ruta]}>
         <PaginaViajes cliente={cliente} usuario={usuariosPorRol[rol]} />
       </MemoryRouter>
     </QueryClientProvider>,
@@ -230,5 +230,88 @@ describe("RF-037 listado de viajes", () => {
 
     expect(await screen.findByRole("alert")).toHaveTextContent(/no pudimos cargar los viajes/i);
     expect(screen.queryByRole("table")).not.toBeInTheDocument();
+  });
+});
+
+describe("RF-128 viajes: filtros que llegan en la URL desde el dashboard", () => {
+  it.each<RolMock>(["admin", "dueno", "empleado"])(
+    "RF-128 %s con ?estado=confirmado pide el listado con ese estado desde la primera carga",
+    async (rol) => {
+      const pedidos: URLSearchParams[] = [];
+      servidor.use(registrarListados(pedidos));
+      renderListado(rol, "/viajes?estado=confirmado");
+
+      await fila("Brasil");
+
+      expect(pedidos.length).toBeGreaterThan(0);
+      expect(pedidos.every((p) => p.get("estado") === "confirmado")).toBe(true);
+      expect(screen.getByRole("button", { name: "Confirmado" })).toHaveAttribute(
+        "aria-pressed",
+        "true",
+      );
+    },
+  );
+
+  it("RF-128 con ?estado=confirmado la tabla muestra solo los viajes confirmados", async () => {
+    renderListado("dueno", "/viajes?estado=confirmado");
+
+    await fila("Brasil");
+
+    expect(screen.queryByText("Europa")).not.toBeInTheDocument();
+    expect(screen.queryByText("Punta Cana")).not.toBeInTheDocument();
+  });
+
+  it("RF-128 con ?mios=true la dirección abre «Mis viajes» y pide mios=true", async () => {
+    const pedidos: URLSearchParams[] = [];
+    servidor.use(registrarListados(pedidos));
+    renderListado("dueno", "/viajes?mios=true");
+
+    await screen.findByRole("table");
+
+    expect(screen.getByRole("tab", { name: "Mis viajes" })).toHaveAttribute(
+      "aria-selected",
+      "true",
+    );
+    expect(pedidos.length).toBeGreaterThan(0);
+    expect(pedidos.every((p) => p.get("mios") === "true")).toBe(true);
+  });
+
+  it("RF-128 el empleado con ?estado=confirmado&mios=true pide ambos filtros juntos", async () => {
+    const pedidos: URLSearchParams[] = [];
+    servidor.use(registrarListados(pedidos));
+    renderListado("empleado", "/viajes?estado=confirmado&mios=true");
+
+    await screen.findByRole("table");
+
+    expect(pedidos.length).toBeGreaterThan(0);
+    expect(
+      pedidos.every((p) => p.get("estado") === "confirmado" && p.get("mios") === "true"),
+    ).toBe(true);
+  });
+
+  it("RF-128 un estado desconocido en la URL se ignora y no llega a la API", async () => {
+    const pedidos: URLSearchParams[] = [];
+    servidor.use(registrarListados(pedidos));
+    renderListado("dueno", "/viajes?estado=inventado");
+
+    await fila("Europa");
+
+    expect(pedidos.every((p) => !p.has("estado"))).toBe(true);
+  });
+
+  it("RF-128 sin parámetros en la URL la pantalla se comporta como siempre", async () => {
+    const pedidos: URLSearchParams[] = [];
+    servidor.use(registrarListados(pedidos));
+    renderListado("dueno");
+
+    await fila("Europa");
+
+    expect(screen.getByRole("tab", { name: "Toda la agencia" })).toHaveAttribute(
+      "aria-selected",
+      "true",
+    );
+    expect(pedidos.every((p) => !p.has("estado") && !p.has("mios"))).toBe(true);
+    expect(screen.getAllByRole("row")).toHaveLength(viajesMock.length + 1);
+    expect(screen.queryAllByRole("button", { pressed: true })).toHaveLength(0);
   });
 });

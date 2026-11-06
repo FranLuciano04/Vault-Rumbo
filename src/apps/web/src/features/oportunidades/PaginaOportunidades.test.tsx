@@ -33,13 +33,13 @@ const asesores = [
   { id: "e7b20d94-6a3f-4c15-9d8e-0b5a3f7c2e04", nombre: "Tomás Roldán" },
 ];
 
-function renderEmbudo(rol: RolMock = "empleado") {
+function renderEmbudo(rol: RolMock = "empleado", ruta = "/oportunidades") {
   servidor.use(http.get("*/api/usuarios/asesores", () => HttpResponse.json(asesores)));
   return render(
     <QueryClientProvider
       client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}
     >
-      <MemoryRouter initialEntries={["/oportunidades"]}>
+      <MemoryRouter initialEntries={[ruta]}>
         <PaginaOportunidades cliente={cliente} usuario={usuariosPorRol[rol]} />
       </MemoryRouter>
     </QueryClientProvider>,
@@ -395,5 +395,105 @@ describe("RF-013 consulta sin destino", () => {
     const nueva = await columna("Nueva");
 
     expect(await within(nueva).findByLabelText("Pasajeros sin definir")).toHaveTextContent("—");
+  });
+});
+
+describe("RF-128 embudo: filtros que llegan en la URL desde el dashboard", () => {
+  const ana = asesores[0]?.id ?? "";
+  const ETAPAS = ["Nueva", "En gestión", "Cotizada", "Ganada", "Perdida"];
+
+  it("RF-128 con ?estado=cotizada muestra solo la columna «Cotizada» y no pide las otras", async () => {
+    const pedidos: URLSearchParams[] = [];
+    servidor.use(registrarListados(pedidos));
+    renderEmbudo("dueno", "/oportunidades?estado=cotizada");
+
+    await columna("Cotizada");
+
+    for (const otra of ["Nueva", "En gestión", "Ganada", "Perdida"]) {
+      expect(
+        screen.queryByRole("heading", { name: new RegExp(`^${otra}\\b`) }),
+      ).not.toBeInTheDocument();
+    }
+    expect(pedidos.length).toBeGreaterThan(0);
+    expect(pedidos.every((p) => p.get("estado") === "cotizada")).toBe(true);
+  });
+
+  it("RF-128 con ?responsable_id= pide las cinco columnas de ese responsable y lo deja elegido", async () => {
+    const pedidos: URLSearchParams[] = [];
+    servidor.use(registrarListados(pedidos));
+    renderEmbudo("dueno", `/oportunidades?responsable_id=${ana}`);
+
+    for (const etapa of ETAPAS) await columna(etapa);
+
+    expect(pedidos.length).toBeGreaterThan(0);
+    expect(pedidos.every((p) => p.get("responsable_id") === ana)).toBe(true);
+    expect(pedidos.every((p) => !p.has("mios"))).toBe(true);
+    await waitFor(() => {
+      expect(screen.getByRole("combobox", { name: /responsable/i })).toHaveValue(ana);
+    });
+  });
+
+  it("RF-128 con ?estado=cotizada&responsable_id= conserva el responsable y muestra solo «Cotizada»", async () => {
+    const pedidos: URLSearchParams[] = [];
+    servidor.use(registrarListados(pedidos));
+    renderEmbudo("admin", `/oportunidades?estado=cotizada&responsable_id=${ana}`);
+
+    await columna("Cotizada");
+
+    expect(screen.queryByRole("heading", { name: /^Nueva\b/ })).not.toBeInTheDocument();
+    expect(
+      pedidos.every((p) => p.get("estado") === "cotizada" && p.get("responsable_id") === ana),
+    ).toBe(true);
+  });
+
+  it("RF-128 con ?mios=true la dirección abre «Mis oportunidades» y pide mios=true", async () => {
+    const pedidos: URLSearchParams[] = [];
+    servidor.use(registrarListados(pedidos));
+    renderEmbudo("dueno", "/oportunidades?mios=true");
+
+    await columna("Nueva");
+
+    expect(screen.getByRole("tab", { name: /mis oportunidades/i })).toHaveAttribute(
+      "aria-selected",
+      "true",
+    );
+    expect(pedidos.length).toBeGreaterThan(0);
+    expect(pedidos.every((p) => p.get("mios") === "true")).toBe(true);
+  });
+
+  it("RF-128 el empleado con ?estado=cotizada&mios=true ve solo «Cotizada» y lo suyo", async () => {
+    const pedidos: URLSearchParams[] = [];
+    servidor.use(registrarListados(pedidos));
+    renderEmbudo("empleado", "/oportunidades?estado=cotizada&mios=true");
+
+    await columna("Cotizada");
+
+    expect(screen.queryByRole("heading", { name: /^Nueva\b/ })).not.toBeInTheDocument();
+    expect(
+      pedidos.every((p) => p.get("estado") === "cotizada" && p.get("mios") === "true"),
+    ).toBe(true);
+  });
+
+  it("RF-128 un estado desconocido en la URL se ignora y se muestran las cinco columnas", async () => {
+    renderEmbudo("dueno", "/oportunidades?estado=inventado");
+
+    for (const etapa of ETAPAS) await columna(etapa);
+  });
+
+  it("RF-128 sin parámetros en la URL la dirección ve las cinco columnas de toda la agencia", async () => {
+    const pedidos: URLSearchParams[] = [];
+    servidor.use(registrarListados(pedidos));
+    renderEmbudo("dueno");
+
+    for (const etapa of ETAPAS) await columna(etapa);
+
+    expect(screen.getByRole("tab", { name: /toda la agencia/i })).toHaveAttribute(
+      "aria-selected",
+      "true",
+    );
+    expect(pedidos.every((p) => !p.has("mios") && !p.has("responsable_id"))).toBe(true);
+    expect(new Set(pedidos.map((p) => p.get("estado")))).toEqual(
+      new Set(["nueva", "en_gestion", "cotizada", "ganada", "perdida"]),
+    );
   });
 });
