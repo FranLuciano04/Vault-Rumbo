@@ -118,7 +118,14 @@ export async function armarViaje(
   nombreDestino: string;
   pagos: PagoApi[];
 }> {
-  const { precio, plan, asesorId, responsableId, salidaEnDias = 120, regresoEnDias = 128 } = opciones;
+  const {
+    precio,
+    plan,
+    asesorId,
+    responsableId,
+    salidaEnDias = 120,
+    regresoEnDias = 128,
+  } = opciones;
   const HOY = hoy();
   const nombreDestino = `Destino ${etiqueta} ${SUFIJO}`;
   const nombreCliente = `Cliente ${etiqueta} E2E ${SUFIJO}`;

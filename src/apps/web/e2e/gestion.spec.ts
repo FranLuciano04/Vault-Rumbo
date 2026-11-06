@@ -33,16 +33,17 @@ const mesEnCurso = () => {
   return { desde: `${prefijo}-01`, hasta: `${prefijo}-${String(ultimo).padStart(2, "0")}` };
 };
 
-const totalCobrado = (montos: MontoApi[]) =>
-  montos.reduce((suma, m) => suma + Number(m.monto), 0);
+const totalCobrado = (montos: MontoApi[]) => montos.reduce((suma, m) => suma + Number(m.monto), 0);
 
 /** Como `formatearImporte` del front para ARS: «$ 1.234,50». */
 const enPesos = (monto: number) =>
   `$ ${monto.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
 /** El importe como texto completo: sin dígitos ni separadores pegados a la izquierda ni a la derecha. */
-const importeExacto = (importe: string) =>
-  new RegExp(String.raw`(?<![\d.,])${importe.replace(/[$.]/g, String.raw`\$&`)}(?![\d.,])`);
+const importeExacto = (importe: string, titulo = "") =>
+  new RegExp(
+    String.raw`${titulo}\s*(?<![\d.,S])${importe.replace(/[$.]/g, String.raw`\$&`)}(?![\d.,])`,
+  );
 
 const ARS = (montos: MontoApi[]) => montos.filter((m) => m.moneda === "ARS");
 
@@ -89,7 +90,11 @@ test.describe.serial("Tablero de gestión de punta a punta", () => {
     // Fernández — Cancún» está en curso (salida -2, regreso +7): siempre contiene hoy. Los pagos
     // de la semilla (-90 a +60 días) dejan siempre al menos uno en el mes en curso.
     const { desde, hasta } = mesEnCurso();
-    const delMes = await api<EventoApi[]>(duena, "GET", `/calendario?desde=${desde}&hasta=${hasta}`);
+    const delMes = await api<EventoApi[]>(
+      duena,
+      "GET",
+      `/calendario?desde=${desde}&hasta=${hasta}`,
+    );
     const viajes = delMes.filter((e) => e.tipo === "viaje");
     const vencimientos = delMes.filter((e) => e.tipo === "vencimiento");
     const viajeDeLaSemilla = "Pareja Demo Fernández — Cancún";
@@ -150,7 +155,7 @@ test.describe.serial("Tablero de gestión de punta a punta", () => {
       await expect(paginaDuena.getByRole("heading", { name: "Dashboard" })).toBeVisible();
       const cobradoDuena = paginaDuena.getByRole("link", { name: /Cobrado a pasajeros/ });
       await expect(cobradoDuena).toBeVisible();
-      await expect(cobradoDuena).toContainText(importeExacto(esperadoDuena));
+      await expect(cobradoDuena).toContainText(importeExacto(esperadoDuena, "Cobrado a pasajeros"));
       await expect(paginaDuena.getByText("Ventas por vendedor")).toBeVisible();
       await expect(paginaDuena.getByLabel("Empleado")).toBeVisible();
 
@@ -162,8 +167,12 @@ test.describe.serial("Tablero de gestión de punta a punta", () => {
         name: /Cobrado a tus pasajeros/,
       });
       await expect(cobradoEmpleado).toBeVisible();
-      await expect(cobradoEmpleado).toContainText(importeExacto(esperadoEmpleado));
-      await expect(cobradoEmpleado).not.toContainText(importeExacto(esperadoDuena));
+      await expect(cobradoEmpleado).toContainText(
+        importeExacto(esperadoEmpleado, "Cobrado a tus pasajeros"),
+      );
+      await expect(cobradoEmpleado).not.toContainText(
+        importeExacto(esperadoDuena, "Cobrado a tus pasajeros"),
+      );
       await expect(paginaEmpleado.getByText("Ventas por vendedor")).toHaveCount(0);
       await expect(paginaEmpleado.getByLabel("Empleado")).toHaveCount(0);
       await expect(paginaEmpleado.getByText(/Ves solo tus ventas/)).toBeVisible();
