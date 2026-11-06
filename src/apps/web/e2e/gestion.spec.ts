@@ -87,7 +87,7 @@ test.describe.serial("Tablero de gestión de punta a punta", () => {
 
     await ingresar(page, DUENA.email, DUENA.password);
     await page.getByRole("link", { name: "Calendario" }).click();
-    await expect(page.getByRole("heading", { level: 1 })).toContainText(String(hoy().slice(0, 4)));
+    await expect(page.getByRole("heading", { level: 1 })).toContainText(hoy().slice(0, 4));
 
     for (const evento of [...viajes, ...vencimientos]) {
       await expect(
