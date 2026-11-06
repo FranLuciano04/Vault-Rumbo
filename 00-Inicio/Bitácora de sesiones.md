@@ -33,6 +33,13 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
+## 06/11/26 — Nahuel (Claude Opus 5.5) — Cierre de M8
+- **Hecho:**
+  - H-01 descartado como falla, por decisión de Nahuel.
+  - Con la aprobación de Nahuel en nombre del equipo, tag `mod-8` sobre `7030f4e`, grafo publicado, [[Bitácora técnica]] y estado actualizados.
+- **Commits:** `7030f4e` H-01, `3c14903` grafo y el del cierre.
+- **Pendiente:** 4 menores anotados en [[Bitácora técnica]], sin arreglar. El recorrido de H-02 no se miró en un navegador real.
+
 ## 05/11/26 — Nahuel (Claude Opus 5.5) — Review de M8
 - **Hecho:**
   - Pedido de review para Codex y triage de sus 3 hallazgos: 2 importantes confirmados y 1 bloqueante no confirmado.
@@ -40,7 +47,7 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
   - H-02 (PR #195): los contadores del dashboard llevan a su detalle con los filtros, y Viajes, Oportunidades y Agenda leen la URL.
   - H-01 se descartó como falla, por decisión de Nahuel: la prohibición de ganancia y margen salió de una frase del pedido de review, sin respaldo en el vault, y `GET /viajes/{id}` ya los entrega.
 - **Commits:** `81db5eb` pedido, `13034e4` triage; merges `cb2dd8b` y el de #195.
-- **Pendiente:** consultar los menores anotados y aprobar el cierre para poner `mod-8`.
+- **Pendiente:** consultar los menores anotados y aprobar el cierre para poner `mod-8` (resuelto en la entrada del 06/11).
 
 ## 05/11/26 — Nahuel (Claude Opus 5.5) — T-128: probar de punta a punta el tablero de gestión
 - **Hecho:**

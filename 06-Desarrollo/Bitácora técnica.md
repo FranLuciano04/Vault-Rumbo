@@ -192,3 +192,25 @@ tags:: #tipo/referencia
   - Reabrir una oportunidad perdida no toma el bloqueo de H-01 ni resuelve las sugerencias abiertas: anotado como menor, sin arreglar.
   - La relectura de candidatos usa un `IN` limitado a 32.767; se acepta porque ese volumen es improbable para una PyME.
   - Las otras copias de `tokenDe` en `e2e/` no se migraron a `apoyo.ts`.
+
+### 06/11/26 — Nahuel (con el equipo) — M8 Calendario, dashboard y reportes cerrado (`mod-8`)
+- **Qué quedó:**
+  - Calendario consolidado de viajes, vencimientos de pagos y alertas, con filtros (CU-23).
+  - Dashboard con el embudo y los indicadores económicos y operativos, por moneda y acotados por rol (CU-21).
+  - Reportes del período con comparación entre períodos, y exportación a Excel y PDF (CU-22).
+  - Las tres secciones en la web y el e2e `gestion.spec.ts` contra el sistema real. Mobile no cambia.
+- **Tickets:** 10, de T-119 a T-128. Detalle y merges en [[M8 — pedido de review]].
+- **Review de Codex** ([[M8 — review Codex]]): 3 hallazgos. 2 importantes confirmados y arreglados, y 1 bloqueante descartado.
+  - H-01, descartado por Nahuel: la API entrega ganancia y margen a empleado y freelance. La prohibición salió de una frase del pedido de review, sin respaldo en el vault, y `GET /viajes/{id}` ya entrega esos datos. Si el equipo quiere restringirlo, es una regla nueva en una `DEC-` que abarca dashboard y viajes.
+  - H-02 → PR #195: los contadores del dashboard llevan a su detalle con los filtros, y Viajes, Oportunidades y Agenda los leen de la URL (RF-128).
+  - H-03 → PR #194: Reportes abre en el mes de Buenos Aires, no en el del navegador.
+  - El CI de `main` con los dos juntos (`8c9fe00`) terminó en verde. En el PR #195 pasaron los 40 e2e.
+- **Pendientes que no bloquean:**
+  - Con `?estado=`, el embudo muestra una sola columna y no avisa que está filtrado.
+  - Si la URL trae el id de un usuario dado de baja, el listado queda filtrado mientras el selector dice «Responsable: todos».
+  - Con un responsable elegido, «Reservas confirmadas» abre las de toda la agencia, porque `/viajes` no filtra por responsable.
+  - `FormularioResena.tsx:37` usa la fecha local, igual que H-03. Está fuera de M8.
+  - El recorrido de H-02 no se miró en un navegador real: lo cubren tests de componentes.
+  - Siguen anotados en [[M8 — pedido de review]] los supuestos a ratificar: las decisiones sobre los indicadores (T-121) y `pendiente_de_pagar` (T-122).
+- **Decisiones tocadas:** [[DEC-0005 Autenticación y modelo de roles]], [[DEC-0007 Modelo económico — ganancia, margen y comisión de vendedor]], [[DEC-0008 Autenticación propia y rol de vendedor freelance]], [[DEC-0024 Reglas del dashboard, calendario y criterios de M6]], [[DEC-0019 Las fallas se arreglan al encontrarlas]].
+- Aprobación del equipo: 06/11/26 (Nahuel, en nombre del equipo). Tag `mod-8` sobre `7030f4e`.

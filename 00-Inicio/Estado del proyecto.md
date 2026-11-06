@@ -2,7 +2,7 @@
 tipo: referencia
 estado: formalizado
 responsable: equipo
-actualizado: 04/11/26
+actualizado: 06/11/26
 ---
 
 # 📊 Estado del proyecto
@@ -12,13 +12,15 @@ actualizado: 04/11/26
 ## Fase actual
 > 🚀 **12/10 — arranca la implementación.** El equipo aprobó [[DEC-0014 Flujo de implementación con agentes]]: tickets con semáforo en Git, TDD con subagentes, review de Codex en cada módulo y código en `src/`. ✅ **Paso 1 hecho:** skills (`/tomar-ticket`, `/implementar-ticket`, `/cerrar-modulo` y 13 de Addy Osmani), subagentes, script de tickets, [[Flujo de implementación]], [[Tablero de tickets]] y [[Grafo de tickets]]. ✅ **Paso 2 (13/10):** grill con el equipo → [[DEC-0015 Decisiones de implementación]], y la autenticación pasó a Firebase con [[DEC-0016 Autenticación con Firebase]]. ✅ **Paso 3 (13/10):** [[Spec de implementación]] aprobada y formalizada; [[Plan de implementación]] (aprobado el 14/10) con **139 tickets** en el [[Grafo de tickets]]. ⏭️ **Ahora:** empezar con `/tomar-ticket` (disponibles: T-001, T-002, T-004 y T-005, el proyecto de Firebase). Meta mínima del PC2: M0 a M6; primero los 79 tickets del camino de CU-01 (T-108). Después, hasta donde lleguemos.
 >
+> 🏁 **06/11 — M8 Calendario, dashboard y reportes cerrado.** Se arreglaron 2 de los 3 hallazgos de Codex (PR #194 y #195) y H-01 se descartó como falla. Nahuel lo aprobó en nombre del equipo y se puso el tag `mod-8`. Quedan menores anotados, sin arreglar. El resumen está en [[Bitácora técnica]].
+>
 > 🏁 **05/11 — M7 Proceso diario y CRM proactivo cerrado.** Se arreglaron los 2 hallazgos de Codex (PR #191 y #192; el de riesgo alto lo aprobó Paloma). El equipo lo aprobó y se puso el tag `mod-7`. Falta ratificar que «recurrente» cuenta viajes no cancelados. El resumen está en [[Bitácora técnica]].
 >
 > 🏁 **02/11 — M6 Viajes y economía cerrado.** Se arreglaron los 5 hallazgos de Codex (PR #170, #172, #173 y #174, los de riesgo alto aprobados por Paloma) y se puso el tag `mod-6`. Queda en revisión [[DEC-0026 Tipo de cambio y deuda nueva en un viaje confirmado|DEC-0026]] (tipo de cambio en pesos por dólar y T11 `confirmado → vendido`), con dos puntos para ratificar. El resumen está en [[Bitácora técnica]].
 >
 > 🏁 **29/10 — M5 Hoteles y reseñas cerrado.** Se arreglaron 5 de los 6 hallazgos de Codex (PR #140 a #143) y H-04 pasó a T-091 (`GET /viajes` con filtro por cliente). El equipo lo aprobó y se puso el tag `mod-5`. El backend ahora tiene logging configurado (`rumbo.core.logs`). El resumen está en [[Bitácora técnica]].
 >
-> 👉 **05/11 (Nahuel):** **T-128** (e2e del tablero de gestión) está hecho y mergeado (PR [#193](https://github.com/FranLuciano04/Vault-Rumbo/pull/193)). **M8 no tiene más tickets pendientes y queda listo para `/cerrar-modulo` M8.**
+> 👉 **05/11 (Nahuel):** **T-128** (e2e del tablero de gestión) está hecho y mergeado (PR [#193](https://github.com/FranLuciano04/Vault-Rumbo/pull/193)). M8 se cerró el 06/11.
 >
 > 👉 **05/11 (Nahuel):** **T-118** (e2e del proceso diario) está hecho y mergeado (PR [#190](https://github.com/FranLuciano04/Vault-Rumbo/pull/190)). **M7 no tiene más tickets pendientes y queda listo para `/cerrar-modulo` M7.**
 >
