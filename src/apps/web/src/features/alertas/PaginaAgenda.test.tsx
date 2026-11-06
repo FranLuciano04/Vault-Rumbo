@@ -10,7 +10,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { act, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { http, HttpResponse } from "msw";
-import { MemoryRouter } from "react-router";
+import { MemoryRouter, Outlet, Route, Routes, useNavigate } from "react-router";
+import { SeccionAgenda } from "@/app/SeccionAgenda";
 import { afterAll, afterEach, beforeAll, beforeEach, vi } from "vitest";
 import { PaginaAgenda } from "./PaginaAgenda";
 
@@ -660,4 +661,97 @@ describe("RF-128 agenda: filtros que llegan en la URL desde el dashboard", () =>
     expect(pedidos.length).toBeGreaterThan(0);
     expect(pedidos.every((p) => !p.has("propietario_id"))).toBe(true);
   });
+});
+
+/** Botón que navega dentro de la app, como el menú lateral. */
+function IrA({ a }: { a: string }) {
+  const navegar = useNavigate();
+  return (
+    <button
+      type="button"
+      onClick={() => {
+        void navegar(a);
+      }}
+    >
+      Ir a {a}
+    </button>
+  );
+}
+
+/** Monta la sección que usa la app (con el usuario por contexto) y un botón para navegar. */
+function renderSeccionAgenda(rol: RolMock, ruta: string, Seccion: typeof SeccionAgenda, destino: string) {
+  return render(
+    <QueryClientProvider
+      client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}
+    >
+      <MemoryRouter initialEntries={[ruta]}>
+        <IrA a={destino} />
+        <Routes>
+          <Route element={<Outlet context={usuariosPorRol[rol]} />}>
+            <Route path={destino.split("?")[0]} element={<Seccion cliente={cliente} />} />
+          </Route>
+        </Routes>
+      </MemoryRouter>
+    </QueryClientProvider>,
+  );
+}
+
+describe("RF-128 agenda: navegar dentro de la pantalla, ids inválidos y roles", () => {
+  const registrar = (pedidos: URLSearchParams[]) =>
+    http.get("*/api/alertas", ({ request }) => {
+      pedidos.push(new URL(request.url).searchParams);
+      return undefined;
+    });
+
+  it("RF-128 de /agenda?propietario_id=X a /agenda por el menú vuelve a pedir sin responsable", async () => {
+    const pedidos: URLSearchParams[] = [];
+    servidor.use(
+      http.get("*/api/usuarios/asesores", () => HttpResponse.json(asesores)),
+      registrar(pedidos),
+    );
+    const usuario = userEvent.setup();
+    renderSeccionAgenda("dueno", `/agenda?propietario_id=${asesores[1]?.id}`, SeccionAgenda, "/agenda");
+    await waitFor(() => {
+      expect(screen.getByRole("combobox", { name: /responsable/i })).toHaveValue(asesores[1]?.id);
+    });
+    const antes = pedidos.length;
+
+    await usuario.click(screen.getByRole("button", { name: "Ir a /agenda" }));
+
+    await waitFor(() => {
+      expect(screen.getByRole("combobox", { name: /responsable/i })).toHaveValue("");
+    });
+    await screen.findByText(PAGO);
+    const nuevos = pedidos.slice(antes);
+    expect(nuevos.length).toBeGreaterThan(0);
+    expect(nuevos.every((p) => !p.has("propietario_id"))).toBe(true);
+  });
+
+  it.each<RolMock>(["admin", "dueno"])(
+    "RF-128 %s con ?propietario_id=abc (no es un id) lo ignora y carga la agenda",
+    async (rol) => {
+      const pedidos: URLSearchParams[] = [];
+      servidor.use(registrar(pedidos));
+      renderAgenda(rol, "/agenda?propietario_id=abc");
+
+      await screen.findByText(PAGO);
+
+      expect(pedidos.length).toBeGreaterThan(0);
+      expect(pedidos.every((p) => !p.has("propietario_id"))).toBe(true);
+    },
+  );
+
+  it.each<RolMock>(["empleado", "freelance"])(
+    "RF-128 %s con ?propietario_id=X no manda ese parámetro",
+    async (rol) => {
+      const pedidos: URLSearchParams[] = [];
+      servidor.use(registrar(pedidos));
+      renderAgenda(rol, `/agenda?propietario_id=${asesores[1]?.id}`);
+
+      await screen.findByText(PAGO);
+
+      expect(pedidos.length).toBeGreaterThan(0);
+      expect(pedidos.every((p) => !p.has("propietario_id"))).toBe(true);
+    },
+  );
 });

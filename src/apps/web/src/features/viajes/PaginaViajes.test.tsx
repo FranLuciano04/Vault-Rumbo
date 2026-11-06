@@ -13,7 +13,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { http, HttpResponse } from "msw";
-import { MemoryRouter } from "react-router";
+import { MemoryRouter, Outlet, Route, Routes, useNavigate } from "react-router";
+import { SeccionViajes } from "@/app/SeccionViajes";
 import { afterAll, afterEach, beforeAll } from "vitest";
 import { PaginaViajes } from "./PaginaViajes";
 
@@ -313,5 +314,60 @@ describe("RF-128 viajes: filtros que llegan en la URL desde el dashboard", () =>
     expect(pedidos.every((p) => !p.has("estado") && !p.has("mios"))).toBe(true);
     expect(screen.getAllByRole("row")).toHaveLength(viajesMock.length + 1);
     expect(screen.queryAllByRole("button", { pressed: true })).toHaveLength(0);
+  });
+});
+
+/** Botón que navega dentro de la app, como el menú lateral. */
+function IrA({ a }: { a: string }) {
+  const navegar = useNavigate();
+  return (
+    <button
+      type="button"
+      onClick={() => {
+        void navegar(a);
+      }}
+    >
+      Ir a {a}
+    </button>
+  );
+}
+
+/** Monta la sección que usa la app (con el usuario por contexto) y un botón para navegar. */
+function renderSeccion(rol: RolMock, ruta: string, Seccion: typeof SeccionViajes, destino: string) {
+  return render(
+    <QueryClientProvider
+      client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}
+    >
+      <MemoryRouter initialEntries={[ruta]}>
+        <IrA a={destino} />
+        <Routes>
+          <Route element={<Outlet context={usuariosPorRol[rol]} />}>
+            <Route path={destino.split("?")[0]} element={<Seccion cliente={cliente} />} />
+          </Route>
+        </Routes>
+      </MemoryRouter>
+    </QueryClientProvider>,
+  );
+}
+
+describe("RF-128 viajes: navegar dentro de la pantalla", () => {
+  it("RF-128 de /viajes?estado=confirmado a /viajes por el menú vuelve a pedir y mostrar todo", async () => {
+    const pedidos: URLSearchParams[] = [];
+    servidor.use(registrarListados(pedidos));
+    const usuario = userEvent.setup();
+    renderSeccion("dueno", "/viajes?estado=confirmado", SeccionViajes, "/viajes");
+    await fila("Brasil");
+    const antes = pedidos.length;
+
+    await usuario.click(screen.getByRole("button", { name: "Ir a /viajes" }));
+
+    await fila("Europa");
+    expect(pedidos.length).toBeGreaterThan(antes);
+    expect(pedidos.slice(antes).every((p) => !p.has("estado"))).toBe(true);
+    expect(screen.getByRole("button", { name: "Confirmado" })).toHaveAttribute(
+      "aria-pressed",
+      "false",
+    );
+    expect(screen.getAllByRole("row")).toHaveLength(viajesMock.length + 1);
   });
 });

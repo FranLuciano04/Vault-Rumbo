@@ -9,6 +9,7 @@ import type { AxiosInstance } from "axios";
 import { useState } from "react";
 import { Link, useSearchParams } from "react-router";
 import { Button, variantesBoton } from "@/components/ui/button";
+import { idDeUrl } from "@/lib/parametros";
 import { cn } from "@/lib/utils";
 import { FiltroResponsable } from "@/components/FiltroResponsable";
 import { TarjetaOportunidad } from "./TarjetaOportunidad";
@@ -39,7 +40,7 @@ export function PaginaOportunidades({
     puedeFiltrarResponsable && parametros.get("mios") !== "true" ? "agencia" : "mias",
   );
   const [responsableId, setResponsableId] = useState(
-    puedeFiltrarResponsable ? (parametros.get("responsable_id") ?? "") : "",
+    puedeFiltrarResponsable ? idDeUrl(parametros.get("responsable_id")) : "",
   );
 
   // «Mis oportunidades» pide `mios`; «Toda la agencia», sin `mios` (y con `responsable_id` si se elige uno).

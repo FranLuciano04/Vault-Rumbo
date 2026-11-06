@@ -21,6 +21,7 @@ import { useRef, useState } from "react";
 import { useSearchParams } from "react-router";
 import { Button } from "@/components/ui/button";
 import { mensajeDeError } from "@/lib/errores";
+import { idDeUrl } from "@/lib/parametros";
 import { useVolverFoco } from "@/lib/useVolverFoco";
 import { cn } from "@/lib/utils";
 import { FiltroResponsable } from "@/components/FiltroResponsable";
@@ -129,7 +130,7 @@ export function PaginaAgenda({
   // El dashboard abre la agenda de un responsable con `?propietario_id=` (RF-128).
   const [parametros] = useSearchParams();
   const [responsable, setResponsable] = useState(
-    esDeAgencia ? (parametros.get("propietario_id") ?? "") : "",
+    esDeAgencia ? idDeUrl(parametros.get("propietario_id")) : "",
   );
   const [pagina, setPagina] = useState(1);
   // `null` = formulario cerrado; `{}` = alta; `{ alerta }` = edición de un recordatorio.

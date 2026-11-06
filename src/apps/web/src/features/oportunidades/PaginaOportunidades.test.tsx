@@ -11,7 +11,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { http, HttpResponse } from "msw";
-import { MemoryRouter } from "react-router";
+import { MemoryRouter, Outlet, Route, Routes, useNavigate } from "react-router";
+import { SeccionOportunidades } from "@/app/SeccionOportunidades";
 import { afterAll, afterEach, beforeAll } from "vitest";
 import { PaginaOportunidades } from "./PaginaOportunidades";
 
@@ -496,4 +497,101 @@ describe("RF-128 embudo: filtros que llegan en la URL desde el dashboard", () =>
       new Set(["nueva", "en_gestion", "cotizada", "ganada", "perdida"]),
     );
   });
+});
+
+/** Botón que navega dentro de la app, como el menú lateral. */
+function IrA({ a }: { a: string }) {
+  const navegar = useNavigate();
+  return (
+    <button
+      type="button"
+      onClick={() => {
+        void navegar(a);
+      }}
+    >
+      Ir a {a}
+    </button>
+  );
+}
+
+/** Monta la sección que usa la app (con el usuario por contexto) y un botón para navegar. */
+function renderSeccion(rol: RolMock, ruta: string, Seccion: typeof SeccionOportunidades, destino: string) {
+  servidor.use(http.get("*/api/usuarios/asesores", () => HttpResponse.json(asesores)));
+  return render(
+    <QueryClientProvider
+      client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}
+    >
+      <MemoryRouter initialEntries={[ruta]}>
+        <IrA a={destino} />
+        <Routes>
+          <Route element={<Outlet context={usuariosPorRol[rol]} />}>
+            <Route path={destino.split("?")[0]} element={<Seccion cliente={cliente} />} />
+          </Route>
+        </Routes>
+      </MemoryRouter>
+    </QueryClientProvider>,
+  );
+}
+
+describe("RF-128 embudo: navegar dentro de la pantalla, ids inválidos y roles", () => {
+  const ana = asesores[0]?.id ?? "";
+  const ETAPAS = ["Nueva", "En gestión", "Cotizada", "Ganada", "Perdida"];
+
+  it("RF-128 de ?estado=cotizada&responsable_id= a /oportunidades por el menú vuelve a las cinco columnas sin responsable", async () => {
+    const pedidos: URLSearchParams[] = [];
+    servidor.use(registrarListados(pedidos));
+    const usuario = userEvent.setup();
+    renderSeccion(
+      "dueno",
+      `/oportunidades?estado=cotizada&responsable_id=${ana}`,
+      SeccionOportunidades,
+      "/oportunidades",
+    );
+    await columna("Cotizada");
+    const antes = pedidos.length;
+
+    await usuario.click(screen.getByRole("button", { name: "Ir a /oportunidades" }));
+
+    for (const etapa of ETAPAS) await columna(etapa);
+    const nuevos = pedidos.slice(antes);
+    expect(nuevos.length).toBeGreaterThan(0);
+    expect(nuevos.every((p) => !p.has("responsable_id") && !p.has("mios"))).toBe(true);
+    expect(new Set(nuevos.map((p) => p.get("estado")))).toEqual(
+      new Set(["nueva", "en_gestion", "cotizada", "ganada", "perdida"]),
+    );
+    expect(screen.getByRole("combobox", { name: /responsable/i })).toHaveValue("");
+    expect(screen.getByRole("tab", { name: /toda la agencia/i })).toHaveAttribute(
+      "aria-selected",
+      "true",
+    );
+  });
+
+  it.each<RolMock>(["admin", "dueno"])(
+    "RF-128 %s con ?responsable_id=abc (no es un id) lo ignora y carga el embudo",
+    async (rol) => {
+      const pedidos: URLSearchParams[] = [];
+      servidor.use(registrarListados(pedidos));
+      renderEmbudo(rol, "/oportunidades?responsable_id=abc");
+
+      for (const etapa of ETAPAS) await columna(etapa);
+
+      expect(pedidos.length).toBeGreaterThan(0);
+      expect(pedidos.every((p) => !p.has("responsable_id"))).toBe(true);
+    },
+  );
+
+  it.each<RolMock>(["empleado", "freelance"])(
+    "RF-128 %s con ?responsable_id=X no manda ese parámetro",
+    async (rol) => {
+      const pedidos: URLSearchParams[] = [];
+      servidor.use(registrarListados(pedidos));
+      renderEmbudo(rol, `/oportunidades?responsable_id=${ana}`);
+
+      await columna("Nueva");
+
+      expect(pedidos.length).toBeGreaterThan(0);
+      expect(pedidos.every((p) => !p.has("responsable_id"))).toBe(true);
+      expect(pedidos.every((p) => p.get("mios") === "true")).toBe(true);
+    },
+  );
 });
