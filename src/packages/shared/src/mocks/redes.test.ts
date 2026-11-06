@@ -78,11 +78,14 @@ describe("CU-19 tablero de contenido del mock", () => {
     expect((await fetch(BASE)).status).toBe(403);
   });
 
-  it("CU-19 admin y dueño entran por rol aunque acceso_redes sea falso", async () => {
-    conRol("dueno", false);
+  it.each(["admin", "dueno"] as const)(
+    "CU-19 %s entra por rol aunque acceso_redes sea falso",
+    async (rol) => {
+      conRol(rol, false);
 
-    expect((await fetch(BASE)).status).toBe(200);
-  });
+      expect((await fetch(BASE)).status).toBe(200);
+    },
+  );
 
   it.each([
     ["idea", "en_produccion", 200],
