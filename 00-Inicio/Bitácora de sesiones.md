@@ -33,6 +33,16 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
+## 05/11/26 — Nahuel (Claude Opus 5.5) — T-128: probar de punta a punta el tablero de gestión
+- **Hecho:**
+  - `gestion.spec.ts` prueba contra el sistema real el calendario con datos de la semilla, el dashboard de la dueña y de un empleado, y la descarga de un reporte a Excel y PDF.
+  - Los e2e no encontraron bugs del sistema, así que no hubo verde ni refactor. `armarViaje` ganó `responsableId` opcional: el dashboard acota al empleado por responsable del viaje, no por asesor del cliente.
+  - Los e2e corrieron solo en el CI, porque la demo local ocupa el puerto 9099.
+  - Review opus en dos rondas: 1 bloqueante (RF-136 fallaba desde el día 8 de cada mes), 3 importantes y 5 menores; arreglados todos menos uno, anotado en el ticket.
+  - CI en verde: e2e completo, 40 de 40.
+- **Commits:** `036ec50`, `e0817d5` y `d95a264` tests, `8edc4cc` y `4194e79` fix, `6380063` hecho; PR #193 mergeado (`ad4e188`).
+- **Pendiente:** correr `/cerrar-modulo` M8. `e2e/cu01.spec.ts` no pasa `prettier --check`, y el CI no corre Prettier sobre la web.
+
 ## 05/11/26 — Nahuel (Claude Opus 5.5) — Cierre de M7
 - **Hecho:**
   - Pedido de review para Codex y triage de sus 2 hallazgos importantes, los dos confirmados.
