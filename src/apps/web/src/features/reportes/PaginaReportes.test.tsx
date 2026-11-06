@@ -492,3 +492,50 @@ describe("RF-133 exportar", () => {
     expect(screen.getByRole("table")).toBeInTheDocument();
   });
 });
+
+describe("RF-131 mes de negocio en Buenos Aires (H-03)", () => {
+  const tzOriginal = process.env["TZ"];
+  const zonaOriginal = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  beforeEach(() => {
+    // La zona efectiva del test es UTC aunque la máquina esté en Argentina; si no, el bug no se reproduce.
+    process.env["TZ"] = "UTC";
+    vi.useFakeTimers({ toFake: ["Date"], now: new Date("2026-12-01T01:00:00Z") });
+  });
+  afterEach(() => {
+    // Reasignar primero: borrar la variable sola no devuelve la zona efectiva del proceso.
+    process.env["TZ"] = tzOriginal ?? zonaOriginal;
+    if (tzOriginal === undefined) delete process.env["TZ"];
+  });
+
+  it("RF-131 precondición: el proceso corre en UTC y en el navegador ya es diciembre", () => {
+    expect(new Date().getMonth()).toBe(11);
+  });
+
+  it("RF-131 con el navegador en UTC a las 01:00Z del 01/12 consulta del 2026-11-01 al 2026-11-30", async () => {
+    const pedidos: Pedido[] = [];
+    renderReportes("dueno", registrarPedidos(pedidos));
+
+    await selectorReporte();
+    expect(screen.getByLabelText("Desde")).toHaveValue("2026-11-01");
+    expect(screen.getByLabelText("Hasta")).toHaveValue("2026-11-30");
+    await screen.findByRole("table");
+    expect(pedidos.at(-1)?.q.get("desde")).toBe("2026-11-01");
+    expect(pedidos.at(-1)?.q.get("hasta")).toBe("2026-11-30");
+  });
+
+  it("RF-133 la descarga usa ese mismo período de noviembre", async () => {
+    const pedidos: Pedido[] = [];
+    renderReportes("dueno", registrarPedidos(pedidos));
+    await screen.findByRole("table");
+
+    await userEvent.click(screen.getByRole("button", { name: /Descargar Excel/ }));
+
+    await waitFor(() => {
+      expect(crearObjectURL).toHaveBeenCalledTimes(1);
+    });
+    const pedido = pedidos.at(-1);
+    expect(pedido?.q.get("formato")).toBe("xlsx");
+    expect(pedido?.q.get("desde")).toBe("2026-11-01");
+    expect(pedido?.q.get("hasta")).toBe("2026-11-30");
+  });
+});
