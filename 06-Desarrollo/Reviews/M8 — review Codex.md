@@ -45,13 +45,13 @@ La revisión fue estática, con reproducción aislada del desfase horario; no se
 > Triage del 05/11/26, verificado contra el código y el vault.
 
 ### H-01 · La API entrega ganancia y margen a empleado y freelance
-- **Resultado:** no confirmado como falla. Decisión pendiente del equipo.
+- **Resultado:** descartado como falla. Lo decidió Nahuel el 05/11/26. No se cambia el código.
 - **Motivo:**
   - La prohibición sale de una frase del pedido de review («que empleado y freelance no vean ganancia, margen ni comisiones ajenas»), escrita por Claude sin respaldo en el vault. El propio hallazgo lo aclara.
   - RF-129 y CU-21 A1 le dan al empleado «su propio embudo e indicadores», y DEC-0008 solo le niega al freelance «la rentabilidad global de la agencia». La API entrega lo propio, no lo global.
   - `GET /viajes/{id}` ya devuelve `ganancia` y `margen`, y `FichaViaje` los muestra sin distinguir rol. El empleado los lee de toda la agencia (DEC-0005) y el freelance, de sus viajes. Sacarlos del dashboard no los protegería.
   - Lo que sí es cierto: la web oculta esa tarjeta a empleado y freelance, siguiendo las pantallas 46 y 47, y la API la entrega igual. Es una decisión de presentación, no una regla de seguridad.
-- **Si el equipo quiere restringirlo:** es una regla nueva que abarca dashboard y viajes, y va en una `DEC-`.
+- **Si más adelante el equipo quiere restringirlo:** es una regla nueva que abarca dashboard y viajes, y va en una `DEC-`.
 
 ### H-02 · Los contadores navegan sin los filtros de su detalle
 - **Resultado:** confirmado. Importante.
