@@ -18,6 +18,7 @@ import {
 import type { AxiosInstance } from "axios";
 import { Check, Plus } from "lucide-react";
 import { useRef, useState } from "react";
+import { useSearchParams } from "react-router";
 import { Button } from "@/components/ui/button";
 import { mensajeDeError } from "@/lib/errores";
 import { useVolverFoco } from "@/lib/useVolverFoco";
@@ -125,7 +126,11 @@ export function PaginaAgenda({
   const hoy = hoyEnBuenosAires();
   const [mostrarVistas, setMostrarVistas] = useState(false);
   const [tipo, setTipo] = useState<TipoAlerta | "">("");
-  const [responsable, setResponsable] = useState("");
+  // El dashboard abre la agenda de un responsable con `?propietario_id=` (RF-128).
+  const [parametros] = useSearchParams();
+  const [responsable, setResponsable] = useState(
+    esDeAgencia ? (parametros.get("propietario_id") ?? "") : "",
+  );
   const [pagina, setPagina] = useState(1);
   // `null` = formulario cerrado; `{}` = alta; `{ alerta }` = edición de un recordatorio.
   const [recordatorio, setRecordatorio] = useState<{ alerta?: Alerta } | null>(null);

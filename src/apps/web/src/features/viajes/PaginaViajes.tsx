@@ -8,6 +8,7 @@ import { useViajes } from "@rumbo/shared/hooks";
 import type { AxiosInstance } from "axios";
 import { Eye } from "lucide-react";
 import { useState } from "react";
+import { useSearchParams } from "react-router";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -33,10 +34,16 @@ export function PaginaViajes({
 }) {
   const esFreelance = usuario.rol === "freelance";
   const puedeVerAgencia = usuario.rol === "admin" || usuario.rol === "dueno";
+  // Los filtros pueden llegar en la URL desde el dashboard (RF-128); un estado desconocido se ignora.
+  const [parametros] = useSearchParams();
+  const estadoDeUrl = ESTADOS.find((e) => e === parametros.get("estado"));
   const [pestana, setPestana] = useState<(typeof PESTANAS)[number]["clave"]>(
-    puedeVerAgencia ? "agencia" : "mios",
+    puedeVerAgencia && parametros.get("mios") !== "true" ? "agencia" : "mios",
   );
-  const [filtros, setFiltros] = useState<FiltrosViajes>({ pagina: 1 });
+  const [filtros, setFiltros] = useState<FiltrosViajes>({
+    pagina: 1,
+    ...(estadoDeUrl && { estado: estadoDeUrl }),
+  });
 
   const { data, isPending, isError, isPlaceholderData } = useViajes(cliente, {
     ...filtros,

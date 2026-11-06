@@ -34,9 +34,11 @@ export function useOportunidades(cliente: AxiosInstance, filtros: FiltrosOportun
 export function useOportunidadesPorPaginas(
   cliente: AxiosInstance,
   filtros: FiltrosOportunidades = {},
+  { enabled = true } = {},
 ) {
   return useInfiniteQuery({
     queryKey: [...claveOportunidades, "lista-por-paginas", filtros],
+    enabled,
     initialPageParam: 1,
     placeholderData: keepPreviousData,
     queryFn: async ({ pageParam }) =>

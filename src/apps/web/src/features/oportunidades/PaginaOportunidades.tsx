@@ -7,7 +7,7 @@ import {
 import { useOportunidadesPorPaginas } from "@rumbo/shared/hooks";
 import type { AxiosInstance } from "axios";
 import { useState } from "react";
-import { Link } from "react-router";
+import { Link, useSearchParams } from "react-router";
 import { Button, variantesBoton } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { FiltroResponsable } from "@/components/FiltroResponsable";
@@ -32,10 +32,15 @@ export function PaginaOportunidades({
 }) {
   const esFreelance = usuario.rol === "freelance";
   const puedeFiltrarResponsable = usuario.rol === "admin" || usuario.rol === "dueno";
+  // Los filtros pueden llegar en la URL desde el dashboard (RF-128); un estado desconocido se ignora.
+  const [parametros] = useSearchParams();
+  const estadoDeUrl = ESTADOS.find((e) => e === parametros.get("estado"));
   const [pestana, setPestana] = useState<(typeof PESTANAS)[number]["clave"]>(
-    puedeFiltrarResponsable ? "agencia" : "mias",
+    puedeFiltrarResponsable && parametros.get("mios") !== "true" ? "agencia" : "mias",
   );
-  const [responsableId, setResponsableId] = useState("");
+  const [responsableId, setResponsableId] = useState(
+    puedeFiltrarResponsable ? (parametros.get("responsable_id") ?? "") : "",
+  );
 
   // «Mis oportunidades» pide `mios`; «Toda la agencia», sin `mios` (y con `responsable_id` si se elige uno).
   const filtros: FiltrosOportunidades =
@@ -45,16 +50,25 @@ export function PaginaOportunidades({
         ? { responsable_id: responsableId }
         : {};
   // Una consulta por estado: cada columna trae su `total` y sus páginas («Ver más»).
-  const consultas = [
-    useOportunidadesPorPaginas(cliente, { ...filtros, estado: "nueva" }),
-    useOportunidadesPorPaginas(cliente, { ...filtros, estado: "en_gestion" }),
-    useOportunidadesPorPaginas(cliente, { ...filtros, estado: "cotizada" }),
-    useOportunidadesPorPaginas(cliente, { ...filtros, estado: "ganada" }),
-    useOportunidadesPorPaginas(cliente, { ...filtros, estado: "perdida" }),
-  ];
-  const cargando = consultas.some((c) => c.isPending);
-  const fallo = consultas.some((c) => c.isError && !c.data);
-  const actualizando = consultas.some((c) => c.isPlaceholderData);
+  // Con un estado en la URL solo se pide y se muestra esa columna.
+  const useColumna = (estado: EstadoOportunidad) =>
+    useOportunidadesPorPaginas(
+      cliente,
+      { ...filtros, estado },
+      { enabled: !estadoDeUrl || estadoDeUrl === estado },
+    );
+  const consultas = (
+    [
+      { estado: "nueva", consulta: useColumna("nueva") },
+      { estado: "en_gestion", consulta: useColumna("en_gestion") },
+      { estado: "cotizada", consulta: useColumna("cotizada") },
+      { estado: "ganada", consulta: useColumna("ganada") },
+      { estado: "perdida", consulta: useColumna("perdida") },
+    ] as const
+  ).filter(({ estado }) => !estadoDeUrl || estadoDeUrl === estado);
+  const cargando = consultas.some(({ consulta }) => consulta.isPending);
+  const fallo = consultas.some(({ consulta }) => consulta.isError && !consulta.data);
+  const actualizando = consultas.some(({ consulta }) => consulta.isPlaceholderData);
 
   return (
     <div className="space-y-4">
@@ -115,15 +129,14 @@ export function PaginaOportunidades({
             actualizando && "opacity-70 transition-opacity",
           )}
         >
-          {ESTADOS.map((estado, i) => {
-            const consulta = consultas[i];
-            const oportunidades = consulta?.data?.pages.flatMap((p) => p.items) ?? [];
+          {consultas.map(({ estado, consulta }) => {
+            const oportunidades = consulta.data?.pages.flatMap((p) => p.items) ?? [];
             return (
               <section key={estado} className="space-y-2 rounded-lg bg-muted/50 p-3">
                 <h2 className="flex items-center justify-between text-sm font-semibold">
                   {ETIQUETA_ESTADO_OPORTUNIDAD[estado]}{" "}
                   <span className="tabular-nums text-muted-foreground">
-                    {consulta?.data?.pages[0]?.total}
+                    {consulta.data?.pages[0]?.total}
                   </span>
                 </h2>
                 <ul className="space-y-2">
@@ -131,12 +144,12 @@ export function PaginaOportunidades({
                     <TarjetaOportunidad key={o.id} oportunidad={o} />
                   ))}
                 </ul>
-                {consulta?.isFetchNextPageError && (
+                {consulta.isFetchNextPageError && (
                   <p role="alert" className="text-xs text-destructive">
                     No pudimos traer más oportunidades.
                   </p>
                 )}
-                {consulta?.hasNextPage && (
+                {consulta.hasNextPage && (
                   <Button
                     variant="ghost"
                     className="w-full"
