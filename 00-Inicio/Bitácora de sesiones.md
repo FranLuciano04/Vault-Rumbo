@@ -33,6 +33,14 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
+## 06/11/26 — Nahuel (Claude Opus 5.5) — T-129, contrato de M9
+- **Hecho:**
+  - T-129 implementado con TDD y mergeado por Nahuel (PR #196), con el CI en verde: seis rutas stub `501` de `redes`, tipos, hooks y mocks.
+  - Review en 2 rondas: 1 bloqueante, 4 importantes y 6 menores; quedó 1 menor pendiente.
+  - Nahuel aprobó que el listado sin filtro excluya las piezas `descartado` y que `redes.test.ts` entrara con `--tocar-tests`.
+- **Commits:** `c49be47` rojo, `bd5a1db` verde, `55788ee` refactor, `2f258ea` y `37defd3` fix, `feac6fe` merge.
+- **Pendiente:** decidir de dónde sale `BorradorContenido.titulo`, que el prompt de CU-20 no pide. T-130 tiene que llevar al backend las transiciones del `PATCH`.
+
 ## 06/11/26 — Nahuel (Claude Opus 5.5) — Cierre de M8
 - **Hecho:**
   - H-01 descartado como falla, por decisión de Nahuel.
