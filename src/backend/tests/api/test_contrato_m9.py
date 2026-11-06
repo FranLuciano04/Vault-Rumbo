@@ -72,6 +72,8 @@ OPERACIONES: list[tuple[str, str, str, Any, list[str], set[str]]] = [
 ]
 RUTAS_CONTRATO = [(m, r, cu, e) for m, r, _, _, cu, e in OPERACIONES]
 RUTAS_HTTP = [(m, c, cuerpo) for m, _, c, cuerpo, _, _ in OPERACIONES]
+# T-130 implementó las otras cinco rutas: el 501 queda solo para la propuesta con IA (T-131).
+RUTAS_501 = [("post", "/api/contenidos/propuestas-ia", PEDIDO_IA)]
 
 
 @pytest.fixture
@@ -277,8 +279,8 @@ async def test_cu19_sin_token_responde_401_problem_json(
     ("rol", "acceso_redes"),
     [("admin", True), ("admin", False), ("dueno", True), ("dueno", False), ("empleado", True)],
 )
-@pytest.mark.parametrize(("metodo", "ruta", "cuerpo"), RUTAS_HTTP)
-async def test_cu19_con_acceso_a_redes_responde_501_problem_json(
+@pytest.mark.parametrize(("metodo", "ruta", "cuerpo"), RUTAS_501)
+async def test_cu20_propuesta_ia_con_acceso_a_redes_responde_501_problem_json(
     cliente_como: FabricaCliente,
     sesion: AsyncSession,
     rol: str,
