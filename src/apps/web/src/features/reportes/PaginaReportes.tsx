@@ -1,4 +1,4 @@
-import { formatearFecha } from "@rumbo/shared";
+import { formatearFecha, hoyEnBuenosAires } from "@rumbo/shared";
 import { descargarReporte, useReporte, useReportes } from "@rumbo/shared/hooks";
 import type { AxiosInstance } from "axios";
 import { Download } from "lucide-react";
@@ -22,13 +22,10 @@ const REPORTE_CON_PERIODO_PROPIO = "comparacion-mensual";
 
 const dosDigitos = (n: number) => String(n).padStart(2, "0");
 
-/** Primer y último día del mes en curso, como `YYYY-MM-DD`. */
+/** Primer y último día del mes en curso en Buenos Aires, como `YYYY-MM-DD`. */
 function mesEnCurso() {
-  const hoy = new Date();
-  const anio = hoy.getFullYear();
-  const mes = hoy.getMonth() + 1;
-  const ultimo = new Date(anio, mes, 0).getDate();
-  const prefijo = `${String(anio)}-${dosDigitos(mes)}`;
+  const prefijo = hoyEnBuenosAires().slice(0, 7);
+  const ultimo = new Date(Number(prefijo.slice(0, 4)), Number(prefijo.slice(5)), 0).getDate();
   return { desde: `${prefijo}-01`, hasta: `${prefijo}-${dosDigitos(ultimo)}` };
 }
 
