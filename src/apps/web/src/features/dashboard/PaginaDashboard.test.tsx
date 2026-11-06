@@ -2,7 +2,11 @@ import { crearCliente, formatearImporte } from "@rumbo/shared";
 import {
   crearServidor,
   dashboardMock,
+  manejadoresClientes,
   manejadoresDashboardPara,
+  manejadoresM1,
+  manejadoresOportunidades,
+  manejadoresViajes,
   usuariosPorRol,
   type RolMock,
 } from "@rumbo/shared/mocks";
@@ -12,6 +16,8 @@ import userEvent from "@testing-library/user-event";
 import { http, HttpResponse } from "msw";
 import { MemoryRouter, Route, Routes, useLocation } from "react-router";
 import { afterAll, afterEach, beforeAll } from "vitest";
+import { PaginaOportunidades } from "../oportunidades/PaginaOportunidades";
+import { PaginaViajes } from "../viajes/PaginaViajes";
 import { PaginaDashboard } from "./PaginaDashboard";
 
 const servidor = crearServidor();
@@ -473,5 +479,202 @@ describe("RF-129 vista por rol", () => {
     await userEvent.click(await screen.findByRole("link", { name: /Alertas/ }));
 
     expect(await screen.findByTestId("ubicacion")).toHaveTextContent("/agenda");
+  });
+});
+
+describe("RF-128 contadores: navegan con los filtros de su detalle", () => {
+  const responsableId = usuariosPorRol.empleado.id;
+
+  /** Mismo tablero, con los detalles que la API devolvería para ese alcance. */
+  const conDetalles = (detalles: typeof dashboardMock.detalles) =>
+    http.get("*/api/dashboard", () => HttpResponse.json({ ...dashboardMock, detalles }));
+
+  /** Ruta y parámetros a los que apunta una tarjeta. */
+  async function destino(nombre: RegExp) {
+    const href = (await tarjeta(nombre)).getAttribute("href") ?? "";
+    const url = new URL(href, "http://rumbo.test");
+    return { ruta: url.pathname, filtros: Object.fromEntries(url.searchParams) };
+  }
+
+  it("RF-128 «Reservas confirmadas» abre /viajes con el estado confirmado", async () => {
+    renderDashboard("dueno");
+
+    expect(await destino(/Reservas confirmadas/)).toEqual({
+      ruta: "/viajes",
+      filtros: { estado: "confirmado" },
+    });
+  });
+
+  it("RF-128 «Presupuestos abiertos» abre /oportunidades con el estado cotizada", async () => {
+    renderDashboard("dueno");
+
+    expect(await destino(/Presupuestos abiertos/)).toEqual({
+      ruta: "/oportunidades",
+      filtros: { estado: "cotizada" },
+    });
+  });
+
+  it("RF-128 con un responsable elegido, presupuestos y consultas conservan su responsable_id", async () => {
+    renderDashboard(
+      "dueno",
+      conDetalles({
+        ...dashboardMock.detalles,
+        consultas_pendientes: {
+          seccion: "oportunidades",
+          filtros: { responsable_id: responsableId },
+        },
+        presupuestos_abiertos: {
+          seccion: "oportunidades",
+          filtros: { estado: "cotizada", responsable_id: responsableId },
+        },
+      }),
+    );
+
+    expect(await destino(/Presupuestos abiertos/)).toEqual({
+      ruta: "/oportunidades",
+      filtros: { estado: "cotizada", responsable_id: responsableId },
+    });
+    expect(await destino(/Consultas pendientes/)).toEqual({
+      ruta: "/oportunidades",
+      filtros: { responsable_id: responsableId },
+    });
+  });
+
+  it("RF-128 «Alertas pendientes» abre /agenda con el propietario_id del responsable elegido", async () => {
+    renderDashboard(
+      "dueno",
+      conDetalles({
+        ...dashboardMock.detalles,
+        alertas_pendientes: {
+          seccion: "alertas",
+          filtros: { estado: "pendiente", propietario_id: responsableId },
+        },
+      }),
+    );
+
+    expect(await destino(/Alertas pendientes/)).toEqual({
+      ruta: "/agenda",
+      filtros: { estado: "pendiente", propietario_id: responsableId },
+    });
+  });
+
+  it("RF-128 para el empleado los contadores llevan a «lo mío» (mios)", async () => {
+    renderDashboard(
+      "empleado",
+      conDetalles({
+        ...dashboardMock.detalles,
+        consultas_pendientes: { seccion: "oportunidades", filtros: { mios: "true" } },
+        presupuestos_abiertos: {
+          seccion: "oportunidades",
+          filtros: { estado: "cotizada", mios: "true" },
+        },
+        reservas_confirmadas: {
+          seccion: "viajes",
+          filtros: { estado: "confirmado", mios: "true" },
+        },
+      }),
+    );
+
+    expect(await destino(/Consultas pendientes/)).toEqual({
+      ruta: "/oportunidades",
+      filtros: { mios: "true" },
+    });
+    expect(await destino(/Presupuestos abiertos/)).toEqual({
+      ruta: "/oportunidades",
+      filtros: { estado: "cotizada", mios: "true" },
+    });
+    expect(await destino(/Reservas confirmadas/)).toEqual({
+      ruta: "/viajes",
+      filtros: { estado: "confirmado", mios: "true" },
+    });
+  });
+
+  describe("recorrido completo hasta la pantalla destino", () => {
+    function renderRecorrido(rol: RolMock, ...extra: Parameters<typeof servidor.use>) {
+      servidor.use(
+        ...extra,
+        ...manejadoresDashboardPara(rol),
+        ...manejadoresViajes,
+        ...manejadoresClientes,
+        ...manejadoresM1,
+        ...manejadoresOportunidades,
+        http.get("*/api/usuarios/asesores", () =>
+          HttpResponse.json([{ id: responsableId, nombre: usuariosPorRol.empleado.nombre }]),
+        ),
+      );
+      return render(
+        <QueryClientProvider
+          client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}
+        >
+          <MemoryRouter initialEntries={["/dashboard"]}>
+            <Routes>
+              <Route
+                path="/dashboard"
+                element={<PaginaDashboard cliente={cliente} usuario={usuariosPorRol[rol]} />}
+              />
+              <Route
+                path="/viajes"
+                element={<PaginaViajes cliente={cliente} usuario={usuariosPorRol[rol]} />}
+              />
+              <Route
+                path="/oportunidades"
+                element={<PaginaOportunidades cliente={cliente} usuario={usuariosPorRol[rol]} />}
+              />
+            </Routes>
+          </MemoryRouter>
+        </QueryClientProvider>,
+      );
+    }
+
+    it("RF-128 pulsar «Reservas confirmadas» muestra solo los viajes confirmados", async () => {
+      const pedidos: URLSearchParams[] = [];
+      renderRecorrido(
+        "dueno",
+        http.get("*/api/viajes", ({ request }) => {
+          pedidos.push(new URL(request.url).searchParams);
+          return undefined;
+        }),
+      );
+
+      await userEvent.click(await tarjeta(/Reservas confirmadas/));
+
+      expect(await screen.findByRole("heading", { level: 1, name: "Viajes" })).toBeInTheDocument();
+      expect(await screen.findByText("Brasil")).toBeInTheDocument();
+      expect(screen.queryByText("Europa")).not.toBeInTheDocument();
+      expect(pedidos.length).toBeGreaterThan(0);
+      expect(pedidos.every((p) => p.get("estado") === "confirmado")).toBe(true);
+    });
+
+    it("RF-128 pulsar «Presupuestos abiertos» de un responsable pide solo cotizadas de ese responsable", async () => {
+      const pedidos: URLSearchParams[] = [];
+      renderRecorrido(
+        "dueno",
+        http.get("*/api/oportunidades", ({ request }) => {
+          pedidos.push(new URL(request.url).searchParams);
+          return undefined;
+        }),
+        conDetalles({
+          ...dashboardMock.detalles,
+          presupuestos_abiertos: {
+            seccion: "oportunidades",
+            filtros: { estado: "cotizada", responsable_id: responsableId },
+          },
+        }),
+      );
+
+      await userEvent.click(await tarjeta(/Presupuestos abiertos/));
+
+      expect(
+        await screen.findByRole("heading", { level: 1, name: "Oportunidades" }),
+      ).toBeInTheDocument();
+      await screen.findByRole("heading", { name: /^Cotizada\b/ });
+      expect(screen.queryByRole("heading", { name: /^Nueva\b/ })).not.toBeInTheDocument();
+      expect(pedidos.length).toBeGreaterThan(0);
+      expect(
+        pedidos.every(
+          (p) => p.get("estado") === "cotizada" && p.get("responsable_id") === responsableId,
+        ),
+      ).toBe(true);
+    });
   });
 });

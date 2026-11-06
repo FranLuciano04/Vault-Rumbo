@@ -10,7 +10,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { act, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { http, HttpResponse } from "msw";
-import { MemoryRouter } from "react-router";
+import { MemoryRouter, Outlet, Route, Routes, useNavigate } from "react-router";
+import { SeccionAgenda } from "@/app/SeccionAgenda";
 import { afterAll, afterEach, beforeAll, beforeEach, vi } from "vitest";
 import { PaginaAgenda } from "./PaginaAgenda";
 
@@ -38,7 +39,10 @@ const asesores = [
   { id: "e7b20d94-6a3f-4c15-9d8e-0b5a3f7c2e04", nombre: "Tomás Roldán" },
 ];
 
-function renderAgenda(rol: RolMock = "empleado") {
+/** Id del segundo asesor, para armar URLs. */
+const idTomas = asesores[1]?.id ?? "";
+
+function renderAgenda(rol: RolMock = "empleado", ruta = "/agenda") {
   if (rol === "admin" || rol === "dueno") {
     servidor.use(http.get("*/api/usuarios/asesores", () => HttpResponse.json(asesores)));
   }
@@ -46,7 +50,7 @@ function renderAgenda(rol: RolMock = "empleado") {
     <QueryClientProvider
       client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}
     >
-      <MemoryRouter initialEntries={["/agenda"]}>
+      <MemoryRouter initialEntries={[ruta]}>
         <PaginaAgenda cliente={cliente} usuario={usuariosPorRol[rol]} />
       </MemoryRouter>
     </QueryClientProvider>,
@@ -624,4 +628,138 @@ describe("RF-078 agenda de la agencia", () => {
 
     expect(within(f).queryByText(/Ana Pérez/)).not.toBeInTheDocument();
   });
+});
+
+describe("RF-128 agenda: filtros que llegan en la URL desde el dashboard", () => {
+  const pedidosDeAlertas = (pedidos: URLSearchParams[]) =>
+    http.get("*/api/alertas", ({ request }) => {
+      pedidos.push(new URL(request.url).searchParams);
+      return undefined;
+    });
+
+  it.each<RolMock>(["admin", "dueno"])(
+    "RF-128 %s con ?propietario_id= pide las alertas de ese responsable y lo deja elegido",
+    async (rol) => {
+      const pedidos: URLSearchParams[] = [];
+      servidor.use(pedidosDeAlertas(pedidos));
+      renderAgenda(rol, `/agenda?estado=pendiente&propietario_id=${idTomas}`);
+
+      await screen.findByRole("option", { name: "Tomás Roldán" });
+
+      await waitFor(() => {
+        expect(screen.getByRole("combobox", { name: /responsable/i })).toHaveValue(asesores[1]?.id);
+      });
+      expect(pedidos.length).toBeGreaterThan(0);
+      expect(pedidos.every((p) => p.get("propietario_id") === asesores[1]?.id)).toBe(true);
+    },
+  );
+
+  it("RF-128 sin parámetros en la URL la agenda pide sin propietario_id", async () => {
+    const pedidos: URLSearchParams[] = [];
+    servidor.use(pedidosDeAlertas(pedidos));
+    renderAgenda("dueno");
+
+    await screen.findByText(PAGO);
+
+    expect(pedidos.length).toBeGreaterThan(0);
+    expect(pedidos.every((p) => !p.has("propietario_id"))).toBe(true);
+  });
+});
+
+/** Botón que navega dentro de la app, como el menú lateral. */
+function IrA({ a }: { a: string }) {
+  const navegar = useNavigate();
+  return (
+    <button
+      type="button"
+      onClick={() => {
+        void navegar(a);
+      }}
+    >
+      Ir a {a}
+    </button>
+  );
+}
+
+/** Monta la sección que usa la app (con el usuario por contexto) y un botón para navegar. */
+function renderSeccionAgenda(
+  rol: RolMock,
+  ruta: string,
+  Seccion: typeof SeccionAgenda,
+  destino: string,
+) {
+  return render(
+    <QueryClientProvider
+      client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}
+    >
+      <MemoryRouter initialEntries={[ruta]}>
+        <IrA a={destino} />
+        <Routes>
+          <Route element={<Outlet context={usuariosPorRol[rol]} />}>
+            <Route path={destino.split("?")[0]} element={<Seccion cliente={cliente} />} />
+          </Route>
+        </Routes>
+      </MemoryRouter>
+    </QueryClientProvider>,
+  );
+}
+
+describe("RF-128 agenda: navegar dentro de la pantalla, ids inválidos y roles", () => {
+  const registrar = (pedidos: URLSearchParams[]) =>
+    http.get("*/api/alertas", ({ request }) => {
+      pedidos.push(new URL(request.url).searchParams);
+      return undefined;
+    });
+
+  it("RF-128 de /agenda?propietario_id=X a /agenda por el menú vuelve a pedir sin responsable", async () => {
+    const pedidos: URLSearchParams[] = [];
+    servidor.use(
+      http.get("*/api/usuarios/asesores", () => HttpResponse.json(asesores)),
+      registrar(pedidos),
+    );
+    const usuario = userEvent.setup();
+    renderSeccionAgenda("dueno", `/agenda?propietario_id=${idTomas}`, SeccionAgenda, "/agenda");
+    await waitFor(() => {
+      expect(screen.getByRole("combobox", { name: /responsable/i })).toHaveValue(asesores[1]?.id);
+    });
+    const antes = pedidos.length;
+
+    await usuario.click(screen.getByRole("button", { name: "Ir a /agenda" }));
+
+    await waitFor(() => {
+      expect(screen.getByRole("combobox", { name: /responsable/i })).toHaveValue("");
+    });
+    await screen.findByText(PAGO);
+    const nuevos = pedidos.slice(antes);
+    expect(nuevos.length).toBeGreaterThan(0);
+    expect(nuevos.every((p) => !p.has("propietario_id"))).toBe(true);
+  });
+
+  it.each<RolMock>(["admin", "dueno"])(
+    "RF-128 %s con ?propietario_id=abc (no es un id) lo ignora y carga la agenda",
+    async (rol) => {
+      const pedidos: URLSearchParams[] = [];
+      servidor.use(registrar(pedidos));
+      renderAgenda(rol, "/agenda?propietario_id=abc");
+
+      await screen.findByText(PAGO);
+
+      expect(pedidos.length).toBeGreaterThan(0);
+      expect(pedidos.every((p) => !p.has("propietario_id"))).toBe(true);
+    },
+  );
+
+  it.each<RolMock>(["empleado", "freelance"])(
+    "RF-128 %s con ?propietario_id=X no manda ese parámetro",
+    async (rol) => {
+      const pedidos: URLSearchParams[] = [];
+      servidor.use(registrar(pedidos));
+      renderAgenda(rol, `/agenda?propietario_id=${idTomas}`);
+
+      await screen.findByText(PAGO);
+
+      expect(pedidos.length).toBeGreaterThan(0);
+      expect(pedidos.every((p) => !p.has("propietario_id"))).toBe(true);
+    },
+  );
 });

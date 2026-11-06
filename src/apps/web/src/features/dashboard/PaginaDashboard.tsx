@@ -1,6 +1,7 @@
 import {
   formatearFecha,
   formatearImporte,
+  type Dashboard,
   type MontoPorMoneda,
   type UsuarioActual,
 } from "@rumbo/shared";
@@ -24,6 +25,18 @@ function textoMargen(margen: readonly MontoPorMoneda[]) {
   if (!unico) return "Margen 0 %";
   if (margen.length === 1) return `Margen ${porcentaje(unico)}`;
   return `Margen ${margen.map((m) => `${m.moneda} ${porcentaje(m)}`).join(" · ")}`;
+}
+
+const RUTA_DE_SECCION = {
+  oportunidades: "/oportunidades",
+  viajes: "/viajes",
+  alertas: "/agenda",
+} as const;
+
+/** Ruta del detalle de un contador, con los filtros que la API calculó para este alcance (RF-128). */
+function rutaDeDetalle({ seccion, filtros }: Dashboard["detalles"]["viajes_activos"]) {
+  const consulta = new URLSearchParams(filtros).toString();
+  return consulta ? `${RUTA_DE_SECCION[seccion]}?${consulta}` : RUTA_DE_SECCION[seccion];
 }
 
 const NOTA_USD = "Los importes en USD se muestran aparte, sin convertir.";
@@ -171,7 +184,10 @@ export function PaginaDashboard({
             <TarjetaIndicador titulo="Ticket promedio">
               <Importes montos={data.ticket_promedio} />
             </TarjetaIndicador>
-            <TarjetaIndicador titulo="Alertas pendientes" ruta="/agenda">
+            <TarjetaIndicador
+              titulo="Alertas pendientes"
+              ruta={rutaDeDetalle(data.detalles.alertas_pendientes)}
+            >
               {data.alertas_pendientes}
             </TarjetaIndicador>
           </div>
@@ -182,13 +198,22 @@ export function PaginaDashboard({
           </div>
 
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-            <TarjetaIndicador titulo="Consultas pendientes" ruta="/oportunidades">
+            <TarjetaIndicador
+              titulo="Consultas pendientes"
+              ruta={rutaDeDetalle(data.detalles.consultas_pendientes)}
+            >
               {data.consultas_pendientes}
             </TarjetaIndicador>
-            <TarjetaIndicador titulo="Presupuestos abiertos" ruta="/oportunidades">
+            <TarjetaIndicador
+              titulo="Presupuestos abiertos"
+              ruta={rutaDeDetalle(data.detalles.presupuestos_abiertos)}
+            >
               {data.presupuestos_abiertos}
             </TarjetaIndicador>
-            <TarjetaIndicador titulo="Reservas confirmadas" ruta="/viajes">
+            <TarjetaIndicador
+              titulo="Reservas confirmadas"
+              ruta={rutaDeDetalle(data.detalles.reservas_confirmadas)}
+            >
               {data.reservas_confirmadas}
             </TarjetaIndicador>
           </div>
