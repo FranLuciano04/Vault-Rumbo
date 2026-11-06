@@ -3,7 +3,7 @@ id: T-129
 titulo: Publicar el contrato de redes
 modulo: M9 — Redes e IA
 capa: contrato
-estado: libre
+estado: tomado
 depende_de: [T-015]
 tamaño: S
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [CU-19, CU-20, DEC-0013]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: Nahuel Viniegra
+tomado_el: 06/11/26 17:57
+rama: feature/T-129-publicar-el-contrato-de-redes
 pr:
 ---
 # T-129 Publicar el contrato de redes

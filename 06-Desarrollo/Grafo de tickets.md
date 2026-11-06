@@ -23,7 +23,7 @@ tags:: #tipo/referencia
 | M6 — Viajes y economía | 24 | 24 | 0 | 0 | 0 | 0 | ✅ cerrado |
 | M7 — Proceso diario y CRM proactivo | 9 | 9 | 0 | 0 | 0 | 0 | ✅ cerrado |
 | M8 — Calendario, dashboard y reportes | 10 | 10 | 0 | 0 | 0 | 0 | ✅ cerrado |
-| M9 — Redes e IA | 6 | 0 | 0 | 1 | 5 | 0 | 🛠️ en curso |
+| M9 — Redes e IA | 6 | 0 | 1 | 0 | 5 | 0 | 🛠️ en curso |
 | M10 — Despliegue on-premise | 5 | 0 | 0 | 1 | 4 | 0 | 🛠️ en curso |
 
 ## Grafo
@@ -207,7 +207,7 @@ flowchart LR
     T128["T-128 · Probar de punta a punta el tablero de gestión<br/><small>e2e</small>"]:::hecho
   end
   subgraph M9["M9 — Redes e IA"]
-    T129["T-129 · Publicar el contrato de redes<br/><small>contrato</small>"]:::disponible
+    T129["T-129 · Publicar el contrato de redes<br/><small>contrato</small><br/>👤 Nahuel Viniegra"]:::tomado
     T130["T-130 · Planificar las piezas de contenido en el tablero<br/><small>backend</small>"]:::esperando
     T131["T-131 · Generar borradores de contenido con IA<br/><small>backend · ⚠️ riesgo alto</small>"]:::esperando
     T132["T-132 · Planificar contenido en el tablero web<br/><small>web</small>"]:::esperando
