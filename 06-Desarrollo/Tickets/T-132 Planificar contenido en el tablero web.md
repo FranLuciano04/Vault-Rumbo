@@ -3,7 +3,7 @@ id: T-132
 titulo: Planificar contenido en el tablero web
 modulo: M9 — Redes e IA
 capa: web
-estado: libre
+estado: tomado
 depende_de: [T-129, T-020]
 tamaño: M
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [CU-19, RF-113, RF-114, RF-115, RF-116, RF-117]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: Nahuel Viniegra
+tomado_el: 06/11/26 21:25
+rama: feature/T-132-planificar-contenido-en-el-tablero-web
 pr:
 ---
 # T-132 Planificar contenido en el tablero web
