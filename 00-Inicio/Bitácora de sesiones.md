@@ -39,7 +39,7 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
   - Review en 2 rondas: 1 bloqueante, 6 importantes y 9 menores; quedó 1 menor pendiente, anotado en el ticket.
   - Decisión de Nahuel: la columna Publicado no filtra por fecha, para que ninguna pieza desaparezca del tablero.
 - **Commits:** `928adbf` rojo, `018025f` verde, `56a0a85` refactor, `5571d4d` y `458ffc7` fix, `a89d9c4` merge.
-- **Pendiente:** las publicadas recientes quedan detrás de «Ver más» porque la API ordena de la fecha más vieja a la más nueva; mostrarlas primero necesita un parámetro `orden`. Dejar explícito en T-133 invocar la IA desde una pieza ya creada (CU-19 A1, RF-119).
+- **Pendiente:** las publicadas recientes quedan detrás de «Ver más» porque la API ordena de la fecha más vieja a la más nueva; lo resuelven T-169 (backend) y T-170 (web), ya creados. Dejar explícito en T-133 invocar la IA desde una pieza ya creada (CU-19 A1, RF-119).
 
 ## 06/11/26 — Nahuel (Claude Opus 5.5) — T-130, tablero de contenido
 - **Hecho:**
