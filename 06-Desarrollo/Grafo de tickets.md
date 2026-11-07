@@ -23,7 +23,7 @@ tags:: #tipo/referencia
 | M6 — Viajes y economía | 24 | 24 | 0 | 0 | 0 | 0 | ✅ cerrado |
 | M7 — Proceso diario y CRM proactivo | 9 | 9 | 0 | 0 | 0 | 0 | ✅ cerrado |
 | M8 — Calendario, dashboard y reportes | 10 | 10 | 0 | 0 | 0 | 0 | ✅ cerrado |
-| M9 — Redes e IA | 6 | 3 | 0 | 2 | 1 | 0 | 🛠️ en curso |
+| M9 — Redes e IA | 8 | 3 | 0 | 3 | 2 | 0 | 🛠️ en curso |
 | M10 — Despliegue on-premise | 5 | 0 | 0 | 1 | 4 | 0 | 🛠️ en curso |
 
 ## Grafo
@@ -213,6 +213,8 @@ flowchart LR
     T132["T-132 · Planificar contenido en el tablero web<br/><small>web</small>"]:::hecho
     T133["T-133 · Pedir una propuesta de contenido con IA en la web<br/><small>web</small>"]:::disponible
     T134["T-134 · Probar de punta a punta la planificación de redes<br/><small>e2e</small>"]:::esperando
+    T169["T-169 · Ordenar las piezas de contenido de la más nueva a la más vieja<br/><small>backend</small>"]:::disponible
+    T170["T-170 · Mostrar primero las publicadas recientes en el tablero web<br/><small>web</small>"]:::esperando
   end
   subgraph M10["M10 — Despliegue on-premise"]
     T135["T-135 · Preparar el servidor on-premise de la agencia<br/><small>infra</small>"]:::disponible
@@ -543,6 +545,9 @@ flowchart LR
   T066 --> T167
   T167 --> T168
   T069 --> T168
+  T130 --> T169
+  T169 --> T170
+  T132 --> T170
   classDef hecho fill:#c8e6c9,stroke:#2e7d32,color:#1b5e20
   classDef tomado fill:#fff3cd,stroke:#b8860b,color:#5d4300
   classDef disponible fill:#dbeafe,stroke:#1d4ed8,color:#1e3a8a
