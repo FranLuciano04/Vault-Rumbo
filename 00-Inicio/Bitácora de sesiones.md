@@ -33,6 +33,13 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
+## 06/11/26 — Nahuel (Claude Opus 5.5) — T-130, tablero de contenido
+- **Hecho:**
+  - T-130 implementado con TDD y mergeado por Nahuel (PR #197), con el CI en verde: las cinco rutas de `/contenidos` y las transiciones de EST-ContenidoRed en el backend.
+  - Review en 1 ronda: sin bloqueantes, 2 importantes y 2 menores, todos arreglados.
+- **Commits:** `9ba7d8f` rojo, `3a1173b` verde, `892ec0f` fix, `dd403a4` merge.
+- **Pendiente:** `POST /contenidos/propuestas-ia` sigue en `501` hasta T-131.
+
 ## 06/11/26 — Nahuel (Claude Opus 5.5) — T-129, contrato de M9
 - **Hecho:**
   - T-129 implementado con TDD y mergeado por Nahuel (PR #196), con el CI en verde: seis rutas stub `501` de `redes`, tipos, hooks y mocks.
