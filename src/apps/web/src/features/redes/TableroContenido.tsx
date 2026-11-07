@@ -4,6 +4,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import type { AxiosInstance } from "axios";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { TarjetaContenido } from "./TarjetaContenido";
 import type { ColumnaTablero } from "./useTableroContenido";
 
@@ -22,7 +23,7 @@ export function TableroContenido({
   const queryClient = useQueryClient();
   const editar = useEditarContenido(cliente);
   const descartar = useDescartarContenido(cliente);
-  // Solo se ve el error de la última acción: una que sale bien lo limpia.
+  // Solo se ve el error de la última acción: una acción del tablero que sale bien lo limpia.
   const [error, setError] = useState<unknown>(null);
   const ocupada = editar.isPending || descartar.isPending;
   const resultado = {
@@ -44,25 +45,39 @@ export function TableroContenido({
         </p>
       )}
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
-        {columnas.map(({ estado, etiqueta, consulta, nota }) => {
+        {columnas.map(({ estado, etiqueta, consulta }) => {
           const piezas = consulta.data?.pages.flatMap((pagina) => pagina.items) ?? [];
+          const fallida = consulta.isError && !consulta.data;
+          // Al cambiar de filtro se ve lo anterior hasta que llega lo nuevo: sin acciones mientras tanto.
+          const actualizando = consulta.isPlaceholderData;
           return (
-            <section key={estado} className="flex flex-col gap-2 rounded-xl bg-muted/40 p-3">
+            <section
+              key={estado}
+              aria-busy={actualizando}
+              className={cn(
+                "flex flex-col gap-2 rounded-xl bg-muted/40 p-3",
+                actualizando && "opacity-60 transition-opacity",
+              )}
+            >
               <h2 className="text-sm font-semibold">
                 {etiqueta}{" "}
                 <span className="text-muted-foreground tabular-nums">
-                  ({consulta.data?.pages[0]?.total ?? 0})
+                  ({fallida ? "–" : (consulta.data?.pages[0]?.total ?? 0)})
                 </span>
               </h2>
-              {nota && <p className="text-xs text-muted-foreground">{nota}</p>}
-              {piezas.length === 0 && (
+              {fallida && (
+                <p role="alert" className="text-xs text-destructive">
+                  No pudimos cargar esta columna. {mensajeDeError(consulta.error)}
+                </p>
+              )}
+              {piezas.length === 0 && !fallida && (
                 <p className="text-xs text-muted-foreground">Sin piezas en esta columna.</p>
               )}
               {piezas.map((pieza) => (
                 <TarjetaContenido
                   key={pieza.id}
                   pieza={pieza}
-                  ocupada={ocupada}
+                  ocupada={ocupada || actualizando}
                   soloLectura={soloLectura}
                   alMover={(estado_kanban) => {
                     editar.mutate({ contenidoId: pieza.id, cambios: { estado_kanban } }, resultado);
@@ -85,7 +100,7 @@ export function TableroContenido({
                   variant="ghost"
                   className="w-full"
                   aria-label={`Ver más piezas de ${etiqueta}`}
-                  disabled={consulta.isFetchingNextPage}
+                  disabled={consulta.isFetchingNextPage || actualizando}
                   onClick={() => void consulta.fetchNextPage()}
                 >
                   Ver más

@@ -360,7 +360,7 @@ describe("RF-116 calendario", () => {
       http.get("*/api/contenidos", ({ request }) => {
         const q = new URL(request.url).searchParams;
         rangos.push([q.get("desde"), q.get("hasta")]);
-        return HttpResponse.json({ items: [], total: 0, pagina: 1, tamano: 100 });
+        return HttpResponse.json({ items: [], total: 0, pagina: 1, por_pagina: 100 });
       }),
     );
     renderRedes();
@@ -444,7 +444,7 @@ describe("RF-114 columnas por páginas", () => {
     expect(within(columnaIdea).queryByRole("button", { name: /ver más/i })).toBeNull();
   });
 
-  it("RF-114 pide cada columna por su estado y las publicadas solo de los últimos 30 días", async () => {
+  it("RF-114 pide cada columna por su estado y las publicadas sin límite de fecha", async () => {
     const pedidos: URLSearchParams[] = [];
     conMuchasIdeas(pedidos);
     renderRedes();
@@ -452,9 +452,32 @@ describe("RF-114 columnas por páginas", () => {
 
     const estados = pedidos.map((q) => q.get("estado_kanban")).sort();
     expect(estados).toEqual(["en_produccion", "idea", "listo", "publicado"]);
-    expect(pedidos.find((q) => q.get("estado_kanban") === "publicado")?.get("desde")).toBe(
-      "2026-10-13",
+    const publicadas = pedidos.find((q) => q.get("estado_kanban") === "publicado");
+    expect(publicadas?.has("desde")).toBe(false);
+  });
+
+  it("RF-114 una pieza publicada hace más de 30 días aparece en su columna", async () => {
+    const vieja = {
+      ...publicado,
+      titulo: "Publicación de agosto",
+      fecha_publicacion: "2026-08-01",
+    };
+    servidor.use(
+      http.get("*/api/contenidos", ({ request }) => {
+        const publicadas = new URL(request.url).searchParams.get("estado_kanban") === "publicado";
+        return HttpResponse.json({
+          items: publicadas ? [vieja] : [],
+          total: publicadas ? 1 : 0,
+          pagina: 1,
+          por_pagina: 20,
+        });
+      }),
     );
+    renderRedes();
+
+    expect(
+      within(await columna(/^publicado/i)).getByText("Publicación de agosto"),
+    ).toBeInTheDocument();
   });
 });
 
@@ -513,7 +536,7 @@ describe("RF-114 filtro por canal", () => {
       http.get("*/api/contenidos", ({ request }) => {
         const q = new URL(request.url).searchParams;
         pedidos.push([q.get("canal"), q.get("desde")]);
-        return HttpResponse.json({ items: [], total: 0, pagina: 1, tamano: 100 });
+        return HttpResponse.json({ items: [], total: 0, pagina: 1, por_pagina: 100 });
       }),
     );
     renderRedes();
@@ -577,5 +600,60 @@ describe("RF-114 errores de las acciones", () => {
     await waitFor(() => {
       expect(lecturas).toBeGreaterThan(antes);
     });
+  });
+});
+
+describe("403 después de cargar (DEC-0013)", () => {
+  const sinPermiso = http.get("*/api/contenidos", () =>
+    HttpResponse.json(
+      { type: "about:blank", title: "Sin permiso", status: 403, detail: "Sin acceso." },
+      { status: 403, headers: { "Content-Type": "application/problem+json" } },
+    ),
+  );
+
+  it("DEC-0013 un 403 en una relectura del tablero muestra el aviso de acceso", async () => {
+    servidor.use(...manejadoresRedes);
+    espiarEscrituras();
+    renderRedes();
+    const t = await tarjeta(idea.titulo);
+    servidor.use(sinPermiso);
+
+    await userEvent.click(within(t).getByRole("button", { name: /avanzar/i }));
+
+    expect(await screen.findByText(/no tenés acceso al módulo de redes/i)).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /nueva pieza/i })).not.toBeInTheDocument();
+  });
+
+  it("DEC-0013 un 403 en el calendario muestra el aviso de acceso", async () => {
+    servidor.use(...manejadoresRedes);
+    renderRedes();
+    await screen.findByText(idea.titulo);
+    servidor.use(sinPermiso);
+
+    await userEvent.click(screen.getByRole("tab", { name: /calendario/i }));
+
+    expect(await screen.findByText(/no tenés acceso al módulo de redes/i)).toBeInTheDocument();
+    expect(screen.queryByText(/no pudimos cargar el calendario/i)).not.toBeInTheDocument();
+  });
+});
+
+describe("RF-114 columna fallida", () => {
+  it("RF-114 una columna que no carga muestra su error y no «(0)»", async () => {
+    servidor.use(
+      http.get("*/api/contenidos", ({ request }) =>
+        new URL(request.url).searchParams.get("estado_kanban") === "listo"
+          ? HttpResponse.json(
+              { type: "about:blank", title: "Error", status: 500, detail: "Falla del servidor." },
+              { status: 500, headers: { "Content-Type": "application/problem+json" } },
+            )
+          : undefined,
+      ),
+      ...manejadoresRedes,
+    );
+    renderRedes();
+
+    const listos = await columna(/^listo/i);
+    expect(await within(listos).findByRole("alert")).toHaveTextContent(/no pudimos cargar/i);
+    expect(within(listos).queryByText(/\(0\)/)).toBeNull();
   });
 });

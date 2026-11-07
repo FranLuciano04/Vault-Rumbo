@@ -1,5 +1,4 @@
 import {
-  ErrorApi,
   hoyEnBuenosAires,
   mensajeDeError,
   type CanalContenido,
@@ -14,6 +13,7 @@ import { cn } from "@/lib/utils";
 import { CalendarioContenido } from "./CalendarioContenido";
 import { ETIQUETA_CANAL } from "./etiquetas";
 import { FormularioContenido } from "./FormularioContenido";
+import { esSinAcceso } from "./sinAcceso";
 import { TableroContenido } from "./TableroContenido";
 import { useTableroContenido } from "./useTableroContenido";
 
@@ -31,6 +31,8 @@ export function PaginaRedes({ cliente }: { cliente: AxiosInstance }) {
   const [vista, setVista] = useState<Vista>("tablero");
   const [canal, setCanal] = useState<CanalContenido>();
   const [verDescartadas, setVerDescartadas] = useState(false);
+  // El calendario avisa si su lectura da 403; el tablero se lee directo de sus consultas.
+  const [calendarioSinAcceso, setCalendarioSinAcceso] = useState(false);
   // `undefined` = sin formulario; `null` = alta; una pieza = edición.
   const [edicion, setEdicion] = useState<ContenidoRed | null | undefined>();
   const enTablero = vista === "tablero";
@@ -40,9 +42,13 @@ export function PaginaRedes({ cliente }: { cliente: AxiosInstance }) {
     verDescartadas,
   });
   const cargando = columnas.some(({ consulta }) => consulta.isPending);
+  // Un 403 corta la pantalla aunque haya datos (una relectura puede perder el acceso); los demás
+  // errores solo tumban el tablero si no hay nada que mostrar.
+  const sinAcceso =
+    calendarioSinAcceso || columnas.some(({ consulta }) => esSinAcceso(consulta.error));
   const falla = columnas.find(({ consulta }) => consulta.isError && !consulta.data)?.consulta.error;
 
-  if (falla instanceof ErrorApi && falla.status === 403) {
+  if (sinAcceso) {
     return (
       <p role="alert" className="p-6">
         No tenés acceso al módulo de redes. Pedíselo a quien administra la agencia.
@@ -159,7 +165,14 @@ export function PaginaRedes({ cliente }: { cliente: AxiosInstance }) {
           )}
         </>
       ) : (
-        <CalendarioContenido cliente={cliente} hoy={hoyEnBuenosAires()} canal={canal} />
+        <CalendarioContenido
+          cliente={cliente}
+          hoy={hoyEnBuenosAires()}
+          canal={canal}
+          alSinAcceso={() => {
+            setCalendarioSinAcceso(true);
+          }}
+        />
       )}
 
       <p className="flex items-center gap-2 text-xs text-muted-foreground">

@@ -2,10 +2,11 @@ import { mensajeDeError, type CanalContenido } from "@rumbo/shared";
 import { useContenidos } from "@rumbo/shared/hooks";
 import type { AxiosInstance } from "axios";
 import { Check, ChevronLeft, ChevronRight } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { ETIQUETA_CANAL } from "./etiquetas";
+import { esSinAcceso } from "./sinAcceso";
 
 const DIAS = ["lun", "mar", "mié", "jue", "vie", "sáb", "dom"];
 const dos = (n: number) => String(n).padStart(2, "0");
@@ -15,11 +16,14 @@ export function CalendarioContenido({
   cliente,
   hoy,
   canal,
+  alSinAcceso,
 }: {
   cliente: AxiosInstance;
   /** Hoy, `aaaa-mm-dd`: el calendario abre en su mes. */
   hoy: string;
   canal?: CanalContenido;
+  /** Se llama si la API rechaza la lectura por falta de acceso (403). */
+  alSinAcceso: () => void;
 }) {
   const [mes, setMes] = useState({
     anio: Number(hoy.slice(0, 4)),
@@ -34,6 +38,10 @@ export function CalendarioContenido({
     hasta: `${prefijo}-${dos(diasDelMes)}`,
     por_pagina: 100,
   });
+  const sinAcceso = esSinAcceso(error);
+  useEffect(() => {
+    if (sinAcceso) alSinAcceso();
+  }, [sinAcceso, alSinAcceso]);
   // Lunes primero: getDay() devuelve 0 para el domingo.
   const huecos = (primero.getDay() + 6) % 7;
   const titulo = `${primero.toLocaleDateString("es-AR", { month: "long" })} ${String(mes.anio)}`;
