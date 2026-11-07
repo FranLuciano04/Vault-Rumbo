@@ -55,7 +55,7 @@ function renderRedes() {
 /** Tarjeta de una pieza en el tablero (article, li o data-testid="tarjeta-…"), buscada por título. */
 const tarjeta = async (titulo: string) => {
   const texto = await screen.findByText(titulo);
-  const caja = texto.closest("article, li, [data-testid^='tarjeta']") as HTMLElement | null;
+  const caja = texto.closest<HTMLElement>("article, li, [data-testid^='tarjeta']");
   if (!caja) throw new Error(`no hay una tarjeta para ${titulo}`);
   return caja;
 };
@@ -186,7 +186,7 @@ describe("RF-114 kanban", () => {
     ).toBeNull();
     const publicada = await tarjeta(publicado.titulo);
     expect(
-      within(publicada).queryByRole("button", { name: /avanzar|retroceder|descartar/i }),
+      within(publicada).queryByRole("button", { name: /avanzar|retroceder|descartar|editar/i }),
     ).toBeNull();
   });
 
@@ -253,7 +253,7 @@ describe("RF-113 alta de una pieza", () => {
   });
 });
 
-describe("RF-115 edición y descarte", () => {
+describe("RF-115 edición y RF-117 descarte", () => {
   beforeEach(() => {
     servidor.use(...manejadoresRedes);
   });
@@ -277,7 +277,7 @@ describe("RF-115 edición y descarte", () => {
     expect(patch[0]?.cuerpo).toMatchObject({ titulo: "Escapadas de invierno" });
   });
 
-  it("RF-116 reprograma la fecha de publicación (A2)", async () => {
+  it("RF-115 reprograma la fecha de publicación (A2)", async () => {
     const { patch } = espiarEscrituras();
     renderRedes();
 
@@ -294,19 +294,35 @@ describe("RF-115 edición y descarte", () => {
     });
   });
 
-  it("RF-115 descarta una pieza (baja lógica) tras confirmar si se pide (A4)", async () => {
+  it("RF-117 descarta una pieza (baja lógica) solo tras confirmar (A4)", async () => {
     const { descartes } = espiarEscrituras();
     renderRedes();
 
     await userEvent.click(
       within(await tarjeta(idea.titulo)).getByRole("button", { name: /descartar/i }),
     );
-    const confirmar = screen.queryByRole("button", { name: /^(confirmar|sí, descartar|descartar)$/i });
-    if (confirmar) await userEvent.click(confirmar);
+    expect(descartes).toEqual([]);
+    await userEvent.click(screen.getByRole("button", { name: /^confirmar$/i }));
 
     await waitFor(() => {
       expect(descartes).toEqual([idea.id]);
     });
+  });
+
+  it("RF-117 cancelar el descarte no envía nada y deja la pieza", async () => {
+    const { descartes } = espiarEscrituras();
+    renderRedes();
+
+    await userEvent.click(
+      within(await tarjeta(idea.titulo)).getByRole("button", { name: /descartar/i }),
+    );
+    await userEvent.click(screen.getByRole("button", { name: /^cancelar$/i }));
+
+    expect(screen.queryByRole("button", { name: /^confirmar$/i })).toBeNull();
+    expect(
+      within(await tarjeta(idea.titulo)).getByRole("button", { name: /descartar/i }),
+    ).toBeInTheDocument();
+    expect(descartes).toEqual([]);
   });
 });
 
@@ -367,8 +383,8 @@ describe("RF-116 calendario", () => {
   });
 });
 
-describe("RF-117 acceso al módulo de redes", () => {
-  it("RF-117 sin acceso a redes (403) muestra el aviso y ningún tablero", async () => {
+describe("acceso al módulo de redes (DEC-0008, DEC-0013)", () => {
+  it("DEC-0013 sin acceso a redes (403) muestra el aviso y ningún tablero", async () => {
     servidor.use(...manejadoresRedesPara("empleado", false));
     renderRedes();
 
@@ -377,11 +393,189 @@ describe("RF-117 acceso al módulo de redes", () => {
     expect(screen.queryByRole("button", { name: /nueva pieza/i })).not.toBeInTheDocument();
   });
 
-  it("RF-117 el freelance nunca ve el tablero", async () => {
+  it("DEC-0008 el freelance nunca ve el tablero", async () => {
     servidor.use(...manejadoresRedesPara("freelance", true));
     renderRedes();
 
     expect(await screen.findByText(/no tenés acceso al módulo de redes/i)).toBeInTheDocument();
     expect(screen.queryByText(idea.titulo)).not.toBeInTheDocument();
+  });
+});
+
+describe("RF-114 columnas por páginas", () => {
+  /** El servidor tiene 25 ideas y entrega `por_pagina` por vez; las demás columnas, vacías. */
+  function conMuchasIdeas(pedidos: URLSearchParams[] = []) {
+    servidor.use(
+      http.get("*/api/contenidos", ({ request }) => {
+        const q = new URL(request.url).searchParams;
+        pedidos.push(q);
+        const todas =
+          q.get("estado_kanban") === "idea"
+            ? Array.from({ length: 25 }, (_, i) => ({
+                ...idea,
+                id: `idea-${String(i + 1)}`,
+                titulo: `Pieza ${String(i + 1)}`,
+              }))
+            : [];
+        const pagina = Number(q.get("pagina") ?? 1);
+        const por = Number(q.get("por_pagina") ?? 20);
+        return HttpResponse.json({
+          items: todas.slice((pagina - 1) * por, pagina * por),
+          total: todas.length,
+          pagina,
+          por_pagina: por,
+        });
+      }),
+    );
+  }
+
+  it("RF-114 trae más piezas de una columna con «Ver más» cuando el total supera la página", async () => {
+    conMuchasIdeas();
+    renderRedes();
+
+    expect(await screen.findByText("Pieza 20")).toBeInTheDocument();
+    expect(screen.queryByText("Pieza 21")).not.toBeInTheDocument();
+    const columnaIdea = await columna(/^idea/i);
+    expect(within(columnaIdea).getByRole("heading", { name: /\(25\)/ })).toBeInTheDocument();
+
+    await userEvent.click(within(columnaIdea).getByRole("button", { name: /ver más/i }));
+
+    expect(await screen.findByText("Pieza 25")).toBeInTheDocument();
+    expect(within(columnaIdea).queryByRole("button", { name: /ver más/i })).toBeNull();
+  });
+
+  it("RF-114 pide cada columna por su estado y las publicadas solo de los últimos 30 días", async () => {
+    const pedidos: URLSearchParams[] = [];
+    conMuchasIdeas(pedidos);
+    renderRedes();
+    await screen.findByText("Pieza 20");
+
+    const estados = pedidos.map((q) => q.get("estado_kanban")).sort();
+    expect(estados).toEqual(["en_produccion", "idea", "listo", "publicado"]);
+    expect(pedidos.find((q) => q.get("estado_kanban") === "publicado")?.get("desde")).toBe(
+      "2026-10-13",
+    );
+  });
+});
+
+describe("RF-117 piezas descartadas", () => {
+  beforeEach(() => {
+    servidor.use(...manejadoresRedes);
+  });
+
+  it("RF-117 «Mostrar descartadas» lista las piezas descartadas, sin acciones", async () => {
+    renderRedes();
+    await screen.findByText(idea.titulo);
+
+    await userEvent.click(screen.getByRole("switch", { name: /mostrar descartadas/i }));
+
+    const t = await tarjeta(tituloDescartado);
+    expect(within(t).queryByRole("button")).toBeNull();
+    expect(screen.queryByText(idea.titulo)).not.toBeInTheDocument();
+    expect(screen.getByText(/las piezas descartadas se conservan/i)).toBeInTheDocument();
+  });
+
+  it("RF-117 al apagar el interruptor vuelve el tablero", async () => {
+    renderRedes();
+    await screen.findByText(idea.titulo);
+    const interruptor = screen.getByRole("switch", { name: /mostrar descartadas/i });
+    await userEvent.click(interruptor);
+    await tarjeta(tituloDescartado);
+
+    await userEvent.click(interruptor);
+
+    expect(await screen.findByText(idea.titulo)).toBeInTheDocument();
+    expect(screen.queryByText(tituloDescartado)).not.toBeInTheDocument();
+  });
+});
+
+describe("RF-114 filtro por canal", () => {
+  beforeEach(() => {
+    servidor.use(...manejadoresRedes);
+  });
+
+  it("RF-114 filtrar por TikTok deja en el tablero solo las piezas de ese canal", async () => {
+    renderRedes();
+    await screen.findByText(idea.titulo);
+
+    await userEvent.click(screen.getByRole("button", { name: "TikTok" }));
+
+    expect(await screen.findByText(publicado.titulo)).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.queryByText(idea.titulo)).not.toBeInTheDocument();
+    });
+    expect(screen.getByRole("button", { name: "TikTok" })).toHaveAttribute("aria-pressed", "true");
+  });
+
+  it("RF-116 el filtro de canal también se aplica al calendario", async () => {
+    const pedidos: (string | null)[][] = [];
+    servidor.use(
+      http.get("*/api/contenidos", ({ request }) => {
+        const q = new URL(request.url).searchParams;
+        pedidos.push([q.get("canal"), q.get("desde")]);
+        return HttpResponse.json({ items: [], total: 0, pagina: 1, tamano: 100 });
+      }),
+    );
+    renderRedes();
+    await userEvent.click(await screen.findByRole("button", { name: "TikTok" }));
+    await userEvent.click(screen.getByRole("tab", { name: /calendario/i }));
+
+    await waitFor(() => {
+      expect(pedidos).toContainEqual(["tiktok", "2026-11-01"]);
+    });
+  });
+});
+
+describe("RF-114 errores de las acciones", () => {
+  beforeEach(() => {
+    servidor.use(...manejadoresRedes);
+  });
+
+  const rechazarIdea = http.patch("*/api/contenidos/:id", ({ params }) => {
+    if (params["id"] !== idea.id) {
+      const c = contenidosMock.find((x) => x.id === params["id"]);
+      return HttpResponse.json({ ...c, estado_kanban: "en_produccion" });
+    }
+    return HttpResponse.json(
+      { type: "about:blank", title: "Conflicto", status: 409, detail: "Movimiento rechazado." },
+      { status: 409, headers: { "Content-Type": "application/problem+json" } },
+    );
+  });
+
+  it("RF-114 un error se limpia cuando otra acción sale bien", async () => {
+    servidor.use(rechazarIdea);
+    renderRedes();
+    await userEvent.click(
+      within(await tarjeta(idea.titulo)).getByRole("button", { name: /avanzar/i }),
+    );
+    expect(await screen.findByRole("alert")).toHaveTextContent(/movimiento rechazado/i);
+
+    await userEvent.click(
+      within(await tarjeta(listo.titulo)).getByRole("button", { name: /retroceder/i }),
+    );
+
+    await waitFor(() => {
+      expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+    });
+  });
+
+  it("RF-114 si el servidor rechaza un movimiento, el tablero se vuelve a leer", async () => {
+    let lecturas = 0;
+    servidor.use(
+      rechazarIdea,
+      http.get("*/api/contenidos", () => {
+        lecturas += 1;
+        return HttpResponse.json({ items: [idea], total: 1, pagina: 1, por_pagina: 20 });
+      }),
+    );
+    renderRedes();
+    const primera = (await screen.findAllByRole("article"))[0] as HTMLElement;
+    const antes = lecturas;
+    await userEvent.click(within(primera).getByRole("button", { name: /avanzar/i }));
+    await screen.findByRole("alert");
+
+    await waitFor(() => {
+      expect(lecturas).toBeGreaterThan(antes);
+    });
   });
 });

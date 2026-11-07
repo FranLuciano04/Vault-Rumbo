@@ -1,4 +1,4 @@
-import { keepPreviousData, useMutation, useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useInfiniteQuery, useMutation, useQuery } from "@tanstack/react-query";
 import type { AxiosInstance } from "axios";
 import type {
   ContenidoRed,
@@ -22,6 +22,28 @@ export function useContenidos(cliente: AxiosInstance, filtros: FiltrosContenidos
     placeholderData: keepPreviousData,
     queryFn: async () =>
       (await cliente.get<Pagina<ContenidoRed>>("/api/contenidos", { params: filtros })).data,
+  });
+}
+
+/** Una columna del tablero por páginas (`GET /api/contenidos`): `fetchNextPage` suma la siguiente hasta cubrir el total. */
+export function useContenidosPorPaginas(
+  cliente: AxiosInstance,
+  filtros: FiltrosContenidos = {},
+  { enabled = true } = {},
+) {
+  return useInfiniteQuery({
+    queryKey: [...claveContenidos, "lista-por-paginas", filtros],
+    enabled,
+    initialPageParam: 1,
+    placeholderData: keepPreviousData,
+    queryFn: async ({ pageParam }) =>
+      (
+        await cliente.get<Pagina<ContenidoRed>>("/api/contenidos", {
+          params: { ...filtros, pagina: pageParam },
+        })
+      ).data,
+    getNextPageParam: (ultima, todas) =>
+      todas.length * ultima.por_pagina < ultima.total ? todas.length + 1 : undefined,
   });
 }
 

@@ -1,22 +1,25 @@
-import { mensajeDeError } from "@rumbo/shared";
+import { mensajeDeError, type CanalContenido } from "@rumbo/shared";
 import { useContenidos } from "@rumbo/shared/hooks";
 import type { AxiosInstance } from "axios";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { Check, ChevronLeft, ChevronRight } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { ETIQUETA_CANAL } from "./etiquetas";
 
 const DIAS = ["lun", "mar", "mié", "jue", "vie", "sáb", "dom"];
 const dos = (n: number) => String(n).padStart(2, "0");
 
-/** Calendario mensual de publicaciones programadas (RF-116); pide al backend solo el mes que se ve. */
+/** Calendario mensual de publicaciones (RF-116); pide al backend solo el mes que se ve. */
 export function CalendarioContenido({
   cliente,
   hoy,
+  canal,
 }: {
   cliente: AxiosInstance;
   /** Hoy, `aaaa-mm-dd`: el calendario abre en su mes. */
   hoy: string;
+  canal?: CanalContenido;
 }) {
   const [mes, setMes] = useState({
     anio: Number(hoy.slice(0, 4)),
@@ -25,7 +28,8 @@ export function CalendarioContenido({
   const primero = new Date(mes.anio, mes.numero - 1, 1);
   const diasDelMes = new Date(mes.anio, mes.numero, 0).getDate();
   const prefijo = `${String(mes.anio)}-${dos(mes.numero)}`;
-  const { data, isPending, isError, error } = useContenidos(cliente, {
+  const { data, isPending, isPlaceholderData, isError, error } = useContenidos(cliente, {
+    canal,
     desde: `${prefijo}-01`,
     hasta: `${prefijo}-${dos(diasDelMes)}`,
     por_pagina: 100,
@@ -64,9 +68,16 @@ export function CalendarioContenido({
           <ChevronRight aria-hidden="true" />
         </Button>
       </div>
-      {isPending && <p role="status">Cargando publicaciones…</p>}
+      {(isPending || isPlaceholderData) && (
+        <p role="status" aria-busy="true" className="text-sm text-muted-foreground">
+          Cargando publicaciones…
+        </p>
+      )}
       {isError && <p role="alert">No pudimos cargar el calendario. {mensajeDeError(error)}</p>}
-      <div className="grid grid-cols-7 gap-1 text-xs">
+      <div
+        aria-busy={isPlaceholderData}
+        className={cn("grid grid-cols-7 gap-1 text-xs", isPlaceholderData && "opacity-60")}
+      >
         {DIAS.map((dia) => (
           <p key={dia} className="px-1 font-medium text-muted-foreground uppercase">
             {dia}
@@ -81,12 +92,21 @@ export function CalendarioContenido({
           return (
             <div key={dia} className="flex min-h-20 flex-col gap-1 rounded-md border p-1">
               <span className="text-muted-foreground">{i + 1}</span>
-              {piezas.map((pieza) => (
-                <p key={pieza.id} className="rounded bg-accent px-1 py-0.5">
-                  {pieza.titulo}
-                  <span className="block text-muted-foreground">{ETIQUETA_CANAL[pieza.canal]}</span>
-                </p>
-              ))}
+              {piezas.map((pieza) => {
+                const publicada = pieza.estado_kanban === "publicado";
+                return (
+                  <article
+                    key={pieza.id}
+                    className={cn("rounded px-1 py-0.5", publicada ? "bg-emerald-50" : "bg-accent")}
+                  >
+                    <p>{pieza.titulo}</p>
+                    <p className="flex items-center gap-1 text-muted-foreground">
+                      {publicada && <Check aria-hidden="true" className="size-3" />}
+                      {`${ETIQUETA_CANAL[pieza.canal]} · ${publicada ? "Publicada" : "Programada"}`}
+                    </p>
+                  </article>
+                );
+              })}
             </div>
           );
         })}

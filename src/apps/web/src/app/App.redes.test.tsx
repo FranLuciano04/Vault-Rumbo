@@ -37,14 +37,14 @@ function abrirComo(rol: RolMock, accesoRedes: boolean) {
   render(<App cliente={cliente} />);
 }
 
-describe("RF-117 Redes solo con acceso a redes", () => {
-  it("RF-117 un empleado con acceso ve el tablero de contenido", async () => {
+describe("DEC-0013 Redes solo con acceso a redes", () => {
+  it("DEC-0013 un empleado con acceso ve el tablero de contenido", async () => {
     abrirComo("empleado", true);
 
     expect(await screen.findByText(tituloIdea)).toBeInTheDocument();
   });
 
-  it("RF-117 un empleado sin acceso vuelve a la agenda", async () => {
+  it("DEC-0013 un empleado sin acceso vuelve a la agenda", async () => {
     abrirComo("empleado", false);
 
     await waitFor(() => {
@@ -53,7 +53,7 @@ describe("RF-117 Redes solo con acceso a redes", () => {
     expect(screen.queryByText(tituloIdea)).not.toBeInTheDocument();
   });
 
-  it("RF-117 el freelance vuelve a la agenda aunque tenga la capacidad", async () => {
+  it("DEC-0013 el freelance vuelve a la agenda aunque tenga la capacidad", async () => {
     abrirComo("freelance", true);
 
     await waitFor(() => {

@@ -4,7 +4,7 @@ import { Navigate, useOutletContext } from "react-router";
 import { PaginaRedes } from "@/features/redes/PaginaRedes";
 import { seccionesVisibles } from "./navegacion";
 
-/** Redes solo para quien tiene acceso al módulo (RF-117); el resto vuelve a la agenda. */
+/** Redes solo para quien tiene acceso al módulo (DEC-0008, DEC-0013); el resto vuelve a la agenda. */
 export function SeccionRedes({ cliente }: { cliente: AxiosInstance }) {
   const usuario = useOutletContext<UsuarioActual>();
   if (!seccionesVisibles(usuario).some(({ id }) => id === "redes"))
