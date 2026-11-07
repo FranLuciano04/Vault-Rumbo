@@ -21,7 +21,7 @@ export function TarjetaContenido({
   const posicion = COLUMNAS.findIndex(({ estado }) => estado === pieza.estado_kanban);
   const publicada = pieza.estado_kanban === "publicado";
   const anterior = posicion > 0 ? COLUMNAS[posicion - 1] : undefined;
-  const siguiente = publicada ? undefined : COLUMNAS[posicion + 1];
+  const siguiente = COLUMNAS[posicion + 1];
 
   return (
     <article className="flex flex-col gap-2 rounded-xl border bg-card p-3 text-sm">
