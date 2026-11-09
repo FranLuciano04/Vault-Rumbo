@@ -4,7 +4,7 @@ estado: formalizado
 modulo: [redes]
 responsable: Paloma
 pc: pc1
-actualizado: 30/09/26
+actualizado: 09/11/26
 fecha_aprobacion: 29/09/26
 ---
 # CU-20 Generar propuesta de contenido con IA
@@ -33,7 +33,8 @@ El empleado genera **borradores** de [[ContenidoRed]] asistidos por IA para agil
 ## Flujos alternativos
 - **A1 — Regenerar:** el borrador no convence → el empleado ajusta el tema/tono y pide otra propuesta.
 - **A2 — Descartar:** ninguna propuesta sirve → no se guarda nada.
-- **A3 — Desde una pieza existente:** la propuesta se genera en el contexto de una [[ContenidoRed]] ya creada en el kanban ([[CU-19 Planificar contenido en redes]]).
+- **A3 — Desde una pieza existente:** la propuesta se genera en el contexto de una [[ContenidoRed]] ya creada en el kanban ([[CU-19 Planificar contenido en redes]]). El canal queda fijo en el de la pieza y al guardar solo se reemplaza su texto: la pieza conserva su título, su fecha y su columna (decisión de Paloma, 09/11/26, [[T-133 Pedir una propuesta de contenido con IA en la web|T-133]]).
+- **A4 — Pieza nueva desde el borrador:** desde el encabezado de Redes, el borrador elegido se guarda como una pieza nueva en *idea*. El empleado revisa el título, que viene precargado con el del borrador, y elige la fecha de publicación. El canal es el del pedido que generó los borradores (decisión de Paloma, 09/11/26, T-133).
 
 ## Postcondiciones
 - Existe un **borrador** de [[ContenidoRed]] generado por IA y **revisado por una persona**, listo para avanzar en el kanban ([[CU-19 Planificar contenido en redes]]).
