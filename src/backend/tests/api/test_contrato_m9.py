@@ -184,6 +184,16 @@ async def test_cu19_listar_publica_filtros_de_estado_canal_y_periodo(
     assert _enum(contrato, parametros["canal"]["schema"]) == CANALES
 
 
+async def test_rf114_listar_publica_el_parametro_orden_asc_o_desc(
+    contrato: dict[str, Any],
+) -> None:
+    parametros = _parametros(contrato, "/api/contenidos")
+
+    assert "orden" in parametros
+    assert _enum(contrato, parametros["orden"]["schema"]) == ["asc", "desc"]
+    assert parametros["orden"].get("required", False) is False
+
+
 async def test_cu19_listar_devuelve_pagina_de_contenido_red(contrato: dict[str, Any]) -> None:
     esquema = _esquema_json(contrato["paths"]["/api/contenidos"]["get"], "200")
 
@@ -362,7 +372,13 @@ async def test_cu19_cuerpo_invalido_responde_422(
 
 
 @pytest.mark.parametrize(
-    "consulta", [{"canal": "facebook"}, {"estado_kanban": "archivado"}, {"desde": "ayer"}]
+    "consulta",
+    [
+        {"canal": "facebook"},
+        {"estado_kanban": "archivado"},
+        {"desde": "ayer"},
+        {"orden": "ascendente"},
+    ],
 )
 async def test_cu19_listar_con_filtro_invalido_responde_422(
     cliente_como: FabricaCliente, consulta: dict[str, str]

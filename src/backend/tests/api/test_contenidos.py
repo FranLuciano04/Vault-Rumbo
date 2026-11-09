@@ -441,6 +441,86 @@ async def test_rf116_pagina_el_listado(cliente_como: FabricaCliente, sesion: Asy
     assert len(r.json()["items"]) == 1
 
 
+async def test_rf114_listar_contenidos_en_orden_descendente(
+    cliente_como: FabricaCliente, sesion: AsyncSession
+) -> None:
+    c = await _con_redes(cliente_como)
+    yo = _yo(c)
+    ig = CanalContenido.instagram
+    medio = await _pieza(sesion, yo, "publicado", fecha_publicacion=date(2026, 11, 20), canal=ig)
+    tarde = await _pieza(sesion, yo, "idea", fecha_publicacion=date(2026, 12, 20), canal=ig)
+    temprano = await _pieza(sesion, yo, "listo", fecha_publicacion=date(2026, 11, 2), canal=ig)
+    await _pieza(
+        sesion, yo, "idea", fecha_publicacion=date(2026, 12, 25), canal=CanalContenido.tiktok
+    )
+
+    todas = await c.get("/api/contenidos", params={"orden": "desc"})
+    combinado = await c.get(
+        "/api/contenidos", params={"orden": "desc", "canal": "instagram", "hasta": "2026-12-20"}
+    )
+
+    assert todas.status_code == 200
+    fechas = [p["fecha_publicacion"] for p in todas.json()["items"]]
+    assert fechas == sorted(fechas, reverse=True)
+    assert fechas[0] == "2026-12-25"
+    assert _ids(combinado) == [str(tarde.id), str(medio.id), str(temprano.id)]
+
+
+async def test_rf114_orden_por_defecto_es_ascendente(
+    cliente_como: FabricaCliente, sesion: AsyncSession
+) -> None:
+    c = await _con_redes(cliente_como)
+    yo = _yo(c)
+    tarde = await _pieza(sesion, yo, fecha_publicacion=date(2026, 12, 20))
+    temprano = await _pieza(sesion, yo, fecha_publicacion=date(2026, 11, 2))
+    medio = await _pieza(sesion, yo, fecha_publicacion=date(2026, 11, 20))
+
+    sin_parametro = await c.get("/api/contenidos")
+    explicito = await c.get("/api/contenidos", params={"orden": "asc"})
+
+    esperado = [str(temprano.id), str(medio.id), str(tarde.id)]
+    assert _ids(sin_parametro) == esperado
+    assert _ids(explicito) == esperado
+
+
+@pytest.mark.parametrize("orden", ["asc", "desc"])
+async def test_rf114_orden_estable_entre_paginas(
+    cliente_como: FabricaCliente, sesion: AsyncSession, orden: str
+) -> None:
+    c = await _con_redes(cliente_como)
+    yo = _yo(c)
+    for _ in range(4):
+        await _pieza(sesion, yo, fecha_publicacion=date(2026, 11, 10))
+    for _ in range(3):
+        await _pieza(sesion, yo, fecha_publicacion=date(2026, 11, 15))
+
+    completo = await c.get("/api/contenidos", params={"orden": orden, "por_pagina": 100})
+    paginas: list[str] = []
+    for pagina in (1, 2, 3, 4):
+        r = await c.get(
+            "/api/contenidos", params={"orden": orden, "pagina": pagina, "por_pagina": 2}
+        )
+        assert r.status_code == 200
+        paginas += _ids(r)
+
+    assert len(_ids(completo)) == 7
+    assert len(set(paginas)) == 7
+    assert paginas == _ids(completo)
+
+
+@pytest.mark.parametrize("orden", ["", "ascendente", "DESC", "up", "1"])
+async def test_rf114_orden_invalido_es_422(
+    cliente_como: FabricaCliente, sesion: AsyncSession, orden: str
+) -> None:
+    c = await _con_redes(cliente_como)
+    await sesion.flush()
+
+    r = await c.get("/api/contenidos", params={"orden": orden})
+
+    assert r.status_code == 422
+    assert r.headers["content-type"].startswith("application/problem+json")
+
+
 async def test_rf116_listado_vacio(cliente_como: FabricaCliente, sesion: AsyncSession) -> None:
     c = await _con_redes(cliente_como)
     await sesion.flush()
