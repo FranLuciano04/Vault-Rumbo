@@ -48,3 +48,4 @@ Quien tiene acceso a redes pide a la IA borradores de contenido a partir de un p
 - Guardar el borrador (se hace con `POST /contenidos`, RF-121).
 
 ## Notas de implementación
+- **Decisión de Paloma (09/11/26), [[DEC-0027 Título y cantidad de borradores de la IA|DEC-0027]]:** `BorradorContenido.titulo` es el `tema` del pedido, recortado a 200 caracteres. Cada pedido devuelve 2 borradores en una sola llamada con salida estructurada. Si no vienen 2 textos válidos, se responde 502. Sumar `test_rf119_devuelve_dos_borradores_con_el_tema_como_titulo`.
