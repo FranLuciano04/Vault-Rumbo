@@ -3,7 +3,7 @@ id: T-170
 titulo: Mostrar primero las publicadas recientes en el tablero web
 modulo: M9 — Redes e IA
 capa: web
-estado: libre
+estado: tomado
 depende_de: [T-169, T-132]
 tamaño: XS
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [CU-19, RF-114]
 origen: hallazgo T-132
-asignado:
-tomado_el:
-rama:
+asignado: palomap2003
+tomado_el: 09/11/26 12:45
+rama: feature/T-170-mostrar-primero-las-publicadas-recientes
 pr:
 ---
 # T-170 Mostrar primero las publicadas recientes en el tablero web
