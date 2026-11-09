@@ -9137,6 +9137,22 @@
             "description": "Solo ese canal."
           },
           {
+            "name": "orden",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "asc",
+                "desc"
+              ],
+              "type": "string",
+              "description": "Orden por fecha de publicación: `asc` (de la más vieja a la más nueva) o `desc` (de la más nueva a la más vieja).",
+              "default": "asc",
+              "title": "Orden"
+            },
+            "description": "Orden por fecha de publicación: `asc` (de la más vieja a la más nueva) o `desc` (de la más nueva a la más vieja)."
+          },
+          {
             "name": "pagina",
             "in": "query",
             "required": false,

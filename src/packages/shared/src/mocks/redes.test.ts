@@ -66,6 +66,27 @@ describe("CU-19 tablero de contenido del mock", () => {
     expect(ideas.items.every((c) => c.estado_kanban === "idea")).toBe(true);
   });
 
+  it("RF-114 orden=desc lista de la fecha más nueva a la más vieja y sin orden es ascendente", async () => {
+    conRol("admin");
+
+    const asc = (await (await fetch(BASE)).json()) as Pagina<ContenidoRed>;
+    const desc = (await (await fetch(`${BASE}?orden=desc`)).json()) as Pagina<ContenidoRed>;
+
+    const fechasAsc = asc.items.map((c) => c.fecha_publicacion);
+    const fechasDesc = desc.items.map((c) => c.fecha_publicacion);
+    expect(fechasAsc).toEqual([...fechasAsc].sort());
+    expect(fechasDesc).toEqual([...fechasDesc].sort().reverse());
+    expect(fechasDesc[0]).not.toBe(fechasAsc[0]);
+  });
+
+  it("RF-114 un orden inválido responde 422", async () => {
+    conRol("admin");
+
+    const respuesta = await fetch(`${BASE}?orden=ascendente`);
+
+    expect(respuesta.status).toBe(422);
+  });
+
   it("CU-19 el freelance recibe 403 aun con la capacidad", async () => {
     conRol("freelance", true);
 

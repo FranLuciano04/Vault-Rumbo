@@ -229,6 +229,8 @@ export interface FiltrosContenidos extends FiltrosPeriodo {
   /** Solo las piezas de esa columna. */
   estado_kanban?: EstadoKanban;
   canal?: CanalContenido;
+  /** Por fecha de publicación; sin él, ascendente. */
+  orden?: "asc" | "desc";
   pagina?: number;
   por_pagina?: number;
 }
