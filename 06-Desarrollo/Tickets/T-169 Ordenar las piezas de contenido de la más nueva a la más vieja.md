@@ -50,6 +50,6 @@ tags:: #tipo/ticket
 
 ## Notas de implementación
 - `orden: Literal["asc", "desc"] = "asc"` en el router. Un valor inválido (incluido `""` o `DESC`) responde 422. El repositorio ordena por `(fecha_publicacion, id)` en el mismo sentido: el desempate por `id` hace que la paginación sea estable. El mock MSW hace lo mismo.
-- Se regeneraron `src/packages/shared/openapi.json` y `tipos.gen.ts`, y `FiltrosContenidos` suma `orden`. **No** se tocó `05-Diseño/API/openapi.json`, que es la foto del contrato del PC1: el contrato vivo del PC2 sale de FastAPI. Si el equipo quiere que la foto también tenga `orden`, se agrega en `generar-openapi.js` (hallazgo menor de la review, abierto).
+- Se regeneraron `src/packages/shared/openapi.json` y `tipos.gen.ts`, y `FiltrosContenidos` suma `orden`. **No** se tocó `05-Diseño/API/openapi.json`, que es la foto del contrato del PC1: el contrato vivo del PC2 sale de FastAPI. Resuelto el 09/11 por decisión de Paloma: se agregó `orden` en `generar-openapi.js` y se regeneró la foto.
 - Review (opus): aprobada, con 3 menores. Se arreglaron la descripción del parámetro y el test de estabilidad, que ahora fija el desempate por `id`. Se verificó con una mutación: sin el `id`, falla.
 - Modelos: tests sonnet, implementación y fix sonnet, refactor sonnet (sin cambios), review opus. Sin escalados.
