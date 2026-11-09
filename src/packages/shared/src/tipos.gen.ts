@@ -9756,7 +9756,7 @@ export interface operations {
                 estado_kanban?: components["schemas"]["EstadoKanban"] | null;
                 /** @description Solo ese canal. */
                 canal?: components["schemas"]["CanalContenido"] | null;
-                /** @description Orden por fecha de publicación: `asc` (más próxima primero) o `desc`. */
+                /** @description Orden por fecha de publicación: `asc` (de la más vieja a la más nueva) o `desc` (de la más nueva a la más vieja). */
                 orden?: "asc" | "desc";
                 pagina?: number;
                 por_pagina?: number;

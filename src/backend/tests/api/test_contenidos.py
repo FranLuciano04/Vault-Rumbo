@@ -506,6 +506,11 @@ async def test_rf114_orden_estable_entre_paginas(
     assert len(_ids(completo)) == 7
     assert len(set(paginas)) == 7
     assert paginas == _ids(completo)
+    # Con la misma fecha, el id desempata en el mismo sentido que la fecha.
+    items = completo.json()["items"]
+    for dia in {i["fecha_publicacion"] for i in items}:
+        ids_del_dia = [i["id"] for i in items if i["fecha_publicacion"] == dia]
+        assert ids_del_dia == sorted(ids_del_dia, reverse=orden == "desc")
 
 
 @pytest.mark.parametrize("orden", ["", "ascendente", "DESC", "up", "1"])

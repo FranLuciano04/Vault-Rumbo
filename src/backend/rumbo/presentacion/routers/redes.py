@@ -90,7 +90,10 @@ async def listar_contenidos(
     canal: Annotated[CanalContenido | None, Query(description="Solo ese canal.")] = None,
     orden: Annotated[
         Literal["asc", "desc"],
-        Query(description="Orden por fecha de publicación: `asc` (más próxima primero) o `desc`."),
+        Query(
+            description="Orden por fecha de publicación: `asc` (de la más vieja a la más nueva) "
+            "o `desc` (de la más nueva a la más vieja)."
+        ),
     ] = "asc",
 ) -> Pagina[ContenidoRed]:
     piezas, total = await redes.listar_contenidos(

@@ -9146,11 +9146,11 @@
                 "desc"
               ],
               "type": "string",
-              "description": "Orden por fecha de publicación: `asc` (más próxima primero) o `desc`.",
+              "description": "Orden por fecha de publicación: `asc` (de la más vieja a la más nueva) o `desc` (de la más nueva a la más vieja).",
               "default": "asc",
               "title": "Orden"
             },
-            "description": "Orden por fecha de publicación: `asc` (más próxima primero) o `desc`."
+            "description": "Orden por fecha de publicación: `asc` (de la más vieja a la más nueva) o `desc` (de la más nueva a la más vieja)."
           },
           {
             "name": "pagina",
