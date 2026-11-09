@@ -3,7 +3,7 @@ id: T-170
 titulo: Mostrar primero las publicadas recientes en el tablero web
 modulo: M9 — Redes e IA
 capa: web
-estado: tomado
+estado: hecho
 depende_de: [T-169, T-132]
 tamaño: XS
 riesgo: normal
@@ -45,3 +45,6 @@ La columna Publicado del tablero muestra primero las piezas con fecha más recie
 - Cambios en la API, que van en T-169.
 
 ## Notas de implementación
+- `useTableroContenido` agrega `orden: "desc"` solo a la columna Publicado, sin `desde`. Las otras columnas, las descartadas y el calendario (`useContenidos`) no mandan `orden`. La clave de caché incluye los filtros, así que Publicado tiene su propia entrada.
+- Review (opus): aprobada, con 1 menor arreglado. Hay un test nuevo que comprueba que el «Ver más» de Publicado (página 2) también pide `orden=desc`.
+- Modelos: tests sonnet, implementación y fix sonnet, refactor sonnet (sin cambios), review opus. Sin escalados.
