@@ -1,18 +1,31 @@
-"""Servicio del módulo redes: tablero de contenido (CU-19). Rumbo nunca publica (RF-118)."""
+"""Servicio del módulo redes: tablero de contenido (CU-19) y borradores con IA (CU-20). Rumbo
+nunca publica (RF-118)."""
 
 import uuid
+from dataclasses import dataclass
 from datetime import date
 from typing import Any, Literal
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from rumbo.core.ia import ModeloIA
 from rumbo.datos.modelos import CanalContenido, ContenidoRed, EstadoKanban, RolUsuario, Usuario
 from rumbo.datos.repositorios.contenidos import RepositorioContenidos
 from rumbo.negocio.errores import SinPermiso
 from rumbo.negocio.estados import contenido_red
 from rumbo.negocio.politicas import exigir_rol, tiene_acceso_redes, visibilidad
+from rumbo.negocio.prompts import contenido_red as prompt_contenido_red
 
 _contenidos = RepositorioContenidos()
+_LARGO_TITULO = 200  # el de `ContenidoRed.titulo`, para guardar el borrador tal cual (A2)
+
+
+@dataclass(frozen=True)
+class Borrador:
+    """Texto propuesto por la IA; no es una pieza guardada."""
+
+    titulo: str
+    texto: str
 
 
 def _exigir_acceso(actor: Usuario) -> None:
@@ -105,3 +118,19 @@ async def descartar_contenido(
     contenido_red.descartar(pieza)
     await sesion.flush()
     return pieza
+
+
+async def proponer_contenido(
+    actor: Usuario,
+    modelo: ModeloIA,
+    *,
+    tema: str,
+    canal: CanalContenido,
+    tono: str | None,
+) -> list[Borrador]:
+    """Una llamada a la IA con solo el pedido (RF-119, RF-120, RNF-16); no persiste nada, así
+    que regenerar o descartar no deja rastro (RF-122). Si la IA falla, sube `ServicioExterno`."""
+    _exigir_acceso(actor)
+    prompt = prompt_contenido_red.armar_prompt(tema=tema, canal=canal, tono=tono)
+    texto = await modelo.generar(prompt)
+    return [Borrador(titulo=tema[:_LARGO_TITULO], texto=texto)]
