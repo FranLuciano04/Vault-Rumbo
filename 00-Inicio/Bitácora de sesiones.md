@@ -24,8 +24,8 @@ La **persona** de cada sesión es quien la corre, identificada por su identidad 
 ## Avisos pendientes por persona
 > Claude los lee al identificar a la persona (paso 1 de `CLAUDE.md`) y se los cuenta **apenas la saluda**, antes de cualquier otra tarea. Cuando la persona confirme que lo leyó o que lo hizo, **Claude borra su fila** en esa misma sesión, con un commit. Cuando no quede ninguna fila de alguien, se borra también su sección.
 
-### Francisco (`FranLucianoo`) y Nahuel (`Nahuel Viniegra`) — ratificar DEC-0027
-- Paloma decidió [[DEC-0027 Título y cantidad de borradores de la IA|DEC-0027]] el 09/11/26. Cada pedido a la IA devuelve 2 borradores, y el título de cada uno es el tema del pedido. Destraba T-131. Falta su ratificación para formalizarla.
+### Francisco (`FranLucianoo`) — ratificar DEC-0027
+- Paloma decidió [[DEC-0027 Título y cantidad de borradores de la IA|DEC-0027]] el 09/11/26. Cada pedido a la IA devuelve 2 borradores, y el título de cada uno es el tema del pedido. Destraba T-131. Nahuel la ratificó el 09/11/26; falta la de Francisco para formalizarla.
 
 ## Formato
 Es **obligatorio** nombrar a la persona que hizo la sesión.

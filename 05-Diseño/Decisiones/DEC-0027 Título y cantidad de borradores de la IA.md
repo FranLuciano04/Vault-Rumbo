@@ -11,7 +11,7 @@ actualizado: 09/11/26
 
 tags:: #tipo/decision #estado/en-revision #pc/pc2 #accion/decidir
 
-> 🟡 **Decidida por Paloma el 09/11/26**, como responsable de [[CU-20 Generar propuesta de contenido con IA|CU-20]], para destrabar [[T-131 Generar borradores de contenido con IA|T-131]]. Falta que el equipo la ratifique. T-131 se implementa con esta decisión.
+> 🟡 **Decidida por Paloma el 09/11/26**, como responsable de [[CU-20 Generar propuesta de contenido con IA|CU-20]], para destrabar [[T-131 Generar borradores de contenido con IA|T-131]]. Nahuel la ratificó el 09/11/26; falta Francisco. T-131 se implementa con esta decisión.
 
 ## Contexto
 El contrato de `POST /contenidos/propuestas-ia` devuelve `PropuestaIA.borradores`, una lista de `BorradorContenido {titulo, texto}`. El borrador de [[IA — Prompt de CU-20]] tiene dos diferencias con ese contrato:
