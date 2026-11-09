@@ -1,4 +1,4 @@
-"""Rutas del módulo redes: tablero de contenido (CU-19); la propuesta con IA (CU-20) da 501."""
+"""Rutas del módulo redes: tablero de contenido (CU-19) y propuesta con IA (CU-20)."""
 
 import uuid
 from datetime import date
@@ -7,13 +7,15 @@ from typing import Annotated, Any, Literal
 from fastapi import APIRouter, Depends, Query
 
 from rumbo.core.db import SesionDep
+from rumbo.core.ia import ModeloIA
 from rumbo.datos import modelos
 from rumbo.datos.modelos import CanalContenido, EstadoKanban, RolUsuario
 from rumbo.negocio.servicios import redes
-from rumbo.presentacion.contrato import no_implementado, operacion, respuesta_pagina
-from rumbo.presentacion.dependencias import exigir_acceso_redes, usuario_actual
+from rumbo.presentacion.contrato import operacion, respuesta_pagina
+from rumbo.presentacion.dependencias import exigir_acceso_redes, modelo_ia, usuario_actual
 from rumbo.presentacion.esquemas.comunes import Problema
 from rumbo.presentacion.esquemas.redes import (
+    BorradorContenido,
     ContenidoRed,
     ContenidoRedCrear,
     ContenidoRedEditar,
@@ -26,6 +28,7 @@ router = APIRouter(tags=["redes"])
 
 ActorDep = Annotated[modelos.Usuario, Depends(usuario_actual)]
 PaginaDep = Annotated[ParametrosPagina, Depends(parametros_pagina)]
+ModeloIADep = Annotated[ModeloIA, Depends(modelo_ia)]
 
 # El freelance no usa el módulo, tenga o no la capacidad; el resto, solo con acceso a redes
 # (DEC-0008, DEC-0013).
@@ -141,9 +144,14 @@ async def crear_contenido(
         )
     ),
 )
-async def generar_propuesta_ia(datos: PropuestaIAPedido) -> PropuestaIA:
+async def generar_propuesta_ia(
+    datos: PropuestaIAPedido, actor: ActorDep, modelo: ModeloIADep
+) -> PropuestaIA:
     """No guarda nada: devuelve borradores para que la persona los revise y guarde el elegido."""
-    raise no_implementado()
+    borradores = await redes.proponer_contenido(actor, modelo, **datos.model_dump())
+    return PropuestaIA(
+        borradores=[BorradorContenido(titulo=b.titulo, texto=b.texto) for b in borradores]
+    )
 
 
 @router.get(

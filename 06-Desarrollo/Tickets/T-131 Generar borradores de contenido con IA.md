@@ -3,7 +3,7 @@ id: T-131
 titulo: Generar borradores de contenido con IA
 modulo: M9 — Redes e IA
 capa: backend
-estado: tomado
+estado: hecho
 depende_de: [T-130, T-013]
 tamaño: M
 riesgo: alto
@@ -48,4 +48,14 @@ Quien tiene acceso a redes pide a la IA borradores de contenido a partir de un p
 - Guardar el borrador (se hace con `POST /contenidos`, RF-121).
 
 ## Notas de implementación
+- **Prompt:** `negocio/prompts/contenido_red.py` copia literal el prompt de sistema de [[IA — Prompt de CU-20]] (todavía `borrador`: si el equipo lo cambia, hay que actualizar el archivo) y agrega solo tema, canal y tono opcional, delimitados entre `<pedido>…</pedido>`. Va como un único texto porque `ModeloIA.generar` recibe un string.
+- **Respuesta (verde inicial, reemplazada por DEC-0027):** un solo borrador por pedido; su `titulo` es el tema recortado a 200 caracteres (máximo de `ContenidoRed.titulo`), para poder guardarlo tal cual con `POST /contenidos`.
+- **Contrato:** se quitó el caso 501 de `propuestas-ia` de `test_contrato_m9.py` (como hizo T-130); el acceso por rol sigue cubierto por los 403 de `RUTAS_HTTP`.
+- **Review de seguridad (sonnet), arreglado en el fix:** `core/ia.py` ahora fija `max_tokens=1024`, convierte cualquier falla de la IA o respuesta vacía en `ServicioExterno` (502 genérico, detalle solo en el log) y suma 3 tests en `tests/negocio/test_ia.py` (agregados con `--tocar-tests`).
+- **Quedó afuera:** límite de pedidos por usuario sobre el endpoint (funcionalidad nueva, a decidir si va como ticket). Menor: la UI debe escapar el texto del borrador.
+- **Checks locales (primera vuelta):** ruff, formato y mypy en verde; suite completa del backend 3111 passed, cobertura 99 %. 17 fallos ajenos al ticket: PDF con WeasyPrint sin GTK en esta PC (`libgobject-2.0-0`), los cubre el CI.
+- **Modelos:** tests sonnet, implementación y refactor opus, review sonnet. Sin escalados.
 - **Decisión de Paloma (09/11/26), [[DEC-0027 Título y cantidad de borradores de la IA|DEC-0027]]:** `BorradorContenido.titulo` es el `tema` del pedido, recortado a 200 caracteres. Cada pedido devuelve 2 borradores en una sola llamada con salida estructurada. Si no vienen 2 textos válidos, se responde 502. Sumar `test_rf119_devuelve_dos_borradores_con_el_tema_como_titulo`.
+- **Segunda vuelta por DEC-0027** (llegó a `main` con el PR ya abierto): rojo `145c9652`, verde `c65c9842`, refactor `e2c676db`, fix `807b864a`. La IA devuelve por prompt una lista JSON de 2 textos (la interfaz `ModeloIA.generar` sigue siendo str → str; no se usó `with_structured_output`); el servicio la parsea tolerando un bloque ```` ``` ```` o texto alrededor y exige 2 textos no vacíos y distintos, si no → 502. `SISTEMA` es copia de la nota actualizada (DOS borradores) y la instrucción de formato va aparte. `ModeloFalso` devuelve ahora una lista JSON de 2 textos. Tema y tono entran al prompt sin `<` ni `>`.
+- **Segunda review (sonnet):** 0 bloqueantes, 1 importante (parseo estricto) y menores (borradores iguales, etiquetas en el pedido, parseo en el módulo del prompt), todos arreglados en `807b864a`. `_MAX_TOKENS` queda en 1024: alcanza para 2 borradores según la review; subirlo si en pruebas con IA real aparecen cortes.
+- **Checks locales (segunda vuelta):** ruff, formato y mypy en verde; 3129 passed, cobertura backend 98 % y `negocio/` 99 %. Los mismos 17 fallos de PDF por GTK.

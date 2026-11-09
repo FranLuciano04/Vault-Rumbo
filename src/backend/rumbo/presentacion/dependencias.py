@@ -6,7 +6,9 @@ from typing import Annotated
 from fastapi import Depends, HTTPException
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
+from rumbo.core.config import get_settings
 from rumbo.core.db import SesionDep
+from rumbo.core.ia import ModeloIA, obtener_modelo_ia
 from rumbo.core.seguridad import (
     TokenInvalido,
     VerificadorDeTokens,
@@ -86,3 +88,8 @@ async def exigir_acceso_redes(actor: Annotated[Usuario, Depends(usuario_actual)]
     if not tiene_acceso_redes(actor):
         raise SinPermiso("No tenés acceso al módulo de redes")
     return actor
+
+
+def modelo_ia() -> ModeloIA:
+    """El modelo de IA según `IA_MODELO` (DEC-0012): el falso en tests, CI y demos."""
+    return obtener_modelo_ia(get_settings())

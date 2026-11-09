@@ -1,6 +1,6 @@
 """T-129: contrato de redes e IA (CU-19, CU-20).
 
-Rutas, esquemas, token, acceso a redes (nunca freelance) y 501.
+Rutas, esquemas, token, acceso a redes (nunca freelance).
 """
 
 from collections.abc import Awaitable, Callable
@@ -72,8 +72,6 @@ OPERACIONES: list[tuple[str, str, str, Any, list[str], set[str]]] = [
 ]
 RUTAS_CONTRATO = [(m, r, cu, e) for m, r, _, _, cu, e in OPERACIONES]
 RUTAS_HTTP = [(m, c, cuerpo) for m, _, c, cuerpo, _, _ in OPERACIONES]
-# T-130 implementó las otras cinco rutas: el 501 queda solo para la propuesta con IA (T-131).
-RUTAS_501 = [("post", "/api/contenidos/propuestas-ia", PEDIDO_IA)]
 
 
 @pytest.fixture
@@ -283,31 +281,6 @@ async def test_cu19_sin_token_responde_401_problem_json(
 
     assert r.status_code == 401
     assert r.headers["content-type"].startswith(PROBLEM_JSON)
-
-
-@pytest.mark.parametrize(
-    ("rol", "acceso_redes"),
-    [("admin", True), ("admin", False), ("dueno", True), ("dueno", False), ("empleado", True)],
-)
-@pytest.mark.parametrize(("metodo", "ruta", "cuerpo"), RUTAS_501)
-async def test_cu20_propuesta_ia_con_acceso_a_redes_responde_501_problem_json(
-    cliente_como: FabricaCliente,
-    sesion: AsyncSession,
-    rol: str,
-    acceso_redes: bool,
-    metodo: str,
-    ruta: str,
-    cuerpo: Any,
-) -> None:
-    c = await cliente_como(rol)
-    c.usuario.acceso_redes = acceso_redes  # type: ignore[attr-defined]
-    await sesion.flush()
-
-    r = await c.request(metodo, ruta, json=cuerpo)
-
-    assert r.status_code == 501
-    assert r.headers["content-type"].startswith(PROBLEM_JSON)
-    assert r.json()["status"] == 501
 
 
 @pytest.mark.parametrize("acceso_redes", [True, False])
