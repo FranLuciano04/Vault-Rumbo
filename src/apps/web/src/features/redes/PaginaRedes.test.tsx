@@ -701,6 +701,48 @@ describe("RF-114 kanban orden de las columnas", () => {
     }
   });
 
+  it("RF-114 «Ver más» de Publicado también pide orden=desc y sin desde", async () => {
+    const pedidos: URLSearchParams[] = [];
+    servidor.use(
+      http.get("*/api/contenidos", ({ request }) => {
+        const q = new URL(request.url).searchParams;
+        pedidos.push(q);
+        const pagina = Number(q.get("pagina") ?? 1);
+        const por = Number(q.get("por_pagina") ?? 20);
+        const todas =
+          q.get("estado_kanban") === "publicado"
+            ? Array.from({ length: 25 }, (_, i) => ({
+                ...publicado,
+                id: `pub-${String(i + 1)}`,
+                titulo: `Publicada ${String(i + 1)}`,
+              }))
+            : [];
+        return HttpResponse.json({
+          items: todas.slice((pagina - 1) * por, pagina * por),
+          total: todas.length,
+          pagina,
+          por_pagina: por,
+        });
+      }),
+    );
+    renderRedes();
+
+    const col = await columna(/^publicado/i);
+    await userEvent.click(await within(col).findByRole("button", { name: /ver más/i }));
+    await waitFor(() => {
+      expect(pedidos.some((q) => q.get("pagina") === "2")).toBe(true);
+    });
+
+    const segunda = pedidos.filter(
+      (q) => q.get("estado_kanban") === "publicado" && q.get("pagina") === "2",
+    );
+    expect(segunda.length).toBeGreaterThan(0);
+    for (const q of segunda) {
+      expect(q.get("orden")).toBe("desc");
+      expect(q.has("desde")).toBe(false);
+    }
+  });
+
   it("RF-114 en Publicado la pieza reciente aparece antes que la vieja", async () => {
     conPublicadas();
     renderRedes();
