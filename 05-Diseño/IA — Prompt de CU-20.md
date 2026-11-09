@@ -4,7 +4,7 @@ estado: borrador
 modulo: [redes]
 responsable: Francisco
 pc: pc2
-actualizado: 30/09/26
+actualizado: 09/11/26
 ---
 # IA — Prompt de CU-20
 
@@ -15,7 +15,7 @@ tags:: #tipo/analisis #estado/borrador #pc/pc2
 > Prompt de ejemplo de la única función con IA del producto ([[CU-20 Generar propuesta de contenido con IA|CU-20]]), pedido en la sync del 30/09 para la sección «Selección de modelos y agentes de IA, con sus prompts» del documento del PC1. Es una **propuesta**: la redactó Francisco y la tiene que aprobar el equipo. El modelo y sus límites están decididos en [[DEC-0012 Modelo de IA del producto]]. En PC2 el prompt vive, versionado, en `negocio/prompts/contenido_red.py` ([[ARQ — Vista general]]).
 
 ## Cómo se arma el pedido
-El servicio del módulo `redes` arma el pedido con LangChain en dos partes: un **prompt de sistema**, fijo, que define el rol y los límites, y un **prompt de usuario**, que se completa con las tres variables que carga el empleado. Se hace **una sola llamada** a Claude Sonnet 5.5 y se devuelve un borrador; si no convence, el empleado ajusta los datos y pide otro (A1).
+El servicio del módulo `redes` arma el pedido con LangChain en dos partes: un **prompt de sistema**, fijo, que define el rol y los límites, y un **prompt de usuario**, que se completa con las tres variables que carga el empleado. Se hace **una sola llamada** a Claude Sonnet 5.5, con salida estructurada, y se devuelven **dos borradores**. El título de cada uno es el tema del pedido, no lo genera la IA ([[DEC-0027 Título y cantidad de borradores de la IA|DEC-0027]]); si no convence, el empleado ajusta los datos y pide otro (A1).
 
 | Variable | Qué es | Valores |
 |---|---|---|
@@ -28,7 +28,7 @@ El servicio del módulo `redes` arma el pedido con LangChain en dos partes: un *
 Sos redactor de contenido para redes sociales de una agencia de turismo argentina.
 Escribís en español de Argentina, con voseo, de forma cálida y clara.
 
-Tu tarea es proponer UN borrador de posteo a partir del tema, el canal y el tono
+Tu tarea es proponer DOS borradores de posteo, distintos entre sí, a partir del tema, el canal y el tono
 que te indica una persona de la agencia. Esa persona lo va a revisar, corregir y
 publicar a mano: vos no publicás nada.
 
@@ -45,7 +45,7 @@ Reglas:
     viñetas, y una línea de texto para la descripción.
   - whatsapp_ventas: un mensaje de difusión de hasta 60 palabras, sin hashtags,
     con una pregunta final que invite a responder.
-- Respondé solo con el borrador, sin explicaciones ni comentarios.
+- Respondé solo con los dos borradores, sin explicaciones ni comentarios.
 ```
 
 ## Prompt de usuario (plantilla)

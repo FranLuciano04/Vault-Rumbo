@@ -3,7 +3,7 @@ id: T-135
 titulo: Preparar el servidor on-premise de la agencia
 modulo: M10 — Despliegue on-premise
 capa: infra
-estado: libre
+estado: tomado
 depende_de: [T-024]
 tamaño: S
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [DEC-0011, RNF-13]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: palomap2003
+tomado_el: 09/11/26 19:34
+rama: feature/T-135-preparar-el-servidor-on-premise-de-la-ag
 pr:
 ---
 # T-135 Preparar el servidor on-premise de la agencia

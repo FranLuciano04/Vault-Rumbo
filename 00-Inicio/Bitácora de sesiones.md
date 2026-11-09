@@ -24,6 +24,9 @@ La **persona** de cada sesión es quien la corre, identificada por su identidad 
 ## Avisos pendientes por persona
 > Claude los lee al identificar a la persona (paso 1 de `CLAUDE.md`) y se los cuenta **apenas la saluda**, antes de cualquier otra tarea. Cuando la persona confirme que lo leyó o que lo hizo, **Claude borra su fila** en esa misma sesión, con un commit. Cuando no quede ninguna fila de alguien, se borra también su sección.
 
+### Francisco (`FranLucianoo`) y Nahuel (`Nahuel Viniegra`) — ratificar DEC-0027
+- Paloma decidió [[DEC-0027 Título y cantidad de borradores de la IA|DEC-0027]] el 09/11/26. Cada pedido a la IA devuelve 2 borradores, y el título de cada uno es el tema del pedido. Destraba T-131. Falta su ratificación para formalizarla.
+
 ## Formato
 Es **obligatorio** nombrar a la persona que hizo la sesión.
 ```
@@ -43,7 +46,8 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
   - Commits de T-170: `4b79536` rojo, `9172e3a` verde, `87f537f` fix, `983d32d` hecho, `452b7f9` merge.
   - T-133 implementado con TDD y mergeado (PR #201), con el CI en verde: el panel «Propuesta con IA» en la web. Review de Opus en 2 rondas: 3 importantes y 5 menores arreglados, y 1 menor anotado en el ticket. Las decisiones de Paloma (entrada desde una pieza o desde el encabezado, canal fijo y título conservado desde una pieza) quedaron en CU-20 A3 y A4.
   - Commits de T-133: `62869d4` rojo, `d0e8615` verde, `c488ebb` y `0d67c7d` fix, `cadf989` hecho, `d3c19e5` merge.
-- **Pendiente:** a M9 le faltan T-131 (antes hay que decidir `BorradorContenido.titulo`) y T-134. T-135 quedó libre: no hay servidor de la agencia disponible para verificarlo. Decisión de Paloma: la foto del contrato del PC1 también lleva `orden` (agregado en `generar-openapi.js` y regenerada). Los tests de backend necesitan Docker Desktop abierto.
+  - Paloma decidió [[DEC-0027 Título y cantidad de borradores de la IA|DEC-0027]], en revisión: el título del borrador es el tema del pedido y cada pedido devuelve 2 borradores. Se actualizaron el prompt de CU-20 y T-131.
+- **Pendiente:** el equipo tiene que ratificar DEC-0027. T-131 queda listo para tomar. A M9 le falta también T-134. T-135 quedó libre: no hay servidor de la agencia disponible para verificarlo. Decisión de Paloma: la foto del contrato del PC1 también lleva `orden` (agregado en `generar-openapi.js` y regenerada). Los tests de backend necesitan Docker Desktop abierto.
 
 ## 06/11/26 — Nahuel (Claude Opus 5.5) — T-132, tablero web de contenido
 - **Hecho:**
