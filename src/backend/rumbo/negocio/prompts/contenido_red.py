@@ -4,14 +4,7 @@ Solo lleva lo que carga la persona: tema, canal y tono. Nunca datos de clientes,
 ventas (RF-120, RNF-16). La IA responde una lista JSON con los 2 textos.
 """
 
-import json
-import logging
-
-from rumbo.core.errores import ServicioExterno
-from rumbo.core.ia import FALLA_IA
 from rumbo.datos.modelos import CanalContenido
-
-logger = logging.getLogger(__name__)
 
 CANTIDAD_DE_BORRADORES = 2
 
@@ -45,30 +38,17 @@ Formato de la respuesta: solo una lista JSON con los dos borradores como strings
 ["primer borrador", "segundo borrador"], sin texto antes ni después."""
 
 
+def _sin_etiquetas(texto: str) -> str:
+    """Evita que el pedido cierre `<pedido>` o abra otra etiqueta."""
+    return texto.replace("<", "").replace(">", "")
+
+
 def armar_prompt(*, tema: str, canal: CanalContenido, tono: str | None) -> str:
     """Prompt de sistema, formato de salida y el pedido, delimitado entre `<pedido>` y
-    `</pedido>` para que lo que carga la persona no se mezcle con las instrucciones; sin tono,
-    esa línea no va."""
-    pedido = [f"Tema: {tema}", f"Canal: {canal.value}"]
+    `</pedido>` para que lo que carga la persona no se mezcle con las instrucciones (por eso se le
+    quitan `<` y `>`); sin tono, esa línea no va."""
+    pedido = [f"Tema: {_sin_etiquetas(tema)}", f"Canal: {canal.value}"]
     if tono:
-        pedido.append(f"Tono u objetivo: {tono}")
+        pedido.append(f"Tono u objetivo: {_sin_etiquetas(tono)}")
     cuerpo = "\n".join(pedido)
     return f"{SISTEMA}\n\n{FORMATO_DE_SALIDA}\n\n<pedido>\n{cuerpo}\n</pedido>"
-
-
-def leer_borradores(salida: str) -> list[str]:
-    """Los textos de la respuesta. Si no es una lista JSON de exactamente 2 textos no vacíos,
-    es una falla de la IA: `ServicioExterno` (502) con el mensaje genérico (DEC-0027)."""
-    try:
-        textos = json.loads(salida)
-    except json.JSONDecodeError:
-        textos = None
-    validos = (
-        isinstance(textos, list)
-        and len(textos) == CANTIDAD_DE_BORRADORES
-        and all(isinstance(t, str) and t.strip() for t in textos)
-    )
-    if not validos:
-        logger.error("La IA respondió con un formato inválido para los borradores")
-        raise ServicioExterno(FALLA_IA)
-    return textos  # type: ignore[no-any-return]
