@@ -33,7 +33,7 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
-## 09/11/26 — Paloma (Claude Opus 5.5) — T-169 y T-170, orden de las piezas de contenido
+## 09/11/26 — Paloma (Claude Opus 5.5) — T-169, T-170 y T-133
 - **Hecho:**
   - T-169 implementado con TDD y mergeado (PR #199), con el CI en verde: `GET /api/contenidos?orden=asc|desc` desempata por `id`, y se actualizaron el contrato, los tipos y el mock.
   - Review de Opus aprobada: 3 menores, 2 arreglados y 1 anotado en el ticket.
@@ -41,7 +41,9 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Commits:** `a1d9854` rojo, `f2e1f56` verde, `79caf8c` fix, `fce3c5e` hecho, `ea5ab9e` merge.
   - T-170 implementado con TDD y mergeado (PR #200), con el CI en verde: la columna Publicado pide `orden=desc`, también en «Ver más». Review de Opus aprobada, con 1 menor arreglado.
   - Commits de T-170: `4b79536` rojo, `9172e3a` verde, `87f537f` fix, `983d32d` hecho, `452b7f9` merge.
-- **Pendiente:** a M9 le faltan T-131, T-133 y T-134. T-135 quedó libre: no hay servidor de la agencia disponible para verificarlo. Decisión de Paloma: la foto del contrato del PC1 también lleva `orden` (agregado en `generar-openapi.js` y regenerada). Los tests de backend necesitan Docker Desktop abierto.
+  - T-133 implementado con TDD y mergeado (PR #201), con el CI en verde: el panel «Propuesta con IA» en la web. Review de Opus en 2 rondas: 3 importantes y 5 menores arreglados, y 1 menor anotado en el ticket. Las decisiones de Paloma (entrada desde una pieza o desde el encabezado, canal fijo y título conservado desde una pieza) quedaron en CU-20 A3 y A4.
+  - Commits de T-133: `62869d4` rojo, `d0e8615` verde, `c488ebb` y `0d67c7d` fix, `cadf989` hecho, `d3c19e5` merge.
+- **Pendiente:** a M9 le faltan T-131 (antes hay que decidir `BorradorContenido.titulo`) y T-134. T-135 quedó libre: no hay servidor de la agencia disponible para verificarlo. Decisión de Paloma: la foto del contrato del PC1 también lleva `orden` (agregado en `generar-openapi.js` y regenerada). Los tests de backend necesitan Docker Desktop abierto.
 
 ## 06/11/26 — Nahuel (Claude Opus 5.5) — T-132, tablero web de contenido
 - **Hecho:**
