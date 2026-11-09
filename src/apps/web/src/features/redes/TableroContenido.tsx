@@ -14,11 +14,13 @@ export function TableroContenido({
   columnas,
   soloLectura = false,
   alEditar,
+  alProponer,
 }: {
   cliente: AxiosInstance;
   columnas: ColumnaTablero[];
   soloLectura?: boolean;
   alEditar: (pieza: ContenidoRed) => void;
+  alProponer: (pieza: ContenidoRed) => void;
 }) {
   const queryClient = useQueryClient();
   const editar = useEditarContenido(cliente);
@@ -84,6 +86,9 @@ export function TableroContenido({
                   }}
                   alEditar={() => {
                     alEditar(pieza);
+                  }}
+                  alProponer={() => {
+                    alProponer(pieza);
                   }}
                   alDescartar={() => {
                     descartar.mutate(pieza.id, resultado);

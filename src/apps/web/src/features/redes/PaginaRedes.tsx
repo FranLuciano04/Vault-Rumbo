@@ -6,13 +6,14 @@ import {
 } from "@rumbo/shared";
 import { canalesContenido } from "@rumbo/shared/esquemas";
 import type { AxiosInstance } from "axios";
-import { Plus, Share2 } from "lucide-react";
+import { Plus, Share2, Sparkles } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { CalendarioContenido } from "./CalendarioContenido";
 import { ETIQUETA_CANAL } from "./etiquetas";
 import { FormularioContenido } from "./FormularioContenido";
+import { PropuestaIA } from "./PropuestaIA";
 import { esSinAcceso } from "./sinAcceso";
 import { TableroContenido } from "./TableroContenido";
 import { useTableroContenido } from "./useTableroContenido";
@@ -35,6 +36,8 @@ export function PaginaRedes({ cliente }: { cliente: AxiosInstance }) {
   const [calendarioSinAcceso, setCalendarioSinAcceso] = useState(false);
   // `undefined` = sin formulario; `null` = alta; una pieza = edición.
   const [edicion, setEdicion] = useState<ContenidoRed | null | undefined>();
+  // `undefined` = sin panel de propuesta; `null` = pieza nueva; una pieza = se aplica a ella.
+  const [propuesta, setPropuesta] = useState<ContenidoRed | null | undefined>();
   const enTablero = vista === "tablero";
   const columnas = useTableroContenido(cliente, {
     canal,
@@ -65,14 +68,25 @@ export function PaginaRedes({ cliente }: { cliente: AxiosInstance }) {
           </p>
           <h1 className="text-3xl font-semibold">Contenido en redes</h1>
         </div>
-        <Button
-          onClick={() => {
-            setEdicion(null);
-          }}
-        >
-          <Plus aria-hidden="true" />
-          Nueva pieza
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            onClick={() => {
+              setPropuesta(null);
+            }}
+          >
+            <Sparkles aria-hidden="true" />
+            Propuesta con IA
+          </Button>
+          <Button
+            onClick={() => {
+              setEdicion(null);
+            }}
+          >
+            <Plus aria-hidden="true" />
+            Nueva pieza
+          </Button>
+        </div>
       </header>
 
       {edicion !== undefined && (
@@ -82,6 +96,17 @@ export function PaginaRedes({ cliente }: { cliente: AxiosInstance }) {
           pieza={edicion ?? undefined}
           alCerrar={() => {
             setEdicion(undefined);
+          }}
+        />
+      )}
+
+      {propuesta !== undefined && (
+        <PropuestaIA
+          key={propuesta?.id ?? "nueva"}
+          cliente={cliente}
+          pieza={propuesta ?? undefined}
+          alCerrar={() => {
+            setPropuesta(undefined);
           }}
         />
       )}
@@ -160,6 +185,9 @@ export function PaginaRedes({ cliente }: { cliente: AxiosInstance }) {
               soloLectura={verDescartadas}
               alEditar={(pieza) => {
                 setEdicion(pieza);
+              }}
+              alProponer={(pieza) => {
+                setPropuesta(pieza);
               }}
             />
           )}

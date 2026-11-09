@@ -16,6 +16,7 @@ export function TarjetaContenido({
   soloLectura = false,
   alMover,
   alEditar,
+  alProponer,
   alDescartar,
 }: {
   pieza: ContenidoRed;
@@ -24,6 +25,7 @@ export function TarjetaContenido({
   soloLectura?: boolean;
   alMover: (estado: ContenidoRed["estado_kanban"]) => void;
   alEditar: () => void;
+  alProponer: () => void;
   alDescartar: () => void;
 }) {
   const [confirmando, setConfirmando] = useState(false);
@@ -32,6 +34,8 @@ export function TarjetaContenido({
   const anterior = posicion > 0 ? COLUMNAS[posicion - 1] : undefined;
   const siguiente = publicada ? undefined : COLUMNAS[posicion + 1];
   const conAcciones = !soloLectura && !publicada;
+  // La propuesta con IA (CU-20 A3) se ofrece mientras la pieza se está pensando o produciendo.
+  const conPropuesta = pieza.estado_kanban === "idea" || pieza.estado_kanban === "en_produccion";
   const Icono = publicada ? Check : CalendarDays;
 
   return (
@@ -72,6 +76,16 @@ export function TarjetaContenido({
           <Button size="sm" variant="ghost" onClick={alEditar}>
             Editar
           </Button>
+          {conPropuesta && (
+            <Button
+              size="sm"
+              variant="ghost"
+              aria-label={`Propuesta con IA para «${pieza.titulo}»`}
+              onClick={alProponer}
+            >
+              Propuesta con IA
+            </Button>
+          )}
           <Button
             size="sm"
             variant="ghost"

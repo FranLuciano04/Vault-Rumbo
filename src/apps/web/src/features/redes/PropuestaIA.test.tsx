@@ -118,7 +118,7 @@ const grupo = (nombre: RegExp) => within(panel()).getByRole("group", { name: nom
 async function abrirDesdeCero() {
   renderRedes();
   await screen.findByText(idea.titulo);
-  await userEvent.click(screen.getByRole("button", { name: /propuesta con ia/i }));
+  await userEvent.click(screen.getByRole("button", { name: /^propuesta con ia$/i }));
 }
 async function completarPedido() {
   await userEvent.type(
@@ -239,7 +239,9 @@ describe("RF-119 propuesta", () => {
 
   it("RF-119 si la IA falla (502) muestra el error, ningún borrador y la opción de reintentar", async () => {
     servidor.use(
-      http.post("*/api/contenidos/propuestas-ia", () => problema(502, "La IA no respondió a tiempo.")),
+      http.post("*/api/contenidos/propuestas-ia", () =>
+        problema(502, "La IA no respondió a tiempo."),
+      ),
     );
     await abrirDesdeCero();
     await completarPedido();
