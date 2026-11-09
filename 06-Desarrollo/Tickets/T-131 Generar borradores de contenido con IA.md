@@ -3,7 +3,7 @@ id: T-131
 titulo: Generar borradores de contenido con IA
 modulo: M9 — Redes e IA
 capa: backend
-estado: libre
+estado: tomado
 depende_de: [T-130, T-013]
 tamaño: M
 riesgo: alto
@@ -12,9 +12,9 @@ modelo_impl: opus
 modelo_review: sonnet
 trazabilidad: [CU-20, RF-119, RF-120, RF-122, RNF-16, DEC-0012]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: Nahuel Viniegra
+tomado_el: 09/11/26 18:49
+rama: feature/T-131-generar-borradores-de-contenido-con-ia
 pr:
 ---
 # T-131 Generar borradores de contenido con IA
