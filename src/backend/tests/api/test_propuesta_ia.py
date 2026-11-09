@@ -89,7 +89,8 @@ async def test_rf120_sin_datos_de_clientes(
         ClienteFactory,
         nombre="Zoraida Quintanilla Ferreyra",
         contacto="+5491155550123",
-        email="zoraida.quintanilla@ejemplo.com",
+        instagram="zoraida_quinta",
+        preferencias="Viaja con su perro Capitan Bermudez",
     )
     c = await _con_redes(cliente_como)
 
@@ -98,7 +99,7 @@ async def test_rf120_sin_datos_de_clientes(
     assert r.status_code == 200
     assert len(prompts) >= 1
     for prompt in prompts:
-        for dato in ("Zoraida", "Quintanilla", "5491155550123", "zoraida.quintanilla"):
+        for dato in ("Zoraida", "Quintanilla", "5491155550123", "zoraida_quinta", "Bermudez"):
             assert dato not in prompt
 
 
