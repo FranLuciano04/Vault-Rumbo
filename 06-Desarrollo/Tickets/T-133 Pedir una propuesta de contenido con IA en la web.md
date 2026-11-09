@@ -3,7 +3,7 @@ id: T-133
 titulo: Pedir una propuesta de contenido con IA en la web
 modulo: M9 — Redes e IA
 capa: web
-estado: libre
+estado: tomado
 depende_de: [T-132]
 tamaño: S
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [CU-20, RF-119, RF-121, RF-122]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: palomap2003
+tomado_el: 09/11/26 13:26
+rama: feature/T-133-pedir-una-propuesta-de-contenido-con-ia
 pr:
 ---
 # T-133 Pedir una propuesta de contenido con IA en la web
