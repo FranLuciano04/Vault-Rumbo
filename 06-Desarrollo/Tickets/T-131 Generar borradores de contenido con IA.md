@@ -3,7 +3,7 @@ id: T-131
 titulo: Generar borradores de contenido con IA
 modulo: M9 — Redes e IA
 capa: backend
-estado: tomado
+estado: hecho
 depende_de: [T-130, T-013]
 tamaño: M
 riesgo: alto
@@ -48,3 +48,10 @@ Quien tiene acceso a redes pide a la IA borradores de contenido a partir de un p
 - Guardar el borrador (se hace con `POST /contenidos`, RF-121).
 
 ## Notas de implementación
+- **Prompt:** `negocio/prompts/contenido_red.py` copia literal el prompt de sistema de [[IA — Prompt de CU-20]] (todavía `borrador`: si el equipo lo cambia, hay que actualizar el archivo) y agrega solo tema, canal y tono opcional, delimitados entre `<pedido>…</pedido>`. Va como un único texto porque `ModeloIA.generar` recibe un string.
+- **Respuesta:** un solo borrador por pedido; su `titulo` es el tema recortado a 200 caracteres (máximo de `ContenidoRed.titulo`), para poder guardarlo tal cual con `POST /contenidos`.
+- **Contrato:** se quitó el caso 501 de `propuestas-ia` de `test_contrato_m9.py` (como hizo T-130); el acceso por rol sigue cubierto por los 403 de `RUTAS_HTTP`.
+- **Review de seguridad (sonnet), arreglado en el fix:** `core/ia.py` ahora fija `max_tokens=1024`, convierte cualquier falla de la IA o respuesta vacía en `ServicioExterno` (502 genérico, detalle solo en el log) y suma 3 tests en `tests/negocio/test_ia.py` (agregados con `--tocar-tests`).
+- **Quedó afuera:** límite de pedidos por usuario sobre el endpoint (funcionalidad nueva, a decidir si va como ticket). Menor: la UI debe escapar el texto del borrador.
+- **Checks locales:** ruff, formato y mypy en verde; suite completa del backend 3111 passed, cobertura 99 %. 17 fallos ajenos al ticket: PDF con WeasyPrint sin GTK en esta PC (`libgobject-2.0-0`), los cubre el CI.
+- **Modelos:** tests sonnet, implementación y refactor opus, review sonnet. Sin escalados.
