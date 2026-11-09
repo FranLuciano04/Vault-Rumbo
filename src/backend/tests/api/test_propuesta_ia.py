@@ -4,6 +4,7 @@ El modelo es siempre el falso (`IA_MODELO=falso` por defecto); cada test reempla
 para registrar el prompt recibido o para simular una falla. Nunca se llama a la API de Claude.
 """
 
+import json
 from collections.abc import Awaitable, Callable
 
 import pytest
@@ -24,7 +25,9 @@ PEDIDO = {
     "canal": "instagram",
     "tono": "promocionar un destino",
 }
-SALIDA = "Borrador de prueba del modelo falso."
+TEXTOS = ["Primer borrador de prueba.", "Segundo borrador, distinto del primero."]
+# Suposición: la salida estructurada del modelo falso es un JSON con la lista de los 2 textos.
+SALIDA = json.dumps(TEXTOS)
 
 
 async def _con_redes(cliente_como: FabricaCliente) -> AsyncClient:
@@ -50,18 +53,55 @@ async def _contar(sesion: AsyncSession, modelo: type) -> int:
     return (await sesion.execute(select(func.count()).select_from(modelo))).scalar_one()
 
 
-async def test_rf119_devuelve_borradores(cliente_como: FabricaCliente, prompts: list[str]) -> None:
+async def test_rf119_devuelve_dos_borradores_con_el_tema_como_titulo(
+    cliente_como: FabricaCliente, prompts: list[str]
+) -> None:
+    c = await _con_redes(cliente_como)
+
+    r = await c.post(RUTA, json={**PEDIDO, "tema": "  " + PEDIDO["tema"] + "  "})
+
+    assert r.status_code == 200
+    borradores = r.json()["borradores"]
+    assert [b["texto"] for b in borradores] == TEXTOS
+    assert [b["titulo"] for b in borradores] == [PEDIDO["tema"]] * 2
+    assert all("id" not in b for b in borradores)
+
+
+async def test_rf119_una_sola_llamada_al_modelo(
+    cliente_como: FabricaCliente, prompts: list[str]
+) -> None:
     c = await _con_redes(cliente_como)
 
     r = await c.post(RUTA, json=PEDIDO)
 
     assert r.status_code == 200
-    borradores = r.json()["borradores"]
-    assert len(borradores) >= 1
-    for borrador in borradores:
-        assert borrador["texto"] == SALIDA
-        assert isinstance(borrador["titulo"], str) and borrador["titulo"].strip()
-        assert "id" not in borrador
+    assert len(prompts) == 1
+
+
+async def test_rf119_el_titulo_se_recorta_a_200_caracteres(
+    cliente_como: FabricaCliente, prompts: list[str]
+) -> None:
+    c = await _con_redes(cliente_como)
+    tema = "Viaje " + "a" * 300
+    tema = tema[:500]
+
+    r = await c.post(RUTA, json={**PEDIDO, "tema": tema})
+
+    assert r.status_code == 200
+    titulos = [b["titulo"] for b in r.json()["borradores"]]
+    assert titulos == [tema[:200]] * 2
+
+
+async def test_rf119_el_prompt_pide_dos_borradores(
+    cliente_como: FabricaCliente, prompts: list[str]
+) -> None:
+    c = await _con_redes(cliente_como)
+
+    await c.post(RUTA, json=PEDIDO)
+
+    assert len(prompts) == 1
+    assert "DOS borradores" in prompts[0]
+    assert "UN borrador" not in prompts[0]
 
 
 async def test_rf119_el_prompt_lleva_tema_canal_y_tono(
@@ -141,7 +181,7 @@ async def test_rf119_el_tono_es_opcional(cliente_como: FabricaCliente, prompts: 
     r = await c.post(RUTA, json={"tema": "Verano en Mar del Plata", "canal": "tiktok"})
 
     assert r.status_code == 200
-    assert len(r.json()["borradores"]) >= 1
+    assert len(r.json()["borradores"]) == 2
 
 
 async def test_error_ia_502(cliente_como: FabricaCliente, monkeypatch: pytest.MonkeyPatch) -> None:
@@ -170,4 +210,38 @@ async def test_error_ia_502_no_persiste(
 
     await c.post(RUTA, json=PEDIDO)
 
+    assert await _contar(sesion, ContenidoRed) == antes
+
+
+@pytest.mark.parametrize(
+    "salida",
+    [
+        "texto suelto, no es una lista",
+        "[]",
+        json.dumps(["solo uno"]),
+        json.dumps(["uno", "dos", "tres"]),
+        json.dumps(["uno", ""]),
+        json.dumps(["uno", "   "]),
+        json.dumps(["uno", 5]),
+        json.dumps({"borradores": "x"}),
+    ],
+)
+async def test_rf122_respuesta_invalida_de_la_ia_502_sin_persistir(
+    cliente_como: FabricaCliente,
+    sesion: AsyncSession,
+    monkeypatch: pytest.MonkeyPatch,
+    salida: str,
+) -> None:
+    async def _invalida(self: ia.ModeloFalso, prompt: str) -> str:
+        return salida
+
+    monkeypatch.setattr(ia.ModeloFalso, "generar", _invalida)
+    c = await _con_redes(cliente_como)
+    antes = await _contar(sesion, ContenidoRed)
+
+    r = await c.post(RUTA, json=PEDIDO)
+
+    assert r.status_code == 502
+    assert r.headers["content-type"].startswith(PROBLEM_JSON)
+    assert r.json()["status"] == 502
     assert await _contar(sesion, ContenidoRed) == antes
