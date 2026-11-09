@@ -8,7 +8,7 @@ import { canalesContenido } from "@rumbo/shared/esquemas";
 import { useCrearContenido, useEditarContenido, useGenerarPropuestasIA } from "@rumbo/shared/hooks";
 import type { AxiosInstance } from "axios";
 import { Check, RefreshCw, Sparkles } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useRef, useState, type KeyboardEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -20,10 +20,12 @@ const TONOS = ["Inspirador", "Promocional", "Informativo"] as const;
 /** Botón de opción excluyente (canal, tono) con el estado en `aria-pressed`. */
 function Opcion({
   activa,
+  deshabilitada = false,
   alElegir,
   children,
 }: {
   activa: boolean;
+  deshabilitada?: boolean;
   alElegir: () => void;
   children: string;
 }) {
@@ -33,6 +35,7 @@ function Opcion({
       className="rounded-full"
       variant={activa ? "default" : "outline"}
       aria-pressed={activa}
+      disabled={deshabilitada}
       onClick={alElegir}
     >
       {activa && <Check aria-hidden="true" />}
@@ -61,6 +64,12 @@ export function PropuestaIA({
   const [canal, setCanal] = useState<CanalContenido | undefined>(pieza?.canal);
   const [tono, setTono] = useState<string>(TONOS[0]);
   const [fecha, setFecha] = useState("");
+  const [titulo, setTitulo] = useState("");
+  // El canal del pedido que produjo los borradores: es el que se guarda, aunque después se cambie el botón.
+  const [canalGenerado, setCanalGenerado] = useState<CanalContenido>();
+  // Cada generación remonta los borradores: ninguno queda en edición.
+  const [generacion, setGeneracion] = useState(0);
+  const panel = useRef<HTMLElement>(null);
   const [borradores, setBorradores] = useState<BorradorContenido[]>([]);
   const [textos, setTextos] = useState<string[]>([]);
   const [elegido, setElegido] = useState(0);
@@ -68,6 +77,37 @@ export function PropuestaIA({
   const [mensaje, setMensaje] = useState<string | null>(null);
   const [falloLaIA, setFalloLaIA] = useState(false);
   const ocupado = generar.isPending || crear.isPending || editar.isPending;
+
+  // Al abrir el foco entra al panel y, al cerrarlo, vuelve al botón que lo abrió.
+  useEffect(() => {
+    const abridor = document.activeElement;
+    panel.current?.querySelector<HTMLElement>("input")?.focus();
+    return () => {
+      if (abridor instanceof HTMLElement) abridor.focus();
+    };
+  }, []);
+
+  function alTeclear(evento: KeyboardEvent) {
+    if (evento.key === "Escape") {
+      if (!ocupado) alCerrar();
+      return;
+    }
+    if (evento.key !== "Tab" || !panel.current) return;
+    const foco = [
+      ...panel.current.querySelectorAll<HTMLElement>(
+        "button:not(:disabled), input:not(:disabled), textarea:not(:disabled)",
+      ),
+    ];
+    const primero = foco[0];
+    const ultimo = foco[foco.length - 1];
+    if (evento.shiftKey && document.activeElement === primero) {
+      evento.preventDefault();
+      ultimo?.focus();
+    } else if (!evento.shiftKey && document.activeElement === ultimo) {
+      evento.preventDefault();
+      primero?.focus();
+    }
+  }
 
   function pedir() {
     setFalloLaIA(false);
@@ -87,9 +127,12 @@ export function PropuestaIA({
           setBorradores(nuevos);
           setTextos(nuevos.map(({ texto }) => texto));
           setElegido(0);
+          setTitulo(nuevos[0]?.titulo ?? "");
+          setCanalGenerado(canal);
+          setGeneracion(generacion + 1);
         },
+        // Si falla un «Regenerar» se conservan los borradores anteriores (RF-122).
         onError: (falla) => {
-          setBorradores([]);
           setMensaje(mensajeDeError(falla));
           setFalloLaIA(true);
         },
@@ -99,16 +142,27 @@ export function PropuestaIA({
 
   async function guardar() {
     const borrador = borradores[elegido];
-    if (!borrador || !canal) return;
+    if (!borrador || !canalGenerado) return;
+    if (!pieza && !titulo.trim()) {
+      setMensaje("Escribí el título de la pieza.");
+      return;
+    }
     if (!pieza && !fecha) {
       setMensaje("Elegí la fecha de publicación.");
       return;
     }
     setMensaje(null);
-    const cuerpo = { titulo: borrador.titulo, texto: textos[elegido] ?? borrador.texto };
+    const texto = textos[elegido] ?? borrador.texto;
     try {
-      if (pieza) await editar.mutateAsync({ contenidoId: pieza.id, cambios: cuerpo });
-      else await crear.mutateAsync({ ...cuerpo, canal, fecha_publicacion: fecha });
+      // Desde una pieza se conserva su título; desde el encabezado se crea una nueva.
+      if (pieza) await editar.mutateAsync({ contenidoId: pieza.id, cambios: { texto } });
+      else
+        await crear.mutateAsync({
+          titulo: titulo.trim(),
+          texto,
+          canal: canalGenerado,
+          fecha_publicacion: fecha,
+        });
       alCerrar();
     } catch (falla) {
       setMensaje(mensajeDeError(falla));
@@ -119,11 +173,10 @@ export function PropuestaIA({
     <aside
       role="dialog"
       aria-modal="true"
+      ref={panel}
       aria-label="Propuesta con IA"
       className="fixed inset-y-0 right-0 z-40 flex w-full max-w-lg flex-col gap-4 overflow-y-auto border-l bg-background p-6 shadow-lg"
-      onKeyDown={(evento) => {
-        if (evento.key === "Escape" && !ocupado) alCerrar();
-      }}
+      onKeyDown={alTeclear}
     >
       <div className="flex items-start justify-between gap-3">
         <div>
@@ -144,6 +197,7 @@ export function PropuestaIA({
         <Input
           id="propuesta-tema"
           value={tema}
+          maxLength={500}
           onChange={(evento) => {
             setTema(evento.target.value);
           }}
@@ -154,6 +208,7 @@ export function PropuestaIA({
           <Opcion
             key={opcion}
             activa={canal === opcion}
+            deshabilitada={pieza !== undefined}
             alElegir={() => {
               setCanal(opcion);
             }}
@@ -204,13 +259,26 @@ export function PropuestaIA({
             borradores={borradores}
             textos={textos}
             elegido={elegido}
-            alElegir={setElegido}
+            key={generacion}
+            alElegir={(indice) => {
+              setElegido(indice);
+              setTitulo(borradores[indice]?.titulo ?? "");
+            }}
             alEditarTexto={(indice, texto) => {
               setTextos(textos.map((actual, i) => (i === indice ? texto : actual)));
             }}
           />
           {!pieza && (
             <div className="flex flex-col gap-2">
+              <Label htmlFor="propuesta-titulo">Título</Label>
+              <Input
+                id="propuesta-titulo"
+                value={titulo}
+                maxLength={200}
+                onChange={(evento) => {
+                  setTitulo(evento.target.value);
+                }}
+              />
               <Label htmlFor="propuesta-fecha">Fecha de publicación</Label>
               <Input
                 id="propuesta-fecha"

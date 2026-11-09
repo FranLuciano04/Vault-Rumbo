@@ -305,6 +305,116 @@ describe("RF-119 propuesta", () => {
       within(await tarjeta(publicado.titulo)).queryByRole("button", { name: /propuesta con ia/i }),
     ).toBeNull();
   });
+
+  it("RF-119 D1 desde una pieza el canal queda fijo y la IA recibe el de la pieza", async () => {
+    const { pedidos } = espiar();
+    renderRedes();
+    await userEvent.click(
+      within(await tarjeta(idea.titulo)).getByRole("button", { name: /propuesta con ia/i }),
+    );
+
+    for (const boton of within(grupo(/canal/i)).getAllByRole("button")) {
+      expect(boton.hasAttribute("disabled") || boton.getAttribute("aria-disabled") === "true").toBe(
+        true,
+      );
+    }
+    await userEvent.click(within(grupo(/canal/i)).getByRole("button", { name: /tiktok/i }));
+    expect(within(grupo(/canal/i)).getByRole("button", { name: /tiktok/i })).toHaveAttribute(
+      "aria-pressed",
+      "false",
+    );
+    await generar();
+    await within(panel()).findByText("Borrador 1");
+
+    expect(pedidos).toHaveLength(1);
+    expect(pedidos[0]).toMatchObject({ canal: idea.canal });
+  });
+
+  it("RF-119 desde el encabezado el canal sigue siendo elegible", async () => {
+    await abrirDesdeCero();
+
+    for (const boton of within(grupo(/canal/i)).getAllByRole("button")) {
+      expect(boton).toBeEnabled();
+    }
+  });
+
+  it("RF-122 si falla un «Regenerar» se conservan los borradores anteriores con lo editado y se muestra el error", async () => {
+    let llamadas = 0;
+    servidor.use(
+      http.post("*/api/contenidos/propuestas-ia", () => {
+        llamadas += 1;
+        return llamadas === 1
+          ? HttpResponse.json({ borradores: borradoresDe(2) })
+          : problema(502, "La IA no respondió a tiempo.");
+      }),
+    );
+    await abrirDesdeCero();
+    await completarPedido();
+    await generar();
+    await within(panel()).findByText("Borrador 1");
+    await userEvent.click(
+      within(panel()).getAllByRole("button", { name: /^editar/i })[0] as HTMLElement,
+    );
+    const texto = within(panel()).getByRole("textbox", { name: /texto del borrador/i });
+    await userEvent.clear(texto);
+    await userEvent.type(texto, "Editado a mano");
+
+    await userEvent.click(within(panel()).getByRole("button", { name: /regenerar/i }));
+
+    expect(await within(panel()).findByRole("alert")).toHaveTextContent(
+      /la ia no respondió a tiempo/i,
+    );
+    expect(within(panel()).getAllByRole("radio")).toHaveLength(2);
+    expect(within(panel()).getByText("Borrador 1")).toBeInTheDocument();
+    expect(within(panel()).getByDisplayValue("Editado a mano")).toBeInTheDocument();
+    expect(within(panel()).getByRole("button", { name: /guardar en la pieza/i })).toBeEnabled();
+  });
+
+  it("RF-119 después de «Regenerar» ningún borrador queda en modo edición", async () => {
+    espiar([borradoresDe(2, "Borrador"), borradoresDe(2, "Otro")]);
+    await abrirDesdeCero();
+    await completarPedido();
+    await generar();
+    await within(panel()).findByText("Borrador 1");
+    await userEvent.click(
+      within(panel()).getAllByRole("button", { name: /^editar/i })[0] as HTMLElement,
+    );
+    expect(
+      within(panel()).getByRole("textbox", { name: /texto del borrador/i }),
+    ).toBeInTheDocument();
+
+    await userEvent.click(within(panel()).getByRole("button", { name: /regenerar/i }));
+
+    expect(await within(panel()).findByText("Otro 1")).toBeInTheDocument();
+    expect(
+      within(panel()).queryByRole("textbox", { name: /texto del borrador/i }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("RF-119 accesibilidad: al abrir el panel el foco queda dentro del diálogo", async () => {
+    await abrirDesdeCero();
+
+    await waitFor(() => {
+      expect(panel().contains(document.activeElement)).toBe(true);
+    });
+  });
+
+  it("RF-119 accesibilidad: Escape cierra el panel y el foco vuelve al botón que lo abrió", async () => {
+    renderRedes();
+    await screen.findByText(idea.titulo);
+    const abrir = screen.getByRole("button", { name: /^propuesta con ia$/i });
+    await userEvent.click(abrir);
+    await waitFor(() => {
+      expect(panel().contains(document.activeElement)).toBe(true);
+    });
+
+    await userEvent.keyboard("{Escape}");
+
+    await waitFor(() => {
+      expect(screen.queryByRole("dialog", { name: /propuesta con ia/i })).not.toBeInTheDocument();
+    });
+    expect(abrir).toHaveFocus();
+  });
 });
 
 describe("RF-121 guardar borrador", () => {
@@ -367,7 +477,7 @@ describe("RF-121 guardar borrador", () => {
     expect(altas).toHaveLength(0);
   });
 
-  it("RF-121 A3 desde una pieza existente aplica el borrador a esa pieza (PATCH) y no crea otra", async () => {
+  it("RF-121 A3 desde una pieza existente aplica el texto a esa pieza (PATCH {texto}, conserva el título) y no crea otra", async () => {
     const { altas, cambios } = espiar([borradoresDe(2)]);
     renderRedes();
     await userEvent.click(
@@ -383,15 +493,11 @@ describe("RF-121 guardar borrador", () => {
       expect(cambios).toHaveLength(1);
     });
     expect(cambios[0]?.id).toBe(idea.id);
-    expect(cambios[0]?.cuerpo).toMatchObject({
-      titulo: "Borrador 2",
-      texto: "Texto del borrador 2",
-    });
-    expect(cambios[0]?.cuerpo).not.toHaveProperty("estado_kanban");
+    expect(cambios[0]?.cuerpo).toEqual({ texto: "Texto del borrador 2" });
     expect(altas).toHaveLength(0);
   });
 
-  it("RF-121 A3 desde una pieza en producción la deja en esa columna (el PATCH no mueve el estado)", async () => {
+  it("RF-121 A3 desde una pieza en producción manda solo el texto (ni título ni estado_kanban)", async () => {
     const { cambios } = espiar([borradoresDe(1)]);
     renderRedes();
     await userEvent.click(
@@ -406,7 +512,61 @@ describe("RF-121 guardar borrador", () => {
       expect(cambios).toHaveLength(1);
     });
     expect(cambios[0]?.id).toBe(enProduccion.id);
-    expect(cambios[0]?.cuerpo).not.toHaveProperty("estado_kanban");
+    expect(cambios[0]?.cuerpo).toEqual({ texto: "Texto del borrador 1" });
+  });
+
+  it("RF-121 desde el encabezado el panel muestra el campo Título con el del borrador elegido", async () => {
+    espiar([borradoresDe(2)]);
+    await conBorradores();
+
+    const titulo = within(panel()).getByRole("textbox", { name: /^título$/i });
+    expect(titulo).toHaveValue("Borrador 1");
+
+    await userEvent.click(within(panel()).getAllByRole("radio")[1] as HTMLElement);
+
+    expect(within(panel()).getByRole("textbox", { name: /^título$/i })).toHaveValue("Borrador 2");
+  });
+
+  it("RF-121 desde el encabezado el título se puede editar y el POST lleva el título editado", async () => {
+    const { altas } = espiar([borradoresDe(2)]);
+    await conBorradores();
+
+    const titulo = within(panel()).getByRole("textbox", { name: /^título$/i });
+    await userEvent.clear(titulo);
+    await userEvent.type(titulo, "Iguazú en 4 días");
+    await userEvent.type(within(panel()).getByLabelText(/fecha de publicación/i), "2026-12-20");
+    await userEvent.click(within(panel()).getByRole("button", { name: /guardar en la pieza/i }));
+
+    await waitFor(() => {
+      expect(altas).toHaveLength(1);
+    });
+    expect(altas[0]).toMatchObject({ titulo: "Iguazú en 4 días", texto: "Texto del borrador 1" });
+  });
+
+  it("RF-121 desde una pieza no hay campo Título: la pieza conserva el suyo", async () => {
+    espiar([borradoresDe(2)]);
+    renderRedes();
+    await userEvent.click(
+      within(await tarjeta(idea.titulo)).getByRole("button", { name: /propuesta con ia/i }),
+    );
+    await generar();
+    await within(panel()).findByText("Borrador 1");
+
+    expect(within(panel()).queryByRole("textbox", { name: /^título$/i })).not.toBeInTheDocument();
+  });
+
+  it("RF-121 si se cambia el canal después de generar, el POST usa el canal del pedido que produjo los borradores", async () => {
+    const { altas } = espiar([borradoresDe(2)]);
+    await conBorradores();
+
+    await userEvent.click(within(grupo(/canal/i)).getByRole("button", { name: /tiktok/i }));
+    await userEvent.type(within(panel()).getByLabelText(/fecha de publicación/i), "2026-12-20");
+    await userEvent.click(within(panel()).getByRole("button", { name: /guardar en la pieza/i }));
+
+    await waitFor(() => {
+      expect(altas).toHaveLength(1);
+    });
+    expect(altas[0]).toMatchObject({ canal: "instagram" });
   });
 
   it("RF-121 si el guardado falla muestra el error y deja los borradores para reintentar", async () => {
