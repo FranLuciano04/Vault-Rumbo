@@ -17,6 +17,7 @@
 #
 # Todo sale de src/.env (fuera de Git); las imágenes no llevan secretos.
 # La base no se publica al host: solo la ve la api, dentro de la red del Compose.
+# nginx se publica solo en 127.0.0.1. Instalación en el servidor: src/infra/servidor.md.
 
 name: rumbo
 
@@ -85,8 +86,10 @@ services:
     depends_on:
       api:
         condition: service_healthy
+    # Solo loopback: nada escucha en la red de la agencia. El acceso entra por el túnel
+    # (cloudflared, en la red del Compose); la entrada local es el respaldo (DEC-0011, T-135).
     ports:
-      - "${RUMBO_HTTP_PORT:-80}:80"
+      - "127.0.0.1:${RUMBO_HTTP_PORT:-80}:80"
 
 volumes:
   rumbo_pgdata:
