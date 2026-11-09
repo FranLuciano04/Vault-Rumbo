@@ -3,7 +3,7 @@ id: T-134
 titulo: Probar de punta a punta la planificación de redes
 modulo: M9 — Redes e IA
 capa: e2e
-estado: libre
+estado: tomado
 depende_de: [T-131, T-133, T-025]
 tamaño: S
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [CU-19, CU-20]
 origen: plan
-asignado:
-tomado_el:
-rama:
+asignado: Nahuel Viniegra
+tomado_el: 09/11/26 20:46
+rama: feature/T-134-probar-de-punta-a-punta-la-planificacion
 pr:
 ---
 # T-134 Probar de punta a punta la planificación de redes
