@@ -16,8 +16,8 @@ export interface ColumnaTablero {
 /**
  * Una consulta por columna del tablero (RF-114), cada una con su total y sus páginas («Ver más»),
  * y la de descartadas (RF-117), que solo se pide si se la quiere ver. La API lista de la fecha de
- * publicación más próxima a la más lejana y no admite otro orden: en Publicado las más viejas salen
- * primero y las recientes quedan tras «Ver más».
+ * publicación más próxima a la más lejana; Publicado pide `orden=desc` para mostrar primero las
+ * publicadas más recientes.
  */
 export function useTableroContenido(
   cliente: AxiosInstance,
@@ -30,7 +30,12 @@ export function useTableroContenido(
   const useColumna = (estado: EstadoKanban, habilitada: boolean) =>
     useContenidosPorPaginas(
       cliente,
-      { canal, estado_kanban: estado, por_pagina: POR_PAGINA },
+      {
+        canal,
+        estado_kanban: estado,
+        por_pagina: POR_PAGINA,
+        ...(estado === "publicado" && { orden: "desc" as const }),
+      },
       { enabled: activo && habilitada },
     );
   const tablero = activo && !verDescartadas;
