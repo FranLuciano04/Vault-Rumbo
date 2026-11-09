@@ -24,7 +24,7 @@ tags:: #tipo/referencia
 | M7 — Proceso diario y CRM proactivo | 9 | 9 | 0 | 0 | 0 | 0 | ✅ cerrado |
 | M8 — Calendario, dashboard y reportes | 10 | 10 | 0 | 0 | 0 | 0 | ✅ cerrado |
 | M9 — Redes e IA | 8 | 5 | 0 | 2 | 1 | 0 | 🛠️ en curso |
-| M10 — Despliegue on-premise | 5 | 0 | 0 | 1 | 4 | 0 | 🛠️ en curso |
+| M10 — Despliegue on-premise | 5 | 0 | 1 | 0 | 4 | 0 | 🛠️ en curso |
 
 ## Grafo
 
@@ -217,7 +217,7 @@ flowchart LR
     T170["T-170 · Mostrar primero las publicadas recientes en el tablero web<br/><small>web</small>"]:::hecho
   end
   subgraph M10["M10 — Despliegue on-premise"]
-    T135["T-135 · Preparar el servidor on-premise de la agencia<br/><small>infra</small>"]:::disponible
+    T135["T-135 · Preparar el servidor on-premise de la agencia<br/><small>infra</small><br/>👤 palomap2003"]:::tomado
     T136["T-136 · Publicar Rumbo con Cloudflare Tunnel<br/><small>infra</small>"]:::esperando
     T137["T-137 · Desplegar desde el CI con el runner del servidor<br/><small>infra</small>"]:::esperando
     T138["T-138 · Respaldar la base a diario con copia externa<br/><small>infra</small>"]:::esperando
