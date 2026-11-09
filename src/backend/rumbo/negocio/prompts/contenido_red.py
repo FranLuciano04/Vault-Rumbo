@@ -31,8 +31,10 @@ Reglas:
 
 
 def armar_prompt(*, tema: str, canal: CanalContenido, tono: str | None) -> str:
-    """Prompt de sistema más el pedido; sin tono, esa línea no va."""
+    """Prompt de sistema más el pedido, delimitado entre `<pedido>` y `</pedido>` para que lo que
+    carga la persona no se mezcle con las instrucciones; sin tono, esa línea no va."""
     pedido = [f"Tema: {tema}", f"Canal: {canal.value}"]
     if tono:
         pedido.append(f"Tono u objetivo: {tono}")
-    return f"{SISTEMA}\n\n" + "\n".join(pedido)
+    cuerpo = "\n".join(pedido)
+    return f"{SISTEMA}\n\n<pedido>\n{cuerpo}\n</pedido>"

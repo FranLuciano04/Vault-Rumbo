@@ -1,8 +1,8 @@
 """Cliente de IA (DEC-0012): interfaz única, modelo falso para tests/CI/demos y modelo real."""
 
+import logging
 from typing import TYPE_CHECKING, Protocol
 
-import anthropic
 from pydantic import SecretStr
 
 from rumbo.core.config import Settings
@@ -11,9 +11,13 @@ from rumbo.core.errores import ServicioExterno
 if TYPE_CHECKING:
     from langchain_anthropic import ChatAnthropic
 
+logger = logging.getLogger(__name__)
+
 _MODELO_CLAUDE = "claude-sonnet-5-5"
+_MAX_TOKENS = 1024  # alcanza para un posteo de redes y pone tope al costo de cada llamada
 _TIMEOUT_SEGUNDOS = 60
 _REINTENTOS = 1
+_FALLA_IA = "No se pudo generar el texto con el servicio de IA."
 
 
 class ModeloIA(Protocol):
@@ -35,22 +39,37 @@ class _ClienteClaude:
         self._chat = chat
 
     async def generar(self, prompt: str) -> str:
+        """Cualquier falla del modelo, o una respuesta sin texto, es `ServicioExterno` (502) con
+        un mensaje genérico; el detalle va al log, sin el prompt."""
         try:
             respuesta = await self._chat.ainvoke(prompt)
-        except anthropic.APIError as error:
-            raise ServicioExterno("No se pudo generar el texto con el servicio de IA.") from error
-        return respuesta.text
+        except Exception as error:
+            logger.error("Falló la llamada al modelo de IA (%s)", type(error).__name__)
+            raise ServicioExterno(_FALLA_IA) from error
+        texto = respuesta.text
+        if not texto.strip():
+            logger.error("El modelo de IA respondió sin texto")
+            raise ServicioExterno(_FALLA_IA)
+        return texto
 
 
 def _construir_cliente_claude(api_key: SecretStr) -> ModeloIA:
     """Único punto de construcción del cliente real de Claude: la guardia autouse de
     `tests/conftest.py` lo parchea para que ningún test llame a la API."""
+    return _ClienteClaude(_crear_chat(api_key))
+
+
+def _crear_chat(api_key: SecretStr) -> "ChatAnthropic":
+    """Configura el chat de LangChain; construirlo no llama a la API."""
     from langchain_anthropic import ChatAnthropic  # diferido: solo se importa con IA real
 
-    chat = ChatAnthropic(  # type: ignore[call-arg]
-        model=_MODELO_CLAUDE, api_key=api_key, timeout=_TIMEOUT_SEGUNDOS, max_retries=_REINTENTOS
+    return ChatAnthropic(  # type: ignore[call-arg]
+        model=_MODELO_CLAUDE,
+        api_key=api_key,
+        max_tokens=_MAX_TOKENS,
+        timeout=_TIMEOUT_SEGUNDOS,
+        max_retries=_REINTENTOS,
     )
-    return _ClienteClaude(chat)
 
 
 def obtener_modelo_ia(settings: Settings) -> ModeloIA:

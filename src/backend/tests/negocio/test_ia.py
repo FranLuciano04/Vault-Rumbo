@@ -131,3 +131,36 @@ async def test_rnf16_una_respuesta_con_varios_bloques_devuelve_solo_el_texto() -
     cliente = ia._ClienteClaude(_ChatConBloques())  # type: ignore[arg-type]
 
     assert await cliente.generar("tema") == "Hola mundo"
+
+
+class _ChatConErrorInesperado:
+    async def ainvoke(self, prompt: str) -> AIMessage:
+        raise ValueError("respuesta inesperada de langchain")
+
+
+class _ChatSinTexto:
+    async def ainvoke(self, prompt: str) -> AIMessage:
+        return AIMessage(content="   ")
+
+
+def test_rnf16_el_chat_de_claude_tiene_tope_de_tokens() -> None:
+    """Construir el chat no llama a la API; el tope acota el costo y el largo de la salida."""
+    chat = ia._crear_chat(SecretStr("clave-de-prueba"))
+
+    assert chat.max_tokens == ia._MAX_TOKENS == 1024
+
+
+async def test_rnf16_un_error_que_no_es_de_la_api_tambien_es_servicio_externo() -> None:
+    cliente = ia._ClienteClaude(_ChatConErrorInesperado())  # type: ignore[arg-type]
+
+    with pytest.raises(ServicioExterno) as error:
+        await cliente.generar("tema")
+
+    assert "langchain" not in error.value.detalle
+
+
+async def test_rnf16_una_respuesta_sin_texto_es_servicio_externo() -> None:
+    cliente = ia._ClienteClaude(_ChatSinTexto())  # type: ignore[arg-type]
+
+    with pytest.raises(ServicioExterno):
+        await cliente.generar("tema")
