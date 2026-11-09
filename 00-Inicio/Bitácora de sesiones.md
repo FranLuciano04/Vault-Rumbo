@@ -36,6 +36,14 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
+## 09/11/26 — Nahuel (Claude Opus 5.5) — T-131, borradores de contenido con IA
+- **Hecho:**
+  - T-131 implementado con TDD y PR abierto (#202), con el CI en verde. `POST /contenidos/propuestas-ia` devuelve 2 borradores distintos en una sola llamada, el título es el tema y no se persiste nada. Si la IA falla o no trae 2 textos válidos, responde 502. El prompt versionado no lleva datos de clientes (RNF-16).
+  - DEC-0027 llegó a `main` con el PR abierto: segunda vuelta de TDD para implementarla.
+  - Review de seguridad (sonnet) en 2 rondas, sin bloqueantes. Se arreglaron 3 importantes (`max_tokens`, captura amplia de errores de la IA y parseo tolerante a un bloque de código) y los menores (pedido delimitado y sin etiquetas, borradores distintos, parseo en el servicio).
+- **Commits:** `11c11b4`, `e8578dc`, `0855da3` rojo, `f61fce7` verde, `354d7e1` y `66f18af` fix, `687c2b6` hecho, `08b2d3d` merge de main, `145c965` rojo, `c65c984` verde, `e2c676d` refactor, `807b864` fix, `53aea53` notas.
+- **Pendiente:** como el ticket es de riesgo alto, falta que otro integrante apruebe el PR #202 para mergearlo. Hay que ratificar DEC-0027. Decidir si el límite de pedidos por usuario en el endpoint de IA va como ticket. En la PC de Nahuel, los 17 tests de PDF fallan porque falta GTK, para WeasyPrint (en el CI pasan).
+
 ## 09/11/26 — Paloma (Claude Opus 5.5) — T-169, T-170 y T-133
 - **Hecho:**
   - T-169 implementado con TDD y mergeado (PR #199), con el CI en verde: `GET /api/contenidos?orden=asc|desc` desempata por `id`, y se actualizaron el contrato, los tipos y el mock.
