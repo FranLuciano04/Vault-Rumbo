@@ -23,7 +23,7 @@ tags:: #tipo/referencia
 | M6 — Viajes y economía | 24 | 24 | 0 | 0 | 0 | 0 | ✅ cerrado |
 | M7 — Proceso diario y CRM proactivo | 9 | 9 | 0 | 0 | 0 | 0 | ✅ cerrado |
 | M8 — Calendario, dashboard y reportes | 10 | 10 | 0 | 0 | 0 | 0 | ✅ cerrado |
-| M9 — Redes e IA | 8 | 3 | 0 | 3 | 2 | 0 | 🛠️ en curso |
+| M9 — Redes e IA | 8 | 3 | 1 | 2 | 2 | 0 | 🛠️ en curso |
 | M10 — Despliegue on-premise | 5 | 0 | 0 | 1 | 4 | 0 | 🛠️ en curso |
 
 ## Grafo
@@ -213,7 +213,7 @@ flowchart LR
     T132["T-132 · Planificar contenido en el tablero web<br/><small>web</small>"]:::hecho
     T133["T-133 · Pedir una propuesta de contenido con IA en la web<br/><small>web</small>"]:::disponible
     T134["T-134 · Probar de punta a punta la planificación de redes<br/><small>e2e</small>"]:::esperando
-    T169["T-169 · Ordenar las piezas de contenido de la más nueva a la más vieja<br/><small>backend</small>"]:::disponible
+    T169["T-169 · Ordenar las piezas de contenido de la más nueva a la más vieja<br/><small>backend</small><br/>👤 palomap2003"]:::tomado
     T170["T-170 · Mostrar primero las publicadas recientes en el tablero web<br/><small>web</small>"]:::esperando
   end
   subgraph M10["M10 — Despliegue on-premise"]

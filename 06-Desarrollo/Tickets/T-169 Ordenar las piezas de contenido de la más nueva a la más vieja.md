@@ -3,7 +3,7 @@ id: T-169
 titulo: Ordenar las piezas de contenido de la más nueva a la más vieja
 modulo: M9 — Redes e IA
 capa: backend
-estado: libre
+estado: tomado
 depende_de: [T-130]
 tamaño: S
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [CU-19, RF-114]
 origen: hallazgo T-132
-asignado:
-tomado_el:
-rama:
+asignado: palomap2003
+tomado_el: 09/11/26 12:09
+rama: feature/T-169-ordenar-las-piezas-de-contenido-de-la-ma
 pr:
 ---
 # T-169 Ordenar las piezas de contenido de la más nueva a la más vieja
