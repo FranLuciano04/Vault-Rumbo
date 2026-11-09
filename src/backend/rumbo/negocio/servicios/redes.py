@@ -2,7 +2,7 @@
 
 import uuid
 from datetime import date
-from typing import Any
+from typing import Any, Literal
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -31,10 +31,11 @@ async def listar_contenidos(
     hasta: date | None,
     estado_kanban: EstadoKanban | None,
     canal: CanalContenido | None,
+    orden: Literal["asc", "desc"],
     desplazamiento: int,
     limite: int,
 ) -> tuple[list[ContenidoRed], int]:
-    """Tablero y calendario (RF-116): de la fecha de publicación más próxima a la más lejana."""
+    """Tablero y calendario (RF-116): por fecha de publicación, ascendente o descendente."""
     _exigir_acceso(actor)
     return await _contenidos.paginar(
         sesion,
@@ -42,6 +43,7 @@ async def listar_contenidos(
         hasta=hasta,
         estado_kanban=estado_kanban,
         canal=canal,
+        orden=orden,
         desplazamiento=desplazamiento,
         limite=limite,
         visibilidad=visibilidad(actor),

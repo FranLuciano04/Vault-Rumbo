@@ -2,6 +2,7 @@
 
 import uuid
 from datetime import date
+from typing import Literal
 
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -36,12 +37,13 @@ class RepositorioContenidos(RepositorioBase[ContenidoRed]):
         hasta: date | None,
         estado_kanban: EstadoKanban | None,
         canal: CanalContenido | None,
+        orden: Literal["asc", "desc"],
         desplazamiento: int,
         limite: int,
         visibilidad: Visibilidad,
     ) -> tuple[list[ContenidoRed], int]:
-        """Página por fecha de publicación y el total que cumple los filtros. Sin `estado_kanban`
-        no trae las `descartado`."""
+        """Página por fecha de publicación (`id` desempata, en el mismo sentido) y el total que
+        cumple los filtros. Sin `estado_kanban` no trae las `descartado`."""
         filtros = [
             ContenidoRed.estado_kanban == estado_kanban
             if estado_kanban is not None
@@ -55,6 +57,7 @@ class RepositorioContenidos(RepositorioBase[ContenidoRed]):
             filtros.append(ContenidoRed.canal == canal)
         consulta = visibilidad.aplicar(select(ContenidoRed).where(*filtros), ContenidoRed)
         total = await sesion.scalar(select(func.count()).select_from(consulta.subquery()))
-        pagina = consulta.order_by(ContenidoRed.fecha_publicacion, ContenidoRed.id)
+        columnas = (ContenidoRed.fecha_publicacion, ContenidoRed.id)
+        pagina = consulta.order_by(*(c.desc() if orden == "desc" else c.asc() for c in columnas))
         filas = await sesion.scalars(pagina.offset(desplazamiento).limit(limite))
         return list(filas), total or 0

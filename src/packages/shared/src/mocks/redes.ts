@@ -120,7 +120,12 @@ export function manejadoresRedesPara(
       const filtro = (nombre: string) => url.searchParams.get(nombre);
       const estado = filtro("estado_kanban");
       const canal = filtro("canal");
-      if ((estado && !estados.includes(estado)) || (canal && !canales.includes(canal))) {
+      const orden = filtro("orden");
+      if (
+        (estado && !estados.includes(estado)) ||
+        (canal && !canales.includes(canal)) ||
+        (orden !== null && orden !== "asc" && orden !== "desc")
+      ) {
         return datosInvalidos("Filtro desconocido.");
       }
       const filtradas = contenidosMock
@@ -131,8 +136,11 @@ export function manejadoresRedesPara(
             (!filtro("desde") || c.fecha_publicacion >= String(filtro("desde"))) &&
             (!filtro("hasta") || c.fecha_publicacion <= String(filtro("hasta"))),
         )
-        .sort((a, b) => a.fecha_publicacion.localeCompare(b.fecha_publicacion));
-      return pagina(filtradas, url);
+        .sort(
+          (a, b) =>
+            a.fecha_publicacion.localeCompare(b.fecha_publicacion) || a.id.localeCompare(b.id),
+        );
+      return pagina(orden === "desc" ? filtradas.reverse() : filtradas, url);
     }),
 
     http.post("*/api/contenidos", async ({ request }) => {

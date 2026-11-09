@@ -2,7 +2,7 @@
 
 import uuid
 from datetime import date
-from typing import Annotated, Any
+from typing import Annotated, Any, Literal
 
 from fastapi import APIRouter, Depends, Query
 
@@ -88,6 +88,10 @@ async def listar_contenidos(
         EstadoKanban | None, Query(description="Solo las piezas de esa columna.")
     ] = None,
     canal: Annotated[CanalContenido | None, Query(description="Solo ese canal.")] = None,
+    orden: Annotated[
+        Literal["asc", "desc"],
+        Query(description="Orden por fecha de publicación: `asc` (más próxima primero) o `desc`."),
+    ] = "asc",
 ) -> Pagina[ContenidoRed]:
     piezas, total = await redes.listar_contenidos(
         sesion,
@@ -96,6 +100,7 @@ async def listar_contenidos(
         hasta=hasta,
         estado_kanban=estado_kanban,
         canal=canal,
+        orden=orden,
         desplazamiento=paginacion.desplazamiento,
         limite=paginacion.por_pagina,
     )
