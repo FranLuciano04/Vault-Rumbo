@@ -33,13 +33,15 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
-## 09/11/26 — Paloma (Claude Opus 5.5) — T-169, orden de las piezas de contenido
+## 09/11/26 — Paloma (Claude Opus 5.5) — T-169 y T-170, orden de las piezas de contenido
 - **Hecho:**
   - T-169 implementado con TDD y mergeado (PR #199), con el CI en verde: `GET /api/contenidos?orden=asc|desc` desempata por `id`, y se actualizaron el contrato, los tipos y el mock.
   - Review de Opus aprobada: 3 menores, 2 arreglados y 1 anotado en el ticket.
   - Se borró la rama local de T-112, ya mergeada.
 - **Commits:** `a1d9854` rojo, `f2e1f56` verde, `79caf8c` fix, `fce3c5e` hecho, `ea5ab9e` merge.
-- **Pendiente:** T-170 ya está disponible. Falta decidir si la foto del contrato del PC1 (`05-Diseño/API/openapi.json`) lleva `orden`. Los tests de backend necesitan Docker Desktop abierto.
+  - T-170 implementado con TDD y mergeado (PR #200), con el CI en verde: la columna Publicado pide `orden=desc`, también en «Ver más». Review de Opus aprobada, con 1 menor arreglado.
+  - Commits de T-170: `4b79536` rojo, `9172e3a` verde, `87f537f` fix, `983d32d` hecho, `452b7f9` merge.
+- **Pendiente:** a M9 le faltan T-131, T-133 y T-134. Falta decidir si la foto del contrato del PC1 (`05-Diseño/API/openapi.json`) lleva `orden`. Los tests de backend necesitan Docker Desktop abierto.
 
 ## 06/11/26 — Nahuel (Claude Opus 5.5) — T-132, tablero web de contenido
 - **Hecho:**
