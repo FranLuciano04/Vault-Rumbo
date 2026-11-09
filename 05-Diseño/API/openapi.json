@@ -5483,6 +5483,19 @@
                 "whatsapp_ventas"
               ]
             }
+          },
+          {
+            "name": "orden",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ],
+              "default": "asc",
+              "description": "Por fecha de publicación: asc (de la más vieja a la más nueva) o desc (de la más nueva a la más vieja). Desempata por id."
+            }
           }
         ],
         "responses": {

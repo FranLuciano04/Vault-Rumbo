@@ -411,7 +411,7 @@ const ops = [
 
   // ------------------------------------------------------------ redes
   ['get', '/contenidos', 'redes', 'listarContenidos', 'Ver el tablero y el calendario de contenido', ['CU-19'], INTERNOS, [200, LSD, 'Piezas de contenido.'], null,
-    { q: [...PAG, ...P('desde', 'hasta'), q('estado_kanban', { type: 'string', enum: ['idea', 'en_produccion', 'listo', 'publicado', 'descartado'] }), q('canal', { type: 'string', enum: ['instagram', 'tiktok', 'whatsapp_ventas'] })], redes: true }],
+    { q: [...PAG, ...P('desde', 'hasta'), q('estado_kanban', { type: 'string', enum: ['idea', 'en_produccion', 'listo', 'publicado', 'descartado'] }), q('canal', { type: 'string', enum: ['instagram', 'tiktok', 'whatsapp_ventas'] }), q('orden', { type: 'string', enum: ['asc', 'desc'], default: 'asc', description: 'Por fecha de publicación: asc (de la más vieja a la más nueva) o desc (de la más nueva a la más vieja). Desempata por id.' })], redes: true }],
   ['post', '/contenidos', 'redes', 'crearContenido', 'Crear una pieza de contenido', ['CU-19', 'CU-20'], INTERNOS, [201, SD, 'Pieza creada en la columna idea, o con el borrador elegido de la IA.'], SD, { redes: true }],
   ['get', '/contenidos/{contenido_id}', 'redes', 'obtenerContenido', 'Ver una pieza de contenido', ['CU-19'], INTERNOS, [200, SD, 'Pieza.'], null, { redes: true }],
   ['patch', '/contenidos/{contenido_id}', 'redes', 'editarContenido', 'Editar, reprogramar o mover una pieza en el tablero', ['CU-19', 'CU-20'], INTERNOS, [200, SD, 'Pieza actualizada.'], SD, { redes: true, c409: 'Transición no válida en el tablero (EST-ContenidoRed).' }],

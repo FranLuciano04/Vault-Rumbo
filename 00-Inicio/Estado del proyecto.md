@@ -14,7 +14,7 @@ actualizado: 06/11/26
 >
 > 👉 **09/11 (Paloma):** **T-170** (la columna Publicado del tablero web muestra primero las recientes) está hecho y mergeado (PR [#200](https://github.com/FranLuciano04/Vault-Rumbo/pull/200)). A M9 le faltan T-131, T-133 y T-134.
 >
-> 👉 **09/11 (Paloma):** **T-169** (orden `asc`/`desc` en `GET /contenidos`, con paginación estable) está hecho y mergeado (PR [#199](https://github.com/FranLuciano04/Vault-Rumbo/pull/199)). Destraba T-170. Abierto: si `05-Diseño/API/openapi.json` (la foto del contrato del PC1) también lleva `orden`.
+> 👉 **09/11 (Paloma):** **T-169** (orden `asc`/`desc` en `GET /contenidos`, con paginación estable) está hecho y mergeado (PR [#199](https://github.com/FranLuciano04/Vault-Rumbo/pull/199)). Destraba T-170. El contrato de diseño del PC1 también incluye `orden`.
 >
 > 👉 **06/11 (Nahuel):** **T-129** (contrato de M9: redes e IA), **T-130** (tablero de contenido en el backend) y **T-132** (tablero de contenido en la web) están hechos y mergeados (PR [#196](https://github.com/FranLuciano04/Vault-Rumbo/pull/196), [#197](https://github.com/FranLuciano04/Vault-Rumbo/pull/197) y [#198](https://github.com/FranLuciano04/Vault-Rumbo/pull/198)). Quedan disponibles T-131 y T-133. Antes de T-131 falta decidir de dónde sale `BorradorContenido.titulo`: el prompt de CU-20 no lo pide.
 >

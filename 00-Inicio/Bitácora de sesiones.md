@@ -41,7 +41,7 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Commits:** `a1d9854` rojo, `f2e1f56` verde, `79caf8c` fix, `fce3c5e` hecho, `ea5ab9e` merge.
   - T-170 implementado con TDD y mergeado (PR #200), con el CI en verde: la columna Publicado pide `orden=desc`, también en «Ver más». Review de Opus aprobada, con 1 menor arreglado.
   - Commits de T-170: `4b79536` rojo, `9172e3a` verde, `87f537f` fix, `983d32d` hecho, `452b7f9` merge.
-- **Pendiente:** a M9 le faltan T-131, T-133 y T-134. Falta decidir si la foto del contrato del PC1 (`05-Diseño/API/openapi.json`) lleva `orden`. Los tests de backend necesitan Docker Desktop abierto.
+- **Pendiente:** a M9 le faltan T-131, T-133 y T-134. T-135 quedó libre: no hay servidor de la agencia disponible para verificarlo. Decisión de Paloma: la foto del contrato del PC1 también lleva `orden` (agregado en `generar-openapi.js` y regenerada). Los tests de backend necesitan Docker Desktop abierto.
 
 ## 06/11/26 — Nahuel (Claude Opus 5.5) — T-132, tablero web de contenido
 - **Hecho:**
