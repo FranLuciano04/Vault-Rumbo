@@ -65,6 +65,8 @@ export function PropuestaIA({
   const [tono, setTono] = useState<string>(TONOS[0]);
   const [fecha, setFecha] = useState("");
   const [titulo, setTitulo] = useState("");
+  // Con el título editado a mano, elegir otro borrador ya no lo pisa; regenerar lo reinicia.
+  const [tituloEditado, setTituloEditado] = useState(false);
   // El canal del pedido que produjo los borradores: es el que se guarda, aunque después se cambie el botón.
   const [canalGenerado, setCanalGenerado] = useState<CanalContenido>();
   // Cada generación remonta los borradores: ninguno queda en edición.
@@ -128,6 +130,7 @@ export function PropuestaIA({
           setTextos(nuevos.map(({ texto }) => texto));
           setElegido(0);
           setTitulo(nuevos[0]?.titulo ?? "");
+          setTituloEditado(false);
           setCanalGenerado(canal);
           setGeneracion(generacion + 1);
         },
@@ -254,7 +257,13 @@ export function PropuestaIA({
         <>
           <h3 className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
             {borradores.length === 1 ? "1 borrador" : `${String(borradores.length)} borradores`}
+            {canalGenerado && ` para ${ETIQUETA_CANAL[canalGenerado]}`}
           </h3>
+          {canal !== canalGenerado && (
+            <p className="text-xs font-medium text-destructive">
+              Regenerá para usar el canal nuevo.
+            </p>
+          )}
           <BorradoresPropuesta
             borradores={borradores}
             textos={textos}
@@ -262,7 +271,7 @@ export function PropuestaIA({
             key={generacion}
             alElegir={(indice) => {
               setElegido(indice);
-              setTitulo(borradores[indice]?.titulo ?? "");
+              if (!tituloEditado) setTitulo(borradores[indice]?.titulo ?? "");
             }}
             alEditarTexto={(indice, texto) => {
               setTextos(textos.map((actual, i) => (i === indice ? texto : actual)));
@@ -277,6 +286,7 @@ export function PropuestaIA({
                 maxLength={200}
                 onChange={(evento) => {
                   setTitulo(evento.target.value);
+                  setTituloEditado(true);
                 }}
               />
               <Label htmlFor="propuesta-fecha">Fecha de publicación</Label>
