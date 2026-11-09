@@ -657,3 +657,131 @@ describe("RF-114 columna fallida", () => {
     expect(within(listos).queryByText(/\(0\)/)).toBeNull();
   });
 });
+
+describe("RF-114 kanban orden de las columnas", () => {
+  const reciente = {
+    ...publicado,
+    id: "pub-reciente",
+    titulo: "Publicada reciente",
+    fecha_publicacion: "2026-11-10",
+  };
+  const vieja = {
+    ...publicado,
+    id: "pub-vieja",
+    titulo: "Publicada vieja",
+    fecha_publicacion: "2026-08-01",
+  };
+
+  /** Responde como la API: ascendente por defecto y descendente con `orden=desc`. */
+  function conPublicadas(pedidos: URLSearchParams[] = []) {
+    servidor.use(
+      http.get("*/api/contenidos", ({ request }) => {
+        const q = new URL(request.url).searchParams;
+        pedidos.push(q);
+        let items: ContenidoRed[] = [];
+        if (q.get("estado_kanban") === "publicado") {
+          items = q.get("orden") === "desc" ? [reciente, vieja] : [vieja, reciente];
+        }
+        return HttpResponse.json({ items, total: items.length, pagina: 1, por_pagina: 20 });
+      }),
+    );
+  }
+
+  it("RF-114 la columna Publicado pide orden=desc y sin desde", async () => {
+    const pedidos: URLSearchParams[] = [];
+    conPublicadas(pedidos);
+    renderRedes();
+    await screen.findByText("Publicada reciente");
+
+    const publicadas = pedidos.filter((q) => q.get("estado_kanban") === "publicado");
+    expect(publicadas.length).toBeGreaterThan(0);
+    for (const q of publicadas) {
+      expect(q.get("orden")).toBe("desc");
+      expect(q.has("desde")).toBe(false);
+    }
+  });
+
+  it("RF-114 «Ver más» de Publicado también pide orden=desc y sin desde", async () => {
+    const pedidos: URLSearchParams[] = [];
+    servidor.use(
+      http.get("*/api/contenidos", ({ request }) => {
+        const q = new URL(request.url).searchParams;
+        pedidos.push(q);
+        const pagina = Number(q.get("pagina") ?? 1);
+        const por = Number(q.get("por_pagina") ?? 20);
+        const todas =
+          q.get("estado_kanban") === "publicado"
+            ? Array.from({ length: 25 }, (_, i) => ({
+                ...publicado,
+                id: `pub-${String(i + 1)}`,
+                titulo: `Publicada ${String(i + 1)}`,
+              }))
+            : [];
+        return HttpResponse.json({
+          items: todas.slice((pagina - 1) * por, pagina * por),
+          total: todas.length,
+          pagina,
+          por_pagina: por,
+        });
+      }),
+    );
+    renderRedes();
+
+    const col = await columna(/^publicado/i);
+    await userEvent.click(await within(col).findByRole("button", { name: /ver más/i }));
+    await waitFor(() => {
+      expect(pedidos.some((q) => q.get("pagina") === "2")).toBe(true);
+    });
+
+    const segunda = pedidos.filter(
+      (q) => q.get("estado_kanban") === "publicado" && q.get("pagina") === "2",
+    );
+    expect(segunda.length).toBeGreaterThan(0);
+    for (const q of segunda) {
+      expect(q.get("orden")).toBe("desc");
+      expect(q.has("desde")).toBe(false);
+    }
+  });
+
+  it("RF-114 en Publicado la pieza reciente aparece antes que la vieja", async () => {
+    conPublicadas();
+    renderRedes();
+
+    const col = await columna(/^publicado/i);
+    await within(col).findByText("Publicada vieja");
+    const titulos = within(col)
+      .getAllByText(/^Publicada (reciente|vieja)$/)
+      .map((n) => n.textContent);
+    expect(titulos).toEqual(["Publicada reciente", "Publicada vieja"]);
+  });
+
+  it("RF-114 las demás columnas no mandan orden", async () => {
+    const pedidos: URLSearchParams[] = [];
+    conPublicadas(pedidos);
+    renderRedes();
+    await screen.findByText("Publicada reciente");
+
+    const otras = pedidos.filter((q) => q.get("estado_kanban") !== "publicado");
+    expect(otras.map((q) => q.get("estado_kanban")).sort()).toEqual([
+      "en_produccion",
+      "idea",
+      "listo",
+    ]);
+    for (const q of otras) expect(q.has("orden")).toBe(false);
+  });
+
+  it("RF-117 las descartadas no mandan orden", async () => {
+    const pedidos: URLSearchParams[] = [];
+    conPublicadas(pedidos);
+    renderRedes();
+    await screen.findByText("Publicada reciente");
+
+    await userEvent.click(screen.getByRole("switch", { name: /mostrar descartadas/i }));
+    await waitFor(() => {
+      expect(pedidos.some((q) => q.get("estado_kanban") === "descartado")).toBe(true);
+    });
+
+    const descartadas = pedidos.filter((q) => q.get("estado_kanban") === "descartado");
+    for (const q of descartadas) expect(q.has("orden")).toBe(false);
+  });
+});
