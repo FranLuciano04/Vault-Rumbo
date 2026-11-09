@@ -36,6 +36,13 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
+## 09/11/26 — Paloma (Claude Opus 5.5) — T-135, servidor on-premise (ensayo)
+- **Hecho:**
+  - T-135 tomado y ensayado en la PC (Windows 11 + Docker Desktop), porque no hay servidor. Runbook `src/infra/servidor.md`, con cada paso marcado como ensayado o pendiente en el servidor. nginx se publica solo en `127.0.0.1`. `src/infra/chequear-puertos.sh` falla si un contenedor publica un puerto fuera de loopback (incluye IPs de la LAN); con `--stdin` se prueba sin Docker.
+  - PR #203 abierto, sin mergear. El ticket sigue `tomado`. No se corrió review.
+- **Commits:** `53d2a98`, `048857d` (rama `feature/T-135-…`).
+- **Pendiente:** verificar en el servidor real (Ubuntu y Docker, usuario de servicio, `ufw`, permisos del `.env`, arranque tras reinicio y escaneo de puertos desde otra máquina). Después, marcar T-135 como hecho y mergear el #203. Falta saber cuándo y dónde está disponible el servidor (spec §10).
+
 ## 09/11/26 — Nahuel (Claude Opus 5.5) — T-131, borradores de contenido con IA
 - **Hecho:**
   - T-131 implementado con TDD y PR abierto (#202), con el CI en verde. `POST /contenidos/propuestas-ia` devuelve 2 borradores distintos en una sola llamada, el título es el tema y no se persiste nada. Si la IA falla o no trae 2 textos válidos, responde 502. El prompt versionado no lleva datos de clientes (RNF-16).
