@@ -4,7 +4,7 @@ import uuid
 from datetime import date
 from typing import Literal
 
-from sqlalchemy import func, select
+from sqlalchemy import exists, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from rumbo.core.errores import NoEncontrado
@@ -61,3 +61,13 @@ class RepositorioContenidos(RepositorioBase[ContenidoRed]):
         pagina = consulta.order_by(*(c.desc() if orden == "desc" else c.asc() for c in columnas))
         filas = await sesion.scalars(pagina.offset(desplazamiento).limit(limite))
         return list(filas), total or 0
+
+    async def existe_de_usuario(
+        self, sesion: AsyncSession, *, usuario_id: uuid.UUID, titulo: str
+    ) -> bool:
+        """Si el usuario ya tiene una pieza, en cualquier estado, con ese título. Sin filtro de
+        visibilidad: solo para semillas."""
+        consulta = select(
+            exists().where(ContenidoRed.usuario_id == usuario_id, ContenidoRed.titulo == titulo)
+        )
+        return bool(await sesion.scalar(consulta))

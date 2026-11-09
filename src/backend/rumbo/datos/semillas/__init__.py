@@ -9,6 +9,7 @@ from rumbo.datos.semillas.clientes import sembrar_clientes
 from rumbo.datos.semillas.configuracion import sembrar_configuracion
 from rumbo.datos.semillas.hoteles import sembrar_hoteles
 from rumbo.datos.semillas.oportunidades import sembrar_oportunidades
+from rumbo.datos.semillas.redes import sembrar_redes
 from rumbo.datos.semillas.viajes import sembrar_viajes
 
 Semilla = Callable[[AsyncSession], Awaitable[None]]
@@ -20,5 +21,6 @@ SEMILLAS: list[Semilla] = [
     sembrar_oportunidades,
     sembrar_hoteles,
     sembrar_viajes,
+    sembrar_redes,
 ]
 """Semillas registradas, en orden."""
