@@ -23,7 +23,7 @@ tags:: #tipo/referencia
 | M6 — Viajes y economía | 24 | 24 | 0 | 0 | 0 | 0 | ✅ cerrado |
 | M7 — Proceso diario y CRM proactivo | 9 | 9 | 0 | 0 | 0 | 0 | ✅ cerrado |
 | M8 — Calendario, dashboard y reportes | 10 | 10 | 0 | 0 | 0 | 0 | ✅ cerrado |
-| M9 — Redes e IA | 8 | 6 | 1 | 0 | 1 | 0 | 🛠️ en curso |
+| M9 — Redes e IA | 8 | 7 | 0 | 1 | 0 | 0 | 🛠️ en curso |
 | M10 — Despliegue on-premise | 5 | 0 | 1 | 0 | 4 | 0 | 🛠️ en curso |
 
 ## Grafo
@@ -209,10 +209,10 @@ flowchart LR
   subgraph M9["M9 — Redes e IA"]
     T129["T-129 · Publicar el contrato de redes<br/><small>contrato</small>"]:::hecho
     T130["T-130 · Planificar las piezas de contenido en el tablero<br/><small>backend</small>"]:::hecho
-    T131["T-131 · Generar borradores de contenido con IA<br/><small>backend · ⚠️ riesgo alto</small><br/>👤 Nahuel Viniegra"]:::tomado
+    T131["T-131 · Generar borradores de contenido con IA<br/><small>backend · ⚠️ riesgo alto</small>"]:::hecho
     T132["T-132 · Planificar contenido en el tablero web<br/><small>web</small>"]:::hecho
     T133["T-133 · Pedir una propuesta de contenido con IA en la web<br/><small>web</small>"]:::hecho
-    T134["T-134 · Probar de punta a punta la planificación de redes<br/><small>e2e</small>"]:::esperando
+    T134["T-134 · Probar de punta a punta la planificación de redes<br/><small>e2e</small>"]:::disponible
     T169["T-169 · Ordenar las piezas de contenido de la más nueva a la más vieja<br/><small>backend</small>"]:::hecho
     T170["T-170 · Mostrar primero las publicadas recientes en el tablero web<br/><small>web</small>"]:::hecho
   end
