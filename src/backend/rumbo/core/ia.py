@@ -18,7 +18,7 @@ _MODELO_CLAUDE = "claude-sonnet-5-5"
 _MAX_TOKENS = 1024  # alcanza para un posteo de redes y pone tope al costo de cada llamada
 _TIMEOUT_SEGUNDOS = 60
 _REINTENTOS = 1
-_FALLA_IA = "No se pudo generar el texto con el servicio de IA."
+FALLA_IA = "No se pudo generar el texto con el servicio de IA."
 
 
 class ModeloIA(Protocol):
@@ -53,11 +53,11 @@ class _ClienteClaude:
             respuesta = await self._chat.ainvoke(prompt)
         except Exception as error:
             logger.error("Falló la llamada al modelo de IA (%s)", type(error).__name__)
-            raise ServicioExterno(_FALLA_IA) from error
+            raise ServicioExterno(FALLA_IA) from error
         texto = respuesta.text
         if not texto.strip():
             logger.error("El modelo de IA respondió sin texto")
-            raise ServicioExterno(_FALLA_IA)
+            raise ServicioExterno(FALLA_IA)
         return texto
 
 

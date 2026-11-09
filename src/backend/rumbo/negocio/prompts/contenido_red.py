@@ -8,6 +8,7 @@ import json
 import logging
 
 from rumbo.core.errores import ServicioExterno
+from rumbo.core.ia import FALLA_IA
 from rumbo.datos.modelos import CanalContenido
 
 logger = logging.getLogger(__name__)
@@ -43,8 +44,6 @@ FORMATO_DE_SALIDA = """\
 Formato de la respuesta: solo una lista JSON con los dos borradores como strings, por ejemplo
 ["primer borrador", "segundo borrador"], sin texto antes ni después."""
 
-_FALLA_IA = "No se pudo generar el texto con el servicio de IA."
-
 
 def armar_prompt(*, tema: str, canal: CanalContenido, tono: str | None) -> str:
     """Prompt de sistema, formato de salida y el pedido, delimitado entre `<pedido>` y
@@ -71,5 +70,5 @@ def leer_borradores(salida: str) -> list[str]:
     )
     if not validos:
         logger.error("La IA respondió con un formato inválido para los borradores")
-        raise ServicioExterno(_FALLA_IA)
+        raise ServicioExterno(FALLA_IA)
     return textos  # type: ignore[no-any-return]
