@@ -50,9 +50,7 @@ async def _contar(sesion: AsyncSession, modelo: type) -> int:
     return (await sesion.execute(select(func.count()).select_from(modelo))).scalar_one()
 
 
-async def test_rf119_devuelve_borradores(
-    cliente_como: FabricaCliente, prompts: list[str]
-) -> None:
+async def test_rf119_devuelve_borradores(cliente_como: FabricaCliente, prompts: list[str]) -> None:
     c = await _con_redes(cliente_como)
 
     r = await c.post(RUTA, json=PEDIDO)
@@ -137,9 +135,7 @@ async def test_rf122_no_persiste(
     assert await _contar(sesion, Viaje) == viajes
 
 
-async def test_rf119_el_tono_es_opcional(
-    cliente_como: FabricaCliente, prompts: list[str]
-) -> None:
+async def test_rf119_el_tono_es_opcional(cliente_como: FabricaCliente, prompts: list[str]) -> None:
     c = await _con_redes(cliente_como)
 
     r = await c.post(RUTA, json={"tema": "Verano en Mar del Plata", "canal": "tiktok"})
@@ -148,9 +144,7 @@ async def test_rf119_el_tono_es_opcional(
     assert len(r.json()["borradores"]) >= 1
 
 
-async def test_error_ia_502(
-    cliente_como: FabricaCliente, monkeypatch: pytest.MonkeyPatch
-) -> None:
+async def test_error_ia_502(cliente_como: FabricaCliente, monkeypatch: pytest.MonkeyPatch) -> None:
     async def _falla(self: ia.ModeloFalso, prompt: str) -> str:
         raise ServicioExterno("No se pudo generar el texto con el servicio de IA.")
 
