@@ -1,5 +1,6 @@
 """Cliente de IA (DEC-0012): interfaz única, modelo falso para tests/CI/demos y modelo real."""
 
+import json
 import logging
 from typing import TYPE_CHECKING, Protocol
 
@@ -24,10 +25,17 @@ class ModeloIA(Protocol):
     async def generar(self, prompt: str) -> str: ...
 
 
-class ModeloFalso:
-    """Devuelve siempre la misma salida, sin red: para tests, CI y demos."""
+_SALIDA_FALSA = json.dumps(
+    ["Primer borrador generado por el modelo falso.", "Segundo borrador del modelo falso."],
+    ensure_ascii=False,
+)
 
-    def __init__(self, salida: str = "Borrador generado por el modelo falso.") -> None:
+
+class ModeloFalso:
+    """Devuelve siempre la misma salida, sin red: para tests, CI y demos. Por defecto, la lista
+    JSON de 2 textos que espera la propuesta de contenido (DEC-0027)."""
+
+    def __init__(self, salida: str = _SALIDA_FALSA) -> None:
         self._salida = salida
 
     async def generar(self, prompt: str) -> str:

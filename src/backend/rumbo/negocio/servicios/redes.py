@@ -128,9 +128,11 @@ async def proponer_contenido(
     canal: CanalContenido,
     tono: str | None,
 ) -> list[Borrador]:
-    """Una llamada a la IA con solo el pedido (RF-119, RF-120, RNF-16); no persiste nada, así
-    que regenerar o descartar no deja rastro (RF-122). Si la IA falla, sube `ServicioExterno`."""
+    """Una llamada a la IA con solo el pedido (RF-119, RF-120, RNF-16) que trae 2 borradores; el
+    título de los dos es el tema (DEC-0027). No persiste nada, así que regenerar o descartar no
+    deja rastro (RF-122). Si la IA falla o responde mal, sube `ServicioExterno`."""
     _exigir_acceso(actor)
+    tema = tema.strip()
     prompt = prompt_contenido_red.armar_prompt(tema=tema, canal=canal, tono=tono)
-    texto = await modelo.generar(prompt)
-    return [Borrador(titulo=tema[:_LARGO_TITULO], texto=texto)]
+    textos = prompt_contenido_red.leer_borradores(await modelo.generar(prompt))
+    return [Borrador(titulo=tema[:_LARGO_TITULO], texto=texto) for texto in textos]
