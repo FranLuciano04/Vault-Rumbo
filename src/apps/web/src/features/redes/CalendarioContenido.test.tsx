@@ -47,7 +47,10 @@ interface Pedido {
 }
 
 /** Simula un mes con `total` piezas paginadas de a 100 y registra cada pedido. */
-function simularMes(total: number, opciones: { fallaPagina2?: boolean; frenarPagina2?: Promise<void> } = {}) {
+function simularMes(
+  total: number,
+  opciones: { fallaPagina2?: boolean; frenarPagina2?: Promise<void> } = {},
+) {
   const pedidos: Pedido[] = [];
   servidor.use(
     http.get("*/api/contenidos", async ({ request }) => {
