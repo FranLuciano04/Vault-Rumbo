@@ -43,6 +43,18 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Commits:** `53d2a98`, `048857d` (rama `feature/T-135-…`).
 - **Pendiente:** verificar en el servidor real (Ubuntu y Docker, usuario de servicio, `ufw`, permisos del `.env`, arranque tras reinicio y escaneo de puertos desde otra máquina). Después, marcar T-135 como hecho y mergear el #203. Falta saber cuándo y dónde está disponible el servidor (spec §10).
 
+## 09/11/26 — Nahuel (Claude Opus 5.5) — T-134, e2e de redes
+- **Hecho:**
+  - T-134 implementado y mergeado (PR #204) con el CI en verde. `e2e/redes.spec.ts` tiene 4 tests: tablero, propuesta con IA guardada como pieza, y acceso con y sin permiso de redes. La semilla de demo suma 7 piezas «Demo: …» a nombre de la dueña.
+  - Review de Opus: 3 menores, todos arreglados.
+  - T-131 quedó aprobado por Paloma y mergeado (PR #202).
+  - Falla fuera del ticket (DEC-0019): cortes intermitentes de los e2e en Windows con Docker Desktop. En `e2e/compose.ts` se agregó el reintento del GET de oobCodes y `URL_BASE` pasó a `127.0.0.1`. La suite e2e completa da 44 de 44.
+- **Commits:** `2ca514d` e2e, `9324d80` semilla, `25a7351`, `1c0405b` y `5cf7189` fix, merge del PR #204.
+- **Pendiente:**
+  - Todos los tickets del M9 están hechos: falta `/cerrar-modulo M9`.
+  - Para correr los e2e en local hay que detener el stack de demo `rumbo` (`docker compose -p rumbo stop`), porque ocupa el puerto 9099.
+  - Si el corte «other side closed» reaparece en otros specs, conviene migrarlos a `elegirContrasena`.
+
 ## 09/11/26 — Nahuel (Claude Opus 5.5) — T-131, borradores de contenido con IA
 - **Hecho:**
   - T-131 implementado con TDD y PR abierto (#202), con el CI en verde. `POST /contenidos/propuestas-ia` devuelve 2 borradores distintos en una sola llamada, el título es el tema y no se persiste nada. Si la IA falla o no trae 2 textos válidos, responde 502. El prompt versionado no lleva datos de clientes (RNF-16).
