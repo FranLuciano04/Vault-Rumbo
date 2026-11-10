@@ -38,6 +38,7 @@ tags:: #tipo/modulo #estado/formalizado
 - [[DEC-0025 Pagos anulados por la cancelación]] (formalizada el 30/10/26): `Pago.anulado_por_cancelacion` marca los pagos que anuló la cancelación, y revertirla restaura solo esos (CU-27 A3).
 - [[DEC-0026 Tipo de cambio y deuda nueva en un viaje confirmado]] (en revisión, 01/11/26): el tipo de cambio son pesos por dólar; un `confirmado` que vuelve a deber pasa a `vendido` (T11), el rebalanceo también confirma y para iniciar hace falta el total pagado.
 - [[DEC-0027 Título y cantidad de borradores de la IA]] (en revisión, 09/11/26): el título del borrador sale del tema del pedido; cada pedido devuelve 2 borradores en una sola llamada (CU-20, T-131).
+- [[DEC-0028 Cotizaciones alternativas y reserva con el primer pago]] (borrador en revisión, 10/11/26): varias cotizaciones por oportunidad, y al ganar se elige la aceptada; la reserva se precarga con ella, pide solo el primer pago y arma el itinerario con sus hoteles; la comisión en % sigue sobre la ganancia (M11, destraba T-174).
 
 ## Todas (Dataview)
 ```dataview

@@ -23,7 +23,7 @@ tags:: #tipo/ticket
 
 > No editar `estado`, `asignado`, `tomado_el` ni `rama` a mano: los maneja `06-Desarrollo/herramientas/tickets.mjs` (ver [[Flujo de implementación]]).
 
-> 🟥 **Bloqueado hasta que el equipo apruebe la `DEC-` de la sección [[#Decisión pendiente]].** El pedido cambia reglas de CU-06, CU-07 y CU-11, y una contradicción con el vault se resuelve con una `DEC-`. Cuando se apruebe, este ticket pasa a `libre` y destraba T-175 a T-181.
+> 🟥 **Bloqueado hasta que el equipo apruebe [[DEC-0028 Cotizaciones alternativas y reserva con el primer pago|DEC-0028]]** (ver [[#Decisión pendiente]]). El pedido cambia reglas de CU-06, CU-07 y CU-11, y una contradicción con el vault se resuelve con una `DEC-`. Cuando se apruebe, este ticket pasa a `libre` y destraba T-175 a T-181.
 
 ## Objetivo
 Dejar en el contrato OpenAPI, en los tipos y en los mocks MSW lo que necesitan los cambios de la revisión del 10/11/26:
@@ -53,7 +53,7 @@ Ajuste de los tests de contrato de M4 y M6: el ítem con hotel y sin hotel, `gan
 - Las pantallas, que van en T-178, T-179 y T-180.
 
 ## Decisión pendiente
-Hay que escribir y aprobar una `DEC-` (la próxima libre es DEC-0028) que responda:
+El borrador está en [[DEC-0028 Cotizaciones alternativas y reserva con el primer pago|DEC-0028]] (en revisión, 10/11/26), con una propuesta para cada pregunta. Las preguntas son:
 1. **Cotizaciones alternativas.** Hoy son **versiones**: solo se acepta la última (`exigir_vigente_sin_aceptada`, CU-06 A1). El pedido las trata como **alternativas** entre las que el cliente elige. Hay que decidir tres cosas. ¿Se puede aceptar cualquier versión enviada y vigente? ¿Qué pasa con las otras al ganar: quedan como están o pasan a `rechazada`? ¿Se puede elegir una que sigue en `borrador`?
 2. **Reserva con el primer pago.** CU-11 A1 exige que el plan sume el precio de venta, y hoy la reserva lo valida (`exigir_plan_valido`). El pedido es cargar solo el primer pago al reservar y completar el resto desde el viaje. El estado ya lo tolera: con el plan descalzado, el viaje no pasa a `confirmado` ni a `en_curso` (DEC-0026). Hay que confirmar que el primer pago puede ser de cualquier tipo, que no supera el precio de venta y que **no** hace falta cobrarlo para confirmar la reserva.
    - Nota: la revisión dice «plan de pagos vacío» en un punto y «primer pago» en otro. Este ticket toma la segunda lectura: la reserva lleva el primer pago y el resto del plan queda vacío. La API ya pide al menos un pago (DEC-0026).

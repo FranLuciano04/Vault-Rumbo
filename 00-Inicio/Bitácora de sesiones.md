@@ -41,10 +41,11 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
   - Se verificaron en el código los 8 cambios de la revisión con el equipo. Todos se pueden hacer, y quedaron en el módulo nuevo **M11** con los tickets T-171 a T-181. El grafo está regenerado.
   - Se pueden tomar ya: T-171 (arrastrar las tarjetas del embudo; se recomienda `@dnd-kit/core`), T-172 (puntaje con estrellas) y T-173 (comisión en % con su importe).
   - Hay que decidir antes: T-174 (contrato) está `bloqueado` hasta que se apruebe una `DEC-`, y T-175 a T-181 dependen de él. Son las cotizaciones alternativas (hoy solo se acepta la última versión), la reserva con solo el primer pago (hoy el plan tiene que sumar el precio, CU-11 A1) y el itinerario desde la cotización (hoy la cotización no guarda hoteles).
-- **Commits:** ver `git log` (tickets M11).
+- **Commits:** `06e2852` (tickets M11) y el del borrador de DEC-0028.
+- **También:** se redactó el borrador de DEC-0028, en revisión, con una propuesta para cada punto.
 - **Pendiente:**
-  - Escribir y aprobar DEC-0028 con las preguntas que están en T-174 y después pasar T-174 a `libre`.
-  - Confirmar la base del porcentaje de comisión. DEC-0007 dice ganancia; en la revisión se dijo costo.
+  - Revisar en equipo el borrador de [[DEC-0028 Cotizaciones alternativas y reserva con el primer pago|DEC-0028]]. Al aprobarlo, actualizar CU-05, CU-06, CU-07, CU-09 y CU-11 y pasar T-174 a `libre`.
+  - Confirmar la base del porcentaje de comisión, que es el punto 5 de DEC-0028. DEC-0007 dice ganancia; en la revisión se dijo costo.
   - La entrega es el 13/11: M11 suma 11 tickets, 2 de riesgo alto.
 
 ## 09/11/26 — Paloma (Claude Opus 5.5) — T-135, servidor on-premise (ensayo)
