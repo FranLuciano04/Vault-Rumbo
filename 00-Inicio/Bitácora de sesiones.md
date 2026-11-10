@@ -36,6 +36,17 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
+## 10/11/26 — Nahuel (Claude Opus 5.5) — Tickets de la revisión con el equipo
+- **Hecho:**
+  - Se verificaron en el código los 8 cambios de la revisión con el equipo. Todos se pueden hacer, y quedaron en el módulo nuevo **M11** con los tickets T-171 a T-181. El grafo está regenerado.
+  - Se pueden tomar ya: T-171 (arrastrar las tarjetas del embudo; se recomienda `@dnd-kit/core`), T-172 (puntaje con estrellas) y T-173 (comisión en % con su importe).
+  - Hay que decidir antes: T-174 (contrato) está `bloqueado` hasta que se apruebe una `DEC-`, y T-175 a T-181 dependen de él. Son las cotizaciones alternativas (hoy solo se acepta la última versión), la reserva con solo el primer pago (hoy el plan tiene que sumar el precio, CU-11 A1) y el itinerario desde la cotización (hoy la cotización no guarda hoteles).
+- **Commits:** ver `git log` (tickets M11).
+- **Pendiente:**
+  - Escribir y aprobar DEC-0028 con las preguntas que están en T-174 y después pasar T-174 a `libre`.
+  - Confirmar la base del porcentaje de comisión. DEC-0007 dice ganancia; en la revisión se dijo costo.
+  - La entrega es el 13/11: M11 suma 11 tickets, 2 de riesgo alto.
+
 ## 09/11/26 — Paloma (Claude Opus 5.5) — T-135, servidor on-premise (ensayo)
 - **Hecho:**
   - T-135 tomado y ensayado en la PC (Windows 11 + Docker Desktop), porque no hay servidor. Runbook `src/infra/servidor.md`, con cada paso marcado como ensayado o pendiente en el servidor. nginx se publica solo en `127.0.0.1`. `src/infra/chequear-puertos.sh` falla si un contenedor publica un puerto fuera de loopback (incluye IPs de la LAN); con `--stdin` se prueba sin Docker.

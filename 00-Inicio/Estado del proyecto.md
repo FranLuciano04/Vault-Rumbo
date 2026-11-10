@@ -2,7 +2,7 @@
 tipo: referencia
 estado: formalizado
 responsable: equipo
-actualizado: 06/11/26
+actualizado: 10/11/26
 ---
 
 # 📊 Estado del proyecto
@@ -11,6 +11,8 @@ actualizado: 06/11/26
 
 ## Fase actual
 > 🚀 **12/10 — arranca la implementación.** El equipo aprobó [[DEC-0014 Flujo de implementación con agentes]]: tickets con semáforo en Git, TDD con subagentes, review de Codex en cada módulo y código en `src/`. ✅ **Paso 1 hecho:** skills (`/tomar-ticket`, `/implementar-ticket`, `/cerrar-modulo` y 13 de Addy Osmani), subagentes, script de tickets, [[Flujo de implementación]], [[Tablero de tickets]] y [[Grafo de tickets]]. ✅ **Paso 2 (13/10):** grill con el equipo → [[DEC-0015 Decisiones de implementación]], y la autenticación pasó a Firebase con [[DEC-0016 Autenticación con Firebase]]. ✅ **Paso 3 (13/10):** [[Spec de implementación]] aprobada y formalizada; [[Plan de implementación]] (aprobado el 14/10) con **139 tickets** en el [[Grafo de tickets]]. ⏭️ **Ahora:** empezar con `/tomar-ticket` (disponibles: T-001, T-002, T-004 y T-005, el proyecto de Firebase). Meta mínima del PC2: M0 a M6; primero los 79 tickets del camino de CU-01 (T-108). Después, hasta donde lleguemos.
+>
+> 👉 **10/11 (Nahuel):** la revisión con el equipo dejó 8 cambios de producto. Se verificaron en el código y quedaron en **M11 — Ajustes de la revisión del equipo**, con los tickets T-171 a T-181. Disponibles: T-171 (arrastrar tarjetas del embudo), T-172 (puntaje con estrellas) y T-173 (comisión en %). T-174 está **bloqueado**: cotizaciones alternativas, reserva con solo el primer pago e itinerario desde la cotización cambian CU-06, CU-07 y CU-11, y necesitan una `DEC-` (DEC-0028) con las preguntas que están en T-174. T-175 a T-181 dependen de T-174. Falta confirmar si la comisión en % va sobre la ganancia (DEC-0007) o sobre el costo, como se dijo en la revisión.
 >
 > 🏁 **10/11 — M9 Redes e IA cerrado.** T-131 (IA con 2 borradores, DEC-0027) y T-134 (e2e de redes) están mergeados (PR #202 y #204). El único hallazgo de Codex se arregló en el PR #205: el calendario pedía una sola página. Nahuel lo aprobó en nombre del equipo y se puso el tag `mod-9`. Falta que Francisco ratifique DEC-0027 y decidir si el endpoint de IA lleva un límite de pedidos. Queda M10. El resumen está en [[Bitácora técnica]].
 >
