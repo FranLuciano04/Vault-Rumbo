@@ -43,6 +43,19 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Commits:** `53d2a98`, `048857d` (rama `feature/T-135-…`).
 - **Pendiente:** verificar en el servidor real (Ubuntu y Docker, usuario de servicio, `ufw`, permisos del `.env`, arranque tras reinicio y escaneo de puertos desde otra máquina). Después, marcar T-135 como hecho y mergear el #203. Falta saber cuándo y dónde está disponible el servidor (spec §10).
 
+## 10/11/26 — Nahuel (Claude Opus 5.5) — Cierre de M9
+- **Hecho:**
+  - Pedido de review de M9 para Codex.
+  - Triage de su único hallazgo: H-01 se confirmó, pero bajó de bloqueante a importante. El calendario de redes pedía una sola página.
+  - H-01 se arregló con TDD en `fix/M9-H01-calendario-paginas` (PR #205). La review de Opus marcó como débil el test del punto 4; se reforzó y se verificó con dos mutaciones.
+  - Nahuel aprobó el cierre en nombre del equipo: tag `mod-9`, resumen en la Bitácora técnica y línea en Estado del proyecto.
+- **Commits:** `e1646ff` pedido, `a69bf1e` y `46fbf21` triage, `8bf13c6` rojo, `9854ff6` verde, `8b29af0` y `122dc84` fix, `28e1cf0` cierre.
+- **Pendiente:**
+  - Francisco tiene que ratificar DEC-0027.
+  - Decidir si el endpoint de IA lleva un límite de pedidos por usuario.
+  - Menores anotados en el triage: `useContenidos` quedó sin uso y el calendario no tiene botón «Reintentar».
+  - Queda M10.
+
 ## 09/11/26 — Nahuel (Claude Opus 5.5) — T-134, e2e de redes
 - **Hecho:**
   - T-134 implementado y mergeado (PR #204) con el CI en verde. `e2e/redes.spec.ts` tiene 4 tests: tablero, propuesta con IA guardada como pieza, y acceso con y sin permiso de redes. La semilla de demo suma 7 piezas «Demo: …» a nombre de la dueña.
