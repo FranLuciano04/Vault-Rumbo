@@ -1,5 +1,5 @@
 import { mensajeDeError, type CanalContenido } from "@rumbo/shared";
-import { useContenidos } from "@rumbo/shared/hooks";
+import { useContenidosPorPaginas } from "@rumbo/shared/hooks";
 import type { AxiosInstance } from "axios";
 import { Check, ChevronLeft, ChevronRight } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -32,12 +32,27 @@ export function CalendarioContenido({
   const primero = new Date(mes.anio, mes.numero - 1, 1);
   const diasDelMes = new Date(mes.anio, mes.numero, 0).getDate();
   const prefijo = `${String(mes.anio)}-${dos(mes.numero)}`;
-  const { data, isPending, isPlaceholderData, isError, error } = useContenidos(cliente, {
+  const {
+    data,
+    isPending,
+    isPlaceholderData,
+    isError,
+    error,
+    hasNextPage,
+    isFetchingNextPage,
+    fetchNextPage,
+  } = useContenidosPorPaginas(cliente, {
     canal,
     desde: `${prefijo}-01`,
     hasta: `${prefijo}-${dos(diasDelMes)}`,
     por_pagina: 100,
   });
+  // Un mes puede tener más de una página: se encadenan hasta cubrir el total.
+  useEffect(() => {
+    if (hasNextPage && !isFetchingNextPage && !isPlaceholderData && !isError) void fetchNextPage();
+  }, [hasNextPage, isFetchingNextPage, isPlaceholderData, isError, fetchNextPage]);
+  const items = data?.pages.flatMap((pagina) => pagina.items) ?? [];
+  const cargando = !isError && (isPending || isPlaceholderData || hasNextPage);
   const sinAcceso = esSinAcceso(error);
   useEffect(() => {
     if (sinAcceso) alSinAcceso();
@@ -76,49 +91,54 @@ export function CalendarioContenido({
           <ChevronRight aria-hidden="true" />
         </Button>
       </div>
-      {(isPending || isPlaceholderData) && (
+      {cargando && (
         <p role="status" aria-busy="true" className="text-sm text-muted-foreground">
           Cargando publicaciones…
         </p>
       )}
       {isError && <p role="alert">No pudimos cargar el calendario. {mensajeDeError(error)}</p>}
-      <div
-        aria-busy={isPlaceholderData}
-        className={cn("grid grid-cols-7 gap-1 text-xs", isPlaceholderData && "opacity-60")}
-      >
-        {DIAS.map((dia) => (
-          <p key={dia} className="px-1 font-medium text-muted-foreground uppercase">
-            {dia}
-          </p>
-        ))}
-        {Array.from({ length: huecos }, (_, i) => (
-          <div key={`hueco-${String(i)}`} />
-        ))}
-        {Array.from({ length: diasDelMes }, (_, i) => {
-          const dia = `${prefijo}-${dos(i + 1)}`;
-          const piezas = data?.items.filter((pieza) => pieza.fecha_publicacion === dia) ?? [];
-          return (
-            <div key={dia} className="flex min-h-20 flex-col gap-1 rounded-md border p-1">
-              <span className="text-muted-foreground">{i + 1}</span>
-              {piezas.map((pieza) => {
-                const publicada = pieza.estado_kanban === "publicado";
-                return (
-                  <article
-                    key={pieza.id}
-                    className={cn("rounded px-1 py-0.5", publicada ? "bg-emerald-50" : "bg-accent")}
-                  >
-                    <p>{pieza.titulo}</p>
-                    <p className="flex items-center gap-1 text-muted-foreground">
-                      {publicada && <Check aria-hidden="true" className="size-3" />}
-                      {`${ETIQUETA_CANAL[pieza.canal]} · ${publicada ? "Publicada" : "Programada"}`}
-                    </p>
-                  </article>
-                );
-              })}
-            </div>
-          );
-        })}
-      </div>
+      {!isError && (
+        <div
+          aria-busy={cargando}
+          className={cn("grid grid-cols-7 gap-1 text-xs", cargando && "opacity-60")}
+        >
+          {DIAS.map((dia) => (
+            <p key={dia} className="px-1 font-medium text-muted-foreground uppercase">
+              {dia}
+            </p>
+          ))}
+          {Array.from({ length: huecos }, (_, i) => (
+            <div key={`hueco-${String(i)}`} />
+          ))}
+          {Array.from({ length: diasDelMes }, (_, i) => {
+            const dia = `${prefijo}-${dos(i + 1)}`;
+            const piezas = items.filter((pieza) => pieza.fecha_publicacion === dia);
+            return (
+              <div key={dia} className="flex min-h-20 flex-col gap-1 rounded-md border p-1">
+                <span className="text-muted-foreground">{i + 1}</span>
+                {piezas.map((pieza) => {
+                  const publicada = pieza.estado_kanban === "publicado";
+                  return (
+                    <article
+                      key={pieza.id}
+                      className={cn(
+                        "rounded px-1 py-0.5",
+                        publicada ? "bg-emerald-50" : "bg-accent",
+                      )}
+                    >
+                      <p>{pieza.titulo}</p>
+                      <p className="flex items-center gap-1 text-muted-foreground">
+                        {publicada && <Check aria-hidden="true" className="size-3" />}
+                        {`${ETIQUETA_CANAL[pieza.canal]} · ${publicada ? "Publicada" : "Programada"}`}
+                      </p>
+                    </article>
+                  );
+                })}
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }
