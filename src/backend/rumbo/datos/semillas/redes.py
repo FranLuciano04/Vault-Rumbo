@@ -12,8 +12,6 @@ from rumbo.datos.repositorios.seguridad import RepositorioUsuarios
 _contenidos = RepositorioContenidos()
 _usuarios = RepositorioUsuarios()
 
-_EMAIL_RESPONSABLE = "empleada.demo@rumbo.test"
-
 # (título, texto, canal, estado del tablero, días desde hoy)
 _PIEZAS = [
     (
@@ -71,10 +69,10 @@ _PIEZAS = [
 # Se busca por título y responsable: una pieza ya cargada, aunque la agencia la haya movido de
 # columna, no se vuelve a crear ni se pisa.
 async def sembrar_redes(sesion: AsyncSession) -> None:
-    """Carga las piezas de demo del tablero de redes, idempotente. Corre después de la
-    configuración, de la que toma al responsable. Las fechas se calculan respecto del día en que
-    corre y quedan fijas."""
-    responsable = await _usuarios.buscar_por_email(sesion, _EMAIL_RESPONSABLE)
+    """Carga las piezas de demo del tablero de redes, idempotente. Quedan a nombre de la dueña,
+    que tiene acceso a redes (DEC-0013); si todavía no existe, no carga nada. Las fechas se
+    calculan respecto del día en que corre y quedan fijas."""
+    responsable = await _usuarios.primera_duena_activa(sesion)
     if responsable is None:
         return
     for titulo, texto, canal, estado, dias in _PIEZAS:

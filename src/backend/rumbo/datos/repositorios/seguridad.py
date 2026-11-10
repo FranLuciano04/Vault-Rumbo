@@ -67,6 +67,12 @@ class RepositorioUsuarios(RepositorioBase[Usuario]):
         consulta = select(Usuario).where(Usuario.rol == RolUsuario.admin, Usuario.activo.is_(True))
         return await sesion.scalar(consulta.order_by(Usuario.created_at, Usuario.id).limit(1))
 
+    async def primera_duena_activa(self, sesion: AsyncSession) -> Usuario | None:
+        """La dueña (`dueno`) activa más antigua, o `None`. Sin filtro de visibilidad: solo para
+        semillas."""
+        consulta = select(Usuario).where(Usuario.rol == RolUsuario.dueno, Usuario.activo.is_(True))
+        return await sesion.scalar(consulta.order_by(Usuario.created_at, Usuario.id).limit(1))
+
     async def contar_activos_por_rol(
         self, sesion: AsyncSession, *roles: RolUsuario, visibilidad: Visibilidad
     ) -> Counter[RolUsuario]:

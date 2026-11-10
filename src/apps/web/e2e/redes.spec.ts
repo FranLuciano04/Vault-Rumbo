@@ -156,7 +156,7 @@ test.describe("DEC-0013 acceso al módulo de redes", () => {
 
     // Y la API lo rechaza igual si lo intenta por su cuenta.
     const token = await tokenDe(email, CLAVE);
-    // El Compose de e2e publica nginx por HTTP en localhost.
+    // El Compose de e2e publica nginx por HTTP en 127.0.0.1.
     // nosemgrep: typescript.react.security.react-insecure-request.react-insecure-request
     const respuesta = await fetch(`${URL_BASE}/api/contenidos`, {
       headers: { Authorization: `Bearer ${token}` },
@@ -170,5 +170,8 @@ test.describe("DEC-0013 acceso al módulo de redes", () => {
 
     await page.getByRole("link", { name: "Redes" }).click();
     await expect(page.getByRole("heading", { name: "Contenido en redes", level: 1 })).toBeVisible();
+    // El tablero cargó (la API no lo rechazó): hay columnas con su total y ningún aviso de error.
+    await expect(page.getByRole("heading", { level: 2, name: /^Idea \(\d+\)$/ })).toBeVisible();
+    await expect(page.getByRole("alert")).toHaveCount(0);
   });
 });
