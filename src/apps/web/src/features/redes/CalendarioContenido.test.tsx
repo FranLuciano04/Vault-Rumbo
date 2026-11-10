@@ -74,10 +74,9 @@ function simularMes(total: number, opciones: { fallaPagina2?: boolean; frenarPag
 }
 
 function renderCalendario(canal?: "instagram" | "tiktok") {
+  const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   const ui = (c?: "instagram" | "tiktok") => (
-    <QueryClientProvider
-      client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}
-    >
+    <QueryClientProvider client={queryClient}>
       <CalendarioContenido cliente={cliente} hoy="2026-11-12" canal={c} alSinAcceso={() => {}} />
     </QueryClientProvider>
   );
@@ -134,11 +133,15 @@ describe("RF-116 H-01 calendario con más de una página de piezas", () => {
   });
 
   it("RF-116 H-01 si falla una página se ve un error en lugar del calendario como completo", async () => {
-    simularMes(101, { fallaPagina2: true });
+    const pedidos = simularMes(101, { fallaPagina2: true });
     renderCalendario();
 
     expect(await screen.findByRole("alert")).toHaveTextContent(/no pudimos cargar el calendario/i);
+    expect(screen.queryByText("Pieza 1")).not.toBeInTheDocument();
     expect(screen.queryByText("Pieza del último día")).not.toBeInTheDocument();
+    expect(screen.queryByRole("status")).not.toBeInTheDocument();
+    await new Promise((r) => setTimeout(r, 200));
+    expect(paginasPedidas(pedidos)).toEqual(["1", "2"]);
   });
 
   it("RF-116 H-01 al cambiar de mes las páginas vuelven a pedirse desde la 1", async () => {
