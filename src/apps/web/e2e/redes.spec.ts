@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { api, hoy, ingresar, SUFIJO, tokenDe } from "./apoyo";
+import { api, hoy, ingresar, SUFIJO, sumarDias, tokenDe } from "./apoyo";
 import { DUENA, elegirContrasena, URL_BASE } from "./compose";
 
 // T-134: la planificación de contenido en redes (CU-19) y la propuesta con IA (CU-20) contra el
@@ -7,12 +7,28 @@ import { DUENA, elegirContrasena, URL_BASE } from "./compose";
 // demo de redes: cada test crea sus propias piezas, con título único por SUFIJO.
 const CLAVE = "Clave-de-prueba-6";
 
+/** Sufijo único por intento: con --repeat-each o reintentos, SUFIJO (fijo por proceso) repetiría títulos y emails. */
+function unico(): string {
+  const { repeatEachIndex, retry } = test.info();
+  return `${SUFIJO}-${String(repeatEachIndex)}-${String(retry)}`;
+}
+
+/**
+ * Fecha lejana en el pasado, más temprana cuanto más tarde corre el intento: el tablero ordena por
+ * fecha ascendente y pagina cada columna, así que la pieza recién creada queda siempre en la
+ * primera página aunque haya piezas de otros intentos o de la semilla.
+ */
+function fechaTemprana(dias: number): string {
+  const { repeatEachIndex, retry } = test.info();
+  return sumarDias(hoy(), -(dias + repeatEachIndex * 10 + retry));
+}
+
 /** Alta de una persona del equipo por la API, con contraseña elegida (DEC-0016). */
 async function crearEmpleado(etiqueta: string, accesoRedes: boolean): Promise<string> {
-  const email = `empleado-redes-${etiqueta}-${SUFIJO}@rumbo.test`;
+  const email = `empleado-redes-${etiqueta}-${unico()}@rumbo.test`;
   const duena = await tokenDe(DUENA.email, DUENA.password);
   await api(duena, "POST", "/usuarios", {
-    nombre: `Empleado Redes ${etiqueta} E2E ${SUFIJO}`,
+    nombre: `Empleado Redes ${etiqueta} E2E ${unico()}`,
     email,
     rol: "empleado",
     acceso_redes: accesoRedes,
@@ -25,7 +41,7 @@ test.describe("CU-19 Planificar contenido en redes", () => {
   test("RF-113 RF-114 la dueña crea una pieza, la mueve por el tablero y la descarta", async ({
     page,
   }) => {
-    const titulo = `Pieza tablero E2E ${SUFIJO}`;
+    const titulo = `Pieza tablero E2E ${unico()}`;
     await ingresar(page, DUENA.email, DUENA.password);
 
     await page.getByRole("link", { name: "Redes" }).click();
@@ -36,12 +52,14 @@ test.describe("CU-19 Planificar contenido en redes", () => {
     const alta = page.getByRole("form", { name: "Alta de pieza" });
     await alta.getByLabel("Título").fill(titulo);
     await alta.getByLabel("Canal").selectOption({ label: "Instagram" });
-    await alta.getByLabel("Fecha de publicación").fill(hoy());
+    await alta.getByLabel("Fecha de publicación").fill(fechaTemprana(3650));
     await alta.getByRole("button", { name: "Crear" }).click();
 
     const tarjeta = page.getByRole("article").filter({ hasText: titulo });
     const columna = (nombre: string) =>
-      page.getByRole("region").filter({ has: page.getByRole("heading", { name: nombre }) });
+      page.locator("section").filter({
+        has: page.getByRole("heading", { level: 2, name: new RegExp(`^${nombre} \\(`) }),
+      });
     await expect(columna("Idea").getByRole("article").filter({ hasText: titulo })).toBeVisible();
 
     // RF-114: avanza por Idea, En producción, Listo, y retrocede.
@@ -75,7 +93,7 @@ test.describe("CU-20 Generar propuesta de contenido con IA", () => {
   test("RF-119 RF-121 pide una propuesta al modelo falso, edita el borrador y lo guarda como pieza", async ({
     page,
   }) => {
-    const titulo = `Pieza con IA E2E ${SUFIJO}`;
+    const titulo = `Pieza con IA E2E ${unico()}`;
     await ingresar(page, DUENA.email, DUENA.password);
     await page.goto("/redes");
 
@@ -97,12 +115,12 @@ test.describe("CU-20 Generar propuesta de contenido con IA", () => {
     // RF-121: elige el segundo, corrige su texto y lo guarda como pieza nueva.
     await panel.getByRole("radio").nth(1).check();
     await panel.getByRole("button", { name: /^Editar / }).nth(1).click();
-    const editado = `Texto corregido a mano ${SUFIJO}`;
+    const editado = `Texto corregido a mano ${unico()}`;
     await panel.getByLabel("Texto del borrador").fill(editado);
     await panel.getByLabel("Título").fill(titulo);
     await panel.getByRole("button", { name: "Guardar en la pieza" }).click();
     await expect(panel.getByRole("alert")).toContainText("Elegí la fecha de publicación");
-    await panel.getByLabel("Fecha de publicación").fill(hoy());
+    await panel.getByLabel("Fecha de publicación").fill(fechaTemprana(3000));
     await panel.getByRole("button", { name: "Guardar en la pieza" }).click();
 
     // La pieza queda en Idea, con el canal de la propuesta y el texto editado.

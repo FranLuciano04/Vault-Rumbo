@@ -10,8 +10,10 @@ export const RAIZ_SRC = path.resolve(import.meta.dirname, "../../..");
 export const PROYECTO = "rumbo-e2e";
 
 /** Puerto HTTP de nginx en los e2e; distinto del 80 de la demo. Se pisa con `E2E_HTTP_PORT`. */
+// 127.0.0.1 y no `localhost`: en Windows `localhost` resuelve primero a ::1, donde Docker Desktop a
+// veces deja colgadas las conexiones (fetch failed / requests del navegador sin respuesta).
 export const PUERTO_HTTP = process.env.E2E_HTTP_PORT ?? "8081";
-export const URL_BASE = `http://localhost:${PUERTO_HTTP}`;
+export const URL_BASE = `http://127.0.0.1:${PUERTO_HTTP}`;
 
 export const EMULADOR = "http://127.0.0.1:9099";
 
@@ -56,7 +58,11 @@ ${salida}`);
   return salida;
 }
 
-/** Reintenta mientras el puerto publicado del emulador todavía no acepta conexiones (Docker Desktop). */
+/**
+ * Reintenta ante errores de red (no ante respuestas HTTP): puerto publicado del emulador que todavía
+ * no acepta conexiones (Docker Desktop) o conexión keep-alive cerrada por el otro lado. Solo para
+ * llamadas que se pueden repetir sin efecto.
+ */
 async function reintentar(pedir: () => Promise<Response>): Promise<Response> {
   const limite = Date.now() + 60_000;
   for (;;) {
@@ -92,9 +98,14 @@ export async function crearCuentaEnEmulador(email: string, password: string): Pr
  * emulador guarda el código de ese mail: se usa para elegir la contraseña como lo haría la persona.
  */
 export async function elegirContrasena(email: string, password: string): Promise<void> {
+  // Es una lectura: se puede repetir sin efecto. Undici a veces reutiliza una conexión keep-alive
+  // que el emulador ya cerró («other side closed»); el reintento abre una nueva. El POST de abajo
+  // no se reintenta: el código de un solo uso podría haberse consumido ya.
   // HTTP a propósito: el emulador escucha solo en 127.0.0.1 (docker-compose.e2e.yml).
   // nosemgrep: typescript.react.security.react-insecure-request.react-insecure-request
-  const codigos = await fetch(`${EMULADOR}/emulator/v1/projects/demo-rumbo/oobCodes`);
+  const codigos = await reintentar(() =>
+    fetch(`${EMULADOR}/emulator/v1/projects/demo-rumbo/oobCodes`),
+  );
   const { oobCodes } = (await codigos.json()) as {
     oobCodes: { email: string; oobCode: string; requestType: string }[];
   };
