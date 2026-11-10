@@ -23,7 +23,7 @@ tags:: #tipo/referencia
 | M6 — Viajes y economía | 24 | 24 | 0 | 0 | 0 | 0 | ✅ cerrado |
 | M7 — Proceso diario y CRM proactivo | 9 | 9 | 0 | 0 | 0 | 0 | ✅ cerrado |
 | M8 — Calendario, dashboard y reportes | 10 | 10 | 0 | 0 | 0 | 0 | ✅ cerrado |
-| M9 — Redes e IA | 8 | 8 | 0 | 0 | 0 | 0 | 🔍 listo para la review |
+| M9 — Redes e IA | 8 | 8 | 0 | 0 | 0 | 0 | ✅ cerrado |
 | M10 — Despliegue on-premise | 5 | 0 | 1 | 0 | 4 | 0 | 🛠️ en curso |
 
 ## Grafo
