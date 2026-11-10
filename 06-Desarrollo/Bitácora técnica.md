@@ -214,3 +214,30 @@ tags:: #tipo/referencia
   - Siguen anotados en [[M8 — pedido de review]] los supuestos a ratificar: las decisiones sobre los indicadores (T-121) y `pendiente_de_pagar` (T-122).
 - **Decisiones tocadas:** [[DEC-0005 Autenticación y modelo de roles]], [[DEC-0007 Modelo económico — ganancia, margen y comisión de vendedor]], [[DEC-0008 Autenticación propia y rol de vendedor freelance]], [[DEC-0024 Reglas del dashboard, calendario y criterios de M6]], [[DEC-0019 Las fallas se arreglan al encontrarlas]].
 - Aprobación del equipo: 06/11/26 (Nahuel, en nombre del equipo). Tag `mod-8` sobre `7030f4e`.
+
+### 10/11/26 — Nahuel (con el equipo) — M9 Redes e IA cerrado (`mod-9`)
+- **Qué quedó:**
+  - Tablero de contenido para redes (CU-19): alta, kanban con avance y retroceso, reprogramación, descarte y vista de descartadas. Se suman el calendario mensual y el filtro por red, y la paginación usa `orden=asc|desc` con desempate por `id`.
+  - Acceso por rol y `acceso_redes`, en el router y en el servicio. El freelance queda afuera siempre (DEC-0013).
+  - Propuesta con IA (CU-20), `POST /contenidos/propuestas-ia`:
+    - hace una llamada y devuelve 2 borradores, con el tema como título (DEC-0027);
+    - el prompt está versionado en `negocio/prompts/contenido_red.py` y no lleva datos de clientes (RNF-16);
+    - si la IA falla o no trae 2 textos válidos, responde 502;
+    - nada se persiste hasta que la persona guarda la pieza.
+  - `core/ia.py` suma `max_tokens=1024` y convierte cualquier falla del cliente en `ServicioExterno`.
+  - En la web: la sección Redes y el panel «Propuesta con IA», que se abre desde el encabezado o desde una pieza.
+  - La semilla de demo suma 7 piezas ficticias.
+  - El e2e `redes.spec.ts` prueba el módulo contra el sistema real.
+- **Tickets:** 8: T-129 a T-134, más T-169 y T-170, que salieron como hallazgo de T-132. T-131 fue el único de riesgo alto: tuvo dos rondas de `reviewer-seguridad` y lo aprobó Paloma. El detalle y los merges están en [[M9 — pedido de review]].
+- **Review de Codex** ([[M9 — review Codex]]): 1 hallazgo.
+  - H-01 se confirmó, pero bajó de bloqueante a importante. El calendario pedía una sola página de 100 piezas; ahora pide todas las del mes. Se arregló en `fix/M9-H01-calendario-paginas` (PR #205).
+- **Falla fuera de tickets (DEC-0019, T-134):** los e2e tenían cortes intermitentes en Windows con Docker Desktop. Se arreglaron en `e2e/compose.ts`: la lectura de `oobCodes` se reintenta y `URL_BASE` usa `127.0.0.1`.
+- **Pendientes que no bloquean:**
+  - Falta que Francisco ratifique DEC-0027.
+  - [[IA — Prompt de CU-20]] sigue en borrador.
+  - El endpoint de IA no tiene límite de pedidos por usuario: hay que decidir si va como ticket.
+  - `useContenidos` de `@rumbo/shared` quedó sin consumidores.
+  - No hay botón «Reintentar» en el calendario de redes.
+  - Los demás specs e2e leen `oobCodes` sin el reintento.
+- **Decisiones tocadas:** [[DEC-0012 Modelo de IA del producto]], [[DEC-0013 Datos que faltaban en el ER|DEC-0013]], [[DEC-0027 Título y cantidad de borradores de la IA]], [[DEC-0019 Las fallas se arreglan al encontrarlas|DEC-0019]].
+- Aprobación del equipo: 10/11/26 (Nahuel, en nombre del equipo). Tag `mod-9` sobre `46fbf21`.
