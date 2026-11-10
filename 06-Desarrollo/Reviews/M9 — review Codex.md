@@ -34,4 +34,5 @@ La revisión fue estática: no se ejecutaron las suites de tests ni los e2e.
   3. Mientras faltan páginas por cargar, se ve un estado de carga.
   4. Si falla una página, se ve un error (`role="alert"`) en lugar del calendario presentado como completo.
   5. Al cambiar de mes o de canal, las páginas vuelven a pedirse desde la 1.
-- **Arreglo:** rama `fix/M9-H01-calendario-paginas`, capa web, riesgo normal (no toca auth, permisos, dinero ni estados). PR: pendiente.
+- **Arreglo:** rama `fix/M9-H01-calendario-paginas`, capa web, riesgo normal (no toca auth, permisos, dinero ni estados). Mergeado en el PR #205, con el CI en verde. La review de Opus no encontró bloqueantes. Su único importante (el test del punto 4 era débil) se arregló y se verificó con dos mutaciones.
+- **Menores fuera del alcance, consultados a Nahuel:** `useContenidos` de `@rumbo/shared` quedó sin consumidores; un error en un refetch de fondo oculta un mes ya cargado y no hay botón «Reintentar».
