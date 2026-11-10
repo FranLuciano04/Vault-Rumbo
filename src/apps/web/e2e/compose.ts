@@ -101,9 +101,9 @@ export async function elegirContrasena(email: string, password: string): Promise
   // Es una lectura: se puede repetir sin efecto. Undici a veces reutiliza una conexión keep-alive
   // que el emulador ya cerró («other side closed»); el reintento abre una nueva. El POST de abajo
   // no se reintenta: el código de un solo uso podría haberse consumido ya.
-  // HTTP a propósito: el emulador escucha solo en 127.0.0.1 (docker-compose.e2e.yml).
-  // nosemgrep: typescript.react.security.react-insecure-request.react-insecure-request
   const codigos = await reintentar(() =>
+    // HTTP a propósito: el emulador escucha solo en 127.0.0.1 (docker-compose.e2e.yml).
+    // nosemgrep: typescript.react.security.react-insecure-request.react-insecure-request
     fetch(`${EMULADOR}/emulator/v1/projects/demo-rumbo/oobCodes`),
   );
   const { oobCodes } = (await codigos.json()) as {
