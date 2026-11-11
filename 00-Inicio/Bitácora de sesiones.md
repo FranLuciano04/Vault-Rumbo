@@ -42,7 +42,9 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
   - T-171 implementado con TDD y mergeado (PR #206), con el CI en verde. Las tarjetas del embudo se arrastran con `@dnd-kit/core` 6.3.1 (dependencia nueva) o se mueven con el botón «Mover» por teclado. Las confirmaciones de ganar y perder quedaron en `ConfirmacionesCierre.tsx`, donde T-178 va a cambiar la de ganar.
   - Review de Opus: 4 importantes y 3 menores, todos arreglados. Suite web completa 1246/1246.
 - **Commits:** `99ae4af` rojo, `d7f5ef6` verde, `2ba58f1` refactor, `651d3a3` y `8f9fd11` fix, `5df6ce7` hecho, merge del PR #206.
-- **Pendiente:** probar el arrastre a mano en un navegador (mouse y pantalla táctil). En M11 quedan libres T-172 y T-173; el resto espera DEC-0028.
+  - T-172 implementado con TDD y mergeado (PR #207). El puntaje de la reseña se elige con 5 estrellas (`components/SelectorEstrellas.tsx`), accesible como grupo de radios. Review de Opus: 1 importante (foco y anuncio del error sin puntaje) y 4 menores, todos arreglados. El CI destapó el e2e de reseñas, que escribía el número; se arregló en la misma rama (DEC-0019).
+- **Commits T-172:** `5c8a15b` rojo, `9d86044` verde, `6daff7f` y `00d1ed3` fix, `2b08006` hecho, merge del PR #207.
+- **Pendiente:** probar el arrastre del embudo a mano en un navegador (mouse y pantalla táctil) y comparar el tamaño de las estrellas (24 px) con el prototipo. En M11 queda libre T-173; el resto espera DEC-0028.
 
 ## 10/11/26 — Nahuel (Claude Opus 5.5) — Tickets de la revisión con el equipo
 - **Hecho:**
