@@ -3,7 +3,7 @@ id: T-174
 titulo: Ajustar el contrato de cotizaciones y reserva
 modulo: M11 — Ajustes de la revisión del equipo
 capa: contrato
-estado: libre
+estado: tomado
 depende_de: []
 tamaño: M
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [CU-05, CU-06, CU-07, CU-09, CU-11]
 origen: revisión del equipo (10/11/26)
-asignado:
-tomado_el:
-rama:
+asignado: Nahuel Viniegra
+tomado_el: 11/11/26 20:33
+rama: feature/T-174-ajustar-el-contrato-de-cotizaciones-y-re
 pr:
 ---
 # T-174 Ajustar el contrato de cotizaciones y reserva
