@@ -288,7 +288,9 @@ test.describe("CU-01 De la consulta a la venta", () => {
       await economia.getByLabel("Tipo de comisión", { exact: true }).selectOption("porcentaje");
       await economia.getByLabel("Comisión del vendedor (%)", { exact: true }).fill("10");
       await economia.getByRole("button", { name: "Guardar economía" }).click();
-      await expect(economia.getByRole("status")).toContainText("Economía guardada");
+      await expect(
+        economia.getByRole("status").filter({ hasText: "Economía guardada" }),
+      ).toBeVisible();
 
       const viaje = await api<ViajeApi>(duena, "GET", `/viajes/${viajeId}`);
       expect(Number(viaje.precio_venta)).toBe(1_200_000);
