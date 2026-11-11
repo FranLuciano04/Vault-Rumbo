@@ -3,7 +3,7 @@ id: T-171
 titulo: Arrastrar las tarjetas del embudo para cambiar el estado
 modulo: M11 — Ajustes de la revisión del equipo
 capa: web
-estado: tomado
+estado: hecho
 depende_de: []
 tamaño: M
 riesgo: normal
@@ -51,3 +51,9 @@ En el embudo de oportunidades de la web, una tarjeta se arrastra a otra columna 
 - **Factibilidad (verificada el 10/11/26):** se puede hacer sin tocar el backend. Cada movimiento usa los endpoints de hoy (`/en-gestion`, `/ganar`, `/perder` y `/reactivar`) y sus hooks de `@rumbo/shared/hooks`.
 - **Librería:** la web no tiene ninguna de arrastre. Se recomienda `@dnd-kit/core`, que trae arrastre con teclado y con pantalla táctil. Con la API nativa de HTML5 no se puede arrastrar con teclado ni en pantallas táctiles. Hay que anotar la dependencia nueva en el PR.
 - **Embudo:** cada columna es una consulta paginada (`useOportunidadesPorPaginas`). Al mover una tarjeta, invalidar las dos columnas involucradas.
+- **Implementado (11/11/26, Paloma):**
+  - Arrastre con `@dnd-kit/core` 6.3.1 (dependencia nueva): `MouseSensor` (8 px) y `TouchSensor` (250 ms), `DragOverlay` y columnas inválidas atenuadas con `aria-disabled` (la de origen no se atenúa). Para el teclado, cada tarjeta tiene un botón «Mover» con un menú de destinos válidos (flechas, Home/End, Escape devuelve el foco). No se usa el `KeyboardSensor`.
+  - Soltar y menú pasan por una sola función `mover`, que valida contra `transiciones.ts`. La confirmación de ganar y el formulario de perder quedaron en `ConfirmacionesCierre.tsx` (los usan el detalle y el embudo; T-178 cambia la de ganar ahí) y las acciones en `useTransicionesOportunidad.ts`.
+  - `CampoFormulario` suma la prop opcional `anunciarError` (por defecto no cambia nada): por eso se corrió la suite web completa, 1246/1246.
+  - Review de Opus: 4 importantes y 3 menores, todos arreglados. Sin test propio: la anulación del click tras un arrastre (jsdom no navega), la `key` de las confirmaciones y el bloqueo mientras hay una transición pendiente. Falta probar el arrastre a mano en un navegador.
+  - Modelos: tests, implementación, refactor y fix con Sonnet; review con Opus. Sin escalados.
