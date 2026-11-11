@@ -94,18 +94,24 @@ async function elegirCliente(usuario: ReturnType<typeof userEvent.setup>, id: st
   await usuario.click(await screen.findByRole("button", { name: new RegExp(elegido.nombre) }));
 }
 
-// Supuesto: el cliente se busca por nombre (buscador con label «Buscar cliente»), el puntaje es
-// un número (label «Puntaje»), y la fecha un input date (label «Fecha»).
+// Contrato accesible del puntaje (T-172, RF-101): un `radiogroup` con nombre «Puntaje» que contiene
+// 5 `radio` llamados «1 estrella», «2 estrellas», … «5 estrellas» (el ticket dice «N estrellas»; en
+// singular para 1, como se anuncia en español). El elegido queda con `aria-checked="true"`.
+type Contexto = { getByRole: typeof screen.getByRole };
+const grupoPuntaje = (contexto: Contexto = screen) =>
+  contexto.getByRole("radiogroup", { name: /puntaje/i });
+const nombreEstrella = (n: number) => (n === 1 ? "1 estrella" : `${String(n)} estrellas`);
+const estrella = (n: number, contexto: Contexto = screen) =>
+  within(grupoPuntaje(contexto)).getByRole("radio", { name: nombreEstrella(n) });
+
+// Supuesto: el cliente se busca por nombre (buscador con label «Buscar cliente»), el puntaje se
+// elige con estrellas (radiogroup «Puntaje»), y la fecha es un input date (label «Fecha»).
 async function completar(
   usuario: ReturnType<typeof userEvent.setup>,
-  datos: { cliente?: string; puntaje?: string; comentario?: string; fecha?: string },
+  datos: { cliente?: string; puntaje?: number; comentario?: string; fecha?: string },
 ) {
   if (datos.cliente) await elegirCliente(usuario, datos.cliente);
-  if (datos.puntaje !== undefined) {
-    const puntaje = screen.getByLabelText(/puntaje/i);
-    await usuario.clear(puntaje);
-    if (datos.puntaje) await usuario.type(puntaje, datos.puntaje);
-  }
+  if (datos.puntaje !== undefined) await usuario.click(estrella(datos.puntaje));
   if (datos.comentario) await usuario.type(screen.getByLabelText(/comentario/i), datos.comentario);
   if (datos.fecha)
     fireEvent.change(screen.getByLabelText(/fecha/i), { target: { value: datos.fecha } });
@@ -132,7 +138,7 @@ describe("RF-101 reseña", () => {
     const usuario = userEvent.setup();
     renderDetalle("empleado");
     await abrirAlta(usuario);
-    expect(screen.getByLabelText(/puntaje/i)).toBeInTheDocument();
+    expect(grupoPuntaje()).toBeInTheDocument();
     expect(screen.getByLabelText(/comentario/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/fecha/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/viaje/i)).toBeInTheDocument();
@@ -147,7 +153,7 @@ describe("RF-101 reseña", () => {
     await abrirAlta(usuario);
     await completar(usuario, {
       cliente: camila.id,
-      puntaje: "4",
+      puntaje: 4,
       comentario: "Todo muy prolijo.",
       fecha: "2026-10-20",
     });
@@ -180,31 +186,16 @@ describe("RF-101 reseña", () => {
     await screen.findByText(/todavía no hay reseñas/i);
     await usuario.click(screen.getByRole("button", { name: /nueva reseña/i }));
     await screen.findByLabelText(/cliente/i);
-    await completar(usuario, { cliente: camila.id, puntaje: "5", fecha: "2026-10-20" });
+    await completar(usuario, { cliente: camila.id, puntaje: 5, fecha: "2026-10-20" });
     const antes = lecturas;
     await usuario.click(screen.getByRole("button", { name: /guardar reseña/i }));
     await waitFor(() => {
-      expect(screen.queryByLabelText(/puntaje/i)).not.toBeInTheDocument();
+      expect(screen.queryByRole("radiogroup", { name: /puntaje/i })).not.toBeInTheDocument();
     });
     await waitFor(() => {
       expect(lecturas).toBeGreaterThan(antes);
     });
   });
-
-  it.each(["0", "6"])(
-    "A3: un puntaje fuera de 1 a 5 (%s) no se envía y pide corregir",
-    async (puntaje) => {
-      const pedidos: Escritura[] = [];
-      espiarEscrituras(pedidos);
-      const usuario = userEvent.setup();
-      renderDetalle("empleado");
-      await abrirAlta(usuario);
-      await completar(usuario, { cliente: camila.id, puntaje, fecha: "2026-10-20" });
-      await usuario.click(screen.getByRole("button", { name: /guardar reseña/i }));
-      expect(await screen.findByText(/1 (a|y) 5/i)).toBeInTheDocument();
-      expect(pedidos).toHaveLength(0);
-    },
-  );
 
   it("A3: sin cliente no se envía y avisa que falta elegirlo", async () => {
     const pedidos: Escritura[] = [];
@@ -212,7 +203,7 @@ describe("RF-101 reseña", () => {
     const usuario = userEvent.setup();
     renderDetalle("empleado");
     await abrirAlta(usuario);
-    await completar(usuario, { puntaje: "4", fecha: "2026-10-20" });
+    await completar(usuario, { puntaje: 4, fecha: "2026-10-20" });
     await usuario.click(screen.getByRole("button", { name: /guardar reseña/i }));
     expect(
       await screen.findByText(/cliente/i, { selector: "[role=alert], p" }),
@@ -242,7 +233,7 @@ describe("RF-101 reseña", () => {
     await abrirAlta(usuario);
     await completar(usuario, {
       cliente: camila.id,
-      puntaje: "4",
+      puntaje: 4,
       comentario: "Lindo",
       fecha: "2026-10-20",
     });
@@ -282,7 +273,7 @@ describe("RF-101 reseña", () => {
     renderDetalle("empleado");
     await abrirAlta(usuario);
     expect(screen.getByLabelText(/viaje/i)).toBeDisabled();
-    await completar(usuario, { cliente: camila.id, puntaje: "5", fecha: "2026-10-20" });
+    await completar(usuario, { cliente: camila.id, puntaje: 5, fecha: "2026-10-20" });
     const viajes = screen.getByLabelText(/viaje/i);
     await waitFor(() => {
       expect(viajes).toBeEnabled();
@@ -321,7 +312,7 @@ describe("RF-101 reseña", () => {
       ),
     );
     await abrirAlta(usuario);
-    await completar(usuario, { cliente: camila.id, puntaje: "4", fecha: "2026-10-20" });
+    await completar(usuario, { cliente: camila.id, puntaje: 4, fecha: "2026-10-20" });
     await usuario.click(screen.getByRole("button", { name: /guardar reseña/i }));
     expect(await screen.findByRole("alert")).toHaveTextContent(/tu rol no permite/i);
   });
@@ -342,7 +333,9 @@ describe("RF-105 edición", () => {
     renderDetalle("empleado");
     const fila = (await screen.findByText(RESENA_1)).closest("li") as HTMLElement;
     await usuario.click(within(fila).getByRole("button", { name: /editar reseña/i }));
-    expect(await within(fila).findByLabelText(/puntaje/i)).toHaveValue(4);
+    const grupo = await within(fila).findByRole("radiogroup", { name: /puntaje/i });
+    expect(within(grupo).getByRole("radio", { name: "4 estrellas" })).toBeChecked();
+    expect(within(grupo).getByRole("radio", { name: "5 estrellas" })).not.toBeChecked();
     expect(within(fila).getByLabelText(/comentario/i)).toHaveValue(RESENA_1);
     expect(within(fila).getByLabelText(/fecha/i)).toHaveValue("2026-08-14");
   });
@@ -354,9 +347,8 @@ describe("RF-105 edición", () => {
     renderDetalle("empleado");
     const fila = (await screen.findByText(RESENA_1)).closest("li") as HTMLElement;
     await usuario.click(within(fila).getByRole("button", { name: /editar reseña/i }));
-    const puntaje = await within(fila).findByLabelText(/puntaje/i);
-    await usuario.clear(puntaje);
-    await usuario.type(puntaje, "5");
+    await within(fila).findByRole("radiogroup", { name: /puntaje/i });
+    await usuario.click(estrella(5, within(fila)));
     const comentario = within(fila).getByLabelText(/comentario/i);
     await usuario.clear(comentario);
     await usuario.type(comentario, "Corregida: el desayuno mejoró.");
@@ -380,26 +372,11 @@ describe("RF-105 edición", () => {
     renderDetalle("empleado");
     const fila = (await screen.findByText(RESENA_2)).closest("li") as HTMLElement;
     await usuario.click(within(fila).getByRole("button", { name: /editar reseña/i }));
-    await within(fila).findByLabelText(/puntaje/i);
+    await within(fila).findByRole("radiogroup", { name: /puntaje/i });
     await usuario.click(within(fila).getByRole("button", { name: /guardar cambios/i }));
     await waitFor(() => {
-      expect(screen.queryByLabelText(/puntaje/i)).not.toBeInTheDocument();
+      expect(screen.queryByRole("radiogroup", { name: /puntaje/i })).not.toBeInTheDocument();
     });
-  });
-
-  it("un puntaje fuera de 1 a 5 no se envía", async () => {
-    const pedidos: Escritura[] = [];
-    espiarEscrituras(pedidos);
-    const usuario = userEvent.setup();
-    renderDetalle("empleado");
-    const fila = (await screen.findByText(RESENA_1)).closest("li") as HTMLElement;
-    await usuario.click(within(fila).getByRole("button", { name: /editar reseña/i }));
-    const puntaje = await within(fila).findByLabelText(/puntaje/i);
-    await usuario.clear(puntaje);
-    await usuario.type(puntaje, "9");
-    await usuario.click(within(fila).getByRole("button", { name: /guardar cambios/i }));
-    expect(await within(fila).findByText(/1 (a|y) 5/i)).toBeInTheDocument();
-    expect(pedidos).toHaveLength(0);
   });
 
   it("muestra el error del servidor (409: reseña oculta) y conserva el formulario", async () => {
@@ -415,10 +392,10 @@ describe("RF-105 edición", () => {
     );
     const fila = (await screen.findByText(RESENA_1)).closest("li") as HTMLElement;
     await usuario.click(within(fila).getByRole("button", { name: /editar reseña/i }));
-    await within(fila).findByLabelText(/puntaje/i);
+    await within(fila).findByRole("radiogroup", { name: /puntaje/i });
     await usuario.click(within(fila).getByRole("button", { name: /guardar cambios/i }));
     expect(await within(fila).findByRole("alert")).toHaveTextContent(/restaurá la reseña/i);
-    expect(within(fila).getByLabelText(/puntaje/i)).toBeInTheDocument();
+    expect(grupoPuntaje(within(fila))).toBeInTheDocument();
   });
 
   it("cancelar descarta la edición sin enviar nada", async () => {
@@ -428,10 +405,167 @@ describe("RF-105 edición", () => {
     renderDetalle("empleado");
     const fila = (await screen.findByText(RESENA_1)).closest("li") as HTMLElement;
     await usuario.click(within(fila).getByRole("button", { name: /editar reseña/i }));
-    await within(fila).findByLabelText(/puntaje/i);
+    await within(fila).findByRole("radiogroup", { name: /puntaje/i });
     await usuario.click(within(fila).getByRole("button", { name: /cancelar/i }));
-    expect(screen.queryByLabelText(/puntaje/i)).not.toBeInTheDocument();
+    expect(screen.queryByRole("radiogroup", { name: /puntaje/i })).not.toBeInTheDocument();
     expect(screen.getByText(RESENA_1)).toBeInTheDocument();
     expect(pedidos).toHaveLength(0);
+  });
+});
+
+describe("RF-101 puntaje con estrellas", () => {
+  it("muestra 5 estrellas como radios dentro de un grupo «Puntaje», ninguna marcada al crear", async () => {
+    const usuario = userEvent.setup();
+    renderDetalle("empleado");
+    await abrirAlta(usuario);
+    const radios = within(grupoPuntaje()).getAllByRole("radio");
+    expect(radios).toHaveLength(5);
+    for (const n of [1, 2, 3, 4, 5]) expect(estrella(n)).not.toBeChecked();
+  });
+
+  it("elegir con clic la tercera estrella la marca y manda puntaje 3 (entero) a la API", async () => {
+    const pedidos: Escritura[] = [];
+    espiarEscrituras(pedidos);
+    const usuario = userEvent.setup();
+    renderDetalle("empleado");
+    await abrirAlta(usuario);
+    await completar(usuario, { cliente: camila.id, fecha: "2026-10-20" });
+    await usuario.click(estrella(3));
+    expect(estrella(3)).toBeChecked();
+    expect(estrella(4)).not.toBeChecked();
+    await usuario.click(screen.getByRole("button", { name: /guardar reseña/i }));
+    await waitFor(() => {
+      expect(pedidos).toHaveLength(1);
+    });
+    expect(pedidos[0]?.cuerpo?.["puntaje"]).toBe(3);
+  });
+
+  it("cambiar de estrella reemplaza la elección anterior", async () => {
+    const usuario = userEvent.setup();
+    renderDetalle("empleado");
+    await abrirAlta(usuario);
+    await usuario.click(estrella(5));
+    await usuario.click(estrella(2));
+    expect(estrella(2)).toBeChecked();
+    expect(estrella(5)).not.toBeChecked();
+  });
+
+  it("elegir con teclado: las flechas mueven la elección entre estrellas", async () => {
+    const pedidos: Escritura[] = [];
+    espiarEscrituras(pedidos);
+    const usuario = userEvent.setup();
+    renderDetalle("empleado");
+    await abrirAlta(usuario);
+    await completar(usuario, { cliente: camila.id, fecha: "2026-10-20" });
+    await usuario.click(estrella(2));
+    await usuario.keyboard("{ArrowRight}");
+    expect(estrella(3)).toBeChecked();
+    await usuario.keyboard("{ArrowRight}");
+    expect(estrella(4)).toBeChecked();
+    await usuario.keyboard("{ArrowLeft}");
+    expect(estrella(3)).toBeChecked();
+    await usuario.click(screen.getByRole("button", { name: /guardar reseña/i }));
+    await waitFor(() => {
+      expect(pedidos).toHaveLength(1);
+    });
+    expect(pedidos[0]?.cuerpo?.["puntaje"]).toBe(3);
+  });
+
+  it("al editar aparece marcado el puntaje actual y se puede cambiar con el teclado", async () => {
+    const pedidos: Escritura[] = [];
+    espiarEscrituras(pedidos);
+    const usuario = userEvent.setup();
+    renderDetalle("empleado");
+    const fila = (await screen.findByText(RESENA_1)).closest("li") as HTMLElement;
+    await usuario.click(within(fila).getByRole("button", { name: /editar reseña/i }));
+    await within(fila).findByRole("radiogroup", { name: /puntaje/i });
+    expect(estrella(4, within(fila))).toBeChecked();
+    await usuario.click(estrella(4, within(fila)));
+    await usuario.keyboard("{ArrowRight}");
+    expect(estrella(5, within(fila))).toBeChecked();
+    await usuario.click(within(fila).getByRole("button", { name: /guardar cambios/i }));
+    await waitFor(() => {
+      expect(pedidos).toHaveLength(1);
+    });
+    expect(pedidos[0]?.cuerpo?.["puntaje"]).toBe(5);
+  });
+
+  it("si falta el puntaje muestra el error de validación y no envía nada", async () => {
+    const pedidos: Escritura[] = [];
+    espiarEscrituras(pedidos);
+    const usuario = userEvent.setup();
+    renderDetalle("empleado");
+    await abrirAlta(usuario);
+    await completar(usuario, { cliente: camila.id, fecha: "2026-10-20" });
+    await usuario.click(screen.getByRole("button", { name: /guardar reseña/i }));
+    expect(await screen.findByText(/1 (a|y) 5/i)).toBeInTheDocument();
+    expect(pedidos).toHaveLength(0);
+    expect(within(grupoPuntaje()).getAllByRole("radio")).toHaveLength(5);
+  });
+
+  it("al enviar sin puntaje el foco queda en una estrella del grupo", async () => {
+    const usuario = userEvent.setup();
+    renderDetalle("empleado");
+    await abrirAlta(usuario);
+    await completar(usuario, { cliente: camila.id, fecha: "2026-10-20" });
+    await usuario.click(screen.getByRole("button", { name: /guardar reseña/i }));
+    await screen.findByText(/1 (a|y) 5/i);
+    await waitFor(() => {
+      expect(grupoPuntaje()).toContainElement(document.activeElement as HTMLElement);
+    });
+  });
+
+  it("el mouse previsualiza las estrellas sin cambiar la elegida, y la elección por teclado lo reemplaza", async () => {
+    const usuario = userEvent.setup();
+    renderDetalle("empleado");
+    await abrirAlta(usuario);
+    await usuario.click(estrella(2));
+    await usuario.hover(estrella(4));
+    expect(estrella(4)).toHaveAttribute("data-resaltada", "true");
+    expect(estrella(5)).toHaveAttribute("data-resaltada", "false");
+    expect(estrella(2)).toBeChecked();
+    expect(estrella(4)).not.toBeChecked();
+    await usuario.keyboard("{ArrowRight}");
+    expect(estrella(3)).toBeChecked();
+    expect(estrella(3)).toHaveAttribute("data-resaltada", "true");
+    expect(estrella(4)).toHaveAttribute("data-resaltada", "false");
+    await usuario.unhover(estrella(4));
+  });
+
+  it("con Tab entra en la estrella 1 si no hay elección, y las flechas giran entre 5 y 1", async () => {
+    const usuario = userEvent.setup();
+    renderDetalle("empleado");
+    await abrirAlta(usuario);
+    estrella(1).focus();
+    expect(estrella(1)).toHaveFocus();
+    await usuario.keyboard("{ArrowLeft}");
+    expect(estrella(5)).toBeChecked();
+    expect(estrella(5)).toHaveFocus();
+    await usuario.keyboard("{ArrowRight}");
+    expect(estrella(1)).toBeChecked();
+    expect(estrella(1)).toHaveFocus();
+  });
+
+  it("con Tab desde el formulario entra en la estrella 1 sin elección", async () => {
+    const usuario = userEvent.setup();
+    renderDetalle("empleado");
+    const buscador = await abrirAlta(usuario);
+    buscador.focus();
+    await usuario.tab();
+    await usuario.tab();
+    expect(estrella(1)).toHaveFocus();
+  });
+
+  it("al editar, Tab cae en la estrella elegida", async () => {
+    const usuario = userEvent.setup();
+    renderDetalle("empleado");
+    const fila = (await screen.findByText(RESENA_1)).closest("li") as HTMLElement;
+    await usuario.click(within(fila).getByRole("button", { name: /editar reseña/i }));
+    await within(fila).findByRole("radiogroup", { name: /puntaje/i });
+    within(fila)
+      .getByLabelText(/comentario/i)
+      .focus();
+    await usuario.tab({ shift: true });
+    expect(estrella(4, within(fila))).toHaveFocus();
   });
 });

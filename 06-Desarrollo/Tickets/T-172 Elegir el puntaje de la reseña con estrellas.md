@@ -3,7 +3,7 @@ id: T-172
 titulo: Elegir el puntaje de la reseña con estrellas
 modulo: M11 — Ajustes de la revisión del equipo
 capa: web
-estado: tomado
+estado: hecho
 depende_de: []
 tamaño: S
 riesgo: normal
@@ -48,3 +48,11 @@ Al registrar o editar una reseña en la web, el puntaje se elige con cinco estre
 
 ## Notas de implementación
 - **Factibilidad (verificada el 10/11/26):** se puede hacer solo en el front. `lucide-react` ya tiene el ícono `Star`, que usan `ResenaPublicada` y `TarjetaHotel`. No hace falta la alternativa del desplegable que propuso el equipo.
+- **Implementado (11/11/26, Paloma):**
+  - `components/SelectorEstrellas.tsx` (nuevo): `radiogroup` nombrado por la etiqueta visible (`aria-labelledby`), 5 radios «1 estrella»… «5 estrellas», roving tabindex, flechas según APG con giro en los extremos y vista previa con el mouse (`data-resaltada`), que se limpia al elegir. Estrellas de 24 px: falta compararlas con el prototipo.
+  - `FormularioResena` usa `useController`, así que al enviar sin puntaje el foco va a la estrella y el error se anuncia. El esquema y la API no cambian (entero 1–5).
+  - `CampoFormulario` le da un `id` a la etiqueta (`<id>-etiqueta`); por eso se corrió la suite web completa, 1254/1254.
+  - Los tests de 0 y 6 fuera de rango se reemplazaron por «sin puntaje no se envía», porque con estrellas ya no se pueden elegir.
+  - Review de Opus: 1 importante (el foco y el anuncio del error) y 4 menores, todos arreglados.
+  - Modelos: tests, implementación, refactor (sin cambios) y fix con Sonnet; review con Opus. Sin escalados.
+  - Regresión en el CI (DEC-0019): el e2e `hoteles.spec.ts` (RF-101) escribía el número en «Puntaje». Se ajustó para elegir la estrella «5 estrellas»; lo hizo el orquestador porque era una línea.

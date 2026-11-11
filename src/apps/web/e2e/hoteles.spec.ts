@@ -203,7 +203,10 @@ test.describe("CU-17 Registrar reseña de hotel", () => {
 
     await page.getByLabel("Buscar cliente").fill(cliente.nombre);
     await page.getByRole("button", { name: new RegExp(cliente.nombre) }).click();
-    await page.getByLabel("Puntaje").fill("5");
+    await page
+      .getByRole("radiogroup", { name: "Puntaje" })
+      .getByRole("radio", { name: "5 estrellas" })
+      .click();
     await page.getByLabel("Comentario").fill(comentario);
     await page.getByRole("button", { name: "Guardar reseña" }).click();
 

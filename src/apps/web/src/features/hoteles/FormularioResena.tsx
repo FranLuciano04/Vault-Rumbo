@@ -3,9 +3,10 @@ import type { Resena } from "@rumbo/shared";
 import { useEditarResena, useRegistrarResena } from "@rumbo/shared/hooks";
 import type { AxiosInstance } from "axios";
 import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { useController, useForm } from "react-hook-form";
 import { z } from "zod";
 import { CampoFormulario } from "@/components/CampoFormulario";
+import { SelectorEstrellas } from "@/components/SelectorEstrellas";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -75,6 +76,7 @@ export function FormularioResena({
     },
   });
   const { errors, isSubmitting } = formulario.formState;
+  const { field: campoPuntaje } = useController({ control: formulario.control, name: "puntaje" });
 
   async function guardar({ cliente_id, viaje_id, puntaje, comentario, fecha }: CamposResena) {
     setError(null);
@@ -133,13 +135,14 @@ export function FormularioResena({
       )}
       <CampoFormulario id={`puntaje-${base}`} etiqueta="Puntaje" error={errors.puntaje}>
         {(props) => (
-          <Input
-            type="number"
-            inputMode="numeric"
-            min={1}
-            max={5}
+          <SelectorEstrellas
             {...props}
-            {...formulario.register("puntaje")}
+            id={`puntaje-${base}`}
+            ref={campoPuntaje.ref}
+            valor={campoPuntaje.value ? Number(campoPuntaje.value) : null}
+            alCambiar={(elegida) => {
+              campoPuntaje.onChange(String(elegida));
+            }}
           />
         )}
       </CampoFormulario>
