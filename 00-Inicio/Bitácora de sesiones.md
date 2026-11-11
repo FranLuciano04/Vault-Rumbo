@@ -36,7 +36,7 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
-## 11/11/26 — Paloma (Claude Opus 5.5) — T-171 y T-172 (embudo con arrastre y reseña con estrellas)
+## 11/11/26 — Paloma (Claude Opus 5.5) — T-171, T-172 y T-173 (embudo con arrastre, reseña con estrellas y comisión en %)
 - **Hecho:**
   - T-135 liberado: está ensayado en la PC y le falta el servidor real. La rama y el PR #203 siguen subidos para retomarlo.
   - T-171 implementado con TDD y mergeado (PR #206), con el CI en verde. Las tarjetas del embudo se arrastran con `@dnd-kit/core` 6.3.1 (dependencia nueva) o se mueven con el botón «Mover» por teclado. Las confirmaciones de ganar y perder quedaron en `ConfirmacionesCierre.tsx`, donde T-178 va a cambiar la de ganar.
@@ -44,7 +44,13 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Commits:** `99ae4af` rojo, `d7f5ef6` verde, `2ba58f1` refactor, `651d3a3` y `8f9fd11` fix, `5df6ce7` hecho, merge del PR #206.
   - T-172 implementado con TDD y mergeado (PR #207). El puntaje de la reseña se elige con 5 estrellas (`components/SelectorEstrellas.tsx`), accesible como grupo de radios. Review de Opus: 1 importante (foco y anuncio del error sin puntaje) y 4 menores, todos arreglados. El CI destapó el e2e de reseñas, que escribía el número; se arregló en la misma rama (DEC-0019).
 - **Commits T-172:** `5c8a15b` rojo, `9d86044` verde, `6daff7f` y `00d1ed3` fix, `2b08006` hecho, merge del PR #207.
-- **Pendiente:** probar el arrastre del embudo a mano en un navegador (mouse y pantalla táctil) y comparar el tamaño de las estrellas (24 px) con el prototipo. En M11 queda libre T-173; el resto espera DEC-0028.
+  - T-173 implementado con TDD y mergeado (PR #208). Con comisión por porcentaje, el campo lleva «%», valida de 0 a 100 y muestra «Equivale a $ …» en vivo. La base es la **ganancia** (DEC-0007); si DEC-0028 elige el costo, en la web cambia solo `porcentajeDeGanancia`. Review de Opus: 2 importantes y 5 menores, todos arreglados; de paso, la vista de lectura ya no muestra una comisión negativa con pérdida. El e2e de CU-01 se ajustó dos veces en la misma rama (DEC-0019): la etiqueta nueva y el segundo `status` del formulario.
+  - Una corrida del CI quedó trabada en cola en GitHub (no se podía cancelar ni relanzar); se destrabó cerrando y reabriendo el PR.
+- **Commits T-173:** `c88c31e` rojo, `6232f60` verde, `b6012c0`, `c950ff4` y `9ed9367` fix, `2b4ab99` hecho, merge del PR #208.
+- **Pendiente:**
+  - Probar el arrastre del embudo a mano en un navegador (mouse y pantalla táctil) y comparar el tamaño de las estrellas (24 px) con el prototipo.
+  - Confirmar en equipo la base del porcentaje de comisión (DEC-0028, punto 5).
+  - M11: T-171, T-172 y T-173 están hechos; T-174 a T-181 esperan DEC-0028.
 
 ## 10/11/26 — Nahuel (Claude Opus 5.5) — Tickets de la revisión con el equipo
 - **Hecho:**
