@@ -310,7 +310,10 @@ describe("RF-017 arrastrar al perder pide el motivo", () => {
     await usuario.click(screen.getByRole("menuitem", { name: "Perdida" }));
     const formulario = await screen.findByRole("form", { name: "Perder la oportunidad" });
 
-    await usuario.selectOptions(within(formulario).getByRole("combobox", { name: /motivo/i }), "precio");
+    await usuario.selectOptions(
+      within(formulario).getByRole("combobox", { name: /motivo/i }),
+      "precio",
+    );
     await usuario.click(within(formulario).getByRole("button", { name: "Confirmar" }));
 
     await waitFor(async () => {
@@ -346,7 +349,10 @@ describe("RF-017 arrastrar al perder pide el motivo", () => {
     const usuario = await abrirMenu("Nueva", "Cusco");
     await usuario.click(screen.getByRole("menuitem", { name: "Perdida" }));
     const formulario = await screen.findByRole("form", { name: "Perder la oportunidad" });
-    await usuario.selectOptions(within(formulario).getByRole("combobox", { name: /motivo/i }), "precio");
+    await usuario.selectOptions(
+      within(formulario).getByRole("combobox", { name: /motivo/i }),
+      "precio",
+    );
 
     await usuario.click(within(formulario).getByRole("button", { name: "Confirmar" }));
 
