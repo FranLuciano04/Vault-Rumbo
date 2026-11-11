@@ -21,10 +21,9 @@ export function calcularResultado(precio: string, costo: string) {
   return { ganancia: deCentesimas(ganancia), margen: p > 0 ? Number(ganancia) / 100 / p : null };
 }
 
-/** El `porcentaje` % de la `ganancia`, redondeado half-up a 2 decimales como `Decimal` (RN-01). */
+/** El `porcentaje` % de la `ganancia`, redondeado half-up a 2 decimales; sin ganancia, cero (RN-01). */
 export function porcentajeDeGanancia(ganancia: string, porcentaje: string): string {
-  const producto = aCentesimas(ganancia) * aCentesimas(porcentaje);
-  const absoluto = producto < 0n ? -producto : producto;
-  const redondeado = (absoluto + 5000n) / 10000n;
-  return deCentesimas(producto < 0n ? -redondeado : redondeado);
+  const base = aCentesimas(ganancia);
+  if (base <= 0n) return "0.00";
+  return deCentesimas((base * aCentesimas(porcentaje) + 5000n) / 10000n);
 }

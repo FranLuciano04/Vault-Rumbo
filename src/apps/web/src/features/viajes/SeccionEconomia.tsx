@@ -167,11 +167,11 @@ export function SeccionEconomia({
     Number(ganancia) < 0 ||
     (margen ?? 0) < 0 ||
     (!isDirty && avisos.some((a) => a === "ganancia_negativa" || a === "margen_negativo"));
-  // Con ganancia nula o negativa, o un porcentaje inválido, la comisión en porcentaje es cero.
-  const comisionEnVivo =
-    Number(ganancia) > 0 && DECIMAL.test(comisionValor.trim())
-      ? porcentajeDeGanancia(ganancia, comisionValor.trim())
-      : "0.00";
+  // Importe de la comisión en porcentaje; «—» si el porcentaje no es válido (formato o más de 100).
+  const porcentajeValido = DECIMAL.test(comisionValor.trim()) && Number(comisionValor) <= 100;
+  const comisionEnVivo = porcentajeValido
+    ? formatearImporte(porcentajeDeGanancia(ganancia, comisionValor.trim()), viaje.moneda)
+    : "—";
   const desbalanceado = avisos.includes("plan_desbalanceado");
   const mensajes = [
     ...(negativo ? [AVISO_NEGATIVO] : []),
@@ -243,6 +243,7 @@ export function SeccionEconomia({
       : (vendedores.find((v) => v.id === viaje.vendedor_id)?.nombre ?? "—");
   const nombreOperador = operadorActual?.nombre ?? "—";
   const sinVendedor = vendedorId === "";
+  const conPorcentaje = comisionTipo === "porcentaje" && !sinVendedor;
 
   return (
     <section aria-labelledby="titulo-economia" className="rounded-2xl border bg-card p-5">
@@ -336,7 +337,7 @@ export function SeccionEconomia({
               </CampoFormulario>
               <CampoFormulario
                 id="comision-vendedor"
-                etiqueta="Comisión del vendedor"
+                etiqueta={conPorcentaje ? "Comisión del vendedor (%)" : "Comisión del vendedor"}
                 error={errors.comision_vendedor}
               >
                 {(props) => (
@@ -344,6 +345,7 @@ export function SeccionEconomia({
                     <Input
                       inputMode="decimal"
                       disabled={sinVendedor}
+                      className={conPorcentaje ? "pr-8" : undefined}
                       {...props}
                       {...formulario.register("comision_vendedor", {
                         onChange: () => {
@@ -351,21 +353,28 @@ export function SeccionEconomia({
                         },
                       })}
                     />
-                    {comisionTipo === "porcentaje" && (
-                      <span className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-sm text-muted-foreground">
+                    {conPorcentaje && (
+                      <span
+                        aria-hidden="true"
+                        className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-sm text-muted-foreground"
+                      >
                         %
                       </span>
                     )}
                   </div>
                 )}
               </CampoFormulario>
-              {comisionTipo === "porcentaje" && (
-                <output
-                  aria-label="Importe de la comisión"
-                  className="text-sm font-medium tabular-nums"
-                >
-                  {formatearImporte(comisionEnVivo, viaje.moneda)}
-                </output>
+              {conPorcentaje && (
+                <p className="text-sm text-muted-foreground">
+                  Equivale a{" "}
+                  <output
+                    htmlFor="comision-vendedor"
+                    aria-label="Importe de la comisión"
+                    className="font-medium tabular-nums text-foreground"
+                  >
+                    {comisionEnVivo}
+                  </output>
+                </p>
               )}
             </>
           )}

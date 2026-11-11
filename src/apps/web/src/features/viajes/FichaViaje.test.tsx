@@ -818,3 +818,58 @@ describe("RN-01 comisión en porcentaje", () => {
     expect(within(economia).queryByRole("status", { name: importeDeComision })).toBeNull();
   });
 });
+
+describe("RN-01 comisión en porcentaje: rango y accesibilidad", () => {
+  async function abrirEconomia() {
+    renderFicha("vendido");
+    const economia = await seccionEconomia();
+    const tipo = await within(economia).findByLabelText(/tipo de comisión/i);
+    return { economia, tipo };
+  }
+
+  it("RN-01 el error de rango queda asociado al campo de la comisión", async () => {
+    const { economia, tipo } = await abrirEconomia();
+    await userEvent.selectOptions(tipo, "porcentaje");
+    const comision = within(economia).getByLabelText(/comisión del vendedor/i);
+    await userEvent.clear(comision);
+    await userEvent.type(comision, "101");
+
+    await userEvent.click(within(economia).getByRole("button", { name: /guardar economía/i }));
+
+    await waitFor(() => {
+      expect(comision).toHaveAccessibleDescription(/entre 0 y 100/i);
+    });
+    expect(comision).toBeInvalid();
+  });
+
+  it("RN-01 con un porcentaje mayor que 100 el importe en vivo es «—»", async () => {
+    const { economia, tipo } = await abrirEconomia();
+    await userEvent.selectOptions(tipo, "porcentaje");
+    const comision = within(economia).getByLabelText(/comisión del vendedor/i);
+    await userEvent.clear(comision);
+    await userEvent.type(comision, "15000");
+
+    expect(
+      within(economia).getByRole("status", { name: /importe de la comisión/i }),
+    ).toHaveTextContent("—");
+  });
+
+  it("RN-01 sin vendedor no hay importe y se guarda aunque el valor cargado supere 100", async () => {
+    const cuerpos: Record<string, unknown>[] = [];
+    servidor.use(registrarEconomia(cuerpos));
+    const { economia, tipo } = await abrirEconomia();
+    await userEvent.selectOptions(tipo, "porcentaje");
+    const comision = within(economia).getByLabelText(/comisión del vendedor/i);
+    await userEvent.clear(comision);
+    await userEvent.type(comision, "15000");
+    await userEvent.selectOptions(within(economia).getByLabelText("Vendedor"), "");
+
+    expect(within(economia).queryByRole("status", { name: /importe de la comisión/i })).toBeNull();
+    await userEvent.click(within(economia).getByRole("button", { name: /guardar economía/i }));
+
+    await waitFor(() => {
+      expect(cuerpos).toHaveLength(1);
+    });
+    expect(within(economia).queryByText(/entre 0 y 100/i)).toBeNull();
+  });
+});

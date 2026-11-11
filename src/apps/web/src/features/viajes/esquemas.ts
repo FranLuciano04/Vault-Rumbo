@@ -17,15 +17,18 @@ export const esquemaEconomia = z
     comision_tipo: z.enum(["importe", "porcentaje"]),
     comision_vendedor: decimal,
   })
-  .superRefine((datos, contexto) => {
-    // Un porcentaje de comisión va de 0 a 100 (RN-01); el formato ya lo valida `decimal`.
-    if (datos.comision_tipo === "porcentaje" && Number(datos.comision_vendedor) > 100) {
-      contexto.addIssue({
-        code: "custom",
-        path: ["comision_vendedor"],
-        message: "El porcentaje debe estar entre 0 y 100.",
-      });
-    }
-  });
+  .refine(
+    // Un porcentaje de comisión va de 0 a 100 (RN-01); sin vendedor el campo está deshabilitado.
+    (datos) =>
+      datos.vendedor_id === "" ||
+      datos.comision_tipo !== "porcentaje" ||
+      !(Number(datos.comision_vendedor) > 100),
+    {
+      path: ["comision_vendedor"],
+      error: "El porcentaje debe estar entre 0 y 100.",
+      // Que salga junto con los errores de formato de otros campos.
+      when: () => true,
+    },
+  );
 
 export type DatosEconomia = z.infer<typeof esquemaEconomia>;
