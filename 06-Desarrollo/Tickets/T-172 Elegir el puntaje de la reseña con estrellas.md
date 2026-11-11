@@ -55,3 +55,4 @@ Al registrar o editar una reseña en la web, el puntaje se elige con cinco estre
   - Los tests de 0 y 6 fuera de rango se reemplazaron por «sin puntaje no se envía», porque con estrellas ya no se pueden elegir.
   - Review de Opus: 1 importante (el foco y el anuncio del error) y 4 menores, todos arreglados.
   - Modelos: tests, implementación, refactor (sin cambios) y fix con Sonnet; review con Opus. Sin escalados.
+  - Regresión en el CI (DEC-0019): el e2e `hoteles.spec.ts` (RF-101) escribía el número en «Puntaje». Se ajustó para elegir la estrella «5 estrellas»; lo hizo el orquestador porque era una línea.
