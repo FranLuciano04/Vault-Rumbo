@@ -21,11 +21,14 @@ export function ColumnaEmbudo({
   consulta,
   usuario,
   alMover,
+  bloqueada,
 }: {
   estado: EstadoOportunidad;
   consulta: ReturnType<typeof useOportunidadesPorPaginas>;
   usuario: UsuarioActual;
   alMover: (oportunidad: Oportunidad, destino: EstadoOportunidad) => void;
+  /** Hay un cambio de estado en curso: no se arrastra ni se abre el menú. */
+  bloqueada: boolean;
 }) {
   const arrastrada = useDndContext().active?.data.current?.["oportunidad"] as
     Oportunidad | undefined;
@@ -45,7 +48,8 @@ export function ColumnaEmbudo({
       aria-disabled={deshabilitada ? true : undefined}
       className={cn(
         "space-y-2 rounded-lg bg-muted/50 p-3 transition-opacity",
-        deshabilitada && "opacity-40",
+        // La columna de origen no se atenúa: parecería que la tarjeta desaparece.
+        deshabilitada && arrastrada.estado !== estado && "opacity-40",
         isOver && "ring-2 ring-primary",
       )}
     >
@@ -58,6 +62,7 @@ export function ColumnaEmbudo({
           <TarjetaOportunidad
             key={o.id}
             oportunidad={o}
+            bloqueada={bloqueada}
             alMover={
               puedeEscribirOportunidad(usuario, o)
                 ? (destino) => {

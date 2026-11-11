@@ -1,10 +1,12 @@
 import {
   DndContext,
+  DragOverlay,
   MouseSensor,
   TouchSensor,
   useSensor,
   useSensors,
   type DragEndEvent,
+  type DragStartEvent,
 } from "@dnd-kit/core";
 import {
   DESTINO_A_DEFINIR,
@@ -16,7 +18,7 @@ import {
 } from "@rumbo/shared";
 import { useOportunidadesPorPaginas } from "@rumbo/shared/hooks";
 import type { AxiosInstance } from "axios";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router";
 import { Button, variantesBoton } from "@/components/ui/button";
 import { idDeUrl } from "@/lib/parametros";
@@ -24,6 +26,8 @@ import { cn } from "@/lib/utils";
 import { FiltroResponsable } from "@/components/FiltroResponsable";
 import { ColumnaEmbudo } from "./ColumnaEmbudo";
 import { ConfirmarGanar, FormularioPerder } from "./ConfirmacionesCierre";
+import { TarjetaArrastrada } from "./TarjetaOportunidad";
+import { DESTINOS_POR_ESTADO } from "./transiciones";
 import { useTransicionesOportunidad } from "./useTransicionesOportunidad";
 
 const ESTADOS = Object.keys(ETIQUETA_ESTADO_OPORTUNIDAD) as EstadoOportunidad[];
@@ -31,6 +35,9 @@ const PESTANAS = [
   { clave: "mias", etiqueta: "Mis oportunidades" },
   { clave: "agencia", etiqueta: "Toda la agencia" },
 ] as const;
+
+/** Sin instrucciones de lector de pantalla: dnd-kit las trae en inglés y el teclado va por el menú «Mover». */
+const SIN_INSTRUCCIONES = { draggable: "" };
 
 /** Sin anuncios de arrastre: dnd-kit los trae en inglés y la alternativa accesible es el menú «Mover». */
 const SIN_ANUNCIOS = {
@@ -68,19 +75,30 @@ export function PaginaOportunidades({
     oportunidad: Oportunidad;
     paso: "ganar" | "perder";
   } | null>(null);
+  const [arrastrando, setArrastrando] = useState<Oportunidad | null>(null);
+  const panelConfirmacion = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (confirmando) panelConfirmacion.current?.focus();
+  }, [confirmando]);
   const sensores = useSensors(
     useSensor(MouseSensor, { activationConstraint: { distance: 8 } }),
     useSensor(TouchSensor, { activationConstraint: { delay: 250, tolerance: 5 } }),
   );
 
   function mover(oportunidad: Oportunidad, destino: EstadoOportunidad) {
+    if (!DESTINOS_POR_ESTADO[oportunidad.estado].includes(destino)) return;
     if (destino === "ganada") setConfirmando({ oportunidad, paso: "ganar" });
     else if (destino === "perdida") setConfirmando({ oportunidad, paso: "perder" });
     else if (oportunidad.estado === "perdida") void transiciones.reactivar(oportunidad.id);
     else void transiciones.tomar(oportunidad.id);
   }
 
+  function alEmpezar({ active }: DragStartEvent) {
+    setArrastrando((active.data.current?.["oportunidad"] as Oportunidad | undefined) ?? null);
+  }
+
   function alSoltar({ active, over }: DragEndEvent) {
+    setArrastrando(null);
     const oportunidad = active.data.current?.["oportunidad"] as Oportunidad | undefined;
     if (oportunidad && over) mover(oportunidad, over.id as EstadoOportunidad);
   }
@@ -158,13 +176,14 @@ export function PaginaOportunidades({
       </div>
 
       {confirmando && (
-        <div className="space-y-2">
+        <div ref={panelConfirmacion} tabIndex={-1} className="space-y-2 outline-none">
           <p className="text-sm font-medium">
             {confirmando.oportunidad.destino_consultado ?? DESTINO_A_DEFINIR} ·{" "}
             {confirmando.oportunidad.cliente_nombre}
           </p>
           {confirmando.paso === "ganar" ? (
             <ConfirmarGanar
+              key={confirmando.oportunidad.id}
               pendiente={transiciones.pendiente}
               alConfirmar={() =>
                 void transiciones.ganar(confirmando.oportunidad.id).then(cerrarSiSalioBien)
@@ -175,6 +194,7 @@ export function PaginaOportunidades({
             />
           ) : (
             <FormularioPerder
+              key={confirmando.oportunidad.id}
               pendiente={transiciones.pendiente}
               alConfirmar={(datos) =>
                 void transiciones.perder(confirmando.oportunidad.id, datos).then(cerrarSiSalioBien)
@@ -202,8 +222,15 @@ export function PaginaOportunidades({
       ) : (
         <DndContext
           sensors={sensores}
-          accessibility={{ announcements: SIN_ANUNCIOS }}
+          accessibility={{
+            announcements: SIN_ANUNCIOS,
+            screenReaderInstructions: SIN_INSTRUCCIONES,
+          }}
+          onDragStart={alEmpezar}
           onDragEnd={alSoltar}
+          onDragCancel={() => {
+            setArrastrando(null);
+          }}
         >
           <div
             id="panel-embudo"
@@ -222,9 +249,13 @@ export function PaginaOportunidades({
                 consulta={consulta}
                 usuario={usuario}
                 alMover={mover}
+                bloqueada={transiciones.pendiente}
               />
             ))}
           </div>
+          <DragOverlay>
+            {arrastrando && <TarjetaArrastrada oportunidad={arrastrando} />}
+          </DragOverlay>
         </DndContext>
       )}
     </div>

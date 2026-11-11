@@ -31,11 +31,11 @@ import {
   type RolMock,
 } from "@rumbo/shared/mocks";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { render, screen, waitFor, within } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { http, HttpResponse } from "msw";
 import { MemoryRouter } from "react-router";
-import { afterAll, afterEach, beforeAll } from "vitest";
+import { afterAll, afterEach, beforeAll, beforeEach, vi } from "vitest";
 import { PaginaOportunidades } from "./PaginaOportunidades";
 
 const servidor = crearServidor(...manejadoresOportunidades);
@@ -412,4 +412,140 @@ describe("RF-016 arrastrar: permisos de escritura", () => {
       expect(within(li).getByRole("button", { name: /^mover/i })).toBeInTheDocument();
     },
   );
+});
+
+describe("RF-016 arrastrar con puntero (MouseSensor simulado)", () => {
+  const ORDEN = ["Nueva", "En gestión", "Cotizada", "Ganada", "Perdida"];
+  const ANCHO = 200;
+
+  /** jsdom no mide: cada columna ocupa un tramo horizontal y cada tarjeta queda dentro de la suya. */
+  beforeEach(() => {
+    vi.spyOn(HTMLElement.prototype, "getBoundingClientRect").mockImplementation(function (
+      this: HTMLElement,
+    ) {
+      const seccion = this.closest("section");
+      const titulo = seccion?.querySelector("h2")?.textContent ?? "";
+      const indice = ORDEN.findIndex((e) => titulo.startsWith(e));
+      // Sin columna: la copia que sigue al puntero (DragOverlay), que parte de la tarjeta de la primera columna.
+      if (indice < 0) return new DOMRect(10, 10, ANCHO - 20, 50);
+      return this.tagName === "SECTION"
+        ? new DOMRect(indice * ANCHO, 0, ANCHO, 400)
+        : new DOMRect(indice * ANCHO + 10, 10, ANCHO - 20, 50);
+    });
+  });
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  /** Agarra la tarjeta, la mueve `columnas` columnas a la derecha (o izquierda) y devuelve cómo soltarla. */
+  async function arrastrar(estado: string, destino: string, columnas: number) {
+    const li = await tarjeta(estado, destino);
+    fireEvent.mouseDown(li, { button: 0, clientX: 20, clientY: 20 });
+    const destinoX = 20 + columnas * ANCHO;
+    // El primer movimiento solo activa el arrastre; el segundo lo desplaza y calcula la columna de abajo.
+    fireEvent.mouseMove(document, { clientX: destinoX - 1, clientY: 20 });
+    await new Promise((resolver) => setTimeout(resolver, 0));
+    fireEvent.mouseMove(document, { clientX: destinoX, clientY: 20 });
+    return () => {
+      fireEvent.mouseUp(document, { clientX: 20 + columnas * ANCHO, clientY: 20 });
+    };
+  }
+
+  it("RF-016 soltar en una columna válida usa la misma lógica que el menú (Ganada pide confirmar)", async () => {
+    const llamadas = servidorConEstado();
+    renderEmbudo("empleado");
+
+    const soltar = await arrastrar("Nueva", "Cusco", 3);
+    await waitFor(async () => {
+      expect(await columna("Ganada")).toHaveClass("ring-2");
+    });
+    soltar();
+
+    expect(await screen.findByRole("group", { name: "Ganar la oportunidad" })).toBeInTheDocument();
+    expect(llamadas).toEqual([]);
+  });
+
+  it("RF-016 mientras se arrastra, las columnas que no son destino quedan con aria-disabled", async () => {
+    servidorConEstado();
+    renderEmbudo("empleado");
+
+    const soltar = await arrastrar("Nueva", "Cusco", 1);
+
+    await waitFor(async () => {
+      expect(await columna("Cotizada")).toHaveAttribute("aria-disabled", "true");
+    });
+    expect(await columna("En gestión")).not.toHaveAttribute("aria-disabled");
+    expect(await columna("Ganada")).not.toHaveAttribute("aria-disabled");
+    expect(await columna("Perdida")).not.toHaveAttribute("aria-disabled");
+    soltar();
+    await waitFor(async () => {
+      expect(await columna("Cotizada")).not.toHaveAttribute("aria-disabled");
+    });
+  });
+
+  it("RF-016 soltar en Cotizada no llama a la API ni abre nada", async () => {
+    const llamadas = servidorConEstado();
+    renderEmbudo("empleado");
+
+    const soltar = await arrastrar("Nueva", "Cusco", 2);
+    await waitFor(async () => {
+      expect(await columna("Cotizada")).toHaveAttribute("aria-disabled", "true");
+    });
+    soltar();
+
+    await waitFor(async () => {
+      expect(await columna("Cotizada")).not.toHaveAttribute("aria-disabled");
+    });
+    expect(llamadas).toEqual([]);
+    expect(screen.queryByRole("group")).not.toBeInTheDocument();
+    expect(screen.queryByRole("form")).not.toBeInTheDocument();
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+    expect(within(await columna("Nueva")).getByText("Cusco")).toBeInTheDocument();
+  });
+
+  it("RF-016 sin permiso de escritura no se activa el arrastre", async () => {
+    servidorConEstado();
+    renderEmbudo("empleado", {
+      ...usuariosPorRol.empleado,
+      id: "99999999-9999-4999-8999-999999999999",
+    });
+
+    await arrastrar("Nueva", "Cusco", 1);
+
+    expect(await columna("Cotizada")).not.toHaveAttribute("aria-disabled");
+  });
+
+  it("RF-016 una oportunidad ganada no se puede arrastrar", async () => {
+    servidorConEstado();
+    renderEmbudo("empleado");
+
+    await arrastrar("Ganada", "Brasil", -1);
+
+    expect(await columna("Cotizada")).not.toHaveAttribute("aria-disabled");
+  });
+});
+
+describe("RF-016 menú Mover con teclado", () => {
+  it("RF-016 las flechas, Home y End recorren los destinos y Escape devuelve el foco al botón", async () => {
+    servidorConEstado();
+    renderEmbudo("empleado");
+    const usuario = await abrirMenu("Nueva", "Cusco");
+    const items = screen.getAllByRole("menuitem");
+    expect(items[0]).toHaveFocus();
+
+    await usuario.keyboard("{ArrowDown}");
+    expect(items[1]).toHaveFocus();
+    await usuario.keyboard("{End}");
+    expect(items[2]).toHaveFocus();
+    await usuario.keyboard("{ArrowDown}");
+    expect(items[0]).toHaveFocus();
+    await usuario.keyboard("{ArrowUp}");
+    expect(items[2]).toHaveFocus();
+    await usuario.keyboard("{Home}");
+    expect(items[0]).toHaveFocus();
+
+    await usuario.keyboard("{Escape}");
+    expect(screen.queryByRole("menu")).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Mover Cusco" })).toHaveFocus();
+  });
 });
