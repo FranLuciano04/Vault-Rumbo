@@ -3,7 +3,7 @@ id: T-172
 titulo: Elegir el puntaje de la reseña con estrellas
 modulo: M11 — Ajustes de la revisión del equipo
 capa: web
-estado: libre
+estado: tomado
 depende_de: []
 tamaño: S
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [CU-17, RF-101]
 origen: revisión del equipo (10/11/26)
-asignado:
-tomado_el:
-rama:
+asignado: palomap2003
+tomado_el: 11/11/26 16:33
+rama: feature/T-172-elegir-el-puntaje-de-la-resena-con-estre
 pr:
 ---
 # T-172 Elegir el puntaje de la reseña con estrellas

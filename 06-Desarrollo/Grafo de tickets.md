@@ -25,7 +25,7 @@ tags:: #tipo/referencia
 | M8 — Calendario, dashboard y reportes | 10 | 10 | 0 | 0 | 0 | 0 | ✅ cerrado |
 | M9 — Redes e IA | 8 | 8 | 0 | 0 | 0 | 0 | ✅ cerrado |
 | M10 — Despliegue on-premise | 5 | 0 | 0 | 1 | 4 | 0 | 🛠️ en curso |
-| M11 — Ajustes de la revisión del equipo | 11 | 1 | 0 | 2 | 7 | 1 | 🛠️ en curso |
+| M11 — Ajustes de la revisión del equipo | 11 | 1 | 1 | 1 | 7 | 1 | 🛠️ en curso |
 
 ## Grafo
 
@@ -226,7 +226,7 @@ flowchart LR
   end
   subgraph M11["M11 — Ajustes de la revisión del equipo"]
     T171["T-171 · Arrastrar las tarjetas del embudo para cambiar el estado<br/><small>web</small>"]:::hecho
-    T172["T-172 · Elegir el puntaje de la reseña con estrellas<br/><small>web</small>"]:::disponible
+    T172["T-172 · Elegir el puntaje de la reseña con estrellas<br/><small>web</small><br/>👤 palomap2003"]:::tomado
     T173["T-173 · Mostrar la comisión en porcentaje con su importe<br/><small>web</small>"]:::disponible
     T174["T-174 · Ajustar el contrato de cotizaciones y reserva<br/><small>contrato</small>"]:::bloqueado
     T175["T-175 · Ganar la oportunidad con la cotización que eligió el cliente<br/><small>backend · ⚠️ riesgo alto</small>"]:::esperando
