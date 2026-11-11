@@ -1,6 +1,15 @@
-import { DESTINO_A_DEFINIR, ETIQUETA_MOTIVO_PERDIDA, type Oportunidad } from "@rumbo/shared";
+import { useDraggable } from "@dnd-kit/core";
+import {
+  DESTINO_A_DEFINIR,
+  ETIQUETA_MOTIVO_PERDIDA,
+  type EstadoOportunidad,
+  type Oportunidad,
+} from "@rumbo/shared";
 import { Link } from "react-router";
+import { cn } from "@/lib/utils";
+import { MenuMoverOportunidad } from "./MenuMoverOportunidad";
 import { PasajerosOportunidad } from "./PasajerosOportunidad";
+import { DESTINOS_POR_ESTADO } from "./transiciones";
 
 /** Fecha `aaaa-mm-dd` como `dd/mm/aa` (sin pasar por `Date`, para no correrla por zona horaria). */
 const fechaCorta = (fecha: string) => {
@@ -8,15 +17,35 @@ const fechaCorta = (fecha: string) => {
   return `${dia}/${mes}/${anio.slice(2)}`;
 };
 
-/** Tarjeta de una oportunidad en su columna del embudo (CU-05); da acceso a su detalle. */
-export function TarjetaOportunidad({ oportunidad }: { oportunidad: Oportunidad }) {
+/**
+ * Tarjeta de una oportunidad en su columna del embudo (CU-05); da acceso a su detalle.
+ * Si `alMover` está, se puede arrastrar a otra columna o moverla con el menú (RF-016).
+ */
+export function TarjetaOportunidad({
+  oportunidad,
+  alMover,
+}: {
+  oportunidad: Oportunidad;
+  alMover?: (destino: EstadoOportunidad) => void;
+}) {
+  const destinos = DESTINOS_POR_ESTADO[oportunidad.estado];
+  const movible = alMover !== undefined && destinos.length > 0;
+  const { setNodeRef, listeners, isDragging } = useDraggable({
+    id: oportunidad.id,
+    disabled: !movible,
+    data: { oportunidad },
+  });
   const {
     fecha_desde_tentativa: desde,
     fecha_hasta_tentativa: hasta,
     motivo_perdida,
   } = oportunidad;
   return (
-    <li>
+    <li
+      ref={setNodeRef}
+      {...listeners}
+      className={cn(movible && "touch-manipulation", isDragging && "opacity-50")}
+    >
       <Link
         to={`/oportunidades/${oportunidad.id}`}
         className="block space-y-1 rounded-lg border bg-card p-3 text-sm hover:bg-accent"
@@ -35,6 +64,13 @@ export function TarjetaOportunidad({ oportunidad }: { oportunidad: Oportunidad }
           </span>
         )}
       </Link>
+      {alMover && movible && (
+        <MenuMoverOportunidad
+          nombre={oportunidad.destino_consultado ?? DESTINO_A_DEFINIR}
+          destinos={destinos}
+          alElegir={alMover}
+        />
+      )}
     </li>
   );
 }
