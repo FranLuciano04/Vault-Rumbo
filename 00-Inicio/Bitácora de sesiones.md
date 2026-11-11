@@ -36,7 +36,7 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
-## 11/11/26 — Paloma (Claude Opus 5.5) — T-171, arrastrar tarjetas del embudo
+## 11/11/26 — Paloma (Claude Opus 5.5) — T-171 y T-172 (embudo con arrastre y reseña con estrellas)
 - **Hecho:**
   - T-135 liberado: está ensayado en la PC y le falta el servidor real. La rama y el PR #203 siguen subidos para retomarlo.
   - T-171 implementado con TDD y mergeado (PR #206), con el CI en verde. Las tarjetas del embudo se arrastran con `@dnd-kit/core` 6.3.1 (dependencia nueva) o se mueven con el botón «Mover» por teclado. Las confirmaciones de ganar y perder quedaron en `ConfirmacionesCierre.tsx`, donde T-178 va a cambiar la de ganar.
