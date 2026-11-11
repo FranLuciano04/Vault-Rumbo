@@ -671,3 +671,150 @@ describe("RF-060 permisos de edición de la ficha según el responsable (H-03)",
     },
   );
 });
+
+/*
+ * Contrato del importe de la comisión (T-173): un elemento con rol «status» (el `<output>` de HTML)
+ * y nombre accesible «Importe de la comisión», debajo del campo «Comisión del vendedor». Su texto
+ * es el importe en la moneda del viaje. Solo existe con tipo «Porcentaje». El sufijo «%» es un
+ * texto visible «%» dentro de la sección, junto al campo.
+ */
+describe("RN-01 comisión en porcentaje", () => {
+  const importeDeComision = /importe de la comisión/i;
+
+  /** Abre la economía del viaje «vendido» (precio 1.800.000, costo 1.500.000, ARS) con comisión del 10 %. */
+  async function conPorcentaje(porcentaje: string) {
+    renderFicha("vendido");
+    const economia = await seccionEconomia();
+    await userEvent.selectOptions(
+      await within(economia).findByLabelText(/tipo de comisión/i),
+      "porcentaje",
+    );
+    const comision = within(economia).getByLabelText(/comisión del vendedor/i);
+    await userEvent.clear(comision);
+    await userEvent.type(comision, porcentaje);
+    return { economia, comision };
+  }
+
+  const importe = (economia: HTMLElement) =>
+    within(economia).getByRole("status", { name: importeDeComision });
+
+  it("RN-01 con «Porcentaje» el campo muestra el sufijo «%»", async () => {
+    const { economia } = await conPorcentaje("10");
+
+    expect(within(economia).getByText("%")).toBeVisible();
+  });
+
+  it("RN-01 muestra el importe en la moneda del viaje: el porcentaje sobre la ganancia", async () => {
+    const { economia } = await conPorcentaje("10");
+
+    expect(importe(economia)).toHaveTextContent(formatearImporte("30000.00", "ARS"));
+  });
+
+  it("RN-01 el importe se recalcula al cambiar el porcentaje", async () => {
+    const { economia, comision } = await conPorcentaje("10");
+
+    await userEvent.clear(comision);
+    await userEvent.type(comision, "20");
+
+    expect(importe(economia)).toHaveTextContent(formatearImporte("60000.00", "ARS"));
+  });
+
+  it("RN-01 el importe se recalcula al cambiar el precio de venta", async () => {
+    const { economia } = await conPorcentaje("10");
+    const precio = within(economia).getByLabelText(/precio de venta/i);
+
+    await userEvent.clear(precio);
+    await userEvent.type(precio, "2000000");
+
+    expect(importe(economia)).toHaveTextContent(formatearImporte("50000.00", "ARS"));
+  });
+
+  it("RN-01 el importe se recalcula al cambiar el costo", async () => {
+    const { economia } = await conPorcentaje("10");
+    const costo = within(economia).getByLabelText(/costo/i);
+
+    await userEvent.clear(costo);
+    await userEvent.type(costo, "1000000");
+
+    expect(importe(economia)).toHaveTextContent(formatearImporte("80000.00", "ARS"));
+  });
+
+  it("RN-01 sin ganancia el importe es cero", async () => {
+    const { economia } = await conPorcentaje("10");
+    const costo = within(economia).getByLabelText(/costo/i);
+
+    await userEvent.clear(costo);
+    await userEvent.type(costo, "1800000");
+
+    expect(importe(economia)).toHaveTextContent(formatearImporte("0.00", "ARS"));
+  });
+
+  it("RN-01 con ganancia negativa el importe también es cero", async () => {
+    const { economia } = await conPorcentaje("10");
+    const costo = within(economia).getByLabelText(/costo/i);
+
+    await userEvent.clear(costo);
+    await userEvent.type(costo, "2000000");
+
+    expect(importe(economia)).toHaveTextContent(formatearImporte("0.00", "ARS"));
+  });
+
+  it("RN-01 un porcentaje mayor que 100 muestra un mensaje en castellano y no se envía", async () => {
+    const cuerpos: Record<string, unknown>[] = [];
+    servidor.use(registrarEconomia(cuerpos));
+    const { economia } = await conPorcentaje("101");
+
+    await userEvent.click(within(economia).getByRole("button", { name: /guardar economía/i }));
+
+    expect(await within(economia).findByText(/entre 0 y 100/i)).toBeInTheDocument();
+    expect(cuerpos).toHaveLength(0);
+  });
+
+  it("RN-01 acepta 0 y 100 como límites del rango", async () => {
+    const cuerpos: Record<string, unknown>[] = [];
+    servidor.use(registrarEconomia(cuerpos));
+    const { economia, comision } = await conPorcentaje("100");
+
+    await userEvent.click(within(economia).getByRole("button", { name: /guardar economía/i }));
+    await waitFor(() => {
+      expect(cuerpos).toHaveLength(1);
+    });
+    expect(within(economia).queryByText(/entre 0 y 100/i)).toBeNull();
+
+    await userEvent.clear(comision);
+    await userEvent.type(comision, "0");
+    await userEvent.click(within(economia).getByRole("button", { name: /guardar economía/i }));
+    await waitFor(() => {
+      expect(cuerpos).toHaveLength(2);
+    });
+  });
+
+  it("RN-01 con «Importe» no hay sufijo «%» ni importe calculado, y el valor mayor que 100 es válido", async () => {
+    const cuerpos: Record<string, unknown>[] = [];
+    servidor.use(registrarEconomia(cuerpos));
+    renderFicha("vendido");
+    const economia = await seccionEconomia();
+    const comision = await within(economia).findByLabelText(/comisión del vendedor/i);
+
+    expect(within(economia).queryByText("%")).toBeNull();
+    expect(within(economia).queryByRole("status", { name: importeDeComision })).toBeNull();
+
+    await userEvent.clear(comision);
+    await userEvent.type(comision, "150");
+    await userEvent.click(within(economia).getByRole("button", { name: /guardar economía/i }));
+
+    await waitFor(() => {
+      expect(cuerpos).toHaveLength(1);
+    });
+    expect(within(economia).queryByText(/entre 0 y 100/i)).toBeNull();
+  });
+
+  it("RN-01 al volver a «Importe» desaparecen el sufijo y el importe calculado", async () => {
+    const { economia } = await conPorcentaje("10");
+
+    await userEvent.selectOptions(within(economia).getByLabelText(/tipo de comisión/i), "importe");
+
+    expect(within(economia).queryByText("%")).toBeNull();
+    expect(within(economia).queryByRole("status", { name: importeDeComision })).toBeNull();
+  });
+});
