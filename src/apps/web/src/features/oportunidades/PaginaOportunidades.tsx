@@ -1,24 +1,51 @@
 import {
+  DndContext,
+  DragOverlay,
+  MouseSensor,
+  TouchSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+  type DragStartEvent,
+} from "@dnd-kit/core";
+import {
+  DESTINO_A_DEFINIR,
   ETIQUETA_ESTADO_OPORTUNIDAD,
   type EstadoOportunidad,
   type FiltrosOportunidades,
+  type Oportunidad,
   type UsuarioActual,
 } from "@rumbo/shared";
 import { useOportunidadesPorPaginas } from "@rumbo/shared/hooks";
 import type { AxiosInstance } from "axios";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router";
 import { Button, variantesBoton } from "@/components/ui/button";
 import { idDeUrl } from "@/lib/parametros";
 import { cn } from "@/lib/utils";
 import { FiltroResponsable } from "@/components/FiltroResponsable";
-import { TarjetaOportunidad } from "./TarjetaOportunidad";
+import { ColumnaEmbudo } from "./ColumnaEmbudo";
+import { ConfirmarGanar, FormularioPerder } from "./ConfirmacionesCierre";
+import { TarjetaArrastrada } from "./TarjetaOportunidad";
+import { DESTINOS_POR_ESTADO } from "./transiciones";
+import { useTransicionesOportunidad } from "./useTransicionesOportunidad";
 
 const ESTADOS = Object.keys(ETIQUETA_ESTADO_OPORTUNIDAD) as EstadoOportunidad[];
 const PESTANAS = [
   { clave: "mias", etiqueta: "Mis oportunidades" },
   { clave: "agencia", etiqueta: "Toda la agencia" },
 ] as const;
+
+/** Sin instrucciones de lector de pantalla: dnd-kit las trae en inglés y el teclado va por el menú «Mover». */
+const SIN_INSTRUCCIONES = { draggable: "" };
+
+/** Sin anuncios de arrastre: dnd-kit los trae en inglés y la alternativa accesible es el menú «Mover». */
+const SIN_ANUNCIOS = {
+  onDragStart: () => undefined,
+  onDragOver: () => undefined,
+  onDragEnd: () => undefined,
+  onDragCancel: () => undefined,
+};
 
 /**
  * Embudo de oportunidades (CU-05, pantallas 12 y 34): una columna por estado con el total del
@@ -42,6 +69,43 @@ export function PaginaOportunidades({
   const [responsableId, setResponsableId] = useState(
     puedeFiltrarResponsable ? idDeUrl(parametros.get("responsable_id")) : "",
   );
+  // Soltar una tarjeta y elegir «Mover» en su menú pasan por la misma lógica (`mover`).
+  const transiciones = useTransicionesOportunidad(cliente);
+  const [confirmando, setConfirmando] = useState<{
+    oportunidad: Oportunidad;
+    paso: "ganar" | "perder";
+  } | null>(null);
+  const [arrastrando, setArrastrando] = useState<Oportunidad | null>(null);
+  const panelConfirmacion = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (confirmando) panelConfirmacion.current?.focus();
+  }, [confirmando]);
+  const sensores = useSensors(
+    useSensor(MouseSensor, { activationConstraint: { distance: 8 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 250, tolerance: 5 } }),
+  );
+
+  function mover(oportunidad: Oportunidad, destino: EstadoOportunidad) {
+    if (!DESTINOS_POR_ESTADO[oportunidad.estado].includes(destino)) return;
+    if (destino === "ganada") setConfirmando({ oportunidad, paso: "ganar" });
+    else if (destino === "perdida") setConfirmando({ oportunidad, paso: "perder" });
+    else if (oportunidad.estado === "perdida") void transiciones.reactivar(oportunidad.id);
+    else void transiciones.tomar(oportunidad.id);
+  }
+
+  function alEmpezar({ active }: DragStartEvent) {
+    setArrastrando((active.data.current?.["oportunidad"] as Oportunidad | undefined) ?? null);
+  }
+
+  function alSoltar({ active, over }: DragEndEvent) {
+    setArrastrando(null);
+    const oportunidad = active.data.current?.["oportunidad"] as Oportunidad | undefined;
+    if (oportunidad && over) mover(oportunidad, over.id as EstadoOportunidad);
+  }
+
+  const cerrarSiSalioBien = (salioBien: boolean) => {
+    if (salioBien) setConfirmando(null);
+  };
 
   // «Mis oportunidades» pide `mios`; «Toda la agencia», sin `mios` (y con `responsable_id` si se elige uno).
   const filtros: FiltrosOportunidades =
@@ -111,6 +175,42 @@ export function PaginaOportunidades({
         )}
       </div>
 
+      {confirmando && (
+        <div ref={panelConfirmacion} tabIndex={-1} className="space-y-2 outline-none">
+          <p className="text-sm font-medium">
+            {confirmando.oportunidad.destino_consultado ?? DESTINO_A_DEFINIR} ·{" "}
+            {confirmando.oportunidad.cliente_nombre}
+          </p>
+          {confirmando.paso === "ganar" ? (
+            <ConfirmarGanar
+              key={confirmando.oportunidad.id}
+              pendiente={transiciones.pendiente}
+              alConfirmar={() =>
+                void transiciones.ganar(confirmando.oportunidad.id).then(cerrarSiSalioBien)
+              }
+              alCancelar={() => {
+                setConfirmando(null);
+              }}
+            />
+          ) : (
+            <FormularioPerder
+              key={confirmando.oportunidad.id}
+              pendiente={transiciones.pendiente}
+              alConfirmar={(datos) =>
+                void transiciones.perder(confirmando.oportunidad.id, datos).then(cerrarSiSalioBien)
+              }
+              alCancelar={() => {
+                setConfirmando(null);
+              }}
+            />
+          )}
+        </div>
+      )}
+      {transiciones.error && (
+        <p role="alert" className="text-sm font-medium text-destructive">
+          {transiciones.error}
+        </p>
+      )}
       {fallo ? (
         <p role="alert" className="text-sm text-destructive">
           No pudimos cargar el embudo. Probá de nuevo en un momento.
@@ -120,50 +220,43 @@ export function PaginaOportunidades({
           Cargando oportunidades…
         </p>
       ) : (
-        <div
-          id="panel-embudo"
-          role="tabpanel"
-          aria-labelledby={`pestana-${pestana}`}
-          aria-busy={actualizando}
-          className={cn(
-            "grid gap-4 md:grid-cols-3 xl:grid-cols-5",
-            actualizando && "opacity-70 transition-opacity",
-          )}
+        <DndContext
+          sensors={sensores}
+          accessibility={{
+            announcements: SIN_ANUNCIOS,
+            screenReaderInstructions: SIN_INSTRUCCIONES,
+          }}
+          onDragStart={alEmpezar}
+          onDragEnd={alSoltar}
+          onDragCancel={() => {
+            setArrastrando(null);
+          }}
         >
-          {consultas.map(({ estado, consulta }) => {
-            const oportunidades = consulta.data?.pages.flatMap((p) => p.items) ?? [];
-            return (
-              <section key={estado} className="space-y-2 rounded-lg bg-muted/50 p-3">
-                <h2 className="flex items-center justify-between text-sm font-semibold">
-                  {ETIQUETA_ESTADO_OPORTUNIDAD[estado]}{" "}
-                  <span className="tabular-nums text-muted-foreground">
-                    {consulta.data?.pages[0]?.total}
-                  </span>
-                </h2>
-                <ul className="space-y-2">
-                  {oportunidades.map((o) => (
-                    <TarjetaOportunidad key={o.id} oportunidad={o} />
-                  ))}
-                </ul>
-                {consulta.isFetchNextPageError && (
-                  <p role="alert" className="text-xs text-destructive">
-                    No pudimos traer más oportunidades.
-                  </p>
-                )}
-                {consulta.hasNextPage && (
-                  <Button
-                    variant="ghost"
-                    className="w-full"
-                    disabled={consulta.isFetchingNextPage}
-                    onClick={() => void consulta.fetchNextPage()}
-                  >
-                    Ver más
-                  </Button>
-                )}
-              </section>
-            );
-          })}
-        </div>
+          <div
+            id="panel-embudo"
+            role="tabpanel"
+            aria-labelledby={`pestana-${pestana}`}
+            aria-busy={actualizando}
+            className={cn(
+              "grid gap-4 md:grid-cols-3 xl:grid-cols-5",
+              actualizando && "opacity-70 transition-opacity",
+            )}
+          >
+            {consultas.map(({ estado, consulta }) => (
+              <ColumnaEmbudo
+                key={estado}
+                estado={estado}
+                consulta={consulta}
+                usuario={usuario}
+                alMover={mover}
+                bloqueada={transiciones.pendiente}
+              />
+            ))}
+          </div>
+          <DragOverlay>
+            {arrastrando && <TarjetaArrastrada oportunidad={arrastrando} />}
+          </DragOverlay>
+        </DndContext>
       )}
     </div>
   );

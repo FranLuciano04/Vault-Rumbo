@@ -11,11 +11,14 @@ export function CampoFormulario({
   id,
   etiqueta,
   error,
+  anunciarError = false,
   children,
 }: {
   id: string;
   etiqueta: string;
   error?: FieldError;
+  /** Marca el mensaje de error como `role="alert"`, para que se anuncie al enviar. */
+  anunciarError?: boolean;
   children: (
     props: Pick<ComponentProps<"input">, "id" | "aria-invalid" | "aria-describedby">,
   ) => ReactNode;
@@ -29,7 +32,11 @@ export function CampoFormulario({
         "aria-describedby": error ? `${id}-error` : undefined,
       })}
       {error && (
-        <p id={`${id}-error`} className="text-xs text-destructive">
+        <p
+          id={`${id}-error`}
+          role={anunciarError ? "alert" : undefined}
+          className="text-xs text-destructive"
+        >
           {error.message}
         </p>
       )}
