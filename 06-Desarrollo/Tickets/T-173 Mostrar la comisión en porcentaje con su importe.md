@@ -3,7 +3,7 @@ id: T-173
 titulo: Mostrar la comisión en porcentaje con su importe
 modulo: M11 — Ajustes de la revisión del equipo
 capa: web
-estado: libre
+estado: tomado
 depende_de: []
 tamaño: S
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [CU-10, RN-01, DEC-0007]
 origen: revisión del equipo (10/11/26)
-asignado:
-tomado_el:
-rama:
+asignado: palomap2003
+tomado_el: 11/11/26 17:23
+rama: feature/T-173-mostrar-la-comision-en-porcentaje-con-su
 pr:
 ---
 # T-173 Mostrar la comisión en porcentaje con su importe
