@@ -36,6 +36,14 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
+## 11/11/26 — Paloma (Claude Opus 5.5) — T-171, arrastrar tarjetas del embudo
+- **Hecho:**
+  - T-135 liberado: está ensayado en la PC y le falta el servidor real. La rama y el PR #203 siguen subidos para retomarlo.
+  - T-171 implementado con TDD y mergeado (PR #206), con el CI en verde. Las tarjetas del embudo se arrastran con `@dnd-kit/core` 6.3.1 (dependencia nueva) o se mueven con el botón «Mover» por teclado. Las confirmaciones de ganar y perder quedaron en `ConfirmacionesCierre.tsx`, donde T-178 va a cambiar la de ganar.
+  - Review de Opus: 4 importantes y 3 menores, todos arreglados. Suite web completa 1246/1246.
+- **Commits:** `99ae4af` rojo, `d7f5ef6` verde, `2ba58f1` refactor, `651d3a3` y `8f9fd11` fix, `5df6ce7` hecho, merge del PR #206.
+- **Pendiente:** probar el arrastre a mano en un navegador (mouse y pantalla táctil). En M11 quedan libres T-172 y T-173; el resto espera DEC-0028.
+
 ## 10/11/26 — Nahuel (Claude Opus 5.5) — Tickets de la revisión con el equipo
 - **Hecho:**
   - Se verificaron en el código los 8 cambios de la revisión con el equipo. Todos se pueden hacer, y quedaron en el módulo nuevo **M11** con los tickets T-171 a T-181. El grafo está regenerado.
