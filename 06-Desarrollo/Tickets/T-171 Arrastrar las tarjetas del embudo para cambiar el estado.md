@@ -3,7 +3,7 @@ id: T-171
 titulo: Arrastrar las tarjetas del embudo para cambiar el estado
 modulo: M11 — Ajustes de la revisión del equipo
 capa: web
-estado: libre
+estado: tomado
 depende_de: []
 tamaño: M
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [CU-05, RF-016, RF-017, RF-020]
 origen: revisión del equipo (10/11/26)
-asignado:
-tomado_el:
-rama:
+asignado: palomap2003
+tomado_el: 11/11/26 15:51
+rama: feature/T-171-arrastrar-las-tarjetas-del-embudo-para-c
 pr:
 ---
 # T-171 Arrastrar las tarjetas del embudo para cambiar el estado
