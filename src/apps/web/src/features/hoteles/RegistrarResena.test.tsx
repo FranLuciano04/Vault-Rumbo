@@ -197,18 +197,6 @@ describe("RF-101 reseña", () => {
     });
   });
 
-  it("A3: sin elegir puntaje no se envía y pide un puntaje de 1 a 5", async () => {
-    const pedidos: Escritura[] = [];
-    espiarEscrituras(pedidos);
-    const usuario = userEvent.setup();
-    renderDetalle("empleado");
-    await abrirAlta(usuario);
-    await completar(usuario, { cliente: camila.id, fecha: "2026-10-20" });
-    await usuario.click(screen.getByRole("button", { name: /guardar reseña/i }));
-    expect(await screen.findByText(/1 (a|y) 5/i)).toBeInTheDocument();
-    expect(pedidos).toHaveLength(0);
-  });
-
   it("A3: sin cliente no se envía y avisa que falta elegirlo", async () => {
     const pedidos: Escritura[] = [];
     espiarEscrituras(pedidos);
@@ -513,5 +501,71 @@ describe("RF-101 puntaje con estrellas", () => {
     expect(await screen.findByText(/1 (a|y) 5/i)).toBeInTheDocument();
     expect(pedidos).toHaveLength(0);
     expect(within(grupoPuntaje()).getAllByRole("radio")).toHaveLength(5);
+  });
+
+  it("al enviar sin puntaje el foco queda en una estrella del grupo", async () => {
+    const usuario = userEvent.setup();
+    renderDetalle("empleado");
+    await abrirAlta(usuario);
+    await completar(usuario, { cliente: camila.id, fecha: "2026-10-20" });
+    await usuario.click(screen.getByRole("button", { name: /guardar reseña/i }));
+    await screen.findByText(/1 (a|y) 5/i);
+    await waitFor(() => {
+      expect(grupoPuntaje()).toContainElement(document.activeElement as HTMLElement);
+    });
+  });
+
+  it("el mouse previsualiza las estrellas sin cambiar la elegida, y la elección por teclado lo reemplaza", async () => {
+    const usuario = userEvent.setup();
+    renderDetalle("empleado");
+    await abrirAlta(usuario);
+    await usuario.click(estrella(2));
+    await usuario.hover(estrella(4));
+    expect(estrella(4)).toHaveAttribute("data-resaltada", "true");
+    expect(estrella(5)).toHaveAttribute("data-resaltada", "false");
+    expect(estrella(2)).toBeChecked();
+    expect(estrella(4)).not.toBeChecked();
+    await usuario.keyboard("{ArrowRight}");
+    expect(estrella(3)).toBeChecked();
+    expect(estrella(3)).toHaveAttribute("data-resaltada", "true");
+    expect(estrella(4)).toHaveAttribute("data-resaltada", "false");
+    await usuario.unhover(estrella(4));
+  });
+
+  it("con Tab entra en la estrella 1 si no hay elección, y las flechas giran entre 5 y 1", async () => {
+    const usuario = userEvent.setup();
+    renderDetalle("empleado");
+    await abrirAlta(usuario);
+    estrella(1).focus();
+    expect(estrella(1)).toHaveFocus();
+    await usuario.keyboard("{ArrowLeft}");
+    expect(estrella(5)).toBeChecked();
+    expect(estrella(5)).toHaveFocus();
+    await usuario.keyboard("{ArrowRight}");
+    expect(estrella(1)).toBeChecked();
+    expect(estrella(1)).toHaveFocus();
+  });
+
+  it("con Tab desde el formulario entra en la estrella 1 sin elección", async () => {
+    const usuario = userEvent.setup();
+    renderDetalle("empleado");
+    const buscador = await abrirAlta(usuario);
+    buscador.focus();
+    await usuario.tab();
+    await usuario.tab();
+    expect(estrella(1)).toHaveFocus();
+  });
+
+  it("al editar, Tab cae en la estrella elegida", async () => {
+    const usuario = userEvent.setup();
+    renderDetalle("empleado");
+    const fila = (await screen.findByText(RESENA_1)).closest("li") as HTMLElement;
+    await usuario.click(within(fila).getByRole("button", { name: /editar reseña/i }));
+    await within(fila).findByRole("radiogroup", { name: /puntaje/i });
+    within(fila)
+      .getByLabelText(/comentario/i)
+      .focus();
+    await usuario.tab({ shift: true });
+    expect(estrella(4, within(fila))).toHaveFocus();
   });
 });

@@ -25,7 +25,9 @@ export function CampoFormulario({
 }) {
   return (
     <div className="flex flex-col gap-2">
-      <Label htmlFor={id}>{etiqueta}</Label>
+      <Label id={`${id}-etiqueta`} htmlFor={id}>
+        {etiqueta}
+      </Label>
       {children({
         id,
         "aria-invalid": Boolean(error),
