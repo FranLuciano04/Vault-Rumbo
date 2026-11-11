@@ -20,7 +20,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { mensajeDeError } from "@/lib/errores";
 import { calcularResultado, porcentajeDeGanancia } from "./calculos";
-import { esquemaEconomia, type DatosEconomia } from "./esquemas";
+import { DECIMAL, esquemaEconomia, type DatosEconomia } from "./esquemas";
 import { AVISO_REBALANCEO } from "./plan/etiquetas";
 
 const AVISO_NEGATIVO = "La ganancia o el margen quedan negativos. Igual podés guardar la economía.";
@@ -154,9 +154,9 @@ export function SeccionEconomia({
     defaultValues: valoresDe(viaje),
   });
   const { errors, isDirty, isSubmitting } = formulario.formState;
-  const [precio, costo, vendedorId] = useWatch({
+  const [precio, costo, vendedorId, comisionTipo, comisionValor] = useWatch({
     control: formulario.control,
-    name: ["precio_venta", "costo", "vendedor_id"],
+    name: ["precio_venta", "costo", "vendedor_id", "comision_tipo", "comision_vendedor"],
   });
 
   const enVivo = calcularResultado(precio, costo);
@@ -167,6 +167,11 @@ export function SeccionEconomia({
     Number(ganancia) < 0 ||
     (margen ?? 0) < 0 ||
     (!isDirty && avisos.some((a) => a === "ganancia_negativa" || a === "margen_negativo"));
+  // Con ganancia nula o negativa, o un porcentaje inválido, la comisión en porcentaje es cero.
+  const comisionEnVivo =
+    Number(ganancia) > 0 && DECIMAL.test(comisionValor.trim())
+      ? porcentajeDeGanancia(ganancia, comisionValor.trim())
+      : "0.00";
   const desbalanceado = avisos.includes("plan_desbalanceado");
   const mensajes = [
     ...(negativo ? [AVISO_NEGATIVO] : []),
@@ -335,18 +340,33 @@ export function SeccionEconomia({
                 error={errors.comision_vendedor}
               >
                 {(props) => (
-                  <Input
-                    inputMode="decimal"
-                    disabled={sinVendedor}
-                    {...props}
-                    {...formulario.register("comision_vendedor", {
-                      onChange: () => {
-                        setComisionEditada(true);
-                      },
-                    })}
-                  />
+                  <div className="relative">
+                    <Input
+                      inputMode="decimal"
+                      disabled={sinVendedor}
+                      {...props}
+                      {...formulario.register("comision_vendedor", {
+                        onChange: () => {
+                          setComisionEditada(true);
+                        },
+                      })}
+                    />
+                    {comisionTipo === "porcentaje" && (
+                      <span className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-sm text-muted-foreground">
+                        %
+                      </span>
+                    )}
+                  </div>
                 )}
               </CampoFormulario>
+              {comisionTipo === "porcentaje" && (
+                <output
+                  aria-label="Importe de la comisión"
+                  className="text-sm font-medium tabular-nums"
+                >
+                  {formatearImporte(comisionEnVivo, viaje.moneda)}
+                </output>
+              )}
             </>
           )}
           <p className="text-xs text-muted-foreground">
