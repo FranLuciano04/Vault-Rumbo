@@ -3,7 +3,7 @@ id: T-173
 titulo: Mostrar la comisión en porcentaje con su importe
 modulo: M11 — Ajustes de la revisión del equipo
 capa: web
-estado: tomado
+estado: hecho
 depende_de: []
 tamaño: S
 riesgo: normal
@@ -48,3 +48,11 @@ En la economía del viaje en la web, cuando se elige comisión por porcentaje, e
 ## Notas de implementación
 - **Factibilidad (verificada el 10/11/26):** se puede hacer solo en el front. La vista de lectura ya muestra «N % · importe» con `porcentajeDeGanancia`. Falta hacer lo mismo dentro del formulario, en vivo.
 - ⚠️ **Base del porcentaje, a confirmar antes de tomarlo:** el equipo pidió el importe «correspondiente al costo». Pero [[DEC-0007 Modelo económico — ganancia, margen y comisión de vendedor|DEC-0007]] (ratificada el 17/09/26) calcula el porcentaje sobre la **ganancia**, y el backend también (`calculos.comision_del_vendedor`, liquidación y reportes). El ticket sigue DEC-0007. Si el equipo confirma que la base es el costo, primero hace falta una `DEC-` que reemplace el punto 3 de DEC-0007 y un ticket de backend. No se cambia en silencio. Se resuelve en el punto 5 de [[DEC-0028 Cotizaciones alternativas y reserva con el primer pago|DEC-0028]].
+- **Implementado (11/11/26, Paloma):**
+  - Base: la **ganancia**, por DEC-0007. Paloma lo tomó sin esperar a DEC-0028; si el equipo elige el costo, en la web cambia solo `porcentajeDeGanancia` (`calculos.ts`), además de la `DEC-` y el ticket de backend.
+  - `SeccionEconomia`: con porcentaje y vendedor, la etiqueta pasa a «Comisión del vendedor (%)», el «%» va como sufijo (`aria-hidden`) y debajo se ve «Equivale a $ …» en un `<output>` que se recalcula en vivo; fuera de rango muestra «—». Con importe fijo no cambia nada.
+  - `esquemas.ts`: rango 0–100 solo con porcentaje y vendedor, con `when: () => true` para que salga junto con los demás errores.
+  - `porcentajeDeGanancia` devuelve 0 si la ganancia es ≤ 0, como el backend: también corrige la vista de lectura, que antes mostraba una comisión negativa.
+  - Review de Opus: 2 importantes (rango que bloqueaba el guardado sin vendedor; lectura con comisión negativa) y 5 menores, todos arreglados. Tests nuevos: 11 del rojo, 3 del fix y `calculos.test.ts` (redondeo half-up y ganancia ≤ 0).
+  - El e2e `cu01.spec.ts` busca la etiqueta nueva «Comisión del vendedor (%)»; lo ajustó el orquestador antes del CI (DEC-0019).
+  - Modelos: tests, implementación, refactor (sin cambios) y fix con Sonnet; review con Opus. Sin escalados.

@@ -212,7 +212,9 @@ test.describe("CU-01 De la consulta a la venta", () => {
     await test.step("RF-032 confirmar la reserva: nace el viaje «Reservado» y la oportunidad queda «Ganada»", async () => {
       await page.getByRole("button", { name: "Confirmar reserva" }).click();
       const dialogo = page.getByRole("dialog", { name: "Confirmar reserva" });
-      await dialogo.getByLabel("Destino", { exact: true }).selectOption({ label: `${nombreDestino}, Argentina` });
+      await dialogo
+        .getByLabel("Destino", { exact: true })
+        .selectOption({ label: `${nombreDestino}, Argentina` });
       await dialogo.getByLabel("Salida", { exact: true }).fill(SALIDA);
       await dialogo.getByLabel("Regreso", { exact: true }).fill(REGRESO);
       await dialogo.getByLabel("Categoría", { exact: true }).selectOption("individual");
@@ -234,7 +236,9 @@ test.describe("CU-01 De la consulta a la venta", () => {
       await page.getByRole("tab", { name: /Próximas/ }).click();
       const salida = ddmmaa(SALIDA);
       await expect(
-        page.getByRole("listitem").filter({ hasText: `${pasaporte}: tramitarlo antes de la salida` }),
+        page
+          .getByRole("listitem")
+          .filter({ hasText: `${pasaporte}: tramitarlo antes de la salida` }),
       ).toBeVisible();
       await expect(
         page.getByRole("listitem").filter({ hasText: `${seguro}: tramitarlo antes de la salida` }),
@@ -277,12 +281,16 @@ test.describe("CU-01 De la consulta a la venta", () => {
       await page.goto(viajeUrl);
       const economia = page.getByRole("form", { name: "Economía del viaje" });
       await economia.getByLabel("Costo del operador", { exact: true }).fill("900000");
-      await economia.getByLabel("Operador", { exact: true }).selectOption({ label: nombreOperador });
+      await economia
+        .getByLabel("Operador", { exact: true })
+        .selectOption({ label: nombreOperador });
       await economia.getByLabel("Vendedor", { exact: true }).selectOption({ label: DUENA.nombre });
       await economia.getByLabel("Tipo de comisión", { exact: true }).selectOption("porcentaje");
-      await economia.getByLabel("Comisión del vendedor", { exact: true }).fill("10");
+      await economia.getByLabel("Comisión del vendedor (%)", { exact: true }).fill("10");
       await economia.getByRole("button", { name: "Guardar economía" }).click();
-      await expect(economia.getByRole("status")).toContainText("Economía guardada");
+      await expect(
+        economia.getByRole("status").filter({ hasText: "Economía guardada" }),
+      ).toBeVisible();
 
       const viaje = await api<ViajeApi>(duena, "GET", `/viajes/${viajeId}`);
       expect(Number(viaje.precio_venta)).toBe(1_200_000);
@@ -308,7 +316,9 @@ test.describe("CU-01 De la consulta a la venta", () => {
         .fill(sumarDias(HOY, 40));
       await editor.getByLabel("Monto del saldo", { exact: true }).fill("400000");
       await editor.getByLabel("Vencimiento del saldo", { exact: true }).fill(sumarDias(HOY, 70));
-      await expect(editor.getByText("La suma de los pagos coincide con el precio de venta.")).toBeVisible();
+      await expect(
+        editor.getByText("La suma de los pagos coincide con el precio de venta."),
+      ).toBeVisible();
       await editor.getByRole("button", { name: "Guardar plan" }).click();
 
       const pagos = page.getByRole("list", { name: "Pagos del viaje" }).getByRole("listitem");
@@ -329,10 +339,11 @@ test.describe("CU-01 De la consulta a la venta", () => {
           "GET",
           `/alertas?${consulta}&proximas=true`,
         );
-        const suyas = [...deAgenda.items, ...proximas.items].filter(
-          (a) => a.pago_id === pago.id,
-        );
-        expect(suyas, `debería haber una alerta del pago ${pago.tipo} (${pago.vencimiento})`).toHaveLength(1);
+        const suyas = [...deAgenda.items, ...proximas.items].filter((a) => a.pago_id === pago.id);
+        expect(
+          suyas,
+          `debería haber una alerta del pago ${pago.tipo} (${pago.vencimiento})`,
+        ).toHaveLength(1);
         expect(suyas[0]?.fecha).toBe(fecha);
         expect(suyas[0]?.descripcion).toContain(`vence el ${ddmmaa(pago.vencimiento)}`);
       }
@@ -341,7 +352,11 @@ test.describe("CU-01 De la consulta a la venta", () => {
     await test.step("RF-067 cobros: el primero vende el viaje y al saldar el total queda «Confirmado»", async () => {
       const pagos = page.getByRole("list", { name: "Pagos del viaje" });
       const cobrar = async (fila: string) => {
-        await pagos.getByRole("listitem").filter({ hasText: fila }).getByRole("button", { name: "Registrar cobro" }).click();
+        await pagos
+          .getByRole("listitem")
+          .filter({ hasText: fila })
+          .getByRole("button", { name: "Registrar cobro" })
+          .click();
         const dialogo = page.getByRole("dialog", { name: "Registrar cobro" });
         await dialogo.getByLabel("Fecha efectiva del cobro").fill(HOY);
         await dialogo.getByRole("radio", { name: "Transferencia" }).click();

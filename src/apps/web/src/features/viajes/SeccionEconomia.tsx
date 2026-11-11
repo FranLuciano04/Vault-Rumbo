@@ -20,7 +20,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { mensajeDeError } from "@/lib/errores";
 import { calcularResultado, porcentajeDeGanancia } from "./calculos";
-import { esquemaEconomia, type DatosEconomia } from "./esquemas";
+import { DECIMAL, esquemaEconomia, type DatosEconomia } from "./esquemas";
 import { AVISO_REBALANCEO } from "./plan/etiquetas";
 
 const AVISO_NEGATIVO = "La ganancia o el margen quedan negativos. Igual podés guardar la economía.";
@@ -154,9 +154,9 @@ export function SeccionEconomia({
     defaultValues: valoresDe(viaje),
   });
   const { errors, isDirty, isSubmitting } = formulario.formState;
-  const [precio, costo, vendedorId] = useWatch({
+  const [precio, costo, vendedorId, comisionTipo, comisionValor] = useWatch({
     control: formulario.control,
-    name: ["precio_venta", "costo", "vendedor_id"],
+    name: ["precio_venta", "costo", "vendedor_id", "comision_tipo", "comision_vendedor"],
   });
 
   const enVivo = calcularResultado(precio, costo);
@@ -167,6 +167,11 @@ export function SeccionEconomia({
     Number(ganancia) < 0 ||
     (margen ?? 0) < 0 ||
     (!isDirty && avisos.some((a) => a === "ganancia_negativa" || a === "margen_negativo"));
+  // Importe de la comisión en porcentaje; «—» si el porcentaje no es válido (formato o más de 100).
+  const porcentajeValido = DECIMAL.test(comisionValor.trim()) && Number(comisionValor) <= 100;
+  const comisionEnVivo = porcentajeValido
+    ? formatearImporte(porcentajeDeGanancia(ganancia, comisionValor.trim()), viaje.moneda)
+    : "—";
   const desbalanceado = avisos.includes("plan_desbalanceado");
   const mensajes = [
     ...(negativo ? [AVISO_NEGATIVO] : []),
@@ -238,6 +243,7 @@ export function SeccionEconomia({
       : (vendedores.find((v) => v.id === viaje.vendedor_id)?.nombre ?? "—");
   const nombreOperador = operadorActual?.nombre ?? "—";
   const sinVendedor = vendedorId === "";
+  const conPorcentaje = comisionTipo === "porcentaje" && !sinVendedor;
 
   return (
     <section aria-labelledby="titulo-economia" className="rounded-2xl border bg-card p-5">
@@ -331,22 +337,45 @@ export function SeccionEconomia({
               </CampoFormulario>
               <CampoFormulario
                 id="comision-vendedor"
-                etiqueta="Comisión del vendedor"
+                etiqueta={conPorcentaje ? "Comisión del vendedor (%)" : "Comisión del vendedor"}
                 error={errors.comision_vendedor}
               >
                 {(props) => (
-                  <Input
-                    inputMode="decimal"
-                    disabled={sinVendedor}
-                    {...props}
-                    {...formulario.register("comision_vendedor", {
-                      onChange: () => {
-                        setComisionEditada(true);
-                      },
-                    })}
-                  />
+                  <div className="relative">
+                    <Input
+                      inputMode="decimal"
+                      disabled={sinVendedor}
+                      className={conPorcentaje ? "pr-8" : undefined}
+                      {...props}
+                      {...formulario.register("comision_vendedor", {
+                        onChange: () => {
+                          setComisionEditada(true);
+                        },
+                      })}
+                    />
+                    {conPorcentaje && (
+                      <span
+                        aria-hidden="true"
+                        className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-sm text-muted-foreground"
+                      >
+                        %
+                      </span>
+                    )}
+                  </div>
                 )}
               </CampoFormulario>
+              {conPorcentaje && (
+                <p className="text-sm text-muted-foreground">
+                  Equivale a{" "}
+                  <output
+                    htmlFor="comision-vendedor"
+                    aria-label="Importe de la comisión"
+                    className="font-medium tabular-nums text-foreground"
+                  >
+                    {comisionEnVivo}
+                  </output>
+                </p>
+              )}
             </>
           )}
           <p className="text-xs text-muted-foreground">
