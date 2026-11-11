@@ -32,6 +32,7 @@ export function ColumnaEmbudo({
   const esDestinoValido = arrastrada
     ? DESTINOS_POR_ESTADO[arrastrada.estado].includes(estado)
     : false;
+  const deshabilitada = arrastrada !== undefined && !esDestinoValido;
   const { setNodeRef, isOver } = useDroppable({
     id: estado,
     disabled: !esDestinoValido,
@@ -41,10 +42,10 @@ export function ColumnaEmbudo({
   return (
     <section
       ref={setNodeRef}
-      aria-disabled={arrastrada && !esDestinoValido ? true : undefined}
+      aria-disabled={deshabilitada ? true : undefined}
       className={cn(
         "space-y-2 rounded-lg bg-muted/50 p-3 transition-opacity",
-        arrastrada && !esDestinoValido && "opacity-40",
+        deshabilitada && "opacity-40",
         isOver && "ring-2 ring-primary",
       )}
     >
