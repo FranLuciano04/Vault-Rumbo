@@ -36,6 +36,17 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
+## 11/11/26 — Nahuel (Claude Opus 5.5) — DEC-0028 aprobada en equipo
+- **Hecho:**
+  - En llamada con el equipo se revisó [[DEC-0028 Cotizaciones alternativas y reserva con el primer pago|DEC-0028]] y se aprobaron los cinco puntos sin cambios. Se puede elegir un `borrador` al ganar, las demás `enviada` pasan a `rechazada`, el tramo de hotel que no entra se omite con aviso y la comisión en % sigue sobre la ganancia (DEC-0007 no cambia).
+  - DEC-0028 quedó formalizada (`fecha_aprobacion: 11/11/26`), y también el MOC de decisiones.
+  - Se actualizaron CU-05 (paso 6 y A4), CU-06 (A1, A2 y A4, más los nuevos A6 y A7), CU-07 (precarga, primer pago, itinerario y A4), CU-09 (A6), CU-11 (A7) y las entidades [[Cotización]] y [[Oportunidad]].
+  - T-174 pasó de `bloqueado` a `libre` y se le sumó el criterio de las advertencias del itinerario en la respuesta de la reserva. T-173 quedó con la base confirmada. El grafo está regenerado.
+- **Commits:** el de esta sesión.
+- **Pendiente:**
+  - Tomar T-174. Después se pueden repartir T-175, T-176, T-178, T-179 y T-180; T-177 espera a T-176.
+  - Actualizar [[DGM-ACT — Confirmar reserva]] y [[DGM-SEC — Confirmar reserva]] según DEC-0028 (Mermaid; ver primero quién es el responsable).
+
 ## 11/11/26 — Paloma (Claude Opus 5.5) — T-171, T-172 y T-173 (embudo con arrastre, reseña con estrellas y comisión en %)
 - **Hecho:**
   - T-135 liberado: está ensayado en la PC y le falta el servidor real. La rama y el PR #203 siguen subidos para retomarlo.
@@ -49,7 +60,7 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Commits T-173:** `c88c31e` rojo, `6232f60` verde, `b6012c0`, `c950ff4` y `9ed9367` fix, `2b4ab99` hecho, merge del PR #208.
 - **Pendiente:**
   - Probar el arrastre del embudo a mano en un navegador (mouse y pantalla táctil) y comparar el tamaño de las estrellas (24 px) con el prototipo.
-  - Confirmar en equipo la base del porcentaje de comisión (DEC-0028, punto 5).
+  - ~~Confirmar en equipo la base del porcentaje de comisión (DEC-0028, punto 5).~~ Confirmado el 11/11: la ganancia.
   - M11: T-171, T-172 y T-173 están hechos; T-174 a T-181 esperan DEC-0028.
 
 ## 10/11/26 — Nahuel (Claude Opus 5.5) — Tickets de la revisión con el equipo

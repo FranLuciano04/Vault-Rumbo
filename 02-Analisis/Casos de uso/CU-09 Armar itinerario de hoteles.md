@@ -4,7 +4,7 @@ estado: formalizado
 modulo: [viajes, hoteles]
 responsable: Francisco
 pc: pc1
-actualizado: 29/09/26
+actualizado: 11/11/26
 fecha_aprobacion: 29/09/26
 ---
 # CU-09 Armar itinerario de hoteles
@@ -37,6 +37,7 @@ El empleado asocia uno o varios [[Hotel|Hoteles]] del catálogo al [[Viaje]], de
 - **A2 — Hotel fuera del catálogo:** el hotel no existe → el empleado lo da de alta primero ([[CU-16 Gestionar hotel en catálogo]]) y vuelve a agregarlo.
 - **A3 — Editar/quitar tramo:** el empleado modifica fechas/orden o quita un [[Hotel]] del itinerario; el sistema reagenda o cierra la [[Alerta]] de pago asociada.
 - **A4 — Pago a proveedor realizado:** el empleado marca `pago_proveedor_realizado` para ese hotel → el sistema resuelve su [[Alerta]].
+- **A6 — Tramos desde la cotización:** al confirmar la reserva ([[CU-07 Confirmar reserva]]), el sistema crea un tramo por cada hotel de la [[Cotización]] aceptada, en el orden de sus ítems y con las validaciones de este CU. Si un tramo queda fuera de las fechas del viaje, se superpone con otro o el hotel ya está cerrado, ese tramo **no se crea** y la reserva lo avisa. El empleado lo arregla después desde el itinerario (A3) ([[DEC-0028 Cotizaciones alternativas y reserva con el primer pago|DEC-0028]]).
 
 ## Postcondiciones
 - El [[Viaje]] queda con su itinerario de [[Hotel|Hoteles]] (tramos y orden) y, si aplica, con las [[Alerta|Alertas]] de vencimiento de pago a proveedor agendadas.
@@ -52,9 +53,11 @@ El empleado asocia uno o varios [[Hotel|Hoteles]] del catálogo al [[Viaje]], de
 - [[DGM — Casos de uso]] · [[MOC — Modelo de dominio]] · [[DGM-ER]] (tabla `viaje_hotel`).
 
 ## Decisiones asociadas
-- [[DEC-0003 Relación Viaje–Hotel y Reseña]]
+- [[DEC-0003 Relación Viaje–Hotel y Reseña]] · [[DEC-0028 Cotizaciones alternativas y reserva con el primer pago|DEC-0028]]
 
 ## 🔎 Revisión
 > [!note] Francisco (11/09): especificado incluyendo el **vencimiento de pago a proveedor por hotel** (`vencimiento_pago_proveedor` en `viaje_hotel`) con [[Alerta]] un mes antes, del cruce del relevamiento crudo. A validar con Nahuel el tipo de [[Alerta]] usado (`pago`) y con Paloma que no impacte el catálogo de [[Hotel]].
 >
 > [!success] Nahuel (21/09) — **PK de `viaje_hotel` resuelta:** `id` propio en vez de PK compuesta `(viaje_id, hotel_id)`, para soportar el mismo hotel en tramos no consecutivos del itinerario (A5). Refinamiento sobre [[DEC-0003 Relación Viaje–Hotel y Reseña]], que había dejado esto abierto. A ratificar en sync.
+>
+> [!success] Equipo (11/11/26) — **el itinerario sale de la cotización** ([[DEC-0028 Cotizaciones alternativas y reserva con el primer pago|DEC-0028]] punto 4). Se sumó A6.

@@ -1,17 +1,17 @@
 ---
 tipo: decision
-estado: en-revision
+estado: formalizado
 modulo: [M11]
 decisores: [Francisco, Nahuel, Paloma]
-fecha_aprobacion:
+fecha_aprobacion: 11/11/26
 supersede:
-actualizado: 10/11/26
+actualizado: 11/11/26
 ---
 # DEC-0028 Cotizaciones alternativas y reserva con el primer pago
 
-tags:: #tipo/decision #estado/en-revision #pc/pc2 #accion/decidir
+tags:: #tipo/decision #estado/formalizado #pc/pc2
 
-> 🟡 **Borrador del 10/11/26 (Nahuel con Claude), para revisar en equipo.** Sale de la revisión del producto del 10/11/26. Cada punto es una **propuesta**: el equipo la aprueba, la cambia o elige la alternativa. Mientras tanto, [[T-174 Ajustar el contrato de cotizaciones y reserva|T-174]] sigue `bloqueado` y T-175 a T-181 esperan. Al aprobarla, se completa `fecha_aprobacion`, se actualizan los CU de [[#Consecuencias]] y T-174 pasa a `libre`.
+> ✅ **Aprobada por el equipo (Francisco, Nahuel y Paloma) el 11/11/26**, en la llamada de revisión. Se aprobaron las cinco propuestas sin cambios: en el punto 1 se puede elegir un `borrador` (1.4) y las demás `enviada` pasan a `rechazada` (1.5); en el punto 4 el tramo que no entra no se crea y se avisa; en el punto 5 la comisión sigue sobre la ganancia. Borrador original del 10/11/26 (Nahuel con Claude), salido de la revisión del producto del 10/11/26. Con la aprobación, [[T-174 Ajustar el contrato de cotizaciones y reserva|T-174]] pasa a `libre`.
 
 ## Contexto
 En la revisión del 10/11/26 el equipo pidió cuatro cambios en el circuito que va de la oportunidad al viaje. Contradicen reglas que hoy están escritas en los CU y en el código:
@@ -25,7 +25,7 @@ En la revisión del 10/11/26 el equipo pidió cuatro cambios en el circuito que 
 
 Se verificó que los cuatro cambios se pueden hacer sin migraciones. Los ítems de la cotización se guardan como JSONB. La máquina de estados del viaje ya tolera un plan que no suma el precio: no pasa a `confirmado` ni a `en_curso` hasta que se complete ([[DEC-0026 Tipo de cambio y deuda nueva en un viaje confirmado|DEC-0026]]).
 
-## Decisión (propuesta)
+## Decisión
 
 ### 1. Las cotizaciones son alternativas
 1. Una [[Oportunidad]] puede tener varias [[Cotización|Cotizaciones]] abiertas al mismo tiempo, y emitir una nueva no deja sin efecto a las anteriores. «Nueva versión» (CU-06 A1) pasa a ser un caso más: otra alternativa.
@@ -52,7 +52,7 @@ Se verificó que los cuatro cambios se pueden hacer sin migraciones. Los ítems 
 4. La venta directa y la cotización sin hoteles crean el viaje sin itinerario, como hoy.
 
 ### 5. La comisión en porcentaje sigue sobre la ganancia
-En la revisión se pidió mostrar el importe de la comisión «correspondiente al costo». Se propone **no cambiar** [[DEC-0007 Modelo económico — ganancia, margen y comisión de vendedor|DEC-0007]] punto 3, ratificada con la agencia el 17/09/26: el porcentaje se calcula sobre la **ganancia**. [[T-173 Mostrar la comisión en porcentaje con su importe|T-173]] solo cambia cómo se muestra el campo. ⚠️ **Hay que confirmarlo en la revisión de esta DEC.** Si el equipo quiere el costo como base, este punto reemplaza a DEC-0007 punto 3, y se suma un ticket de backend: cambian `calculos.comision_del_vendedor`, la liquidación y los reportes.
+En la revisión se pidió mostrar el importe de la comisión «correspondiente al costo». Se propone **no cambiar** [[DEC-0007 Modelo económico — ganancia, margen y comisión de vendedor|DEC-0007]] punto 3, ratificada con la agencia el 17/09/26: el porcentaje se calcula sobre la **ganancia**. [[T-173 Mostrar la comisión en porcentaje con su importe|T-173]] solo cambia cómo se muestra el campo. ✅ **Confirmado por el equipo el 11/11/26**: la base es la ganancia, DEC-0007 no cambia y no hace falta un ticket de backend.
 
 ## Alternativas consideradas
 - **Mantener las versiones y aceptar solo la última:** no cambia nada, pero no responde a lo que pidió el equipo. El cliente suele elegir entre opciones y no siempre se queda con la última. Se descarta.
@@ -64,7 +64,7 @@ En la revisión se pidió mostrar el importe de la comisión «correspondiente a
 - **Copiar los hoteles como texto, sin `hotel_id`:** no permite crear tramos ni reseñas por hotel (RF-106, [[DEC-0003 Relación Viaje–Hotel y Reseña|DEC-0003]]). Se descarta.
 
 ## Consecuencias
-- **CU para actualizar al aprobarla:**
+- **CU actualizados el 11/11/26:**
   - [[CU-05 Seguir oportunidad]]: «Ganar» con cotización elegida.
   - [[CU-06 Emitir cotización]]: alternativas en lugar de versiones, la aceptación de cualquiera vigente, el borrador elegido y las demás rechazadas.
   - [[CU-07 Confirmar reserva]]: la precarga, el primer pago y el itinerario.

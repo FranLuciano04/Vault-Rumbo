@@ -4,7 +4,7 @@ estado: formalizado
 modulo: [clientes, cotizaciones]
 responsable: Nahuel
 pc: pc1
-actualizado: 29/09/26
+actualizado: 11/11/26
 fecha_aprobacion: 29/09/26
 ---
 # Oportunidad
@@ -30,7 +30,7 @@ Representa una **consulta / lead**: el interés de un cliente en un viaje antes 
 ## Relaciones
 - *..1 con [[Cliente]] — pertenece a un Cliente
 - *..1 con [[Usuario]] (`responsable`) — ver [[DEC-0005 Autenticación y modelo de roles]]
-- 1..* con [[Cotización]] — genera cotizaciones
+- 1..* con [[Cotización]] — genera cotizaciones **alternativas**; a lo sumo una `aceptada`, que se elige al ganarla ([[CU-05 Seguir oportunidad|CU-05]] paso 6, [[DEC-0028 Cotizaciones alternativas y reserva con el primer pago|DEC-0028]])
 - 0..1 con [[Viaje]] — si se gana, deriva en un Viaje
 
 ## Reglas / invariantes
@@ -38,6 +38,7 @@ Representa una **consulta / lead**: el interés de un cliente en un viaje antes 
 
 ## Decisiones que la afectan
 - [[DEC-0002 Modelar la consulta como Oportunidad]]
+- [[DEC-0028 Cotizaciones alternativas y reserva con el primer pago|DEC-0028]]
 
 ## Aparece en
 - CU: [[CU-01 De la consulta a la venta]]

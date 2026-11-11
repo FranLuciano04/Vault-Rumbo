@@ -4,7 +4,7 @@ estado: formalizado
 modulo: [clientes]
 responsable: Francisco
 pc: pc1
-actualizado: 29/09/26
+actualizado: 11/11/26
 fecha_aprobacion: 29/09/26
 ---
 # CU-05 Seguir oportunidad
@@ -30,14 +30,14 @@ El empleado da seguimiento a una [[Oportunidad]] a lo largo del embudo: registra
 3. Registra una **interacción/nota** de seguimiento (qué se habló, próximos pasos).
 4. Agenda una **insistencia**: el sistema crea una [[Alerta]] de tipo `insistencia` para volver a contactar en X días ([[CU-01 De la consulta a la venta]] A1).
 5. Según avance, actualiza el estado: pasa a `cotizada` al emitir la [[Cotización]] ([[CU-06 Emitir cotización]]).
-6. **Cierre:** cuando el cliente acepta, el empleado **confirma la reserva** en [[CU-07 Confirmar reserva]], que cierra la [[Oportunidad]] como `ganada`; si no hay acuerdo, la marca `perdida` (registra el **motivo**, de una lista fija: *precio · fechas/disponibilidad · desistió · compró en otra agencia · sin respuesta · otro* [texto libre]).
+6. **Cierre:** cuando el cliente acepta, el empleado elige **Ganar** y la [[Cotización]] que aceptó el cliente, o «Sin cotización (venta directa)» (A4). Con una cotización elegida, en una sola operación la cotización pasa a `aceptada`, las demás `enviada` pasan a `rechazada` y la [[Oportunidad]] queda `ganada` ([[CU-06 Emitir cotización]] A2, A6 y A7; [[DEC-0028 Cotizaciones alternativas y reserva con el primer pago|DEC-0028]]). Después confirma la reserva en [[CU-07 Confirmar reserva]]. Si la cotización ya estaba aceptada, también puede confirmar la reserva directamente, y CU-07 cierra la [[Oportunidad]] como `ganada`. Si no hay acuerdo, la marca `perdida` (registra el **motivo**, de una lista fija: *precio · fechas/disponibilidad · desistió · compró en otra agencia · sin respuesta · otro* [texto libre]).
 7. El sistema resuelve las [[Alerta|Alertas]] de insistencia pendientes al cerrarse la [[Oportunidad]].
 
 ## Flujos alternativos
 - **A1 — El cliente no responde:** vence la insistencia sin respuesta → el sistema reagenda o el empleado reprograma un nuevo contacto.
 - **A2 — Oportunidad perdida:** el cliente desiste o no hay acuerdo → estado `perdida` con motivo; queda en el historial para el embudo y reportes.
 - **A3 — Reactivar:** un cliente que había desistido retoma → se reabre la `Oportunidad`, que **vuelve a `en_gestión`** (se la está volviendo a trabajar: ya no es una consulta sin atender, y la cotización vieja probablemente no sirva), o se registra una nueva ([[CU-04 Registrar consulta]]).
-- **A4 — Ganada sin cotización formal:** el cliente confirma sin cotización escrita → se cierra `ganada` y se continúa en [[CU-07 Confirmar reserva]].
+- **A4 — Ganada sin cotización formal:** el cliente confirma sin cotización escrita → al ganar, el empleado elige «Sin cotización (venta directa)», se cierra `ganada` y se continúa en [[CU-07 Confirmar reserva]].
 
 ## Postcondiciones
 - La [[Oportunidad]] queda con su seguimiento registrado y en un estado de cierre (`ganada` / `perdida`) o en seguimiento activo con su insistencia agendada.
@@ -55,7 +55,9 @@ El empleado da seguimiento a una [[Oportunidad]] a lo largo del embudo: registra
 - [[DGM — Casos de uso]] · (pendiente) diagrama de actividad del embudo.
 
 ## Decisiones asociadas
-- [[DEC-0002 Modelar la consulta como Oportunidad]] · [[DEC-0005 Autenticación y modelo de roles]]
+- [[DEC-0002 Modelar la consulta como Oportunidad]] · [[DEC-0005 Autenticación y modelo de roles]] · [[DEC-0028 Cotizaciones alternativas y reserva con el primer pago|DEC-0028]]
 
 ## 🔎 Revisión
 > [!note] Francisco (11/09) — **definido:** (1) se agrega el estado **`en_gestión`** entre `nueva` y `cotizada` (la persona está siendo atendida antes de cotizar); `nueva` = recibida sin iniciar. Estados: `nueva · en_gestión · cotizada · ganada · perdida`. (2) el **motivo de pérdida** es de **lista fija** (precio · fechas/disponibilidad · desistió · compró en otra agencia · sin respuesta · otro), para analizarlo en reportes ([[CU-22 Generar reportes y estadísticas]]).
+>
+> [!success] Equipo (11/11/26) — **«Ganar» pide elegir la cotización** que aceptó el cliente ([[DEC-0028 Cotizaciones alternativas y reserva con el primer pago|DEC-0028]] punto 1). Se actualizaron el paso 6 y A4.

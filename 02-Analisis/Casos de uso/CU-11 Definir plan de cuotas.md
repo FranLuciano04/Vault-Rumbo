@@ -4,7 +4,7 @@ estado: formalizado
 modulo: [economia]
 responsable: Nahuel
 pc: pc1
-actualizado: 29/09/26
+actualizado: 11/11/26
 fecha_aprobacion: 29/09/26
 ---
 # CU-11 Definir plan de cuotas
@@ -39,11 +39,13 @@ Configurar los [[Pago|Pagos]] de un [[Viaje]] (seña, cuotas y saldo) con sus mo
 - **A5 — Cambió el `precioVenta`:** si se edita la economía del [[Viaje]] ([[CU-10 Registrar economía del viaje]] A4) y el plan queda descalzado, el sistema exige rebalancear los [[Pago|Pagos]] `pendientes` hasta volver a cumplir `Σ montos = precioVenta`.
 - **A6 — Dividir una cuota (pago parcial):** si el cliente va a pagar solo una parte de un [[Pago]] `pendiente` o `vencido`, el empleado lo divide en dos: uno por el importe que se cobra ahora y otro por el resto, con su propio vencimiento. Se sigue cumpliendo `Σ montos = precioVenta` y el sistema agenda la [[Alerta]] del pago nuevo. Después se cobra el primero en [[CU-12 Registrar cobro de un pago]] (el [[Pago]] es indivisible).
 
+- **A7 — Plan de la reserva:** al confirmar la reserva ([[CU-07 Confirmar reserva]]) se carga solo el **primer pago**. En ese momento el plan tiene **al menos un pago**, cada uno mayor que cero, y la suma **no supera** el `precioVenta`, aunque puede sumar menos. Es una excepción a A1 que vale solo para la reserva. El resto del plan se completa después desde el viaje con este CU, y ahí vuelve a exigirse `Σ montos = precioVenta`. Mientras no lo sume, la ficha muestra el aviso `plan_desbalanceado` y el [[Viaje]] no pasa a `confirmado` ni a `en_curso` ([[DEC-0026 Tipo de cambio y deuda nueva en un viaje confirmado|DEC-0026]], [[DEC-0028 Cotizaciones alternativas y reserva con el primer pago|DEC-0028]]).
+
 ## Postcondiciones
 - El [[Viaje]] queda con su plan de [[Pago|Pagos]] definido y las [[Alerta|Alertas]] de vencimiento agendadas.
 
 ## Reglas de negocio aplicadas
-- La suma de los [[Pago|Pagos]] **no anulados** del plan debe igualar el `precioVenta` del [[Viaje]], **en la moneda de referencia del viaje** (`Viaje.moneda`).
+- La suma de los [[Pago|Pagos]] **no anulados** del plan debe igualar el `precioVenta` del [[Viaje]], **en la moneda de referencia del viaje** (`Viaje.moneda`). La única excepción es el plan de la reserva, que puede sumar menos (A7).
 - **Multimoneda:** el plan se denomina íntegro en la moneda de referencia, por eso `Σ montos = precioVenta` cierra exacto sin cotizaciones. Un mismo viaje puede luego cobrarse parte en ARS y parte en USD: la moneda real y el `tipo_cambio` se registran al cobrar cada cuota ([[CU-12 Registrar cobro de un pago]], [[Pago]], [[DEC-0007 Modelo económico — ganancia, margen y comisión de vendedor]]).
 
 ## Entidades del dominio involucradas
@@ -56,3 +58,5 @@ Configurar los [[Pago|Pagos]] de un [[Viaje]] (seña, cuotas y saldo) con sus mo
 > [!note] Nahuel (10/09): validado — la regla "Σ pagos = precioVenta" queda como regla del CU (sin RN propia por ahora) y el aviso "un mes antes" ([[Alerta]], [[CU-01 De la consulta a la venta]] A2) se mantiene. Ratificar en sync.
 >
 > [!note] Nahuel (18/09, entrevista grill) — **actualizado a multimoneda (Q6.1, a ratificar):** el plan se denomina en la moneda de referencia del [[Viaje]] (se quitó el "ARS" fijo); la moneda real de cada cobro se define en [[CU-12 Registrar cobro de un pago]]. A4 pasa a estado **`anulado`** (Q4) en vez de eliminar el pago.
+>
+> [!success] Equipo (11/11/26) — **la reserva pide solo el primer pago** ([[DEC-0028 Cotizaciones alternativas y reserva con el primer pago|DEC-0028]] punto 3). Se sumó A7. La regla `Σ montos = precioVenta` sigue igual para el plan que se arma desde el viaje.
