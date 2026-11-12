@@ -10,8 +10,10 @@ import type {
   Oportunidad,
   OportunidadCrear,
   OportunidadEditar,
+  OportunidadGanar,
   OportunidadPerder,
 } from "../modelos";
+import { idHotelMock } from "./hoteles";
 import { respuestaProblema } from "./problema";
 import { pagina } from "./utilidades";
 import { auditoriaMock } from "./viajes";
@@ -164,7 +166,13 @@ export const cotizacionesMock: Cotizacion[] = [
     estado: "enviada",
     items: [
       { concepto: "Aéreo Buenos Aires - Madrid", precio: "2100000.00" },
-      { concepto: "Alojamiento 18 noches", precio: "2160000.00" },
+      {
+        concepto: "Alojamiento 18 noches",
+        precio: "2160000.00",
+        hotel_id: idHotelMock.riu,
+        check_in: "2027-02-10",
+        check_out: "2027-02-28",
+      },
       { concepto: "Traslados y excursiones", precio: "250000.00" },
     ],
   }),
@@ -315,7 +323,22 @@ export const manejadoresOportunidades: RequestHandler[] = [
     motivo_perdida: null,
     motivo_perdida_detalle: null,
   }),
-  transicion("ganar", ["nueva", "en_gestion", "cotizada"], "ganada"),
+
+  /** Con `cotizacion_id` gana con esa cotización; sin cuerpo es la venta directa (CU-05 A4, DEC-0028). */
+  http.post(`${BASE}/:id/ganar`, async ({ params, request }) => {
+    const o = oportunidadesMock.find((x) => x.id === params["id"]);
+    if (!o) return oportunidadNoEncontrada();
+    if (!["nueva", "en_gestion", "cotizada"].includes(o.estado)) {
+      return conflicto(`No se puede ganar una oportunidad ${o.estado}.`);
+    }
+    const texto = await request.text();
+    const datos = (texto ? JSON.parse(texto) : {}) as OportunidadGanar;
+    const elegida = datos.cotizacion_id;
+    if (elegida && !cotizacionesMock.some((c) => c.id === elegida && c.oportunidad_id === o.id)) {
+      return cotizacionNoEncontrada();
+    }
+    return HttpResponse.json({ ...o, estado: "ganada" });
+  }),
 
   http.post(`${BASE}/:id/perder`, async ({ params, request }) => {
     const o = oportunidadesMock.find((x) => x.id === params["id"]);

@@ -4426,9 +4426,9 @@
         "tags": [
           "oportunidades"
         ],
-        "summary": "Cerrar como ganada sin cotización formal (venta directa)",
-        "description": "**Roles:** admin, dueno, empleado, freelance.\n\n**Visibilidad:** freelance, solo lo propio (DEC-0008).\n\n**Escritura:** el responsable del registro, o admin o dueño (DEC-0005).\n\n**Casos de uso:** CU-05.",
-        "operationId": "ganar_oportunidad_sin_cotizacion",
+        "summary": "Ganar con la cotización elegida (cotizacion_id) o, sin cuerpo, como venta directa",
+        "description": "**Roles:** admin, dueno, empleado, freelance.\n\n**Visibilidad:** freelance, solo lo propio (DEC-0008).\n\n**Escritura:** el responsable del registro, o admin o dueño (DEC-0005).\n\n**Casos de uso:** CU-05, CU-06.",
+        "operationId": "ganar_oportunidad",
         "security": [
           {
             "HTTPBearer": []
@@ -4446,6 +4446,16 @@
             }
           }
         ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OportunidadGanar",
+                "default": {}
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -4498,7 +4508,7 @@
             }
           },
           "422": {
-            "description": "Validation Error",
+            "description": "Datos inválidos.",
             "content": {
               "application/problem+json": {
                 "schema": {
@@ -4515,7 +4525,8 @@
           "freelance"
         ],
         "x-casos-de-uso": [
-          "CU-05"
+          "CU-05",
+          "CU-06"
         ]
       }
     },
@@ -5245,7 +5256,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Viaje"
+                  "$ref": "#/components/schemas/ReservaConfirmada"
                 }
               }
             }
@@ -9707,6 +9718,32 @@
   },
   "components": {
     "schemas": {
+      "AdvertenciaItinerario": {
+        "properties": {
+          "hotel_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Hotel Id"
+          },
+          "motivo": {
+            "type": "string",
+            "enum": [
+              "fuera_de_fechas",
+              "superpuesto",
+              "hotel_cerrado"
+            ],
+            "title": "Motivo",
+            "description": "`fuera_de_fechas`: no entra en las fechas del viaje. `superpuesto`: se cruza con otro tramo. `hotel_cerrado`: el hotel está cerrado."
+          }
+        },
+        "type": "object",
+        "required": [
+          "hotel_id",
+          "motivo"
+        ],
+        "title": "AdvertenciaItinerario",
+        "description": "Hotel de la cotización cuyo tramo no se creó al confirmar la reserva (CU-07, DEC-0028)."
+      },
       "Alerta": {
         "allOf": [
           {
@@ -10779,7 +10816,8 @@
             "$ref": "#/components/schemas/EconomiaViaje"
           },
           "plan_de_pagos": {
-            "$ref": "#/components/schemas/PlanDePagos"
+            "$ref": "#/components/schemas/PlanDePagos",
+            "description": "Alcanza con el primer pago (al menos uno), de cualquier tipo; no hace falta cobrarlo. Puede sumar menos que el precio de venta, pero no puede superar el precio de venta; el resto se completa desde el viaje (DEC-0028)."
           }
         },
         "type": "object",
@@ -12477,6 +12515,45 @@
             "examples": [
               "1000000.00"
             ]
+          },
+          "hotel_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Hotel Id",
+            "description": "Hotel del catálogo, si el ítem es un alojamiento. Al confirmar la reserva genera un tramo del itinerario (DEC-0028)."
+          },
+          "check_in": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Check In",
+            "description": "Ingreso al hotel."
+          },
+          "check_out": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Check Out",
+            "description": "Egreso del hotel."
           }
         },
         "type": "object",
@@ -13030,6 +13107,26 @@
         "type": "object",
         "title": "OportunidadEditar",
         "description": "Solo se envían los campos que cambian."
+      },
+      "OportunidadGanar": {
+        "properties": {
+          "cotizacion_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cotizacion Id",
+            "description": "Cotización `enviada` vigente o en `borrador` de la oportunidad. Pasa a `aceptada` y las demás `enviada` pasan a `rechazada`."
+          }
+        },
+        "type": "object",
+        "title": "OportunidadGanar",
+        "description": "Cuerpo opcional de «ganar»: la cotización que aceptó el cliente (CU-05, DEC-0028). Sin\ncuerpo es la venta directa (CU-05 A4)."
       },
       "OportunidadPerder": {
         "properties": {
@@ -14237,6 +14334,275 @@
           "motivo_baja"
         ],
         "title": "ResenaOcultar"
+      },
+      "ReservaConfirmada": {
+        "allOf": [
+          {
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid",
+                "title": "Id",
+                "readOnly": true
+              },
+              "cliente_id": {
+                "type": "string",
+                "format": "uuid",
+                "title": "Cliente Id",
+                "readOnly": true
+              },
+              "cliente_nombre": {
+                "type": "string",
+                "title": "Cliente Nombre",
+                "description": "Nombre del cliente, para mostrarlo sin otra consulta.",
+                "readOnly": true
+              },
+              "oportunidad_id": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Oportunidad Id",
+                "description": "Oportunidad de origen.",
+                "readOnly": true
+              },
+              "destino_id": {
+                "type": "string",
+                "format": "uuid",
+                "title": "Destino Id"
+              },
+              "destino_nombre": {
+                "type": "string",
+                "title": "Destino Nombre",
+                "description": "Nombre del destino, para mostrarlo sin otra consulta.",
+                "readOnly": true
+              },
+              "operador_id": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Operador Id"
+              },
+              "responsable_id": {
+                "type": "string",
+                "format": "uuid",
+                "title": "Responsable Id"
+              },
+              "vendedor_id": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Vendedor Id"
+              },
+              "fecha_salida": {
+                "type": "string",
+                "format": "date",
+                "title": "Fecha Salida"
+              },
+              "fecha_regreso": {
+                "type": "string",
+                "format": "date",
+                "title": "Fecha Regreso"
+              },
+              "categoria": {
+                "$ref": "#/components/schemas/CategoriaViaje"
+              },
+              "estado": {
+                "$ref": "#/components/schemas/EstadoViaje",
+                "readOnly": true
+              },
+              "estado_previo": {
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/EstadoViaje"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "description": "Estado en que estaba antes de cancelarse: al que vuelve revertir-cancelacion. Vacío si no está cancelado.",
+                "readOnly": true
+              },
+              "motivo_cancelacion": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Motivo Cancelacion",
+                "readOnly": true
+              },
+              "fecha_cancelacion": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "format": "date"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Fecha Cancelacion",
+                "readOnly": true
+              },
+              "moneda": {
+                "$ref": "#/components/schemas/Moneda",
+                "description": "Se fija al confirmar la reserva (DEC-0013).",
+                "readOnly": true
+              },
+              "precio_venta": {
+                "type": "string",
+                "pattern": "^\\d+(\\.\\d{1,4})?$",
+                "format": "decimal",
+                "title": "Precio Venta",
+                "examples": [
+                  "1000000.00"
+                ]
+              },
+              "costo": {
+                "type": "string",
+                "pattern": "^\\d+(\\.\\d{1,4})?$",
+                "format": "decimal",
+                "title": "Costo",
+                "description": "Costo del operador.",
+                "examples": [
+                  "1000000.00"
+                ]
+              },
+              "ganancia": {
+                "type": "string",
+                "pattern": "^-?\\d+(\\.\\d{1,4})?$",
+                "format": "decimal",
+                "title": "Ganancia",
+                "description": "precio_venta − costo.",
+                "readOnly": true,
+                "examples": [
+                  "1000000.00"
+                ]
+              },
+              "margen": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "pattern": "^-?\\d+(\\.\\d{1,4})?$",
+                    "format": "decimal",
+                    "examples": [
+                      "1000000.00"
+                    ]
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Margen",
+                "description": "ganancia / precio_venta, como fracción (0.25 = 25 %).",
+                "readOnly": true
+              },
+              "comision_tipo": {
+                "type": "string",
+                "enum": [
+                  "importe",
+                  "porcentaje"
+                ],
+                "title": "Comision Tipo"
+              },
+              "comision_vendedor": {
+                "type": "string",
+                "pattern": "^\\d+(\\.\\d{1,4})?$",
+                "format": "decimal",
+                "title": "Comision Vendedor",
+                "description": "Importe, o porcentaje sobre la ganancia, según comision_tipo.",
+                "examples": [
+                  "1000000.00"
+                ]
+              },
+              "saldo_pendiente": {
+                "type": "string",
+                "pattern": "^\\d+(\\.\\d{1,4})?$",
+                "format": "decimal",
+                "title": "Saldo Pendiente",
+                "description": "Suma de los pagos no cobrados, en la moneda del viaje. Lo calcula la API (CU-12).",
+                "readOnly": true,
+                "examples": [
+                  "1000000.00"
+                ]
+              },
+              "porcentaje_pagado": {
+                "type": "string",
+                "pattern": "^(0(\\.\\d{1,4})?|1(\\.0{1,4})?)$",
+                "format": "decimal",
+                "title": "Porcentaje Pagado",
+                "description": "Porción del precio de venta ya cobrada. Lo calcula la API (CU-12).",
+                "readOnly": true,
+                "examples": [
+                  "0.3333"
+                ]
+              },
+              "advertencias_itinerario": {
+                "items": {
+                  "$ref": "#/components/schemas/AdvertenciaItinerario"
+                },
+                "type": "array",
+                "title": "Advertencias Itinerario",
+                "description": "Vacía si no hay nada que advertir. Un elemento por hotel de la cotización cuyo tramo no se creó.",
+                "readOnly": true
+              }
+            },
+            "type": "object",
+            "required": [
+              "id",
+              "cliente_id",
+              "cliente_nombre",
+              "oportunidad_id",
+              "destino_id",
+              "destino_nombre",
+              "operador_id",
+              "responsable_id",
+              "vendedor_id",
+              "fecha_salida",
+              "fecha_regreso",
+              "categoria",
+              "estado",
+              "estado_previo",
+              "motivo_cancelacion",
+              "fecha_cancelacion",
+              "moneda",
+              "precio_venta",
+              "costo",
+              "ganancia",
+              "margen",
+              "comision_tipo",
+              "comision_vendedor",
+              "saldo_pendiente",
+              "porcentaje_pagado",
+              "advertencias_itinerario"
+            ],
+            "description": "El viaje creado y lo que quedó fuera del itinerario, que no impidió confirmar la reserva\n(CU-07, DEC-0028)."
+          },
+          {
+            "$ref": "#/components/schemas/Auditoria"
+          }
+        ]
       },
       "ResponsableAlerta": {
         "properties": {

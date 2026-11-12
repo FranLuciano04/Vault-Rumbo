@@ -126,6 +126,13 @@ class Insistencia(Entrada):
 class ItemCotizacion(Entrada):
     concepto: str = Field(min_length=1, description="Aéreo, alojamiento, traslados, excursiones…")
     precio: Importe
+    hotel_id: uuid.UUID | None = Field(
+        default=None,
+        description="Hotel del catálogo, si el ítem es un alojamiento. Al confirmar la reserva "
+        "genera un tramo del itinerario (DEC-0028).",
+    )
+    check_in: date | None = Field(default=None, description="Ingreso al hotel.")
+    check_out: date | None = Field(default=None, description="Egreso del hotel.")
 
 
 class Cotizacion(Auditoria):
@@ -146,6 +153,17 @@ class Cotizacion(Auditoria):
     estado: EstadoCotizacion = Field(json_schema_extra=_SOLO_LECTURA)
 
     model_config = ConfigDict(from_attributes=True, json_schema_extra=componer_con_auditoria)
+
+
+class OportunidadGanar(Entrada):
+    """Cuerpo opcional de «ganar»: la cotización que aceptó el cliente (CU-05, DEC-0028). Sin
+    cuerpo es la venta directa (CU-05 A4)."""
+
+    cotizacion_id: uuid.UUID | None = Field(
+        default=None,
+        description="Cotización `enviada` vigente o en `borrador` de la oportunidad. Pasa a "
+        "`aceptada` y las demás `enviada` pasan a `rechazada`.",
+    )
 
 
 class CotizacionCrear(Entrada):

@@ -31,6 +31,9 @@ export type EstadoAlerta = Esquemas["EstadoAlerta"];
 /** Viajes (M6): la reserva, la ficha con su economía y saldo, el estado, la cancelación y el itinerario. */
 export type Viaje = Esquemas["Viaje"];
 export type ConfirmarReserva = Esquemas["ConfirmarReserva"];
+/** El viaje creado, con los hoteles de la cotización cuyo tramo no entró en el itinerario (DEC-0028). */
+export type ReservaConfirmada = Esquemas["ReservaConfirmada"];
+export type AdvertenciaItinerario = Esquemas["AdvertenciaItinerario"];
 export type Cancelacion = Esquemas["Cancelacion"];
 export type Tramo = Esquemas["Tramo"];
 /** El generador marca como obligatorio `pago_proveedor_realizado` por tener valor por defecto; en el alta es opcional. */
@@ -58,6 +61,8 @@ export type Oportunidad = Esquemas["Oportunidad"];
 export type OportunidadCrear = Esquemas["OportunidadCrear"];
 export type OportunidadEditar = Esquemas["OportunidadEditar"];
 export type OportunidadPerder = Esquemas["OportunidadPerder"];
+/** Cuerpo opcional de «ganar»: la cotización que aceptó el cliente; sin cuerpo es la venta directa (DEC-0028). */
+export type OportunidadGanar = Esquemas["OportunidadGanar"];
 export type Insistencia = Esquemas["Insistencia"];
 export type Cotizacion = Esquemas["Cotizacion"];
 export type CotizacionCrear = Esquemas["CotizacionCrear"];

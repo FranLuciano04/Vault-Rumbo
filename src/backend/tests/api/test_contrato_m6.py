@@ -465,7 +465,7 @@ async def test_cu07_confirmar_reserva_exige_destino_fechas_categoria_economia_y_
         "plan_de_pagos",
     } <= set(esquema["required"])
     assert {"responsable_id", "moneda"} <= set(esquema["properties"])
-    assert _ref(_respuesta(contrato, "post", ruta, "201")) == "Viaje"
+    assert _ref(_respuesta(contrato, "post", ruta, "201")) == "ReservaConfirmada"
 
 
 async def test_cu27_cancelar_exige_motivo_y_fecha(contrato: dict[str, Any]) -> None:

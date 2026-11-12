@@ -105,6 +105,39 @@ class Viaje(Auditoria):
         )
 
 
+MotivoTramoOmitido = Literal["fuera_de_fechas", "superpuesto", "hotel_cerrado"]
+
+
+class AdvertenciaItinerario(BaseModel):
+    """Hotel de la cotización cuyo tramo no se creó al confirmar la reserva (CU-07, DEC-0028)."""
+
+    hotel_id: uuid.UUID
+    motivo: MotivoTramoOmitido = Field(
+        description="`fuera_de_fechas`: no entra en las fechas del viaje. `superpuesto`: se cruza "
+        "con otro tramo. `hotel_cerrado`: el hotel está cerrado."
+    )
+
+
+class ReservaConfirmada(Viaje):
+    """El viaje creado y lo que quedó fuera del itinerario, que no impidió confirmar la reserva
+    (CU-07, DEC-0028)."""
+
+    advertencias_itinerario: list[AdvertenciaItinerario] = Field(
+        json_schema_extra=_SOLO_LECTURA,
+        description="Vacía si no hay nada que advertir. Un elemento por hotel de la cotización "
+        "cuyo tramo no se creó.",
+    )
+
+    @classmethod
+    def desde_viaje(
+        cls, viaje: Viaje, advertencias_itinerario: list[AdvertenciaItinerario]
+    ) -> "ReservaConfirmada":
+        """El viaje ya armado con las advertencias del itinerario, que no son columnas."""
+        return cls.model_validate(
+            viaje.model_dump() | {"advertencias_itinerario": advertencias_itinerario}
+        )
+
+
 AdvertenciaEconomia = Literal["ganancia_negativa", "margen_negativo", "plan_desbalanceado"]
 
 
@@ -156,7 +189,11 @@ class ConfirmarReserva(Entrada):
         "(CU-07 A1).",
     )
     economia: EconomiaViaje
-    plan_de_pagos: PlanDePagos
+    plan_de_pagos: PlanDePagos = Field(
+        description="Alcanza con el primer pago (al menos uno), de cualquier tipo; no hace falta "
+        "cobrarlo. Puede sumar menos que el precio de venta, pero no puede superar el precio de "
+        "venta; el resto se completa desde el viaje (DEC-0028)."
+    )
 
 
 class Cancelacion(Entrada):
