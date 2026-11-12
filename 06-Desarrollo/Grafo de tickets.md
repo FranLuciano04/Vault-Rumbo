@@ -25,7 +25,7 @@ tags:: #tipo/referencia
 | M8 — Calendario, dashboard y reportes | 10 | 10 | 0 | 0 | 0 | 0 | ✅ cerrado |
 | M9 — Redes e IA | 8 | 8 | 0 | 0 | 0 | 0 | ✅ cerrado |
 | M10 — Despliegue on-premise | 5 | 0 | 0 | 1 | 4 | 0 | 🛠️ en curso |
-| M11 — Ajustes de la revisión del equipo | 11 | 3 | 1 | 0 | 7 | 0 | 🛠️ en curso |
+| M11 — Ajustes de la revisión del equipo | 11 | 4 | 0 | 5 | 2 | 0 | 🛠️ en curso |
 
 ## Grafo
 
@@ -228,13 +228,13 @@ flowchart LR
     T171["T-171 · Arrastrar las tarjetas del embudo para cambiar el estado<br/><small>web</small>"]:::hecho
     T172["T-172 · Elegir el puntaje de la reseña con estrellas<br/><small>web</small>"]:::hecho
     T173["T-173 · Mostrar la comisión en porcentaje con su importe<br/><small>web</small>"]:::hecho
-    T174["T-174 · Ajustar el contrato de cotizaciones y reserva<br/><small>contrato</small><br/>👤 Nahuel Viniegra"]:::tomado
-    T175["T-175 · Ganar la oportunidad con la cotización que eligió el cliente<br/><small>backend · ⚠️ riesgo alto</small>"]:::esperando
-    T176["T-176 · Confirmar la reserva con el primer pago<br/><small>backend · ⚠️ riesgo alto</small>"]:::esperando
+    T174["T-174 · Ajustar el contrato de cotizaciones y reserva<br/><small>contrato</small>"]:::hecho
+    T175["T-175 · Ganar la oportunidad con la cotización que eligió el cliente<br/><small>backend · ⚠️ riesgo alto</small>"]:::disponible
+    T176["T-176 · Confirmar la reserva con el primer pago<br/><small>backend · ⚠️ riesgo alto</small>"]:::disponible
     T177["T-177 · Armar el itinerario con los hoteles de la cotización<br/><small>backend</small>"]:::esperando
-    T178["T-178 · Elegir la cotización al ganar la oportunidad en la web<br/><small>web</small>"]:::esperando
-    T179["T-179 · Precargar la reserva con la cotización y pedir el primer pago<br/><small>web</small>"]:::esperando
-    T180["T-180 · Guardar los hoteles elegidos en la cotización<br/><small>web</small>"]:::esperando
+    T178["T-178 · Elegir la cotización al ganar la oportunidad en la web<br/><small>web</small>"]:::disponible
+    T179["T-179 · Precargar la reserva con la cotización y pedir el primer pago<br/><small>web</small>"]:::disponible
+    T180["T-180 · Guardar los hoteles elegidos en la cotización<br/><small>web</small>"]:::disponible
     T181["T-181 · Probar de punta a punta la reserva desde la cotización elegida<br/><small>e2e</small>"]:::esperando
   end
   T002 --> T003
