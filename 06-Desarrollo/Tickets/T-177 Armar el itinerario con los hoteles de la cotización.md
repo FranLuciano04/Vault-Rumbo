@@ -3,7 +3,7 @@ id: T-177
 titulo: Armar el itinerario con los hoteles de la cotización
 modulo: M11 — Ajustes de la revisión del equipo
 capa: backend
-estado: tomado
+estado: hecho
 depende_de: [T-174, T-176]
 tamaño: M
 riesgo: normal
@@ -50,3 +50,8 @@ La cotización guarda qué hoteles del catálogo incluye y con qué fechas. Al c
 ## Notas de implementación
 - **Factibilidad (verificada el 10/11/26):** hoy la cotización **no** guarda hoteles. Sus ítems solo tienen concepto y precio, y la web descarta el `hotel_id` antes de mandarlos. Por eso se agregan los tres campos al ítem (T-174). Sin check-in ni check-out no se puede crear un tramo, porque `ViajeHotel` los exige.
 - Depende de T-176 porque los dos tocan `confirmar_reserva`.
+- **Implementación (12/11/26):** sin migración: `hotel_id`, `check_in` y `check_out` (ISO) van en el JSONB `items` de la cotización. `emitir_cotizacion` valida con `itinerario.exigir_hotel` y responde 422 sobre `items.N.hotel_id`. Nueva `itinerario.armar_desde_cotizacion` crea los tramos en el orden de los ítems, con `orden` correlativo, en la misma transacción de la reserva. Reusa `_fuera_del_viaje` y `_solapa`, que se sacaron de `_exigir_tramo_valido`.
+- **DEC-0028:** el tramo que no entra se omite y vuelve en `advertencias_itinerario` (`fuera_de_fechas`, `superpuesto`, `hotel_cerrado`). Si dos tramos se solapan, queda el primero de la lista.
+- **Tests tocados (con `--tocar-tests`):** en el verde se corrigió un `MissingGreenlet` propio de `test_rf106_cotizacion_guarda_hoteles_con_fechas` (leía `hotel.id` después de `expire_all()`). En el fix se agregó `test_cu07_tramos_siguen_el_orden_de_los_items`, que pidió la review.
+- **Review (opus):** 0 bloqueantes, 0 importantes, 4 menores. Se arreglaron 3: el 422 sobre el ítem, `MotivoTramoOmitido` con una sola definición (el esquema la importa del servicio; el OpenAPI no cambió) y el test del orden. **Queda pendiente:** el aviso solo trae `hotel_id`, así que si un hotel se repite en dos tramos no se sabe cuál se omitió, y un hotel que ya no existe se informa como `hotel_cerrado`. Sumar la posición del ítem es un cambio de contrato: evaluarlo con T-180.
+- **Modelos:** tests sonnet, implementación y refactor sonnet, review opus. Sin escalados.
