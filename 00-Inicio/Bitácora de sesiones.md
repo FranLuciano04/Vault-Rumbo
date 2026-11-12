@@ -36,6 +36,21 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
+## 11/11/26 — Nahuel (Claude Opus 5.5) — T-174, contrato de cotizaciones y reserva
+- **Hecho:**
+  - T-174 implementado con TDD y mergeado (PR #209), con el CI en verde.
+    - `ItemCotizacion` suma hotel, check-in y check-out; con hotel, las fechas son obligatorias.
+    - `ganar` acepta `{cotizacion_id}` opcional; sin cuerpo sigue siendo la venta directa.
+    - La reserva responde `ReservaConfirmada` con `advertencias_itinerario`.
+    - Se regeneraron los tipos y los mocks.
+  - Review de Opus: 1 importante y 3 menores arreglados. Queda un menor: `05-Diseño/API/openapi.json` de PC1 no se actualizó.
+  - En los checks aparecieron dos regresiones y se arreglaron en la misma rama (DEC-0019): los conteos de `PaginaHoteles.test.tsx` (por el hotel nuevo del mock) y dos tests de `test_cotizaciones.py` que el CI detectó.
+  - Docker Desktop no estaba levantado: hay que iniciarlo para correr los tests del backend en la PC.
+- **Commits:** `fa1d5da` rojo, `1e3d4dd` verde, `0df402c`, `9050eeb` y `b3721c3` fix, `09e31a9` hecho, merge del PR #209.
+- **Pendiente:**
+  - Disponibles ahora: T-175 y T-176 (riesgo alto, necesitan la aprobación de otro integrante) y T-178, T-179 y T-180.
+  - No mergear T-178 ni T-179 antes que T-175 y T-176: hasta entonces, el backend ignora `cotizacion_id` y sigue exigiendo que el plan sume el precio.
+
 ## 11/11/26 — Nahuel (Claude Opus 5.5) — DEC-0028 aprobada en equipo
 - **Hecho:**
   - En llamada con el equipo se revisó [[DEC-0028 Cotizaciones alternativas y reserva con el primer pago|DEC-0028]] y se aprobaron los cinco puntos sin cambios. Se puede elegir un `borrador` al ganar, las demás `enviada` pasan a `rechazada`, el tramo de hotel que no entra se omite con aviso y la comisión en % sigue sobre la ganancia (DEC-0007 no cambia).
