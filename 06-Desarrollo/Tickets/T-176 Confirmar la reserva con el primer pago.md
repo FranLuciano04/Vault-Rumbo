@@ -3,7 +3,7 @@ id: T-176
 titulo: Confirmar la reserva con el primer pago
 modulo: M11 — Ajustes de la revisión del equipo
 capa: backend
-estado: tomado
+estado: hecho
 depende_de: [T-174]
 tamaño: S
 riesgo: alto
@@ -49,3 +49,8 @@ Para confirmar la reserva alcanza con el precio de venta, el costo y el primer p
 ## Notas de implementación
 - **Riesgo alto (dinero).** Para mergear, hace falta la aprobación de otro integrante.
 - **Factibilidad (verificada el 10/11/26):** el cambio es chico. La reserva usa la misma validación que el plan completo (`exigir_plan_valido`). Hay que separar «montos mayores que cero y hasta el precio» para la reserva. La máquina de estados del viaje ya contempla el plan descalzado.
+- **Implementación (12/11/26):** nueva `exigir_plan_de_reserva_valido` en `economia.py` (al menos un pago, cada uno > 0, total ≤ precio; si lo supera, 422 sobre `pagos` con la diferencia). `exigir_plan_valido` (PUT del plan) sigue exigiendo la igualdad exacta; ambas comparten `_total_del_plan` y `_diferencia_con_el_precio`. No hizo falta tocar la máquina de estados ni el contrato.
+- **Advertencia:** `plan_desbalanceado` se verifica vía `PUT /viajes/{id}/economia`, el único endpoint que hoy expone `advertencias`; `GET /viajes/{id}` no las devuelve.
+- **Tests tocados (con `--tocar-tests`):** `test_rf061_plan_que_no_suma_el_precio_422` pasó a `test_rf061_plan_que_supera_el_precio_422` (el caso de 500.000 ahora es válido por este ticket). En el verde se corrigió `test_cu07_reserva_parcial_advierte_plan_desbalanceado` por un `MissingGreenlet` propio del test (leía `c.usuario` después de `expire_all()`), sin cambiar sus aserciones. El fix solo aplicó `ruff format`.
+- **Menores de la review (sin acción):** con `precio_venta == 0` una reserva no se puede confirmar (igual que antes, por DEC-0026); conviene confirmarlo y aclararlo en el docstring. Asimetría leve: `exigir_plan_valido` conserva el parámetro `cobrados`.
+- **Modelos:** tests sonnet, implementación y refactor opus, review (`reviewer-seguridad`) sonnet. Sin escalados.
