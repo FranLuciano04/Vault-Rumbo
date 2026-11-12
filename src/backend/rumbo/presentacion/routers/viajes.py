@@ -20,6 +20,7 @@ from rumbo.presentacion.dependencias import usuario_actual
 from rumbo.presentacion.esquemas.viajes import (
     Cancelacion,
     ConfirmarReserva,
+    ReservaConfirmada,
     Tramo,
     TramoCrear,
     TramoEditar,
@@ -48,9 +49,11 @@ _LISTADO["responses"][200] = respuesta_pagina(
 )
 async def confirmar_reserva(
     oportunidad_id: uuid.UUID, datos: ConfirmarReserva, actor: ActorDep, sesion: SesionDep
-) -> Viaje:
+) -> ReservaConfirmada:
     ficha = await viajes.confirmar_reserva(sesion, actor, oportunidad_id, datos.model_dump())
-    return Viaje.desde_ficha(ficha.viaje, ficha.saldo_pendiente, ficha.porcentaje_pagado)
+    viaje = Viaje.desde_ficha(ficha.viaje, ficha.saldo_pendiente, ficha.porcentaje_pagado)
+    # Las advertencias del itinerario las arma T-176; hasta entonces no hay nada que advertir.
+    return ReservaConfirmada.desde_viaje(viaje, [])
 
 
 @router.get(

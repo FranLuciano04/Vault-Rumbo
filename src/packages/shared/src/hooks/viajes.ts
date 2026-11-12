@@ -8,6 +8,7 @@ import type {
   Tramo,
   TramoCrear,
   TramoEditar,
+  ReservaConfirmada,
   Viaje,
 } from "../modelos";
 import { claveAlertas } from "./alertas";
@@ -39,8 +40,12 @@ export function useConfirmarReserva(cliente: AxiosInstance) {
   return useAccion(
     claveViajes,
     async ({ oportunidadId, datos }: { oportunidadId: string; datos: ConfirmarReserva }) =>
-      (await cliente.post<Viaje>(`/api/oportunidades/${oportunidadId}/confirmar-reserva`, datos))
-        .data,
+      (
+        await cliente.post<ReservaConfirmada>(
+          `/api/oportunidades/${oportunidadId}/confirmar-reserva`,
+          datos,
+        )
+      ).data,
     // La reserva crea las alertas de formularios, salida y vencimientos.
     [claveAlertas],
   );

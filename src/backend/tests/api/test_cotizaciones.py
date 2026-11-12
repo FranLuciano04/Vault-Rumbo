@@ -428,7 +428,15 @@ async def test_rf024_listar_de_la_mas_reciente_a_la_mas_antigua(
     assert primera["moneda"] == "ARS"
     assert Decimal(primera["total"]) == Decimal("1500000.00")
     assert primera["validez_hasta"] == "2026-11-01"
-    assert primera["items"] == [{"concepto": "Paquete", "precio": "1500000.00"}]
+    assert primera["items"] == [
+        {
+            "concepto": "Paquete",
+            "precio": "1500000.00",
+            "hotel_id": None,
+            "check_in": None,
+            "check_out": None,
+        }
+    ]
 
 
 async def test_rf024_listar_incluye_la_version_recien_emitida_primera(
@@ -582,7 +590,15 @@ async def test_rf024_obtener_cotizacion_visible_200_con_el_esquema(
     assert cuerpo["oportunidad_id"] == str(op.id)
     assert cuerpo["estado"] == "enviada"
     assert cuerpo["moneda"] == "ARS"
-    assert cuerpo["items"] == [{"concepto": "Paquete", "precio": "1500000.00"}]
+    assert cuerpo["items"] == [
+        {
+            "concepto": "Paquete",
+            "precio": "1500000.00",
+            "hotel_id": None,
+            "check_in": None,
+            "check_out": None,
+        }
+    ]
     assert Decimal(cuerpo["total"]) == Decimal("1500000.00")
 
 

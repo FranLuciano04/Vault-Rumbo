@@ -24,6 +24,7 @@ from rumbo.presentacion.esquemas.oportunidades import (
     Oportunidad,
     OportunidadCrear,
     OportunidadEditar,
+    OportunidadGanar,
     OportunidadPerder,
 )
 from rumbo.presentacion.mapeos_alertas import esquema_de_alerta
@@ -201,15 +202,23 @@ async def reactivar_oportunidad(
     )
 
 
+# Cuerpo por defecto de «ganar»: sin cuerpo no hay cotización elegida (CU-05 A4).
+_VENTA_DIRECTA = OportunidadGanar()
+
+
 @router.post(
     "/oportunidades/{oportunidad_id}/ganar",
-    operation_id="ganar_oportunidad_sin_cotizacion",
-    summary="Cerrar como ganada sin cotización formal (venta directa)",
-    **operacion_de_registro(403, 404, 409, casos_de_uso="CU-05"),
+    operation_id="ganar_oportunidad",
+    summary="Ganar con la cotización elegida (cotizacion_id) o, sin cuerpo, como venta directa",
+    **operacion_de_registro(403, 404, 409, 422, casos_de_uso="CU-05, CU-06"),
 )
-async def ganar_oportunidad_sin_cotizacion(
-    oportunidad_id: uuid.UUID, actor: ActorDep, sesion: SesionDep
+async def ganar_oportunidad(
+    oportunidad_id: uuid.UUID,
+    actor: ActorDep,
+    sesion: SesionDep,
+    datos: OportunidadGanar = _VENTA_DIRECTA,
 ) -> Oportunidad:
+    # La elección de la cotización (datos.cotizacion_id) la resuelve T-175.
     return Oportunidad.model_validate(
         await oportunidades.ganar_oportunidad(sesion, actor, oportunidad_id)
     )

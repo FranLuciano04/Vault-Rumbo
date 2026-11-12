@@ -903,16 +903,16 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * Cerrar como ganada sin cotización formal (venta directa)
+         * Ganar con la cotización elegida (cotizacion_id) o, sin cuerpo, como venta directa
          * @description **Roles:** admin, dueno, empleado, freelance.
          *
          *     **Visibilidad:** freelance, solo lo propio (DEC-0008).
          *
          *     **Escritura:** el responsable del registro, o admin o dueño (DEC-0005).
          *
-         *     **Casos de uso:** CU-05.
+         *     **Casos de uso:** CU-05, CU-06.
          */
-        post: operations["ganar_oportunidad_sin_cotizacion"];
+        post: operations["ganar_oportunidad"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1941,6 +1941,23 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /**
+         * AdvertenciaItinerario
+         * @description Hotel de la cotización cuyo tramo no se creó al confirmar la reserva (CU-07, DEC-0028).
+         */
+        AdvertenciaItinerario: {
+            /**
+             * Hotel Id
+             * Format: uuid
+             */
+            hotel_id: string;
+            /**
+             * Motivo
+             * @description `fuera_de_fechas`: no entra en las fechas del viaje. `superpuesto`: se cruza con otro tramo. `hotel_cerrado`: el hotel está cerrado.
+             * @enum {string}
+             */
+            motivo: "fuera_de_fechas" | "superpuesto" | "hotel_cerrado";
+        };
         Alerta: {
             /**
              * Id
@@ -2373,6 +2390,7 @@ export interface components {
             /** @description Se toma de la cotización aceptada; solo se envía en la venta directa (CU-07 A1). */
             moneda?: components["schemas"]["Moneda"] | null;
             economia: components["schemas"]["EconomiaViaje"];
+            /** @description Alcanza con el primer pago (al menos uno), de cualquier tipo; no hace falta cobrarlo. Puede sumar menos que el precio de venta, pero no puede superar el precio de venta; el resto se completa desde el viaje (DEC-0028). */
             plan_de_pagos: components["schemas"]["PlanDePagos"];
         };
         ContenidoRed: {
@@ -3074,6 +3092,21 @@ export interface components {
              * @example 1000000.00
              */
             precio: string;
+            /**
+             * Hotel Id
+             * @description Hotel del catálogo, si el ítem es un alojamiento. Con hotel, `check_in` y `check_out` son obligatorios y el egreso no es anterior al ingreso. Al confirmar la reserva genera un tramo del itinerario (DEC-0028).
+             */
+            hotel_id?: string | null;
+            /**
+             * Check In
+             * @description Ingreso al hotel.
+             */
+            check_in?: string | null;
+            /**
+             * Check Out
+             * @description Egreso al hotel; no anterior al ingreso.
+             */
+            check_out?: string | null;
         };
         /**
          * Moneda
@@ -3269,6 +3302,18 @@ export interface components {
              * @description Reasignar el responsable: solo admin o dueño.
              */
             responsable_id?: string;
+        };
+        /**
+         * OportunidadGanar
+         * @description Cuerpo opcional de «ganar»: la cotización que aceptó el cliente (CU-05, DEC-0028). Sin
+         *     cuerpo es la venta directa (CU-05 A4).
+         */
+        OportunidadGanar: {
+            /**
+             * Cotizacion Id
+             * @description Cotización `enviada` vigente o en `borrador` de la oportunidad. Pasa a `aceptada` y las demás `enviada` pasan a `rechazada`.
+             */
+            cotizacion_id?: string | null;
         };
         /** OportunidadPerder */
         OportunidadPerder: {
@@ -3782,6 +3827,123 @@ export interface components {
              */
             motivo_baja: string;
         };
+        ReservaConfirmada: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            readonly id: string;
+            /**
+             * Cliente Id
+             * Format: uuid
+             */
+            readonly cliente_id: string;
+            /**
+             * Cliente Nombre
+             * @description Nombre del cliente, para mostrarlo sin otra consulta.
+             */
+            readonly cliente_nombre: string;
+            /**
+             * Oportunidad Id
+             * @description Oportunidad de origen.
+             */
+            readonly oportunidad_id: string | null;
+            /**
+             * Destino Id
+             * Format: uuid
+             */
+            destino_id: string;
+            /**
+             * Destino Nombre
+             * @description Nombre del destino, para mostrarlo sin otra consulta.
+             */
+            readonly destino_nombre: string;
+            /** Operador Id */
+            operador_id: string | null;
+            /**
+             * Responsable Id
+             * Format: uuid
+             */
+            responsable_id: string;
+            /** Vendedor Id */
+            vendedor_id: string | null;
+            /**
+             * Fecha Salida
+             * Format: date
+             */
+            fecha_salida: string;
+            /**
+             * Fecha Regreso
+             * Format: date
+             */
+            fecha_regreso: string;
+            categoria: components["schemas"]["CategoriaViaje"];
+            readonly estado: components["schemas"]["EstadoViaje"];
+            /** @description Estado en que estaba antes de cancelarse: al que vuelve revertir-cancelacion. Vacío si no está cancelado. */
+            readonly estado_previo: components["schemas"]["EstadoViaje"] | null;
+            /** Motivo Cancelacion */
+            readonly motivo_cancelacion: string | null;
+            /** Fecha Cancelacion */
+            readonly fecha_cancelacion: string | null;
+            /** @description Se fija al confirmar la reserva (DEC-0013). */
+            readonly moneda: components["schemas"]["Moneda"];
+            /**
+             * Precio Venta
+             * Format: decimal
+             * @example 1000000.00
+             */
+            precio_venta: string;
+            /**
+             * Costo
+             * Format: decimal
+             * @description Costo del operador.
+             * @example 1000000.00
+             */
+            costo: string;
+            /**
+             * Ganancia
+             * Format: decimal
+             * @description precio_venta − costo.
+             * @example 1000000.00
+             */
+            readonly ganancia: string;
+            /**
+             * Margen
+             * @description ganancia / precio_venta, como fracción (0.25 = 25 %).
+             */
+            readonly margen: string | null;
+            /**
+             * Comision Tipo
+             * @enum {string}
+             */
+            comision_tipo: "importe" | "porcentaje";
+            /**
+             * Comision Vendedor
+             * Format: decimal
+             * @description Importe, o porcentaje sobre la ganancia, según comision_tipo.
+             * @example 1000000.00
+             */
+            comision_vendedor: string;
+            /**
+             * Saldo Pendiente
+             * Format: decimal
+             * @description Suma de los pagos no cobrados, en la moneda del viaje. Lo calcula la API (CU-12).
+             * @example 1000000.00
+             */
+            readonly saldo_pendiente: string;
+            /**
+             * Porcentaje Pagado
+             * Format: decimal
+             * @description Porción del precio de venta ya cobrada. Lo calcula la API (CU-12).
+             * @example 0.3333
+             */
+            readonly porcentaje_pagado: string;
+            /**
+             * Advertencias Itinerario
+             * @description Vacía si no hay nada que advertir. Un elemento por hotel de la cotización cuyo tramo no se creó.
+             */
+            readonly advertencias_itinerario: components["schemas"]["AdvertenciaItinerario"][];
+        } & components["schemas"]["Auditoria"];
         /**
          * ResponsableAlerta
          * @description Usuario dueño de la agenda donde aparece la alerta.
@@ -7034,7 +7196,7 @@ export interface operations {
             };
         };
     };
-    ganar_oportunidad_sin_cotizacion: {
+    ganar_oportunidad: {
         parameters: {
             query?: never;
             header?: never;
@@ -7043,7 +7205,11 @@ export interface operations {
             };
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["OportunidadGanar"];
+            };
+        };
         responses: {
             /** @description Successful Response */
             200: {
@@ -7090,7 +7256,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problema"];
                 };
             };
-            /** @description Validation Error */
+            /** @description Datos inválidos. */
             422: {
                 headers: {
                     [name: string]: unknown;
@@ -7550,7 +7716,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["Viaje"];
+                    "application/json": components["schemas"]["ReservaConfirmada"];
                 };
             };
             /** @description Falta el token, no es válido o el usuario no tiene acceso. */

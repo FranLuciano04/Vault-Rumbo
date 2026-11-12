@@ -3,6 +3,7 @@ import type {
   Cancelacion,
   ConfirmarReserva,
   EstadoViaje,
+  ReservaConfirmada,
   Tramo,
   TramoCrear,
   TramoEditar,
@@ -269,26 +270,36 @@ export const manejadoresViajes: RequestHandler[] = [
       });
     }
     const { precio_venta, costo, operador_id: operador, vendedor_id: vendedor } = datos.economia;
+    const planificado = datos.plan_de_pagos.pagos.reduce((suma, p) => suma + Number(p.monto), 0);
+    if (planificado > Number(precio_venta)) {
+      return respuestaProblema(422, "Datos inválidos", {
+        detail: "El plan de pagos no puede superar el precio de venta.",
+      });
+    }
+    // Alcanza con el primer pago: el resto se completa desde el viaje (DEC-0028).
     return HttpResponse.json(
-      viaje({
-        id: crypto.randomUUID(),
-        oportunidad_id: String(params["id"]),
-        cliente_id: joaquin,
-        responsable_id: datos.responsable_id ?? responsable_id,
-        operador_id: operador ?? operador_id,
-        vendedor_id: vendedor ?? vendedor_id,
-        destino_id: datos.destino_id,
-        fecha_salida: datos.fecha_salida,
-        fecha_regreso: datos.fecha_regreso,
-        categoria: datos.categoria,
-        moneda: datos.moneda ?? "ARS",
-        precio_venta,
-        costo,
-        ...ganancia(precio_venta, costo),
-        comision_tipo: datos.economia.comision_tipo ?? "porcentaje",
-        comision_vendedor: datos.economia.comision_vendedor ?? "10.00",
-        saldo_pendiente: precio_venta,
-      }),
+      {
+        ...viaje({
+          id: crypto.randomUUID(),
+          oportunidad_id: String(params["id"]),
+          cliente_id: joaquin,
+          responsable_id: datos.responsable_id ?? responsable_id,
+          operador_id: operador ?? operador_id,
+          vendedor_id: vendedor ?? vendedor_id,
+          destino_id: datos.destino_id,
+          fecha_salida: datos.fecha_salida,
+          fecha_regreso: datos.fecha_regreso,
+          categoria: datos.categoria,
+          moneda: datos.moneda ?? "ARS",
+          precio_venta,
+          costo,
+          ...ganancia(precio_venta, costo),
+          comision_tipo: datos.economia.comision_tipo ?? "porcentaje",
+          comision_vendedor: datos.economia.comision_vendedor ?? "10.00",
+          saldo_pendiente: precio_venta,
+        }),
+        advertencias_itinerario: [],
+      } satisfies ReservaConfirmada,
       { status: 201 },
     );
   }),

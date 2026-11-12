@@ -97,7 +97,7 @@ describe("RF-106 búsqueda de hoteles", () => {
       await screen.findByRole("heading", { level: 1, name: /catálogo de hoteles/i }),
     ).toBeVisible();
     await llaoLlao();
-    expect(nombresEnPantalla()).toHaveLength(5);
+    expect(nombresEnPantalla()).toHaveLength(6);
     expect(screen.queryByText("Hotel Playa Dorada")).not.toBeInTheDocument();
   });
 
@@ -150,7 +150,7 @@ describe("RF-106 búsqueda de hoteles", () => {
   it("RF-106 indica cuántos hoteles se encontraron", async () => {
     renderPagina();
 
-    expect(await screen.findByText(/5 hoteles encontrados/i)).toBeInTheDocument();
+    expect(await screen.findByText(/6 hoteles encontrados/i)).toBeInTheDocument();
   });
 
   it("RF-106 el filtro de destino lista los destinos activos y manda destino_id", async () => {
@@ -184,7 +184,7 @@ describe("RF-106 búsqueda de hoteles", () => {
       expect(pedidos.at(-1)?.get("categoria")).toBe("4 estrellas");
     });
     await waitFor(() => {
-      expect(nombresEnPantalla()).toEqual(["Pousada do Sol"]);
+      expect(nombresEnPantalla()).toEqual(["Pousada do Sol", "Hotel Gran Vía Madrid"]);
     });
   });
 
@@ -203,6 +203,7 @@ describe("RF-106 búsqueda de hoteles", () => {
     await waitFor(() => {
       expect(nombresEnPantalla().sort()).toEqual([
         "Cabañas del Nahuel",
+        "Hotel Gran Vía Madrid",
         "Hotel Llao Llao",
         "Pousada do Sol",
       ]);
@@ -256,13 +257,14 @@ describe("RF-106 búsqueda de hoteles", () => {
 
     expect(pedidos[0]?.get("orden")).toBe("valoracion");
     expect(await filtroOrden()).toHaveDisplayValue(/mejor valorados/i);
-    // Copacabana y Riu (5,0) primero, el sin reseñas al final.
+    // Copacabana y Riu (5,0) primero, los sin reseñas al final, por nombre.
     expect(nombresEnPantalla()).toEqual([
       "Copacabana Palace",
       "Riu Palace Punta Cana",
       "Hotel Llao Llao",
       "Pousada do Sol",
       "Cabañas del Nahuel",
+      "Hotel Gran Vía Madrid",
     ]);
   });
 
@@ -281,6 +283,7 @@ describe("RF-106 búsqueda de hoteles", () => {
     await waitFor(() => {
       expect(nombresEnPantalla()).toEqual([
         "Cabañas del Nahuel",
+        "Hotel Gran Vía Madrid",
         "Pousada do Sol",
         "Hotel Llao Llao",
         "Riu Palace Punta Cana",
