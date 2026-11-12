@@ -2,7 +2,7 @@
 tipo: referencia
 estado: formalizado
 responsable: equipo
-actualizado: 11/11/26
+actualizado: 12/11/26
 ---
 
 # 📊 Estado del proyecto
@@ -11,6 +11,8 @@ actualizado: 11/11/26
 
 ## Fase actual
 > 🚀 **12/10 — arranca la implementación.** El equipo aprobó [[DEC-0014 Flujo de implementación con agentes]]: tickets con semáforo en Git, TDD con subagentes, review de Codex en cada módulo y código en `src/`. ✅ **Paso 1 hecho:** skills (`/tomar-ticket`, `/implementar-ticket`, `/cerrar-modulo` y 13 de Addy Osmani), subagentes, script de tickets, [[Flujo de implementación]], [[Tablero de tickets]] y [[Grafo de tickets]]. ✅ **Paso 2 (13/10):** grill con el equipo → [[DEC-0015 Decisiones de implementación]], y la autenticación pasó a Firebase con [[DEC-0016 Autenticación con Firebase]]. ✅ **Paso 3 (13/10):** [[Spec de implementación]] aprobada y formalizada; [[Plan de implementación]] (aprobado el 14/10) con **139 tickets** en el [[Grafo de tickets]]. ⏭️ **Ahora:** empezar con `/tomar-ticket` (disponibles: T-001, T-002, T-004 y T-005, el proyecto de Firebase). Meta mínima del PC2: M0 a M6; primero los 79 tickets del camino de CU-01 (T-108). Después, hasta donde lleguemos.
+>
+> 👉 **12/11 (Nahuel):** **T-176** (reserva con el primer pago, PR #210) está mergeado: el plan de la reserva puede sumar hasta el precio y el `PUT` del plan desde el viaje sigue exigiendo el precio exacto. ⏭️ **T-177** quedó disponible. T-175 lo tiene Fran. T-179 ya puede mergearse en cuanto a la reserva; T-178 sigue esperando a T-175.
 >
 > 👉 **11/11 (Nahuel):** **T-174** (contrato de cotizaciones y reserva, PR #209) está mergeado. ⏭️ Disponibles de M11: **T-175** y **T-176** (backend, riesgo alto) y **T-178**, **T-179** y **T-180** (web). T-177 espera a T-176. No mergear T-178 ni T-179 antes que T-175 y T-176.
 >

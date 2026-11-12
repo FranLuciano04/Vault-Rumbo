@@ -36,6 +36,18 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
+## 12/11/26 — Nahuel (Claude Opus 5.5) — T-176, reserva con el primer pago
+- **Hecho:**
+  - T-176 implementado con TDD y mergeado (PR #210), con el CI en verde y la aprobación de otro integrante.
+    - Nueva `exigir_plan_de_reserva_valido`: al menos un pago, cada uno > 0, total ≤ precio (si lo supera, 422 con la diferencia).
+    - `definir_plan_de_pagos` sigue exigiendo el precio exacto.
+  - `test_rf061_plan_que_no_suma_el_precio_422` pasó a `..._supera_el_precio_422`, porque el plan menor ahora es válido.
+  - Review de seguridad (Sonnet): sin bloqueantes ni importantes. Dos menores anotados en el ticket (precio 0 no permite reservar; asimetría de firmas).
+- **Commits:** `8e61980` rojo, `7fef8eb` verde, `39b5d69` fix, `50665e4` hecho, merge del PR #210.
+- **Pendiente:**
+  - La advertencia `plan_desbalanceado` solo sale por `PUT /viajes/{id}/economia`; `GET /viajes/{id}` no expone advertencias. Tenerlo en cuenta en T-179.
+  - Confirmar con el equipo si una reserva con precio 0 debe poder confirmarse (DEC-0026).
+
 ## 11/11/26 — Nahuel (Claude Opus 5.5) — T-174, contrato de cotizaciones y reserva
 - **Hecho:**
   - T-174 implementado con TDD y mergeado (PR #209), con el CI en verde.
