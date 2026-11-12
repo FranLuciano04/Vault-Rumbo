@@ -300,7 +300,9 @@ describe("RF-106 recomendación en la cotización", () => {
     expect(screen.getByRole("textbox", { name: "Precio" })).toHaveValue("");
     expect(screen.getByRole("textbox", { name: "Concepto" })).toHaveValue("Hotel Llao Llao");
     await u.click(screen.getByRole("button", { name: /generar documento/i }));
-    expect(await screen.findByText(/cargá al menos un ítem con concepto y precio válidos/i)).toBeInTheDocument();
+    expect(
+      await screen.findByText(/cargá al menos un ítem con concepto y precio válidos/i),
+    ).toBeInTheDocument();
     expect(cuerpos).toHaveLength(0);
   });
 

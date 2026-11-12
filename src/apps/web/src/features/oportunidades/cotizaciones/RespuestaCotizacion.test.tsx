@@ -20,7 +20,10 @@ beforeAll(() => {
 });
 const crearObjectURL = vi.fn(() => "blob:cotizacion");
 beforeEach(() => {
-  vi.stubGlobal("URL", Object.assign(URL, { createObjectURL: crearObjectURL, revokeObjectURL: vi.fn() }));
+  vi.stubGlobal(
+    "URL",
+    Object.assign(URL, { createObjectURL: crearObjectURL, revokeObjectURL: vi.fn() }),
+  );
   // jsdom no navega: evita el aviso de «not implemented» al hacer clic en el enlace de descarga.
   vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(() => undefined);
 });
@@ -40,7 +43,9 @@ function renderCotizaciones(
   usuario: UsuarioActual = usuariosPorRol.empleado,
 ) {
   return render(
-    <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
+    <QueryClientProvider
+      client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}
+    >
       <CotizacionesOportunidad cliente={cliente} usuario={usuario} oportunidadId={oportunidadId} />
     </QueryClientProvider>,
   );
@@ -141,7 +146,9 @@ describe("RF-023 enviar", () => {
 
     const fila = await filaReciente();
     expect(fila).toHaveTextContent(/enviada/i);
-    expect(within(fila).queryByRole("button", { name: /marcar como enviada/i })).not.toBeInTheDocument();
+    expect(
+      within(fila).queryByRole("button", { name: /marcar como enviada/i }),
+    ).not.toBeInTheDocument();
   });
 });
 
@@ -152,7 +159,9 @@ describe("RF-025 aceptar o rechazar", () => {
     const fila = await filaReciente();
     expect(within(fila).getByRole("button", { name: /aceptar/i })).toBeInTheDocument();
     expect(within(fila).getByRole("button", { name: /rechazar/i })).toBeInTheDocument();
-    expect(within(fila).queryByRole("button", { name: /marcar como enviada/i })).not.toBeInTheDocument();
+    expect(
+      within(fila).queryByRole("button", { name: /marcar como enviada/i }),
+    ).not.toBeInTheDocument();
   });
 
   it.each(["aceptada", "rechazada", "vencida"] as const)(
@@ -164,7 +173,9 @@ describe("RF-025 aceptar o rechazar", () => {
       const fila = await filaReciente();
       expect(within(fila).queryByRole("button", { name: /aceptar/i })).not.toBeInTheDocument();
       expect(within(fila).queryByRole("button", { name: /rechazar/i })).not.toBeInTheDocument();
-      expect(within(fila).queryByRole("button", { name: /marcar como enviada/i })).not.toBeInTheDocument();
+      expect(
+        within(fila).queryByRole("button", { name: /marcar como enviada/i }),
+      ).not.toBeInTheDocument();
     },
   );
 
@@ -341,7 +352,9 @@ describe("RF-023 descarga del PDF", () => {
   it("RF-023 si falla la descarga avisa con el detail del servidor", async () => {
     const u = userEvent.setup();
     servidor.use(
-      http.get("*/api/cotizaciones/:id/documento", () => problema(500, "No pudimos generar el PDF.")),
+      http.get("*/api/cotizaciones/:id/documento", () =>
+        problema(500, "No pudimos generar el PDF."),
+      ),
     );
     renderCotizaciones(cotizada);
 
@@ -357,6 +370,8 @@ describe("RF-023 descarga del PDF", () => {
 
     const fila = await filaReciente();
     expect(within(fila).getByRole("button", { name: /descargar pdf/i })).toBeInTheDocument();
-    expect(within(fila).queryByRole("button", { name: /aceptar|rechazar/i })).not.toBeInTheDocument();
+    expect(
+      within(fila).queryByRole("button", { name: /aceptar|rechazar/i }),
+    ).not.toBeInTheDocument();
   });
 });

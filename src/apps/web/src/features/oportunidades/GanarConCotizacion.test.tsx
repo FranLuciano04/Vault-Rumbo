@@ -266,7 +266,9 @@ describe("RF-016 ganar eligiendo la cotización: hallazgos de la review", () => 
     servidor.use(listado([europaV2, aceptada]), registrarGanar(cuerpos));
     const { usuario, grupo } = await abrirGanarEnDetalle(cotizada, /europa/i);
 
-    expect(await within(grupo).findByText(/se gana con la cotización aceptada/i)).toBeInTheDocument();
+    expect(
+      await within(grupo).findByText(/se gana con la cotización aceptada/i),
+    ).toBeInTheDocument();
     expect(within(grupo).getByText(/10\/10\/26/)).toBeInTheDocument();
     expect(within(grupo).getByText(/4\.800\.000/)).toBeInTheDocument();
     expect(within(grupo).queryByRole("radio", { name: /venta directa/i })).not.toBeInTheDocument();
