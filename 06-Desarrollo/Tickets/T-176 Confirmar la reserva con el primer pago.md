@@ -3,7 +3,7 @@ id: T-176
 titulo: Confirmar la reserva con el primer pago
 modulo: M11 — Ajustes de la revisión del equipo
 capa: backend
-estado: libre
+estado: tomado
 depende_de: [T-174]
 tamaño: S
 riesgo: alto
@@ -12,9 +12,9 @@ modelo_impl: opus
 modelo_review: sonnet
 trazabilidad: [CU-07, CU-11, RF-032, RF-059, DEC-0026]
 origen: revisión del equipo (10/11/26)
-asignado:
-tomado_el:
-rama:
+asignado: Nahuel Viniegra
+tomado_el: 12/11/26 15:17
+rama: feature/T-176-confirmar-la-reserva-con-el-primer-pago
 pr:
 ---
 # T-176 Confirmar la reserva con el primer pago
