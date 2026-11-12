@@ -246,3 +246,65 @@ describe("RF-016 ganar eligiendo la cotización: arrastre al embudo", () => {
     });
   });
 });
+
+describe("RF-016 ganar eligiendo la cotización: hallazgos de la review", () => {
+  const listado = (items: unknown[]) =>
+    http.get("*/api/oportunidades/:id/cotizaciones", () =>
+      HttpResponse.json({ items, total: items.length, pagina: 1, por_pagina: 100 }),
+    );
+
+  it("RF-016 con una cotización ya aceptada se gana con ella: sin otras opciones y el POST va sin cuerpo", async () => {
+    const aceptada = {
+      ...europaV2,
+      id: idCotizacionMock.europa_v1,
+      estado: "aceptada" as const,
+      fecha: "2026-10-10",
+      total: "4800000.00",
+      items: [{ concepto: "Paquete Italia", precio: "4800000.00" }],
+    };
+    const cuerpos: Record<string, unknown>[] = [];
+    servidor.use(listado([europaV2, aceptada]), registrarGanar(cuerpos));
+    const { usuario, grupo } = await abrirGanarEnDetalle(cotizada, /europa/i);
+
+    expect(await within(grupo).findByText(/se gana con la cotización aceptada/i)).toBeInTheDocument();
+    expect(within(grupo).getByText(/10\/10\/26/)).toBeInTheDocument();
+    expect(within(grupo).getByText(/4\.800\.000/)).toBeInTheDocument();
+    expect(within(grupo).queryByRole("radio", { name: /venta directa/i })).not.toBeInTheDocument();
+    expect(within(grupo).queryByRole("radio", { name: fechaEuropaV2 })).not.toBeInTheDocument();
+
+    await usuario.click(within(grupo).getByRole("button", { name: "Confirmar" }));
+
+    await waitFor(() => {
+      expect(cuerpos).toHaveLength(1);
+    });
+    expect(cuerpos[0]).not.toHaveProperty("cotizacion_id");
+  });
+
+  it("RF-016 si falla el listado de cotizaciones se ofrece la venta directa y «Reintentar»", async () => {
+    const cuerpos: Record<string, unknown>[] = [];
+    servidor.use(
+      http.get("*/api/oportunidades/:id/cotizaciones", () => problema(500, "Error interno.")),
+      registrarGanar(cuerpos),
+    );
+    const { usuario, grupo } = await abrirGanarEnDetalle(cotizada, /europa/i);
+
+    expect(await within(grupo).findByRole("button", { name: /reintentar/i })).toBeInTheDocument();
+    await usuario.click(ventaDirecta(grupo));
+    await usuario.click(within(grupo).getByRole("button", { name: "Confirmar" }));
+
+    await waitFor(() => {
+      expect(cuerpos).toHaveLength(1);
+    });
+    expect(cuerpos[0]).not.toHaveProperty("cotizacion_id");
+  });
+
+  it("RF-016 una cotización enviada con la validez vencida no es una opción elegible (DEC-0028)", async () => {
+    const vencida = { ...europaV2, validez_hasta: "2020-01-01" };
+    servidor.use(listado([vencida]));
+    const { grupo } = await abrirGanarEnDetalle(cotizada, /europa/i);
+
+    expect(await within(grupo).findByRole("radio", { name: /venta directa/i })).toBeInTheDocument();
+    expect(within(grupo).getAllByRole("radio")).toHaveLength(1);
+    expect(within(grupo).queryByRole("radio", { name: fechaEuropaV2 })).not.toBeInTheDocument();
+  });
+});

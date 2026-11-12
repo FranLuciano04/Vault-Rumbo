@@ -6,7 +6,7 @@ import { PasajerosOportunidad } from "../PasajerosOportunidad";
 import { FormularioCotizacion } from "./FormularioCotizacion";
 import { AlternativasCotizacion } from "./AlternativasCotizacion";
 
-/** Cotizaciones de una oportunidad (CU-06): su contexto, el formulario para emitir y las versiones. */
+/** Cotizaciones de una oportunidad (CU-06): su contexto, el formulario para emitir y las alternativas. */
 export function CotizacionesOportunidad({
   cliente,
   usuario,
