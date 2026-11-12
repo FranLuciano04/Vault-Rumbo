@@ -3,7 +3,7 @@ id: T-178
 titulo: Elegir la cotización al ganar la oportunidad en la web
 modulo: M11 — Ajustes de la revisión del equipo
 capa: web
-estado: tomado
+estado: hecho
 depende_de: [T-174, T-171]
 tamaño: M
 riesgo: normal
@@ -45,3 +45,10 @@ Una oportunidad muestra sus cotizaciones como alternativas. Al tocar «Ganar», 
 
 ## Fuera de alcance
 - El backend, que va en T-175.
+
+## Notas de implementación
+- `ConfirmarGanar` (`ConfirmacionesCierre.tsx`) lista como radios las `borrador` y las `enviada` vigentes, más «Sin cotización (venta directa)». Si ya hay una `aceptada` (CU-06 A2), solo ofrece esa y manda `ganar` sin cuerpo. Si falla la carga, deja la venta directa y un «Reintentar».
+- `VersionesCotizacion.tsx` pasó a `AlternativasCotizacion.tsx`: «Cotización N», donde la 1 es la más antigua. `useGanarOportunidad` acepta `cotizacion_id` opcional e invalida las cotizaciones.
+- Con autorización de la persona (`--tocar-tests`) se cambió un test viejo de `ArrastreEmbudo.test.tsx` que ganaba sin elegir. Se adaptaron los tests de `CotizacionesOportunidad`, `RespuestaCotizacion` y `RecomendarHoteles` al renombre y se formatearon con Prettier.
+- La review (Opus) encontró 1 importante (la cotización ya aceptada) y 3 menores (reintento, vigencia y un comentario). Todos quedaron arreglados.
+- Modelos: tests, implementación y refactor con Sonnet (el refactor no tuvo cambios); review con Opus. No hubo escalados.
