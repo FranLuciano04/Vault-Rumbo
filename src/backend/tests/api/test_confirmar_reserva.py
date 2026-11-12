@@ -940,9 +940,7 @@ async def test_cu07_reserva_con_solo_el_primer_pago(
     assert [(p.tipo, p.monto, p.vencimiento, p.estado) for p in pagos] == [
         (m.TipoPago.sena, Decimal("300000.00"), date(2026, 12, 1), m.EstadoPago.pendiente)
     ]
-    alertas = (
-        await sesion.scalars(select(m.Alerta).where(m.Alerta.pago_id == pagos[0].id))
-    ).all()
+    alertas = (await sesion.scalars(select(m.Alerta).where(m.Alerta.pago_id == pagos[0].id))).all()
     assert [(a.tipo, a.estado, a.fecha) for a in alertas] == [
         (m.TipoAlerta.pago, m.EstadoAlerta.pendiente, date(2026, 11, 1))
     ]
@@ -984,9 +982,7 @@ async def test_cu07_reserva_sin_pagos_es_422(cliente_como: Fabrica, sesion: Asyn
     oportunidad = await _oportunidad(sesion, _yo(c))
     oportunidad_id = oportunidad.id
 
-    r = await c.post(
-        _url(oportunidad_id), json=_cuerpo(destino.id, plan_de_pagos={"pagos": []})
-    )
+    r = await c.post(_url(oportunidad_id), json=_cuerpo(destino.id, plan_de_pagos={"pagos": []}))
 
     assert r.status_code == 422
     assert r.headers["content-type"].startswith(PROBLEM_JSON)
