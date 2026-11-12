@@ -12,6 +12,7 @@ from pydantic.json_schema import JsonDict
 
 from rumbo.datos import modelos
 from rumbo.datos.modelos import CategoriaViaje, EstadoViaje, Moneda
+from rumbo.negocio.servicios.itinerario import MotivoTramoOmitido
 from rumbo.presentacion.esquemas.comunes import (
     Auditoria,
     DecimalConSigno,
@@ -103,9 +104,6 @@ class Viaje(Auditoria):
             {n: getattr(viaje, n) for n in cls.model_fields if n not in calculados}
             | {"saldo_pendiente": saldo_pendiente, "porcentaje_pagado": porcentaje_pagado}
         )
-
-
-MotivoTramoOmitido = Literal["fuera_de_fechas", "superpuesto", "hotel_cerrado"]
 
 
 class AdvertenciaItinerario(BaseModel):

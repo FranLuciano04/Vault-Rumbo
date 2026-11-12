@@ -251,15 +251,15 @@ async def emitir_cotizacion(
 async def _exigir_hoteles_abiertos(
     sesion: AsyncSession, actor: Usuario, items: list[dict[str, Any]]
 ) -> None:
-    """Cada hotel de los ítems existe y está abierto; si no, 422 sobre `items` (RF-106)."""
-    for item in items:
+    """Cada hotel de los ítems existe y está abierto; si no, 422 sobre ese ítem (RF-106)."""
+    for i, item in enumerate(items):
         if item.get("hotel_id") is None:
             continue
         try:
             await itinerario.exigir_hotel(sesion, actor, item["hotel_id"])
         except DatosInvalidos:
             raise DatosInvalidos(
-                "items", "Un hotel de la cotización no existe o está cerrado."
+                f"items.{i}.hotel_id", "El hotel no existe o está cerrado."
             ) from None
 
 

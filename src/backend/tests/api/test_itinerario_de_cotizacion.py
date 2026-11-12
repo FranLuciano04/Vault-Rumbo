@@ -258,3 +258,23 @@ async def test_cu07_cotizacion_sin_hoteles_crea_el_viaje_sin_itinerario(
     assert r.status_code == 201
     assert r.json()["advertencias_itinerario"] == []
     assert await _tramos(sesion, r.json()["id"]) == []
+
+
+async def test_cu07_tramos_siguen_el_orden_de_los_items(
+    cliente_como: Fabrica, sesion: AsyncSession
+) -> None:
+    c = await cliente_como("empleado")
+    tarde, temprano = await _hotel(sesion), await _hotel(sesion)
+    tarde_id, temprano_id = tarde.id, temprano.id
+    items = [
+        _item_hotel(tarde, "2027-02-14", "2027-02-20"),
+        _item_hotel(temprano, "2027-02-10", "2027-02-14"),
+    ]
+
+    r = await _confirmar(c, sesion, items)
+
+    assert r.status_code == 201
+    sesion.expire_all()
+    consulta = select(m.ViajeHotel).where(m.ViajeHotel.viaje_id == uuid.UUID(r.json()["id"]))
+    tramos = (await sesion.scalars(consulta.order_by(m.ViajeHotel.orden))).all()
+    assert [(t.hotel_id, t.orden) for t in tramos] == [(tarde_id, 1), (temprano_id, 2)]
