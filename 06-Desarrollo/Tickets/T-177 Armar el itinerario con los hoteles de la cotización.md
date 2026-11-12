@@ -3,7 +3,7 @@ id: T-177
 titulo: Armar el itinerario con los hoteles de la cotización
 modulo: M11 — Ajustes de la revisión del equipo
 capa: backend
-estado: libre
+estado: tomado
 depende_de: [T-174, T-176]
 tamaño: M
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [CU-06, CU-07, CU-09, RF-043, RF-106, DEC-0003]
 origen: revisión del equipo (10/11/26)
-asignado:
-tomado_el:
-rama:
+asignado: Nahuel Viniegra
+tomado_el: 12/11/26 16:44
+rama: feature/T-177-armar-el-itinerario-con-los-hoteles-de-l
 pr:
 ---
 # T-177 Armar el itinerario con los hoteles de la cotización
