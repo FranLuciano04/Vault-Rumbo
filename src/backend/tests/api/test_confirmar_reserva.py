@@ -1022,9 +1022,15 @@ async def test_cu07_reserva_parcial_advierte_plan_desbalanceado(
     """RF-059: con la reserva parcial, la ficha avisa `plan_desbalanceado`; con el plan completo
     no. Se lee con la misma operación que arma las advertencias de la economía (CU-10 A4)."""
     c = await cliente_como("empleado")
-    parcial = await _confirmar_ok(c, sesion, plan_de_pagos=PRIMER_PAGO)
-    completo = await _confirmar_ok(c, sesion)
-    parcial_id, completo_id = parcial.id, completo.id
+    yo = _yo(c)  # antes de las consultas que hacen expire_all()
+    ids = []
+    for plan in (PRIMER_PAGO, PLAN):
+        destino = await _destino(sesion)
+        oportunidad = await _oportunidad(sesion, yo)
+        r = await c.post(_url(oportunidad.id), json=_cuerpo(destino.id, plan_de_pagos=plan))
+        assert r.status_code == 201
+        ids.append(r.json()["id"])
+    parcial_id, completo_id = ids
 
     r_parcial = await c.put(f"/api/viajes/{parcial_id}/economia", json=ECONOMIA)
     r_completo = await c.put(f"/api/viajes/{completo_id}/economia", json=ECONOMIA)
