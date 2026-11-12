@@ -3,7 +3,7 @@ id: T-175
 titulo: Ganar la oportunidad con la cotización que eligió el cliente
 modulo: M11 — Ajustes de la revisión del equipo
 capa: backend
-estado: libre
+estado: tomado
 depende_de: [T-174]
 tamaño: M
 riesgo: alto
@@ -12,9 +12,9 @@ modelo_impl: opus
 modelo_review: sonnet
 trazabilidad: [CU-05, CU-06, CU-07, RF-016, RF-025]
 origen: revisión del equipo (10/11/26)
-asignado:
-tomado_el:
-rama:
+asignado: FranLucianoo
+tomado_el: 12/11/26 15:57
+rama: feature/T-175-ganar-la-oportunidad-con-la-cotizacion-q
 pr:
 ---
 # T-175 Ganar la oportunidad con la cotización que eligió el cliente
