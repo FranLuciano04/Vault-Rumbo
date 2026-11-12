@@ -36,6 +36,15 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
+## 12/11/26 — Nahuel (Claude Opus 5.5) — T-178, elegir la cotización al ganar
+- **Hecho:**
+  - T-178 implementado con TDD y mergeado (PR #213), con el CI en verde.
+    - Al ganar (detalle o arrastre) se elige la cotización (`borrador` o `enviada` vigente) o la venta directa. Si ya hay una `aceptada`, se gana con esa, sin cuerpo.
+    - La sección de cotizaciones muestra alternativas («Cotización N»), no versiones (DEC-0028).
+  - Review de Opus: 1 importante y 3 menores, todos arreglados. El CI encontró 3 e2e con el nombre viejo de la lista; se adaptaron en la misma rama.
+- **Commits:** `d785c6b` rojo, `a5f5368` verde, `12bceb9`, `f63a90b` y `32ec13b` fix, `018a8b0` hecho, merge del PR #213.
+- **Pendiente:** disponibles de M11: T-179 y T-180 (web).
+
 ## 12/11/26 — Nahuel (Claude Opus 5.5) — T-177, itinerario desde la cotización
 - **Hecho:**
   - T-177 implementado con TDD y mergeado (PR #212), con el CI en verde.
