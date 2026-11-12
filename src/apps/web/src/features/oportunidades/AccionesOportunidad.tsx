@@ -74,8 +74,12 @@ export function AccionesOportunidad({
       </div>
       {admite.ganar && paso === "ganar" && (
         <ConfirmarGanar
+          cliente={cliente}
+          oportunidadId={oportunidad.id}
           pendiente={pendiente}
-          alConfirmar={() => void transiciones.ganar(oportunidad.id).then(cerrarSiSalioBien)}
+          alConfirmar={(cotizacionId) =>
+            void transiciones.ganar(oportunidad.id, cotizacionId).then(cerrarSiSalioBien)
+          }
           alCancelar={() => {
             setPaso(null);
           }}

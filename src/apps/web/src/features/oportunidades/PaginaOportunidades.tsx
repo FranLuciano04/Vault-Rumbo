@@ -184,9 +184,13 @@ export function PaginaOportunidades({
           {confirmando.paso === "ganar" ? (
             <ConfirmarGanar
               key={confirmando.oportunidad.id}
+              cliente={cliente}
+              oportunidadId={confirmando.oportunidad.id}
               pendiente={transiciones.pendiente}
-              alConfirmar={() =>
-                void transiciones.ganar(confirmando.oportunidad.id).then(cerrarSiSalioBien)
+              alConfirmar={(cotizacionId) =>
+                void transiciones
+                  .ganar(confirmando.oportunidad.id, cotizacionId)
+                  .then(cerrarSiSalioBien)
               }
               alCancelar={() => {
                 setConfirmando(null);

@@ -300,7 +300,9 @@ describe("RF-106 recomendación en la cotización", () => {
     expect(screen.getByRole("textbox", { name: "Precio" })).toHaveValue("");
     expect(screen.getByRole("textbox", { name: "Concepto" })).toHaveValue("Hotel Llao Llao");
     await u.click(screen.getByRole("button", { name: /generar documento/i }));
-    expect(await screen.findByText(/cargá al menos un ítem con concepto y precio válidos/i)).toBeInTheDocument();
+    expect(
+      await screen.findByText(/cargá al menos un ítem con concepto y precio válidos/i),
+    ).toBeInTheDocument();
     expect(cuerpos).toHaveLength(0);
   });
 
@@ -407,7 +409,7 @@ describe("RF-106 recomendación en la cotización", () => {
   it("RF-106 sobre una oportunidad ganada no se ofrece el buscador", async () => {
     renderCotizaciones(idOportunidadMock.ganada);
 
-    expect(await screen.findByRole("list", { name: /versiones/i })).toBeInTheDocument();
+    expect(await screen.findByRole("list", { name: /cotizaciones/i })).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /buscar hoteles/i })).not.toBeInTheDocument();
   });
 });

@@ -164,9 +164,9 @@ test.describe("CU-06 Emitir cotización", () => {
       timeout: 10_000,
     });
 
-    const versiones = page.getByRole("list", { name: "Versiones de la cotización" });
+    const versiones = page.getByRole("list", { name: "Cotizaciones de la oportunidad" });
     const version = versiones.getByRole("listitem").first();
-    await expect(version).toContainText("Versión 1");
+    await expect(version).toContainText("Cotización 1");
     await expect(version).toContainText("Borrador");
 
     // El PDF se descarga y es un PDF de verdad (en Windows nativo WeasyPrint puede no cargar).
@@ -195,7 +195,7 @@ test.describe("CU-06 Emitir cotización", () => {
 
     await page.goto(`/oportunidades/${oportunidad.id}/cotizaciones`);
     const version = page
-      .getByRole("list", { name: "Versiones de la cotización" })
+      .getByRole("list", { name: "Cotizaciones de la oportunidad" })
       .getByRole("listitem")
       .first();
     await expect(version).toContainText("Enviada");

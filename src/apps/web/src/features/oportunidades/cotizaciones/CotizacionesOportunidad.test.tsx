@@ -349,7 +349,7 @@ describe("RF-021 emitir cotización", () => {
   it("RF-021 sobre una oportunidad ganada no se muestra el formulario y sí las versiones", async () => {
     renderCotizaciones(idOportunidadMock.ganada);
 
-    expect(await screen.findByRole("list", { name: /versiones/i })).toBeInTheDocument();
+    expect(await screen.findByRole("list", { name: /cotizaciones/i })).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /generar documento/i })).not.toBeInTheDocument();
   });
 });
@@ -358,19 +358,19 @@ describe("RF-024 versiones", () => {
   it("RF-024 lista las versiones de la más reciente a la más antigua, con su estado", async () => {
     renderCotizaciones(idOportunidadMock.cotizada);
 
-    const lista = await screen.findByRole("list", { name: /versiones/i });
+    const lista = await screen.findByRole("list", { name: /cotizaciones/i });
     const items = within(lista).getAllByRole("listitem");
     expect(items).toHaveLength(2);
-    expect(items[0]).toHaveTextContent(/versión 2/i);
+    expect(items[0]).toHaveTextContent(/cotización 2/i);
     expect(items[0]).toHaveTextContent(/enviada/i);
-    expect(items[1]).toHaveTextContent(/versión 1/i);
+    expect(items[1]).toHaveTextContent(/cotización 1/i);
     expect(items[1]).toHaveTextContent(/rechazada/i);
   });
 
   it("RF-024 cada versión muestra su fecha de emisión y su total", async () => {
     renderCotizaciones(idOportunidadMock.cotizada);
 
-    const lista = await screen.findByRole("list", { name: /versiones/i });
+    const lista = await screen.findByRole("list", { name: /cotizaciones/i });
     const [v2, v1] = within(lista).getAllByRole("listitem");
     expect(v2).toHaveTextContent("20/10/26");
     expect(v2).toHaveTextContent("$ 4.510.000,00");
@@ -381,7 +381,7 @@ describe("RF-024 versiones", () => {
   it("RF-024 una cotización en dólares muestra su total en US$", async () => {
     renderCotizaciones(idOportunidadMock.ganada);
 
-    const lista = await screen.findByRole("list", { name: /versiones/i });
+    const lista = await screen.findByRole("list", { name: /cotizaciones/i });
     const [unica] = within(lista).getAllByRole("listitem");
     expect(unica).toHaveTextContent(/aceptada/i);
     expect(unica).toHaveTextContent("US$ 3.200,00");
@@ -393,7 +393,7 @@ describe("RF-024 versiones", () => {
     expect(
       await screen.findByText(/todavía no hay cotizaciones|sin cotizaciones/i),
     ).toBeInTheDocument();
-    expect(screen.queryByRole("list", { name: /versiones/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole("list", { name: /cotizaciones/i })).not.toBeInTheDocument();
   });
 
   it("RF-024 si no se pueden cargar las versiones avisa", async () => {
@@ -446,7 +446,7 @@ describe("RF-022 quién puede emitir", () => {
     const otro = { ...usuariosPorRol.empleado, id: "9c1d7e52-4b3a-4f60-8a21-5e0d3b7c9a10" };
     renderCotizaciones(idOportunidadMock.cotizada, otro);
 
-    expect(await screen.findByRole("list", { name: /versiones/i })).toBeInTheDocument();
+    expect(await screen.findByRole("list", { name: /cotizaciones/i })).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /generar documento/i })).not.toBeInTheDocument();
   });
 
@@ -470,8 +470,8 @@ describe("RF-022 quién puede emitir", () => {
     );
     renderCotizaciones(idOportunidadMock.cotizada);
 
-    expect(await screen.findByText(/y 2 versiones anteriores/i)).toBeInTheDocument();
-    expect(screen.getByRole("listitem")).toHaveTextContent(/versión 3/i);
+    expect(await screen.findByText(/y 2 cotizaciones anteriores/i)).toBeInTheDocument();
+    expect(screen.getByRole("listitem")).toHaveTextContent(/cotización 3/i);
   });
 });
 

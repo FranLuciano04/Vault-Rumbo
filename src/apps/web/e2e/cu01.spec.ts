@@ -196,7 +196,7 @@ test.describe("CU-01 De la consulta a la venta", () => {
       });
 
       const version = page
-        .getByRole("list", { name: "Versiones de la cotización" })
+        .getByRole("list", { name: "Cotizaciones de la oportunidad" })
         .getByRole("listitem")
         .first();
       await version.getByRole("button", { name: "Marcar como enviada" }).click();

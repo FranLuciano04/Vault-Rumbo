@@ -14,7 +14,7 @@ import { ERROR_AL_GUARDAR, mensajeDeError } from "@/lib/errores";
 
 const ERROR_AL_DESCARGAR = "No pudimos descargar el PDF. Probá de nuevo en unos minutos.";
 
-/** Descarga el PDF de la versión. */
+/** Descarga el PDF de la cotización. */
 async function guardarPdf(cliente: AxiosInstance, cotizacion: Cotizacion) {
   guardarArchivo(
     await descargarDocumentoCotizacion(cliente, cotizacion.id),
@@ -24,7 +24,7 @@ async function guardarPdf(cliente: AxiosInstance, cotizacion: Cotizacion) {
 }
 
 /**
- * Acciones de una versión (RF-023, RF-025): descargar el PDF y, si puede responder, marcarla como
+ * Acciones de una cotización (RF-023, RF-025): descargar el PDF y, si puede responder, marcarla como
  * enviada o registrar la respuesta del cliente. Rechazar pide confirmación; los 409 muestran el `detail`.
  */
 export function AccionesCotizacion({

@@ -10,6 +10,7 @@ import type {
   Oportunidad,
   OportunidadCrear,
   OportunidadEditar,
+  OportunidadGanar,
   OportunidadPerder,
   Pagina,
 } from "../modelos";
@@ -83,7 +84,7 @@ export function useEditarOportunidad(cliente: AxiosInstance) {
 }
 
 /** Transición de estado de la oportunidad: `POST /api/oportunidades/{id}/{accion}` (CU-05). */
-function useTransicion(cliente: AxiosInstance, accion: "en-gestion" | "reactivar" | "ganar") {
+function useTransicion(cliente: AxiosInstance, accion: "en-gestion" | "reactivar") {
   return useAccion(
     claveOportunidades,
     async (oportunidadId: string) =>
@@ -99,8 +100,23 @@ export const useTomarOportunidad = (cliente: AxiosInstance) => useTransicion(cli
 export const useReactivarOportunidad = (cliente: AxiosInstance) =>
   useTransicion(cliente, "reactivar");
 
-/** Cierra la oportunidad como ganada sin cotización formal: venta directa (CU-05). */
-export const useGanarOportunidad = (cliente: AxiosInstance) => useTransicion(cliente, "ganar");
+/**
+ * Cierra la oportunidad como ganada (`POST /api/oportunidades/{id}/ganar`, CU-05, DEC-0028): con
+ * `cotizacion_id` acepta esa cotización; sin él es una venta directa.
+ */
+export function useGanarOportunidad(cliente: AxiosInstance) {
+  return useAccion(
+    claveOportunidades,
+    async ({ oportunidadId, cotizacion_id }: { oportunidadId: string } & OportunidadGanar) =>
+      (
+        await cliente.post<Oportunidad>(
+          `/api/oportunidades/${oportunidadId}/ganar`,
+          cotizacion_id ? { cotizacion_id } : undefined,
+        )
+      ).data,
+    [claveAlertas, claveCotizaciones],
+  );
+}
 
 /** Cierra la oportunidad como perdida, con su motivo (`POST /api/oportunidades/{id}/perder`, CU-05). */
 export function usePerderOportunidad(cliente: AxiosInstance) {
