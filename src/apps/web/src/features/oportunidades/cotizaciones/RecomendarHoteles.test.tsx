@@ -407,7 +407,7 @@ describe("RF-106 recomendación en la cotización", () => {
   it("RF-106 sobre una oportunidad ganada no se ofrece el buscador", async () => {
     renderCotizaciones(idOportunidadMock.ganada);
 
-    expect(await screen.findByRole("list", { name: /versiones/i })).toBeInTheDocument();
+    expect(await screen.findByRole("list", { name: /cotizaciones/i })).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /buscar hoteles/i })).not.toBeInTheDocument();
   });
 });

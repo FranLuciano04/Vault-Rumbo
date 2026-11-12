@@ -67,7 +67,7 @@ function conVersionReciente(estado: "borrador" | "enviada" | "aceptada" | "recha
 
 /** El <li> de la versión más reciente (la primera de la lista). */
 async function filaReciente() {
-  const lista = await screen.findByRole("list", { name: /versiones/i });
+  const lista = await screen.findByRole("list", { name: /cotizaciones/i });
   return within(lista).getAllByRole("listitem")[0] as HTMLElement;
 }
 
@@ -310,7 +310,7 @@ describe("RF-023 descarga del PDF", () => {
   it("RF-023 cada versión ofrece descargar su PDF", async () => {
     renderCotizaciones(cotizada);
 
-    const lista = await screen.findByRole("list", { name: /versiones/i });
+    const lista = await screen.findByRole("list", { name: /cotizaciones/i });
     for (const fila of within(lista).getAllByRole("listitem")) {
       expect(within(fila).getByRole("button", { name: /descargar pdf/i })).toBeInTheDocument();
     }
