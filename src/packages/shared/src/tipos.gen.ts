@@ -3306,12 +3306,14 @@ export interface components {
         /**
          * OportunidadGanar
          * @description Cuerpo opcional de «ganar»: la cotización que aceptó el cliente (CU-05, DEC-0028). Sin
-         *     cuerpo es la venta directa (CU-05 A4).
+         *     cuerpo es la venta directa (CU-05 A4). Una cotización de otra oportunidad, inexistente o que
+         *     el usuario no ve es 422; una vencida o rechazada, otra ya aceptada en la oportunidad o la
+         *     oportunidad ya cerrada es 409.
          */
         OportunidadGanar: {
             /**
              * Cotizacion Id
-             * @description Cotización `enviada` vigente o en `borrador` de la oportunidad. Pasa a `aceptada` y las demás `enviada` pasan a `rechazada`.
+             * @description Cualquier versión `enviada` no vencida, o un `borrador`, de esta oportunidad. Pasa a `aceptada` y las demás `enviada` pasan a `rechazada`.
              */
             cotizacion_id?: string | null;
         };
