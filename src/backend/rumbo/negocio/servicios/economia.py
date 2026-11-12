@@ -161,7 +161,22 @@ def exigir_plan_valido(viaje: Viaje, cobrados: list[Pago], items: list[dict[str,
     """Cada pago nuevo es por un monto mayor a cero y, con los cobrados, suman el precio de
     venta del viaje (CU-11 A1); si no, `DatosInvalidos`."""
     _exigir_montos_positivos(items)
-    _exigir_que_sume_el_precio(viaje, cobrados, items)
+    total = _total_del_plan(cobrados, items)
+    if total != viaje.precio_venta:
+        raise DatosInvalidos("pagos", _diferencia_con_el_precio(viaje, total))
+
+
+def exigir_plan_de_reserva_valido(viaje: Viaje, items: list[dict[str, Any]]) -> None:
+    """El plan con que se confirma la reserva (CU-07, RF-032, DEC-0026): al menos un pago, cada
+    uno por un monto mayor a cero, y suman hasta el precio de venta. Alcanza con el primer
+    pago; el resto se completa desde el viaje con `definir_plan_de_pagos`. Si no,
+    `DatosInvalidos`."""
+    if not items:  # aun con precio 0 (DEC-0026)
+        raise DatosInvalidos("pagos", "El plan de pagos tiene que tener al menos un pago.")
+    _exigir_montos_positivos(items)
+    total = _total_del_plan([], items)
+    if total > viaje.precio_venta:
+        raise DatosInvalidos("pagos", _diferencia_con_el_precio(viaje, total))
 
 
 async def agendar_pagos(
@@ -174,8 +189,9 @@ async def agendar_pagos(
 ) -> list[Pago]:
     """Agrega los pagos nuevos `pendiente` del viaje ya guardado, cada uno con su alerta `pago`
     en la agenda de `responsable`, un mes antes del vencimiento (CU-11, RF-063), y los
-    devuelve. Los valida quien llama, con `exigir_plan_valido`; un vencimiento sin fecha de
-    alerta posible es `DatosInvalidos` sobre `campo`."""
+    devuelve. Los valida quien llama, con `exigir_plan_valido` o, al confirmar la reserva,
+    `exigir_plan_de_reserva_valido`; un vencimiento sin fecha de alerta posible es
+    `DatosInvalidos` sobre `campo`."""
     pagos = []
     for item in items:
         pago = Pago(viaje_id=viaje.id, estado=EstadoPago.pendiente, **item)
@@ -409,19 +425,18 @@ def _exigir_montos_positivos(items: list[dict[str, Any]]) -> None:
         raise DatosInvalidos("pagos", "Cada pago del plan tiene que ser por un monto mayor a cero.")
 
 
-def _exigir_que_sume_el_precio(
-    viaje: Viaje, cobrados: list[Pago], items: list[dict[str, Any]]
-) -> None:
-    """Cobrados más nuevos suman el precio de venta (CU-11 A1)."""
-    total = sum((p.monto for p in cobrados), Decimal(0)) + sum(
+def _total_del_plan(cobrados: list[Pago], items: list[dict[str, Any]]) -> Decimal:
+    """Lo que suman los pagos cobrados y los nuevos del plan."""
+    return sum((p.monto for p in cobrados), Decimal(0)) + sum(
         (i["monto"] for i in items), Decimal(0)
     )
-    if total != viaje.precio_venta:
-        raise DatosInvalidos(
-            "pagos",
-            f"El plan suma {total} y el precio de venta es {viaje.precio_venta} "
-            f"(diferencia: {total - viaje.precio_venta}).",
-        )
+
+
+def _diferencia_con_el_precio(viaje: Viaje, total: Decimal) -> str:
+    return (
+        f"El plan suma {total} y el precio de venta es {viaje.precio_venta} "
+        f"(diferencia: {total - viaje.precio_venta})."
+    )
 
 
 def _fecha_alerta(vencimiento: date, campo: str) -> date:

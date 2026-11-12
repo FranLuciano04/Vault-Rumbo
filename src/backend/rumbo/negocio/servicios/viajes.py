@@ -92,8 +92,9 @@ async def confirmar_reserva(
     por venta directa (A1), y la deja `ganada` (CU-07, RF-032). En la transacción del pedido crea
     el viaje `reservado` con el cliente de la oportunidad, la moneda de la cotización aceptada (en
     la venta directa, la enviada) y el responsable enviado o el de la oportunidad; guarda su
-    economía (CU-10, RN-01) y su plan de pagos con sus alertas (CU-11), y agenda las alertas
-    `formulario` de los requisitos activos del destino (RF-034, A2) y la de `salida` (RF-035).
+    economía (CU-10, RN-01) y su plan de pagos con sus alertas (CU-11), que puede ser solo el
+    primer pago (DEC-0026), y agenda las alertas `formulario` de los requisitos activos del
+    destino (RF-034, A2) y la de `salida` (RF-035).
     Si algo falla no queda nada (RNF-05). Una oportunidad que el actor no ve es 404; una ajena
     sin permiso de escritura, 403 (DEC-0005); una que ya derivó en un viaje, 409."""
     oportunidad = await _oportunidades.obtener_para_modificar(
@@ -130,9 +131,7 @@ async def confirmar_reserva(
     estado_viaje.reservar(viaje)
     await economia.aplicar_economia(sesion, actor, viaje, datos["economia"])
     pagos = datos["plan_de_pagos"]["pagos"]
-    if not pagos:  # la definición inicial pide al menos un pago, aun con precio 0 (DEC-0026)
-        raise DatosInvalidos("pagos", "El plan de pagos tiene que tener al menos un pago.")
-    economia.exigir_plan_valido(viaje, [], pagos)
+    economia.exigir_plan_de_reserva_valido(viaje, pagos)
 
     sesion.add(viaje)
     await sesion.flush()
