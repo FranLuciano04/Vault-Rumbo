@@ -276,31 +276,12 @@ async def test_rf025_aceptar_con_otra_version_ya_aceptada_409(
     assert nueva.estado is C.enviada
 
 
-async def test_rf025_aceptar_version_que_no_es_la_vigente_409(
-    cliente_como: FabricaCliente, sesion: AsyncSession
-) -> None:
-    c = await cliente_como("empleado")
-    _, (vieja, vigente) = await _versiones(
-        sesion,
-        c.usuario.id,  # type: ignore[attr-defined]
-        estados=[C.enviada, C.enviada],
-    )
-
-    r = await c.post(_url(vieja, "aceptar"))
-
-    assert r.status_code == 409
-    await sesion.refresh(vieja)
-    await sesion.refresh(vigente)
-    assert vieja.estado is C.enviada
-    assert vigente.estado is C.enviada
-
-
-async def test_rf025_la_vigente_es_la_de_mayor_fecha_aunque_se_creo_antes(
+async def test_rf025_cualquier_version_enviada_se_puede_aceptar_sin_importar_la_fecha(
     cliente_como: FabricaCliente, sesion: AsyncSession
 ) -> None:
     c = await cliente_como("empleado")
     hoy_ = hoy()
-    # la primera creada tiene la fecha más nueva: manda `fecha` antes que `created_at`
+    # DEC-0028 1.2: se acepta cualquiera, no solo la de mayor `fecha`; después solo queda una.
     _, (creada_antes, creada_despues) = await _versiones(
         sesion,
         c.usuario.id,  # type: ignore[attr-defined]
@@ -308,34 +289,15 @@ async def test_rf025_la_vigente_es_la_de_mayor_fecha_aunque_se_creo_antes(
         fechas=[hoy_, hoy_ - timedelta(days=5)],
     )
 
-    r_no_vigente = await c.post(_url(creada_despues, "aceptar"))
-    r_vigente = await c.post(_url(creada_antes, "aceptar"))
+    r_vieja = await c.post(_url(creada_despues, "aceptar"))
+    r_otra = await c.post(_url(creada_antes, "aceptar"))
 
-    assert r_no_vigente.status_code == 409
-    assert r_vigente.status_code == 200
+    assert r_vieja.status_code == 200
+    assert r_otra.status_code == 409  # una sola aceptada por oportunidad
     await sesion.refresh(creada_antes)
     await sesion.refresh(creada_despues)
-    assert creada_antes.estado is C.aceptada
-    assert creada_despues.estado is C.enviada
-
-
-async def test_rf025_con_misma_fecha_la_vigente_es_la_de_created_at_mayor(
-    cliente_como: FabricaCliente, sesion: AsyncSession
-) -> None:
-    c = await cliente_como("empleado")
-    mismo_dia = hoy()
-    _, (vieja, nueva) = await _versiones(
-        sesion,
-        c.usuario.id,  # type: ignore[attr-defined]
-        estados=[C.enviada, C.enviada],
-        fechas=[mismo_dia, mismo_dia],
-    )
-
-    r_vieja = await c.post(_url(vieja, "aceptar"))
-    r_nueva = await c.post(_url(nueva, "aceptar"))
-
-    assert r_vieja.status_code == 409
-    assert r_nueva.status_code == 200
+    assert creada_despues.estado is C.aceptada
+    assert creada_antes.estado is C.enviada
 
 
 async def test_rf025_aceptar_la_vigente_enviada_200(
