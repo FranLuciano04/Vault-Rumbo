@@ -3,7 +3,7 @@ id: T-178
 titulo: Elegir la cotización al ganar la oportunidad en la web
 modulo: M11 — Ajustes de la revisión del equipo
 capa: web
-estado: libre
+estado: tomado
 depende_de: [T-174, T-171]
 tamaño: M
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [CU-05, CU-06, RF-016, RF-024, RF-025]
 origen: revisión del equipo (10/11/26)
-asignado:
-tomado_el:
-rama:
+asignado: Nahuel Viniegra
+tomado_el: 12/11/26 17:32
+rama: feature/T-178-elegir-la-cotizacion-al-ganar-la-oportun
 pr:
 ---
 # T-178 Elegir la cotización al ganar la oportunidad en la web
