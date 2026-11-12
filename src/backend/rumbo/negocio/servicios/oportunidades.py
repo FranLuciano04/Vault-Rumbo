@@ -29,7 +29,7 @@ from rumbo.negocio.errores import DatosInvalidos, NoEncontrado
 from rumbo.negocio.estados import cotizacion as estado_cotizacion
 from rumbo.negocio.estados import oportunidad as estado
 from rumbo.negocio.politicas import exigir_escritura, exigir_rol, visibilidad
-from rumbo.negocio.servicios import parametros
+from rumbo.negocio.servicios import itinerario, parametros
 from rumbo.negocio.servicios.alertas import (
     ContextoDeAlerta,
     crear,
@@ -233,6 +233,7 @@ async def emitir_cotizacion(
         sesion, oportunidad_id, visibilidad=visibilidad(actor)
     )
     exigir_escritura(actor, oportunidad)
+    await _exigir_hoteles_abiertos(sesion, actor, items)
     configuracion = await parametros.obtener(sesion)
     cotizacion = estado_cotizacion.emitir(
         oportunidad,
@@ -245,6 +246,21 @@ async def emitir_cotizacion(
     await sesion.flush()
     await sesion.refresh(cotizacion)
     return cotizacion
+
+
+async def _exigir_hoteles_abiertos(
+    sesion: AsyncSession, actor: Usuario, items: list[dict[str, Any]]
+) -> None:
+    """Cada hotel de los ítems existe y está abierto; si no, 422 sobre ese ítem (RF-106)."""
+    for i, item in enumerate(items):
+        if item.get("hotel_id") is None:
+            continue
+        try:
+            await itinerario.exigir_hotel(sesion, actor, item["hotel_id"])
+        except DatosInvalidos:
+            raise DatosInvalidos(
+                f"items.{i}.hotel_id", "El hotel no existe o está cerrado."
+            ) from None
 
 
 async def obtener_cotizacion(

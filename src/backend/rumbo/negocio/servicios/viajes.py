@@ -7,7 +7,7 @@ avance por fecha (CU-08 A1, RF-039)."""
 import logging
 import uuid
 from collections import defaultdict
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import date, timedelta
 from decimal import Decimal
 from typing import Any
@@ -42,7 +42,7 @@ from rumbo.negocio.estados import oportunidad as estado_oportunidad
 from rumbo.negocio.estados import pago as estado_pago
 from rumbo.negocio.estados import viaje as estado_viaje
 from rumbo.negocio.politicas import exigir_escritura, visibilidad
-from rumbo.negocio.servicios import alertas, economia, parametros
+from rumbo.negocio.servicios import alertas, economia, itinerario, parametros
 
 _viajes = RepositorioViajes()
 _pagos = RepositorioPagos()
@@ -83,6 +83,7 @@ class FichaViaje:
     viaje: Viaje
     saldo_pendiente: Decimal
     porcentaje_pagado: Decimal
+    tramos_omitidos: list[itinerario.TramoOmitido] = field(default_factory=list)
 
 
 async def confirmar_reserva(
@@ -94,7 +95,8 @@ async def confirmar_reserva(
     la venta directa, la enviada) y el responsable enviado o el de la oportunidad; guarda su
     economía (CU-10, RN-01) y su plan de pagos con sus alertas (CU-11), que puede ser solo el
     primer pago (DEC-0026), y agenda las alertas `formulario` de los requisitos activos del
-    destino (RF-034, A2) y la de `salida` (RF-035).
+    destino (RF-034, A2) y la de `salida` (RF-035), y arma el itinerario con los hoteles de la
+    cotización aceptada; los tramos que no entran se omiten y se informan (RF-106, DEC-0028).
     Si algo falla no queda nada (RNF-05). Una oportunidad que el actor no ve es 404; una ajena
     sin permiso de escritura, 403 (DEC-0005); una que ya derivó en un viaje, 409."""
     oportunidad = await _oportunidades.obtener_para_modificar(
@@ -137,9 +139,16 @@ async def confirmar_reserva(
     await sesion.flush()
     await economia.agendar_pagos(sesion, viaje, responsable, pagos)
     await _agendar_alertas_de_la_reserva(sesion, actor, viaje, responsable)
+    omitidos = (
+        await itinerario.armar_desde_cotizacion(sesion, actor, viaje, aceptada.items)
+        if aceptada is not None
+        else []
+    )
     if not cerrada_antes:
         await alertas.resolver_de_origen(sesion, oportunidad)  # al cerrarla ganada (RN-08)
-    return await _guardar(sesion, actor, viaje)
+    ficha = await _guardar(sesion, actor, viaje)
+    ficha.tramos_omitidos = omitidos
+    return ficha
 
 
 def _moneda_de_venta_directa(datos: dict[str, Any]) -> Moneda:

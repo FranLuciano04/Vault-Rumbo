@@ -18,6 +18,7 @@ from rumbo.presentacion.contrato import (
 )
 from rumbo.presentacion.dependencias import usuario_actual
 from rumbo.presentacion.esquemas.viajes import (
+    AdvertenciaItinerario,
     Cancelacion,
     ConfirmarReserva,
     ReservaConfirmada,
@@ -52,8 +53,10 @@ async def confirmar_reserva(
 ) -> ReservaConfirmada:
     ficha = await viajes.confirmar_reserva(sesion, actor, oportunidad_id, datos.model_dump())
     viaje = Viaje.desde_ficha(ficha.viaje, ficha.saldo_pendiente, ficha.porcentaje_pagado)
-    # Las advertencias del itinerario las arma T-176; hasta entonces no hay nada que advertir.
-    return ReservaConfirmada.desde_viaje(viaje, [])
+    advertencias = [
+        AdvertenciaItinerario(hotel_id=o.hotel_id, motivo=o.motivo) for o in ficha.tramos_omitidos
+    ]
+    return ReservaConfirmada.desde_viaje(viaje, advertencias)
 
 
 @router.get(

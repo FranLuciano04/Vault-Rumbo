@@ -2,8 +2,9 @@
 (CU-09, RF-043, RF-044, RF-046, RF-106, DEC-0003)."""
 
 import uuid
+from dataclasses import dataclass
 from datetime import date
-from typing import Any
+from typing import Any, Literal
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -28,6 +29,16 @@ _tramos = RepositorioTramos()
 _hoteles = RepositorioHoteles()
 _usuarios = RepositorioUsuarios()
 
+MotivoTramoOmitido = Literal["fuera_de_fechas", "superpuesto", "hotel_cerrado"]
+
+
+@dataclass(frozen=True)
+class TramoOmitido:
+    """Hotel de la cotización cuyo tramo no entró en el itinerario de la reserva (DEC-0028)."""
+
+    hotel_id: uuid.UUID
+    motivo: MotivoTramoOmitido
+
 
 async def listar_itinerario(
     sesion: AsyncSession, actor: Usuario, viaje_id: uuid.UUID
@@ -50,7 +61,7 @@ async def agregar_tramo(
     viaje = await _viajes.obtener_para_modificar(sesion, viaje_id, visibilidad=vista)
     exigir_escritura(actor, viaje)
     _exigir_viaje_abierto(viaje)
-    await _exigir_hotel(sesion, actor, datos["hotel_id"])
+    await exigir_hotel(sesion, actor, datos["hotel_id"])
     otros = await _tramos.listar_de_viaje(sesion, viaje.id, visibilidad=vista)
     _exigir_tramo_valido(viaje, datos["check_in"], datos["check_out"], datos["orden"], otros)
 
@@ -65,6 +76,60 @@ async def agregar_tramo(
     return tramo
 
 
+async def armar_desde_cotizacion(
+    sesion: AsyncSession, actor: Usuario, viaje: Viaje, items: list[dict[str, Any]]
+) -> list[TramoOmitido]:
+    """Crea un tramo por cada ítem con hotel de la cotización aceptada, en el orden de los ítems
+    y con las mismas reglas que `agregar_tramo` (CU-07, RF-106). El que no entra, por estar fuera
+    de las fechas del viaje, pisar a otro tramo o tener el hotel cerrado, se omite y se informa:
+    no rechaza la reserva (DEC-0028 punto 4). Quien llama ya tiene el viaje guardado."""
+    creados: list[ViajeHotel] = []
+    omitidos: list[TramoOmitido] = []
+    for item in items:
+        if item.get("hotel_id") is None:
+            continue
+        hotel_id = uuid.UUID(item["hotel_id"])
+        check_in = date.fromisoformat(item["check_in"])
+        check_out = date.fromisoformat(item["check_out"])
+        motivo = await _motivo_de_omision(
+            sesion, actor, viaje, hotel_id, check_in, check_out, creados
+        )
+        if motivo is not None:
+            omitidos.append(TramoOmitido(hotel_id, motivo))
+            continue
+        tramo = ViajeHotel(
+            viaje_id=viaje.id,
+            hotel_id=hotel_id,
+            check_in=check_in,
+            check_out=check_out,
+            orden=len(creados) + 1,
+        )
+        sesion.add(tramo)
+        creados.append(tramo)
+    await sesion.flush()
+    return omitidos
+
+
+async def _motivo_de_omision(
+    sesion: AsyncSession,
+    actor: Usuario,
+    viaje: Viaje,
+    hotel_id: uuid.UUID,
+    check_in: date,
+    check_out: date,
+    otros: list[ViajeHotel],
+) -> MotivoTramoOmitido | None:
+    try:
+        await exigir_hotel(sesion, actor, hotel_id)
+    except DatosInvalidos:
+        return "hotel_cerrado"
+    if _fuera_del_viaje(viaje, check_in, check_out):
+        return "fuera_de_fechas"
+    if _solapa(check_in, check_out, otros):
+        return "superpuesto"
+    return None
+
+
 async def editar_tramo(
     sesion: AsyncSession, actor: Usuario, tramo_id: uuid.UUID, cambios: dict[str, Any]
 ) -> ViajeHotel:
@@ -77,7 +142,7 @@ async def editar_tramo(
     _exigir_viaje_abierto(viaje)
     await sesion.refresh(tramo)  # releído con el viaje ya bloqueado
     if cambios.get("hotel_id", tramo.hotel_id) != tramo.hotel_id:
-        await _exigir_hotel(sesion, actor, cambios["hotel_id"])
+        await exigir_hotel(sesion, actor, cambios["hotel_id"])
     otros = [
         t
         for t in await _tramos.listar_de_viaje(sesion, viaje.id, visibilidad=vista)
@@ -115,7 +180,7 @@ async def quitar_tramo(sesion: AsyncSession, actor: Usuario, tramo_id: uuid.UUID
     await sesion.flush()
 
 
-async def _exigir_hotel(sesion: AsyncSession, actor: Usuario, hotel_id: uuid.UUID) -> None:
+async def exigir_hotel(sesion: AsyncSession, actor: Usuario, hotel_id: uuid.UUID) -> None:
     """422 si el hotel no está en el catálogo o está cerrado (CU-09 A2)."""
     try:
         hotel = await _hoteles.obtener(sesion, hotel_id, visibilidad=visibilidad(actor))
@@ -130,6 +195,15 @@ def _exigir_viaje_abierto(viaje: Viaje) -> None:
         raise Conflicto("No se cambia el itinerario de un viaje cancelado.")
 
 
+def _fuera_del_viaje(viaje: Viaje, check_in: date, check_out: date) -> bool:
+    return check_in < viaje.fecha_salida or check_out > viaje.fecha_regreso
+
+
+def _solapa(check_in: date, check_out: date, otros: list[ViajeHotel]) -> bool:
+    """El check-out de un tramo puede ser el check-in del siguiente."""
+    return any(check_in < o.check_out and o.check_in < check_out for o in otros)
+
+
 def _exigir_tramo_valido(
     viaje: Viaje, check_in: date, check_out: date, orden: int, otros: list[ViajeHotel]
 ) -> None:
@@ -137,10 +211,10 @@ def _exigir_tramo_valido(
     el check-in del siguiente) y con un `orden` que no use otro tramo."""
     if check_out < check_in:
         raise DatosInvalidos("check_out", "El check-out no puede ser anterior al check-in.")
-    if check_in < viaje.fecha_salida or check_out > viaje.fecha_regreso:
+    if _fuera_del_viaje(viaje, check_in, check_out):
         campo = "check_in" if check_in < viaje.fecha_salida else "check_out"
         raise DatosInvalidos(campo, "Las fechas del tramo deben estar dentro del viaje.")
-    if any(check_in < o.check_out and o.check_in < check_out for o in otros):
+    if _solapa(check_in, check_out, otros):
         raise DatosInvalidos("check_in", "Las fechas se solapan con otro tramo del itinerario.")
     if any(o.orden == orden for o in otros):
         raise DatosInvalidos("orden", "Ya hay otro tramo con ese orden.")
