@@ -36,6 +36,17 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
+## 12/11/26 — Nahuel (Claude Opus 5.5) — T-177, itinerario desde la cotización
+- **Hecho:**
+  - T-177 implementado con TDD y mergeado (PR #212), con el CI en verde.
+    - Sin migración: `hotel_id`, `check_in` y `check_out` van en el JSONB `items`. Un hotel inexistente o cerrado da 422 sobre `items.N.hotel_id`.
+    - `itinerario.armar_desde_cotizacion` crea los tramos en el orden de los ítems, en la transacción de la reserva. Lo que no entra se omite con `advertencias_itinerario` (DEC-0028).
+  - Review de Opus: 4 menores, 3 arreglados.
+- **Commits:** `649d815` rojo, `98de2d5` verde, `f513dce` fix, `5f55831` hecho, merge del PR #212.
+- **Pendiente:**
+  - El aviso de tramo omitido solo identifica el `hotel_id`: si el hotel se repite, no se sabe qué tramo fue. Evaluarlo con T-180 (es un cambio de contrato).
+  - Disponibles de M11: T-178, T-179 y T-180 (web).
+
 ## 12/11/26 — Nahuel (Claude Opus 5.5) — T-176, reserva con el primer pago
 - **Hecho:**
   - T-176 implementado con TDD y mergeado (PR #210), con el CI en verde y la aprobación de otro integrante.
