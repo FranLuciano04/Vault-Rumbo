@@ -4,7 +4,7 @@ import type { AxiosInstance } from "axios";
 import { oportunidadAbierta, puedeEscribirOportunidad } from "../permisos";
 import { PasajerosOportunidad } from "../PasajerosOportunidad";
 import { FormularioCotizacion } from "./FormularioCotizacion";
-import { VersionesCotizacion } from "./VersionesCotizacion";
+import { AlternativasCotizacion } from "./AlternativasCotizacion";
 
 /** Cotizaciones de una oportunidad (CU-06): su contexto, el formulario para emitir y las versiones. */
 export function CotizacionesOportunidad({
@@ -57,7 +57,7 @@ export function CotizacionesOportunidad({
           destinoConsultado={oportunidad.destino_consultado}
         />
       )}
-      <VersionesCotizacion
+      <AlternativasCotizacion
         cliente={cliente}
         oportunidadId={oportunidadId}
         puedeResponder={puedeEmitir}

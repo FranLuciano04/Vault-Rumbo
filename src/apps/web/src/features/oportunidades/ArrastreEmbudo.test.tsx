@@ -24,6 +24,7 @@
 import { crearCliente } from "@rumbo/shared";
 import {
   crearServidor,
+  idCotizacionMock,
   idOportunidadMock,
   manejadoresOportunidades,
   oportunidadesMock,
@@ -218,13 +219,18 @@ describe("RF-016 arrastrar al ganar", () => {
     await usuario.click(screen.getByRole("menuitem", { name: "Ganada" }));
     const grupo = await screen.findByRole("group", { name: "Ganar la oportunidad" });
 
+    await usuario.click(await within(grupo).findByRole("radio", { name: /20\/10\/26/ }));
     await usuario.click(within(grupo).getByRole("button", { name: "Confirmar" }));
 
     await waitFor(async () => {
       expect(within(await columna("Ganada")).getByText("Europa")).toBeInTheDocument();
     });
     expect(llamadas).toEqual([
-      expect.objectContaining({ accion: "ganar", id: idOportunidadMock.cotizada }),
+      expect.objectContaining({
+        accion: "ganar",
+        id: idOportunidadMock.cotizada,
+        cuerpo: { cotizacion_id: idCotizacionMock.europa_v2 },
+      }),
     ]);
     expect(within(await columna("Cotizada")).queryByText("Europa")).not.toBeInTheDocument();
     expect(screen.getByRole("heading", { name: /^Cotizada\s*0$/ })).toBeInTheDocument();

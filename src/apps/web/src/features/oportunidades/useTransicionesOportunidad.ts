@@ -35,7 +35,10 @@ export function useTransicionesOportunidad(cliente: AxiosInstance) {
     error,
     pendiente: tomar.isPending || ganar.isPending || perder.isPending || reactivar.isPending,
     tomar: (oportunidadId: string) => ejecutar(() => tomar.mutateAsync(oportunidadId)),
-    ganar: (oportunidadId: string) => ejecutar(() => ganar.mutateAsync(oportunidadId)),
+    ganar: (oportunidadId: string, cotizacionId?: string) =>
+      ejecutar(() =>
+        ganar.mutateAsync({ oportunidadId, ...(cotizacionId && { cotizacion_id: cotizacionId }) }),
+      ),
     reactivar: (oportunidadId: string) => ejecutar(() => reactivar.mutateAsync(oportunidadId)),
     perder: (oportunidadId: string, datos: OportunidadPerder) =>
       ejecutar(() => perder.mutateAsync({ oportunidadId, datos })),
