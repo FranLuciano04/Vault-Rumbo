@@ -3,7 +3,7 @@ id: T-175
 titulo: Ganar la oportunidad con la cotización que eligió el cliente
 modulo: M11 — Ajustes de la revisión del equipo
 capa: backend
-estado: tomado
+estado: hecho
 depende_de: [T-174]
 tamaño: M
 riesgo: alto
@@ -49,3 +49,9 @@ Una oportunidad puede tener varias cotizaciones. Al ganarla, el usuario indica c
 ## Notas de implementación
 - **Riesgo alto:** cambia estados de la oportunidad y de la cotización. Para mergear, hace falta la aprobación de otro integrante.
 - Bloquear la oportunidad antes de leer las versiones, como hace `_transicionar_cotizacion`. Así dos aceptaciones al mismo tiempo no dejan dos aceptadas.
+- **Implementado (12/11/26, Francisco):** `ganar_con` en `estados/cotizacion.py` (un `borrador` elegido pasa por enviar → aceptar; las demás `enviada` pasan a `rechazada`; borradores, vencidas y rechazadas no se tocan). `exigir_vigente_sin_aceptada` pasó a `exigir_sin_otra_aceptada` (DEC-0028 1.2). El servicio bloquea la oportunidad y además sus cotizaciones (`FOR UPDATE`), porque el vencimiento diario las bloquea sin bloquear la oportunidad.
+- **Errores:** 422 si la cotización es de otra oportunidad, no existe o el actor no la ve (no revela existencia); 409 si está vencida o rechazada, si ya hay otra aceptada o si la oportunidad está cerrada. Documentados en el docstring de `OportunidadGanar`.
+- **Tests fuera del rojo (autorizado por Francisco):** `test_oportunidades_concurrencia.py` fijaba la regla vieja (aceptar una versión que dejó de ser la vigente da 409). Ahora prueba que dos sesiones que aceptan o ganan con versiones distintas dejan una sola aceptada. En el rojo se adaptaron los tests equivalentes de `test_cotizaciones_respuesta.py`.
+- `confirmar_reserva` ya tomaba la moneda de la aceptada con la oportunidad `ganada`: solo cambió su texto.
+- **Review (sonnet, seguridad):** sin bloqueantes ni importantes; 2 menores de contrato arreglados. Queda menor: `ganar_con` no tiene tests puros en `tests/negocio/` (lo cubren los de API).
+- **Modelos:** tests sonnet, implementación y refactor opus, review sonnet. Sin escalados.
