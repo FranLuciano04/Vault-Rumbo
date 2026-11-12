@@ -218,9 +218,8 @@ async def ganar_oportunidad(
     sesion: SesionDep,
     datos: OportunidadGanar = _VENTA_DIRECTA,
 ) -> Oportunidad:
-    # La elección de la cotización (datos.cotizacion_id) la resuelve T-175.
     return Oportunidad.model_validate(
-        await oportunidades.ganar_oportunidad(sesion, actor, oportunidad_id)
+        await oportunidades.ganar_oportunidad(sesion, actor, oportunidad_id, datos.cotizacion_id)
     )
 
 

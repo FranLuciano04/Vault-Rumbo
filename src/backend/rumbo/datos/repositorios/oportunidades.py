@@ -104,6 +104,19 @@ class RepositorioCotizaciones(RepositorioBase[Cotizacion]):
         vigente (EST-Cotización)."""
         return list(await sesion.scalars(_historial(oportunidad_id, visibilidad)))
 
+    async def listar_de_oportunidad_para_modificar(
+        self, sesion: AsyncSession, oportunidad_id: uuid.UUID, *, visibilidad: Visibilidad
+    ) -> list[Cotizacion]:
+        """Como `listar_de_oportunidad`, pero bloqueadas hasta el fin de la transacción y
+        releídas, para no pisar al proceso diario, que las vence sin bloquear la oportunidad
+        (DEC-0028 1.5)."""
+        consulta = (
+            _historial(oportunidad_id, visibilidad)
+            .with_for_update(of=Cotizacion)
+            .execution_options(populate_existing=True)
+        )
+        return list(await sesion.scalars(consulta))
+
     async def obtener_para_modificar(
         self, sesion: AsyncSession, id: uuid.UUID, *, visibilidad: Visibilidad
     ) -> Cotizacion:

@@ -72,7 +72,8 @@ def aceptar(cotizacion: Cotizacion, oportunidad: Oportunidad, *, hoy: date | Non
     reactivarla. Con la oportunidad cerrada no se acepta, porque ya no hay reserva que confirmar.
     Tampoco si su `validez_hasta` ya pasó al día de negocio `hoy` (por defecto, el de hoy), aunque
     el proceso diario todavía no la haya marcado `vencida` (T5); el último día de vigencia sigue
-    aceptable. Que sea la vigente y la única aceptada lo exige `exigir_vigente_sin_aceptada`."""
+    aceptable. Se acepta cualquier versión, no solo la última (DEC-0028 1.2); que sea la única
+    aceptada lo exige `exigir_sin_otra_aceptada`."""
     _exigir(cotizacion, EstadoCotizacion.enviada, accion="aceptar")
     if cotizacion.validez_hasta < (hoy or fechas.hoy()):
         raise TransicionInvalida("No se puede aceptar una cotización con la vigencia vencida.")
@@ -81,14 +82,37 @@ def aceptar(cotizacion: Cotizacion, oportunidad: Oportunidad, *, hoy: date | Non
     cotizacion.estado = EstadoCotizacion.aceptada
 
 
-def exigir_vigente_sin_aceptada(cotizacion: Cotizacion, versiones: Sequence[Cotizacion]) -> None:
-    """Solo se acepta la vigente, la primera de `versiones` en el orden del historial (`fecha` y
-    `created_at` desc), y si ninguna otra versión de la oportunidad ya fue aceptada: la aceptada
-    fija la moneda de referencia del `Viaje` (EST-Cotización T3)."""
+def exigir_sin_otra_aceptada(cotizacion: Cotizacion, versiones: Sequence[Cotizacion]) -> None:
+    """Una sola aceptada por oportunidad: si otra de `versiones` ya fue aceptada, no se acepta esta.
+    La aceptada fija la moneda de referencia del `Viaje` (EST-Cotización T3, DEC-0028 1.2)."""
     if any(v.estado is EstadoCotizacion.aceptada and v.id != cotizacion.id for v in versiones):
-        raise TransicionInvalida("Otra versión de esta oportunidad ya fue aceptada.")
-    if not versiones or versiones[0].id != cotizacion.id:
-        raise TransicionInvalida("Solo se puede aceptar la versión vigente de la cotización.")
+        raise TransicionInvalida("Otra cotización de esta oportunidad ya fue aceptada.")
+
+
+def ganar_con(
+    cotizacion: Cotizacion,
+    oportunidad: Oportunidad,
+    versiones: Sequence[Cotizacion],
+    *,
+    hoy: date | None = None,
+) -> None:
+    """«Ganar» con la cotización que eligió el cliente (CU-05, DEC-0028 1.3 a 1.5): pasa a
+    `aceptada` y la oportunidad a `ganada` (EST-Oportunidad T4). Un `borrador` se registra enviado
+    y aceptado (T2 y T3 seguidas, 1.4). Las demás `enviada` de `versiones` pasan a `rechazada`
+    (T4, 1.5) y los `borrador` quedan como están. Las validaciones son las de `aceptar` y
+    `exigir_sin_otra_aceptada`: cualquier error es `TransicionInvalida` y se valida antes de
+    tocar nada."""
+    estado_oportunidad.exigir_abierta(oportunidad, accion="ganar")
+    exigir_sin_otra_aceptada(cotizacion, versiones)
+    if cotizacion.estado is EstadoCotizacion.borrador:
+        if cotizacion.validez_hasta < (hoy or fechas.hoy()):
+            raise TransicionInvalida("No se puede aceptar una cotización con la vigencia vencida.")
+        enviar(cotizacion, oportunidad)
+    aceptar(cotizacion, oportunidad, hoy=hoy)
+    for otra in versiones:
+        if otra.id != cotizacion.id and otra.estado is EstadoCotizacion.enviada:
+            rechazar(otra, oportunidad)
+    estado_oportunidad.ganar(oportunidad)
 
 
 def rechazar(cotizacion: Cotizacion, oportunidad: Oportunidad) -> None:
