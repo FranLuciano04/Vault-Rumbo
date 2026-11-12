@@ -75,11 +75,15 @@ def aceptar(cotizacion: Cotizacion, oportunidad: Oportunidad, *, hoy: date | Non
     aceptable. Se acepta cualquier versión, no solo la última (DEC-0028 1.2); que sea la única
     aceptada lo exige `exigir_sin_otra_aceptada`."""
     _exigir(cotizacion, EstadoCotizacion.enviada, accion="aceptar")
-    if cotizacion.validez_hasta < (hoy or fechas.hoy()):
-        raise TransicionInvalida("No se puede aceptar una cotización con la vigencia vencida.")
+    _exigir_dentro_de_vigencia(cotizacion, hoy=hoy)
     estado_oportunidad.exigir_abierta(oportunidad, accion="aceptar la cotización de")
     estado_oportunidad.pasar_a_cotizada(oportunidad)
     cotizacion.estado = EstadoCotizacion.aceptada
+
+
+def _exigir_dentro_de_vigencia(cotizacion: Cotizacion, *, hoy: date | None) -> None:
+    if cotizacion.validez_hasta < (hoy or fechas.hoy()):
+        raise TransicionInvalida("No se puede aceptar una cotización con la vigencia vencida.")
 
 
 def exigir_sin_otra_aceptada(cotizacion: Cotizacion, versiones: Sequence[Cotizacion]) -> None:
@@ -105,8 +109,7 @@ def ganar_con(
     estado_oportunidad.exigir_abierta(oportunidad, accion="ganar")
     exigir_sin_otra_aceptada(cotizacion, versiones)
     if cotizacion.estado is EstadoCotizacion.borrador:
-        if cotizacion.validez_hasta < (hoy or fechas.hoy()):
-            raise TransicionInvalida("No se puede aceptar una cotización con la vigencia vencida.")
+        _exigir_dentro_de_vigencia(cotizacion, hoy=hoy)
         enviar(cotizacion, oportunidad)
     aceptar(cotizacion, oportunidad, hoy=hoy)
     for otra in versiones:
