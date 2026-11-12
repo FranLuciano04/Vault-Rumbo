@@ -618,8 +618,8 @@ async def test_rf057_sin_vendedor_comision_en_cero(
     assert viaje.comision_vendedor == Decimal("0")
 
 
-@pytest.mark.parametrize("monto_saldo", ["500000.00", "700000.01"])
-async def test_rf061_plan_que_no_suma_el_precio_422(
+@pytest.mark.parametrize("monto_saldo", ["700000.01"])
+async def test_rf061_plan_que_supera_el_precio_422(
     cliente_como: Fabrica, sesion: AsyncSession, monto_saldo: str
 ) -> None:
     c = await cliente_como("empleado")
@@ -912,3 +912,124 @@ async def test_rf061_plan_vacio_422_aun_con_precio_cero(
     assert await _total_de_viajes(sesion) == viajes
     assert await _total_de_pagos(sesion) == pagos
     assert await _estado_de(sesion, oportunidad_id) == m.EstadoOportunidad.cotizada
+
+
+# --- T-176 (DEC-0026): alcanza con el primer pago; el resto del plan se completa desde el viaje ---
+
+PRIMER_PAGO = {
+    "pagos": [{"monto": "300000.00", "tipo": "sena", "vencimiento": "2026-12-01"}],
+}
+
+
+async def test_cu07_reserva_con_solo_el_primer_pago(
+    cliente_como: Fabrica, sesion: AsyncSession
+) -> None:
+    """RF-032, RF-036: un plan que suma menos que el precio de venta confirma la reserva; el
+    viaje nace `reservado` con ese pago pendiente y su alerta."""
+    c = await cliente_como("empleado")
+    destino = await _destino(sesion)
+    oportunidad = await _oportunidad(sesion, _yo(c))
+    oportunidad_id = oportunidad.id
+
+    r = await c.post(_url(oportunidad_id), json=_cuerpo(destino.id, plan_de_pagos=PRIMER_PAGO))
+
+    assert r.status_code == 201
+    assert r.json()["estado"] == "reservado"
+    viaje_id = uuid.UUID(r.json()["id"])
+    pagos = await _pagos_de(sesion, viaje_id)
+    assert [(p.tipo, p.monto, p.vencimiento, p.estado) for p in pagos] == [
+        (m.TipoPago.sena, Decimal("300000.00"), date(2026, 12, 1), m.EstadoPago.pendiente)
+    ]
+    alertas = (
+        await sesion.scalars(select(m.Alerta).where(m.Alerta.pago_id == pagos[0].id))
+    ).all()
+    assert [(a.tipo, a.estado, a.fecha) for a in alertas] == [
+        (m.TipoAlerta.pago, m.EstadoAlerta.pendiente, date(2026, 11, 1))
+    ]
+    assert await _estado_de(sesion, oportunidad_id) == m.EstadoOportunidad.ganada
+
+
+async def test_cu07_reserva_con_plan_que_supera_el_precio_es_422(
+    cliente_como: Fabrica, sesion: AsyncSession
+) -> None:
+    """RF-032: si el plan supera el precio, 422 sobre `pagos` con la diferencia, y no queda nada."""
+    c = await cliente_como("empleado")
+    destino = await _destino(sesion)
+    oportunidad = await _oportunidad(sesion, _yo(c))
+    oportunidad_id = oportunidad.id
+    plan = {
+        "pagos": [
+            {"monto": "600000.00", "tipo": "sena", "vencimiento": "2026-12-01"},
+            {"monto": "400000.01", "tipo": "saldo", "vencimiento": "2027-01-15"},
+        ]
+    }
+    viajes, pagos = await _total_de_viajes(sesion), await _total_de_pagos(sesion)
+
+    r = await c.post(_url(oportunidad_id), json=_cuerpo(destino.id, plan_de_pagos=plan))
+
+    assert r.status_code == 422
+    assert r.headers["content-type"].startswith(PROBLEM_JSON)
+    assert _campos_con_error(r) == ["pagos"]
+    assert "0.01" in r.text  # la diferencia con el precio de venta
+    assert await _viajes_de(sesion, oportunidad_id) == []
+    assert await _total_de_viajes(sesion) == viajes
+    assert await _total_de_pagos(sesion) == pagos
+    assert await _estado_de(sesion, oportunidad_id) == m.EstadoOportunidad.cotizada
+
+
+async def test_cu07_reserva_sin_pagos_es_422(cliente_como: Fabrica, sesion: AsyncSession) -> None:
+    """RF-032: al menos un pago, aunque el plan vacío no supere el precio."""
+    c = await cliente_como("empleado")
+    destino = await _destino(sesion)
+    oportunidad = await _oportunidad(sesion, _yo(c))
+    oportunidad_id = oportunidad.id
+
+    r = await c.post(
+        _url(oportunidad_id), json=_cuerpo(destino.id, plan_de_pagos={"pagos": []})
+    )
+
+    assert r.status_code == 422
+    assert r.headers["content-type"].startswith(PROBLEM_JSON)
+    assert await _viajes_de(sesion, oportunidad_id) == []
+    assert await _estado_de(sesion, oportunidad_id) == m.EstadoOportunidad.cotizada
+
+
+async def test_cu07_reserva_con_pago_en_cero_es_422(
+    cliente_como: Fabrica, sesion: AsyncSession
+) -> None:
+    """RF-032: cada pago es mayor que cero, también en una reserva parcial."""
+    c = await cliente_como("empleado")
+    destino = await _destino(sesion)
+    oportunidad = await _oportunidad(sesion, _yo(c))
+    oportunidad_id = oportunidad.id
+    plan = {
+        "pagos": [
+            {"monto": "300000.00", "tipo": "sena", "vencimiento": "2026-12-01"},
+            {"monto": "0.00", "tipo": "cuota", "vencimiento": "2027-01-15"},
+        ]
+    }
+
+    r = await c.post(_url(oportunidad_id), json=_cuerpo(destino.id, plan_de_pagos=plan))
+
+    assert r.status_code == 422
+    assert await _viajes_de(sesion, oportunidad_id) == []
+    assert await _estado_de(sesion, oportunidad_id) == m.EstadoOportunidad.cotizada
+
+
+async def test_cu07_reserva_parcial_advierte_plan_desbalanceado(
+    cliente_como: Fabrica, sesion: AsyncSession
+) -> None:
+    """RF-059: con la reserva parcial, la ficha avisa `plan_desbalanceado`; con el plan completo
+    no. Se lee con la misma operación que arma las advertencias de la economía (CU-10 A4)."""
+    c = await cliente_como("empleado")
+    parcial = await _confirmar_ok(c, sesion, plan_de_pagos=PRIMER_PAGO)
+    completo = await _confirmar_ok(c, sesion)
+    parcial_id, completo_id = parcial.id, completo.id
+
+    r_parcial = await c.put(f"/api/viajes/{parcial_id}/economia", json=ECONOMIA)
+    r_completo = await c.put(f"/api/viajes/{completo_id}/economia", json=ECONOMIA)
+
+    assert r_parcial.status_code == 200
+    assert "plan_desbalanceado" in r_parcial.json()["advertencias"]
+    assert r_completo.status_code == 200
+    assert "plan_desbalanceado" not in r_completo.json()["advertencias"]

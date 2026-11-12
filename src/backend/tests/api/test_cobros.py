@@ -867,3 +867,23 @@ async def test_rf151_revertir_direccion_revierte_el_pago_de_otro(
     r = await c.post(_url_rev(pago.id))
 
     assert r.status_code == 200
+
+
+async def test_cu12_cobrar_el_primer_pago_de_un_plan_parcial_no_confirma(
+    cliente_como: Fabrica, sesion: AsyncSession
+) -> None:
+    """T-176, DEC-0026: la reserva nace con solo el primer pago (300.000 de 1.000.000). Cobrarlo
+    pasa el viaje a `vendido`; no `confirmado` hasta que el plan sume el precio y no quede saldo."""
+    c = await cliente_como("empleado")
+    viaje = await _viaje(sesion, _yo(c))
+    unico = await _pago(sesion, viaje.id, "300000.00")
+
+    r = await c.post(_url(unico.id), json=COBRO)
+
+    assert r.status_code == 200
+    assert r.json()["estado"] == "pagado"
+    await sesion.refresh(viaje)
+    assert viaje.estado == m.EstadoViaje.vendido
+    pagos = await _pagos_de(sesion, viaje.id)
+    assert calculos.saldo_pendiente(pagos) == Decimal("0")
+    assert calculos.plan_desbalanceado(PRECIO, pagos)
