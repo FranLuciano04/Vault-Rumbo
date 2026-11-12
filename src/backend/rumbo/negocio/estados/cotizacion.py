@@ -46,11 +46,23 @@ def emitir(
         oportunidad_id=oportunidad.id,
         fecha=fecha,
         moneda=moneda,
-        items=[{"concepto": i["concepto"], "precio": str(i["precio"])} for i in items],
+        items=[_item(i) for i in items],
         total=total,
         validez_hasta=sumar_meses(fecha, vigencia_meses),
         estado=EstadoCotizacion.borrador,
     )
+
+
+def _item(item: dict[str, Any]) -> dict[str, Any]:
+    """El ítem como se guarda en el JSON; solo el alojamiento lleva hotel y fechas (RF-106)."""
+    guardado = {"concepto": item["concepto"], "precio": str(item["precio"])}
+    if item.get("hotel_id") is not None:
+        guardado |= {
+            "hotel_id": str(item["hotel_id"]),
+            "check_in": item["check_in"].isoformat(),
+            "check_out": item["check_out"].isoformat(),
+        }
+    return guardado
 
 
 def _exigir(cotizacion: Cotizacion, origen: EstadoCotizacion, *, accion: str) -> None:

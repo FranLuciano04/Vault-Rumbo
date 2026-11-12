@@ -99,6 +99,7 @@ async def test_rf106_cotizacion_guarda_hoteles_con_fechas(
     op_id = (await _oportunidad(sesion, _yo(c))).id
     hotel = await _hotel(sesion)
     item = _item_hotel(hotel, "2027-02-10", "2027-02-15")
+    hotel_id = hotel.id
 
     r = await c.post(
         f"/api/oportunidades/{op_id}/cotizaciones",
@@ -107,13 +108,13 @@ async def test_rf106_cotizacion_guarda_hoteles_con_fechas(
 
     assert r.status_code == 201
     devuelto = r.json()["items"][1]
-    assert devuelto["hotel_id"] == str(hotel.id)
+    assert devuelto["hotel_id"] == str(hotel_id)
     assert (devuelto["check_in"], devuelto["check_out"]) == ("2027-02-10", "2027-02-15")
     sesion.expire_all()
     guardada = (
         await sesion.scalars(select(m.Cotizacion).where(m.Cotizacion.oportunidad_id == op_id))
     ).one()
-    assert guardada.items[1]["hotel_id"] == str(hotel.id)
+    assert guardada.items[1]["hotel_id"] == str(hotel_id)
     assert guardada.items[1]["check_in"] == "2027-02-10"
     assert guardada.items[1]["check_out"] == "2027-02-15"
 
