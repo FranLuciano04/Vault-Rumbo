@@ -3,7 +3,7 @@ id: T-174
 titulo: Ajustar el contrato de cotizaciones y reserva
 modulo: M11 — Ajustes de la revisión del equipo
 capa: contrato
-estado: tomado
+estado: hecho
 depende_de: []
 tamaño: M
 riesgo: normal
@@ -64,3 +64,11 @@ Con la `DEC-` aprobada, actualizar [[CU-05 Seguir oportunidad]], [[CU-06 Emitir 
 
 ## Notas de implementación
 - **Factibilidad (verificada el 10/11/26):** los tres cambios se pueden hacer con el modelo de hoy, sin migraciones. La oportunidad ya admite varias `Cotizacion`. Los ítems son JSONB. La web ya guarda `hotel_id` en el formulario de la cotización, pero no lo manda a la API (`cotizaciones/esquemas.ts`). La máquina de estados del viaje ya maneja un plan que no suma el precio (`al_registrar_cobro`, `al_cambiar_el_plan`).
+
+### Implementación (11/11/26, Nahuel)
+- **Contrato:** `ItemCotizacion` suma `hotel_id`, `check_in` y `check_out`; con hotel, las dos fechas son obligatorias y `check_out` no puede ser anterior a `check_in` (422, hallazgo importante de la review). `POST /ganar` acepta `OportunidadGanar { cotizacion_id }` opcional: sin cuerpo sigue siendo la venta directa. El `operation_id` pasó de `ganar_oportunidad_sin_cotizacion` a `ganar_oportunidad`. La reserva responde `ReservaConfirmada` (extiende `Viaje` con `advertencias_itinerario: [{hotel_id, motivo}]`, motivos `fuera_de_fechas`, `superpuesto` y `hotel_cerrado`), y la descripción de `plan_de_pagos` dice que alcanza con el primer pago.
+- **Stubs:** `ganar` lee `cotizacion_id` pero no lo usa (T-175), y la reserva devuelve `advertencias_itinerario: []` (T-176 y T-177). El backend sigue exigiendo que el plan sume el precio hasta T-176: no mergear T-178 ni T-179 antes de T-175 y T-176.
+- **Tests:** los nuevos están en `tests/api/test_contrato_m11.py`. Se ajustó una línea de `test_contrato_m6.py` (`Viaje` → `ReservaConfirmada`) y las expectativas de `PaginaHoteles.test.tsx`, porque el mock suma «Hotel Gran Vía Madrid» para que la cotización de Europa tenga un hotel coherente (DEC-0019).
+- **Mocks:** `ganar` responde 404 si la cotización no es de la oportunidad y 409 si no está en `borrador` ni `enviada`; la vigencia la valida el backend (T-175). `confirmar-reserva` responde 422 si el plan supera el precio.
+- **Menor sin resolver:** `05-Diseño/API/openapi.json` (contrato de diseño de PC1) no se actualizó; la referencia es `src/packages/shared/openapi.json`.
+- **Modelos:** tests, implementación y refactor con Sonnet (el refactor no cambió nada); review con Opus.
