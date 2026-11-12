@@ -128,11 +128,24 @@ class ItemCotizacion(Entrada):
     precio: Importe
     hotel_id: uuid.UUID | None = Field(
         default=None,
-        description="Hotel del catálogo, si el ítem es un alojamiento. Al confirmar la reserva "
-        "genera un tramo del itinerario (DEC-0028).",
+        description="Hotel del catálogo, si el ítem es un alojamiento. Con hotel, `check_in` y "
+        "`check_out` son obligatorios y el egreso no es anterior al ingreso. Al confirmar la "
+        "reserva genera un tramo del itinerario (DEC-0028).",
     )
     check_in: date | None = Field(default=None, description="Ingreso al hotel.")
-    check_out: date | None = Field(default=None, description="Egreso del hotel.")
+    check_out: date | None = Field(
+        default=None, description="Egreso al hotel; no anterior al ingreso."
+    )
+
+    @model_validator(mode="after")
+    def _hotel_con_fechas_en_orden(self) -> Self:
+        if self.hotel_id is None:
+            return self
+        if self.check_in is None or self.check_out is None:
+            raise ValueError("Un ítem con hotel necesita check_in y check_out.")
+        if self.check_out < self.check_in:
+            raise ValueError("El check_out no puede ser anterior al check_in.")
+        return self
 
 
 class Cotizacion(Auditoria):

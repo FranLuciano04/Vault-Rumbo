@@ -3094,7 +3094,7 @@ export interface components {
             precio: string;
             /**
              * Hotel Id
-             * @description Hotel del catálogo, si el ítem es un alojamiento. Al confirmar la reserva genera un tramo del itinerario (DEC-0028).
+             * @description Hotel del catálogo, si el ítem es un alojamiento. Con hotel, `check_in` y `check_out` son obligatorios y el egreso no es anterior al ingreso. Al confirmar la reserva genera un tramo del itinerario (DEC-0028).
              */
             hotel_id?: string | null;
             /**
@@ -3104,7 +3104,7 @@ export interface components {
             check_in?: string | null;
             /**
              * Check Out
-             * @description Egreso del hotel.
+             * @description Egreso al hotel; no anterior al ingreso.
              */
             check_out?: string | null;
         };

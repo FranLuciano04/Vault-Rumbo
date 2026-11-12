@@ -124,6 +124,37 @@ async def test_cu06_crear_cotizacion_acepta_items_con_hotel_y_fechas(
     assert r.status_code != 422
 
 
+def _cuerpo_con_hotel(**cambios: str | None) -> dict[str, Any]:
+    item = {
+        "concepto": "Alojamiento",
+        "precio": "500000.00",
+        "hotel_id": ID,
+        "check_in": "2027-02-10",
+        "check_out": "2027-02-15",
+    } | cambios
+    return {"moneda": "ARS", "items": [item]}
+
+
+@pytest.mark.parametrize(
+    "cambios",
+    [
+        {"check_in": None, "check_out": None},
+        {"check_in": None},
+        {"check_out": None},
+        {"check_in": "2027-02-16"},
+    ],
+    ids=["sin_fechas", "sin_check_in", "sin_check_out", "check_out_anterior"],
+)
+async def test_cu06_item_con_hotel_sin_fechas_o_desordenadas_responde_422(
+    cliente_como: FabricaCliente, cambios: dict[str, str | None]
+) -> None:
+    c = await cliente_como("admin")
+
+    r = await c.post(f"/api/oportunidades/{ID}/cotizaciones", json=_cuerpo_con_hotel(**cambios))
+
+    assert r.status_code == 422
+
+
 # ---------- Ganar eligiendo cotización (DEC-0028 punto 1.3, CU-05 A4) ----------
 
 
@@ -170,9 +201,11 @@ async def test_cu05_ganar_con_cotizacion_id_que_no_es_uuid_responde_422(
     assert r.status_code == 422
 
 
-async def test_cu05_ganar_con_cotizacion_id_inexistente_responde_404(
+async def test_cu05_ganar_con_un_uuid_valido_en_el_cuerpo_no_da_422(
     cliente_como: FabricaCliente,
 ) -> None:
+    """Un `cotizacion_id` con forma de uuid pasa la validación; con la oportunidad inexistente
+    responde 404. El 404 por una cotización que no es de la oportunidad lo prueba T-175."""
     c = await cliente_como("admin")
 
     r = await c.post(f"/api/oportunidades/{ID}/ganar", json={"cotizacion_id": ID})

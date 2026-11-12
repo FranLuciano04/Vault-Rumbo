@@ -19,6 +19,7 @@ const destino = {
   cancun: "9c2d4e61-1a7f-4b38-8d05-6e3f1a2b4c22",
   brasil: "9c1d2e3f-4a5b-4c6d-8e7f-0a1b2c3d4e03",
   puntaCana: "9c1d2e3f-4a5b-4c6d-8e7f-0a1b2c3d4e05",
+  europa: "9c1d2e3f-4a5b-4c6d-8e7f-0a1b2c3d4e01",
 };
 const camila = "3c1f6d2e-8a47-4b19-9e53-7d0a2b4c6e11";
 const sosa = "9e5b0a74-1c3d-4f68-a2b9-5c8d7e0f1a22";
@@ -32,6 +33,7 @@ export const idHotelMock = {
   pousada: "5e6f7a8b-9c0d-4e1f-8a2b-3c4d5e6f7a02",
   riu: "7c3b1e9f-4a58-4d2c-8e60-9f2d5a7b0c88",
   playaDorada: "5e6f7a8b-9c0d-4e1f-8a2b-3c4d5e6f7a12",
+  granVia: "5e6f7a8b-9c0d-4e1f-8a2b-3c4d5e6f7a13",
 } as const;
 
 type DatosHotel = Pick<Hotel, "id" | "nombre" | "destino_id" | "categoria" | "precio_referencia"> &
@@ -131,7 +133,7 @@ function conValoracion(h: Hotel): Hotel {
   };
 }
 
-/** Catálogo ficticio: seis hoteles en cuatro destinos; el Playa Dorada cerró (CU-16 A4). */
+/** Catálogo ficticio: siete hoteles en cinco destinos; el Playa Dorada cerró (CU-16 A4). */
 export const hotelesMock: Hotel[] = [
   hotel({
     id: idHotelMock.llaoLlao,
@@ -172,6 +174,14 @@ export const hotelesMock: Hotel[] = [
     categoria: "5 estrellas",
     precio_referencia: "210000.00",
     servicios: ["wifi", "pileta", "apto mascotas"],
+  }),
+  hotel({
+    id: idHotelMock.granVia,
+    nombre: "Hotel Gran Vía Madrid",
+    destino_id: destino.europa,
+    categoria: "4 estrellas",
+    precio_referencia: "130000.00",
+    servicios: ["wifi", "desayuno incluido"],
   }),
   hotel({
     id: idHotelMock.playaDorada,

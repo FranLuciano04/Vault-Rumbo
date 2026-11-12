@@ -169,9 +169,9 @@ export const cotizacionesMock: Cotizacion[] = [
       {
         concepto: "Alojamiento 18 noches",
         precio: "2160000.00",
-        hotel_id: idHotelMock.riu,
-        check_in: "2027-02-10",
-        check_out: "2027-02-28",
+        hotel_id: idHotelMock.granVia,
+        check_in: "2027-05-12",
+        check_out: "2027-05-30",
       },
       { concepto: "Traslados y excursiones", precio: "250000.00" },
     ],
@@ -207,6 +207,11 @@ export function cotizacionNoEncontrada() {
 
 function conflicto(detail: string) {
   return respuestaProblema(409, "Conflicto", { detail });
+}
+
+/** Se elige una cotización en borrador o enviada (DEC-0028); la vigencia la valida el backend (T-175). */
+function puedeElegirse(c: Cotizacion): boolean {
+  return c.estado === "borrador" || c.estado === "enviada";
 }
 
 /** `POST /api/oportunidades/{id}/{accion}`: los estados de partida admitidos y el que resulta (CU-05). */
@@ -336,6 +341,10 @@ export const manejadoresOportunidades: RequestHandler[] = [
     const elegida = datos.cotizacion_id;
     if (elegida && !cotizacionesMock.some((c) => c.id === elegida && c.oportunidad_id === o.id)) {
       return cotizacionNoEncontrada();
+    }
+    const cotizacion = cotizacionesMock.find((c) => c.id === elegida);
+    if (cotizacion && !puedeElegirse(cotizacion)) {
+      return conflicto(`No se puede elegir una cotización ${cotizacion.estado}.`);
     }
     return HttpResponse.json({ ...o, estado: "ganada" });
   }),
