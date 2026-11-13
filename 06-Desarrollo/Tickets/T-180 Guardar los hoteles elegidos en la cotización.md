@@ -43,3 +43,9 @@ Cuando se elige un hotel del catálogo al armar la cotización, el ítem guarda 
 
 ## Fuera de alcance
 - El backend, que va en T-177.
+
+## Notas de implementación
+- **Implementado (13/11/26, Francisco):** con `hotel_id`, check-in y check-out son obligatorios (DEC-0028) y el check-out no puede ser anterior. El mensaje se reutiliza de `viajes/itinerario/esquemas.ts` (`CHECK_OUT_ANTERIOR`). Arrancan con las fechas tentativas de la oportunidad, o vacíos si no las tiene. La emitida muestra «concepto (dd/mm/aa al dd/mm/aa)» y el historial lista los hoteles con sus fechas, en un `span` para no romper `RespuestaCotizacion.test.tsx`. El contrato y los mocks no cambiaron (T-174).
+- **Review (opus):** 1 importante, que el aviso de concepto y precio salía por errores de fechas, y 3 menores: las etiquetas con el nombre del hotel, la revalidación del check-out y la key del historial. Todos arreglados. Con `--tocar-tests` se agregó una sola aserción al test del check-out anterior.
+- Queda opcional: `FormularioTramo` tampoco revalida el check-out al cambiar el check-in.
+- **Modelos:** tests sonnet, implementación y refactor sonnet, review opus. Sin escalados.
