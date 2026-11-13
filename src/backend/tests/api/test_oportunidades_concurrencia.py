@@ -16,7 +16,6 @@ from rumbo.datos.modelos import (
     Cotizacion,
     EstadoCotizacion,
     EstadoOportunidad,
-    Moneda,
     MotivoPerdida,
     Oportunidad,
     RolUsuario,
@@ -98,11 +97,12 @@ async def test_rf017_perder_y_ganar_en_paralelo_una_sola_gana(motor: AsyncEngine
             await conexion.execute(text("DELETE FROM usuario WHERE id = :i"), {"i": ids[0]})
 
 
-async def test_rf025_aceptar_una_version_que_otra_sesion_deja_de_ser_vigente_da_409(
+async def test_rf025_dos_sesiones_aceptan_versiones_distintas_una_sola_queda_aceptada(
     motor: AsyncEngine,
 ) -> None:
-    """V2 es la vigente. Mientras la sesión 1 emite V3 (con la oportunidad bloqueada, sin commit),
-    la sesión 2 acepta V2 y espera el bloqueo; al confirmar la 1, V2 ya no es la vigente."""
+    """DEC-0028 1.2: se acepta cualquier versión, pero una sola por oportunidad. La sesión 1 gana
+    con V1 (con la oportunidad bloqueada, sin commit); la sesión 2 acepta V2 y espera el bloqueo.
+    Al confirmar la 1, la 2 da 409 y queda exactamente una aceptada."""
     async with AsyncSession(motor, expire_on_commit=False) as preparacion:
         usuario = await crear(preparacion, UsuarioFactory, rol=RolUsuario.admin)
         cliente = await crear(preparacion, ClienteFactory)
@@ -112,6 +112,13 @@ async def test_rf025_aceptar_una_version_que_otra_sesion_deja_de_ser_vigente_da_
             cliente_id=cliente.id,
             responsable_id=usuario.id,
             estado=EstadoOportunidad.cotizada,
+        )
+        v1 = await crear(
+            preparacion,
+            CotizacionFactory,
+            oportunidad_id=op.id,
+            estado=EstadoCotizacion.enviada,
+            validez_hasta=hoy() + timedelta(days=30),
         )
         v2 = await crear(
             preparacion,
@@ -133,16 +140,10 @@ async def test_rf025_aceptar_una_version_que_otra_sesion_deja_de_ser_vigente_da_
             assert actor_1 is not None
             assert actor_2 is not None
 
-            # la sesión 1 emite V3 y queda abierta, con la oportunidad bloqueada
-            await oportunidades.emitir_cotizacion(
-                primera,
-                actor_1,
-                op.id,
-                Moneda.ARS,
-                [{"concepto": "Paquete", "precio": "1000.00"}],
-            )
+            # la sesión 1 gana con V1 y queda abierta, con la oportunidad bloqueada
+            await oportunidades.ganar_oportunidad(primera, actor_1, op.id, v1.id)
 
-            # la sesión 2 acepta V2 (todavía la vigente para ella) y espera el bloqueo
+            # la sesión 2 acepta V2 (para ella, todavía sin aceptada) y espera el bloqueo
             aceptar = asyncio.create_task(oportunidades.aceptar_cotizacion(segunda, actor_2, v2.id))
             for _ in range(100):
                 if await _hay_alguien_bloqueado(motor) or aceptar.done():
@@ -155,12 +156,15 @@ async def test_rf025_aceptar_una_version_que_otra_sesion_deja_de_ser_vigente_da_
                 await segunda.commit()
 
         assert isinstance(resultado, TransicionInvalida), (
-            "la aceptación no dio 409: se aceptó una versión que ya no era la vigente"
+            "la segunda aceptación no dio 409: quedaron dos aceptadas en la oportunidad"
         )
         async with AsyncSession(motor) as lectura:
-            final = await lectura.get(Cotizacion, v2.id)
-            assert final is not None
-            assert final.estado is EstadoCotizacion.enviada
+            final_1 = await lectura.get(Cotizacion, v1.id)
+            final_2 = await lectura.get(Cotizacion, v2.id)
+            assert final_1 is not None
+            assert final_2 is not None
+            assert final_1.estado is EstadoCotizacion.aceptada
+            assert final_2.estado is EstadoCotizacion.rechazada  # la rechazó el ganar de la 1
     finally:
         async with motor.begin() as conexion:
             await conexion.execute(
