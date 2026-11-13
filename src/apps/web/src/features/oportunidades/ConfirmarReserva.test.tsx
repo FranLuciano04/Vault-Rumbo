@@ -882,10 +882,7 @@ describe("RF-036 avisos de hoteles omitidos del itinerario (M11 H-02, CU-07 A4)"
   });
 
   it("RF-036 el botón «Ir al viaje» lleva a la ficha del viaje creado", async () => {
-    servidor.use(
-      aceptadaConHotel(),
-      reservaCon([{ hotel_id: hotelId, motivo: "hotel_cerrado" }]),
-    );
+    servidor.use(aceptadaConHotel(), reservaCon([{ hotel_id: hotelId, motivo: "hotel_cerrado" }]));
     const { usuario } = await confirmarReserva();
 
     await usuario.click(await screen.findByRole("button", { name: /ir al viaje/i }));

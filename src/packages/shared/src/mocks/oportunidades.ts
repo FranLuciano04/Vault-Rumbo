@@ -348,7 +348,7 @@ export const manejadoresOportunidades: RequestHandler[] = [
       return conflicto(`No se puede elegir una cotización ${cotizacion.estado}.`);
     }
     if (cotizacion && cotizacion.validez_hasta < hoyEnBuenosAires()) {
-      return conflicto("La cotización está vencida: su vigencia ya pasó.");
+      return conflicto("No se puede aceptar una cotización con la vigencia vencida.");
     }
     return HttpResponse.json({ ...o, estado: "ganada" });
   }),

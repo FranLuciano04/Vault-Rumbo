@@ -264,7 +264,9 @@ export function ganancia(precio_venta: string, costo: string) {
 /**
  * Hoteles omitidos del itinerario al reservar, por oportunidad (CU-07 A4). Se escriben con los ids
  * literales de la oportunidad cotizada de Europa y de Gran Vía porque importarlos crearía un ciclo
- * entre mocks. El resto de las reservas no tiene advertencias.
+ * entre mocks. Es un caso de prueba para quien consuma el mock con handlers propios: esa
+ * oportunidad no tiene cotización aceptada, así que la interfaz no llega a reservarla. El resto
+ * de las reservas no tiene advertencias.
  */
 const advertenciasPorOportunidad: Record<string, AdvertenciaItinerario[]> = {
   "6b2d9f08-7e41-4c5a-8d13-0a9e3c5b7f44": [

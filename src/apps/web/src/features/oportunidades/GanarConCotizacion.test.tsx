@@ -25,7 +25,7 @@ import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { http, HttpResponse } from "msw";
 import { MemoryRouter, Route, Routes } from "react-router";
-import { afterAll, afterEach, beforeAll } from "vitest";
+import { afterAll, afterEach, beforeAll, beforeEach, vi } from "vitest";
 import { DetalleOportunidad } from "./DetalleOportunidad";
 import { PaginaOportunidades } from "./PaginaOportunidades";
 
@@ -33,7 +33,13 @@ const servidor = crearServidor(...manejadoresOportunidades, ...manejadoresAlerta
 beforeAll(() => {
   servidor.listen({ onUnhandledRequest: "error" });
 });
+beforeEach(() => {
+  // Las vigencias de los mocks son de noviembre de 2026: se fija la fecha (solo `Date`, para no frenar a MSW).
+  vi.useFakeTimers({ toFake: ["Date"] });
+  vi.setSystemTime(new Date("2026-11-12T15:00:00"));
+});
 afterEach(() => {
+  vi.useRealTimers();
   servidor.resetHandlers();
 });
 afterAll(() => {
