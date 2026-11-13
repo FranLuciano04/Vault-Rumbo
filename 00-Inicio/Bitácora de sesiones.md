@@ -36,6 +36,14 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
+## 13/11/26 — Nahuel (Claude Opus 5.5) — T-181, e2e de la reserva desde la cotización
+- **Hecho:** T-181 (e2e de la reserva desde la cotización elegida y de la venta directa). La review (Opus) no encontró bloqueantes y sus dos hallazgos importantes se arreglaron. PR #216 mergeado con el CI en verde. Con T-181 quedan hechos los 11 tickets de M11.
+- **Commits:** `f5dc2bb7` e2e, `ecc4891e` fix, `980b73c9` hecho, merge del PR #216.
+- **Pendiente:**
+  - `/cerrar-modulo` M11.
+  - El equipo confirma la base de la comisión en % (punto 5 de DEC-0028).
+  - Con el Compose recién levantado, los GET posteriores a una escritura a veces tardan más de 5 s; la causa no está diagnosticada (ver las notas de T-181).
+
 ## 13/11/26 — Francisco (Claude Opus 5.5) — T-175, ratificaciones y T-180
 - **Hecho:**
   - T-175 (ganar con la cotización elegida, riesgo alto) implementado con TDD; PR #211 aprobado por Nahuel y mergeado. Con autorización se reescribió el test de concurrencia que fijaba la regla vieja de DEC-0028 1.2.
