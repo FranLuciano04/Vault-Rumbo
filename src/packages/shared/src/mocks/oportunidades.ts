@@ -13,6 +13,7 @@ import type {
   OportunidadGanar,
   OportunidadPerder,
 } from "../modelos";
+import { hoyEnBuenosAires } from "../alertas";
 import { idHotelMock } from "./hoteles";
 import { respuestaProblema } from "./problema";
 import { pagina } from "./utilidades";
@@ -209,7 +210,7 @@ function conflicto(detail: string) {
   return respuestaProblema(409, "Conflicto", { detail });
 }
 
-/** Se elige una cotización en borrador o enviada (DEC-0028); la vigencia la valida el backend (T-175). */
+/** Se elige una cotización en borrador o enviada (DEC-0028); la vigencia, borradores incluidos, la valida el backend (T-175, M11 H-03). */
 function puedeElegirse(c: Cotizacion): boolean {
   return c.estado === "borrador" || c.estado === "enviada";
 }
@@ -345,6 +346,9 @@ export const manejadoresOportunidades: RequestHandler[] = [
     const cotizacion = cotizacionesMock.find((c) => c.id === elegida);
     if (cotizacion && !puedeElegirse(cotizacion)) {
       return conflicto(`No se puede elegir una cotización ${cotizacion.estado}.`);
+    }
+    if (cotizacion && cotizacion.validez_hasta < hoyEnBuenosAires()) {
+      return conflicto("La cotización está vencida: su vigencia ya pasó.");
     }
     return HttpResponse.json({ ...o, estado: "ganada" });
   }),

@@ -26,7 +26,7 @@ const SIN_CUERPO = "aceptada";
 
 /**
  * Confirmación de ganar (RF-016, DEC-0028), la misma en el detalle y en el embudo: se elige la
- * cotización que aceptó el cliente (`borrador` o `enviada` vigente) o la venta directa.
+ * cotización que aceptó el cliente (`borrador` o `enviada`, con la validez al día) o la venta directa.
  */
 export function ConfirmarGanar({
   cliente,
@@ -47,8 +47,9 @@ export function ConfirmarGanar({
   // CU-06 A2: con una cotización aceptada, la oportunidad se gana con ella y el backend la toma sola.
   const aceptada = cotizaciones.find((c) => c.estado === "aceptada");
   const hoy = hoyEnBuenosAires();
+  // El backend exige la vigencia también a los borradores: uno vencido terminaría en 409.
   const elegibles = cotizaciones.filter(
-    (c) => c.estado === "borrador" || (c.estado === "enviada" && c.validez_hasta >= hoy),
+    (c) => (c.estado === "borrador" || c.estado === "enviada") && c.validez_hasta >= hoy,
   );
   // Sin cotizaciones elegibles solo existe la venta directa, que queda elegida.
   const opcion = aceptada
