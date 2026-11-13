@@ -25,7 +25,7 @@ tags:: #tipo/referencia
 | M8 — Calendario, dashboard y reportes | 10 | 10 | 0 | 0 | 0 | 0 | ✅ cerrado |
 | M9 — Redes e IA | 8 | 8 | 0 | 0 | 0 | 0 | ✅ cerrado |
 | M10 — Despliegue on-premise | 5 | 0 | 0 | 1 | 4 | 0 | 🛠️ en curso |
-| M11 — Ajustes de la revisión del equipo | 11 | 8 | 1 | 1 | 1 | 0 | 🛠️ en curso |
+| M11 — Ajustes de la revisión del equipo | 11 | 9 | 0 | 1 | 1 | 0 | 🛠️ en curso |
 
 ## Grafo
 
@@ -234,7 +234,7 @@ flowchart LR
     T177["T-177 · Armar el itinerario con los hoteles de la cotización<br/><small>backend</small>"]:::hecho
     T178["T-178 · Elegir la cotización al ganar la oportunidad en la web<br/><small>web</small>"]:::hecho
     T179["T-179 · Precargar la reserva con la cotización y pedir el primer pago<br/><small>web</small>"]:::disponible
-    T180["T-180 · Guardar los hoteles elegidos en la cotización<br/><small>web</small><br/>👤 FranLucianoo"]:::tomado
+    T180["T-180 · Guardar los hoteles elegidos en la cotización<br/><small>web</small>"]:::hecho
     T181["T-181 · Probar de punta a punta la reserva desde la cotización elegida<br/><small>e2e</small>"]:::esperando
   end
   T002 --> T003
