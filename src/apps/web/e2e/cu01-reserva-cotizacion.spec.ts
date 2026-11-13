@@ -1,20 +1,17 @@
 import { expect as esperar, type Page, test } from "@playwright/test";
-import { DUENA, EMULADOR, URL_BASE } from "./compose";
+import { api, hoy, ingresar, sumarDias, SUFIJO, tokenDe, type Id, type PagoApi } from "./apoyo";
+import { DUENA } from "./compose";
 
 // T-181: el circuito nuevo de la reserva (DEC-0028) contra el backend real: dos cotizaciones con
 // hoteles, se gana eligiendo la que NO es la última, la reserva sale precargada y solo con el primer
 // pago, y el viaje nace con su itinerario y el plan por completar. La persona recorre la web; por la
 // API solo se arman los datos de partida (destino y hoteles) y se leen los resultados. Cada
 // ejecución crea todo con un sufijo único: la base y el emulador se comparten entre specs.
-// El backend del Compose puede tardar varios segundos por pedido con la máquina cargada: las
-// esperas de las pantallas son más generosas que las 5 s por defecto.
+// Pasa con el Compose en frío: tras una escritura, los GET de refresco a veces tardan más de 5 s.
+// Causa no diagnosticada; si se repite, guardar el trace y los logs de api/postgres en vez de
+// subir este número.
 const expect = esperar.configure({ timeout: 20_000 });
-const SUFIJO = String(Date.now());
 const AVISO_PLAN = "Los pagos del plan no suman el precio de venta: rebalanceá el plan de pagos.";
-
-interface Id {
-  id: string;
-}
 
 interface ViajeApi {
   id: string;
@@ -24,68 +21,11 @@ interface ViajeApi {
   saldo_pendiente: string;
 }
 
-interface PagoApi {
-  tipo: string;
-  monto: string;
-  estado: string;
-}
-
 interface TramoApi {
   hotel_id: string;
   check_in: string;
   check_out: string;
   orden: number;
-}
-
-function hoy(): string {
-  return new Intl.DateTimeFormat("sv-SE", { timeZone: "America/Argentina/Buenos_Aires" }).format(
-    new Date(),
-  );
-}
-
-function sumarDias(fecha: string, dias: number): string {
-  const d = new Date(`${fecha}T12:00:00Z`);
-  d.setUTCDate(d.getUTCDate() + dias);
-  return d.toISOString().slice(0, 10);
-}
-
-async function ingresar(pagina: Page, email: string, password: string): Promise<void> {
-  await pagina.goto("/login");
-  await pagina.getByLabel("Email").fill(email);
-  await pagina.getByLabel("Contraseña", { exact: true }).fill(password);
-  const respuesta = pagina.waitForResponse((r) => r.url().includes("/api/auth/yo"));
-  await pagina.getByRole("button", { name: "Ingresar" }).click();
-  const yo = await respuesta;
-  if (!yo.ok()) throw new Error(`Falló el ingreso de ${email}: ${String(yo.status())}`);
-  await expect(pagina).toHaveURL(/\/agenda$/);
-}
-
-async function tokenDe(email: string, password: string): Promise<string> {
-  // HTTP a propósito: el emulador escucha solo en 127.0.0.1 (docker-compose.e2e.yml).
-  // nosemgrep: typescript.react.security.react-insecure-request.react-insecure-request
-  const respuesta = await fetch(
-    `${EMULADOR}/identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=demo-key`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password, returnSecureToken: true }),
-    },
-  );
-  const cuerpo = (await respuesta.json()) as { idToken?: string };
-  expect(cuerpo.idToken, `el emulador debería dar token a ${email}`).toBeDefined();
-  return cuerpo.idToken ?? "";
-}
-
-async function api<T>(token: string, metodo: string, ruta: string, cuerpo?: object): Promise<T> {
-  // El Compose de e2e publica nginx por HTTP en localhost.
-  // nosemgrep: typescript.react.security.react-insecure-request.react-insecure-request
-  const respuesta = await fetch(`${URL_BASE}/api${ruta}`, {
-    method: metodo,
-    headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-    body: cuerpo ? JSON.stringify(cuerpo) : undefined,
-  });
-  expect(respuesta.ok, `${metodo} ${ruta} respondió ${String(respuesta.status)}`).toBe(true);
-  return (await respuesta.json()) as T;
 }
 
 /** Un destino con sus hoteles abiertos en el catálogo, por la API. */
@@ -233,6 +173,17 @@ test.describe("CU-01 Reserva desde la cotización elegida", () => {
       await ganar.getByRole("radio", { name: new RegExp(`${alfa}.*${beta}`) }).check();
       await ganar.getByRole("button", { name: "Confirmar", exact: true }).click();
       await expect(page.getByText("Ganada", { exact: true })).toBeVisible();
+
+      // DEC-0028: la elegida queda aceptada y la otra, rechazada.
+      const { items } = await api<{ items: { id: string; estado: string; moneda: string }[] }>(
+        duena,
+        "GET",
+        `${oportunidadUrl}/cotizaciones?por_pagina=100`,
+      );
+      expect(items.map((c) => [c.moneda, c.estado]).sort()).toEqual([
+        ["ARS", "rechazada"],
+        ["USD", "aceptada"],
+      ]);
 
       await page.getByRole("button", { name: "Confirmar reserva" }).click();
       const dialogo = page.getByRole("dialog", { name: "Confirmar reserva" });
