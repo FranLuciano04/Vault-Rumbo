@@ -219,6 +219,8 @@ test.describe("CU-01 De la consulta a la venta", () => {
       await dialogo.getByLabel("Regreso", { exact: true }).fill(REGRESO);
       await dialogo.getByLabel("Categoría", { exact: true }).selectOption("individual");
       await dialogo.getByLabel("Costo (ARS)").fill("950000");
+      await dialogo.getByLabel("Monto del primer pago").fill("1200000");
+      await dialogo.getByLabel("Tipo de pago", { exact: true }).selectOption("saldo");
       await dialogo.getByLabel("Vencimiento del pago").fill(sumarDias(HOY, 30));
       await dialogo.getByRole("button", { name: "Confirmar reserva" }).click();
 
