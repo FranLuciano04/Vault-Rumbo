@@ -21,13 +21,31 @@ const CAMPOS = [
   "moneda",
   "precio_venta",
   "costo",
+  "monto",
+  "tipo_de_pago",
+  "vencimiento",
 ] as const;
+
+const sinAcentos = (texto: string) =>
+  texto
+    .normalize("NFD")
+    .replace(/\p{Diacritic}/gu, "")
+    .trim()
+    .toLowerCase();
+
+/** El destino de la oportunidad es texto libre (DEC-0006): se sugiere solo si un único destino del catálogo coincide. */
+function destinoSugerido(destinos: Destino[], consultado: string | null | undefined) {
+  if (!consultado) return "";
+  const coincidentes = destinos.filter((d) => sinAcentos(d.nombre) === sinAcentos(consultado));
+  return coincidentes.length === 1 ? (coincidentes[0]?.id ?? "") : "";
+}
 
 /**
  * Diálogo de confirmación de la reserva (CU-07, RF-032, RF-033, RF-036). Además de los datos del
- * viaje pide lo que exige el contrato: la economía (precio de venta precargado de la cotización
- * aceptada) y una cuota única por el precio de venta; en la ficha del viaje se ajustan. En la venta
- * directa (sin cotización aceptada) también se pide la moneda. Al confirmar sigue la ficha del viaje.
+ * viaje pide la economía y el primer pago, que va como único ítem del plan (el resto se completa
+ * desde el viaje, DEC-0028). Se precarga con la cotización aceptada (moneda y precio de venta) y la
+ * oportunidad (destino y fechas tentativas); todo se puede editar. En la venta directa (sin
+ * cotización aceptada) también se pide la moneda. Al confirmar sigue la ficha del viaje.
  */
 export function DialogoReserva({
   cliente,
@@ -49,14 +67,15 @@ export function DialogoReserva({
   const formulario = useForm<DatosReserva>({
     resolver: zodResolver(esquemaReserva),
     defaultValues: {
-      destino_id: "",
-      fecha_salida: "",
-      fecha_regreso: "",
+      destino_id: destinoSugerido(destinos, oportunidad.destino_consultado),
+      fecha_salida: oportunidad.fecha_desde_tentativa ?? "",
+      fecha_regreso: oportunidad.fecha_hasta_tentativa ?? "",
       responsable_id: "",
       moneda: "ARS",
       precio_venta: aceptada?.total ?? "",
       costo: "",
-      tipo_de_pago: "saldo",
+      monto: "",
+      tipo_de_pago: undefined,
       vencimiento: "",
     },
   });
@@ -80,7 +99,7 @@ export function DialogoReserva({
           plan_de_pagos: {
             pagos: [
               {
-                monto: datos.precio_venta,
+                monto: datos.monto,
                 tipo: datos.tipo_de_pago,
                 vencimiento: datos.vencimiento,
               },
@@ -152,8 +171,7 @@ export function DialogoReserva({
         )}
       </CampoFormulario>
       <fieldset className="flex flex-col gap-4">
-        <legend className="mb-2 text-sm font-medium">Economía y primer pago</legend>
-        <p className="text-sm text-muted-foreground">Después se ajustan desde el viaje.</p>
+        <legend className="mb-2 text-sm font-medium">Economía</legend>
         {!aceptada && (
           <CampoFormulario id="reserva-moneda" etiqueta="Moneda" error={errors.moneda}>
             {(props) => (
@@ -177,6 +195,21 @@ export function DialogoReserva({
           <CampoFormulario id="reserva-costo" etiqueta={`Costo (${moneda})`} error={errors.costo}>
             {(props) => <Input inputMode="decimal" {...props} {...formulario.register("costo")} />}
           </CampoFormulario>
+        </div>
+      </fieldset>
+      <fieldset className="flex flex-col gap-4">
+        <legend className="mb-2 text-sm font-medium">Primer pago</legend>
+        <p className="text-sm text-muted-foreground">
+          El resto del plan de pagos se completa desde el viaje.
+        </p>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <CampoFormulario
+            id="reserva-monto"
+            etiqueta={`Monto del primer pago (${moneda})`}
+            error={errors.monto}
+          >
+            {(props) => <Input inputMode="decimal" {...props} {...formulario.register("monto")} />}
+          </CampoFormulario>
           <CampoFormulario
             id="reserva-tipo-pago"
             etiqueta="Tipo de pago"
@@ -184,6 +217,7 @@ export function DialogoReserva({
           >
             {(props) => (
               <select className={CLASE_SELECT} {...props} {...formulario.register("tipo_de_pago")}>
+                <option value="">Seleccioná el tipo</option>
                 {Object.entries(ETIQUETA_TIPO_PAGO).map(([valor, etiqueta]) => (
                   <option key={valor} value={valor}>
                     {etiqueta}
