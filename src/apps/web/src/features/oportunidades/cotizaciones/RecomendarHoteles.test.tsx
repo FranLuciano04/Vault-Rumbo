@@ -486,6 +486,7 @@ describe("RF-106 hotel con fechas en la cotización", () => {
     expect(
       await screen.findByText(/el check-out no puede ser anterior al check-in/i),
     ).toBeInTheDocument();
+    expect(screen.queryByText(/concepto y precio válidos/i)).not.toBeInTheDocument();
     expect(cuerpos).toHaveLength(0);
   });
 

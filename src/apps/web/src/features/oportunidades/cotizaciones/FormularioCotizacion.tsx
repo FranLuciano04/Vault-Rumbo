@@ -60,6 +60,9 @@ export function FormularioCotizacion({
   const { errors, isSubmitting } = formulario.formState;
   const moneda = useWatch({ control: formulario.control, name: "moneda" });
   const items = useWatch({ control: formulario.control, name: "items" });
+  const hayErrorDeItems =
+    Boolean(errors.items?.root ?? errors.items?.message) ||
+    Boolean(errors.items?.some?.((item) => item?.concepto ?? item?.precio));
   const total = sumarImportes(items.map((item) => item.precio));
 
   const elegidos = items.flatMap((item, i) =>
@@ -184,20 +187,24 @@ export function FormularioCotizacion({
               <div className="grid basis-full grid-cols-2 gap-2">
                 <CampoFormulario
                   id={`item-${String(i)}-check-in`}
-                  etiqueta="Check-in"
+                  etiqueta={`Check-in de ${items[i].hotel_nombre ?? "hotel"}`}
+                  anunciarError
                   error={errors.items?.[i]?.check_in}
                 >
                   {(props) => (
                     <Input
                       type="date"
                       {...props}
-                      {...formulario.register(`items.${String(i) as "0"}.check_in`)}
+                      {...formulario.register(`items.${String(i) as "0"}.check_in`, {
+                        deps: `items.${String(i) as "0"}.check_out`,
+                      })}
                     />
                   )}
                 </CampoFormulario>
                 <CampoFormulario
                   id={`item-${String(i)}-check-out`}
-                  etiqueta="Check-out"
+                  etiqueta={`Check-out de ${items[i].hotel_nombre ?? "hotel"}`}
+                  anunciarError
                   error={errors.items?.[i]?.check_out}
                 >
                   {(props) => (
@@ -272,7 +279,7 @@ export function FormularioCotizacion({
           ? "Vigencia según la configuración de la agencia"
           : `Válida hasta ${formatearFecha(sumarMesesAHoy(meses))}`}
       </p>
-      {errors.items && (
+      {hayErrorDeItems && (
         <p role="alert" className="text-sm font-medium text-destructive">
           Cargá al menos un ítem con concepto y precio válidos.
         </p>

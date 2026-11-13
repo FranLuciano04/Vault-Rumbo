@@ -53,11 +53,14 @@ export function AlternativasCotizacion({
                 <span className="rounded-full bg-muted px-2 py-0.5 text-xs font-medium">
                   {ETIQUETA_ESTADO_COTIZACION[cotizacion.estado]}
                 </span>
-                {cotizacion.items.map((item) => {
+                {cotizacion.items.map((item, i) => {
                   const fechas = fechasDelHotel(item);
                   return (
                     fechas && (
-                      <span key={item.concepto} className="basis-full text-muted-foreground">
+                      <span
+                        key={`${String(i)}-${item.concepto}`}
+                        className="basis-full text-muted-foreground"
+                      >
                         {item.concepto}: {fechas}
                       </span>
                     )
