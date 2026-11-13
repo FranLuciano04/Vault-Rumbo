@@ -13,13 +13,14 @@ import type { AxiosInstance } from "axios";
 import { Hotel as IconoHotel, Plus, Search, X } from "lucide-react";
 import { useState } from "react";
 import { useFieldArray, useForm, useWatch } from "react-hook-form";
+import { CampoFormulario } from "@/components/CampoFormulario";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { aplicarErroresDelServidor } from "@/lib/errores";
 import { BuscadorHoteles } from "./BuscadorHoteles";
 import { esquemaCotizacion, type DatosCotizacion } from "./esquemas";
-import { importeComoTexto, sumarImportes, sumarMesesAHoy } from "./calculos";
+import { fechasDelHotel, importeComoTexto, sumarImportes, sumarMesesAHoy } from "./calculos";
 
 const MONEDAS: Moneda[] = ["ARS", "USD"];
 const SUFIJO_REFERENCIA = " (ref. por noche)";
@@ -30,11 +31,14 @@ export function FormularioCotizacion({
   usuario,
   oportunidadId,
   destinoConsultado,
+  fechasTentativas,
 }: {
   cliente: AxiosInstance;
   usuario: UsuarioActual;
   oportunidadId: string;
   destinoConsultado: string | null;
+  /** Fechas tentativas de la oportunidad: con ellas arranca el hotel elegido. */
+  fechasTentativas: { desde: string | null; hasta: string | null };
 }) {
   const emitir = useEmitirCotizacion(cliente);
   // Los parámetros del negocio solo los lee la gestión: el resto no ve una fecha estimada.
@@ -56,6 +60,9 @@ export function FormularioCotizacion({
   const { errors, isSubmitting } = formulario.formState;
   const moneda = useWatch({ control: formulario.control, name: "moneda" });
   const items = useWatch({ control: formulario.control, name: "items" });
+  const hayErrorDeItems =
+    Boolean(errors.items?.root ?? errors.items?.message) ||
+    Boolean(errors.items?.some?.((item) => item?.concepto ?? item?.precio));
   const total = sumarImportes(items.map((item) => item.precio));
 
   const elegidos = items.flatMap((item, i) =>
@@ -73,6 +80,8 @@ export function FormularioCotizacion({
       precio_autocompletado: precio || undefined,
       hotel_id: hotel.id,
       hotel_nombre: hotel.nombre,
+      check_in: fechasTentativas.desde ?? "",
+      check_out: fechasTentativas.hasta ?? "",
     };
     const vacia = items.findIndex((i) => !i.concepto.trim() && !i.precio.trim());
     if (vacia >= 0) update(vacia, item);
@@ -105,9 +114,10 @@ export function FormularioCotizacion({
         oportunidadId,
         datos: {
           moneda: datos.moneda,
-          items: datos.items.map(({ concepto, precio }) => ({
+          items: datos.items.map(({ concepto, precio, hotel_id, check_in, check_out }) => ({
             concepto,
             precio: importeComoTexto(precio),
+            ...(hotel_id && { hotel_id, check_in, check_out }),
           })),
         },
       });
@@ -145,7 +155,7 @@ export function FormularioCotizacion({
       </fieldset>
       <div className="space-y-2">
         {fields.map((campo, i) => (
-          <div key={campo.id} className="flex items-start gap-2">
+          <div key={campo.id} className="flex flex-wrap items-start gap-2">
             <Input
               aria-label="Concepto"
               placeholder="Concepto"
@@ -172,6 +182,40 @@ export function FormularioCotizacion({
               >
                 <X aria-hidden="true" />
               </Button>
+            )}
+            {items[i]?.hotel_id && (
+              <div className="grid basis-full grid-cols-2 gap-2">
+                <CampoFormulario
+                  id={`item-${String(i)}-check-in`}
+                  etiqueta={`Check-in de ${items[i].hotel_nombre ?? "hotel"}`}
+                  anunciarError
+                  error={errors.items?.[i]?.check_in}
+                >
+                  {(props) => (
+                    <Input
+                      type="date"
+                      {...props}
+                      {...formulario.register(`items.${String(i) as "0"}.check_in`, {
+                        deps: `items.${String(i) as "0"}.check_out`,
+                      })}
+                    />
+                  )}
+                </CampoFormulario>
+                <CampoFormulario
+                  id={`item-${String(i)}-check-out`}
+                  etiqueta={`Check-out de ${items[i].hotel_nombre ?? "hotel"}`}
+                  anunciarError
+                  error={errors.items?.[i]?.check_out}
+                >
+                  {(props) => (
+                    <Input
+                      type="date"
+                      {...props}
+                      {...formulario.register(`items.${String(i) as "0"}.check_out`)}
+                    />
+                  )}
+                </CampoFormulario>
+              </div>
             )}
           </div>
         ))}
@@ -235,7 +279,7 @@ export function FormularioCotizacion({
           ? "Vigencia según la configuración de la agencia"
           : `Válida hasta ${formatearFecha(sumarMesesAHoy(meses))}`}
       </p>
-      {errors.items && (
+      {hayErrorDeItems && (
         <p role="alert" className="text-sm font-medium text-destructive">
           Cargá al menos un ítem con concepto y precio válidos.
         </p>
@@ -250,7 +294,12 @@ export function FormularioCotizacion({
           Cotización emitida: <span>{ETIQUETA_ESTADO_COTIZACION[emitida.estado]}</span> ·{" "}
           {formatearImporte(emitida.total, emitida.moneda)} · vigente hasta el{" "}
           {formatearFecha(emitida.validez_hasta)} · Ítems:{" "}
-          {emitida.items.map((item) => item.concepto).join(", ")}
+          {emitida.items
+            .map((item) => {
+              const fechas = fechasDelHotel(item);
+              return fechas ? `${item.concepto} (${fechas})` : item.concepto;
+            })
+            .join(", ")}
         </p>
       )}
       <Button type="submit" disabled={isSubmitting}>

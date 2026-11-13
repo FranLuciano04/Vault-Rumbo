@@ -1,3 +1,4 @@
+import { formatearFecha, type Cotizacion } from "@rumbo/shared";
 import { IMPORTE } from "./esquemas";
 
 const ESCALA = 10_000n;
@@ -34,4 +35,14 @@ export function sumarMesesAHoy(meses: number): string {
   ).getUTCDate();
   destino.setUTCDate(Math.min(dia, ultimoDia));
   return destino.toISOString().slice(0, 10);
+}
+
+/** «dd/mm/aa al dd/mm/aa» de un ítem con hotel; `null` si el ítem no tiene fechas. */
+export function fechasDelHotel({
+  check_in,
+  check_out,
+}: Cotizacion["items"][number]): string | null {
+  return check_in && check_out
+    ? `${formatearFecha(check_in)} al ${formatearFecha(check_out)}`
+    : null;
 }

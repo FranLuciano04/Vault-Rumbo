@@ -3,6 +3,8 @@ import { z } from "zod";
 
 const FECHA_OBLIGATORIA = "Ingresá la fecha.";
 const ORDEN_INVALIDO = "Ingresá un número entero mayor a 0.";
+/** Mensaje del check-out anterior al check-in; lo comparten el tramo y el hotel de la cotización. */
+export const CHECK_OUT_ANTERIOR = "El check-out no puede ser anterior al check-in.";
 
 /**
  * Fechas de un tramo del itinerario (RF-043): check-in y check-out obligatorios, el check-out no
@@ -29,7 +31,7 @@ export function esquemaTramo(
         contexto.addIssue({
           code: "custom",
           path: ["check_out"],
-          message: "El check-out no puede ser anterior al check-in.",
+          message: CHECK_OUT_ANTERIOR,
         });
         return;
       }

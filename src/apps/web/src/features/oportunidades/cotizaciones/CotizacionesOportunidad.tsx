@@ -55,6 +55,7 @@ export function CotizacionesOportunidad({
           usuario={usuario}
           oportunidadId={oportunidadId}
           destinoConsultado={oportunidad.destino_consultado}
+          fechasTentativas={{ desde, hasta }}
         />
       )}
       <AlternativasCotizacion

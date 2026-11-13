@@ -2,6 +2,7 @@ import { ETIQUETA_ESTADO_COTIZACION, formatearFecha, formatearImporte } from "@r
 import { useCotizaciones } from "@rumbo/shared/hooks";
 import type { AxiosInstance } from "axios";
 import { AccionesCotizacion } from "./AccionesCotizacion";
+import { fechasDelHotel } from "./calculos";
 
 const POR_PAGINA = 100;
 
@@ -52,6 +53,19 @@ export function AlternativasCotizacion({
                 <span className="rounded-full bg-muted px-2 py-0.5 text-xs font-medium">
                   {ETIQUETA_ESTADO_COTIZACION[cotizacion.estado]}
                 </span>
+                {cotizacion.items.map((item, i) => {
+                  const fechas = fechasDelHotel(item);
+                  return (
+                    fechas && (
+                      <span
+                        key={`${String(i)}-${item.concepto}`}
+                        className="basis-full text-muted-foreground"
+                      >
+                        {item.concepto}: {fechas}
+                      </span>
+                    )
+                  );
+                })}
                 <AccionesCotizacion
                   cliente={cliente}
                   cotizacion={cotizacion}
