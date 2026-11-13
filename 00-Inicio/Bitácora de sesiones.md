@@ -41,7 +41,6 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Commits:** `f5dc2bb7` e2e, `ecc4891e` fix, `980b73c9` hecho, merge del PR #216.
 - **Pendiente:**
   - `/cerrar-modulo` M11.
-  - El equipo confirma la base de la comisión en % (punto 5 de DEC-0028).
   - Con el Compose recién levantado, los GET posteriores a una escritura a veces tardan más de 5 s; la causa no está diagnosticada (ver las notas de T-181).
 
 ## 13/11/26 — Francisco (Claude Opus 5.5) — T-175, ratificaciones y T-180
