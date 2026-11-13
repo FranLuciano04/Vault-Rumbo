@@ -98,8 +98,9 @@ const MONEDAS = ["ARS", "USD"] as const satisfies readonly Moneda[];
 const TIPOS_DE_PAGO = ["sena", "cuota", "saldo"] as const satisfies readonly TipoPago[];
 
 /**
- * Confirmar la reserva (RF-032, RF-033): destino, fechas y categoría son obligatorios; el contrato
- * también pide la economía y una cuota única por el precio de venta, que luego se ajustan en la ficha.
+ * Confirmar la reserva (RF-032, RF-033, DEC-0028): destino, fechas y categoría son obligatorios; la
+ * economía pide precio de venta y costo, y el primer pago (monto, tipo y vencimiento) va aparte. El
+ * resto del plan de pagos se completa desde el viaje.
  */
 export const esquemaReserva = z
   .object({
@@ -114,7 +115,8 @@ export const esquemaReserva = z
       "El precio de venta tiene que ser mayor a cero.",
     ),
     costo: importe,
-    tipo_de_pago: z.enum(TIPOS_DE_PAGO),
+    monto: importe.refine((v) => Number(v) > 0, "El monto tiene que ser mayor a cero."),
+    tipo_de_pago: z.enum(TIPOS_DE_PAGO, "Elegí el tipo de pago."),
     vencimiento: z.iso
       .date("Ingresá la fecha de vencimiento.")
       .refine((v) => v >= hoyEnBuenosAires(), "El vencimiento no puede ser anterior a hoy."),
@@ -122,6 +124,10 @@ export const esquemaReserva = z
   .refine((d) => d.fecha_regreso >= d.fecha_salida, {
     path: ["fecha_regreso"],
     message: "El regreso no puede ser anterior a la salida.",
+  })
+  .refine((d) => Number(d.monto) <= Number(d.precio_venta), {
+    path: ["monto"],
+    message: "El monto no puede superar el precio de venta.",
   });
 
 export type DatosReserva = z.infer<typeof esquemaReserva>;

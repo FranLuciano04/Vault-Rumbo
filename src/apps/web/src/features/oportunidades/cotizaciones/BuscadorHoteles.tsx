@@ -7,13 +7,7 @@ import { PaginadorResenas } from "../../hoteles/PaginadorResenas";
 import { SinResultadosHoteles, type FiltroAmpliable } from "../../hoteles/SinResultadosHoteles";
 import { TarjetaHotel } from "../../hoteles/TarjetaHotel";
 import { Button } from "@/components/ui/button";
-
-const sinAcentos = (texto: string) =>
-  texto
-    .normalize("NFD")
-    .replace(/\p{Diacritic}/gu, "")
-    .trim()
-    .toLowerCase();
+import { sinAcentos } from "../sinAcentos";
 
 function ResultadosHoteles({
   cliente,
