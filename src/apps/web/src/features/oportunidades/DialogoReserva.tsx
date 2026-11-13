@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { aplicarErroresDelServidor } from "@/lib/errores";
 import { ETIQUETA_TIPO_PAGO } from "../viajes/plan/etiquetas";
 import { esquemaReserva, type DatosReserva } from "./esquemas";
+import { sinAcentos } from "./sinAcentos";
 
 const CAMPOS = [
   "destino_id",
@@ -25,13 +26,6 @@ const CAMPOS = [
   "tipo_de_pago",
   "vencimiento",
 ] as const;
-
-const sinAcentos = (texto: string) =>
-  texto
-    .normalize("NFD")
-    .replace(/\p{Diacritic}/gu, "")
-    .trim()
-    .toLowerCase();
 
 /** El destino de la oportunidad es texto libre (DEC-0006): se sugiere solo si un único destino del catálogo coincide. */
 function destinoSugerido(destinos: Destino[], consultado: string | null | undefined) {
