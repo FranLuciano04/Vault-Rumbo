@@ -5,13 +5,13 @@ modulo: [M6]
 decisores: [Nahuel]
 fecha_aprobacion:
 supersede:
-actualizado: 01/11/26
+actualizado: 13/11/26
 ---
 # DEC-0026 Tipo de cambio y deuda nueva en un viaje confirmado
 
 tags:: #tipo/decision #estado/en-revision #pc/pc2 #accion/decidir
 
-> 🟡 **Propuesta por Nahuel el 01/11/26** al hacer el triage de la review de Codex de M6 ([[M6 — review Codex]], H-01, H-02 y H-04). Falta la ratificación del equipo; los arreglos se implementan con esta propuesta y su PR necesita la aprobación de otro integrante.
+> 🟡 **Propuesta por Nahuel el 01/11/26** al hacer el triage de la review de Codex de M6 ([[M6 — review Codex]], H-01, H-02 y H-04). Francisco la ratificó el 13/11/26; falta la ratificación de Paloma para formalizarla; los arreglos se implementan con esta propuesta y su PR necesita la aprobación de otro integrante.
 
 ## Contexto
 **Tipo de cambio.** [[CU-12 Registrar cobro de un pago]] paso 2 pide el `tipo_cambio` del día cuando la moneda del cobro no es la del [[Viaje]], pero no dice en qué sentido se cotiza. La web lo toma como pesos por dólar y divide al cobrar en USD un viaje en ARS; la API siempre multiplica. Un cobro de ARS 100000 en USD a 1000 queda guardado como USD 100000000.

@@ -24,8 +24,8 @@ La **persona** de cada sesión es quien la corre, identificada por su identidad 
 ## Avisos pendientes por persona
 > Claude los lee al identificar a la persona (paso 1 de `CLAUDE.md`) y se los cuenta **apenas la saluda**, antes de cualquier otra tarea. Cuando la persona confirme que lo leyó o que lo hizo, **Claude borra su fila** en esa misma sesión, con un commit. Cuando no quede ninguna fila de alguien, se borra también su sección.
 
-### Francisco (`FranLucianoo`) — ratificar DEC-0027
-- Paloma decidió [[DEC-0027 Título y cantidad de borradores de la IA|DEC-0027]] el 09/11/26. Cada pedido a la IA devuelve 2 borradores, y el título de cada uno es el tema del pedido. Destraba T-131. Nahuel la ratificó el 09/11/26; falta la de Francisco para formalizarla.
+### Paloma (`palomap2003`) — ratificar DEC-0026
+- Nahuel propuso [[DEC-0026 Tipo de cambio y deuda nueva en un viaje confirmado|DEC-0026]] el 01/11/26: `tipo_cambio` siempre en pesos por dólar, la nueva T11 `confirmado → vendido` cuando vuelve a haber deuda, y T4 que exige el total pagado. Francisco la ratificó el 13/11/26; falta la de Paloma para formalizarla (y después redibujar EST-Viaje).
 
 ## Formato
 Es **obligatorio** nombrar a la persona que hizo la sesión.
@@ -35,6 +35,14 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Commits:** <hash>, <hash>
 - **Pendiente:** …
 ```
+
+## 13/11/26 — Francisco (Claude Opus 5.5) — T-175, ratificaciones y T-180
+- **Hecho:**
+  - T-175 (ganar con la cotización elegida, riesgo alto) implementado con TDD; PR #211 aprobado por Nahuel y mergeado. Con autorización se reescribió el test de concurrencia que fijaba la regla vieja de DEC-0028 1.2.
+  - Francisco ratificó DEC-0027, que queda formalizada, y DEC-0026, que espera la ratificación de Paloma.
+  - T-180 tomado y en curso.
+- **Commits:** T-175: `6d79067` rojo, `62a70f9` verde, `5c90cb5` refactor, `c8e9937` fix, `20821d7` hecho, merge del PR #211.
+- **Pendiente:** Paloma ratifica DEC-0026; T-179, T-181 y `/cerrar-modulo` M11. M10 no entra en la entrega final.
 
 ## 12/11/26 — Nahuel (Claude Opus 5.5) — T-178, elegir la cotización al ganar
 - **Hecho:**

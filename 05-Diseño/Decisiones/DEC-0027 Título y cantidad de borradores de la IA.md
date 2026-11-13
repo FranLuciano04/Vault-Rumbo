@@ -1,17 +1,17 @@
 ---
 tipo: decision
-estado: en-revision
+estado: formalizado
 modulo: [M9]
-decisores: [Paloma]
-fecha_aprobacion:
+decisores: [Paloma, Nahuel, Francisco]
+fecha_aprobacion: 13/11/26
 supersede:
-actualizado: 09/11/26
+actualizado: 13/11/26
 ---
 # DEC-0027 Título y cantidad de borradores de la IA
 
-tags:: #tipo/decision #estado/en-revision #pc/pc2 #accion/decidir
+tags:: #tipo/decision #estado/formalizado #pc/pc2
 
-> 🟡 **Decidida por Paloma el 09/11/26**, como responsable de [[CU-20 Generar propuesta de contenido con IA|CU-20]], para destrabar [[T-131 Generar borradores de contenido con IA|T-131]]. Nahuel la ratificó el 09/11/26; falta Francisco. T-131 se implementa con esta decisión.
+> ✅ **Formalizada el 13/11/26** con la ratificación de Francisco. **Decidida por Paloma el 09/11/26**, como responsable de [[CU-20 Generar propuesta de contenido con IA|CU-20]], para destrabar [[T-131 Generar borradores de contenido con IA|T-131]]. Nahuel la ratificó el 09/11/26 y Francisco el 13/11/26. T-131 se implementa con esta decisión.
 
 ## Contexto
 El contrato de `POST /contenidos/propuestas-ia` devuelve `PropuestaIA.borradores`, una lista de `BorradorContenido {titulo, texto}`. El borrador de [[IA — Prompt de CU-20]] tiene dos diferencias con ese contrato:
