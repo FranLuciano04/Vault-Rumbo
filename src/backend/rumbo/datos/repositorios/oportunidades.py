@@ -109,13 +109,19 @@ class RepositorioCotizaciones(RepositorioBase[Cotizacion]):
     ) -> list[Cotizacion]:
         """Como `listar_de_oportunidad`, pero bloqueadas hasta el fin de la transacción y
         releídas, para no pisar al proceso diario, que las vence sin bloquear la oportunidad
-        (DEC-0028 1.5)."""
+        (DEC-0028 1.5). Bloquea por `id` ascendente, el mismo orden que
+        `enviadas_vencidas_para_modificar`, para que ganar y vencer no se traben entre sí; el
+        orden del historial se arma después, en memoria."""
         consulta = (
             _historial(oportunidad_id, visibilidad)
+            .order_by(None)
+            .order_by(Cotizacion.id)
             .with_for_update(of=Cotizacion)
             .execution_options(populate_existing=True)
         )
-        return list(await sesion.scalars(consulta))
+        por_id = list(await sesion.scalars(consulta))
+        # `sorted` es estable también con `reverse`: los empates de fecha quedan por `id`.
+        return sorted(por_id, key=lambda c: (c.fecha, c.created_at), reverse=True)
 
     async def obtener_para_modificar(
         self, sesion: AsyncSession, id: uuid.UUID, *, visibilidad: Visibilidad
