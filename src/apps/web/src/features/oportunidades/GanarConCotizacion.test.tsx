@@ -9,7 +9,7 @@
  * - Si no hay ninguna, solo existe la venta directa y se puede confirmar directamente.
  * - Cotización elegida: POST /ganar con `{ cotizacion_id }`. Venta directa: sin `cotizacion_id`.
  */
-import { crearCliente, formatearFecha } from "@rumbo/shared";
+import { crearCliente, formatearFecha, hoyEnBuenosAires } from "@rumbo/shared";
 import {
   cotizacionesMock,
   crearServidor,
@@ -25,7 +25,7 @@ import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { http, HttpResponse } from "msw";
 import { MemoryRouter, Route, Routes } from "react-router";
-import { afterAll, afterEach, beforeAll } from "vitest";
+import { afterAll, afterEach, beforeAll, beforeEach, vi } from "vitest";
 import { DetalleOportunidad } from "./DetalleOportunidad";
 import { PaginaOportunidades } from "./PaginaOportunidades";
 
@@ -33,7 +33,13 @@ const servidor = crearServidor(...manejadoresOportunidades, ...manejadoresAlerta
 beforeAll(() => {
   servidor.listen({ onUnhandledRequest: "error" });
 });
+beforeEach(() => {
+  // Las vigencias de los mocks son de noviembre de 2026: se fija la fecha (solo `Date`, para no frenar a MSW).
+  vi.useFakeTimers({ toFake: ["Date"] });
+  vi.setSystemTime(new Date("2026-11-12T15:00:00"));
+});
 afterEach(() => {
+  vi.useRealTimers();
   servidor.resetHandlers();
 });
 afterAll(() => {
@@ -308,5 +314,35 @@ describe("RF-016 ganar eligiendo la cotización: hallazgos de la review", () => 
     expect(await within(grupo).findByRole("radio", { name: /venta directa/i })).toBeInTheDocument();
     expect(within(grupo).getAllByRole("radio")).toHaveLength(1);
     expect(within(grupo).queryByRole("radio", { name: fechaEuropaV2 })).not.toBeInTheDocument();
+  });
+
+  it("RF-016 un borrador con la validez vencida no es una opción elegible (M11 H-03)", async () => {
+    const borradorVencido = {
+      ...europaV2,
+      id: idCotizacionMock.europa_v1,
+      estado: "borrador" as const,
+      validez_hasta: "2020-01-01",
+      items: [{ concepto: "Paquete Italia", precio: "4800000.00" }],
+    };
+    servidor.use(listado([borradorVencido]));
+    const { grupo } = await abrirGanarEnDetalle(cotizada, /europa/i);
+
+    expect(await within(grupo).findByRole("radio", { name: /venta directa/i })).toBeInTheDocument();
+    expect(within(grupo).getAllByRole("radio")).toHaveLength(1);
+    expect(within(grupo).queryByRole("radio", { name: /Paquete Italia/ })).not.toBeInTheDocument();
+  });
+
+  it("RF-016 un borrador que vence hoy sigue siendo una opción elegible (M11 H-03)", async () => {
+    const borradorHoy = {
+      ...europaV2,
+      id: idCotizacionMock.europa_v1,
+      estado: "borrador" as const,
+      validez_hasta: hoyEnBuenosAires(),
+      items: [{ concepto: "Paquete Italia", precio: "4800000.00" }],
+    };
+    servidor.use(listado([borradorHoy]));
+    const { grupo } = await abrirGanarEnDetalle(cotizada, /europa/i);
+
+    expect(await within(grupo).findByRole("radio", { name: /Paquete Italia/ })).toBeInTheDocument();
   });
 });

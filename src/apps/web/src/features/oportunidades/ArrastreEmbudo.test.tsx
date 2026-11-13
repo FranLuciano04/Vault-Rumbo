@@ -43,7 +43,13 @@ const servidor = crearServidor(...manejadoresOportunidades);
 beforeAll(() => {
   servidor.listen({ onUnhandledRequest: "error" });
 });
+beforeEach(() => {
+  // Las vigencias de los mocks son de noviembre de 2026: se fija la fecha (solo `Date`, para no frenar a MSW).
+  vi.useFakeTimers({ toFake: ["Date"] });
+  vi.setSystemTime(new Date("2026-11-12T15:00:00"));
+});
 afterEach(() => {
+  vi.useRealTimers();
   servidor.resetHandlers();
 });
 afterAll(() => {

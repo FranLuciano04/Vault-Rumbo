@@ -1,5 +1,11 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ErrorApi, type Cotizacion, type Destino, type Oportunidad } from "@rumbo/shared";
+import {
+  ErrorApi,
+  type Cotizacion,
+  type Destino,
+  type Oportunidad,
+  type ReservaConfirmada,
+} from "@rumbo/shared";
 import { useAsesores, useConfirmarReserva } from "@rumbo/shared/hooks";
 import type { AxiosInstance } from "axios";
 import { useState } from "react";
@@ -52,24 +58,32 @@ function destinoSugerido(destinos: Destino[], consultado: string | null | undefi
   return coincidentes.length === 1 ? (coincidentes[0]?.id ?? "") : "";
 }
 
+/** Tolera una respuesta sin la lista (una API anterior al aviso): se trata como vacía. */
+function traeAdvertencias(reserva: Partial<ReservaConfirmada>) {
+  return (reserva.advertencias_itinerario?.length ?? 0) > 0;
+}
+
 /**
  * Diálogo de confirmación de la reserva (CU-07, RF-032, RF-033, RF-036). Además de los datos del
  * viaje pide la economía y el primer pago, que va como único ítem del plan (el resto se completa
  * desde el viaje, DEC-0028). Se precarga con la cotización aceptada (moneda y precio de venta) y la
  * oportunidad (destino y fechas tentativas); todo se puede editar. En la venta directa (sin
- * cotización aceptada) también se pide la moneda. Al confirmar sigue la ficha del viaje.
+ * cotización aceptada) también se pide la moneda. Al confirmar sigue la ficha del viaje, salvo que la reserva
+ * omita hoteles del itinerario: entonces se avisa antes (`alAdvertir`, CU-07 A4).
  */
 export function DialogoReserva({
   cliente,
   oportunidad,
   aceptada,
   destinos,
+  alAdvertir,
   alCerrar,
 }: {
   cliente: AxiosInstance;
   oportunidad: Oportunidad;
   aceptada?: Cotizacion;
   destinos: Destino[];
+  alAdvertir: (reserva: ReservaConfirmada) => void;
   alCerrar: () => void;
 }) {
   const navegar = useNavigate();
@@ -119,7 +133,8 @@ export function DialogoReserva({
           },
         },
       });
-      void navegar(`/viajes/${viaje.id}`);
+      if (traeAdvertencias(viaje)) alAdvertir(viaje);
+      else void navegar(`/viajes/${viaje.id}`);
     } catch (falla) {
       setError(
         aplicarErroresDelServidor(conCamposDelFormulario(falla), CAMPOS, formulario.setError),

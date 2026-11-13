@@ -1,9 +1,10 @@
-import type { Cotizacion, Oportunidad } from "@rumbo/shared";
+import type { Cotizacion, Oportunidad, ReservaConfirmada } from "@rumbo/shared";
 import { useCotizaciones, useDestinos, useViajes } from "@rumbo/shared/hooks";
 import type { AxiosInstance } from "axios";
 import { useState } from "react";
 import { Link } from "react-router";
 import { Button } from "@/components/ui/button";
+import { AvisoHotelesOmitidos } from "./AvisoHotelesOmitidos";
 import { DialogoReserva } from "./DialogoReserva";
 
 /**
@@ -37,6 +38,7 @@ function ReservaConfirmable({
   aceptada?: Cotizacion;
 }) {
   const [abierto, setAbierto] = useState(false);
+  const [conAdvertencias, setConAdvertencias] = useState<ReservaConfirmada | null>(null);
   // El botón espera al catálogo de destinos (el diálogo lo necesita al abrirse) y a saber si ya hay viaje.
   const { data: destinos } = useDestinos(cliente, { por_pagina: 100 });
   const { data: viajes } = useViajes(cliente, {
@@ -44,6 +46,11 @@ function ReservaConfirmable({
     por_pagina: 100,
   });
   if (!destinos || !viajes) return null;
+
+  // Se atiende antes que el viaje: la reserva lo crea y su ficha reemplazaría al aviso.
+  if (conAdvertencias) {
+    return <AvisoHotelesOmitidos reserva={conAdvertencias} aceptada={aceptada} />;
+  }
 
   const viaje = viajes.items.find((v) => v.oportunidad_id === oportunidad.id);
   if (viaje) {
@@ -59,6 +66,7 @@ function ReservaConfirmable({
       oportunidad={oportunidad}
       aceptada={aceptada}
       destinos={destinos.items}
+      alAdvertir={setConAdvertencias}
       alCerrar={() => {
         setAbierto(false);
       }}
