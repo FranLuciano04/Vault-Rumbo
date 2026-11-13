@@ -53,15 +53,15 @@ export function AlternativasCotizacion({
                 <span className="rounded-full bg-muted px-2 py-0.5 text-xs font-medium">
                   {ETIQUETA_ESTADO_COTIZACION[cotizacion.estado]}
                 </span>
-                {cotizacion.items.flatMap((item) => {
+                {cotizacion.items.map((item) => {
                   const fechas = fechasDelHotel(item);
-                  return fechas
-                    ? [
-                        <span key={item.concepto} className="basis-full text-muted-foreground">
-                          {item.concepto}: {fechas}
-                        </span>,
-                      ]
-                    : [];
+                  return (
+                    fechas && (
+                      <span key={item.concepto} className="basis-full text-muted-foreground">
+                        {item.concepto}: {fechas}
+                      </span>
+                    )
+                  );
                 })}
                 <AccionesCotizacion
                   cliente={cliente}
