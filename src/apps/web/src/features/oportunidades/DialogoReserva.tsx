@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import type { Cotizacion, Destino, Oportunidad } from "@rumbo/shared";
+import { ErrorApi, type Cotizacion, type Destino, type Oportunidad } from "@rumbo/shared";
 import { useAsesores, useConfirmarReserva } from "@rumbo/shared/hooks";
 import type { AxiosInstance } from "axios";
 import { useState } from "react";
@@ -26,6 +26,24 @@ const CAMPOS = [
   "tipo_de_pago",
   "vencimiento",
 ] as const;
+
+/** Campos del primer pago con el nombre que les da la API en el plan de pagos (dominio y Pydantic). */
+const CAMPO_DEL_PRIMER_PAGO: Record<string, string> = {
+  pagos: "monto",
+  "plan_de_pagos.pagos.0.monto": "monto",
+  "plan_de_pagos.pagos.0.tipo": "tipo_de_pago",
+  "plan_de_pagos.pagos.0.vencimiento": "vencimiento",
+};
+
+function conCamposDelFormulario(falla: unknown) {
+  if (!(falla instanceof ErrorApi)) return falla;
+  const traducida = Object.assign(new ErrorApi(falla.message), falla);
+  traducida.errores = falla.errores.map((e) => ({
+    ...e,
+    campo: CAMPO_DEL_PRIMER_PAGO[e.campo] ?? e.campo,
+  }));
+  return traducida;
+}
 
 /** El destino de la oportunidad es texto libre (DEC-0006): se sugiere solo si un único destino del catálogo coincide. */
 function destinoSugerido(destinos: Destino[], consultado: string | null | undefined) {
@@ -103,7 +121,9 @@ export function DialogoReserva({
       });
       void navegar(`/viajes/${viaje.id}`);
     } catch (falla) {
-      setError(aplicarErroresDelServidor(falla, CAMPOS, formulario.setError));
+      setError(
+        aplicarErroresDelServidor(conCamposDelFormulario(falla), CAMPOS, formulario.setError),
+      );
     }
   }
 

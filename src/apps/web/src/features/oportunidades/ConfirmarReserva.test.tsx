@@ -783,4 +783,44 @@ describe("RF-033 primer pago", () => {
     });
     expect(cuerpos[0]?.["economia"]).toEqual({ precio_venta: total, costo: "1500000.00" });
   });
+
+  it("RF-033 el tipo de pago arranca sin elegir", async () => {
+    const { dialogo } = await abrirConAceptada();
+
+    expect(within(dialogo).getByLabelText(/tipo de pago/i)).toHaveValue("");
+  });
+
+  it("RF-033 sin tipo de pago no confirma y lo pide", async () => {
+    const { cuerpos, usuario, dialogo } = await abrirConAceptada();
+    await completarDatos(dialogo, usuario, { tipo: "" });
+    await usuario.click(confirmar(dialogo));
+
+    expect(await within(dialogo).findByText(/elegí el tipo de pago/i)).toBeInTheDocument();
+    expect(within(dialogo).getByLabelText(/tipo de pago/i)).toHaveAttribute("aria-invalid", "true");
+    expect(cuerpos).toHaveLength(0);
+  });
+
+  it("RF-033 un error de dominio del plan (campo «pagos») queda en el monto del primer pago", async () => {
+    const { usuario, dialogo } = await abrirConAceptada();
+    servidor.use(
+      http.post("*/api/oportunidades/:id/confirmar-reserva", () =>
+        HttpResponse.json(
+          {
+            type: "about:blank",
+            title: "Error de validación",
+            status: 422,
+            errores: [{ campo: "pagos", mensaje: "Los pagos no pueden superar el precio." }],
+          },
+          { status: 422, headers: { "Content-Type": "application/problem+json" } },
+        ),
+      ),
+    );
+    await completarDatos(dialogo, usuario);
+    await usuario.click(confirmar(dialogo));
+
+    await waitFor(() => {
+      expect(within(dialogo).getByLabelText(/monto/i)).toHaveAttribute("aria-invalid", "true");
+    });
+    expect(within(dialogo).getByText(/no pueden superar el precio/i)).toBeInTheDocument();
+  });
 });
