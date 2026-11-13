@@ -3,7 +3,7 @@ id: T-179
 titulo: Precargar la reserva con la cotización y pedir el primer pago
 modulo: M11 — Ajustes de la revisión del equipo
 capa: web
-estado: libre
+estado: tomado
 depende_de: [T-174]
 tamaño: M
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [CU-07, CU-11, RF-032, RF-033, RF-059]
 origen: revisión del equipo (10/11/26)
-asignado:
-tomado_el:
-rama:
+asignado: FranLucianoo
+tomado_el: 13/11/26 12:32
+rama: feature/T-179-precargar-la-reserva-con-la-cotizacion-y
 pr:
 ---
 # T-179 Precargar la reserva con la cotización y pedir el primer pago
