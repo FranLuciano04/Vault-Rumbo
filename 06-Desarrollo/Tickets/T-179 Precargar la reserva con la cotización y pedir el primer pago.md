@@ -3,7 +3,7 @@ id: T-179
 titulo: Precargar la reserva con la cotización y pedir el primer pago
 modulo: M11 — Ajustes de la revisión del equipo
 capa: web
-estado: tomado
+estado: hecho
 depende_de: [T-174]
 tamaño: M
 riesgo: normal
@@ -49,3 +49,11 @@ Al tocar «Confirmar reserva», el diálogo aparece completado con los datos de 
 ## Notas de implementación
 - **Factibilidad (verificada el 10/11/26):** hoy el diálogo ya precarga el precio de venta con el total de la cotización aceptada. Pero manda un solo pago por el precio completo, y el selector «Tipo de pago» queda al lado de precio y costo. Por eso parece que el tipo es del precio. El destino de la oportunidad es texto libre (DEC-0006) y no un `destino_id`, así que solo se puede sugerir por nombre.
 - La cotización no tiene costo: el costo se carga a mano. El equipo propuso calcular el precio de venta al cotizar, y eso ya es el total de la cotización.
+- **Implementado (13/11/26, Francisco):** el diálogo se precarga con el precio y la moneda de la cotización aceptada (la moneda solo se elige en la venta directa), las fechas tentativas y el destino. El destino se preelige solo si coincide con un único destino del catálogo, sin distinguir mayúsculas ni acentos (`sinAcentos.ts`, compartida con `BuscadorHoteles`). «Economía» lleva precio y costo, y «Primer pago» lleva monto, tipo (que arranca vacío) y vencimiento. Se manda solo el primer pago. El «pago único» es el tipo `saldo` (CU-11 A2 y glosario), así que el contrato no cambió.
+- **Review (opus):** 1 importante, el test del tipo obligatorio, y 4 menores. Se arreglaron el importante y el de los 422 del primer pago, que no llegaban a su campo. Con `--tocar-tests` se agregaron solo 3 tests nuevos.
+- **Menores pendientes:**
+  - El error de monto mayor al precio aparece recién cuando el resto del formulario es válido. Es el mismo patrón que el de `fecha_regreso`.
+  - El monto se compara con `Number` y no con `aCentesimas`.
+  - El aviso del plan dice «rebalanceá» y no «completá». Si se cambia, lo decide el equipo.
+- `PaginaOportunidades.test.tsx` ya no pasaba Prettier en `main`; no es parte de este ticket.
+- **Modelos:** tests sonnet, implementación y refactor sonnet, review opus. Sin escalados.
