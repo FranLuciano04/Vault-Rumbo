@@ -3,7 +3,7 @@ id: T-180
 titulo: Guardar los hoteles elegidos en la cotización
 modulo: M11 — Ajustes de la revisión del equipo
 capa: web
-estado: libre
+estado: tomado
 depende_de: [T-174]
 tamaño: S
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [CU-06, CU-09, RF-021, RF-106]
 origen: revisión del equipo (10/11/26)
-asignado:
-tomado_el:
-rama:
+asignado: FranLucianoo
+tomado_el: 13/11/26 11:54
+rama: feature/T-180-guardar-los-hoteles-elegidos-en-la-cotiz
 pr:
 ---
 # T-180 Guardar los hoteles elegidos en la cotización
