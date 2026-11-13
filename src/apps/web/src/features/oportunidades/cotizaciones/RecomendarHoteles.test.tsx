@@ -11,7 +11,7 @@ import {
   usuariosPorRol,
 } from "@rumbo/shared/mocks";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { render, screen, waitFor, within } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { http, HttpResponse } from "msw";
 import { MemoryRouter } from "react-router";
@@ -38,13 +38,23 @@ afterAll(() => {
 const cliente = crearCliente({ baseURL: "http://localhost", obtenerToken: () => "token" });
 const bariloche = destinosMock[0].id;
 const enGestion = idOportunidadMock.en_gestion;
+/** Fechas tentativas de la oportunidad: el hotel elegido arranca con ellas (DEC-0028). */
+const FECHAS = { desde: "2027-03-05", hasta: "2027-03-15" };
 const base = oportunidadesMock.find((o) => o.id === enGestion);
 
 /** La oportunidad en gestión del mock, pero con el destino consultado que pide el test. */
-function conDestino(destino: string | null) {
+function conDestino(
+  destino: string | null,
+  fechas: { desde: string; hasta: string } | null = null,
+) {
   return http.get("*/api/oportunidades/:id", ({ params }) =>
     params["id"] === enGestion
-      ? HttpResponse.json({ ...base, destino_consultado: destino })
+      ? HttpResponse.json({
+          ...base,
+          destino_consultado: destino,
+          fecha_desde_tentativa: fechas?.desde ?? null,
+          fecha_hasta_tentativa: fechas?.hasta ?? null,
+        })
       : undefined,
   );
 }
@@ -57,10 +67,19 @@ function espiar(pedidos: URLSearchParams[]) {
   });
 }
 
+interface CuerpoEmision {
+  moneda: string;
+  items: {
+    concepto: string;
+    precio: string;
+    hotel_id?: string;
+    check_in?: string;
+    check_out?: string;
+  }[];
+}
+
 /** El POST de emisión: guarda el cuerpo y responde una cotización con esos mismos ítems. */
-function emisionQueEco(
-  cuerpos: { moneda: string; items: { concepto: string; precio: string }[] }[],
-) {
+function emisionQueEco(cuerpos: CuerpoEmision[]) {
   return http.post("*/api/oportunidades/:id/cotizaciones", async ({ request }) => {
     const cuerpo = (await request.json()) as (typeof cuerpos)[number];
     cuerpos.push(cuerpo);
@@ -174,8 +193,8 @@ describe("RF-106 recomendación en la cotización", () => {
   });
 
   it("RF-106 el hotel elegido entra a los ítems con su precio de referencia y suma al total", async () => {
-    const cuerpos: { moneda: string; items: { concepto: string; precio: string }[] }[] = [];
-    servidor.use(conDestino("Bariloche"), emisionQueEco(cuerpos));
+    const cuerpos: CuerpoEmision[] = [];
+    servidor.use(conDestino("Bariloche", FECHAS), emisionQueEco(cuerpos));
     const u = userEvent.setup();
     renderCotizaciones();
     await u.click(await abrirBuscador());
@@ -195,8 +214,8 @@ describe("RF-106 recomendación en la cotización", () => {
   });
 
   it("RF-106 los hoteles elegidos quedan en el detalle de la cotización emitida", async () => {
-    const cuerpos: { moneda: string; items: { concepto: string; precio: string }[] }[] = [];
-    servidor.use(conDestino("Bariloche"), emisionQueEco(cuerpos));
+    const cuerpos: CuerpoEmision[] = [];
+    servidor.use(conDestino("Bariloche", FECHAS), emisionQueEco(cuerpos));
     const u = userEvent.setup();
     renderCotizaciones();
     await u.click(await abrirBuscador());
@@ -287,8 +306,8 @@ describe("RF-106 recomendación en la cotización", () => {
   });
 
   it("RF-106 agregar en ARS y pasar a USD vacía el precio autocompletado y quita «(ref. por noche)»; emitir sin cargarlo no llama a la API", async () => {
-    const cuerpos: { moneda: string; items: { concepto: string; precio: string }[] }[] = [];
-    servidor.use(conDestino("Bariloche"), emisionQueEco(cuerpos));
+    const cuerpos: CuerpoEmision[] = [];
+    servidor.use(conDestino("Bariloche", FECHAS), emisionQueEco(cuerpos));
     const u = userEvent.setup();
     renderCotizaciones();
     await u.click(await abrirBuscador());
@@ -411,5 +430,163 @@ describe("RF-106 recomendación en la cotización", () => {
 
     expect(await screen.findByRole("list", { name: /cotizaciones/i })).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /buscar hoteles/i })).not.toBeInTheDocument();
+  });
+});
+
+describe("RF-106 hotel con fechas en la cotización", () => {
+  const llaoLlao = hotelesMock.find((h) => h.nombre === "Hotel Llao Llao");
+
+  async function elegirLlaoLlao(u: ReturnType<typeof userEvent.setup>) {
+    await u.click(await abrirBuscador());
+    await u.click(await screen.findByRole("button", { name: /agregar hotel llao llao/i }));
+  }
+
+  it("RF-106 un ítem que sale de un hotel del catálogo arranca con las fechas tentativas de la oportunidad", async () => {
+    servidor.use(conDestino("Bariloche", FECHAS));
+    const u = userEvent.setup();
+    renderCotizaciones();
+
+    await elegirLlaoLlao(u);
+
+    expect(screen.getByLabelText(/check-in/i)).toHaveValue("2027-03-05");
+    expect(screen.getByLabelText(/check-out/i)).toHaveValue("2027-03-15");
+  });
+
+  it("RF-106 si la oportunidad no tiene fechas tentativas, check-in y check-out arrancan vacíos", async () => {
+    servidor.use(conDestino("Bariloche"));
+    const u = userEvent.setup();
+    renderCotizaciones();
+
+    await elegirLlaoLlao(u);
+
+    expect(screen.getByLabelText(/check-in/i)).toHaveValue("");
+    expect(screen.getByLabelText(/check-out/i)).toHaveValue("");
+  });
+
+  it("RF-106 un ítem cargado a mano sin hotel no muestra check-in ni check-out", async () => {
+    servidor.use(conDestino("Bariloche", FECHAS));
+    renderCotizaciones();
+
+    await abrirBuscador();
+
+    expect(screen.queryByLabelText(/check-in/i)).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/check-out/i)).not.toBeInTheDocument();
+  });
+
+  it("RF-106 un check-out anterior al check-in se avisa y no emite la cotización", async () => {
+    const cuerpos: CuerpoEmision[] = [];
+    servidor.use(conDestino("Bariloche", FECHAS), emisionQueEco(cuerpos));
+    const u = userEvent.setup();
+    renderCotizaciones();
+    await elegirLlaoLlao(u);
+
+    fireEvent.change(screen.getByLabelText(/check-out/i), { target: { value: "2027-03-01" } });
+    await u.click(screen.getByRole("button", { name: /generar documento/i }));
+
+    expect(
+      await screen.findByText(/el check-out no puede ser anterior al check-in/i),
+    ).toBeInTheDocument();
+    expect(cuerpos).toHaveLength(0);
+  });
+
+  it("RF-106 un hotel sin las dos fechas no se emite (DEC-0028: son obligatorias)", async () => {
+    const cuerpos: CuerpoEmision[] = [];
+    servidor.use(conDestino("Bariloche"), emisionQueEco(cuerpos));
+    const u = userEvent.setup();
+    renderCotizaciones();
+    await elegirLlaoLlao(u);
+
+    await u.click(screen.getByRole("button", { name: /generar documento/i }));
+
+    expect(await screen.findByLabelText(/check-in/i)).toBeInvalid();
+    expect(screen.getByLabelText(/check-out/i)).toBeInvalid();
+    expect(cuerpos).toHaveLength(0);
+  });
+
+  it("RF-106 al emitir, el ítem del hotel manda hotel_id, check_in y check_out", async () => {
+    const cuerpos: CuerpoEmision[] = [];
+    servidor.use(conDestino("Bariloche", FECHAS), emisionQueEco(cuerpos));
+    const u = userEvent.setup();
+    renderCotizaciones();
+    await elegirLlaoLlao(u);
+    fireEvent.change(screen.getByLabelText(/check-in/i), { target: { value: "2027-03-06" } });
+    fireEvent.change(screen.getByLabelText(/check-out/i), { target: { value: "2027-03-12" } });
+
+    await u.click(screen.getByRole("button", { name: /generar documento/i }));
+
+    await waitFor(() => {
+      expect(cuerpos).toHaveLength(1);
+    });
+    const item = cuerpos[0]?.items.find((i) => i.concepto.includes("Hotel Llao Llao"));
+    expect(item).toMatchObject({
+      hotel_id: llaoLlao?.id,
+      check_in: "2027-03-06",
+      check_out: "2027-03-12",
+    });
+  });
+
+  it("RF-106 los ítems sin hotel se mandan como hoy: solo concepto y precio", async () => {
+    const cuerpos: CuerpoEmision[] = [];
+    servidor.use(conDestino("Bariloche", FECHAS), emisionQueEco(cuerpos));
+    const u = userEvent.setup();
+    renderCotizaciones();
+    await screen.findByRole("button", { name: /buscar hoteles/i });
+    await u.type(screen.getByRole("textbox", { name: "Concepto" }), "Traslado");
+    await u.type(screen.getByRole("textbox", { name: "Precio" }), "5000");
+
+    await u.click(screen.getByRole("button", { name: /generar documento/i }));
+
+    await waitFor(() => {
+      expect(cuerpos).toHaveLength(1);
+    });
+    expect(cuerpos[0]?.items).toEqual([{ concepto: "Traslado", precio: "5000" }]);
+  });
+
+  it("RF-106 con un ítem con hotel y otro sin hotel, solo el del hotel manda hotel_id y fechas", async () => {
+    const cuerpos: CuerpoEmision[] = [];
+    servidor.use(conDestino("Bariloche", FECHAS), emisionQueEco(cuerpos));
+    const u = userEvent.setup();
+    renderCotizaciones();
+    await elegirLlaoLlao(u);
+    await u.click(screen.getByRole("button", { name: /agregar ítem/i }));
+    const conceptos = screen.getAllByRole("textbox", { name: "Concepto" });
+    const precios = screen.getAllByRole("textbox", { name: "Precio" });
+    await u.type(conceptos[1] as HTMLElement, "Traslado");
+    await u.type(precios[1] as HTMLElement, "5000");
+
+    await u.click(screen.getByRole("button", { name: /generar documento/i }));
+
+    await waitFor(() => {
+      expect(cuerpos).toHaveLength(1);
+    });
+    const [hotel, traslado] = cuerpos[0]?.items ?? [];
+    expect(hotel).toMatchObject({ hotel_id: llaoLlao?.id, check_in: "2027-03-05" });
+    expect(traslado).toEqual({ concepto: "Traslado", precio: "5000" });
+  });
+
+  it("RF-106 la cotización emitida muestra el hotel con sus fechas", async () => {
+    servidor.use(conDestino("Bariloche", FECHAS), emisionQueEco([]));
+    const u = userEvent.setup();
+    renderCotizaciones();
+    await elegirLlaoLlao(u);
+
+    await u.click(screen.getByRole("button", { name: /generar documento/i }));
+
+    const emitida = await screen.findByRole("status");
+    expect(emitida).toHaveTextContent(/hotel llao llao/i);
+    expect(emitida).toHaveTextContent("05/03/27");
+    expect(emitida).toHaveTextContent("15/03/27");
+  });
+
+  it("RF-106 el historial muestra las fechas de los hoteles de cada cotización", async () => {
+    renderCotizaciones(idOportunidadMock.cotizada);
+
+    const historial = await screen.findByRole("list", { name: /cotizaciones de la oportunidad/i });
+
+    // La versión enviada de Europa tiene un ítem con hotel del 12/05/27 al 30/05/27.
+    await waitFor(() => {
+      expect(historial).toHaveTextContent("12/05/27");
+    });
+    expect(historial).toHaveTextContent("30/05/27");
   });
 });
