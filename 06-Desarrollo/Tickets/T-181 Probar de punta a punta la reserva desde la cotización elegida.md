@@ -3,7 +3,7 @@ id: T-181
 titulo: Probar de punta a punta la reserva desde la cotización elegida
 modulo: M11 — Ajustes de la revisión del equipo
 capa: e2e
-estado: libre
+estado: tomado
 depende_de: [T-175, T-176, T-177, T-178, T-179, T-180]
 tamaño: M
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [CU-01, CU-05, CU-06, CU-07, CU-09, CU-11]
 origen: revisión del equipo (10/11/26)
-asignado:
-tomado_el:
-rama:
+asignado: Nahuel Viniegra
+tomado_el: 13/11/26 14:48
+rama: feature/T-181-probar-de-punta-a-punta-la-reserva-desde
 pr:
 ---
 # T-181 Probar de punta a punta la reserva desde la cotización elegida
