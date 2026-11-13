@@ -824,3 +824,108 @@ describe("RF-033 primer pago", () => {
     expect(within(dialogo).getByText(/no pueden superar el precio/i)).toBeInTheDocument();
   });
 });
+
+describe("RF-036 avisos de hoteles omitidos del itinerario (M11 H-02, CU-07 A4)", () => {
+  const viajeId = "0b7d6a5c-3333-4444-8555-666677778888";
+  const hotelId = "7a1b2c3d-4e5f-4a6b-8c7d-9e0f1a2b3c4d";
+  const hotelDesconocido = "7a1b2c3d-4e5f-4a6b-8c7d-000000000000";
+  const aceptadaConHotel = () =>
+    http.get(`*/api/oportunidades/${CON_ACEPTADA}/cotizaciones`, () =>
+      HttpResponse.json({
+        items: aceptadas.map((c) => ({
+          ...c,
+          oportunidad_id: CON_ACEPTADA,
+          items: [
+            ...c.items,
+            {
+              concepto: "Hotel Gran Vía",
+              precio: "100.00",
+              hotel_id: hotelId,
+              check_in: "2026-12-10",
+              check_out: "2026-12-15",
+            },
+          ],
+        })),
+        total: aceptadas.length,
+        pagina: 1,
+        por_pagina: 20,
+      }),
+    );
+  const reservaCon = (advertencias: { hotel_id: string; motivo: string }[]) =>
+    http.post("*/api/oportunidades/:id/confirmar-reserva", () =>
+      HttpResponse.json(
+        { id: viajeId, estado: "reservado", advertencias_itinerario: advertencias },
+        { status: 201 },
+      ),
+    );
+
+  async function confirmarReserva() {
+    const usuario = userEvent.setup();
+    renderDetalle(CON_ACEPTADA);
+    const dialogo = await abrirDialogo(usuario);
+    await completarDatos(dialogo, usuario);
+    await usuario.click(confirmar(dialogo));
+    return { usuario, dialogo };
+  }
+
+  it("RF-036 con advertencias muestra un alert con el hotel omitido y el motivo, y no navega", async () => {
+    servidor.use(
+      aceptadaConHotel(),
+      reservaCon([{ hotel_id: hotelId, motivo: "fuera_de_fechas" }]),
+    );
+    await confirmarReserva();
+
+    const aviso = await screen.findByRole("alert");
+    expect(aviso).toHaveTextContent(/hotel gran vía/i);
+    expect(aviso).toHaveTextContent(/fuera de (las )?fechas/i);
+    expect(screen.queryByText(/ficha del viaje/i)).not.toBeInTheDocument();
+  });
+
+  it("RF-036 el botón «Ir al viaje» lleva a la ficha del viaje creado", async () => {
+    servidor.use(
+      aceptadaConHotel(),
+      reservaCon([{ hotel_id: hotelId, motivo: "hotel_cerrado" }]),
+    );
+    const { usuario } = await confirmarReserva();
+
+    await usuario.click(await screen.findByRole("button", { name: /ir al viaje/i }));
+
+    expect(await screen.findByText(`Ficha del viaje ${viajeId}`)).toBeInTheDocument();
+  });
+
+  it("RF-036 explica en lenguaje natural cada motivo, sin mostrar el código", async () => {
+    servidor.use(
+      aceptadaConHotel(),
+      reservaCon([
+        { hotel_id: hotelId, motivo: "superpuesto" },
+        { hotel_id: hotelDesconocido, motivo: "hotel_cerrado" },
+      ]),
+    );
+    await confirmarReserva();
+
+    const aviso = await screen.findByRole("alert");
+    expect(aviso).toHaveTextContent(/superpone|superpuest/i);
+    expect(aviso).toHaveTextContent(/cerrado/i);
+    expect(aviso).not.toHaveTextContent(/hotel_cerrado|fuera_de_fechas/);
+  });
+
+  it("RF-036 un hotel que no está en la cotización se nombra con un texto genérico", async () => {
+    servidor.use(
+      aceptadaConHotel(),
+      reservaCon([{ hotel_id: hotelDesconocido, motivo: "fuera_de_fechas" }]),
+    );
+    await confirmarReserva();
+
+    const aviso = await screen.findByRole("alert");
+    expect(aviso).toHaveTextContent(/hotel/i);
+    expect(aviso).not.toHaveTextContent(hotelDesconocido);
+  });
+
+  it("RF-036 con la lista de advertencias vacía navega directo a la ficha", async () => {
+    servidor.use(aceptadaConHotel(), reservaCon([]));
+    await confirmarReserva();
+
+    expect(await screen.findByText(`Ficha del viaje ${viajeId}`)).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /ir al viaje/i })).not.toBeInTheDocument();
+  });
+});
