@@ -3,7 +3,7 @@ id: T-181
 titulo: Probar de punta a punta la reserva desde la cotización elegida
 modulo: M11 — Ajustes de la revisión del equipo
 capa: e2e
-estado: tomado
+estado: hecho
 depende_de: [T-175, T-176, T-177, T-178, T-179, T-180]
 tamaño: M
 riesgo: normal
@@ -47,3 +47,12 @@ Un e2e en la carpeta de los de CU-01 (T-108), sin rojo obligatorio.
 
 ## Fuera de alcance
 - El arrastre del embudo (T-171), que tiene sus tests de componente.
+
+## Notas de implementación
+- `e2e/cu01-reserva-cotizacion.spec.ts`, con dos tests: el circuito completo (CA1 y CA2) y la venta directa (CA3). Crea sus propios datos y no toca las semillas. Reusa `apoyo.ts`.
+- Las dos cotizaciones se marcan como enviadas antes de ganar, porque el diálogo de ganar solo lista las enviadas vigentes. Después de ganar, verifica por la API que la elegida queda `aceptada` y la otra `rechazada` (DEC-0028).
+- El plan descalzado se verifica por el aviso de la UI: la API no expone `plan_desbalanceado` al confirmar la reserva.
+- Usa seña para el primer pago y saldo para completar el plan, porque la web no tiene un tipo «pago único».
+- `expect.configure({ timeout: 20_000 })`: con el Compose recién levantado, a veces los GET posteriores a una escritura tardaron más de 5 s. La review (Opus) no encontró una causa en el backend. Si se repite, guardar el trace y los logs.
+- Quedaron como menores: la venta directa con cotizaciones enviadas (CU-05 A4) no tiene e2e; conviene cubrirla con un test de servicio.
+- Modelos: tests y fix con Sonnet (test-writer) y review con Opus. Pasa 2/2 en frío; antes del fix pasó 8/8 con `--repeat-each=4`.
