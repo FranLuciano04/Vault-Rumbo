@@ -3,7 +3,7 @@ id: T-180
 titulo: Guardar los hoteles elegidos en la cotización
 modulo: M11 — Ajustes de la revisión del equipo
 capa: web
-estado: tomado
+estado: hecho
 depende_de: [T-174]
 tamaño: S
 riesgo: normal
