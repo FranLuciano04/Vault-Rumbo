@@ -36,6 +36,11 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
+## 13/11/26 — Nahuel (Claude Opus 5.5) — cierre de M11
+- **Hecho:** review de Codex de M11 con 3 hallazgos importantes, confirmados y arreglados: H-02 y H-03 en el PR #217, y H-01 en el PR #218 (riesgo alto, aprobado por otro integrante). Nahuel aprobó el módulo en nombre del equipo y se puso el tag `mod-11`.
+- **Commits:** `67b6c581` pedido de review, `49044429` triage, `a9ebae86` H-01 mergeado, más el cierre en la Bitácora técnica.
+- **Pendiente:** diagnosticar la lentitud intermitente del e2e con el Compose recién levantado.
+
 ## 13/11/26 — Nahuel (Claude Opus 5.5) — T-181, e2e de la reserva desde la cotización
 - **Hecho:** T-181 (e2e de la reserva desde la cotización elegida y de la venta directa). La review (Opus) no encontró bloqueantes y sus dos hallazgos importantes se arreglaron. PR #216 mergeado con el CI en verde. Con T-181 quedan hechos los 11 tickets de M11.
 - **Commits:** `f5dc2bb7` e2e, `ecc4891e` fix, `980b73c9` hecho, merge del PR #216.

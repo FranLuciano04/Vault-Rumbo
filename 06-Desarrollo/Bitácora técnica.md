@@ -241,3 +241,21 @@ tags:: #tipo/referencia
   - Los demás specs e2e leen `oobCodes` sin el reintento.
 - **Decisiones tocadas:** [[DEC-0012 Modelo de IA del producto]], [[DEC-0013 Datos que faltaban en el ER|DEC-0013]], [[DEC-0027 Título y cantidad de borradores de la IA]], [[DEC-0019 Las fallas se arreglan al encontrarlas|DEC-0019]].
 - Aprobación del equipo: 10/11/26 (Nahuel, en nombre del equipo). Tag `mod-9` sobre `46fbf21`.
+
+### 13/11/26 — Nahuel (con el equipo) — M11 Ajustes de la revisión del equipo cerrado (`mod-11`)
+- **Qué quedó:**
+  - Las tarjetas del embudo se arrastran para cambiar el estado, la reseña se puntúa con estrellas y la comisión se muestra en porcentaje con su importe, calculado sobre la ganancia (DEC-0007).
+  - Cotizaciones alternativas (DEC-0028): «Ganar» pide la cotización que eligió el cliente, o la venta directa. La elegida queda `aceptada` y las demás, `rechazada`.
+  - La reserva se confirma con el primer pago y se precarga con la cotización elegida.
+  - La cotización guarda hotel y fechas por ítem, y la reserva arma el itinerario con esos tramos. Lo que no entra se omite con advertencia.
+  - El e2e `cu01-reserva-cotizacion.spec.ts` prueba el circuito completo y la venta directa contra el sistema real.
+- **Tickets:** 11, de T-171 a T-181. T-175 y T-176 fueron de riesgo alto. El detalle y los merges están en [[M11 — pedido de review]].
+- **Review de Codex** ([[M11 — review Codex]]): 3 hallazgos importantes, todos confirmados y arreglados.
+  - H-01 → PR #218, aprobado por otro integrante: «Ganar» y el vencimiento diario bloqueaban las cotizaciones en orden distinto y podían trabarse. Ahora las dos bloquean por `id` ascendente. El PR también sube `opentelemetry-api` a 1.45.2 por CVE-2026-126360.
+  - H-02 → PR #217: la web descartaba los avisos de hoteles omitidos al confirmar la reserva. Ahora los muestra antes de ir al viaje.
+  - H-03 → PR #217: el selector de «Ganar» ofrecía borradores vencidos. Ahora la vigencia se exige también a los borradores.
+- **Pendientes que no bloquean:**
+  - Con el Compose recién levantado, los GET posteriores a una escritura a veces tardan más de 5 s en el e2e; la causa no está diagnosticada (notas de T-181).
+  - No hay un test de repositorio para el orden con empates de `listar_de_oportunidad_para_modificar`; hoy ningún consumidor depende de él.
+- **Decisiones tocadas:** [[DEC-0028 Cotizaciones alternativas y reserva con el primer pago|DEC-0028]], [[DEC-0007 Modelo económico — ganancia, margen y comisión de vendedor|DEC-0007]], [[DEC-0019 Las fallas se arreglan al encontrarlas|DEC-0019]].
+- Aprobación del equipo: 13/11/26 (Nahuel, en nombre del equipo). Tag `mod-11` sobre `a9ebae86`.
