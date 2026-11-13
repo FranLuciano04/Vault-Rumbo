@@ -50,7 +50,7 @@ La revisión fue estática, con una reproducción aislada de la validación de v
   1. `listar_de_oportunidad_para_modificar` toma los bloqueos en orden de `id` ascendente, el mismo del proceso diario, y devuelve las cotizaciones en el orden del historial, como hasta ahora.
   2. Un test de concurrencia contra PostgreSQL corre al mismo tiempo ganar con una cotización y el vencimiento diario, sobre una oportunidad con dos `enviada` vencidas cuyo orden de fecha es el inverso al de su `id`. Las dos transacciones terminan sin bloqueo mutuo y el estado final es coherente: la elegida queda `aceptada` y las otras dos, `rechazada` o `vencida`.
 - **Rama:** `fix/M11-H01-orden-de-bloqueos`. Toca estados y concurrencia, así que la review la hace `reviewer-seguridad` y el PR necesita la aprobación de otro integrante.
-- **Arreglo:** PR #218 (rojo `14584e50`, verde `a5d67f18`). Espera la aprobación de otro integrante.
+- **Arreglo:** PR #218, mergeado y aprobado por otro integrante (rojo `14584e50`, verde `a5d67f18`, fix de dependencia `355e3152`).
 
 ### H-02: confirmado (importante)
 - **Verificación:** en `src/apps/web/src` nadie lee `advertencias_itinerario`. `DialogoReserva` usa solo `viaje.id` y navega enseguida a la ficha, y el `GET` del viaje no devuelve las advertencias.
