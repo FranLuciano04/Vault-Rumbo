@@ -3,7 +3,7 @@ id: T-183
 titulo: Sacar Cotizaciones del menú de la web
 modulo: M12 — Mejoras para las demos
 capa: web
-estado: libre
+estado: tomado
 depende_de: []
 tamaño: XS
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [DEC-0028, CU-06]
 origen: pedido de Francisco (15/11/26)
-asignado:
-tomado_el:
-rama:
+asignado: FranLucianoo
+tomado_el: 15/11/26 18:32
+rama: feature/T-183-sacar-cotizaciones-del-menu-de-la-web
 pr:
 ---
 # T-183 Sacar Cotizaciones del menú de la web
