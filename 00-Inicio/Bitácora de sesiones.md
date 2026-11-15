@@ -24,6 +24,16 @@ La **persona** de cada sesión es quien la corre, identificada por su identidad 
 ## Avisos pendientes por persona
 > Claude los lee al identificar a la persona (paso 1 de `CLAUDE.md`) y se los cuenta **apenas la saluda**, antes de cualquier otra tarea. Cuando la persona confirme que lo leyó o que lo hizo, **Claude borra su fila** en esa misma sesión, con un commit. Cuando no quede ninguna fila de alguien, se borra también su sección.
 
+### Nahuel
+| Fecha | Aviso |
+|---|---|
+| 15/11/26 | Francisco propuso **DEC-0029** (en el PR #220) (IA real y gratuita para las demos con Nemotron 3 Ultra en NVIDIA; producción sigue con Claude). Falta tu ratificación para mergear el PR #220 (T-182). |
+
+### Paloma
+| Fecha | Aviso |
+|---|---|
+| 15/11/26 | Francisco propuso **DEC-0029** (en el PR #220) (IA real y gratuita para las demos con Nemotron 3 Ultra en NVIDIA; producción sigue con Claude). Falta tu ratificación para mergear el PR #220 (T-182). |
+
 ## Formato
 Es **obligatorio** nombrar a la persona que hizo la sesión.
 ```
@@ -32,6 +42,18 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Commits:** <hash>, <hash>
 - **Pendiente:** …
 ```
+
+## 15/11/26 — Francisco (Claude Opus 5.5) — T-182 (IA de NVIDIA para las demos) y T-183
+- **Hecho:**
+  - Se levantó la web para probar en modo local. El Compose no se puede construir en esta PC porque el DNS del proveedor bloquea `files.pythonhosted.org`, así que corren en Docker Postgres de desarrollo y el Auth Emulator, y la API (con la `.venv`) y Vite corren en Windows. Para entrar: `duena@rumbo.test`.
+  - Se propuso **DEC-0029** (en el PR #220) (en revisión) y se implementó **T-182** (M12) con TDD: `IA_MODELO=nvidia`. Se empezó con Mistral Large 4, pero tardaba de 8 a más de 180 s; se midieron otros modelos y quedó **Nemotron 3 Ultra** sin razonamiento, que tarda de 4 a 10 s. Funcionó de punta a punta desde la web. PR #220.
+  - Se creó **T-183** (M12, web): sacar «Cotizaciones» del menú, que llevaba a una sección vacía.
+- **Commits:** `9c76505` (DEC y ticket), `40b94aa` (tomado), rama de T-182 (`756bb73`…`aee29ef`), `40054bd` (T-183).
+- **Pendiente:**
+  - Ratificación de DEC-0029 por Nahuel y Paloma; después, mergear el PR #220.
+  - Recién con T-182 mergeado, Francisco toma T-183 (un ticket por persona).
+  - Menores de T-182 anotados en el ticket.
+  - Rotar la clave de NVIDIA de prueba.
 
 ## 15/11/26 — Paloma (Claude Opus 5.5) — ratificación de DEC-0026
 - **Hecho:** Paloma ratificó [[DEC-0026 Tipo de cambio y deuda nueva en un viaje confirmado|DEC-0026]] y quedó **formalizada** (Francisco, Nahuel y Paloma). Se redibujó [[EST-Viaje]]: nueva T11 `confirmado → vendido` (⚙ deuda nueva), T3 también por rebalanceo y T4 exige el total pagado. [[CU-12 Registrar cobro de un pago]] paso 2 deja la nota «en revisión» y fija el sentido del tipo de cambio. Se actualizaron el MOC de decisiones y el Estado, y se borró el aviso pendiente de Paloma.
