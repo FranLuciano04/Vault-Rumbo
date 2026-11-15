@@ -20,10 +20,11 @@ _MAX_TOKENS = 1024  # alcanza para un posteo de redes y pone tope al costo de ca
 _TIMEOUT_SEGUNDOS = 60
 _REINTENTOS = 1
 _URL_NVIDIA = "https://integrate.api.nvidia.com/v1/chat/completions"
-_MODELO_NVIDIA = "mistralai/mistral-large-4-1t-a52b"
-_REASONING_EFFORT_NVIDIA = "low"  # con el valor por defecto la llamada supera el timeout
+_MODELO_NVIDIA = "nvidia/nemotron-3-ultra-550b-a55b"
+# Con el razonamiento prendido el modelo gasta los tokens pensando y `content` llega en `None`.
+_CHAT_TEMPLATE_KWARGS_NVIDIA = {"enable_thinking": False}
 _TIMEOUT_NVIDIA_SEGUNDOS = 180  # la cola del endpoint gratuito llega a ~125 s
-_MAX_TOKENS_NVIDIA = 4096  # Mistral razona antes de responder y el tope incluye ese razonamiento
+_MAX_TOKENS_NVIDIA = 4096  # holgura por si el modelo razona igual: el tope incluye ese razonamiento
 FALLA_IA = "No se pudo generar el texto con el servicio de IA."
 
 
@@ -95,7 +96,7 @@ class _ClienteNvidia:
                         "model": _MODELO_NVIDIA,
                         "messages": [{"role": "user", "content": prompt}],
                         "max_tokens": _MAX_TOKENS_NVIDIA,
-                        "reasoning_effort": _REASONING_EFFORT_NVIDIA,
+                        "chat_template_kwargs": _CHAT_TEMPLATE_KWARGS_NVIDIA,
                     },
                 )
             respuesta.raise_for_status()

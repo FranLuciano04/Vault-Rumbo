@@ -24,7 +24,7 @@ tags:: #tipo/ticket
 > No editar `estado`, `asignado`, `tomado_el` ni `rama` a mano: los maneja `06-Desarrollo/herramientas/tickets.mjs` (ver [[Flujo de implementación]]).
 
 ## Objetivo
-Con `IA_MODELO=nvidia` y una `NVIDIA_API_KEY`, `core.ia` genera texto con Mistral Large 4 (`mistralai/mistral-large-4-1t-a52b`) en la API compatible con OpenAI de NVIDIA, para que las demos de CU-20 muestren borradores reales. `falso` sigue siendo el valor por defecto y `claude`, el de producción.
+Con `IA_MODELO=nvidia` y una `NVIDIA_API_KEY`, `core.ia` genera texto con Nemotron 3 Ultra (`nvidia/nemotron-3-ultra-550b-a55b`; al principio, Mistral Large 4, ver DEC-0029) en la API compatible con OpenAI de NVIDIA, para que las demos de CU-20 muestren borradores reales. `falso` sigue siendo el valor por defecto y `claude`, el de producción.
 
 ## Criterios de aceptación
 - [ ] `obtener_modelo_ia` devuelve el cliente de NVIDIA con `IA_MODELO=nvidia`; sin `NVIDIA_API_KEY` falla con `ServicioExterno` y un mensaje claro.
@@ -35,7 +35,7 @@ Con `IA_MODELO=nvidia` y una `NVIDIA_API_KEY`, `core.ia` genera texto con Mistra
 `tests/negocio/test_ia.py`: la selección por configuración (`nvidia`), el error sin clave, el cuerpo y los headers del pedido, el texto devuelto y los errores (HTTP 4xx/5xx, red, contenido vacío). Simular el transporte con `httpx.MockTransport`. La guardia autouse de `tests/conftest.py` también tiene que impedir construir el cliente real de NVIDIA.
 
 ## Contexto (leer solo esto)
-- [[DEC-0029 Mistral en NVIDIA como modelo de IA para las demos|DEC-0029]]
+- [[DEC-0029 NVIDIA como proveedor de IA para las demos|DEC-0029]]
 - [[DEC-0012 Modelo de IA del producto|DEC-0012]]
 - `src/backend/rumbo/core/ia.py` y `src/backend/rumbo/core/config.py`
 

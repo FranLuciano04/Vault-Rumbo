@@ -170,7 +170,7 @@ async def test_rnf16_una_respuesta_sin_texto_es_servicio_externo() -> None:
         await cliente.generar("tema")
 
 
-# --- T-182 (DEC-0029): Mistral en NVIDIA ---------------------------------------------------
+# --- T-182 (DEC-0029): Nemotron 3 Ultra en NVIDIA ---------------------------------------------
 # Interfaz que fijan estos tests (la sigue el implementador):
 #   - `ia._ClienteNvidia(api_key: SecretStr, transport: httpx.AsyncBaseTransport | None = None)`: el
 #     transporte se inyecta (los tests le pasan un `httpx.MockTransport`); `generar(prompt)` abre un
@@ -196,7 +196,7 @@ def _cliente_nvidia(
     return ia._ClienteNvidia(SecretStr(_CLAVE_NVIDIA), httpx.MockTransport(envoltorio)), pedidos
 
 
-def _respuesta_ok(contenido: object = "Texto de Mistral") -> httpx.Response:
+def _respuesta_ok(contenido: object = "Texto de Nemotron") -> httpx.Response:
     return httpx.Response(
         200,
         json={
@@ -264,9 +264,10 @@ async def test_rnf16_nvidia_hace_post_a_chat_completions_con_modelo_y_mensaje_us
     assert pedidos[0].method == "POST"
     assert str(pedidos[0].url) == "https://integrate.api.nvidia.com/v1/chat/completions"
     cuerpo = json.loads(pedidos[0].content)
-    assert cuerpo["model"] == "mistralai/mistral-large-4-1t-a52b"
+    assert cuerpo["model"] == "nvidia/nemotron-3-ultra-550b-a55b"
     assert cuerpo["messages"] == [{"role": "user", "content": _PROMPT}]
-    assert cuerpo["reasoning_effort"] == "low"
+    assert cuerpo["chat_template_kwargs"] == {"enable_thinking": False}
+    assert "reasoning_effort" not in cuerpo
 
 
 async def test_rnf16_nvidia_envia_la_clave_como_bearer() -> None:
@@ -278,7 +279,7 @@ async def test_rnf16_nvidia_envia_la_clave_como_bearer() -> None:
 
 
 async def test_rnf16_nvidia_usa_un_tope_de_tokens_mayor_que_el_de_claude() -> None:
-    """Mistral razona antes de responder y `max_tokens` incluye ese razonamiento."""
+    """Si el modelo razona igual, `max_tokens` incluye ese razonamiento."""
     cliente, pedidos = _cliente_nvidia(lambda p: _respuesta_ok())
 
     await cliente.generar(_PROMPT)
