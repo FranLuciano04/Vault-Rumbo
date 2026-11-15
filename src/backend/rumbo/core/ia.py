@@ -72,23 +72,29 @@ def _construir_cliente_claude(api_key: SecretStr) -> ModeloIA:
 
 
 class _ClienteNvidia:
-    def __init__(self, api_key: SecretStr, cliente_http: httpx.AsyncClient) -> None:
+    def __init__(
+        self, api_key: SecretStr, transport: httpx.AsyncBaseTransport | None = None
+    ) -> None:
         self._api_key = api_key
-        self._cliente_http = cliente_http
+        self._transport = transport  # solo lo inyectan los tests
 
     async def generar(self, prompt: str) -> str:
         """Mismo contrato de fallas que Claude: `ServicioExterno` (502) genérico; el log lleva solo
         el tipo del error, sin prompt, clave ni `str(error)`."""
         try:
-            respuesta = await self._cliente_http.post(
-                _URL_NVIDIA,
-                headers={"Authorization": f"Bearer {self._api_key.get_secret_value()}"},
-                json={
-                    "model": _MODELO_NVIDIA,
-                    "messages": [{"role": "user", "content": prompt}],
-                    "max_tokens": _MAX_TOKENS_NVIDIA,
-                },
-            )
+            # Un cliente por llamada, cerrado al salir: el modelo se arma en cada pedido.
+            async with httpx.AsyncClient(
+                timeout=_TIMEOUT_SEGUNDOS, transport=self._transport
+            ) as http:
+                respuesta = await http.post(
+                    _URL_NVIDIA,
+                    headers={"Authorization": f"Bearer {self._api_key.get_secret_value()}"},
+                    json={
+                        "model": _MODELO_NVIDIA,
+                        "messages": [{"role": "user", "content": prompt}],
+                        "max_tokens": _MAX_TOKENS_NVIDIA,
+                    },
+                )
             respuesta.raise_for_status()
             texto = respuesta.json()["choices"][0]["message"]["content"]
         except Exception as error:
@@ -103,7 +109,7 @@ class _ClienteNvidia:
 def _construir_cliente_nvidia(api_key: SecretStr) -> ModeloIA:
     """Único punto de construcción del cliente real de NVIDIA: la guardia autouse de
     `tests/conftest.py` lo parchea para que ningún test llame a la API."""
-    return _ClienteNvidia(api_key, httpx.AsyncClient(timeout=_TIMEOUT_SEGUNDOS))
+    return _ClienteNvidia(api_key)
 
 
 def _crear_chat(api_key: SecretStr) -> "ChatAnthropic":

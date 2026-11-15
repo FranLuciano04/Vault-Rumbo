@@ -172,9 +172,10 @@ async def test_rnf16_una_respuesta_sin_texto_es_servicio_externo() -> None:
 
 # --- T-182 (DEC-0029): Mistral en NVIDIA ---------------------------------------------------
 # Interfaz que fijan estos tests (la sigue el implementador):
-#   - `ia._ClienteNvidia(api_key: SecretStr, cliente_http: httpx.AsyncClient)`: el cliente HTTP se
-#     inyecta (los tests le pasan un `httpx.MockTransport`); `generar(prompt)` hace
-#     `POST https://integrate.api.nvidia.com/v1/chat/completions`.
+#   - `ia._ClienteNvidia(api_key: SecretStr, transport: httpx.AsyncBaseTransport | None = None)`: el
+#     transporte se inyecta (los tests le pasan un `httpx.MockTransport`); `generar(prompt)` abre un
+#     `httpx.AsyncClient` propio, hace `POST https://integrate.api.nvidia.com/v1/chat/completions`
+#     y lo cierra al terminar.
 #   - `ia._construir_cliente_nvidia(api_key: SecretStr)`: único punto de construcción del cliente
 #     real (crea el `httpx.AsyncClient` con timeout de 60 s); la guardia autouse lo parchea.
 #   - `Settings.nvidia_api_key: SecretStr | None` (env NVIDIA_API_KEY); `ia_modelo` acepta "nvidia".
@@ -192,8 +193,7 @@ def _cliente_nvidia(
         pedidos.append(pedido)
         return handler(pedido)
 
-    http = httpx.AsyncClient(transport=httpx.MockTransport(envoltorio))
-    return ia._ClienteNvidia(SecretStr(_CLAVE_NVIDIA), http), pedidos
+    return ia._ClienteNvidia(SecretStr(_CLAVE_NVIDIA), httpx.MockTransport(envoltorio)), pedidos
 
 
 def _respuesta_ok(contenido: object = "Texto de Mistral") -> httpx.Response:
@@ -351,3 +351,27 @@ async def test_rnf16_nvidia_el_log_de_una_falla_no_incluye_el_prompt_ni_la_clave
     assert caplog.records, "la falla debe quedar en el log"
     assert _PROMPT not in caplog.text
     assert _CLAVE_NVIDIA not in caplog.text
+
+
+class _TransporteQueRegistraElCierre(httpx.MockTransport):
+    def __init__(self, handler: Callable[[httpx.Request], httpx.Response]) -> None:
+        super().__init__(handler)
+        self.cerrado = False
+
+    async def aclose(self) -> None:
+        self.cerrado = True
+
+
+@pytest.mark.parametrize("estado", [200, 500])
+async def test_rnf16_nvidia_cierra_el_cliente_http_tras_generar(estado: int) -> None:
+    transporte = _TransporteQueRegistraElCierre(
+        lambda p: _respuesta_ok() if estado == 200 else httpx.Response(estado)
+    )
+    cliente = ia._ClienteNvidia(SecretStr(_CLAVE_NVIDIA), transporte)
+
+    try:
+        await cliente.generar(_PROMPT)
+    except ServicioExterno:
+        pass
+
+    assert transporte.cerrado
