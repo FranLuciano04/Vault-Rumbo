@@ -60,7 +60,7 @@ El diagrama de abajo se dibujó el 21/09/26 siguiendo estas convenciones, comune
 ## Invariantes y reglas
 
 - **`confirmado` es económico, no operativo.** Significa "total pagado" y **no** debe confundirse con el acto de confirmar la reserva, que es [[CU-07 Confirmar reserva]] y produce `reservado` ([[CU-07 Confirmar reserva]], nota de la descripción).
-- **T2, T3 y T11 son automáticas.** Las dispara el cobro en [[CU-12 Registrar cobro de un pago]]; el empleado no las ejecuta a mano ([[CU-08 Gestionar estado del viaje]] paso 2).
+- **T2, T3 y T11 son automáticas.** T2 y T3 las dispara el cobro en [[CU-12 Registrar cobro de un pago]] (T3, también el rebalanceo del plan), y T11 la edición de la economía o del plan; el empleado no las ejecuta a mano ([[CU-08 Gestionar estado del viaje]] paso 2).
 - **T4 y T5 nunca se fuerzan por fecha.** El sistema sugiere, la persona confirma. Caso de referencia: si el vuelo de regreso está retrasado, el empleado **mantiene el viaje `en curso`** aunque la fecha de regreso ya haya pasado ([[CU-08 Gestionar estado del viaje]] A1).
 - **La secuencia es estricta** (resuelto 21/09): no se saltea `confirmado`. Un [[Viaje]] no pasa a `en curso` sin estar **totalmente pagado**, aunque ya haya llegado la fecha de salida.
 - **`finalizado` no se cancela** ([[CU-27 Cancelar viaje]] A1).
