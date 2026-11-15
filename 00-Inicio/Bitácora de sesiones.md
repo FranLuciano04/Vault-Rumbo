@@ -36,6 +36,11 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
+## 15/11/26 — Paloma (Claude Opus 5.5) — app en el emulador, datos de demo y logo
+- **Hecho:** se levantó el entorno local completo: Docker, PostgreSQL, la API con `fastapi dev`, Metro y el development build en el emulador, con `adb reverse` de los puertos 8000 y 8081. Se cargaron los datos de demo (`datos-iniciales --demo`) en la base local de Paloma. Se agregó el **logo de Rumbo** (brújula sobre `#234f6e`) en `_adjuntos/Marca/`, como ícono de la app y del ícono adaptativo de Android y en el login mobile, y en la web como favicon, ícono de Apple, panel del login y barra lateral: PR #219 (`feature/logo-rumbo`).
+- **Commits:** `f911b33` (en el PR #219).
+- **Pendiente:** revisar y mergear el PR #219; después, cada uno recompila el development build para ver el ícono (y vuelve a poner el `cmake.dir` en `android/local.properties`). Revisar por qué la agenda mobile no incluye las alertas «Próximas» en «Todas» (puede ser a propósito). Sigue pendiente la ratificación de DEC-0026 por Paloma.
+
 ## 13/11/26 — Nahuel (Claude Opus 5.5) — cierre de M11
 - **Hecho:** review de Codex de M11 con 3 hallazgos importantes, confirmados y arreglados: H-02 y H-03 en el PR #217, y H-01 en el PR #218 (riesgo alto, aprobado por otro integrante). Nahuel aprobó el módulo en nombre del equipo y se puso el tag `mod-11`.
 - **Commits:** `67b6c581` pedido de review, `49044429` triage, `a9ebae86` H-01 mergeado, más el cierre en la Bitácora técnica.
