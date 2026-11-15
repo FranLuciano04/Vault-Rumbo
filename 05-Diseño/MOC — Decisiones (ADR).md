@@ -39,6 +39,7 @@ tags:: #tipo/modulo #estado/formalizado
 - [[DEC-0026 Tipo de cambio y deuda nueva en un viaje confirmado]] (en revisión, 01/11/26): el tipo de cambio son pesos por dólar; un `confirmado` que vuelve a deber pasa a `vendido` (T11), el rebalanceo también confirma y para iniciar hace falta el total pagado.
 - [[DEC-0027 Título y cantidad de borradores de la IA]] (formalizada el 13/11/26): el título del borrador sale del tema del pedido; cada pedido devuelve 2 borradores en una sola llamada (CU-20, T-131).
 - [[DEC-0028 Cotizaciones alternativas y reserva con el primer pago]] (formalizada el 11/11/26): varias cotizaciones por oportunidad, y al ganar se elige la aceptada; la reserva se precarga con ella, pide solo el primer pago y arma el itinerario con sus hoteles; la comisión en % sigue sobre la ganancia (M11, destraba T-174).
+- [[DEC-0029 Mistral en NVIDIA como modelo de IA para las demos]] (🟡 en revisión, propuesta el 15/11/26): `IA_MODELO=nvidia` usa Mistral Large 4 en NVIDIA para desarrollo y demos; producción sigue con DEC-0012 (M12, T-182).
 
 ## Todas (Dataview)
 ```dataview

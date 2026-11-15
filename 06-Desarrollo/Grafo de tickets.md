@@ -26,6 +26,7 @@ tags:: #tipo/referencia
 | M9 — Redes e IA | 8 | 8 | 0 | 0 | 0 | 0 | ✅ cerrado |
 | M10 — Despliegue on-premise | 5 | 0 | 0 | 1 | 4 | 0 | 🛠️ en curso |
 | M11 — Ajustes de la revisión del equipo | 11 | 11 | 0 | 0 | 0 | 0 | 🔍 listo para la review |
+| M12 — Mejoras para las demos | 1 | 0 | 0 | 1 | 0 | 0 | 🛠️ en curso |
 
 ## Grafo
 
@@ -236,6 +237,9 @@ flowchart LR
     T179["T-179 · Precargar la reserva con la cotización y pedir el primer pago<br/><small>web</small>"]:::hecho
     T180["T-180 · Guardar los hoteles elegidos en la cotización<br/><small>web</small>"]:::hecho
     T181["T-181 · Probar de punta a punta la reserva desde la cotización elegida<br/><small>e2e</small>"]:::hecho
+  end
+  subgraph M12["M12 — Mejoras para las demos"]
+    T182["T-182 · Sumar Mistral en NVIDIA como modelo de IA para las demos<br/><small>backend</small>"]:::disponible
   end
   T002 --> T003
   T001 --> T006
