@@ -3,7 +3,7 @@ id: T-182
 titulo: Sumar Mistral en NVIDIA como modelo de IA para las demos
 modulo: M12 — Mejoras para las demos
 capa: backend
-estado: libre
+estado: tomado
 depende_de: []
 tamaño: S
 riesgo: normal
@@ -12,9 +12,9 @@ modelo_impl: sonnet
 modelo_review: opus
 trazabilidad: [DEC-0029, DEC-0012, CU-20, RNF-16]
 origen: pedido de Francisco (15/11/26)
-asignado:
-tomado_el:
-rama:
+asignado: FranLucianoo
+tomado_el: 15/11/26 16:59
+rama: feature/T-182-sumar-mistral-en-nvidia-como-modelo-de-i
 pr:
 ---
 # T-182 Sumar Mistral en NVIDIA como modelo de IA para las demos
