@@ -4,7 +4,7 @@ import { type DatosInicioSesion, esquemaInicioSesion } from "@rumbo/shared/esque
 import { consultaYo } from "@rumbo/shared/hooks";
 import { useQueryClient } from "@tanstack/react-query";
 import type { AxiosInstance } from "axios";
-import { ArrowRight, CircleAlert, Compass, UsersRound } from "lucide-react";
+import { ArrowRight, CircleAlert, UsersRound } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router";
@@ -194,9 +194,7 @@ function PanelMarca() {
   return (
     <aside className="hidden w-1/2 max-w-3xl flex-col justify-between rounded-xl bg-linear-to-br from-primary to-ring p-10 text-primary-foreground lg:flex">
       <div className="flex items-center gap-3 text-xl font-bold">
-        <span className="flex size-11 items-center justify-center rounded-md bg-primary">
-          <Compass aria-hidden className="size-5" />
-        </span>
+        <img src="/favicon.svg" alt="" className="size-11" />
         Rumbo
       </div>
       <div>

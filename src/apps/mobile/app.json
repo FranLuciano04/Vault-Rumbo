@@ -5,8 +5,13 @@
     "scheme": "rumbo",
     "version": "0.0.0",
     "orientation": "portrait",
+    "icon": "./assets/icon.png",
     "android": {
-      "package": "ar.com.rumbo.mobile"
+      "package": "ar.com.rumbo.mobile",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#234f6e"
+      }
     },
     "ios": {
       "bundleIdentifier": "ar.com.rumbo.mobile"

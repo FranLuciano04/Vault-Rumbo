@@ -4,7 +4,8 @@ import { consultaYo } from "@rumbo/shared/hooks";
 import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
 import { type ComponentProps, useRef, useState } from "react";
-import { Pressable, ScrollView, Text, TextInput, View } from "react-native";
+import { Image, Pressable, ScrollView, Text, TextInput, View } from "react-native";
+import logo from "../../assets/logo.png";
 import { cliente } from "../../src/cliente";
 import {
   cerrarSesion,
@@ -104,9 +105,12 @@ export default function Login() {
       keyboardShouldPersistTaps="handled"
     >
       <View className="items-center">
-        <View className="size-16 items-center justify-center rounded-full bg-primary">
-          <View className="size-6 rounded-full border-2 border-white" />
-        </View>
+        <Image
+          source={logo}
+          accessibilityIgnoresInvertColors
+          className="size-16"
+          resizeMode="contain"
+        />
         <Text role="heading" className="mt-4 text-3xl font-bold text-gray-900">
           Rumbo
         </Text>
