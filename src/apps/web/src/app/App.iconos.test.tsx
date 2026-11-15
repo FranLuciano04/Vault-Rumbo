@@ -23,7 +23,6 @@ const etiquetas = [
   "Calendario",
   "Clientes",
   "Oportunidades",
-  "Cotizaciones",
   "Viajes",
   "Hoteles",
   "Redes",
@@ -40,9 +39,9 @@ async function abrirMenu(ruta = "/agenda") {
 }
 
 describe("RNF-11 íconos de la navegación", () => {
-  it("RNF-11 el admin ve las 11 secciones, cada una con su enlace", async () => {
+  it("RNF-11 el admin ve las 10 secciones, cada una con su enlace", async () => {
     const menu = await abrirMenu();
-    expect(menu.getAllByRole("link")).toHaveLength(11);
+    expect(menu.getAllByRole("link")).toHaveLength(10);
   });
 
   it.each(etiquetas)(
@@ -70,7 +69,7 @@ describe("RNF-11 íconos de la navegación", () => {
       .getAllByRole("link")
       .map((enlace) => enlace.querySelector("svg")?.getAttribute("class") ?? "");
     expect(clases.every((c) => c.includes("lucide"))).toBe(true);
-    expect(new Set(clases).size).toBe(11);
+    expect(new Set(clases).size).toBe(10);
   });
 
   it("RNF-11 el ítem activo se marca con aria-current=page y solo ese", async () => {

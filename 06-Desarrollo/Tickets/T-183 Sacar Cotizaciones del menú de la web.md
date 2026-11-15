@@ -3,7 +3,7 @@ id: T-183
 titulo: Sacar Cotizaciones del menú de la web
 modulo: M12 — Mejoras para las demos
 capa: web
-estado: tomado
+estado: hecho
 depende_de: []
 tamaño: XS
 riesgo: normal
@@ -48,4 +48,9 @@ El menú lateral de la web deja de mostrar «Cotizaciones». Hoy ese ítem lleva
 - Mobile.
 
 ## Notas de implementación
-- Se aparta de la tabla «Vistas por rol» del prototipo, que lista «Cotizaciones» en el menú. Lo pidió Francisco el 15/11/26 porque la sección estaba vacía.
+- Se aparta de la tabla «Vistas por rol» del prototipo, que lista «Cotizaciones» en el menú. Lo pidió Francisco el 15/11/26 para la demo de la facultad, porque la sección estaba vacía. El comentario de `SECCIONES` en `navegacion.ts` lo explica.
+- `/cotizaciones` suelta (por ejemplo, un favorito viejo) cae en `SeccionPendiente`, que redirige a `/agenda`. El link «Cotizaciones» del detalle de la oportunidad y `/oportunidades/:id/cotizaciones` no cambian, y los e2e usan ese link, no el del menú.
+- Refactor salteado: el verde solo borró 2 líneas.
+- Review (opus): 1 bloqueante. `App.barra-angosta.test.tsx` seguía esperando 11 secciones y el verde no lo había corrido porque solo cubría los 3 archivos del ticket. Se arregló en el fix con autorización (`--tocar-tests`), junto con el formato de `navegacion.test.ts` y el comentario del desvío. Hubo una segunda ronda de review sobre el fix.
+- Checks: `vitest run src/app` 59/59; `tsc`, `eslint` y `prettier` limpios.
+- Modelos: tests sonnet, implementación y fix sonnet, review opus. No hubo escalados.

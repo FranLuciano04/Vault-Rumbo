@@ -4,7 +4,6 @@ import {
   CalendarDays,
   ChartColumn,
   FileChartColumn,
-  FileText,
   Funnel,
   Hotel,
   type LucideIcon,
@@ -23,13 +22,15 @@ export interface Seccion {
 
 type Visibilidad = "todos" | "redes" | "admin";
 
-/** Secciones del menú en orden; la visibilidad sigue la tabla «Vistas por rol» del prototipo. */
+/**
+ * Secciones del menú en orden; la visibilidad sigue la tabla «Vistas por rol» del prototipo.
+ * «Cotizaciones» no va en el menú porque se entra desde cada oportunidad (T-183, DEC-0028).
+ */
 const SECCIONES: { id: string; etiqueta: string; icono: LucideIcon; visible: Visibilidad }[] = [
   { id: "agenda", etiqueta: "Agenda", icono: Bell, visible: "todos" },
   { id: "calendario", etiqueta: "Calendario", icono: CalendarDays, visible: "todos" },
   { id: "clientes", etiqueta: "Clientes", icono: User, visible: "todos" },
   { id: "oportunidades", etiqueta: "Oportunidades", icono: Funnel, visible: "todos" },
-  { id: "cotizaciones", etiqueta: "Cotizaciones", icono: FileText, visible: "todos" },
   { id: "viajes", etiqueta: "Viajes", icono: Send, visible: "todos" },
   { id: "hoteles", etiqueta: "Hoteles", icono: Hotel, visible: "todos" },
   { id: "redes", etiqueta: "Redes", icono: Share2, visible: "redes" },
