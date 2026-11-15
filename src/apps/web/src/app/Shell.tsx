@@ -32,7 +32,10 @@ export function Shell({ usuario, children }: { usuario: UsuarioActual; children:
         className="flex shrink-0 flex-col gap-6 border-b border-sidebar-border bg-sidebar p-4 md:w-60 md:border-r md:border-b-0"
       >
         <div className="flex items-center justify-between">
-          <span className="px-3 text-xl font-bold text-sidebar-primary">Rumbo</span>
+          <span className="flex items-center gap-2 px-3 text-xl font-bold text-sidebar-primary">
+            <img src="/favicon.svg" alt="" className="size-8" />
+            Rumbo
+          </span>
           <button
             ref={botonMenu}
             type="button"

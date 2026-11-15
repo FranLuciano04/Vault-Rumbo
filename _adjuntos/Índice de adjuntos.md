@@ -2,7 +2,7 @@
 tipo: referencia
 estado: formalizado
 responsable: equipo
-actualizado: 09/09/26
+actualizado: 15/11/26
 ---
 # Índice de adjuntos
 
@@ -25,3 +25,7 @@ tags:: #tipo/referencia #estado/formalizado
 ## Antecedentes
 - [[Propuestas de trabajo de campo.pptx|Propuestas de trabajo de campo (PPTX)]] — comparación inicial de las tres propuestas; Rumbo fue la propuesta seleccionada.
 - [[Propuestas de trabajo de campo.pdf|Propuestas de trabajo de campo (PDF)]] — la misma presentación en PDF; resumida en [[Elección del proyecto]], que la lleva al documento general.
+
+## Marca
+- [[rumbo-icono.svg|Logo de Rumbo (SVG)]] y [[rumbo-icono-redondeado.svg|versión redondeada (SVG)]]: brújula sobre `#234f6e`, la fuente de todos los íconos. [[rumbo-icono-redondeado-1024.png|PNG 1024 px]].
+- Derivados en el código: favicon e ícono de Apple en `src/apps/web/public/`; ícono de la app, frente del ícono adaptativo de Android (fondo `#234f6e`) y logo del login en `src/apps/mobile/assets/`.
