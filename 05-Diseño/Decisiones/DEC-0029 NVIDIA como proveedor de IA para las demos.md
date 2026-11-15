@@ -22,7 +22,7 @@ NVIDIA ofrece en build.nvidia.com acceso de prueba gratuito a varios modelos med
 - Sumar un tercer valor a la configuración: `IA_MODELO=nvidia`, que usa **Nemotron 3 Ultra** (`nvidia/nemotron-3-ultra-550b-a55b`) en NVIDIA, con el razonamiento apagado (`chat_template_kwargs: {"enable_thinking": false}`). La clave es `NVIDIA_API_KEY` y sale solo del entorno, nunca de Git.
 - Es **para desarrollo y demos**. El modelo de producción sigue siendo el de [[DEC-0012 Modelo de IA del producto|DEC-0012]] (`IA_MODELO=claude`), y el valor por defecto sigue siendo `falso`.
 - Se respetan las reglas de DEC-0012: el modelo **no recibe datos de clientes** ni publica nada. El prompt es el mismo de [[IA — Prompt de CU-20]] y la salida es la que fija [[DEC-0027 Título y cantidad de borradores de la IA|DEC-0027]].
-- La llamada se hace con `httpx`, que ya está instalado en el backend: hoy figura como dependencia de desarrollo y llega en runtime por `fastapi[standard]` y `langchain-anthropic`. No se suma ningún paquete nuevo.
+- La llamada se hace con `httpx`, que ya estaba instalado en el backend (llegaba por `fastapi[standard]`). Ahora queda declarado como dependencia directa, pero no se suma ningún paquete nuevo.
 - Como el plan gratuito tiene latencia variable, la llamada tiene un timeout de 180 s y nginx espera hasta 200 s en `/api/`.
 
 ## Alternativas consideradas

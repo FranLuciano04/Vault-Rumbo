@@ -63,10 +63,11 @@ Con `IA_MODELO=nvidia` y una `NVIDIA_API_KEY`, `core.ia` genera texto con Nemotr
 - **Prueba real (15/11/26):** `POST /api/contenidos/propuestas-ia` a través de Vite dio 200 en 6 y 11 s, con dos borradores en rioplatense.
 - **Review (opus):** 1 importante y 3 menores.
   - Importante, arreglado: el `AsyncClient` no se cerraba.
+  - Menor, arreglado en `78f6f9c`: `httpx` pasó a ser una dependencia directa. `uv.lock` se regeneró con `uv lock` dentro de un contenedor con `--dns 1.1.1.1`, porque el DNS de esta PC bloquea files.pythonhosted.org.
   - Menores que quedan:
-    - `httpx` sigue declarado solo en el grupo dev. En runtime llega por `fastapi[standard]`, `langchain-core` y `firebase-admin`. No se pudo regenerar `uv.lock` porque el DNS de esta PC bloquea files.pythonhosted.org.
     - NVIDIA no tiene reintento. Es a propósito.
     - La descripción del OpenAPI de `POST /contenidos/propuestas-ia` sigue diciendo «Claude Sonnet 5.5». Corregirla obliga a regenerar el contrato.
+- **CI:** `pip-audit` frenó el PR por CVE-2026-128089 en `dnspython` 2.9.0, una dependencia transitiva. Se subió a 2.9.2 en `692e43a` (DEC-0019).
 - **Suite completa del backend en la PC:** 3199 passed y 17 failed. Los 17 son de PDF: WeasyPrint no encuentra GTK/Pango en Windows. Es del entorno y no tiene que ver con el ticket. `ruff`, `ruff format` y `mypy` dieron limpio.
 - **Modelos:** tests sonnet, implementación, refactor y fix sonnet, review opus. No hubo escalados.
 - **DEC-0029 está en revisión:** el PR no se mergea hasta que la ratifiquen Nahuel y Paloma.
