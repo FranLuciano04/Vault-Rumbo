@@ -26,7 +26,7 @@ tags:: #tipo/referencia
 | M9 — Redes e IA | 8 | 8 | 0 | 0 | 0 | 0 | ✅ cerrado |
 | M10 — Despliegue on-premise | 5 | 0 | 0 | 1 | 4 | 0 | 🛠️ en curso |
 | M11 — Ajustes de la revisión del equipo | 11 | 11 | 0 | 0 | 0 | 0 | ✅ cerrado |
-| M12 — Mejoras para las demos | 2 | 0 | 1 | 1 | 0 | 0 | 🛠️ en curso |
+| M12 — Mejoras para las demos | 2 | 1 | 0 | 1 | 0 | 0 | 🛠️ en curso |
 
 ## Grafo
 
@@ -239,7 +239,7 @@ flowchart LR
     T181["T-181 · Probar de punta a punta la reserva desde la cotización elegida<br/><small>e2e</small>"]:::hecho
   end
   subgraph M12["M12 — Mejoras para las demos"]
-    T182["T-182 · Sumar Mistral en NVIDIA como modelo de IA para las demos<br/><small>backend</small><br/>👤 FranLucianoo"]:::tomado
+    T182["T-182 · Sumar Mistral en NVIDIA como modelo de IA para las demos<br/><small>backend</small>"]:::hecho
     T183["T-183 · Sacar Cotizaciones del menú de la web<br/><small>web</small>"]:::disponible
   end
   T002 --> T003
