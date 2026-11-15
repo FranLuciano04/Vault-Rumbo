@@ -26,7 +26,7 @@ tags:: #tipo/referencia
 | M9 — Redes e IA | 8 | 8 | 0 | 0 | 0 | 0 | ✅ cerrado |
 | M10 — Despliegue on-premise | 5 | 0 | 0 | 1 | 4 | 0 | 🛠️ en curso |
 | M11 — Ajustes de la revisión del equipo | 11 | 11 | 0 | 0 | 0 | 0 | ✅ cerrado |
-| M12 — Mejoras para las demos | 2 | 1 | 1 | 0 | 0 | 0 | 🛠️ en curso |
+| M12 — Mejoras para las demos | 2 | 2 | 0 | 0 | 0 | 0 | 🔍 listo para la review |
 
 ## Grafo
 
@@ -240,7 +240,7 @@ flowchart LR
   end
   subgraph M12["M12 — Mejoras para las demos"]
     T182["T-182 · Sumar Mistral en NVIDIA como modelo de IA para las demos<br/><small>backend</small>"]:::hecho
-    T183["T-183 · Sacar Cotizaciones del menú de la web<br/><small>web</small><br/>👤 FranLucianoo"]:::tomado
+    T183["T-183 · Sacar Cotizaciones del menú de la web<br/><small>web</small>"]:::hecho
   end
   T002 --> T003
   T001 --> T006
