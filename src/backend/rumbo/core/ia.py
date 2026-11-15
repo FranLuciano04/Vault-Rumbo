@@ -4,6 +4,7 @@ import json
 import logging
 from typing import TYPE_CHECKING, Protocol
 
+import httpx
 from pydantic import SecretStr
 
 from rumbo.core.config import Settings
@@ -18,6 +19,12 @@ _MODELO_CLAUDE = "claude-sonnet-5-5"
 _MAX_TOKENS = 1024  # alcanza para un posteo de redes y pone tope al costo de cada llamada
 _TIMEOUT_SEGUNDOS = 60
 _REINTENTOS = 1
+_URL_NVIDIA = "https://integrate.api.nvidia.com/v1/chat/completions"
+_MODELO_NVIDIA = "nvidia/nemotron-3-ultra-550b-a55b"
+# Con el razonamiento prendido el modelo gasta los tokens pensando y `content` llega en `None`.
+_CHAT_TEMPLATE_KWARGS_NVIDIA = {"enable_thinking": False}
+_TIMEOUT_NVIDIA_SEGUNDOS = 180  # la cola del endpoint gratuito llega a ~125 s
+_MAX_TOKENS_NVIDIA = 4096  # holgura por si el modelo razona igual: el tope incluye ese razonamiento
 FALLA_IA = "No se pudo generar el texto con el servicio de IA."
 
 
@@ -67,6 +74,48 @@ def _construir_cliente_claude(api_key: SecretStr) -> ModeloIA:
     return _ClienteClaude(_crear_chat(api_key))
 
 
+class _ClienteNvidia:
+    def __init__(
+        self, api_key: SecretStr, transport: httpx.AsyncBaseTransport | None = None
+    ) -> None:
+        self._api_key = api_key
+        self._transport = transport  # solo lo inyectan los tests
+
+    async def generar(self, prompt: str) -> str:
+        """Mismo contrato de fallas que Claude: `ServicioExterno` (502) genérico; el log lleva solo
+        el tipo del error, sin prompt, clave ni `str(error)`."""
+        try:
+            # Un cliente por llamada, cerrado al salir: el modelo se arma en cada pedido.
+            async with httpx.AsyncClient(
+                timeout=_TIMEOUT_NVIDIA_SEGUNDOS, transport=self._transport
+            ) as http:
+                respuesta = await http.post(
+                    _URL_NVIDIA,
+                    headers={"Authorization": f"Bearer {self._api_key.get_secret_value()}"},
+                    json={
+                        "model": _MODELO_NVIDIA,
+                        "messages": [{"role": "user", "content": prompt}],
+                        "max_tokens": _MAX_TOKENS_NVIDIA,
+                        "chat_template_kwargs": _CHAT_TEMPLATE_KWARGS_NVIDIA,
+                    },
+                )
+            respuesta.raise_for_status()
+            texto = respuesta.json()["choices"][0]["message"]["content"]
+        except Exception as error:
+            logger.error("Falló la llamada al modelo de IA (%s)", type(error).__name__)
+            raise ServicioExterno(FALLA_IA) from error
+        if not isinstance(texto, str) or not texto.strip():
+            logger.error("El modelo de IA respondió sin texto")
+            raise ServicioExterno(FALLA_IA)
+        return texto
+
+
+def _construir_cliente_nvidia(api_key: SecretStr) -> ModeloIA:
+    """Único punto de construcción del cliente real de NVIDIA: la guardia autouse de
+    `tests/conftest.py` lo parchea para que ningún test llame a la API."""
+    return _ClienteNvidia(api_key)
+
+
 def _crear_chat(api_key: SecretStr) -> "ChatAnthropic":
     """Configura el chat de LangChain; construirlo no llama a la API."""
     from langchain_anthropic import ChatAnthropic  # diferido: solo se importa con IA real
@@ -83,6 +132,11 @@ def _crear_chat(api_key: SecretStr) -> "ChatAnthropic":
 def obtener_modelo_ia(settings: Settings) -> ModeloIA:
     if settings.ia_modelo == "falso":
         return ModeloFalso()
+    if settings.ia_modelo == "nvidia":
+        clave_nvidia = settings.nvidia_api_key
+        if not clave_nvidia or not clave_nvidia.get_secret_value():
+            raise ServicioExterno("Falta NVIDIA_API_KEY para usar IA_MODELO=nvidia")
+        return _construir_cliente_nvidia(clave_nvidia)
     clave = settings.anthropic_api_key
     if not clave or not clave.get_secret_value():
         raise ServicioExterno("Falta ANTHROPIC_API_KEY para usar IA_MODELO=claude")

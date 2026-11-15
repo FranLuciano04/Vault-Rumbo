@@ -140,7 +140,11 @@ def _sin_cliente_real_de_claude(monkeypatch: pytest.MonkeyPatch) -> None:
     def _prohibido(api_key: object) -> None:
         raise AssertionError("los tests no pueden construir el cliente real de Claude")
 
+    def _prohibido_nvidia(api_key: object) -> None:
+        raise AssertionError("los tests no pueden construir el cliente real de NVIDIA")
+
     monkeypatch.setattr("rumbo.core.ia._construir_cliente_claude", _prohibido)
+    monkeypatch.setattr("rumbo.core.ia._construir_cliente_nvidia", _prohibido_nvidia)
 
 
 @pytest.fixture
