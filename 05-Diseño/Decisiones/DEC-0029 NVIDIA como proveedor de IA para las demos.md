@@ -12,6 +12,8 @@ actualizado: 15/11/26
 tags:: #tipo/decision #estado/en-revision #pc/pc2 #accion/decidir
 
 > 🟡 **Propuesta por Francisco el 15/11/26.** Falta la ratificación de Nahuel y Paloma. Amplía [[DEC-0012 Modelo de IA del producto|DEC-0012]] sin reemplazarla.
+>
+> ⚠️ **El código ya está en `main`.** Francisco mergeó el PR #220 (T-182) el 15/11/26, antes de la ratificación, para mostrarlo en la demo de la facultad. Si Nahuel o Paloma no la ratifican, se revierte o se ajusta con otra `DEC-`. Mientras tanto no cambia nada para producción: el valor por defecto sigue siendo `falso`.
 
 ## Contexto
 [[CU-20 Generar propuesta de contenido con IA|CU-20]] usa hoy el modelo falso (`IA_MODELO=falso`) en desarrollo y en las demos, porque el modelo real de [[DEC-0012 Modelo de IA del producto|DEC-0012]] (Claude Sonnet 5.5) exige una clave paga de Anthropic. Con el modelo falso, la demo siempre muestra los mismos dos borradores fijos y no se ve qué hace la IA de verdad.

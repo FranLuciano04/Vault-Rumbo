@@ -27,12 +27,13 @@ La **persona** de cada sesión es quien la corre, identificada por su identidad 
 ### Nahuel
 | Fecha | Aviso |
 |---|---|
-| 15/11/26 | Francisco propuso **DEC-0029** (en el PR #220) (IA real y gratuita para las demos con Nemotron 3 Ultra en NVIDIA; producción sigue con Claude). Falta tu ratificación para mergear el PR #220 (T-182). |
+| 15/11/26 | Francisco propuso [[DEC-0029 NVIDIA como proveedor de IA para las demos|DEC-0029]] (IA real y gratuita para las demos con Nemotron 3 Ultra en NVIDIA; producción sigue con Claude). Falta tu ratificación. Francisco ya mergeó el PR #220 (T-182) para la demo de la facultad; si no estás de acuerdo, se revierte. |
 
 ### Paloma
 | Fecha | Aviso |
 |---|---|
-| 15/11/26 | Francisco propuso **DEC-0029** (en el PR #220) (IA real y gratuita para las demos con Nemotron 3 Ultra en NVIDIA; producción sigue con Claude). Falta tu ratificación para mergear el PR #220 (T-182). |
+| 15/11/26 | Francisco mergeó tu PR #219 (logo de Rumbo) para la demo de la facultad; el CI estaba en verde. Para ver el ícono en mobile hay que recompilar el development build. |
+| 15/11/26 | Francisco propuso [[DEC-0029 NVIDIA como proveedor de IA para las demos|DEC-0029]] (IA real y gratuita para las demos con Nemotron 3 Ultra en NVIDIA; producción sigue con Claude). Falta tu ratificación. Francisco ya mergeó el PR #220 (T-182) para la demo de la facultad; si no estás de acuerdo, se revierte. |
 
 ## Formato
 Es **obligatorio** nombrar a la persona que hizo la sesión.
@@ -43,10 +44,18 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
+## 15/11/26 — Francisco (Claude Opus 5.5) — merge para la demo: T-182, logo y T-183
+- **Hecho:** para la demo de la facultad, Francisco pidió subir todo. Se mergearon:
+  - El **PR #220** (T-182, IA con Nemotron 3 Ultra en NVIDIA), antes de que se ratificara [[DEC-0029 NVIDIA como proveedor de IA para las demos|DEC-0029]]; quedó anotado en la DEC. Antes, el CI había frenado por CVE-2026-128089 en `dnspython`, que se subió a 2.9.2. También se declaró `httpx` como dependencia directa, regenerando `uv.lock` dentro de Docker con `--dns 1.1.1.1`.
+  - El **PR #219** (logo de Paloma), con el CI en verde.
+  - **T-183** con TDD (PR #221): «Cotizaciones» sale del menú de la web y las cotizaciones se siguen abriendo desde cada oportunidad. La review encontró un test que había quedado desactualizado (`App.barra-angosta`) y se arregló.
+- **Commits:** `363e6bd` (merge #220), `9e6433e` (merge #219), `d982bcd` (merge #221).
+- **Pendiente:** ratificación de DEC-0029 por Nahuel y Paloma (o revertir). Rotar la clave de NVIDIA de prueba.
+
 ## 15/11/26 — Francisco (Claude Opus 5.5) — T-182 (IA de NVIDIA para las demos) y T-183
 - **Hecho:**
   - Se levantó la web para probar en modo local. El Compose no se puede construir en esta PC porque el DNS del proveedor bloquea `files.pythonhosted.org`, así que corren en Docker Postgres de desarrollo y el Auth Emulator, y la API (con la `.venv`) y Vite corren en Windows. Para entrar: `duena@rumbo.test`.
-  - Se propuso **DEC-0029** (en el PR #220) (en revisión) y se implementó **T-182** (M12) con TDD: `IA_MODELO=nvidia`. Se empezó con Mistral Large 4, pero tardaba de 8 a más de 180 s; se midieron otros modelos y quedó **Nemotron 3 Ultra** sin razonamiento, que tarda de 4 a 10 s. Funcionó de punta a punta desde la web. PR #220.
+  - Se propuso [[DEC-0029 NVIDIA como proveedor de IA para las demos|DEC-0029]] (en revisión) y se implementó **T-182** (M12) con TDD: `IA_MODELO=nvidia`. Se empezó con Mistral Large 4, pero tardaba de 8 a más de 180 s; se midieron otros modelos y quedó **Nemotron 3 Ultra** sin razonamiento, que tarda de 4 a 10 s. Funcionó de punta a punta desde la web. PR #220.
   - Se creó **T-183** (M12, web): sacar «Cotizaciones» del menú, que llevaba a una sección vacía.
 - **Commits:** `9c76505` (DEC y ticket), `40b94aa` (tomado), rama de T-182 (`756bb73`…`aee29ef`), `40054bd` (T-183).
 - **Pendiente:**
