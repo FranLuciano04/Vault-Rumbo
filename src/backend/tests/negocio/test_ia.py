@@ -1,5 +1,9 @@
 """T-013 (DEC-0012, RNF-16): cliente de IA con modelo falso. Nunca se llama a la API de Claude."""
 
+import json
+import logging
+from collections.abc import Callable
+
 import anthropic
 import httpx
 import pytest
@@ -164,3 +168,186 @@ async def test_rnf16_una_respuesta_sin_texto_es_servicio_externo() -> None:
 
     with pytest.raises(ServicioExterno):
         await cliente.generar("tema")
+
+
+# --- T-182 (DEC-0029): Mistral en NVIDIA ---------------------------------------------------
+# Interfaz que fijan estos tests (la sigue el implementador):
+#   - `ia._ClienteNvidia(api_key: SecretStr, cliente_http: httpx.AsyncClient)`: el cliente HTTP se
+#     inyecta (los tests le pasan un `httpx.MockTransport`); `generar(prompt)` hace
+#     `POST https://integrate.api.nvidia.com/v1/chat/completions`.
+#   - `ia._construir_cliente_nvidia(api_key: SecretStr)`: único punto de construcción del cliente
+#     real (crea el `httpx.AsyncClient` con timeout de 60 s); la guardia autouse lo parchea.
+#   - `Settings.nvidia_api_key: SecretStr | None` (env NVIDIA_API_KEY); `ia_modelo` acepta "nvidia".
+
+_CLAVE_NVIDIA = "nvapi-clave-secreta"
+_PROMPT = "prompt-privado-del-agente"
+
+
+def _cliente_nvidia(
+    handler: Callable[[httpx.Request], httpx.Response],
+) -> tuple[ia._ClienteNvidia, list[httpx.Request]]:
+    pedidos: list[httpx.Request] = []
+
+    def envoltorio(pedido: httpx.Request) -> httpx.Response:
+        pedidos.append(pedido)
+        return handler(pedido)
+
+    http = httpx.AsyncClient(transport=httpx.MockTransport(envoltorio))
+    return ia._ClienteNvidia(SecretStr(_CLAVE_NVIDIA), http), pedidos
+
+
+def _respuesta_ok(contenido: object = "Texto de Mistral") -> httpx.Response:
+    return httpx.Response(
+        200,
+        json={
+            "choices": [
+                {"message": {"content": contenido, "reasoning_content": "razonamiento interno"}}
+            ]
+        },
+    )
+
+
+def _settings_nvidia(monkeypatch: pytest.MonkeyPatch, clave: str | None) -> Settings:
+    monkeypatch.setenv("DATABASE_URL", URL)
+    monkeypatch.setenv("IA_MODELO", "nvidia")
+    if clave is None:
+        monkeypatch.delenv("NVIDIA_API_KEY", raising=False)
+    else:
+        monkeypatch.setenv("NVIDIA_API_KEY", clave)
+    return Settings(_env_file=None)
+
+
+async def test_rnf16_ia_modelo_nvidia_con_clave_usa_el_cliente_de_nvidia(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    recibidas: list[str] = []
+
+    def construir(api_key: SecretStr) -> _ClienteSentinela:
+        recibidas.append(api_key.get_secret_value())
+        return _ClienteSentinela()
+
+    monkeypatch.setattr(ia, "_construir_cliente_nvidia", construir)
+
+    modelo = ia.obtener_modelo_ia(_settings_nvidia(monkeypatch, "clave-nv"))
+
+    assert isinstance(modelo, _ClienteSentinela)
+    assert recibidas == ["clave-nv"]
+
+
+@pytest.mark.parametrize("clave", [None, ""])
+async def test_rnf16_ia_modelo_nvidia_sin_clave_falla_con_servicio_externo(
+    monkeypatch: pytest.MonkeyPatch, clave: str | None
+) -> None:
+    def no_debe_construirse(api_key: SecretStr) -> _ClienteSentinela:
+        raise AssertionError("no debe construirse el cliente sin clave")
+
+    monkeypatch.setattr(ia, "_construir_cliente_nvidia", no_debe_construirse)
+
+    with pytest.raises(ServicioExterno) as error:
+        ia.obtener_modelo_ia(_settings_nvidia(monkeypatch, clave))
+
+    assert "NVIDIA_API_KEY" in error.value.detalle
+
+
+def test_rnf16_en_los_tests_construir_el_cliente_real_de_nvidia_falla() -> None:
+    """Guardia (autouse en conftest): ningún test puede construir el cliente real de NVIDIA."""
+    with pytest.raises(AssertionError, match="NVIDIA"):
+        ia._construir_cliente_nvidia(SecretStr("clave-de-prueba"))
+
+
+async def test_rnf16_nvidia_hace_post_a_chat_completions_con_modelo_y_mensaje_user() -> None:
+    cliente, pedidos = _cliente_nvidia(lambda p: _respuesta_ok())
+
+    await cliente.generar(_PROMPT)
+
+    assert len(pedidos) == 1
+    assert pedidos[0].method == "POST"
+    assert str(pedidos[0].url) == "https://integrate.api.nvidia.com/v1/chat/completions"
+    cuerpo = json.loads(pedidos[0].content)
+    assert cuerpo["model"] == "mistralai/mistral-large-4-1t-a52b"
+    assert cuerpo["messages"] == [{"role": "user", "content": _PROMPT}]
+
+
+async def test_rnf16_nvidia_envia_la_clave_como_bearer() -> None:
+    cliente, pedidos = _cliente_nvidia(lambda p: _respuesta_ok())
+
+    await cliente.generar(_PROMPT)
+
+    assert pedidos[0].headers["Authorization"] == f"Bearer {_CLAVE_NVIDIA}"
+
+
+async def test_rnf16_nvidia_usa_un_tope_de_tokens_mayor_que_el_de_claude() -> None:
+    """Mistral razona antes de responder y `max_tokens` incluye ese razonamiento."""
+    cliente, pedidos = _cliente_nvidia(lambda p: _respuesta_ok())
+
+    await cliente.generar(_PROMPT)
+
+    assert json.loads(pedidos[0].content)["max_tokens"] >= 4096
+
+
+async def test_rnf16_nvidia_devuelve_solo_el_content_del_primer_choice() -> None:
+    cliente, _ = _cliente_nvidia(lambda p: _respuesta_ok("Borrador listo"))
+
+    assert await cliente.generar(_PROMPT) == "Borrador listo"
+
+
+@pytest.mark.parametrize("estado", [400, 401, 429, 500, 503])
+async def test_rnf16_nvidia_un_error_http_es_servicio_externo(estado: int) -> None:
+    cliente, _ = _cliente_nvidia(lambda p: httpx.Response(estado, json={"error": "falla"}))
+
+    with pytest.raises(ServicioExterno) as error:
+        await cliente.generar(_PROMPT)
+
+    assert error.value.detalle == ia.FALLA_IA
+
+
+@pytest.mark.parametrize("excepcion", [httpx.ConnectError, httpx.ReadTimeout])
+async def test_rnf16_nvidia_un_error_de_red_o_timeout_es_servicio_externo(
+    excepcion: type[httpx.TransportError],
+) -> None:
+    def falla(pedido: httpx.Request) -> httpx.Response:
+        raise excepcion("sin red", request=pedido)
+
+    cliente, _ = _cliente_nvidia(falla)
+
+    with pytest.raises(ServicioExterno) as error:
+        await cliente.generar(_PROMPT)
+
+    assert error.value.detalle == ia.FALLA_IA
+
+
+@pytest.mark.parametrize("contenido", ["", "   ", None])
+async def test_rnf16_nvidia_una_respuesta_sin_texto_es_servicio_externo(
+    contenido: str | None,
+) -> None:
+    cliente, _ = _cliente_nvidia(lambda p: _respuesta_ok(contenido))
+
+    with pytest.raises(ServicioExterno):
+        await cliente.generar(_PROMPT)
+
+
+@pytest.mark.parametrize("cuerpo", [{}, {"choices": []}, "no es json"])
+async def test_rnf16_nvidia_una_respuesta_malformada_es_servicio_externo(
+    cuerpo: object,
+) -> None:
+    if isinstance(cuerpo, str):
+        respuesta = httpx.Response(200, content=cuerpo.encode())
+    else:
+        respuesta = httpx.Response(200, json=cuerpo)
+    cliente, _ = _cliente_nvidia(lambda p: respuesta)
+
+    with pytest.raises(ServicioExterno):
+        await cliente.generar(_PROMPT)
+
+
+async def test_rnf16_nvidia_el_log_de_una_falla_no_incluye_el_prompt_ni_la_clave(
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    cliente, _ = _cliente_nvidia(lambda p: httpx.Response(500, json={"error": "falla"}))
+
+    with caplog.at_level(logging.DEBUG), pytest.raises(ServicioExterno):
+        await cliente.generar(_PROMPT)
+
+    assert caplog.records, "la falla debe quedar en el log"
+    assert _PROMPT not in caplog.text
+    assert _CLAVE_NVIDIA not in caplog.text

@@ -4,6 +4,7 @@ import json
 import logging
 from typing import TYPE_CHECKING, Protocol
 
+import httpx
 from pydantic import SecretStr
 
 from rumbo.core.config import Settings
@@ -65,6 +66,19 @@ def _construir_cliente_claude(api_key: SecretStr) -> ModeloIA:
     """Único punto de construcción del cliente real de Claude: la guardia autouse de
     `tests/conftest.py` lo parchea para que ningún test llame a la API."""
     return _ClienteClaude(_crear_chat(api_key))
+
+
+class _ClienteNvidia:
+    def __init__(self, api_key: SecretStr, cliente_http: httpx.AsyncClient) -> None:
+        self._api_key = api_key
+        self._cliente_http = cliente_http
+
+    async def generar(self, prompt: str) -> str:
+        raise NotImplementedError
+
+
+def _construir_cliente_nvidia(api_key: SecretStr) -> ModeloIA:
+    raise NotImplementedError
 
 
 def _crear_chat(api_key: SecretStr) -> "ChatAnthropic":
