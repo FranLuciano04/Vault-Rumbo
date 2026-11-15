@@ -44,7 +44,7 @@ actualizado: 12/11/26
 >
 > 🏁 **05/11 — M7 Proceso diario y CRM proactivo cerrado.** Se arreglaron los 2 hallazgos de Codex (PR #191 y #192; el de riesgo alto lo aprobó Paloma). El equipo lo aprobó y se puso el tag `mod-7`. Falta ratificar que «recurrente» cuenta viajes no cancelados. El resumen está en [[Bitácora técnica]].
 >
-> 🏁 **02/11 — M6 Viajes y economía cerrado.** Se arreglaron los 5 hallazgos de Codex (PR #170, #172, #173 y #174, los de riesgo alto aprobados por Paloma) y se puso el tag `mod-6`. Queda en revisión [[DEC-0026 Tipo de cambio y deuda nueva en un viaje confirmado|DEC-0026]] (tipo de cambio en pesos por dólar y T11 `confirmado → vendido`), con dos puntos para ratificar. El resumen está en [[Bitácora técnica]].
+> 🏁 **02/11 — M6 Viajes y economía cerrado.** Se arreglaron los 5 hallazgos de Codex (PR #170, #172, #173 y #174, los de riesgo alto aprobados por Paloma) y se puso el tag `mod-6`. [[DEC-0026 Tipo de cambio y deuda nueva en un viaje confirmado|DEC-0026]] (tipo de cambio en pesos por dólar y T11 `confirmado → vendido`) quedó formalizada el 15/11/26 y [[EST-Viaje]] ya tiene T11. El resumen está en [[Bitácora técnica]].
 >
 > 🏁 **29/10 — M5 Hoteles y reseñas cerrado.** Se arreglaron 5 de los 6 hallazgos de Codex (PR #140 a #143) y H-04 pasó a T-091 (`GET /viajes` con filtro por cliente). El equipo lo aprobó y se puso el tag `mod-5`. El backend ahora tiene logging configurado (`rumbo.core.logs`). El resumen está en [[Bitácora técnica]].
 >

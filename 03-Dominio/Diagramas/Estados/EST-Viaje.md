@@ -4,7 +4,7 @@ estado: formalizado
 modulo: [viajes]
 responsable: Guardián del dominio
 pc: pc1
-actualizado: 29/09/26
+actualizado: 15/11/26
 fecha_aprobacion: 29/09/26
 ---
 # EST-Viaje — Especificación de estados
@@ -47,21 +47,20 @@ El diagrama de abajo se dibujó el 21/09/26 siguiendo estas convenciones, comune
 |---|---|---|---|---|---|---|---|
 | T1 | *(inicial)* | `reservado` | Se confirma la reserva desde una [[Oportunidad]] con [[Cotización]] aceptada (o ganada por venta directa) | empleado | [[CU-07 Confirmar reserva]] | Existe [[Cotización]] aceptada u `Oportunidad` ganada; destino y fechas cargados | Se crea el [[Viaje]]; la [[Oportunidad]] pasa a `ganada` ([[EST-Oportunidad]] T4); se generan las [[Alerta|Alertas]] `formulario` del destino y la `salida`; se encadenan [[CU-10 Registrar economía del viaje|CU-10]] y [[CU-11 Definir plan de cuotas|CU-11]] |
 | T2 | `reservado` | `vendido` | **Primer cobro del viaje** | sistema | [[CU-12 Registrar cobro de un pago]] A0 | Es el primer [[Pago]] cobrado del viaje, **de cualquier tipo** (seña, cuota o saldo). Resuelto en la sync del 29/09: antes exigía `tipo = seña` y un plan sin seña dejaba el viaje trabado en `reservado` | Automática, **no es una acción manual**. Si ese cobro deja el saldo en cero, se encadena T3 en la misma operación |
-| T3 | `vendido` | `confirmado` | **Saldo en cero** (se cobró el último pago) | sistema | [[CU-12 Registrar cobro de un pago]] A2 | Σ de los [[Pago|Pagos]] no cobrados y no anulados = 0 | Automática |
-| T4 | `confirmado` | `en curso` | Llegó la **fecha de salida** | sistema **sugiere** (con una [[Alerta]] de tipo `viaje`), empleado **confirma** | [[CU-08 Gestionar estado del viaje]] | Nunca se fuerza por fecha (ver A1 en Invariantes) | Actualiza calendario y dashboard |
+| T3 | `vendido` | `confirmado` | **Saldo en cero**: se cobró el último pago, o un rebalanceo del plan lo dejó saldado | sistema | [[CU-12 Registrar cobro de un pago]] A2 · [[CU-11 Definir plan de cuotas]] | Σ de los [[Pago|Pagos]] no cobrados y no anulados = 0 y plan balanceado (Σ montos = `precioVenta`) | Automática. El rebalanceo también la dispara ([[DEC-0026 Tipo de cambio y deuda nueva en un viaje confirmado|DEC-0026]]) |
+| T4 | `confirmado` | `en curso` | Llegó la **fecha de salida** | sistema **sugiere** (con una [[Alerta]] de tipo `viaje`), empleado **confirma** | [[CU-08 Gestionar estado del viaje]] | Nunca se fuerza por fecha (ver A1 en Invariantes). Exige saldo cero y plan balanceado; si no, se rechaza (409) ([[DEC-0026 Tipo de cambio y deuda nueva en un viaje confirmado|DEC-0026]]) | Actualiza calendario y dashboard |
 | T5 | `en curso` | `finalizado` | Llegó la **fecha de regreso** | sistema **sugiere** (con una [[Alerta]] de tipo `viaje`), empleado **confirma** | [[CU-08 Gestionar estado del viaje]] | Nunca se fuerza por fecha | Habilita la post-venta: agenda una [[Alerta]] de tipo `reseña` ([[CU-17 Registrar reseña de hotel]]) |
 | T6 | `reservado` · `vendido` · `confirmado` · `en curso` | `cancelado` | El empleado cancela el viaje | empleado | [[CU-27 Cancelar viaje]] | **No** desde `finalizado` (A1) ni desde `cancelado` | Registra motivo y fecha; pasa los [[Pago|Pagos]] no cobrados (`pendiente` **y** `vencido`) a `anulado`; resuelve las [[Alerta|Alertas]] vigentes; deja constancia de que la comisión proyectada no se realiza ([[RN-01 Comisión automática]]) — **salvo desde `en curso`**, donde la comisión **se mantiene** porque el servicio ya se prestó ([[CU-27 Cancelar viaje]] A4, resuelto 21/09) |
 | T7 | `en curso` · `finalizado` | *estado inmediato anterior* | **Corrección**: se cargó un estado por error | empleado | [[CU-08 Gestionar estado del viaje]] A2 | Solo deshace transiciones **manuales** (T4, T5). Las automáticas (T2, T3) se deshacen revirtiendo el cobro | Se marca con `↺` en el diagrama (corrección, no flujo de negocio). Al deshacer T5, cierra la [[Alerta]] de `reseña` si sigue sin atender; las [[Reseña|Reseñas]] ya cargadas se conservan ([[DEC-0021 Correcciones del viaje y monto de un pago|DEC-0021]]) |
 | T8 | `confirmado` | `vendido` | **Reversión de un cobro** que había dejado el saldo en cero | empleado | [[CU-12 Registrar cobro de un pago]] A3 | El cobro se había registrado por error | El [[Pago]] vuelve a `pendiente`/`vencido` y su [[Alerta]] se reabre |
 | T9 | `cancelado` | *el estado que tenía justo antes de cancelarse* | **Reversión de la cancelación** (fue un error) | empleado | [[CU-27 Cancelar viaje]] A3 | El viaje **no** está `finalizado` | Se reponen sus [[Pago|Pagos]] (a `pendiente` o `vencido` según su fecha), se reabren **solo las [[Alerta|Alertas]] que cerró la cancelación** y la comisión **vuelve a quedar proyectada** (sync 29/09). Se marca con `↺` en el diagrama (corrección) |
 | T10 | `vendido` | `reservado` | **Reversión del primer cobro** (el único cobro del viaje se había registrado por error) | empleado | [[CU-12 Registrar cobro de un pago]] A3 | No queda ningún otro [[Pago]] cobrado en el viaje | El [[Pago]] vuelve a `pendiente`/`vencido` y su [[Alerta]] se reabre. Caso simétrico de T8, agregado en la sync del 29/09. Se marca con `↺` en el diagrama (corrección) |
-
-> [!warning] En revisión: [[DEC-0026 Tipo de cambio y deuda nueva en un viaje confirmado|DEC-0026]] (01/11/26) propone una **T11 `confirmado → vendido`** automática cuando la economía o el plan dejan saldo, que T3 también la dispare el rebalanceo y que T4 exija el total pagado.
+| T11 | `confirmado` | `vendido` | **Deuda nueva**: al editar la economía o rebalancear el plan queda saldo pendiente | sistema | [[CU-10 Registrar economía del viaje]] A4 · [[CU-11 Definir plan de cuotas]] A5 | Queda saldo pendiente > 0 o el plan no suma el `precioVenta` | Automática, en la misma transacción que la edición. Cobrar esa deuda lo devuelve a `confirmado` por T3. Desde `en curso` no se retrocede: el cambio queda como advertencia ([[DEC-0026 Tipo de cambio y deuda nueva en un viaje confirmado|DEC-0026]], 15/11/26) |
 
 ## Invariantes y reglas
 
 - **`confirmado` es económico, no operativo.** Significa "total pagado" y **no** debe confundirse con el acto de confirmar la reserva, que es [[CU-07 Confirmar reserva]] y produce `reservado` ([[CU-07 Confirmar reserva]], nota de la descripción).
-- **T2 y T3 son automáticas.** Las dispara el cobro en [[CU-12 Registrar cobro de un pago]]; el empleado no las ejecuta a mano ([[CU-08 Gestionar estado del viaje]] paso 2).
+- **T2, T3 y T11 son automáticas.** Las dispara el cobro en [[CU-12 Registrar cobro de un pago]]; el empleado no las ejecuta a mano ([[CU-08 Gestionar estado del viaje]] paso 2).
 - **T4 y T5 nunca se fuerzan por fecha.** El sistema sugiere, la persona confirma. Caso de referencia: si el vuelo de regreso está retrasado, el empleado **mantiene el viaje `en curso`** aunque la fecha de regreso ya haya pasado ([[CU-08 Gestionar estado del viaje]] A1).
 - **La secuencia es estricta** (resuelto 21/09): no se saltea `confirmado`. Un [[Viaje]] no pasa a `en curso` sin estar **totalmente pagado**, aunque ya haya llegado la fecha de salida.
 - **`finalizado` no se cancela** ([[CU-27 Cancelar viaje]] A1).
@@ -118,6 +117,14 @@ Ratificados por Francisco, Nahuel y Paloma al cerrar los huecos que dejaron los 
 3. **T9 repone la comisión** proyectada y reabre **solo** las [[Alerta|Alertas]] que había cerrado la cancelación ([[CU-27 Cancelar viaje]] A3).
 4. **T4 y T5 se sugieren con una [[Alerta]] de tipo `viaje`** que genera el [[DGM-ACT — Proceso automático diario|proceso automático diario]].
 
+## Cambios de DEC-0026 (15/11/26)
+
+Ratificados por Francisco, Nahuel y Paloma ([[DEC-0026 Tipo de cambio y deuda nueva en un viaje confirmado|DEC-0026]]):
+
+1. **Nueva T11 `confirmado → vendido`**: si editar la economía o rebalancear el plan de un viaje `confirmado` deja saldo, el viaje vuelve a `vendido` solo. Es automática (`⚙`), no una corrección: a diferencia de T8, no deshace un cobro, sino que refleja una deuda nueva.
+2. **T3 también la dispara el rebalanceo**, no solo un cobro.
+3. **T4 exige el total pagado** (saldo cero y plan balanceado), en línea con la secuencia estricta del hueco 1.
+
 ## Diagrama
 
 ```mermaid
@@ -130,6 +137,7 @@ stateDiagram-v2
     [*] --> reservado : T1 · se confirma la reserva
     reservado  --> vendido     : ⚙ T2 · primer cobro
     vendido    --> confirmado  : ⚙ T3 · saldo en cero
+    confirmado --> vendido     : ⚙ T11 · deuda nueva
     confirmado --> en_curso    : T4 · llegó la fecha de salida
     en_curso   --> finalizado  : T5 · llegó la fecha de regreso
     finalizado --> [*]

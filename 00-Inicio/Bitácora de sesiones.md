@@ -24,9 +24,6 @@ La **persona** de cada sesión es quien la corre, identificada por su identidad 
 ## Avisos pendientes por persona
 > Claude los lee al identificar a la persona (paso 1 de `CLAUDE.md`) y se los cuenta **apenas la saluda**, antes de cualquier otra tarea. Cuando la persona confirme que lo leyó o que lo hizo, **Claude borra su fila** en esa misma sesión, con un commit. Cuando no quede ninguna fila de alguien, se borra también su sección.
 
-### Paloma (`palomap2003`) — ratificar DEC-0026
-- Nahuel propuso [[DEC-0026 Tipo de cambio y deuda nueva en un viaje confirmado|DEC-0026]] el 01/11/26: `tipo_cambio` siempre en pesos por dólar, la nueva T11 `confirmado → vendido` cuando vuelve a haber deuda, y T4 que exige el total pagado. Francisco la ratificó el 13/11/26; falta la de Paloma para formalizarla (y después redibujar EST-Viaje).
-
 ## Formato
 Es **obligatorio** nombrar a la persona que hizo la sesión.
 ```
@@ -36,10 +33,15 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
+## 15/11/26 — Paloma (Claude Opus 5.5) — ratificación de DEC-0026
+- **Hecho:** Paloma ratificó [[DEC-0026 Tipo de cambio y deuda nueva en un viaje confirmado|DEC-0026]] y quedó **formalizada** (Francisco, Nahuel y Paloma). Se redibujó [[EST-Viaje]]: nueva T11 `confirmado → vendido` (⚙ deuda nueva), T3 también por rebalanceo y T4 exige el total pagado. [[CU-12 Registrar cobro de un pago]] paso 2 deja la nota «en revisión» y fija el sentido del tipo de cambio. Se actualizaron el MOC de decisiones y el Estado, y se borró el aviso pendiente de Paloma.
+- **Commits:** ver `git log` de esta fecha («DEC-0026 formalizada»).
+- **Pendiente:** —
+
 ## 15/11/26 — Paloma (Claude Opus 5.5) — app en el emulador, datos de demo y logo
 - **Hecho:** se levantó el entorno local completo: Docker, PostgreSQL, la API con `fastapi dev`, Metro y el development build en el emulador, con `adb reverse` de los puertos 8000 y 8081. Se cargaron los datos de demo (`datos-iniciales --demo`) en la base local de Paloma. Se agregó el **logo de Rumbo** (brújula sobre `#234f6e`) en `_adjuntos/Marca/`, como ícono de la app y del ícono adaptativo de Android y en el login mobile, y en la web como favicon, ícono de Apple, panel del login y barra lateral: PR #219 (`feature/logo-rumbo`).
 - **Commits:** `f911b33` (en el PR #219).
-- **Pendiente:** revisar y mergear el PR #219; después, cada uno recompila el development build para ver el ícono (y vuelve a poner el `cmake.dir` en `android/local.properties`). Revisar por qué la agenda mobile no incluye las alertas «Próximas» en «Todas» (puede ser a propósito). Sigue pendiente la ratificación de DEC-0026 por Paloma.
+- **Pendiente:** revisar y mergear el PR #219; después, cada uno recompila el development build para ver el ícono (y vuelve a poner el `cmake.dir` en `android/local.properties`). Revisar por qué la agenda mobile no incluye las alertas «Próximas» en «Todas» (puede ser a propósito).
 
 ## 13/11/26 — Nahuel (Claude Opus 5.5) — cierre de M11
 - **Hecho:** review de Codex de M11 con 3 hallazgos importantes, confirmados y arreglados: H-02 y H-03 en el PR #217, y H-01 en el PR #218 (riesgo alto, aprobado por otro integrante). Nahuel aprobó el módulo en nombre del equipo y se puso el tag `mod-11`.

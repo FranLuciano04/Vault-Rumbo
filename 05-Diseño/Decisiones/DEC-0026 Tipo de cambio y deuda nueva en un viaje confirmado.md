@@ -1,17 +1,17 @@
 ---
 tipo: decision
-estado: en-revision
+estado: formalizado
 modulo: [M6]
-decisores: [Nahuel]
-fecha_aprobacion:
+decisores: [Francisco, Nahuel, Paloma]
+fecha_aprobacion: 15/11/26
 supersede:
-actualizado: 13/11/26
+actualizado: 15/11/26
 ---
 # DEC-0026 Tipo de cambio y deuda nueva en un viaje confirmado
 
-tags:: #tipo/decision #estado/en-revision #pc/pc2 #accion/decidir
+tags:: #tipo/decision #estado/formalizado #pc/pc2
 
-> 🟡 **Propuesta por Nahuel el 01/11/26** al hacer el triage de la review de Codex de M6 ([[M6 — review Codex]], H-01, H-02 y H-04). Francisco la ratificó el 13/11/26; falta la ratificación de Paloma para formalizarla; los arreglos se implementan con esta propuesta y su PR necesita la aprobación de otro integrante.
+> ✅ **Aprobada por el equipo (Francisco, Nahuel y Paloma) el 15/11/26**, sin cambios. La propuso Nahuel el 01/11/26 al hacer el triage de la review de Codex de M6 ([[M6 — review Codex]], H-01, H-02 y H-04). Francisco la ratificó el 13/11/26 y Paloma el 15/11/26. Los arreglos ya estaban implementados con esta propuesta (PR #170, tipo de cambio, y #172, deuda nueva). Con la aprobación se redibujó [[EST-Viaje]].
 
 ## Contexto
 **Tipo de cambio.** [[CU-12 Registrar cobro de un pago]] paso 2 pide el `tipo_cambio` del día cuando la moneda del cobro no es la del [[Viaje]], pero no dice en qué sentido se cotiza. La web lo toma como pesos por dólar y divide al cobrar en USD un viaje en ARS; la API siempre multiplica. Un cobro de ARS 100000 en USD a 1000 queda guardado como USD 100000000.
@@ -35,6 +35,6 @@ tags:: #tipo/decision #estado/en-revision #pc/pc2 #accion/decidir
 | No se edita el precio de un `confirmado` | Simple | Contradice CU-10 A4 | ❌ |
 
 ## Consecuencias
-- [[EST-Viaje]] suma T11 y amplía T3 y T4; el diagrama se redibuja al ratificar.
+- [[EST-Viaje]] suma T11 y amplía T3 y T4 (redibujado el 15/11/26).
 - [[CU-12 Registrar cobro de un pago]] paso 2 aclara el sentido del tipo de cambio.
 - Arreglos en `fix/M6-tipo-de-cambio` (punto 1) y `fix/M6-estado-con-deuda-nueva` (puntos 2 a 5).
