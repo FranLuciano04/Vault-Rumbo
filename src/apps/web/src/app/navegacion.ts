@@ -22,7 +22,10 @@ export interface Seccion {
 
 type Visibilidad = "todos" | "redes" | "admin";
 
-/** Secciones del menú en orden; la visibilidad sigue la tabla «Vistas por rol» del prototipo. */
+/**
+ * Secciones del menú en orden; la visibilidad sigue la tabla «Vistas por rol» del prototipo.
+ * «Cotizaciones» no va en el menú porque se entra desde cada oportunidad (T-183, DEC-0028).
+ */
 const SECCIONES: { id: string; etiqueta: string; icono: LucideIcon; visible: Visibilidad }[] = [
   { id: "agenda", etiqueta: "Agenda", icono: Bell, visible: "todos" },
   { id: "calendario", etiqueta: "Calendario", icono: CalendarDays, visible: "todos" },

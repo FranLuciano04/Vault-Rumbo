@@ -5,12 +5,25 @@ const ids = (rol: keyof typeof usuariosPorRol, cambios = {}) =>
   seccionesVisibles({ ...usuariosPorRol[rol], ...cambios }).map((s) => s.id);
 
 const sinAdmin = [
-  "agenda", "calendario", "clientes", "oportunidades",
-  "viajes", "hoteles", "dashboard",
+  "agenda",
+  "calendario",
+  "clientes",
+  "oportunidades",
+  "viajes",
+  "hoteles",
+  "dashboard",
 ];
 const todas = [
-  "agenda", "calendario", "clientes", "oportunidades",
-  "viajes", "hoteles", "redes", "dashboard", "reportes", "configuracion",
+  "agenda",
+  "calendario",
+  "clientes",
+  "oportunidades",
+  "viajes",
+  "hoteles",
+  "redes",
+  "dashboard",
+  "reportes",
+  "configuracion",
 ];
 
 describe("RF-141 navegación por rol (tabla «Vistas por rol»)", () => {

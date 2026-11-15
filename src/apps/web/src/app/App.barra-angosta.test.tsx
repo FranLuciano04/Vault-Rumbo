@@ -110,9 +110,9 @@ describe("RNF-14 barra lateral en pantallas angostas", () => {
     expect(boton).toHaveFocus();
   });
 
-  it("RNF-14 la navegación por rol de T-020 no cambia: el admin sigue viendo las 11 secciones", async () => {
+  it("RNF-14 la navegación por rol de T-020 no cambia: el admin sigue viendo las 10 secciones", async () => {
     const { menu } = await montar("admin");
-    expect(within(menu).getAllByRole("link")).toHaveLength(11);
+    expect(within(menu).getAllByRole("link")).toHaveLength(10);
   });
 
   it("RNF-14 la navegación por rol de T-020 no cambia: el empleado no ve Reportes ni Configuración, y sí ve Clientes y Dashboard", async () => {
