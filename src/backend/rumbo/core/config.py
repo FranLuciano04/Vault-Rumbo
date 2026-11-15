@@ -22,9 +22,11 @@ class Settings(BaseSettings):
     firebase_project_id: str | None = None
     google_application_credentials: str | None = None
     firebase_auth_emulator_host: str | None = None
-    # DEC-0012 / RNF-16: por defecto el modelo falso; `claude` exige `anthropic_api_key`.
-    ia_modelo: Literal["falso", "claude"] = "falso"
+    # DEC-0012 / RNF-16: por defecto el modelo falso; `claude` exige `anthropic_api_key`;
+    # `nvidia` (Mistral, DEC-0029) exige `nvidia_api_key`.
+    ia_modelo: Literal["falso", "claude", "nvidia"] = "falso"
     anthropic_api_key: SecretStr | None = None
+    nvidia_api_key: SecretStr | None = None
 
     @field_validator("database_url")
     @classmethod

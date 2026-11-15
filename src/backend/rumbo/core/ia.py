@@ -19,6 +19,9 @@ _MODELO_CLAUDE = "claude-sonnet-5-5"
 _MAX_TOKENS = 1024  # alcanza para un posteo de redes y pone tope al costo de cada llamada
 _TIMEOUT_SEGUNDOS = 60
 _REINTENTOS = 1
+_URL_NVIDIA = "https://integrate.api.nvidia.com/v1/chat/completions"
+_MODELO_NVIDIA = "mistralai/mistral-large-4-1t-a52b"
+_MAX_TOKENS_NVIDIA = 4096  # Mistral razona antes de responder y el tope incluye ese razonamiento
 FALLA_IA = "No se pudo generar el texto con el servicio de IA."
 
 
@@ -74,11 +77,33 @@ class _ClienteNvidia:
         self._cliente_http = cliente_http
 
     async def generar(self, prompt: str) -> str:
-        raise NotImplementedError
+        """Mismo contrato de fallas que Claude: `ServicioExterno` (502) genérico; el log lleva solo
+        el tipo del error, sin prompt, clave ni `str(error)`."""
+        try:
+            respuesta = await self._cliente_http.post(
+                _URL_NVIDIA,
+                headers={"Authorization": f"Bearer {self._api_key.get_secret_value()}"},
+                json={
+                    "model": _MODELO_NVIDIA,
+                    "messages": [{"role": "user", "content": prompt}],
+                    "max_tokens": _MAX_TOKENS_NVIDIA,
+                },
+            )
+            respuesta.raise_for_status()
+            texto = respuesta.json()["choices"][0]["message"]["content"]
+        except Exception as error:
+            logger.error("Falló la llamada al modelo de IA (%s)", type(error).__name__)
+            raise ServicioExterno(FALLA_IA) from error
+        if not isinstance(texto, str) or not texto.strip():
+            logger.error("El modelo de IA respondió sin texto")
+            raise ServicioExterno(FALLA_IA)
+        return texto
 
 
 def _construir_cliente_nvidia(api_key: SecretStr) -> ModeloIA:
-    raise NotImplementedError
+    """Único punto de construcción del cliente real de NVIDIA: la guardia autouse de
+    `tests/conftest.py` lo parchea para que ningún test llame a la API."""
+    return _ClienteNvidia(api_key, httpx.AsyncClient(timeout=_TIMEOUT_SEGUNDOS))
 
 
 def _crear_chat(api_key: SecretStr) -> "ChatAnthropic":
@@ -97,6 +122,11 @@ def _crear_chat(api_key: SecretStr) -> "ChatAnthropic":
 def obtener_modelo_ia(settings: Settings) -> ModeloIA:
     if settings.ia_modelo == "falso":
         return ModeloFalso()
+    if settings.ia_modelo == "nvidia":
+        clave_nvidia = settings.nvidia_api_key
+        if not clave_nvidia or not clave_nvidia.get_secret_value():
+            raise ServicioExterno("Falta NVIDIA_API_KEY para usar IA_MODELO=nvidia")
+        return _construir_cliente_nvidia(clave_nvidia)
     clave = settings.anthropic_api_key
     if not clave or not clave.get_secret_value():
         raise ServicioExterno("Falta ANTHROPIC_API_KEY para usar IA_MODELO=claude")
