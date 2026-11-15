@@ -21,6 +21,8 @@ _TIMEOUT_SEGUNDOS = 60
 _REINTENTOS = 1
 _URL_NVIDIA = "https://integrate.api.nvidia.com/v1/chat/completions"
 _MODELO_NVIDIA = "mistralai/mistral-large-4-1t-a52b"
+_REASONING_EFFORT_NVIDIA = "low"  # con el valor por defecto la llamada supera el timeout
+_TIMEOUT_NVIDIA_SEGUNDOS = 180  # la cola del endpoint gratuito llega a ~125 s
 _MAX_TOKENS_NVIDIA = 4096  # Mistral razona antes de responder y el tope incluye ese razonamiento
 FALLA_IA = "No se pudo generar el texto con el servicio de IA."
 
@@ -84,7 +86,7 @@ class _ClienteNvidia:
         try:
             # Un cliente por llamada, cerrado al salir: el modelo se arma en cada pedido.
             async with httpx.AsyncClient(
-                timeout=_TIMEOUT_SEGUNDOS, transport=self._transport
+                timeout=_TIMEOUT_NVIDIA_SEGUNDOS, transport=self._transport
             ) as http:
                 respuesta = await http.post(
                     _URL_NVIDIA,
@@ -93,6 +95,7 @@ class _ClienteNvidia:
                         "model": _MODELO_NVIDIA,
                         "messages": [{"role": "user", "content": prompt}],
                         "max_tokens": _MAX_TOKENS_NVIDIA,
+                        "reasoning_effort": _REASONING_EFFORT_NVIDIA,
                     },
                 )
             respuesta.raise_for_status()

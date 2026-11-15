@@ -266,6 +266,7 @@ async def test_rnf16_nvidia_hace_post_a_chat_completions_con_modelo_y_mensaje_us
     cuerpo = json.loads(pedidos[0].content)
     assert cuerpo["model"] == "mistralai/mistral-large-4-1t-a52b"
     assert cuerpo["messages"] == [{"role": "user", "content": _PROMPT}]
+    assert cuerpo["reasoning_effort"] == "low"
 
 
 async def test_rnf16_nvidia_envia_la_clave_como_bearer() -> None:
@@ -375,3 +376,7 @@ async def test_rnf16_nvidia_cierra_el_cliente_http_tras_generar(estado: int) -> 
         pass
 
     assert transporte.cerrado
+
+
+def test_rnf16_nvidia_tiene_un_timeout_mayor_que_el_de_claude() -> None:
+    assert ia._TIMEOUT_NVIDIA_SEGUNDOS > ia._TIMEOUT_SEGUNDOS
