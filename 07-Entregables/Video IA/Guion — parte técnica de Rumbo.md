@@ -11,19 +11,19 @@ tags:: #tipo/referencia #estado/borrador
 > Guion del segundo video para los profesores: stack tecnológico, diagramas de arquitectura principales y una demo en la que se crea un dato en la app y se ve cómo queda en la base. Complementa [[Guion — uso de la IA en Rumbo]]. **Borrador:** el reparto de bloques es una propuesta a confirmar con el equipo.
 
 ## Datos generales
-- **Duración objetivo:** unos 15 minutos.
+- **Duración objetivo:** unos 13 minutos.
 - **Hilo conductor:** seguir un dato de punta a punta: desde un clic en la web, pasando por la API y sus tres capas, hasta una fila en PostgreSQL.
 - **Grabación y edición:** igual que el otro video: OBS Studio, un archivo por bloque, y Clipchamp para unirlos.
-- **Presentación para exponer:** `07-Entregables/Video IA/Rumbo — parte técnica (presentación).pptx`, con 18 diapositivas que siguen estos bloques y tienen la narración en las notas. Se genera con `node "07-Entregables/build/build-deck-tecnico.js"` (antes, `npm install --no-save pptxgenjs`); no se edita a mano.
+- **Presentación para exponer:** `07-Entregables/Video IA/Rumbo — parte técnica (presentación).pptx`, con 13 diapositivas que siguen estos bloques y tienen la narración en las notas. Los diagramas grandes están redibujados simplificados para que se lean; los completos siguen en el vault. La demo tiene una sola diapositiva de apertura, porque se hace en vivo. Se genera con `node "07-Entregables/build/build-deck-tecnico.js"` (antes, `npm install --no-save pptxgenjs`); no se edita a mano.
 - **Fuentes:** [[DEC-0001 Stack tecnológico]], [[ARQ — Vista general]], [[DGM-ER]], [[EST-Oportunidad]] y [[Spec de implementación]] (sección 4, comandos).
 
 ## Reparto propuesto (a confirmar)
 | Bloque | Quién |
 |---|---|
-| 1, 2 y 3 | Nahuel (propuso el stack en DEC-0001) |
-| 4 | Francisco |
-| 5 y 6 | Paloma |
-| 7 | Nahuel |
+| 1 y 2 | Nahuel (propuso el stack en DEC-0001) |
+| 3 | Francisco |
+| 4 y 5 | Paloma |
+| 6 | Nahuel |
 
 ## Preparación antes de grabar
 - [ ] **Entorno local levantado** con los datos de demo (comandos de la sección 4 de la [[Spec de implementación]]):
@@ -31,9 +31,9 @@ tags:: #tipo/referencia #estado/borrador
   - El Auth Emulator de Firebase
   - Desde `src/backend`: `uv run alembic upgrade head`, `uv run python -m rumbo.presentacion.cli datos-iniciales --demo` y `uv run fastapi dev rumbo/main.py`
   - Desde `src`: `pnpm --filter @rumbo/web dev`
-- [ ] Probar el recorrido de la demo (bloque 6) una vez completo **antes** de grabar.
-- [ ] **Cliente para ver la base:** DBeaver (gratis), conectado a `127.0.0.1:5432`, base `rumbo`. Como alternativa, `psql` dentro del contenedor (`docker exec -it rumbo-postgres-dev psql -U <usuario> -d rumbo`). Dejar las consultas del bloque 6 escritas en una pestaña.
-- [ ] Tener abiertas las imágenes de `05-Diseño/Arquitectura/img/` o las notas con el Mermaid renderizado en Obsidian.
+- [ ] Probar el recorrido de la demo (bloque 5) una vez completo **antes** de grabar.
+- [ ] **Cliente para ver la base:** DBeaver (gratis), conectado a `127.0.0.1:5432`, base `rumbo`. Como alternativa, `psql` dentro del contenedor (`docker exec -it rumbo-postgres-dev psql -U <usuario> -d rumbo`). Dejar las consultas del bloque 5 escritas en una pestaña.
+- [ ] Tener abierta la presentación en modo presentador (las notas tienen la narración).
 - [ ] Abrir Swagger en `http://localhost:8000/api/docs`.
 - [ ] **Ocultar secretos:** no mostrar `src/.env` ni la contraseña de la base en la conexión de DBeaver. Ocultar la clave de NVIDIA.
 - [ ] Usar solo datos de demo o inventados en el video, nunca datos reales de la agencia.
@@ -47,7 +47,7 @@ tags:: #tipo/referencia #estado/borrador
 > En este video mostramos cómo está construido Rumbo por dentro: con qué tecnologías, cómo se organiza la arquitectura y, al final, vamos a crear un cliente y una consulta en la web y seguirlos hasta la base de datos.
 
 ## Bloque 2 — Stack tecnológico (2,5 min)
-**En pantalla:** [[DEC-0001 Stack tecnológico]] y la tabla «Resumen» de [[ARQ — Vista general]]. En el editor, el árbol de `src/`.
+**En pantalla:** diapositivas 3 a 5 (stack, monorepo y calidad). En el editor, el árbol de `src/`.
 
 **Narración:**
 > Rumbo es una aplicación cliente-servidor. Hay dos clientes: una web para la gestión completa y una app mobile para la agenda, las alertas y los clientes. Los dos hablan en JSON con una única API, que es la dueña de las reglas del negocio y de la base.
@@ -62,18 +62,8 @@ tags:: #tipo/referencia #estado/borrador
 
 **Edición:** una placa con los logos agrupados por capa: clientes, compartido, API, datos y servicios externos.
 
-## Bloque 3 — Despliegue (1,5 min)
-**En pantalla:** el diagrama de despliegue (`ARQ-despliegue.png`) y el C4 de nivel 1 (`ARQ-C4-1-contexto.png`).
-
-**Narración:**
-> Según lo que necesita la agencia, el sistema corre en un servidor propio dentro de la agencia, no en la nube. Es un Ubuntu Server con Docker Compose y una UPS. Ahí corren la API, la base, nginx, un contenedor con cron que ejecuta el proceso diario, y `cloudflared`.
->
-> Los usuarios entran por un túnel de Cloudflare: la conexión sale desde el servidor hacia la nube, así que el router de la agencia no expone ningún puerto. El proceso diario corre todos los días a medianoche: vence pagos y cotizaciones y genera alertas, usando los mismos servicios que la API.
->
-> El C4 de contexto muestra los actores, que son la dueña, los empleados, los vendedores freelance y el administrador, y los sistemas externos: Firebase para la autenticación y el proveedor de IA.
-
-## Bloque 4 — Arquitectura del backend (2,5 min)
-**En pantalla:** `ARQ-logica-capas.png`, `ARQ-logica-modulos.png` y, en el editor, las carpetas `src/backend/rumbo/presentacion`, `negocio`, `datos` y `core`.
+## Bloque 3 — Arquitectura del backend (2,5 min)
+**En pantalla:** diapositivas 6 a 8 (capas, módulos y ejemplo) y, en el editor, las carpetas `src/backend/rumbo/presentacion`, `negocio`, `datos` y `core`.
 
 **Narración:**
 > La API sigue un modelo de tres capas. Presentación recibe el pedido HTTP y valida el formato. Negocio aplica las reglas. Datos habla con la base. Cada capa solo usa la de abajo: un router nunca llama directamente a un repositorio. Aparte hay un paquete `core` con lo técnico y transversal: configuración, conexión a la base, seguridad y el cliente de IA.
@@ -84,8 +74,8 @@ tags:: #tipo/referencia #estado/borrador
 
 **Edición:** al mencionar oportunidades, mostrar uno al lado del otro `routers/oportunidades.py`, `servicios/oportunidades.py` y `repositorios/oportunidades.py`.
 
-## Bloque 5 — Modelo de datos y estados (2 min)
-**En pantalla:** [[DGM-ER]] (`03-Dominio/Diagramas/DER`), [[EST-Oportunidad]] y la lista de migraciones en `src/backend/alembic/versions/`.
+## Bloque 4 — Modelo de datos y estados (2 min)
+**En pantalla:** diapositivas 9 a 11: entidades del circuito de venta (simplificación de [[DGM-ER]]), estados (simplificación de [[EST-Oportunidad]]) y migraciones.
 
 **Narración:**
 > Este es el modelo entidad-relación: 13 entidades, con `Cliente`, `Oportunidad`, `Cotización`, `Viaje` y `Pago` en el centro del circuito de venta. Un cliente puede tener muchas oportunidades; una oportunidad ganada se convierte en un viaje, y el viaje tiene su plan de pagos.
@@ -94,8 +84,8 @@ tags:: #tipo/referencia #estado/borrador
 >
 > El esquema se diseñó primero como script SQL y después la primera migración de Alembic lo reprodujo. Desde ahí, cada cambio es una migración nueva y versionada.
 
-## Bloque 6 — Demo: crear algo y verlo en la base (4,5 min) ⭐
-**En pantalla:** la web a la izquierda y DBeaver a la derecha (o alternando). Las DevTools del navegador, en la pestaña Red, para mostrar el pedido.
+## Bloque 5 — Demo: crear algo y verlo en la base (4,5 min) ⭐
+**En pantalla:** se abre con la diapositiva 12 y se pasa a la demo real: la web a la izquierda y DBeaver a la derecha (o alternando). Las DevTools del navegador, en la pestaña Red, para mostrar el pedido.
 
 **Recorrido:**
 1. Iniciar sesión en la web con la cuenta de demo.
@@ -133,11 +123,11 @@ tags:: #tipo/referencia #estado/borrador
 
 **Edición:** zoom a las columnas `estado`, `created_by` y `updated_at` cada vez que cambian. Si la consulta tarda, cortar la espera.
 
-## Bloque 7 — Cierre (0,5 min)
-**En pantalla:** escena «Cámara» y, de fondo, el C4 de contenedores (`ARQ-C4-2-contenedores.png`).
+## Bloque 6 — Cierre (0,5 min)
+**En pantalla:** diapositiva 13 y, después, escena «Cámara».
 
 **Narración:**
-> En resumen: dos clientes que comparten tipos generados desde el contrato, una API en tres capas que es dueña de las reglas, y una base relacional con migraciones versionadas, todo corriendo en un servidor dentro de la agencia. Gracias.
+> En resumen: dos clientes que comparten tipos generados desde el contrato, una API en tres capas que es dueña de las reglas, y una base relacional con migraciones versionadas. Gracias.
 
 ---
 
