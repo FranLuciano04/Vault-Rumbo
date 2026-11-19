@@ -44,6 +44,11 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Pendiente:** …
 ```
 
+## 19/11/26 — Nahuel (Claude Opus 5.5) — guion del video sobre el uso de la IA
+- **Hecho:** borrador del guion del video para los profesores en [[Guion — uso de la IA en Rumbo]] (`07-Entregables/Video IA/`): 8 bloques de unos 15 minutos, desde la elección de la IA y la idea hasta el ciclo de un ticket, el testing y la barrera de Codex. Incluye la preparación previa, las escenas de OBS y la edición en Clipchamp.
+- **Commits:** ver `git log` de esta fecha («guion del video»).
+- **Pendiente:** confirmar con Francisco y Paloma el reparto de bloques; grabar la corrida de `/implementar-ticket` para el bloque 6. Sigue pendiente la ratificación de DEC-0029 por Nahuel.
+
 ## 15/11/26 — Francisco (Claude Opus 5.5) — merge para la demo: T-182, logo y T-183
 - **Hecho:** para la demo de la facultad, Francisco pidió subir todo. Se mergearon:
   - El **PR #220** (T-182, IA con Nemotron 3 Ultra en NVIDIA), antes de que se ratificara [[DEC-0029 NVIDIA como proveedor de IA para las demos|DEC-0029]]; quedó anotado en la DEC. Antes, el CI había frenado por CVE-2026-128089 en `dnspython`, que se subió a 2.9.2. También se declaró `httpx` como dependencia directa, regenerando `uv.lock` dentro de Docker con `--dns 1.1.1.1`.
