@@ -49,6 +49,7 @@ Es **obligatorio** nombrar a la persona que hizo la sesión.
 - **Commits:** ver `git log` de esta fecha («guion del video»).
 - **Pendiente:** confirmar con Francisco y Paloma el reparto de bloques; grabar la corrida de `/implementar-ticket` para el bloque 6. Sigue pendiente la ratificación de DEC-0029 por Nahuel.
 - **Después:** segundo guion, [[Guion — parte técnica de Rumbo]]: stack, despliegue, tres capas del backend, ER y estados, y una demo que crea un `Cliente` y una consulta en la web y los sigue hasta PostgreSQL con DBeaver. También es borrador, con el reparto a confirmar.
+- **Después:** presentación del video técnico (`07-Entregables/Video IA/Rumbo — parte técnica (presentación).pptx`, 18 diapositivas con notas), generada con `07-Entregables/build/build-deck-tecnico.js` en el estilo del deck del PC1. Se regeneraron los PNG de arquitectura y dominio, que estaban atrasados respecto de sus notas (ARQ del 13/10 y ER del 30/10).
 
 ## 15/11/26 — Francisco (Claude Opus 5.5) — merge para la demo: T-182, logo y T-183
 - **Hecho:** para la demo de la facultad, Francisco pidió subir todo. Se mergearon:

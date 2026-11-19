@@ -14,6 +14,7 @@ tags:: #tipo/referencia #estado/borrador
 - **Duración objetivo:** unos 15 minutos.
 - **Hilo conductor:** seguir un dato de punta a punta: desde un clic en la web, pasando por la API y sus tres capas, hasta una fila en PostgreSQL.
 - **Grabación y edición:** igual que el otro video: OBS Studio, un archivo por bloque, y Clipchamp para unirlos.
+- **Presentación para exponer:** `07-Entregables/Video IA/Rumbo — parte técnica (presentación).pptx`, con 18 diapositivas que siguen estos bloques y tienen la narración en las notas. Se genera con `node "07-Entregables/build/build-deck-tecnico.js"` (antes, `npm install --no-save pptxgenjs`); no se edita a mano.
 - **Fuentes:** [[DEC-0001 Stack tecnológico]], [[ARQ — Vista general]], [[DGM-ER]], [[EST-Oportunidad]] y [[Spec de implementación]] (sección 4, comandos).
 
 ## Reparto propuesto (a confirmar)
